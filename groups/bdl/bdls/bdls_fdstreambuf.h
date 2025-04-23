@@ -901,22 +901,23 @@ class FdStreamBuf : public bsl::streambuf {
   public:
     // CREATORS
 
-    /// Create a `FdStreamBuf` associated with the specified
-    /// `fileDescriptor` that refers to an already opened file or device,
-    /// and specify `writableFlag` which, if `true`, indicates that
-    /// `fileDescriptor` is writable, otherwise it is not.  The optionally
-    /// specified `willCloseOnResetFlag`, if `true`, indicates that
-    /// `fileDescriptor` is to be closed the next time this object is reset,
-    /// cleared or destroyed, or if `false` the file descriptor is to be
-    /// left open.  Optionally specify a `binaryModeFlag` which is ignored
-    /// on Unix; if `false` on Windows, it indicates that `\n`s are to be
-    /// translated to and from `\r\n` sequences on the device.  Optionally
-    /// specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.  Note that if `FilesystemUtil::k_INVALID_FD` is passed to
+    /// Create a `FdStreamBuf` associated with the specified `fileDescriptor`
+    /// that refers to an already opened file or device, and specify
+    /// `writableFlag` which, if `true`, indicates that `fileDescriptor` is
+    /// writable, otherwise it is not.  The optionally specified
+    /// `willCloseOnResetFlag`, if `true`, indicates that `fileDescriptor` is
+    /// to be closed the next time this object is reset, cleared or destroyed,
+    /// or if `false` the file descriptor is to be left open.  Optionally
+    /// specify a `binaryModeFlag` which is ignored on Unix; if `false` on
+    /// Windows, it indicates that `\n`s are to be translated to and from
+    /// `\r\n` sequences on the device.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.  The supplied file descriptor, if
+    /// valid, should remain open until the next call to either `reset` or the
+    /// destructor.  Note that if `FilesystemUtil::k_INVALID_FD` is passed to
     /// `fileDescriptor`, no file descriptor is to be associated with this
-    /// object.  Also note that the state of the `fileDescriptor` is
-    /// unchanged by this call (i.e., there is no implicit seek).
+    /// object.  Also note that the state of the `fileDescriptor` is unchanged
+    /// by this call (i.e., there is no implicit seek).
     explicit FdStreamBuf(
                    FilesystemUtil::FileDescriptor  fileDescriptor,
                    bool                            writableFlag,
@@ -930,26 +931,28 @@ class FdStreamBuf : public bsl::streambuf {
 
     // MANIPULATORS
 
-    /// Associate this object with the specified `fileDescriptor`, and
-    /// record the state of the specified `writableFlag` which, if `true`,
-    /// indicates that `fileDescriptor` is writable, otherwise it is not.
-    /// Before making this association, if, prior to this call,
-    /// `willCloseOnReset` is true, close any file descriptor previously
-    /// associated with this object, otherwise leave it open but
-    /// disassociate this object from it.  The Optionally specified
-    /// `willCloseOnResetFlag` which will set `willCloseOnReset`, which, if
-    /// `true`, indicates that the specified file descriptor is to be closed
-    /// when this object is cleared, reset, or destroyed, otherwise no
-    /// action will be taken on `fileDescriptor` at that time.  Optionally
-    /// specify a `binaryModeFlag`, which is ignored on Unix; if `false` on
-    /// Windows, it indicates that `\n`s internally are to be translated to
-    /// and from `\r\n` sequences on the device; on Unix or if
-    /// `binaryModeFlag` is `true` no such translation is to occur.  Return
-    /// 0 on success, and a non-zero value otherwise.  Note that if
-    /// `FilesystemUtil::k_INVALID_FD` is passed as `fileDescriptor`, no
-    /// file descriptor is to be associated with this object.  Also note
-    /// that the state of the `fileDescriptor` is unchanged by this call,
-    /// there is no implicit seek.
+    /// Associate this object with the specified `fileDescriptor`, and record
+    /// the state of the specified `writableFlag` which, if `true`, indicates
+    /// that `fileDescriptor` is writable, otherwise it is not.  If, in the
+    /// call to the constructor or `reset` prior to this call,
+    /// `willCloseOnReset` was true, close any file descriptor previously
+    /// associated with this object, otherwise leave it open but disassociate
+    /// this object from it.  The Optionally specified `willCloseOnResetFlag`
+    /// which will set `willCloseOnReset`, which, if `true`, indicates that the
+    /// specified file descriptor is to be closed when this object is later
+    /// cleared, reset, or destroyed, otherwise no action will be taken on
+    /// `fileDescriptor` at that time.  The supplied file descriptor, if valid,
+    /// should remain open until the next call to either `reset` or the
+    /// destructor, regardless of the value of `willCloseOnResetFlag`.
+    /// Optionally specify a `binaryModeFlag`, which is ignored on Unix; if
+    /// `false` on Windows, it indicates that `\n`s internally are to be
+    /// translated to and from `\r\n` sequences on the device; on Unix or if
+    /// `binaryModeFlag` is `true` no such translation is to occur.  Return 0
+    /// on success, and a non-zero value otherwise.  Note that if
+    /// `FilesystemUtil::k_INVALID_FD` is passed as `fileDescriptor`, no file
+    /// descriptor is to be associated with this object.  Also note that the
+    /// state of the `fileDescriptor` is unchanged by this call, there is no
+    /// implicit seek.
     int reset(FilesystemUtil::FileDescriptor fileDescriptor,
               bool                           writableFlag,
               bool                           willCloseOnResetFlag = true,
