@@ -1,5 +1,46 @@
-bsl-internal (4.23.0.0) unstable; urgency=low
+bsl-internal (4.24.0.0) unstable; urgency=low
 
+  * 5b73cff90 Add enable disable to metricsregistry drqs178968645 (#5308)
+  * a5672beeb Bumped version to 4.24.0.0
+  * a29468db2 improve estimation algorithm (#5323)
+  * 1e88f0c7a Merge pull request #5307 from afeher/drqs-178919617-fix-gcc-13_14-bslfmt_format-test
+  * 699d706c2 possible fix (#5313)
+  * 44792c282 add watchdog to case 5 (#5322)
+  * 8055d8798 increase watchdog interval to 90 seconds (#5321)
+  * 8abdb0799 remove the flawed s_defer* test mechanism (#5320)
+  * 7977ecec4 bdls_fdstreambuf: 'also note that' fd must remain open (#5306)
+  * 62f68426e balst_resolver_filehelper.t.cpp: instrument better for highly intermittent failures (#5317)
+  * 03b59ba78 bsls_log.t case 6 increase timeouts (#5318)
+  * 3d1a16075 reduce issues (#5314)
+  * 41a5719c8 Handle sub-second log file rotations (#5316)
+  * 6486545af Fixing `ball_attributecontext.t` to respect the `ball_categorymanager` api (#5302)
+  * 9e67c9b8e Merge pull request #5299 from afeher/drqs-178916073-pcre2-misalignment
+  * 7385cfe92 reduce intermittent failures (#5312)
+  * 1c92dffe9 fix bslmf_invokeresult.xt.cpp for new MSVC versions (DRQS 178973607) (#5310)
+  * 8b0f58fd7 `baljsn::Encoder` fails for one class from `s_baltst::FeatureTestMessageUtil` (DRQS 178183006) (#5304)
+  * 11a6d4442 reduce intermittent errors (#5309)
+  * 4a607b5e7 reduce intermittent failures (#5305)
+  * 0e56fe708 baljsn_Decoder fails to decode anonymous sequence in anonymous choice (DRQS 165509318) (#5287)
+  * f96c4c3f0 fix timing issues and add a watchdog to bdlmt_fixedthreadpool case 13 (#5303)
+  * 1701a1e53 Fix bslfmt_format.t.cpp in cpp03. (#5300)
+  * cac1eb44f DRQS 178886706: replace FIRST with t_FIRST in bslstl_variant.h (#5297)
+  * 520d6021f Remove UBSAN false positive (#5298)
+  * d7b37c00b Merge pull request #5209 from afeher/drqs-178234693-bslfmt_format-polishing
+  * afb77ea04 addressing (false positive) dangling temporary and pointer warnings (#5296)
+  * 54324b2be Drqs 178869243/reduce warnings 20250409 (#5295)
+  * 9b847a514 [bsl::format] Matrix build issues have been fixed. DRQS 178695807 (#5286)
+  * d23146992 update bdlc_flathashtable_cpp03.t.cpp (#5294)
+  * aff164545 Fix deprecation docs (#5292)
+  * 44690777a reduce warnings (#5289)
+  * 9b7aa3c94 Fix race in bdlm::InstanceCount::nextInstanceNumber - DRQS 178852943 (#5291)
+  * f8d08d453 bdlt_date fix buffer overflow for out-of-range month (DRQS 178292903) (#5283)
+  * ce5d2f3eb Bdlmt threadpool functor allocator drqs178166768 (#5282)
+
+ -- Henry Verschell <hverschell@bloomberg.net>  Thu, 24 Apr 2025 14:39:51 -0400
+
+bsl-internal (4.23.0.0) git; urgency=low
+
+  * 2d739bd5f Changelog for version 4.23.0.0
   * 0f82a8cf4 Bumped version to 4.23.0.0
   * 72de58a1b bslstl::iterator: add distance, ranges::{advance,iter_move,next,prev} (#5268)
   * 0db80e472 Bdlf bind method object shared ptr drqs 137621114 (#5001)
@@ -27,7 +68,7 @@ bsl-internal (4.23.0.0) unstable; urgency=low
   * 5146c369a reducing testing requirements of some bdlmt components (#5255)
   * d09c438a1 Drqs 178494680/nb 20250314 (#5254)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 3 Apr 2025 14:39:29 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 3 Apr 2025 14:42:13 -0400
 
 bsl-internal (4.22.0.0) git; urgency=low
 
