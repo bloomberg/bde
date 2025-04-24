@@ -8035,6 +8035,14 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING PUSH FUNCTIONS WITH HIGH WATER MARK\n"
                              "===========================================\n";
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(&watchdogHandle,
+                                              watchdog,
+                                              const_cast<char *>("case 5")));
+
         static  const struct {
             int d_lineNum;
             int d_highWaterMark;
@@ -8051,6 +8059,8 @@ int main(int argc, char *argv[])
 
         const Element VA = 1.2;
         const Element VB = -5.7;
+
+        setWatchdogText("case 5: pushBack");
 
         if (verbose) cout << "\tWith `pushBack`" << endl;
         for (size_t i = 0; i< NUM_VALUES; ++i)
@@ -8099,6 +8109,8 @@ int main(int argc, char *argv[])
             }
             ASSERTV(i, 0 == ta.numBytesInUse());
         }
+
+        setWatchdogText("case 5: push_front");
 
         if (verbose) cout << "\tWith `push_front`" << endl;
         for (unsigned i = 0; i< NUM_VALUES; ++i)
@@ -8149,6 +8161,10 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 == da.numAllocations());
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 4: {
         // --------------------------------------------------------------------
