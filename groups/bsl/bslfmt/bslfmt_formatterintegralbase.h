@@ -469,7 +469,8 @@ t_CHAR *FormatterIntegralBase<t_VALUE, t_CHAR>::formatValue(
                                      value,
                                      valueBase);
 
-    if (Specification::e_INTEGRAL_HEX_UC == d_spec.formatType()) {
+    if (Specification::e_INTEGRAL_HEX_UC == d_spec.formatType() ||
+        Specification::e_POINTER_HEX_UC == d_spec.formatType()) {
         // Unfortunately, `NumericFormatterUtil::toChars` uses only lowercase
         // characters to represent hexadecimal numbers.  So we have to
         // additionally modify the resulting string for uppercase hexadecimal
