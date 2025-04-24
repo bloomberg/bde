@@ -527,13 +527,8 @@ extern "C" void *deferredDisablePopFront(void *arg)
     return 0;
 }
 
-static bsls::TimeInterval s_deferredPopFrontInterval;
-
 extern "C" void *deferredPopFront(void *arg)
 {
-    s_deferredPopFrontInterval =
-                      bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME);
-
     Obj& mX = *static_cast<Obj *>(arg);
 
     bslmt::ThreadUtil::microSleep(0, 1);
@@ -541,10 +536,6 @@ extern "C" void *deferredPopFront(void *arg)
     Obj::value_type value;
 
     mX.popFront(&value);
-
-    s_deferredPopFrontInterval =
-                       bsls::SystemTime::now(bsls::SystemClockType::e_REALTIME)
-                     - s_deferredPopFrontInterval;
 
     return 0;
 }
@@ -1481,10 +1472,9 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(handle);
 
-            ASSERTV(s_deferredPopFrontInterval.totalSecondsAsDouble(),
-                    interval.totalSecondsAsDouble(),
-                    s_deferredPopFrontInterval.totalSecondsAsDouble()
-                                           <= interval.totalSecondsAsDouble());
+            ASSERTV(interval,
+                       bsls::TimeInterval(0.8) <= interval
+                    && bsls::TimeInterval(3.0) >= interval);
 
             s_continue = 0;
 
