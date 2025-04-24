@@ -186,40 +186,60 @@ class MetricsRegistry {
 
     // MANIPULATORS
 
+    /// Disable metrics collection.  If there is an associated metrics adapter,
+    /// all the collection callbacks are unregistered from that adapter.  The
+    /// adapter remains associated with this registry.  Collection callbacks
+    /// registered with this registry are not registered with the associated
+    /// adapter until metrics collections is enabled.  Return 0 on success, and
+    /// a non-zero value otherwise.  Metrics collection is enabled at
+    /// construction of this registry.
+    int disableMetricsCollection();
+
+    /// Enable metrics collection.  If there is an associated metrics adapter,
+    /// all collection callbacks will be registered with the adapter.  Return
+    /// 0 on success, and non-zero value otherwise.  Metrics collection is
+    /// enabled at construction of this registry.
+    int enableMetricsCollection();
+
     /// Register the metric described by the specified `descriptor` and
     /// associate it with the specified `callback` to collect data from the
     /// metric, and load the specified `result` with a handle can be used
-    /// later to unregister the metric.  After this operation completes,
+    /// later to unregister the metric.  Return 0 on success, and a non-zero
+    /// value otherwise.  After this operation completes,
     /// `result->isRegistered()` will be `true`.  The metric and associated
     /// callback remain registered with this registry until either the
     /// handle is unregistered or destroyed.  When a `MetricsAdapter` is
     /// associated with this registry using `setMetricsAdapter`, this
-    /// objects registers all the registered metrics and callbacks with that
+    /// object registers all the registered metrics and callbacks with that
     /// adapter, and similarly unregisters them if the `MetricAdapter` is
     /// later disassociated with this registry (either on this objects
     /// destruction, or due to a call to `removeMetricsAdapter` or
-    /// `setMetricsAdapter`).  In this way, a `MetricsRegistry` serves as an
+    /// `setMetricsAdapter`).  Furthermore, metrics collection can be disable
+    /// with `disableMetricsCollection` and enabled with
+    /// `enableMetricsCollection`.  In this way, a `MetricsRegistry` serves as an
     /// intermediary between users of `bdlm` that register metrics and the
     /// subsystem for collecting and publishing metrics being adapted by a
     /// concrete instance of `bdlm::MetricAdapter`.
-    void registerCollectionCallback(
+    int registerCollectionCallback(
                                  MetricsRegistryRegistrationHandle *result,
                                  const bdlm::MetricDescriptor&      descriptor,
                                  const Callback&                    callback);
 
-    /// If the specified `adapter` is the currently associated registrar,
-    /// remove all registered metrics from it and disassociate the registry.
-    /// Note that this operation takes an `adapter` to disambiguate
-    /// multiple, potentially concurrent, calls to this method and
-    /// `setMetricsAdapter`.
-    void removeMetricsAdapter(MetricsAdapter *adapter);
+    /// If the specified `adapter` is the currently associated adapter, remove
+    /// all registered metrics from it and disassociate with this registry.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that this
+    /// operation takes an `adapter` to disambiguate multiple, potentially
+    /// concurrent, calls to this method and `setMetricsAdapter`.
+    int removeMetricsAdapter(MetricsAdapter *adapter);
 
     /// Configure this metrics registry to register all metrics collection
-    /// callbacks with the specified `adapter`.  This operation first, if
-    /// there is already an associated metrics adapter, unregisters all the
-    /// collection callbacks from that adapter, then registers the
-    /// collection callbacks with the new `adapter`.
-    void setMetricsAdapter(MetricsAdapter *adapter);
+    /// callbacks with the specified `adapter` when the registry has metrics
+    /// collection enabled.  This operation first, if there is already an
+    /// associated metrics adapter, unregisters all the collection callbacks
+    /// from that adapter, then registers the collection callbacks with the new
+    /// `adapter` if metrics collection is enabled.  Return 0 on success, and a
+    /// non-zero value otherwise.
+    int setMetricsAdapter(MetricsAdapter *adapter);
 
     // ACCESSORS
 

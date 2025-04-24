@@ -43,26 +43,28 @@ using bsl::endl;
 //                                 --------
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 6] static MetricsRegistry& defaultInstance();
+// [ 7] static MetricsRegistry& defaultInstance();
 //
 // CREATORS
 // [ 2] MetricsRegistry(bslma::Allocator *basicAllocator = 0);
 // [ 2] ~MetricsRegistry();
 //
 // MANIPULATORS
-// [ 2] void registerCollectionCallback(*result, descriptor, callback);
-// [ 2] void removeMetricsAdapter(MetricsAdapter *adapter);
-// [ 2] void setMetricsAdapter(MetricsAdapter *adapter);
+// [ 4] int disableMetricsCollection();
+// [ 4] int enableMetricsCollection();
+// [ 2] int registerCollectionCallback(*result, descriptor, callback);
+// [ 2] int removeMetricsAdapter(MetricsAdapter *adapter);
+// [ 2] int setMetricsAdapter(MetricsAdapter *adapter);
 //
 // ACCESSORS
 // [ 3] bslma::Allocator *allocator() const;
 // [ 3] int numRegisteredCollectionCallbacks() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 8] USAGE EXAMPLE
-// [ 7] DRQS 174793420
-// [ 5] CONCERN: THE DESTRUCTOR UNREGISTERS ALL FROM THE ADAPTER
-// [ 4] CONCERN: REGISTRATION HANDLE CAN OUTLIVE THE REGISTRY
+// [ 9] USAGE EXAMPLE
+// [ 8] DRQS 174793420
+// [ 6] CONCERN: THE DESTRUCTOR UNREGISTERS ALL FROM THE ADAPTER
+// [ 5] CONCERN: REGISTRATION HANDLE CAN OUTLIVE THE REGISTRY
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -221,11 +223,11 @@ class TestMetricsAdapter : public bdlm::MetricsAdapter {
                  const bdlm::MetricDescriptor& metricDescriptor,
                  const Callback&               callback) BSLS_KEYWORD_OVERRIDE;
 
+    /// Remove the metrics registration associated with the specified `handle`
+    /// from this test adapter.  Return 0 on success, and a non-zero value if
+    /// the `handle` is not found.
     int removeCollectionCallback(const CallbackHandle& handle)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Do nothing with the specified `handle`.  Assert the supplied
-        // `handle` matches what was provided by `registerCollectionCallback`.
-        // Return 0.
 
     // ACCESSORS
 
@@ -265,6 +267,10 @@ bdlm::MetricsAdapter::CallbackHandle
 
 int TestMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 {
+    if (d_descriptors.find(handle) == d_descriptors.end()) {
+        ASSERTV(handle, "Attempt to remove invalid collection callback handle")
+        return -1;                                                  // RETURN
+    }
     d_descriptors.erase(handle);
     return 0;
 }
@@ -392,7 +398,7 @@ int main(int argc, char *argv[])
     bool expectDefaultAllocation = false;
 
     switch (test) { case 0:
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -438,7 +444,7 @@ int main(int argc, char *argv[])
     ASSERT(registry.numRegisteredCollectionCallbacks() == 0);
 // ```
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // DRQS 174793420
         //
@@ -480,7 +486,7 @@ int main(int argc, char *argv[])
                 da.numBlocksInUse(),
                 0 == da.numBlocksInUse());
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // CLASS METHOD `defaultInstance`
         //
@@ -515,7 +521,7 @@ int main(int argc, char *argv[])
 
         ASSERT(Obj::defaultInstance().allocator() == savedGlobalAllocator);
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // CONCERN: THE DESTRUCTOR UNREGISTERS ALL FROM THE ADAPTER
         //
@@ -584,7 +590,7 @@ int main(int argc, char *argv[])
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
 
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // CONCERN: REGISTRATION HANDLE CAN OUTLIVE THE REGISTRY
         //
@@ -644,6 +650,300 @@ int main(int argc, char *argv[])
         // No memory allocated from the default allocator.
 
         ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // ENABLE AND DISABLE METRICS COLLECTION
+        //   Ensure that enabling and disabling metrics collection
+        //   correctly registers and unregisters callbacks with the underlying
+        //   adapter.
+        //
+        // Concerns:
+        // 1. After a call to `disableMetricsCollection` all registered
+        //    metrics are unregistered from the underlying adapter.
+        //
+        // 2. `disableMetricsCollection` always (currently) returns success.
+        //
+        // 3. After a call to `enableMetricsCollection` all registered
+        //    metrics are re-registered to the underlying metrics adapter.
+        //
+        // 4. `enableMetricsCollection` always (currently) returns success.
+        //
+        // 5. If metrics collection is disabled, calling
+        //    `registerCollectionCallback` will not (immediately) call
+        //    `registerCollectionCallback`  on the underlying adapter.
+        //    `registerCollectionCallback` will be invoked on the underlying
+        //    adapter for the metrics only after a subsequent call to
+        //    `enableMetricsCollection`.
+        //
+        // 6. If metrics collection is disabled, calling
+        //    `setMetricsAdapter` will forward the registration for any metrics
+        //    to the underlying adapter immediately, they will be registered on
+        //    the underlying adapter only after a subsequent call to
+        //    `enableMetricsCollection`.
+        //
+        // 7. If metrics collection is disabled, calling `removeMetricsAdapter`
+        //    will not attempt to remove metrics from that underlying adapter,
+        //    and will not report an error.  However, after a subsequent call to
+        //   `enableMetricsCollection`, calling `setMetricsAdapter` will
+        //    forward the registration to that new adapter.
+        //
+        // 8 Calling `enableMetricsCollection` when collection is already
+        //    enabled will not cause any errors or changes to the state of the
+        //    adapter.
+        //
+        // 9 Calling `disableMetricsCollection` when collection is already
+        //   disabled will not cause any errors or changes to the state of the
+        //   adapter.
+        //
+        // Plan:
+        //
+        // 1. Create a couple metrics, register a test metrics adapter, and
+        //    enable and disable metrics collection and verify changes in
+        //    in the test adapter (C1-4)
+        //
+        // 2. Disable metrics collection, register a couple of metrics, and
+        //    then enable metrics collection.  Verify that the metrics are
+        //    registered with the adapter (C5)
+        //
+        // 3. Create a couple metrics, and a couple test metrics adapters.
+        //    Call `setMetricsAdapter` and `removeMetricsAdapter` with
+        //    collection disabled.  Verify the disabled metrics are not
+        //    deregisted a second time from the old, removed, adapter, and that
+        //    the old adapter is correctly removed.  Also verify that the
+        //    metrics are not registered with the new adapter.  (C6-7)
+        //
+        // 4. Create a couple metrics, registed a test metrics adapter,
+        //    then call `disableMetricsCollection` twice, validate
+        //    the second call returns success and does not attempt to
+        //    call `deregisterCollectionCallback` on the adapter or in
+        //    some other way modify the state.  Then call
+        //    `enableMetricsCollection`
+        //    twice, and validate the second call returns success and does not
+        //    attempt to call `registerCollectionCallback` on the adapter or in
+        //    some other way modify the state(C8-9)
+        //
+        // Testing:
+        //   int disableMetricsCollection();
+        //   int enableMetricsCollection();
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                        "\nENABLE AND DISABLE METRICS COLLECTION"
+                        "\n=====================================" << endl;
+
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        bdlm::MetricDescriptor descriptor1("mns",
+                                           "metric1",
+                                           1,
+                                           "otn1",
+                                           "ota1",
+                                           "oi1"),
+            descriptor2("mns", "metric2", 2, "otn2", "ota2", "oi2");
+
+        TestMetricsAdapter adapter1(&ta), adapter2(&ta);
+        ASSERTV(adapter1.size(), adapter1.size() == 0);
+        ASSERTV(adapter2.size(), adapter2.size() == 0);
+
+        {
+            if (verbose) {
+                cout << "Test basic disabling an enabling metrics collection"
+                     << endl;
+            }
+            // Register 2 metrics, disable, enable
+
+            Obj mX(&ta);  const Obj& X = mX;
+            mX.setMetricsAdapter(&adapter1);
+
+            ObjHandle handle1, handle2;
+            mX.registerCollectionCallback(&handle1, descriptor1, Callback1());
+            mX.registerCollectionCallback(&handle2, descriptor2, Callback2());
+
+            ASSERTV(handle1.isRegistered());
+            ASSERTV(handle2.isRegistered());
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+            ASSERTV(adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(adapter1.contains<Callback2>(descriptor2));
+
+            int rc = mX.disableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+            ASSERTV(!adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(!adapter1.contains<Callback2>(descriptor2));
+
+            rc = mX.enableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+            ASSERTV(adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(adapter1.contains<Callback2>(descriptor2));
+        }
+        {
+            if (verbose) {
+                cout << "Test registration and de-registration of metrics "
+                     << "with collection disabled" << endl;
+            }
+
+            Obj mX(&ta); const Obj& X = mX;
+            mX.setMetricsAdapter(&adapter1);
+
+            int rc = mX.disableMetricsCollection();
+            ASSERTV(rc, rc == 0);
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+
+            ObjHandle handle1, handle2;
+            mX.registerCollectionCallback(&handle1, descriptor1, Callback1());
+            mX.registerCollectionCallback(&handle2, descriptor2, Callback2());
+
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+
+            rc = mX.enableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+            ASSERTV(adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(adapter1.contains<Callback2>(descriptor2));
+
+            rc = mX.disableMetricsCollection();
+            handle1.unregister();
+            handle2.unregister();
+
+            ASSERTV(rc, rc == 0);
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 0);
+
+            rc = mX.disableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+        }
+        {
+            if (verbose) {
+                cout << "Test setMetricsAdapter and removeMetricsAdapter with "
+                     << "collection disabled" << endl;
+            }
+
+            Obj mX(&ta); const Obj& X = mX;
+            mX.setMetricsAdapter(&adapter1);
+
+            int rc = mX.enableMetricsCollection();
+            ASSERTV(rc, rc == 0);
+
+            // Add metrics.
+            ObjHandle handle1, handle2;
+            mX.registerCollectionCallback(&handle1, descriptor1, Callback1());
+            mX.registerCollectionCallback(&handle2, descriptor2, Callback2());
+
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+
+            // Disable collection.
+            rc = mX.disableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+
+            // Remove the adapter.
+            mX.removeMetricsAdapter(&adapter1);
+
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+
+            // Enabled collector and test the state.
+            rc = mX.enableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+
+            // Disable collection again.
+            rc = mX.disableMetricsCollection();
+
+            // Add a new adapter and test the state.
+            mX.setMetricsAdapter(&adapter2);
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+            ASSERTV(adapter2.size(), adapter2.size() == 0);
+
+            // Enable collection again.
+            rc = mX.enableMetricsCollection();
+
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+            ASSERTV(adapter2.size(), adapter2.size() == 2);
+            ASSERTV(adapter2.contains<Callback1>(descriptor1));
+            ASSERTV(adapter2.contains<Callback2>(descriptor2));
+        }
+        {
+            if (verbose) {
+                cout << "Test redundant calls to enable and disable collection"
+                     << endl;
+            }
+            Obj mX(&ta);
+            const Obj& X = mX;
+
+            mX.setMetricsAdapter(&adapter1);
+
+            ObjHandle handle1, handle2;
+            mX.registerCollectionCallback(&handle1, descriptor1, Callback1());
+            mX.registerCollectionCallback(&handle2, descriptor2, Callback2());
+
+            ASSERTV(handle1.isRegistered());
+            ASSERTV(handle2.isRegistered());
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+            ASSERTV(adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(adapter1.contains<Callback2>(descriptor2));
+
+            int rc = mX.disableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+            ASSERTV(!adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(!adapter1.contains<Callback2>(descriptor2));
+
+            rc = mX.disableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+            ASSERTV(adapter1.size(), adapter1.size() == 0);
+            ASSERTV(!adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(!adapter1.contains<Callback2>(descriptor2));
+
+            rc = mX.enableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(handle1.isRegistered());
+            ASSERTV(handle2.isRegistered());
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+            ASSERTV(adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(adapter1.contains<Callback2>(descriptor2));
+
+            rc = mX.enableMetricsCollection();
+
+            ASSERTV(rc, rc == 0);
+
+            ASSERTV(handle1.isRegistered());
+            ASSERTV(handle2.isRegistered());
+            ASSERTV(X.numRegisteredCollectionCallbacks(),
+                    X.numRegisteredCollectionCallbacks() == 2);
+            ASSERTV(adapter1.size(), adapter1.size() == 2);
+            ASSERTV(adapter1.contains<Callback1>(descriptor1));
+            ASSERTV(adapter1.contains<Callback2>(descriptor2));
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -952,9 +1252,12 @@ int main(int argc, char *argv[])
                     ASSERTV(CONFIG, handle1.isRegistered());
 
                     ObjHandle handle2;
-                    mX.registerCollectionCallback(&handle2,
-                                                  descriptor2,
-                                                  Callback2());
+
+                    int rc = mX.registerCollectionCallback(&handle2,
+                                                           descriptor2,
+                                                           Callback2());
+
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, handle2.isRegistered());
 
                     ASSERTV(CONFIG, X.numRegisteredCollectionCallbacks(),
@@ -963,8 +1266,9 @@ int main(int argc, char *argv[])
                     ASSERTV(CONFIG, adapter2.size(), adapter2.size() == 0);
 
                     // Now set the metric adapter
-                    mX.setMetricsAdapter(&adapter1);
+                    rc = mX.setMetricsAdapter(&adapter1);
 
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, adapter1.size(), adapter1.size() == 2);
                     ASSERTV(CONFIG, adapter1.contains<Callback1>(descriptor1));
                     ASSERTV(CONFIG, adapter1.contains<Callback2>(descriptor2));
@@ -972,8 +1276,9 @@ int main(int argc, char *argv[])
                     ASSERTV(CONFIG, adapter2.size(), adapter2.size() == 0);
 
                     // Replace the metric adapter
-                    mX.setMetricsAdapter(&adapter2);
+                    rc = mX.setMetricsAdapter(&adapter2);
 
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, adapter1.size(), adapter1.size() == 0);
 
                     ASSERTV(CONFIG, adapter2.size(), adapter2.size() == 2);
@@ -984,8 +1289,9 @@ int main(int argc, char *argv[])
                             X.numRegisteredCollectionCallbacks() == 2);
 
                     // Remove the metric adapter
-                    mX.removeMetricsAdapter(&adapter2);
+                    rc = mX.removeMetricsAdapter(&adapter2);
 
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, adapter1.size(), adapter1.size() == 0);
                     ASSERTV(CONFIG, adapter2.size(), adapter2.size() == 0);
                     ASSERTV(CONFIG, X.numRegisteredCollectionCallbacks(),
@@ -997,16 +1303,19 @@ int main(int argc, char *argv[])
                 // Register the same callback twice
                 {
                     ObjHandle handle1, handle2;
-                    mX.registerCollectionCallback(&handle1,
+                    int rc = mX.registerCollectionCallback(&handle1,
                                                   descriptor1,
                                                   Callback1());
+
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, handle1.isRegistered());
                     ASSERTV(CONFIG, X.numRegisteredCollectionCallbacks(),
                             X.numRegisteredCollectionCallbacks() == 1);
 
-                    mX.registerCollectionCallback(&handle2,
-                                                  descriptor1,
-                                                  Callback1());
+                    rc = mX.registerCollectionCallback(&handle2,
+                                                       descriptor1,
+                                                       Callback1());
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, handle2.isRegistered());
                     ASSERTV(CONFIG, X.numRegisteredCollectionCallbacks(),
                             X.numRegisteredCollectionCallbacks() == 2);
@@ -1017,17 +1326,20 @@ int main(int argc, char *argv[])
                 // Unregistering callbacks from the registry unregisters them
                 // from the adapter
                 {
-                    mX.setMetricsAdapter(&adapter1);
+                    int rc = mX.setMetricsAdapter(&adapter1);
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, adapter1.size(), adapter1.size() == 0);
 
                     // Register 2 metric callbacks
                     ObjHandle handle1, handle2;
-                    mX.registerCollectionCallback(&handle1,
-                                                  descriptor1,
-                                                  Callback1());
-                    mX.registerCollectionCallback(&handle2,
-                                                  descriptor2,
-                                                  Callback2());
+                    rc = mX.registerCollectionCallback(&handle1,
+                                                       descriptor1,
+                                                       Callback1());
+                    ASSERTV(CONFIG, 0 == rc);
+                    rc = mX.registerCollectionCallback(&handle2,
+                                                       descriptor2,
+                                                       Callback2());
+                    ASSERTV(CONFIG, 0 == rc);
                     ASSERTV(CONFIG, handle1.isRegistered());
                     ASSERTV(CONFIG, handle2.isRegistered());
                     ASSERTV(CONFIG, X.numRegisteredCollectionCallbacks(),

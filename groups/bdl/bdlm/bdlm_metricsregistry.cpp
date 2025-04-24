@@ -15,6 +15,19 @@ BSLS_IDENT_RCSID(bdlm_metricsregistry_cpp,"$Id$ $CSID$")
 #include <bsls_log.h>
 
 #include <bsl_map.h>
+#include <bsl_optional.h>
+
+// Implementation Note:  The `MetricsRegistryImpl` currently maintains the
+// invariant that each metric in the `d_metricData` map is associated with a
+// valid (assigned) `d_adaptedHandle` optional hande, if, and only if, the
+// metrics adapter is set *and* metrics collection is enabled.  If either there
+// is no metrics adapter, or metrics collection is disabled, the opional
+// `d_adapterHandle` will be unset.
+//
+// If, in the future,  we allow disabling subsets of metrics, the invariant
+// will no longer hold, and in some circumstances (e.g.,
+// `removeMetricsAdapter`) we will need test the individual optional handles to
+// see if they are set.
 
 namespace BloombergLP {
 namespace bdlm {
@@ -29,9 +42,17 @@ class MetricsRegistry_Data {
 
   public:
     // PUBLIC DATA
-    MetricDescriptor               d_descriptor;
-    MetricsAdapter::Callback       d_callback;
-    MetricsAdapter::CallbackHandle d_adaptedHandle;
+    MetricDescriptor         d_descriptor;     // a descriptor identifying
+                                               // the metric
+
+    MetricsAdapter::Callback d_callback;       // a function callback for
+                                               // collecting data from the
+                                               // metric
+
+    bsl::optional<MetricsAdapter::CallbackHandle>
+                             d_adaptedHandle;  // a handle to the
+                                               // registered callback in the
+                                               // metrics adapter
 
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(MetricsRegistry_Data,
@@ -103,6 +124,9 @@ class MetricsRegistry_Impl {
     CallbackHandle        d_nextKey;           // next key for inserting into
                                                // 'd_metricData'
 
+    bool                  d_collectionEnabled; // true if metrics collection is enabled
+                                               // (default is true)
+
     mutable bslmt::Mutex  d_mutex;             // mutex to protect the metrics
                                                // registry and 'd_metricData'
 
@@ -135,21 +159,40 @@ class MetricsRegistry_Impl {
 
     // MANIPULATORS
 
+    /// Disable metrics collection.  If there is an associated metrics adapter,
+    /// all the collection callbacks are unregistered from that adapter.  The
+    /// adapter remains associated with this registry.  Collection callbacks
+    /// registered with this registry are not registered with the associated
+    /// adapter until metrics collections is enabled.  Return 0 on success, and
+    /// a non-zero value otherwise.  Metrics collection is enabled at
+    /// construction of this registry.
+    int disableMetricsCollection();
+
+    /// Enable metrics collection.  If there is an associated metrics adapter,
+    /// all collection callbacks will be registered with the adapter.  Return
+    /// 0 on success, and non-zero value otherwise.  Metrics collection is
+    /// enabled at construction of this registry.
+    int enableMetricsCollection();
+
     /// Register the metric described by the specified `descriptor` and
     /// associate it with the specified `callback` to collect data from the
-    /// metric.  Return a handle for the registered callback.  The metric
-    /// and associated callback remain registered with this registry until
-    /// either the handle is unregistered or destroyed.  When a
-    /// `MetricsAdapter` is associated with this registry using
-    /// `setMetricsAdapter`, this objects registers all the registered
-    /// metrics and callbacks with that adapter, and similarly unregisters
-    /// them if the `MetricAdapter` is later disassociated with this
-    /// registry (either on this objects destruction, or due to a call to
-    /// `removeMetricsAdapter` or `setMetricsAdapter`).  In this way, a
-    /// `MetricsRegistry` serves as an intermediary between users of `bdlm`
-    /// that register metrics and the subsystem for collecting and
-    /// publishing metrics being adapted by a concrete instance of
-    /// `bdlm::MetricAdapter`.
+    /// metric, and load the specified `result` with a handle can be used
+    /// later to unregister the metric.  Return 0 on success, and a non-zero
+    /// value otherwise.  After this operation completes,
+    /// `result->isRegistered()` will be `true`.  The metric and associated
+    /// callback remain registered with this registry until either the
+    /// handle is unregistered or destroyed.  When a `MetricsAdapter` is
+    /// associated with this registry using `setMetricsAdapter`, this
+    /// object registers all the registered metrics and callbacks with that
+    /// adapter, and similarly unregisters them if the `MetricAdapter` is
+    /// later disassociated with this registry (either on this objects
+    /// destruction, or due to a call to `removeMetricsAdapter` or
+    /// `setMetricsAdapter`).  Furthermore, metrics collection can be disable
+    /// with `disableMetricsCollection` and enabled with
+    /// `enableMetricsCollection`.  In this way, a `MetricsRegistry` serves as an
+    /// intermediary between users of `bdlm` that register metrics and the
+    /// subsystem for collecting and publishing metrics being adapted by a
+    /// concrete instance of `bdlm::MetricAdapter`.
     CallbackHandle registerCollectionCallback(
                                       const bdlm::MetricDescriptor& descriptor,
                                       const Callback&               callback);
@@ -159,19 +202,21 @@ class MetricsRegistry_Impl {
     /// on success, or a non-zero value if `handle` cannot be found.
     int removeCollectionCallback(const CallbackHandle& handle);
 
-    /// If the specified `adapter` is the currently associated registrar,
-    /// remove all registered metrics from it and disassociate the registry.
-    /// Note that this operation takes an `adapter` to disambiguate
-    /// multiple, potentially concurrent, calls to this method and
-    /// `setMetricsAdapter`.
-    void removeMetricsAdapter(MetricsAdapter *adapter);
+    /// If the specified `adapter` is the currently associated adapter, remove
+    /// all registered metrics from it and disassociate with this registry.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that this
+    /// operation takes an `adapter` to disambiguate multiple, potentially
+    /// concurrent, calls to this method and `setMetricsAdapter`.
+    int removeMetricsAdapter(MetricsAdapter *adapter);
 
     /// Configure this metrics registry to register all metrics collection
-    /// callbacks with the specified `adapter`.  This operation first, if
-    /// there is already an associated metrics adapter, unregisters all the
-    /// collection callbacks from that adapter, then registers the
-    /// collection callbacks with the new `adapter`.
-    void setMetricsAdapter(MetricsAdapter *adapter);
+    /// callbacks with the specified `adapter` when the registry has metrics
+    /// collection enabled.  This operation first, if there is already an
+    /// associated metrics adapter, unregisters all the collection callbacks
+    /// from that adapter, then registers the collection callbacks with the new
+    /// `adapter` if metrics collection is enabled.  Return 0 on success, and a
+    /// non-zero value otherwise.
+    int setMetricsAdapter(MetricsAdapter *adapter);
 
     // ACCESSORS
 
@@ -296,6 +341,7 @@ MetricsRegistry_Impl::MetricsRegistry_Impl(bslma::Allocator *basicAllocator)
 : d_metricsAdapter_p(0)
 , d_metricData(basicAllocator)
 , d_nextKey(0)
+, d_collectionEnabled(true)
 {
 }
 
@@ -303,18 +349,68 @@ MetricsRegistry_Impl::~MetricsRegistry_Impl()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    if (d_metricsAdapter_p) {
+    if (d_metricsAdapter_p && d_collectionEnabled) {
         for (MetricDataMap::iterator iter = d_metricData.begin();
              iter != d_metricData.end();
              ++iter) {
+            // See Implmentation Note
+
+            BSLS_ASSERT(iter->second.d_adaptedHandle.has_value());
             d_metricsAdapter_p->removeCollectionCallback(
-                                                 iter->second.d_adaptedHandle);
+                                                *iter->second.d_adaptedHandle);
         }
         d_metricsAdapter_p = 0;
     }
 }
 
 // MANIPULATORS
+int MetricsRegistry_Impl::disableMetricsCollection()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    if (!d_collectionEnabled) {
+        return 0;                                                     // RETURN
+    }
+    d_collectionEnabled = false;
+    if (d_metricsAdapter_p) {
+        for (MetricDataMap::iterator iter = d_metricData.begin();
+             iter != d_metricData.end();
+             ++iter) {
+            // See Implmentation Note.
+
+            BSLS_ASSERT(iter->second.d_adaptedHandle.has_value());
+
+            d_metricsAdapter_p->removeCollectionCallback(
+                                                 *iter->second.d_adaptedHandle);
+            iter->second.d_adaptedHandle.reset();
+        }
+
+    }
+    return 0;
+}
+
+int MetricsRegistry_Impl::enableMetricsCollection()
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    if (d_collectionEnabled) {
+        return 0;                                                     // RETURN
+    }
+    d_collectionEnabled = true;
+    if (d_metricsAdapter_p) {
+        for (MetricDataMap::iterator iter = d_metricData.begin();
+             iter != d_metricData.end();
+             ++iter) {
+            // See Implmentation Note.
+
+            BSLS_ASSERT(!iter->second.d_adaptedHandle.has_value());
+            iter->second.d_adaptedHandle =
+                                d_metricsAdapter_p->registerCollectionCallback(
+                                    iter->second.d_descriptor,
+                                    iter->second.d_callback);
+        }
+    }
+    return 0;
+}
+
 MetricsRegistry_Impl::CallbackHandle
 MetricsRegistry_Impl::registerCollectionCallback(
                                       const bdlm::MetricDescriptor& descriptor,
@@ -330,7 +426,7 @@ MetricsRegistry_Impl::registerCollectionCallback(
     MetricsRegistry_Data& data = res.first->second;
     data.d_descriptor = descriptor;
     data.d_callback   = callback;
-    if (d_metricsAdapter_p) {
+    if (d_metricsAdapter_p && d_collectionEnabled) {
         data.d_adaptedHandle =
                      d_metricsAdapter_p->registerCollectionCallback(descriptor,
                                                                     callback);
@@ -347,9 +443,12 @@ int MetricsRegistry_Impl::removeCollectionCallback(
 
     MetricDataMap::iterator iter = d_metricData.find(handle);
     if (iter != d_metricData.end()) {
-        if (d_metricsAdapter_p) {
+        if (d_metricsAdapter_p && d_collectionEnabled) {
+            // See Implmentation Note.
+
+            BSLS_ASSERT(iter->second.d_adaptedHandle.has_value());
             d_metricsAdapter_p->removeCollectionCallback(
-                                                 iter->second.d_adaptedHandle);
+                                                *iter->second.d_adaptedHandle);
         }
         d_metricData.erase(iter);
         return 0;                                                     // RETURN
@@ -357,43 +456,55 @@ int MetricsRegistry_Impl::removeCollectionCallback(
     return 1;
 }
 
-void MetricsRegistry_Impl::removeMetricsAdapter(MetricsAdapter *adapter)
+int MetricsRegistry_Impl::removeMetricsAdapter(MetricsAdapter *adapter)
 {
     BSLS_ASSERT(adapter);
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     if (d_metricsAdapter_p == adapter) {
-        for (MetricDataMap::iterator iter = d_metricData.begin();
-             iter != d_metricData.end();
-             ++iter) {
-            d_metricsAdapter_p->removeCollectionCallback(
-                                                 iter->second.d_adaptedHandle);
+        if (d_collectionEnabled) {
+            for (MetricDataMap::iterator iter = d_metricData.begin();
+                 iter != d_metricData.end();
+                 ++iter) {
+                // See Implmentation Note.
+
+                BSLS_ASSERT(iter->second.d_adaptedHandle.has_value());
+                d_metricsAdapter_p->removeCollectionCallback(
+                                                 *iter->second.d_adaptedHandle);
+                iter->second.d_adaptedHandle.reset();
+            }
         }
         d_metricsAdapter_p = 0;
     }
     else {
         BSLS_LOG_ERROR("Attempt to remove unknown 'MetricsAdapter'");
     }
+    return 0;
 }
 
-void MetricsRegistry_Impl::setMetricsAdapter(MetricsAdapter *adapter)
+int MetricsRegistry_Impl::setMetricsAdapter(MetricsAdapter *adapter)
 {
     BSLS_ASSERT(adapter);
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    for (MetricDataMap::iterator iter = d_metricData.begin();
-         iter != d_metricData.end();
-         ++iter) {
-        if (d_metricsAdapter_p) {
-            d_metricsAdapter_p->removeCollectionCallback(
-                                                 iter->second.d_adaptedHandle);
-        }
-        iter->second.d_adaptedHandle = adapter->registerCollectionCallback(
+    if (d_collectionEnabled) {
+        for (MetricDataMap::iterator iter = d_metricData.begin();
+             iter != d_metricData.end();
+             ++iter) {
+            if (d_metricsAdapter_p) {
+                // See Implmentation Note.
+
+                BSLS_ASSERT(iter->second.d_adaptedHandle.has_value());
+                d_metricsAdapter_p->removeCollectionCallback(
+                                                 *iter->second.d_adaptedHandle);
+            }
+            iter->second.d_adaptedHandle = adapter->registerCollectionCallback(
                                                      iter->second.d_descriptor,
                                                      iter->second.d_callback);
+        }
     }
-
     d_metricsAdapter_p = adapter;
+    return 0;
 }
 
 // ACCESSORS
@@ -478,7 +589,17 @@ MetricsRegistry& MetricsRegistry::defaultInstance()
 }
 
 // MANIPULATORS
-void MetricsRegistry::registerCollectionCallback(
+int MetricsRegistry::disableMetricsCollection()
+{
+    return d_impl->disableMetricsCollection();
+}
+
+int MetricsRegistry::enableMetricsCollection()
+{
+    return d_impl->enableMetricsCollection();
+}
+
+int MetricsRegistry::registerCollectionCallback(
                                  MetricsRegistryRegistrationHandle *result,
                                  const bdlm::MetricDescriptor&      descriptor,
                                  const Callback&                    callback)
@@ -487,16 +608,17 @@ void MetricsRegistry::registerCollectionCallback(
     CallbackHandle key = d_impl->registerCollectionCallback(descriptor,
                                                             callback);
     MetricsRegistryRegistrationHandle(d_impl, key).swap(*result);
+    return 0;
 }
 
-void MetricsRegistry::removeMetricsAdapter(MetricsAdapter *adapter)
+int MetricsRegistry::removeMetricsAdapter(MetricsAdapter *adapter)
 {
-    d_impl->removeMetricsAdapter(adapter);
+    return d_impl->removeMetricsAdapter(adapter);
 }
 
-void MetricsRegistry::setMetricsAdapter(MetricsAdapter *adapter)
+int MetricsRegistry::setMetricsAdapter(MetricsAdapter *adapter)
 {
-    d_impl->setMetricsAdapter(adapter);
+    return d_impl->setMetricsAdapter(adapter);
 }
 
 // ACCESSORS
