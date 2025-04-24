@@ -6,6 +6,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
@@ -191,6 +192,32 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR) BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                        TEST DRIVER LOCAL MACROS
+// ----------------------------------------------------------------------------
+
+
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) &&                               \
+    (13 == _GLIBCXX_RELEASE || 14 == _GLIBCXX_RELEASE)
+// We disable tests for certain pointer-formatting on gcc-13 and gcc-14 because
+// those platforms do not (yet) support zero-padding of pointers, and the
+// (uppercase) 'P' format specifier, but are in other ways preferable to the
+// proprietary (C++ 03 supporting) implementation in `bslfmt`.
+//
+// GNU C++ supports an almost perfect std::format implementation starting with
+// gcc-13.  Unfortunately it does not support zero padding of pointers and the
+// attempt results in a compilation error (for compile-time format string
+// evaluation) stating that "0 width cannot be used".  Even more unfortunately
+// gcc-14 does not implement the feature either.  The 'P' format specifier is
+// also unsupported (for uppercase "0X" and hex digits), it throws a
+// `std::format_error` saying that "the format string could not be parsed".
+// Instead of giving up using the platform-native formatting (and benefiting
+// from compile time evaluation) we decided to not try to zero-pad pointers in
+// our test drivers when we are on gcc version that don't support it.
+  #define u_GCC_PTR_FMT_WORKAROUND                                            1
+#endif  // GNU libstdc++ of gcc-13 or 14
+
+
+// ============================================================================
 //                       HELPER CLASSES AND FUNCTIONS
 // ----------------------------------------------------------------------------
 
@@ -340,7 +367,6 @@ struct formatter<FormattableType, t_CHAR> {
                                       std::make_format_args(__VA_ARGS__));    \
         ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);      \
                                                                               \
-        memset(buff, 0, sizeof buff);                                         \
         char *end = std::vformat_to(buff,                                     \
                                     fmtstr,                                   \
                                     std::make_format_args(__VA_ARGS__));      \
@@ -355,7 +381,6 @@ struct formatter<FormattableType, t_CHAR> {
                                         std::make_wformat_args(__VA_ARGS__)); \
           ASSERTV(stdResult == result);                                       \
                                                                               \
-          memset(buff, 0, sizeof buff);                                       \
           wchar_t *end = std::vformat_to(                                     \
                                       buff,                                   \
                                       fmtstr,                                 \
@@ -401,7 +426,6 @@ struct formatter<FormattableType, t_CHAR> {
                                          std::make_format_args(__VA_ARGS__)); \
         ASSERTV(stdResult.c_str(), result.c_str(), stdResult == result);      \
                                                                               \
-        memset(buff, 0, sizeof buff);                                         \
         char *end = std::vformat_to(buff,                                     \
                                     myLocale,                                 \
                                     fmtstr,                                   \
@@ -418,7 +442,6 @@ struct formatter<FormattableType, t_CHAR> {
                                         std::make_wformat_args(__VA_ARGS__)); \
         ASSERTV(stdResult == result);                                         \
                                                                               \
-        memset(buff, 0, sizeof buff);                                         \
         wchar_t *end = std::vformat_to(buff,                                  \
                                        myWlocale,                             \
                                        fmtstr,                                \
@@ -1900,6 +1923,7 @@ void testCase10()
         int            i  = 32;
         double         d  = 13.75;
 
+#ifndef u_GCC_PTR_FMT_WORKAROUND
         u_VERIFY_VFORMAT(
                        "this={:010}, name={:<8}, id={:04x}, heat={:a}",
                        "this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
@@ -1910,6 +1934,18 @@ void testCase10()
                       L"this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
                        p, wt, i, d);
     }
+#else   // Not the faulty gcc implementation
+        u_VERIFY_VFORMAT(
+                       "this={:10}, name={:<8}, id={:04x}, heat={:a}",
+                       "this=  0xc0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                       p, t, i, d);
+
+        u_VERIFY_WVFORMAT(
+                      L"this={:10}, name={:<8}, id={:04x}, heat={:a}",
+                      L"this=  0xc0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                      p, wt, i, d);
+    }
+#endif  // No zero padding of pointers in gcc
 }
 
 void testCase9()
@@ -1935,6 +1971,7 @@ void testCase9()
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
+#ifndef u_GCC_PTR_FMT_WORKAROUND
     u_VERIFY_FORMAT("this={:010}, name={:<8}, id={:04x}, heat={:a}",
                     "this=0x00c0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
                     reinterpret_cast<const void *>(0xC0FFEE),
@@ -1948,6 +1985,21 @@ void testCase9()
                      L"PgDown",
                      32,
                      13.75);
+#else   // ptrs can be zero padded
+    u_VERIFY_FORMAT("this={:10}, name={:<8}, id={:04x}, heat={:a}",
+                    "this=  0xc0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                    reinterpret_cast<const void *>(0xC0FFEE),
+                    "PgDown",
+                    32,
+                    13.75);
+
+    u_VERIFY_WFORMAT(L"this={:10}, name={:<8}, id={:04x}, heat={:a}",
+                     L"this=  0xc0ffee, name=PgDown  , id=0020, heat=1.b8p+3",
+                     reinterpret_cast<const void *>(0xC0FFEE),
+                     L"PgDown",
+                     32,
+                     13.75);
+#endif  // ptrs cannot be zero padded
 }
 
 void testCase8()
@@ -2000,11 +2052,13 @@ void testCase8()
 
     u_VERIFY_POINTER("{}", "0x12345", 0x12345);
 
+#ifndef u_GCC_PTR_FMT_WORKAROUND
     // Zero padding
 
     u_VERIFY_FORMAT_BOTH("{:010}", "0x00000000", bsl::nullptr_t());
 
     u_VERIFY_POINTER("{:010}", "0x00012345", 0x12345);
+#endif  // gcc does not support 0 padding
 
     // Aligned by constant in format string
 
@@ -2059,9 +2113,11 @@ void testCase8()
 
     u_VERIFY_POINTER("{:p}", "0x123ab", 0x123AB);
 
+#ifndef u_GCC_PTR_FMT_WORKAROUND
     u_VERIFY_FORMAT_BOTH("{:P}", "0X0", bsl::nullptr_t());
 
     u_VERIFY_POINTER("{:P}", "0X123AB", 0x123AB);
+#endif  // gcc does not support 'P' specifier
 
 #undef u_VERIFY_POINTER
 }
