@@ -857,24 +857,6 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::rawParse(
         *start += counter;
     }
 
-    // We cannot mix specified and unspecified relative argument ids.
-
-    if (d_rawWidth.category() ==
-            FormatterSpecificationNumericValue::e_NEXT_ARG &&
-        d_rawPrecision.category() ==
-            FormatterSpecificationNumericValue::e_ARG_ID) {
-        BSLS_THROW(bsl::format_error("Cannot mix automatic (width) and manual "
-                                     "(precision) indexing"));         // THROW
-    }
-
-    if (d_rawWidth.category() ==
-            FormatterSpecificationNumericValue::e_ARG_ID &&
-        d_rawPrecision.category() ==
-            FormatterSpecificationNumericValue::e_NEXT_ARG) {
-        BSLS_THROW(bsl::format_error("Cannot mix manual (width) and automatic "
-                                     "(precision) indexing"));         // THROW
-    }
-
     if (*start == end || **start == '}') {
         return;                                                       // RETURN
     }
@@ -917,6 +899,24 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void FormatSpecificationParser<t_CHAR>::parse(
     typename t_PARSE_CONTEXT::const_iterator end     = parseContext->end();
 
     rawParse(&current, end, sections);
+
+    // We cannot mix specified and unspecified relative argument ids.
+
+    if (d_rawWidth.category() ==
+            FormatterSpecificationNumericValue::e_NEXT_ARG &&
+        d_rawPrecision.category() ==
+            FormatterSpecificationNumericValue::e_ARG_ID) {
+        BSLS_THROW(bsl::format_error("Cannot mix automatic (width) and manual "
+                                     "(precision) indexing"));         // THROW
+    }
+
+    if (d_rawWidth.category() ==
+            FormatterSpecificationNumericValue::e_ARG_ID &&
+        d_rawPrecision.category() ==
+            FormatterSpecificationNumericValue::e_NEXT_ARG) {
+        BSLS_THROW(bsl::format_error("Cannot mix manual (width) and automatic "
+                                     "(precision) indexing"));         // THROW
+    }
 
     if (0 != (sections & e_SECTIONS_WIDTH)) {
         if (rawWidth().category() ==

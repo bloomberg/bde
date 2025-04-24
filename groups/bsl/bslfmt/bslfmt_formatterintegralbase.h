@@ -443,6 +443,12 @@ t_CHAR *FormatterIntegralBase<t_VALUE, t_CHAR>::formatValue(
       case Specification::e_INTEGRAL_HEX_UC: {
         valueBase = 16;
       } break;
+      case Specification::e_POINTER_HEX: {
+        valueBase = 16;
+      } break;
+      case Specification::e_POINTER_HEX_UC: {
+        valueBase = 16;
+      } break;
       default: {
         BSLS_THROW(bsl::format_error("Invalid integer format type"));
       }
