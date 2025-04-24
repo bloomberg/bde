@@ -55,7 +55,7 @@ bslfmt.txt
 /Component Synopsis
 /------------------
 : 'bslfmt_format':
-:      Provide a standard compliant `format` implementation
+:      Provide a standard compliant `format` implementation.
 :
 : 'bslfmt_format_arg':                                                !PRIVATE!
 :      Provide a proxy for an argument for use by bsl::format
