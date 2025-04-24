@@ -958,6 +958,16 @@ int main(int argc, char **argv)
                         WIDTH == parser.fillerCodePointDisplayWidth());
             }
 
+            // In the following table values from the `UTF_32` column are used
+            // only if the size of `wchar_t` is 4 bytes.  But on Windows the
+            // size of `wchar_t` is 2 bytes, so MSVC throws a warning when we
+            // try to assign a value to a variable that is too big to fit in
+            // 2 bytes.  To suppress this warning we have to use explicit
+            // conversion.
+
+            const wchar_t x108601 = static_cast<wchar_t>(0x108601);
+            const wchar_t x10ffff = static_cast<wchar_t>(0x10ffff);
+
             static const struct {
                 int     d_line;          // source line number
                 wchar_t d_spec16[2];     // UTF-16 filling character
@@ -979,8 +989,8 @@ int main(int argc, char **argv)
                 { L_,   { 0x1027         },  1,   1,   { 0x1027   },  1,   1 },
                 { L_,   { 0xffff         },  1,   1,   { 0xffff   },  1,   1 },
                 { L_,   { 0xd828, 0xdc00 },  2,   1,   { 0xd8     },  1,   1 },
-                { L_,   { 0xd834, 0xdd1e },  2,   1,   { 0x108601 },  1,   1 },
-                { L_,   { 0xd83c, 0xdc31 },  2,   1,   { 0x10ffff },  1,   1 },
+                { L_,   { 0xd834, 0xdd1e },  2,   1,   {  x108601 },  1,   1 },
+                { L_,   { 0xd83c, 0xdc31 },  2,   1,   {  x10ffff },  1,   1 },
             };
             const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
 
@@ -1352,6 +1362,16 @@ int main(int argc, char **argv)
             ASSERTV(sizeof(wchar_t),
                     4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
+            // In the following table values from the `UTF_32` column are used
+            // only if the size of `wchar_t` is 4 bytes.  But on Windows the
+            // size of `wchar_t` is 2 bytes, so MSVC throws a warning when we
+            // try to assign a value to a variable that is too big to fit in
+            // 2 bytes.  To suppress this warning we have to use explicit
+            // conversion.
+
+            const wchar_t x108601 = static_cast<wchar_t>(0x108601);
+            const wchar_t x10ffff = static_cast<wchar_t>(0x10ffff);
+
             static const struct {
                 int     d_line;          // source line number
                 wchar_t d_spec16[2];     // UTF-16 filling character
@@ -1373,8 +1393,8 @@ int main(int argc, char **argv)
                 { L_,   { 0x1027         },  1,   1,   { 0x1027   },  1,   1 },
                 { L_,   { 0xffff         },  1,   1,   { 0xffff   },  1,   1 },
                 { L_,   { 0xd828, 0xdc00 },  2,   2,   { 0xd8     },  1,   1 },
-                { L_,   { 0xd834, 0xdd1e },  2,   2,   { 0x108601 },  1,   1 },
-                { L_,   { 0xd83c, 0xdc31 },  2,   2,   { 0x10ffff },  1,   1 },
+                { L_,   { 0xd834, 0xdd1e },  2,   2,   {  x108601 },  1,   1 },
+                { L_,   { 0xd83c, 0xdc31 },  2,   2,   {  x10ffff },  1,   1 },
             };
             const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
 
