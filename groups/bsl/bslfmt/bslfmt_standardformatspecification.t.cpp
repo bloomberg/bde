@@ -247,73 +247,6 @@ void checkStandard(int                                line,
     ASSERTV(line, formatType             == spec.formatType());
 }
 
-/// Return a string representing a human-readable representation of the
-/// specified `category`.
-template <class t_CHAR>
-const char *toString(
-               typename StandardFormatSpecification<t_CHAR>::Category category)
-{
-    typedef StandardFormatSpecification<t_CHAR> Spec;
-
-    const char *names[] = {"e_CATEGORY_UNASSIGNED",
-                           "e_CATEGORY_STRING",
-                           "e_CATEGORY_INTEGRAL",
-                           "e_CATEGORY_CHARACTER",
-                           "e_CATEGORY_BOOLEAN",
-                           "e_CATEGORY_FLOATING",
-                           "e_CATEGORY_POINTER"};
-
-    // Superficial check
-
-    ASSERTV(static_cast<int>(Spec::e_CATEGORY_POINTER),
-            6 == static_cast<int>(Spec::e_CATEGORY_POINTER));
-    ASSERTV(static_cast<int>(category), 6 >= static_cast<int>(category));
-
-    return names[category];
-}
-
-/// Return a string representing a human-readable representation of the
-/// specified `type`.
-template <class t_CHAR>
-const char *toString(
-                 typename StandardFormatSpecification<t_CHAR>::FormatType type)
-{
-    typedef StandardFormatSpecification<t_CHAR> Spec;
-
-    const char *names[] = {"e_TYPE_UNASSIGNED",
-                           "e_STRING_DEFAULT",
-                           "e_STRING_ESCAPED",
-                           "e_INTEGRAL_BINARY",
-                           "e_INTEGRAL_BINARY_UC",
-                           "e_INTEGRAL_CHARACTER",
-                           "e_INTEGRAL_DECIMAL",
-                           "e_INTEGRAL_OCTAL",
-                           "e_INTEGRAL_HEX",
-                           "e_INTEGRAL_HEX_UC",
-                           "e_CHARACTER_CHARACTER",
-                           "e_CHARACTER_ESCAPED",
-                           "e_BOOLEAN_STRING",
-                           "e_FLOATING_DEFAULT",
-                           "e_FLOATING_HEX",
-                           "e_FLOATING_HEX_UC",
-                           "e_FLOATING_SCIENTIFIC",
-                           "e_FLOATING_SCIENTIFIC_UC",
-                           "e_FLOATING_FIXED",
-                           "e_FLOATING_FIXED_UC",
-                           "e_FLOATING_GENERAL",
-                           "e_FLOATING_GENERAL_UC",
-                           "e_POINTER_HEX",
-                           "e_POINTER_HEX_UC" };
-
-    // Superficial check
-
-    ASSERTV(static_cast<int>(Spec::e_POINTER_HEX_UC),
-            23 == static_cast<int>(Spec::e_POINTER_HEX_UC));
-    ASSERTV(static_cast<int>(type), 23 >= static_cast<int>(type));
-
-    return names[type];
-}
-
 /// Verify the state of the specified `specification` after processing the
 /// specification generated for the current state of the specified `generator`
 /// with the specified `category`.
@@ -391,14 +324,14 @@ void verifyParsedState(
             switch (generator.type()) {
               case TSG::e_TYPE_STRING: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_STRING_DEFAULT == specification.formatType());
               } break;
               case TSG::e_TYPE_ESCAPED: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_STRING_ESCAPED == specification.formatType());
               } break;
               default: {
@@ -411,46 +344,46 @@ void verifyParsedState(
             switch (generator.type()) {
               case TSG::e_TYPE_BINARY: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_BINARY == specification.formatType());
               } break;
               case TSG::e_TYPE_BINARY_UC: {
                 ASSERTV(
                       SPEC,
-                      toString<t_CHAR>(category),
-                      toString<t_CHAR>(specification.formatType()),
+                      category,
+                      specification.formatType(),
                       Obj::e_INTEGRAL_BINARY_UC == specification.formatType());
               } break;
               case TSG::e_TYPE_CHARACTER: {
                 ASSERTV(
                       SPEC,
-                      toString<t_CHAR>(category),
-                      toString<t_CHAR>(specification.formatType()),
+                      category,
+                      specification.formatType(),
                       Obj::e_INTEGRAL_CHARACTER == specification.formatType());
               } break;
               case TSG::e_TYPE_DECIMAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_DECIMAL == specification.formatType());
               } break;
               case TSG::e_TYPE_OCTAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_OCTAL == specification.formatType());
               } break;
               case TSG::e_TYPE_INT_HEX: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_HEX == specification.formatType());
               } break;
               case TSG::e_TYPE_INT_HEX_UC: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_HEX_UC == specification.formatType());
               } break;
               default: {
@@ -463,53 +396,53 @@ void verifyParsedState(
             switch (generator.type()) {
               case TSG::e_TYPE_BINARY: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_BINARY == specification.formatType());
               } break;
               case TSG::e_TYPE_BINARY_UC: {
                 ASSERTV(
                       SPEC,
-                      toString<t_CHAR>(category),
-                      toString<t_CHAR>(specification.formatType()),
+                      category,
+                      specification.formatType(),
                       Obj::e_INTEGRAL_BINARY_UC == specification.formatType());
               } break;
               case TSG::e_TYPE_CHARACTER: {
                 ASSERTV(
                      SPEC,
-                     toString<t_CHAR>(category),
-                     toString<t_CHAR>(specification.formatType()),
+                     category,
+                     specification.formatType(),
                      Obj::e_CHARACTER_CHARACTER == specification.formatType());
               } break;
               case TSG::e_TYPE_ESCAPED: {
                 ASSERTV(
                        SPEC,
-                       toString<t_CHAR>(category),
-                       toString<t_CHAR>(specification.formatType()),
+                       category,
+                       specification.formatType(),
                        Obj::e_CHARACTER_ESCAPED == specification.formatType());
               } break;
               case TSG::e_TYPE_DECIMAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_DECIMAL == specification.formatType());
               } break;
               case TSG::e_TYPE_OCTAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_OCTAL == specification.formatType());
               } break;
               case TSG::e_TYPE_INT_HEX: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_HEX == specification.formatType());
               } break;
               case TSG::e_TYPE_INT_HEX_UC: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_HEX_UC == specification.formatType());
               } break;
               default: {
@@ -522,45 +455,45 @@ void verifyParsedState(
             switch (generator.type()) {
               case TSG::e_TYPE_BINARY: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_BINARY == specification.formatType());
               } break;
               case TSG::e_TYPE_BINARY_UC: {
                 ASSERTV(
                       SPEC,
-                      toString<t_CHAR>(category),
-                      toString<t_CHAR>(specification.formatType()),
+                      category,
+                      specification.formatType(),
                       Obj::e_INTEGRAL_BINARY_UC == specification.formatType());
               } break;
               case TSG::e_TYPE_STRING: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_BOOLEAN_STRING == specification.formatType());
               } break;
               case TSG::e_TYPE_DECIMAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_DECIMAL == specification.formatType());
               } break;
               case TSG::e_TYPE_OCTAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_OCTAL == specification.formatType());
               } break;
               case TSG::e_TYPE_INT_HEX: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_HEX == specification.formatType());
               } break;
               case TSG::e_TYPE_INT_HEX_UC: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_INTEGRAL_HEX_UC == specification.formatType());
               } break;
               default: {
@@ -573,54 +506,54 @@ void verifyParsedState(
             switch (generator.type()) {
               case TSG::e_TYPE_FLOAT_HEX: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_FLOATING_HEX == specification.formatType());
               } break;
               case TSG::e_TYPE_FLOAT_HEX_UC: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_FLOATING_HEX_UC == specification.formatType());
               } break;
               case TSG::e_TYPE_SCIENTIFIC: {
                 ASSERTV(
                      SPEC,
-                     toString<t_CHAR>(category),
-                     toString<t_CHAR>(specification.formatType()),
+                     category,
+                     specification.formatType(),
                      Obj::e_FLOATING_SCIENTIFIC == specification.formatType());
               } break;
               case TSG::e_TYPE_SCIENTIFIC_UC: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_FLOATING_SCIENTIFIC_UC ==
                             specification.formatType());
               } break;
               case TSG::e_TYPE_FIXED: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_FLOATING_FIXED == specification.formatType());
               } break;
               case TSG::e_TYPE_FIXED_UC: {
                 ASSERTV(
                        SPEC,
-                       toString<t_CHAR>(category),
-                       toString<t_CHAR>(specification.formatType()),
+                       category,
+                       specification.formatType(),
                        Obj::e_FLOATING_FIXED_UC == specification.formatType());
               } break;
               case TSG::e_TYPE_GENERAL: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_FLOATING_GENERAL == specification.formatType());
               } break;
               case TSG::e_TYPE_GENERAL_UC: {
                 ASSERTV(
                      SPEC,
-                     toString<t_CHAR>(category),
-                     toString<t_CHAR>(specification.formatType()),
+                     category,
+                     specification.formatType(),
                      Obj::e_FLOATING_GENERAL_UC == specification.formatType());
               } break;
               default: {
@@ -633,14 +566,14 @@ void verifyParsedState(
             switch (generator.type()) {
               case TSG::e_TYPE_POINTER: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_POINTER_HEX == specification.formatType());
               } break;
               case TSG::e_TYPE_POINTER_UC: {
                 ASSERTV(SPEC,
-                        toString<t_CHAR>(category),
-                        toString<t_CHAR>(specification.formatType()),
+                        category,
+                        specification.formatType(),
                         Obj::e_POINTER_HEX_UC == specification.formatType());
               } break;
               default: {
@@ -658,43 +591,43 @@ void verifyParsedState(
         switch (category) {
           case Obj::e_CATEGORY_STRING: {
             ASSERTV(SPEC,
-                    toString<t_CHAR>(category),
-                    toString<t_CHAR>(specification.formatType()),
+                    category,
+                    specification.formatType(),
                     Obj::e_STRING_DEFAULT == specification.formatType());
           } break;
 
           case Obj::e_CATEGORY_INTEGRAL: {
             ASSERTV(SPEC,
-                    toString<t_CHAR>(category),
-                    toString<t_CHAR>(specification.formatType()),
+                    category,
+                    specification.formatType(),
                     Obj::e_INTEGRAL_DECIMAL == specification.formatType());
           } break;
 
           case Obj::e_CATEGORY_CHARACTER: {
             ASSERTV(SPEC,
-                    toString<t_CHAR>(category),
-                    toString<t_CHAR>(specification.formatType()),
+                    category,
+                    specification.formatType(),
                     Obj::e_CHARACTER_CHARACTER == specification.formatType());
           } break;
 
           case Obj::e_CATEGORY_BOOLEAN: {
             ASSERTV(SPEC,
-                    toString<t_CHAR>(category),
-                    toString<t_CHAR>(specification.formatType()),
+                    category,
+                    specification.formatType(),
                     Obj::e_BOOLEAN_STRING == specification.formatType());
           } break;
 
           case Obj::e_CATEGORY_FLOATING: {
             ASSERTV(SPEC,
-                    toString<t_CHAR>(category),
-                    toString<t_CHAR>(specification.formatType()),
+                    category,
+                    specification.formatType(),
                     Obj::e_FLOATING_DEFAULT == specification.formatType());
           } break;
 
           case Obj::e_CATEGORY_POINTER: {
             ASSERTV(SPEC,
-                    toString<t_CHAR>(category),
-                    toString<t_CHAR>(specification.formatType()),
+                    category,
+                    specification.formatType(),
                     Obj::e_POINTER_HEX == specification.formatType());
           } break;
 
@@ -951,10 +884,7 @@ void TestDriver<t_CHAR>::testCase4(bool veryVerbose)
                       // be invalid and we expect the parsing function to throw
                       // an exception in this case.
 
-                      ASSERTV(toString<t_CHAR>(CATEGORY),
-                              spec.c_str(),
-                              err.what(),
-                              false);
+                      ASSERTV(CATEGORY, spec.c_str(), err.what(), false);
                   }
               }
               ++counter;
@@ -1506,18 +1436,12 @@ int main(int argc, char **argv)
                         mXc.parse(&context, CATEGORY);
                     }
                     catch (bsl::format_error& err) {
-                        ASSERTV(LINE,
-                                SPEC.data(),
-                                toString<char>(CATEGORY),
-                                err.what(),
+                        ASSERTV(LINE, SPEC.data(), CATEGORY, err.what(),
                                 false);
                     }
 
-                    ASSERTV(LINE,
-                            SPEC.data(),
-                            toString<char>(CATEGORY),
-                            toString<char>(EXPECTED),
-                            toString<char>(mXc.formatType()),
+                    ASSERTV(LINE, SPEC.data(), CATEGORY, EXPECTED,
+                            mXc.formatType(),
                             EXPECTED == mXc.formatType());
                 }
 
@@ -1536,16 +1460,16 @@ int main(int argc, char **argv)
 
                     try {
                         mXc.parse(&context, CATEGORY);
-                        ASSERTV(toString<char>(CATEGORY),
+                        ASSERTV(CATEGORY,
                                 fullSpec.data(),
-                                toString<char>(EXPECTED),
-                                toString<char>(mXc.formatType()),
+                                EXPECTED,
+                                mXc.formatType(),
                                 EXPECTED == mXc.formatType());
                     }
                     catch (bsl::format_error& err) {
-                        ASSERTV(toString<char>(CATEGORY),
+                        ASSERTV(CATEGORY,
                                 fullSpec.data(),
-                                toString<char>(EXPECTED),
+                                EXPECTED,
                                 err.what(),
                                 CS::e_TYPE_UNASSIGNED == EXPECTED);
                     }
