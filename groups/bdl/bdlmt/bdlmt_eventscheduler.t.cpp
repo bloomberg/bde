@@ -1190,7 +1190,7 @@ void setWatchdogText(const char *value)
 /// program is aborted.
 extern "C" void *watchdog(void *)
 {
-    const int MAX = 100;  // one iteration is a deci-second
+    const int MAX = 900;  // one iteration is a deci-second
 
     int count = 0;
 

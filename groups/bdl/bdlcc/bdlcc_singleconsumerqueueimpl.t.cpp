@@ -781,7 +781,7 @@ extern "C" void *watchdog(void *text)
         setWatchdogText(static_cast<const char *>(text));
     }
 
-    const int MAX = 100;  // one iteration is a decisecond
+    const int MAX = 900;  // one iteration is a decisecond
 
     int count = 0;
 

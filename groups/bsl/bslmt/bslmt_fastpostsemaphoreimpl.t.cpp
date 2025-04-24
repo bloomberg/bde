@@ -981,7 +981,7 @@ extern "C" void *watchdog(void *arg)
 {
     const char *text = static_cast<const char *>(arg);
 
-    const int MAX = 10;
+    const int MAX = 900;
 
     int count = 0;
 

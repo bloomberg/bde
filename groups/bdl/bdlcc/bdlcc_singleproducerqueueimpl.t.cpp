@@ -883,7 +883,7 @@ void setWatchdogText(const char *value)
 
 extern "C" void *watchdog(void *)
 {
-    const int MAX = 100;  // one iteration is a decisecond
+    const int MAX = 900;  // one iteration is a decisecond
 
     int count = 0;
 
