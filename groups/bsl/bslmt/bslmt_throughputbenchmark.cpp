@@ -73,54 +73,34 @@ bsls::Types::Int64 ThroughputBenchmark::estimateBusyWorkAmount(
         targetDurationNanos = k_MAX_TARGET_DURATION_NANOS;
     }
 
-    const int k_ITERATIONS = 10;  // number of estimation iterations, each
-                                  // iteration adds two observations
+    const int k_EST_ITER  =  3;  // number of estimation iterations
 
-    bsl::array<bsls::Types::Int64, 2 * k_ITERATIONS + 1> estimates;
+    const int k_OBS_ITER  = 20;  // number of observation iterations
 
-    // initial estimate
-    {
-        bsls::Types::Int64 busyWorkAmount = 200000;  // initial value
+    const int k_OBS_INDEX =  8;  // after sorting the observations, index to
+                                 // use for next estimate (0 is the index of
+                                 // the minimum observation, k_OBS_ITER / 2 the
+                                 // median)
 
-        bsls::TimeInterval startTime = bsls::SystemTime::nowMonotonicClock();
-        busyWork(busyWorkAmount);
-        bsls::Types::Int64 nanos = (  bsls::SystemTime::nowMonotonicClock()
-                                    - startTime).totalNanoseconds();
+    bsl::array<bsls::Types::Int64, k_OBS_ITER> observations;
 
-        estimates[0] = targetDurationNanos * busyWorkAmount / nanos;
-    }
+    bsls::Types::Int64 busyWorkAmount = 200000;  // initial value
 
-    for (int i = 0; i < k_ITERATIONS; ++i) {
-        // add two estimates from the observed median of 'estimates'
-        {
-            bsls::Types::Int64 busyWorkAmount = estimates[i] * 9 / 10;
-
+    for (int i = 0; i < k_EST_ITER; ++i) {
+        for (int j = 0; j < k_OBS_ITER; ++j) {
             bsls::TimeInterval startTime =
                                          bsls::SystemTime::nowMonotonicClock();
             busyWork(busyWorkAmount);
             bsls::Types::Int64 nanos = (  bsls::SystemTime::nowMonotonicClock()
                                         - startTime).totalNanoseconds();
-
-            estimates[i*2 + 1] = targetDurationNanos * busyWorkAmount / nanos;
+            observations[j] = nanos;
         }
-        {
-            bsls::Types::Int64 busyWorkAmount = estimates[i] * 11 / 10;
-
-            bsls::TimeInterval startTime =
-                                         bsls::SystemTime::nowMonotonicClock();
-            busyWork(busyWorkAmount);
-            bsls::Types::Int64 nanos = (  bsls::SystemTime::nowMonotonicClock()
-                                        - startTime).totalNanoseconds();
-
-            estimates[i*2 + 2] = targetDurationNanos * busyWorkAmount / nanos;
-        }
-
-        // sort to obtain the median
-        bsl::sort(estimates.begin(), estimates.begin() + i * 2 + 3);
+        bsl::sort(observations.begin(), observations.end());
+        busyWorkAmount = targetDurationNanos * busyWorkAmount
+                                                   / observations[k_OBS_INDEX];
     }
 
-    return duration.totalNanoseconds() * estimates[k_ITERATIONS]
-                                                         / targetDurationNanos;
+    return duration.totalNanoseconds() * busyWorkAmount / targetDurationNanos;
 }
 
 // CREATORS
