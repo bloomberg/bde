@@ -268,7 +268,8 @@ bdlm::MetricsAdapter::CallbackHandle
 int TestMetricsAdapter::removeCollectionCallback(const CallbackHandle& handle)
 {
     if (d_descriptors.find(handle) == d_descriptors.end()) {
-        ASSERTV(handle, "Attempt to remove invalid collection callback handle")
+        ASSERTV(handle,
+                0 == "Attempt to remove invalid collection callback handle");
         return -1;                                                  // RETURN
     }
     d_descriptors.erase(handle);
