@@ -186,8 +186,8 @@ int main(int argc, char *argv[])
 // ```
     bsls::TimeInterval interval = t2 - t1;
 //
-    ASSERT(bsls::TimeInterval(.8) <= interval &&
-                                     interval <= bsls::TimeInterval(2.5));
+    ASSERT(bsls::TimeInterval(.9) <= interval &&
+                                     interval <= bsls::TimeInterval(1.5));
 // ```
       } break;
       case 3: {

@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 
         const bsls::TimeInterval SLEEP_SECONDS(0.3);
         const double OVERSHOOT_MIN = -1e-3;
-        const double OVERSHOOT_MAX = 3.0;
+        const double OVERSHOOT_MAX = 0.5;
 
         Obj condition(bsls::SystemClockType::e_MONOTONIC);
         bslmt::Mutex     mutex;
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
 
         const bsls::TimeInterval SLEEP_SECONDS(0.3);
         const double OVERSHOOT_MIN = -1e-5;
-        const double OVERSHOOT_MAX = 3.0;
+        const double OVERSHOOT_MAX = 0.5;
 
         Obj condition;
         bslmt::Mutex     mutex;
