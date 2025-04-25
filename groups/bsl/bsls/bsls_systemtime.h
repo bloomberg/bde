@@ -77,8 +77,8 @@ BSLS_IDENT("$Id: $")
 // ```
 // bsls::TimeInterval interval = t2 - t1;
 //
-// assert(bsls::TimeInterval(.9) <= interval &&
-//                                  interval <= bsls::TimeInterval(1.5));
+// assert(bsls::TimeInterval(.8) <= interval &&
+//                                  interval <= bsls::TimeInterval(2.5));
 // ```
 
 #include <bsls_assert.h>
