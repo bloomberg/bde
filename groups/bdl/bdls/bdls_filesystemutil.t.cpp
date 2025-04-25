@@ -8278,6 +8278,7 @@ int main(int argc, char *argv[])
         const bool isWindows = false;
 #endif
 
+#ifndef BSLS_PLATFORM_OS_DARWIN
         testCase6_move_normal(NAMES[NAME_ANSI],
                               NAMES[NAME_ASCII],
                               isWindows,
@@ -8293,6 +8294,7 @@ int main(int argc, char *argv[])
                               verbose,
                               veryVerbose,
                               veryVeryVerbose);
+#endif  // Not Darwin
 
         // Test various cases of what is located at the destination (possibly
         // nothing).

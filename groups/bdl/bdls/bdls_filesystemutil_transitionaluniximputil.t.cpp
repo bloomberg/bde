@@ -153,6 +153,9 @@ struct Stat64Imp {
 #define st_mtime st_mtim.tv_sec
 
 // Need a "fake" definition so this test driver will run on Windows.
+#ifdef BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER
+  #undef BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER
+#endif
 #define BDLS_FILESYSTEMUTIL_UNIXPLATFORM_STAT_NS_MEMBER st_mtim.tv_nsec
 
 #endif
@@ -652,7 +655,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING `getLastModificationTime`
         //   This case verifies, using a mock Unix interface, that
-        //   `getLastModificationTime` correctly covnerts the values of its
+        //   `getLastModificationTime` correctly converts the values of its
         //   arguments into the values required by the underlying Unix system
         //   operation, converts the results of the operation to
         //   `getLastModificationTime`s results, and invokes no undefined
@@ -918,7 +921,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         {
-            // This block tets all code paths through the transitional Unix
+            // This block tests all code paths through the transitional Unix
             // implementation of `getFileSize`, as well as boundary values for
             // its input and output, using a mock transitional Unix interface.
 
