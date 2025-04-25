@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:38 2024
+// Generated on Fri Apr 25 13:38:57 2025
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORTRAITS_H
@@ -486,11 +486,20 @@ struct AllocatorTraits_RebindFront<ALLOC<T>, U> {
                         // AllocatorTraits_RebindAlloc
                         // ===========================
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+// We use `rebind_alloc` of the standard library type-traits directly (after
+// C++11) because `rebind` (use in the code in the `#else`) is deprecated in
+// C++17 (and removed in C++20) and produces a warning on at least one compiler
+// platform.
+template <class T, class U>
+struct AllocatorTraits_RebindAlloc {
+    typedef typename std::allocator_traits<T>::template rebind_alloc<U> type;
+};
+#else  // C++03
 /// should be pointer_traits::rebind of template above
 template <class T, class U, class = void>
 struct AllocatorTraits_RebindAlloc {
     typedef typename AllocatorTraits_RebindFront<T, U>::type type;
-
 };
 
 template <class T, class U>
@@ -500,6 +509,7 @@ struct AllocatorTraits_RebindAlloc<
                       BSLMF_VOIDTYPE(typename T::template rebind<U>::other)> {
     typedef typename T::template rebind<U>::other type;
 };
+#endif  // no BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
                         // ===========================
                         // AllocatorTraits_CallMaxSize
@@ -707,7 +717,7 @@ struct allocator_traits {
 
         template <typename ARG>
         rebind_alloc(const ARG& allocatorArg)
-            // Convert from anything that can be used to cosntruct the base
+            // Convert from anything that can be used to construct the base
             // type.  This might be better if SFINAE-ed out using
             // 'is_convertible', but stressing older compilers more seems
             // unwise.

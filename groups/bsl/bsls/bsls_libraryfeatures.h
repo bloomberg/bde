@@ -427,6 +427,7 @@ BSLS_IDENT("$Id: $")
 //     - `isblank`
 //   - Functions defined in `<memory>`
 //     - `addressof`
+//     - `allocator_traits`
 //     - `pointer_traits`
 //     - `uninitialized_copy_n`
 //   - Function defined in `<numeric>`
