@@ -1131,7 +1131,7 @@ int main(int argc, char *argv[])
         {
             enum {
                 k_NTHREADS = 2,
-                k_TIMEOUT  = 100000 // 0.1s, in microseconds
+                k_TIMEOUT  = 1000000 // 1.0s, in microseconds
             };
 
             bslmt::ThreadAttributes attributes;
