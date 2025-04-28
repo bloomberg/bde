@@ -272,7 +272,11 @@ void TestBasicConstructors()
         bsl::span<const int>    sD1b(sS);
         bsl::span<const int, 3> sS2a(sD);
 
+#if !(BSLS_PLATFORM_OS_DARWIN                          \
+      && BSLS_PLATFORM_CMP_CLANG                       \
+      && BSLS_PLATFORM_CMP_VERSION<=180000)
         ASSERT_NOEXCEPT(bsl::span<const int, 5>(sS));
+#endif
         ASSERT_NOEXCEPT(bsl::span<const int   >(sS));
         ASSERT_NOEXCEPT(bsl::span<const int, 3>(sD));
         ASSERT_NOEXCEPT(bsl::span<const int   >(sD));
