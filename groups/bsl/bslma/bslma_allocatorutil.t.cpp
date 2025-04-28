@@ -134,6 +134,10 @@ class DerivedAllocator : public bsl::allocator<TYPE> {
     typedef bsl::allocator<TYPE> Base;
 
   public:
+    // Disable the base class `rebind` template, otherwise rebinding a
+    // `DerivedAllocator` will produce a `bsl::allocator`.
+    typedef void rebind;
+
     DerivedAllocator(bslma::Allocator *a = 0) : Base(a) { }
 
     template <class T2>
