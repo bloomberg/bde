@@ -2130,20 +2130,8 @@ int main(int argc, char *argv[])
         //   the file descriptor.
         // --------------------------------------------------------------------
 
-
         if (verbose) cout << "RESET, RELEASE, CLEAR ON FDSTREAMBUF TEST\n"
                              "=========================================\n";
-
-
-        // Windows FileDescriptor's are pointers, so a different type of cast
-        // is needed.
-
-        FileUtil::FileDescriptor BOGUS_HANDLE =
-#ifdef BSLS_PLATFORM_OS_WINDOWS
-                              reinterpret_cast<FileUtil::FileDescriptor>(100);
-#else
-                              static_cast<FileUtil::FileDescriptor>(100);
-#endif
 
         char fnBuf[100];
         char fnBuf2[100];
@@ -2288,13 +2276,13 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-            cout << "\tTesting `clear` on an u::invalid file handle" << endl;
+            cout << "\tTesting `clear` on an invalid file handle" << endl;
         }
         {
-            Obj mX(BOGUS_HANDLE, true, true, true, &ta); const Obj& X = mX;
+            Obj mX(u::invalid, true, true, true, &ta);  const Obj& X = mX;
 
-            ASSERT(X.isOpened());
-            ASSERT(X.willCloseOnReset());
+            ASSERT(!X.isOpened());
+            ASSERT(!X.willCloseOnReset());
 
             ASSERT(0 == mX.clear());
 
@@ -2314,10 +2302,10 @@ int main(int argc, char *argv[])
                           "reset-bad-handle",
                           bdls::ProcessUtil::getProcessId());
 
-            Obj mX(BOGUS_HANDLE, true, true, true, &ta); const Obj& X = mX;
+            Obj mX(u::invalid, true, true, true, &ta);  const Obj& X = mX;
 
-            ASSERT(X.isOpened());
-            ASSERT(X.willCloseOnReset());
+            ASSERT(!X.isOpened());
+            ASSERT(!X.willCloseOnReset());
 
             fd3 = FileUtil::open(filename,
                                  FileUtil::e_CREATE,
