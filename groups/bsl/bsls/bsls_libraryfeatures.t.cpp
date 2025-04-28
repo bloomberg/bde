@@ -1886,20 +1886,34 @@ int main(int argc, char *argv[])
                 int x;
             };
 
-            const bool result   = std::is_pointer_interconvertible_base_of  <
-                                                              Bar, Baz>::value;
-            const bool result_v = std::is_pointer_interconvertible_base_of_v<
-                                                              Bar, Baz>;
+            {
+                // Test the first base class.  It's private, but the trait
+                // should still be true.
+                const bool result =
+                     std::is_pointer_interconvertible_base_of<Foo, Baz>::value;
+                const bool result_v =
+                     std::is_pointer_interconvertible_base_of_v<Foo, Baz>;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1942
-            // Known Windows bug.  Hopefully fixed in future release.
+                ASSERT(true == result);
+                ASSERT(true == result_v);
+            }
+            {
+                // Test the second base class.  MSVC doesn't give the right
+                // answer for ABI reasons.
+                const bool result =
+                     std::is_pointer_interconvertible_base_of<Bar, Baz>::value;
+                const bool result_v =
+                     std::is_pointer_interconvertible_base_of_v<Bar, Baz>;
 
-            const bool expected = false;
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+                const bool expected = false;
 #else
-            const bool expected = true;
+                const bool expected = true;
 #endif
-            ASSERT(expected == result);
-            ASSERT(expected == result_v);
+
+                ASSERT(expected == result);
+                ASSERT(expected == result_v);
+            }
         }
         {
             struct Foo { int x; };
@@ -1907,8 +1921,8 @@ int main(int argc, char *argv[])
             struct Baz : Foo, Bar {}; // not standard-layout
 
             const bool result = std::is_pointer_interconvertible_with_class(
-                                                                      &Baz::x);
-            ASSERT(true == result);
+                                             static_cast<int Baz::*>(&Foo::x));
+            ASSERT(false == result);
         }
 #else
         if (veryVerbose) {
