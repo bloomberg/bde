@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == IsSameType<int>()(j));
 
-        FILE file;
+        FILE file = *fdopen(0, "r");
 
         ASSERT(1 == IsSameType<FILE>()(file));
         ASSERT(0 == IsSameType<int >()(file));
@@ -422,7 +422,7 @@ int main(int argc, char *argv[])
 
         ASSERT(1 == isConstObject(j));
 
-        FILE file;
+        FILE file = *fdopen(0, "r");
 
         ASSERT(0 == isConstObject(file));
 

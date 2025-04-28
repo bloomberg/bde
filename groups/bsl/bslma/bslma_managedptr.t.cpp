@@ -890,7 +890,7 @@ namespace USAGE_EXAMPLES {
             std::size_t length = std::strlen(str);
 
             d_str_p = static_cast<char *>(d_alloc_p->allocate(length + 1));
-            std::strncpy(d_str_p, str, length + 1);
+            std::memcpy(d_str_p, str, length + 1);
         }
 
         /// Destroy this object.
@@ -1015,7 +1015,7 @@ namespace USAGE_EXAMPLES {
             std::size_t length = std::strlen(str);
 
             d_str_p = static_cast<char *>(d_alloc_p->allocate(length + 1));
-            std::strncpy(d_str_p, str, length + 1);
+            std::memcpy(d_str_p, str, length + 1);
         }
 
         /// Destroy this object.

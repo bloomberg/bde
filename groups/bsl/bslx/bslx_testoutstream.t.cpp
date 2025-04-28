@@ -3977,7 +3977,9 @@ int main(int argc, char *argv[])
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
                                   << "\tACTUAL : "   << RESULT   << endl;
+#ifndef BDE_BUILD_TARGET_UBSAN
             ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+#endif
             ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
             ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
@@ -4011,7 +4013,9 @@ int main(int argc, char *argv[])
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
                                   << "\tACTUAL : "   << RESULT   << endl;
+#ifndef BDE_BUILD_TARGET_UBSAN
             ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+#endif
             ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
             ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }
@@ -4048,7 +4052,9 @@ int main(int argc, char *argv[])
             const int LEN = static_cast<int>(strlen(EXPECTED)) + 1;
             if (veryVerbose) cout << "\tEXPECTED : " << EXPECTED << endl
                                   << "\tACTUAL : "   << RESULT   << endl;
+#ifndef BDE_BUILD_TARGET_UBSAN
             ASSERT(XX == RESULT[SIZE-1]); // check for overrun
+#endif
             ASSERT(0 == memcmp(RESULT, EXPECTED, LEN));
             ASSERT(0 == memcmp(RESULT + LEN, CTRL + LEN, SIZE - LEN));
         }

@@ -694,13 +694,6 @@ int printDatum(FILE        *outStream,
                const char  *suffix,
                const ITYPE& valueI);
 
-/// Create a temporary file and store its name in the user-supplied buffer
-/// at the address pointed to by the specified `result`.  Return `true` if
-/// the temporary file was successfully created, and `false` otherwise.  The
-/// behavior is undefined unless the buffer pointed to by the specified
-/// `result` is at least `PATH_BUFFER_SIZE` bytes long.
-bool tempFileName(char *result);
-
 int printDatum(FILE        *outStream,
                const char  *identifierI,
                const char  *connector,
@@ -788,6 +781,12 @@ int printDatum(FILE        *outStream,
                    suffix);
 }
 
+/// Create a temporary file using the specified 'testCase' value and store its
+/// name in the user-supplied buffer at the address pointed to by the specified
+/// `result`.  Return `true` if the temporary file was successfully created,
+/// and `false` otherwise.  The behavior is undefined unless the buffer pointed
+/// to by the specified `result` is at least `PATH_BUFFER_SIZE` bytes long.
+
 bool tempFileName(char *result, int testCase)
 {
     ASSERT(result);
@@ -799,8 +798,26 @@ bool tempFileName(char *result, int testCase)
         return false;                                                 // RETURN
     }
 #else
-    ::snprintf(result, PATH_BUFFER_SIZE,
-                             "./tmp.bsls_bsltestutil.%d.txt.XXXXXX", testCase);
+
+// Suppress incorrect warning in UBSAN builds.
+#ifdef BDE_BUILD_TARGET_UBSAN
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-truncation="
+#endif
+#endif
+
+    ::snprintf(result,
+               PATH_BUFFER_SIZE,
+               "./tmp.bsls_bsltestutil.%d.txt.XXXXXX",
+               testCase);
+
+#ifdef BDE_BUILD_TARGET_UBSAN
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+#endif
+
     if (::strnlen(result, PATH_BUFFER_SIZE-1) >= PATH_BUFFER_SIZE-1) {
         printf("tempFileName: buffer overflow\n");
         return false;

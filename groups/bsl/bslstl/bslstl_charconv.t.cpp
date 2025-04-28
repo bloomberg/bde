@@ -1433,7 +1433,7 @@ int main(int argc, char *argv[])
                                        BASE);
                 *result.ptr = 0;
 
-                s.insert(0, "-");
+                s.insert(s.begin(), '-');
                 ASSERTV(LINE, s.c_str(), toCharsBuffer, s == toCharsBuffer);
             }
         }

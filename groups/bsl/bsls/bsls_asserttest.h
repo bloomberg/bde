@@ -271,10 +271,11 @@ BSLS_IDENT("$Id: $")
 // exceptions are available in the current build mode, as the test macros rely
 // on the exception facility in order to return their diagnostic results.  If
 // exceptions are not available, there is nothing for a "negative test" to do.
+// We also avoid warnings from UBSAN builds.
 // ```
 // void testVectorArrayAccess()
 // {
-// #ifdef BDE_BUILD_TARGET_EXC
+// #if defined(BDE_BUILD_TARGET_EXC) && !defined(BDE_BUILD_TARGET_UBSAN)
 //     bsls::AssertTestHandlerGuard g;
 //
 //     AssertTestVector<void *> mA; const AssertTestVector<void *> &A = mA;
@@ -296,7 +297,7 @@ BSLS_IDENT("$Id: $")
 //     ASSERT_SAFE_FAIL( A[-1]);
 //     ASSERT_PASS     ( A[ 0]);
 //     ASSERT_SAFE_FAIL( A[ 1]);
-// #else   // defined(BDE_BUILD_TARGET_EXC)
+// #else  // defined(BDE_BUILD_TARGET_EXC) && !defined(BDE_BUILD_TARGET_UBSAN)
 // ```
 // If exceptions are not available, then we write a diagnostic message to the
 // console alerting the user that this part of the test has not run, without
@@ -305,7 +306,7 @@ BSLS_IDENT("$Id: $")
 //     if (globalVerbose) printf(
 //                        "\tDISABLED in this (non-exception) build mode.\n");
 //
-// #endif  // !defined(BDE_BUILD_TARGET_EXC)
+// #endif  // defined(BDE_BUILD_TARGET_EXC) && !defined(BDE_BUILD_TARGET_UBSAN)
 // }
 // ```
 //
@@ -327,7 +328,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // void testVectorArrayAccess2()
 // {
-// #ifdef BDE_BUILD_TARGET_EXC
+// #if defined(BDE_BUILD_TARGET_EXC) && !defined(BDE_BUILD_TARGET_UBSAN)
 //     bsls::AssertTestHandlerGuard g;
 //
 //     AssertTestVector<void *> mA; const AssertTestVector<void *> &A = mA;
@@ -349,7 +350,7 @@ BSLS_IDENT("$Id: $")
 //     ASSERT_SAFE_FAIL( A[-1]);
 //     ASSERT_SAFE_PASS( A[ 0]);
 //     ASSERT_SAFE_FAIL( A[ 1]);
-// #endif  // defined(BDE_BUILD_TARGET_EXC)
+// #endif  // defined(BDE_BUILD_TARGET_EXC) && !defined(BDE_BUILD_TARGET_UBSAN)
 // }
 // ```
 
