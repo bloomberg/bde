@@ -359,6 +359,20 @@ enum {
         // vexing parse that declares a function instead.
 #endif
 
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                         \
+    BSLS_PLATFORM_CMP_VERSION >= 120000 &&                                    \
+    BSLS_PLATFORM_CMP_VERSION <  160000
+    // GCC Bug 119969 causes incorrect codegen for some test cases where the
+    // element type is a pointer to member function.
+    #undef BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE
+    #define BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE                   \
+            signed char,                                                      \
+            size_t,                                                           \
+            const char *,                                                     \
+            bsltf::TemplateTestFacility::ObjectPtr,                           \
+            bsltf::TemplateTestFacility::FunctionPtr
+#endif
+
 // ============================================================================
 //                             SWAP TEST HELPERS
 // ----------------------------------------------------------------------------
