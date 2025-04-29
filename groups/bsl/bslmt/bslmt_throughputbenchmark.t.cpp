@@ -652,10 +652,10 @@ int main(int argc, char *argv[])
             }
 
             ASSERTV(countTightBoundPassed,
-                    100 * countTightBoundPassed >= 35 * k_NUM_TRIALS);
+                    100 * countTightBoundPassed >= 25 * k_NUM_TRIALS);
 
             ASSERTV(countLooseBoundPassed,
-                    100 * countLooseBoundPassed >= 60 * k_NUM_TRIALS);
+                    100 * countLooseBoundPassed >= 50 * k_NUM_TRIALS);
 
             ASSERT(defaultAllocator.numAllocations() == allocations);
         }

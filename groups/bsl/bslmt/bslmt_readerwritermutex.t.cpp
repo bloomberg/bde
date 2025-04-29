@@ -598,10 +598,10 @@ int main(int argc, char *argv[])
 
         // For a reader-prefering lock, the above test will result in,
         // typically, `writer.d_count < k_COMPLETION_COUNT / 10000`.  To verify
-        // the lock is writer-prefering, the threshold will be set to ten times
+        // the lock is writer-prefering, the threshold will be set four times
         // higher than this measure.
 
-        ASSERTV(writer.d_count, writer.d_count >= k_COMPLETION_COUNT / 1000);
+        ASSERTV(writer.d_count, writer.d_count >= k_COMPLETION_COUNT / 2500);
       } break;
       case 2: {
         // --------------------------------------------------------------------

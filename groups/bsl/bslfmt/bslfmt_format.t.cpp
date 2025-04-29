@@ -1431,7 +1431,9 @@ struct DelimitedIntFormatter {
 
         *outIterator++ = d_delimiters[0];
 
-        long divider = sizeof(int) == 4 ? 1000000000 : 1000000000000000000;
+        long divider = (  sizeof(int) == 4
+                        ? 1000000000
+                        : static_cast<long>(1000000000000000000));
             // INT_MAX 9,223,372,036,854,775,807 on 64-bit INT_MAX
             // 2,147,483,647 on 32-bit
 

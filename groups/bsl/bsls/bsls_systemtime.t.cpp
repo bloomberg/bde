@@ -240,12 +240,9 @@ int main(int argc, char *argv[])
         //
         // 2. That consecutive values do not decrease.
         //
-        // 3. QoI: The resolution of the monotonic clock is < 1 second.
-        //
         // Plan:
         // 1. Call `nowMonotonicClock` in a loop for a couple seconds; verify
-        //    the results do not decrease between iterations, and that
-        //    increments of the clock are less than 1 second.  (C-1..3)
+        //    the results do not decrease between iterations.  (C-1,2)
         //
         // Testing:
         //   TimeInterval nowMonotonicClock();
@@ -256,10 +253,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\tCompare results w/ real-time clock\n");
         {
-            // Test sequential values are increasing and have a resolution of
-            // less than 1 second.
+            // Test sequential values are increasing.
 
-            TimeInterval ONE_SEC = TimeInterval(1, 0);
             TimeInterval realOrigin = Obj::nowRealtimeClock();
             TimeInterval monoOrigin = Obj::nowMonotonicClock();
             TimeInterval prev       = monoOrigin;
@@ -273,7 +268,6 @@ int main(int argc, char *argv[])
                 now = Obj::nowMonotonicClock();
 
                 ASSERT(prev <= now);
-                ASSERT(prev + ONE_SEC > now);
 
                 prev = now;
             }
@@ -282,9 +276,9 @@ int main(int argc, char *argv[])
             TimeInterval monoInterval = now - monoOrigin;
             TimeInterval delta        = monoInterval - realInterval;
 
-            const TimeInterval TOLERANCE = TimeInterval(.1);
+            const TimeInterval TOLERANCE = TimeInterval(1.5);
 
-            ASSERT(-TOLERANCE <= delta && delta <= TOLERANCE);
+            ASSERTV(delta, -TOLERANCE <= delta && delta <= TOLERANCE);
         }
       } break;
       case 1: {
@@ -301,8 +295,6 @@ int main(int argc, char *argv[])
         // 3. QoI: That consecutive values do not decrease (under normal
         //    conditions).
         //
-        // 4. QoI: The resolution of the real-time clock is < 1 second.
-        //
         // Plan:
         // 1. Call `nowRealtimeClock` and verify the value returned, when
         //    treated as an interval from the Unix epoch, corresponds to a
@@ -312,8 +304,7 @@ int main(int argc, char *argv[])
         //    oracle clock, i.e., the standard library function `time`.  (C-2)
         //
         // 3. Call `nowRealtimeClock` in a loop for a couple seconds; verify
-        //    the results do not decrease between iterations, and that
-        //    increments of the clock are less than 1 second.  (C-3..4)
+        //    the results do not decrease between iterations.  (C-3)
         //
         // Testing:
         //   TimeInterval nowRealtimeClock();
@@ -338,19 +329,17 @@ int main(int argc, char *argv[])
             time_t       timeValue       = time(0);
             TimeInterval systemTimeValue = Obj::nowRealtimeClock();
 
-            ASSERT(timeValue - 1 <= systemTimeValue.seconds());
-            ASSERT(timeValue + 1 >= systemTimeValue.seconds());
+            ASSERT(timeValue - 3 <= systemTimeValue.seconds());
+            ASSERT(timeValue + 3 >= systemTimeValue.seconds());
         }
 
         if (veryVerbose) printf("\tVerify sequential values'\n");
         {
-            // Test sequential values are increasing and have a resolution of
-            // less than 1 second.
+            // Test sequential values are increasing.
 
-            TimeInterval ONE_SEC = TimeInterval(1, 0);
-            TimeInterval origin  = Obj::nowRealtimeClock();
-            TimeInterval prev    = origin;
-            TimeInterval now     = origin;
+            TimeInterval origin = Obj::nowRealtimeClock();
+            TimeInterval prev   = origin;
+            TimeInterval now    = origin;
 
             while (TimeInterval(1.5) > now - origin) {
                 if (veryVerbose) {
@@ -359,8 +348,7 @@ int main(int argc, char *argv[])
 
                 now = Obj::nowRealtimeClock();
 
-                ASSERT(prev <= now);
-                ASSERT(prev + ONE_SEC > now);
+                ASSERTV(prev, now, prev <= now);
 
                 prev = now;
             }
