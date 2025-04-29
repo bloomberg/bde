@@ -223,6 +223,53 @@ static const bool k_threadNameCanBeEmpty = false;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
+const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
+
+static bsls::AtomicInt s_continue;
+
+static char s_watchdogText[128];
+
+/// Assign the specified `value` to be displayed if the watchdog expires.
+void setWatchdogText(const char *value)
+{
+    memcpy(s_watchdogText, value, strlen(value) + 1);
+}
+
+/// Watchdog function used to determine when a timeout should occur.  This
+/// function returns without expiration if `0 == s_continue` before one
+/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
+/// program is aborted.
+extern "C" void *watchdog(void *arg)
+{
+    if (arg) {
+        setWatchdogText(static_cast<const char *>(arg));
+    }
+
+    const int MAX = 900;  // one iteration is a deci-second
+
+    int count = 0;
+
+    while (s_continue) {
+        bslmt::ThreadUtil::microSleep(k_DECISECOND);
+        ++count;
+
+        ASSERTV(s_watchdogText, count < MAX);
+
+        if (MAX == count && s_continue) {
+            // `abort` is preferred here but, on Windows, may result in a
+            // dialog box and the process not terminating.
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+            abort();
+#else
+            exit(1);
+#endif
+        }
+    }
+
+    return 0;
+}
+
 #define STARTPOOL(x) \
     if (0 != x.start()) { \
         bslmt::ThreadUtil::microSleep(0, 1); \
@@ -3763,6 +3810,15 @@ int main(int argc, char *argv[]) {
                "=============================================================="
                  << endl;
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(
+                              &watchdogHandle,
+                              watchdog,
+                              const_cast<char *>("case 13")));
+
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -3787,6 +3843,7 @@ int main(int argc, char *argv[]) {
 
             // verify methods without optional `numDeleted`
 
+            setWatchdogText("case 13: without optional `numDeleted`");
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
                 int numEnqueued = -1, numExecuted = -1;
                 X.numProcessed(&numExecuted, &numEnqueued);
@@ -3887,6 +3944,7 @@ int main(int argc, char *argv[]) {
 
             // verify methods with optional `numDeleted`
 
+            setWatchdogText("case 13: with optional `numDeleted`");
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
                 int numEnqueued = -1, numExecuted = -1, numDeleted = -1;
                 X.numProcessed(&numExecuted, &numEnqueued, &numDeleted);
@@ -3997,6 +4055,7 @@ int main(int argc, char *argv[]) {
 
             // verify `deleteQueue` affects `numDeleted` as expected
 
+            setWatchdogText("case 13: `deleteQueue` and `numDeleted`");
             for (int i = 1; i <= k_NUM_ITERATIONS; ++i) {
                 bslmt::Barrier barrier(2);
                 Func           block;  // blocks on barrier
@@ -4061,6 +4120,10 @@ int main(int argc, char *argv[]) {
 
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 12: {
         // --------------------------------------------------------------------

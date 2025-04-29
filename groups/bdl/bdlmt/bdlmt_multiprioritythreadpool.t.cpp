@@ -891,6 +891,15 @@ int main(int argc, char *argv[])
             ATTRIB_JOINABLE
         };
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(
+                              &watchdogHandle,
+                              watchdog,
+                              const_cast<char *>("case 11: ignore detached")));
+
         bslmt::Barrier barrier(NUM_THREADS + 1);
         bsls::AtomicInt jobsCompleted;
 
@@ -922,7 +931,7 @@ int main(int argc, char *argv[])
                                                 attrib,
                                                 &localTa);
 
-            pool.startThreads();
+            STARTTHREADS(pool);
             for (int i = 0; NUM_THREADS > i; ++i) {
                 pool.enqueueJob(functor, 0);
             }
@@ -940,6 +949,10 @@ int main(int argc, char *argv[])
                 cout << "Pass " << attrState << " completed\n";
             }
         }
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 10: {
         // --------------------------------------------------------------------
@@ -992,7 +1005,7 @@ int main(int argc, char *argv[])
         ASSERTV(taDefaultLocal.numAllocations(),
                 0 == taDefaultLocal.numAllocations());
 
-        pool.startThreads();
+        STARTTHREADS(pool);
 
         ASSERT(0 == Worker::s_time);
 
