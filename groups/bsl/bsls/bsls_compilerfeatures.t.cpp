@@ -2413,8 +2413,8 @@ int main(int argc, char *argv[])
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
         static_assert(__cpp_concepts >= 202002L);
 #ifdef BSLS_PLATFORM_CMP_CLANG
-        const unsigned long = clangVersion = BSLS_PLATFORM_CMP_CLANG;
-        const char whichClang =
+        const unsigned long clangVersion = BSLS_PLATFORM_CMP_CLANG;
+        const char *whichClang =
   #ifndef __APPLE_CC__
             "LLVM";
   #else
@@ -2424,8 +2424,8 @@ int main(int argc, char *argv[])
                 "clang now appears to support core language C++20 concepts.  "
                 "Please update `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS` "
                 "Compiler support and its clang-related note in "
-                "`bsls_compilerfeatures.h` test case 38 to reflect the "
-                "current known compiler support.")
+                "`bsls_compilerfeatures.h` to reflect the current known "
+                "compiler support.");
         // BEWARE, there are TWO clang's we need to support, LLVM and Apple,
         // and their similar version numbers may not refer to the same set of
         // features.

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Apr 25 13:38:57 2025
+// Generated on Mon Apr 28 19:19:39 2025
 // Command line: sim_cpp11_features.pl bslma_allocatortraits.h
 
 #ifdef COMPILING_BSLMA_ALLOCATORTRAITS_H
@@ -486,16 +486,6 @@ struct AllocatorTraits_RebindFront<ALLOC<T>, U> {
                         // AllocatorTraits_RebindAlloc
                         // ===========================
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-// We use `rebind_alloc` of the standard library type-traits directly (after
-// C++11) because `rebind` (use in the code in the `#else`) is deprecated in
-// C++17 (and removed in C++20) and produces a warning on at least one compiler
-// platform.
-template <class T, class U>
-struct AllocatorTraits_RebindAlloc {
-    typedef typename std::allocator_traits<T>::template rebind_alloc<U> type;
-};
-#else  // C++03
 /// should be pointer_traits::rebind of template above
 template <class T, class U, class = void>
 struct AllocatorTraits_RebindAlloc {
@@ -509,7 +499,6 @@ struct AllocatorTraits_RebindAlloc<
                       BSLMF_VOIDTYPE(typename T::template rebind<U>::other)> {
     typedef typename T::template rebind<U>::other type;
 };
-#endif  // no BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
                         // ===========================
                         // AllocatorTraits_CallMaxSize
@@ -1147,19 +1136,39 @@ template <class ALLOCATOR_TYPE>
 struct allocator_traits<ALLOCATOR_TYPE *> {
 };
 
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+// Since C++17 many of the `std::allocator` members are deprecated (and removed
+// in C++20).  C++23 deprecates type name members and C++26 removes them.  The
+// clang compiler on Darwin warns about any mention of those names in C++17 so
+// this header file was producing many warnings.  The specialization below
+// "disconnects" the allocator traits of `std::allocator` from our own
+// implementation and so it avoids not only warnings but possible other hassles
+// as the `std::allocator` interface is morphing.
+//
+// Note that we are using the standard traits (in place of ours) only on C++17
+// or later compilers and not C++11 (when `std::allocator_traits` appeared).
+// The reason for this is that our `bsl::allocator_traits` supports
+// `allocator_traits::is_always_equal` from C++17 in a backwards compatible
+// manner so we cannot use pre-C++17 standard implementation that does not have
+// that.
+template <class ALLOCATOR_TYPE>
+struct allocator_traits<std::allocator<ALLOCATOR_TYPE> >
+: std::allocator_traits<std::allocator<ALLOCATOR_TYPE> > {
+};
+
+#endif
+
 }  // close namespace bsl
 
 // ============================================================================
 //          INLINE AND TEMPLATE STATIC MEMBER FUNCTION DEFINITIONS
 // ============================================================================
 
-
 namespace bsl {
 
                            // ----------------------
                            // class allocator_traits
                            // ----------------------
-
 
 template <class ALLOCATOR_TYPE>
 inline
@@ -1987,7 +1996,7 @@ allocator_traits<ALLOCATOR_TYPE>::destroy(ALLOCATOR_TYPE& stdAllocator,
 // 'destroy' member function is not available.
 
 //    allocator.destroy(elementAddr);
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                       \
     defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
     privateDestroy(stdAllocator, elementAddr);
 #else
