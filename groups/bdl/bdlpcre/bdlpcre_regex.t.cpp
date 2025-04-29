@@ -1557,7 +1557,9 @@ int main(int argc, char *argv[])
         // 5. If `options` is not supplied then `options` is set to 0 by
         //    default.
         //
-        // 6. No memory is allocated from the default allocator.
+        // 6. The `errorOffset` argument can be null.
+        //
+        // 7. No memory is allocated from the default allocator.
         //
         // Plan:
         // 1. Prepare a regular expression object using a given `PATTERN`
@@ -1669,100 +1671,116 @@ int main(int argc, char *argv[])
                 }
 
                 for (size_t j = 0; j < EXPECTED_LENGTH + 1; ++j) {
+                    for (int k = 0; k < 2; ++k) {
 
-                    { // replace
-                        int         offset = 0;
-                        bsl::string result1(j, 0, &ta);
+                        { // replace
+                            int          offset = 0;
+                            int         *offsetPtr = (k == 0 ? &offset : 0);
+                            bsl::string  result1(j, 0, &ta);
 
-                        retCode = X.replace(&result1,
-                                            &offset,
-                                            SUBJECT,
-                                            REPLACEMENT,
-                                            FLAGS);
+                            retCode = X.replace(&result1,
+                                                offsetPtr,
+                                                SUBJECT,
+                                                REPLACEMENT,
+                                                FLAGS);
 
-                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
-                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
-                                     0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,   result1,
-                                   k_I == retCode || EXPECTED == result1);
+                            ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                            if (offsetPtr) {
+                                ASSERTV(LINE, retCode,   OFFSET,     offset,
+                                         0 <= retCode || OFFSET   == offset);
+                            }
+                            ASSERTV(LINE,     retCode,   EXPECTED,   result1,
+                                       k_I == retCode || EXPECTED == result1);
 
-                        std::string result2(10000, 0);
+                            std::string result2(10000, 0);
 
-                        retCode = X.replace(&result2,
-                                            &offset,
-                                            SUBJECT,
-                                            REPLACEMENT,
-                                            FLAGS);
+                            retCode = X.replace(&result2,
+                                                offsetPtr,
+                                                SUBJECT,
+                                                REPLACEMENT,
+                                                FLAGS);
 
-                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
-                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
-                                     0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,
-                                result2.c_str(),
-                                   k_I == retCode || EXPECTED == result2);
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-                        std::pmr::string result3(j, 0);
-
-                        retCode = X.replace(&result3,
-                                            &offset,
-                                            SUBJECT,
-                                            REPLACEMENT,
-                                            FLAGS);
-
-                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
-                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
-                                     0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,   result3,
-                                   k_I == retCode || EXPECTED == result3);
-#endif
-                    }
-                    { // replaceRaw
-                        int         offset = 0;
-                        bsl::string result1(j, 0, &ta);
-
-                        retCode = X.replaceRaw(&result1,
-                                               &offset,
-                                               SUBJECT,
-                                               REPLACEMENT,
-                                               FLAGS);
-
-                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
-                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
-                                     0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,   result1,
-                                   k_I == retCode || EXPECTED == result1);
-
-                        std::string result2(10000, 0);
-
-                        retCode = X.replaceRaw(&result2,
-                                               &offset,
-                                               SUBJECT,
-                                               REPLACEMENT,
-                                               FLAGS);
-
-                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
-                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
-                                     0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,
-                                result2.c_str(),
-                                   k_I == retCode || EXPECTED == result2);
+                            ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                            if (offsetPtr) {
+                                ASSERTV(LINE, retCode,   OFFSET,     offset,
+                                         0 <= retCode || OFFSET   == offset);
+                            }
+                            ASSERTV(LINE,     retCode,   EXPECTED,
+                                    result2.c_str(),
+                                       k_I == retCode || EXPECTED == result2);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-                        std::pmr::string result3(j, 0);
+                            std::pmr::string result3(j, 0);
 
-                        retCode = X.replaceRaw(&result3,
-                                               &offset,
-                                               SUBJECT,
-                                               REPLACEMENT,
-                                               FLAGS);
+                            retCode = X.replace(&result3,
+                                                offsetPtr,
+                                                SUBJECT,
+                                                REPLACEMENT,
+                                                FLAGS);
 
-                        ASSERTV(LINE, RC, retCode,   RC       == retCode);
-                        ASSERTV(LINE,     retCode,   OFFSET,     offset,
-                                     0 <= retCode || OFFSET   == offset);
-                        ASSERTV(LINE,     retCode,   EXPECTED,   result3,
-                                   k_I == retCode || EXPECTED == result3);
+                            ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                            if (offsetPtr) {
+                                ASSERTV(LINE, retCode,   OFFSET,     offset,
+                                         0 <= retCode || OFFSET   == offset);
+                            }
+                            ASSERTV(LINE,     retCode,   EXPECTED,   result3,
+                                       k_I == retCode || EXPECTED == result3);
 #endif
+                        }
+                        { // replaceRaw
+                            int          offset = 0;
+                            int         *offsetPtr = (k == 0 ? &offset : 0);
+                            bsl::string  result1(j, 0, &ta);
+
+                            retCode = X.replaceRaw(&result1,
+                                                   offsetPtr,
+                                                   SUBJECT,
+                                                   REPLACEMENT,
+                                                   FLAGS);
+
+                            ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                            if (offsetPtr) {
+                                ASSERTV(LINE, retCode,   OFFSET,     offset,
+                                         0 <= retCode || OFFSET   == offset);
+                            }
+                            ASSERTV(LINE,     retCode,   EXPECTED,   result1,
+                                       k_I == retCode || EXPECTED == result1);
+
+                            std::string result2(10000, 0);
+
+                            retCode = X.replaceRaw(&result2,
+                                                   offsetPtr,
+                                                   SUBJECT,
+                                                   REPLACEMENT,
+                                                   FLAGS);
+
+                            ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                            if (offsetPtr) {
+                                ASSERTV(LINE, retCode,   OFFSET,     offset,
+                                         0 <= retCode || OFFSET   == offset);
+                            }
+                            ASSERTV(LINE,     retCode,   EXPECTED,
+                                    result2.c_str(),
+                                        k_I == retCode || EXPECTED == result2);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+                            std::pmr::string result3(j, 0);
+
+                            retCode = X.replaceRaw(&result3,
+                                                   offsetPtr,
+                                                   SUBJECT,
+                                                   REPLACEMENT,
+                                                   FLAGS);
+
+                            ASSERTV(LINE, RC, retCode,   RC       == retCode);
+                            if (offsetPtr) {
+                                ASSERTV(LINE, retCode,   OFFSET,     offset,
+                                         0 <= retCode || OFFSET   == offset);
+                            }
+                            ASSERTV(LINE,     retCode,   EXPECTED,   result3,
+                                       k_I == retCode || EXPECTED == result3);
+#endif
+                        }
                     }
                 }
             }
@@ -1849,6 +1867,22 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, i, offset,  0 <= retCode || 0 > offset);
             }
+        }
+
+        if (verbose) cout << "\nTesting null `errorOffset`" << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            Obj mX(&ta); const Obj& X = mX;
+            {
+                bsl::string errorMessage;
+                size_t      errorOffset;
+                mX.prepare(&errorMessage, &errorOffset, ".");
+            }
+            bsl::string result;
+
+            ASSERT_PASS(X.replace(&result, 0, "A", "B"));
+            ASSERT_PASS(X.replaceRaw(&result, 0, "A", "B"));
         }
       } break;
       case 15: {

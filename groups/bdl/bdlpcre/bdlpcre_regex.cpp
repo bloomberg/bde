@@ -760,7 +760,6 @@ int RegEx::replaceImp(STRING                  *result,
                       bool                     skipUTF8Validation) const
 {
     BSLS_ASSERT(result);
-    BSLS_ASSERT(errorOffset);
     BSLS_ASSERT(isPrepared());
 
     RegEx_MatchContextData matchContextData;
@@ -808,9 +807,11 @@ int RegEx::replaceImp(STRING                  *result,
     if (rcPcre2 >= 0) {
         result->resize(bufferLength);
     } else {
-        rc           = k_INTERNAL_ERROR;
-        *errorOffset = PCRE2_UNSET == static_cast<size_t>(rcPcre2)
-                       ? -1 : static_cast<int>(bufferLength);
+        rc = k_INTERNAL_ERROR;
+        if (errorOffset) {
+            *errorOffset = PCRE2_UNSET == static_cast<size_t>(rcPcre2)
+                           ? -1 : static_cast<int>(bufferLength);
+        }
     }
 
     d_matchContext->releaseMatchContext(&matchContextData);
