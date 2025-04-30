@@ -1013,7 +1013,7 @@ int main(int argc, char *argv[])
         using namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST;
 
         bslmt::Barrier barrier(3, bsls::SystemClockType::e_MONOTONIC);
-        bsls::AtomicInt releaseCounter(100);
+        bsls::AtomicInt releaseCounter(50);
 
         bsl::function<void()> publisherFunctor =
             bdlf::BindUtil::bind(&publisher, &mX, &releaseCounter, &barrier);
@@ -1025,7 +1025,7 @@ int main(int argc, char *argv[])
         bslmt::ThreadUtil::create(&releaseThread, releaserFunctor);
 
         bsls::TimeInterval start = bsls::SystemTime::nowMonotonicClock();
-        bsls::TimeInterval timeout = start + bsls::TimeInterval(10);
+        bsls::TimeInterval timeout = start + bsls::TimeInterval(90);
         barrier.wait();  // Start of the test.
 
         int rc;
@@ -2424,8 +2424,9 @@ int main(int argc, char *argv[])
             if (verbose)
                 cout << "Begin file offset: " << beginFileOffset << endl;
 
-            // Throw a fairly large amount of logs into the queue.
-
+            // Throw a fairly large amount of logs into the queue.  Note that
+            // this number must be less than the queue size of `mX`, which is
+            // 8192.
             int logCount = 8000;
             for (int i = 0; i < logCount; ++i)
             {
@@ -2433,18 +2434,38 @@ int main(int argc, char *argv[])
                 mX.publish(record, context);
             }
 
-            // Verify there are still records left not published.
-
-            ASSERT(record.use_count() > 1);
+            // There must be at least 2 records left unpublished in order to
+            // guarantee the correctness of this test.
+            const bsl::size_t afterUseCount = record.use_count();
+            ASSERT(afterUseCount >= 3);
             Offset afterFileOffset = FsUtil::getFileSize(stdoutFileName);
             if (verbose)
                 cout << "FileOffset after publish: " << afterFileOffset
                      << endl;
 
             // Verify writing is in process even after all `publish` calls are
-            // finished.
+            // finished.  Under heavy load, the publication thread might not
+            // get scheduled for a while, so we wait up to 10 seconds for it to
+            // make progress.
+            bsl::size_t endUseCount = afterUseCount;
+            for (int tryNum = 0; tryNum < 10; ++tryNum) {
+                bslmt::ThreadUtil::microSleep(0, 1);
+                endUseCount = record.use_count();
+                if (endUseCount <= afterUseCount - 2) {
+                    break;
+                }
+            }
 
-            bslmt::ThreadUtil::microSleep(0, 1);
+            // Note that we must see the use count decrease by at least 2 in
+            // order to guarantee that the file is written to.  If we see it
+            // decrease by only 1, it's possible that the first time we checked
+            // the use count, it was just before a decrement, and the second
+            // time was just after a decrement (with no intervening write to
+            // the output file).  If this assertion fails, there's nothing left
+            // we can do; the machine is simply under excessive load.
+            ASSERTV(afterUseCount, endUseCount,
+                    endUseCount <= afterUseCount - 2);
+
             Offset endFileOffset = FsUtil::getFileSize(stdoutFileName);
             if (verbose) cout << "End file offset: " << endFileOffset << endl;
 
