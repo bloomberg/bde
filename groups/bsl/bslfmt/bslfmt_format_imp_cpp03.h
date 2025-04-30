@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Mar 25 16:07:57 2025
+// Generated on Tue Apr 29 17:44:27 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
@@ -3296,7 +3296,7 @@ typename bsl::enable_if<
 format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args());
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args());
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 0
 
@@ -3309,7 +3309,7 @@ format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS_01& args_01)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 1
 
@@ -3324,8 +3324,8 @@ format_to(t_OUT                           out,
           const t_ARGS_01& args_01,
           const t_ARGS_02& args_02)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 2
 
@@ -3342,9 +3342,9 @@ format_to(t_OUT                           out,
           const t_ARGS_02& args_02,
           const t_ARGS_03& args_03)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 3
 
@@ -3363,10 +3363,10 @@ format_to(t_OUT                           out,
           const t_ARGS_03& args_03,
           const t_ARGS_04& args_04)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 4
 
@@ -3387,11 +3387,11 @@ format_to(t_OUT                           out,
           const t_ARGS_04& args_04,
           const t_ARGS_05& args_05)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04,
-                                                           args_05));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04,
+                                                                   args_05));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 5
 
@@ -3414,12 +3414,12 @@ format_to(t_OUT                           out,
           const t_ARGS_05& args_05,
           const t_ARGS_06& args_06)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04,
-                                                           args_05,
-                                                           args_06));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04,
+                                                                   args_05,
+                                                                   args_06));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 6
 
@@ -3444,13 +3444,13 @@ format_to(t_OUT                           out,
           const t_ARGS_06& args_06,
           const t_ARGS_07& args_07)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04,
-                                                           args_05,
-                                                           args_06,
-                                                           args_07));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04,
+                                                                   args_05,
+                                                                   args_06,
+                                                                   args_07));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 7
 
@@ -3477,14 +3477,14 @@ format_to(t_OUT                           out,
           const t_ARGS_07& args_07,
           const t_ARGS_08& args_08)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04,
-                                                           args_05,
-                                                           args_06,
-                                                           args_07,
-                                                           args_08));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04,
+                                                                   args_05,
+                                                                   args_06,
+                                                                   args_07,
+                                                                   args_08));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 8
 
@@ -3513,15 +3513,15 @@ format_to(t_OUT                           out,
           const t_ARGS_08& args_08,
           const t_ARGS_09& args_09)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04,
-                                                           args_05,
-                                                           args_06,
-                                                           args_07,
-                                                           args_08,
-                                                           args_09));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04,
+                                                                   args_05,
+                                                                   args_06,
+                                                                   args_07,
+                                                                   args_08,
+                                                                   args_09));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 9
 
@@ -3552,16 +3552,16 @@ format_to(t_OUT                           out,
           const t_ARGS_09& args_09,
           const t_ARGS_10& args_10)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args_01,
-                                                           args_02,
-                                                           args_03,
-                                                           args_04,
-                                                           args_05,
-                                                           args_06,
-                                                           args_07,
-                                                           args_08,
-                                                           args_09,
-                                                           args_10));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args_01,
+                                                                   args_02,
+                                                                   args_03,
+                                                                   args_04,
+                                                                   args_05,
+                                                                   args_06,
+                                                                   args_07,
+                                                                   args_08,
+                                                                   args_09,
+                                                                   args_10));
 }
 #endif  // BSLFMT_FORMAT_IMP_VARIADIC_LIMIT_B >= 10
 
@@ -6624,7 +6624,7 @@ format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS&...                args)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args...));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>

@@ -1003,7 +1003,7 @@ format_to(t_OUT                           out,
           BSLFMT_FORMAT_WSTRING_PARAMETER fmtStr,
           const t_ARGS&...                args)
 {
-    return vformat_to(out, fmtStr.get(), make_wformat_args(args...));
+    return vformat_to(out, fmtStr.get(), bslfmt::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>

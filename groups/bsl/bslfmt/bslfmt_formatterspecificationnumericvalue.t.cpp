@@ -373,7 +373,7 @@ class basic_format_arg<MockArgsContext<t_CHAR, t_VALUE_TYPE, t_BAD_TYPE> >
     }
 };
 }  // close namespace std
-#else
+#else  // there is no usable `std::format`
 namespace BloombergLP {
 namespace bslfmt {
 /// This specialization of `basic_arg_format` for a `char`-based
@@ -412,11 +412,10 @@ class basic_format_arg<MockArgsContext<char, t_VALUE_TYPE, t_BAD_TYPE> >
     /// specified `value` and having `t_VALUE_TYPE` as its type.
     static basic_format_arg createIntegralValue(long long value)
     {
-        using namespace bslfmt;
-
         static t_VALUE_TYPE typedValue;
         typedValue = static_cast<t_VALUE_TYPE>(value);
-        return format_args(make_format_args(typedValue)).get(0);
+        return bslfmt::format_args(bslfmt::make_format_args(typedValue))
+            .get(0);
     }
 
     /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
@@ -425,10 +424,8 @@ class basic_format_arg<MockArgsContext<char, t_VALUE_TYPE, t_BAD_TYPE> >
     /// precision).
     static basic_format_arg createBadValue()
     {
-        using namespace bslfmt;
-
         static t_BAD_TYPE x;
-        return format_args(make_format_args(x)).get(0);
+        return bslfmt::format_args(bslfmt::make_format_args(x)).get(0);
     }
 };
 
@@ -467,11 +464,10 @@ class basic_format_arg<MockArgsContext<wchar_t, t_VALUE_TYPE, t_BAD_TYPE> >
     /// specified `value` and having `t_VALUE_TYPE` as its type.
     static basic_format_arg createIntegralValue(long long value)
     {
-        using namespace bslfmt;
-
         static t_VALUE_TYPE typedValue;
         typedValue = static_cast<t_VALUE_TYPE>(value);
-        return wformat_args(make_wformat_args(typedValue)).get(0);
+        return bslfmt::wformat_args(bslfmt::make_wformat_args(typedValue))
+            .get(0);
     }
 
     /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
@@ -480,16 +476,14 @@ class basic_format_arg<MockArgsContext<wchar_t, t_VALUE_TYPE, t_BAD_TYPE> >
     /// precision).
     static basic_format_arg createBadValue()
     {
-        using namespace bslfmt;
-
         static t_BAD_TYPE x;
-        return wformat_args(make_wformat_args(x)).get(0);
+        return bslfmt::wformat_args(bslfmt::make_wformat_args(x)).get(0);
     }
 };
 
 }  // close package namespace
 }  // close enterprise namespace
-#endif
+#endif  // There is no usable `std::format`
 
 /// The states of `MockArgsContext` argument-access detection.
 struct MockArgsContextStatus{
