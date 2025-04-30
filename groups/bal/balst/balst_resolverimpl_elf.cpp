@@ -4136,6 +4136,9 @@ int u::Resolver::processLoadedImage(const char *fileName,
                 return -1;                                            // RETURN
             }
         }
+        else {
+            return -1;                                                // RETURN
+        }
 #else
         return -1;                                                    // RETURN
 #endif
