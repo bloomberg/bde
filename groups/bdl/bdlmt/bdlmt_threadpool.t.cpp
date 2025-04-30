@@ -1206,18 +1206,18 @@ static void counter(int *result, int num)
 }
 
 // ============================================================================
-//                          CASE 7 RELATED ENTITIES
+//                          CASE 8 RELATED ENTITIES
 // ----------------------------------------------------------------------------
 enum {
     DEPTH_LIMIT = 10,
-            MIN = 5,
-            MAX = 10, // must be greater than or equal to DEPTH_LIMIT
+            MIN = 10,
+            MAX = 15, // must be greater than or equal to DEPTH_LIMIT
            IDLE = 100 // in milliseconds
 };
 
 Obj *xP;
 bslmt::Barrier barrier(DEPTH_LIMIT + 1); // to ensure that all the threads have
-                                        // started
+                                         // started
 
 bsls::AtomicInt depthCounter;
 
@@ -1225,12 +1225,12 @@ extern "C" {
 
 /// This function is used to simulate a thread pool job.  It enqueues itself
 /// in the pool if the depth limit is not reached.
-void TestJobFunction7(void *)
+void TestJobFunction8(void *)
 {
     ASSERT(depthCounter >= 0);
     ASSERT(depthCounter <= DEPTH_LIMIT);
     if (++depthCounter != DEPTH_LIMIT)
-        xP->enqueueJob(TestJobFunction7, NULL);
+        xP->enqueueJob(TestJobFunction8, NULL);
 
     barrier.wait();
 }
@@ -2012,7 +2012,7 @@ int main(int argc, char *argv[])
             xP = &localX;
             STARTPOOL(localX);
             depthCounter = 0;
-            localX.enqueueJob(TestJobFunction7, NULL);
+            localX.enqueueJob(TestJobFunction8, NULL);
             ASSERT(0 == barrier.timedWait(
                          bsls::SystemTime::nowRealtimeClock().addSeconds(30)));
             ASSERT(DEPTH_LIMIT == depthCounter);

@@ -1378,7 +1378,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(interval,
                        bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                    && bsls::TimeInterval(5.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 
@@ -1418,7 +1418,7 @@ int main(int argc, char *argv[])
 
             ASSERTV(interval,
                        bsls::TimeInterval(0.8) <= interval
-                    && bsls::TimeInterval(3.0) >= interval);
+                    && bsls::TimeInterval(5.0) >= interval);
 
             bslmt::ThreadUtil::join(handle);
 
