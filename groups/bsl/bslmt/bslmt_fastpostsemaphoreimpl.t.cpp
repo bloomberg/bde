@@ -2383,10 +2383,14 @@ int main(int argc, char *argv[])
     { L_,         1,        0,       2,     2,    99,    99,      0,      0 },
 
     { L_,         5,        0,       1,     1,     6,     2,      0,      0 },
+#ifdef BSLS_REVIEW_OPT_IS_ACTIVE
     { L_,         5,        0,       2,     1,     6,     2,      1,      1 },
+#endif
     { L_,         5,        0,       2,     1,    99,    99,      0,      0 },
     { L_,         6,        0,       1,     1,     6,     2,      0,      0 },
+#ifdef BSLS_REVIEW_OPT_IS_ACTIVE
     { L_,         6,        0,       2,     1,     6,     2,      1,      1 },
+#endif
     { L_,         6,        0,       2,     1,    99,    99,      0,      0 },
 
     { L_,         0,        1,       1,     1,    99,    99,      0,      0 },
@@ -2424,6 +2428,10 @@ int main(int argc, char *argv[])
 
                 mX.postWithRedundantSignal(VALUE, AVAIL, BLOCK);
 
+                if (veryVerbose) {
+                    P_(EXP_SIGNAL)  P_(TestCondition::signalCount())
+                    P_(EXP_REVIEW)  P(s_reviewCount);
+                }
                 LOOP_ASSERT(LINE, EXP_SIGNAL == TestCondition::signalCount());
                 LOOP_ASSERT(LINE, EXP_REVIEW == s_reviewCount);
             }
