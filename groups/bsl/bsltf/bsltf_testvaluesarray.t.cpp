@@ -1412,6 +1412,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
 
     if (verbose) printf("\tNegative Testing.\n");
     {
+#ifdef BSLS_ASSERT_IS_ACTIVE
         bsls::AssertTestHandlerGuard hG;
 
         const char *SPEC = "A";
@@ -1439,6 +1440,7 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase10()
         ASSERT_OPT_FAIL(INVALID != VALID);
 
         ASSERT_OPT_PASS(VALID != VALID);
+#endif
     }
 }
 

@@ -5,6 +5,8 @@
 #include <bslstl_forwarditerator.h>
 #include <bslstl_string.h>
 
+#include <bsla_maybeunused.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -2401,7 +2403,9 @@ void TestDriver<TYPE, TRAITS, ALLOC>::testCase42()
 
             Obj uniqueDataElements(data);
             bsl::sort(uniqueDataElements.begin(), uniqueDataElements.end());
-            bsl::unique(uniqueDataElements.begin(), uniqueDataElements.end());
+            BSLA_MAYBE_UNUSED typename Obj::iterator iter =
+                                        bsl::unique(uniqueDataElements.begin(),
+                                                    uniqueDataElements.end());
 
             if (veryVerbose)
                 printf("\t\t...erasing a non-existent character\n");

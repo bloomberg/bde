@@ -2206,6 +2206,7 @@ int main(int argc, char *argv[])
             // Comparison operators.
 
             {
+#ifdef BSLS_ASSERT_IS_ACTIVE
                 Obj        mX;
                 const Obj& X = mX;
 
@@ -2244,6 +2245,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_PASS(VALID_MIN   <= X          );
                 ASSERT_FAIL(INVALID_MIN <= X          );
+#endif
             }
 
             // Conversion to `std::chrono::duration`.
