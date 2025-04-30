@@ -2365,14 +2365,14 @@ BSLS_IDENT("$Id: $")
   //  - MSVC uses the correct value.
   #if (defined(__cpp_lib_format) && __cpp_lib_format >= 202110L) ||           \
       (defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE >= 13) || \
-      (defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 17)
+      (defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 170000)
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT                             1
   #endif
   // But also, an older version of Clang might be used with a newer version of
   // libstdc++.  In that case, the use of `std::format` may result in bugs
   // because Clang `consteval` support was buggy prior to version 17 (see
   // https://github.com/llvm/llvm-project/commit/e328d68).
-  #if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_CLANG < 170000L)
+  #if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 170000L)
     #undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
@@ -2383,7 +2383,7 @@ BSLS_IDENT("$Id: $")
 
 // Here determine whether the ABI compatibility is the default for the current
 // compiler, or a forced ABI compatibility configuration flag has been
-// supplied.  We create a coecion symbol to prevent linking against a binary
+// supplied.  We create a coercion symbol to prevent linking against a binary
 // incompatible translation unit.
 
 #undef BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED
