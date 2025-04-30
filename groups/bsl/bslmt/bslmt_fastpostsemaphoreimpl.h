@@ -327,6 +327,11 @@ class FastPostSemaphoreImpl {
     /// semaphore.
     int getValue() const;
 
+    /// Return the current value (`count`) of this semaphore.  Note that,
+    /// unlike `getValue`, this method can return a negative value.  Also note
+    /// that this method is principally intended for use in testing.
+    int getValueRaw() const;
+
     /// Return `true` if this semaphore is wait disabled, and `false`
     /// otherwise.  Note that the semaphore is created in the "wait enabled"
     /// state.
@@ -894,6 +899,16 @@ int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
     Int64 count = getValueRaw(ATOMIC_OP::getInt64Acquire(&d_state));
 
     return static_cast<int>(count > 0 ? count : 0);
+}
+
+template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>
+inline
+int FastPostSemaphoreImpl<ATOMIC_OP, MUTEX, CONDITION, THREADUTIL>
+                                                          ::getValueRaw() const
+{
+    Int64 count = getValueRaw(ATOMIC_OP::getInt64Acquire(&d_state));
+
+    return static_cast<int>(count);
 }
 
 template <class ATOMIC_OP, class MUTEX, class CONDITION, class THREADUTIL>

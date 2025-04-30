@@ -55,6 +55,7 @@ using namespace bsl;
 // [10] bsls::SystemClockType::Enum clockType() const;
 // [ 4] int getDisabledState() const;
 // [ 7] int getValue() const;
+// [ 7] int getValueRaw() const;
 // [ 4] bool isDisabled() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -972,6 +973,19 @@ const int k_DECISECOND = 100 * 1000;  // number of microseconds in 0.1 seconds
 //                         GLOBAL METHODS FOR TESTING
 // ----------------------------------------------------------------------------
 
+#define CREATETHREAD(h, f, a) \
+    if (0 != bslmt::ThreadUtil::create(&h, f, &a)) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != bslmt::ThreadUtil::create(&h, f, &a)) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != bslmt::ThreadUtil::create(&h, f, &a)) { \
+                cout << "`create` failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
 static bsls::AtomicInt s_continue;
 
 /// Return when `0 == s_continue`, or if `0 == s_continue` does not occur
@@ -997,7 +1011,7 @@ extern "C" void *watchdog(void *arg)
     return 0;
 }
 
-/// Invoke `timedWait` with a one second timeout on the specified `arg` and
+/// Invoke `timedWait` with a 15 second timeout on the specified `arg` and
 /// verify the result value is `e_DISABLED`.  The behavior is undefined
 /// unless `arg` is a pointer to a valid instance of `Obj`.
 extern "C" void *timedWaitExpectDisabled(void *arg)
@@ -1005,12 +1019,12 @@ extern "C" void *timedWaitExpectDisabled(void *arg)
     Obj& mX = *static_cast<Obj *>(arg);
 
     ASSERT(Obj::e_DISABLED == mX.timedWait(bsls::SystemTime::nowRealtimeClock()
-                                                   + bsls::TimeInterval(1.0)));
+                                                  + bsls::TimeInterval(15.0)));
 
     return 0;
 }
 
-/// Invoke `timedWait` with a one second timeout on the specified `arg` and
+/// Invoke `timedWait` with a 15 second timeout on the specified `arg` and
 /// verify the result value is `e_SUCCESS`.  The behavior is undefined
 /// unless `arg` is a pointer to a valid instance of `Obj`.
 extern "C" void *timedWaitExpectSuccess(void *arg)
@@ -1018,7 +1032,7 @@ extern "C" void *timedWaitExpectSuccess(void *arg)
     Obj& mX = *static_cast<Obj *>(arg);
 
     ASSERT(Obj::e_SUCCESS == mX.timedWait(bsls::SystemTime::nowRealtimeClock()
-                                                   + bsls::TimeInterval(1.0)));
+                                                  + bsls::TimeInterval(15.0)));
 
     return 0;
 }
@@ -1540,13 +1554,15 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X.getValue());
 
                 bslmt::ThreadUtil::Handle handle1;
-                bslmt::ThreadUtil::create(&handle1, waitExpectSuccess, &mX);
+                CREATETHREAD(handle1, waitExpectSuccess, mX);
 
                 bslmt::ThreadUtil::Handle handle2;
-                bslmt::ThreadUtil::create(&handle2, waitExpectSuccess, &mX);
+                CREATETHREAD(handle2, waitExpectSuccess, mX);
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-2 != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 ASSERT(0 == X.getValue());
 
@@ -1593,13 +1609,15 @@ int main(int argc, char *argv[])
                 ASSERT(0 == X.getValue());
 
                 bslmt::ThreadUtil::Handle handle1;
-                bslmt::ThreadUtil::create(&handle1, waitExpectSuccess, &mX);
+                CREATETHREAD(handle1, waitExpectSuccess, mX);
 
                 bslmt::ThreadUtil::Handle handle2;
-                bslmt::ThreadUtil::create(&handle2, waitExpectSuccess, &mX);
+                CREATETHREAD(handle2, waitExpectSuccess, mX);
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-2 != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 ASSERT(0 == X.getValue());
 
@@ -1642,31 +1660,30 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING `getValue`
-        //   Ensure the accessor functions as expected.
+        // TESTING `getValue` and `getValueRaw`
+        //   Ensure the accessors function as expected.
         //
         // Concerns:
-        // 1. The accessor correctly reflects the value of the semaphore.
+        // 1. The accessors correctly reflect the value of the semaphore.
         //
         // Plan:
-        // 1. Directly verify the result of `getValue` throughout a sequence of
-        //    operations on the semaphore, including using `wait` to block
-        //    threads and drive the count of the semaphore to a negative value.
-        //    (C-1)
+        // 1. Directly verify the result of `getValue` and `getValueRaw`
+        //    throughout a sequence of operations on the semaphore, including
+        //    using `wait` to block threads and drive the count of the
+        //    semaphore to a negative value.  (C-1)
         //
         // Testing:
         //   int getValue() const;
+        //   int getValueRaw() const;
         // --------------------------------------------------------------------
 
         if (verbose) {
             cout << endl
-                 << "TESTING `getValue`" << endl
-                 << "==================" << endl;
+                 << "TESTING `getValue` and `getValueRaw`" << endl
+                 << "====================================" << endl;
         }
 
         {
-            // verify `getValue`
-
             s_continue = 1;
 
             bslmt::ThreadUtil::Handle watchdogHandle;
@@ -1677,46 +1694,58 @@ int main(int argc, char *argv[])
             Obj mX(3);  const Obj& X = mX;
 
             ASSERT(3 == X.getValue());
+            ASSERT(3 == X.getValueRaw());
 
             ASSERT(Obj::e_SUCCESS == mX.tryWait());
 
             ASSERT(2 == X.getValue());
+            ASSERT(2 == X.getValueRaw());
 
             ASSERT(Obj::e_SUCCESS == mX.tryWait());
 
             ASSERT(1 == X.getValue());
+            ASSERT(1 == X.getValueRaw());
 
             ASSERT(Obj::e_SUCCESS == mX.tryWait());
 
             ASSERT(0 == X.getValue());
+            ASSERT(0 == X.getValueRaw());
 
             bslmt::ThreadUtil::Handle handle1;
-            bslmt::ThreadUtil::create(&handle1, waitExpectSuccess, &mX);
+            CREATETHREAD(handle1, waitExpectSuccess, mX);
 
             // sleep to allow the thread to block
-            bslmt::ThreadUtil::microSleep(k_DECISECOND);
+            while (-1 != X.getValueRaw()) {
+                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+            }
 
             ASSERT(0 == X.getValue());
 
             bslmt::ThreadUtil::Handle handle2;
-            bslmt::ThreadUtil::create(&handle2, waitExpectSuccess, &mX);
+            CREATETHREAD(handle2, waitExpectSuccess, mX);
 
             // sleep to allow the thread to block
-            bslmt::ThreadUtil::microSleep(k_DECISECOND);
+            while (-2 != X.getValueRaw()) {
+                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+            }
 
-            ASSERT(0 == X.getValue());
+            ASSERT( 0 == X.getValue());
+            ASSERT(-2 == X.getValueRaw());
+
+            mX.post();
+
+            ASSERT( 0 == X.getValue());
+            ASSERT(-1 == X.getValueRaw());
 
             mX.post();
 
             ASSERT(0 == X.getValue());
-
-            mX.post();
-
-            ASSERT(0 == X.getValue());
+            ASSERT(0 == X.getValueRaw());
 
             mX.post();
 
             ASSERT(1 == X.getValue());
+            ASSERT(1 == X.getValueRaw());
 
             bslmt::ThreadUtil::join(handle1);
             bslmt::ThreadUtil::join(handle2);
@@ -1863,17 +1892,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              waitExpectSuccess,
-                                              &mX);
+                    CREATETHREAD(handle[i], waitExpectSuccess, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
                     mX.post();
@@ -1886,17 +1915,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              timedWaitExpectSuccess,
-                                              &mX);
+                    CREATETHREAD(handle[i], timedWaitExpectSuccess, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
                     mX.post();
@@ -1909,17 +1938,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              waitExpectSuccess,
-                                              &mX);
+                    CREATETHREAD(handle[i], waitExpectSuccess, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < k_NUM_THREAD; i += 2) {
                     mX.post(2);
@@ -1932,17 +1961,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              timedWaitExpectSuccess,
-                                              &mX);
+                    CREATETHREAD(handle[i], timedWaitExpectSuccess, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < k_NUM_THREAD; i += 3) {
                     mX.post(3);
@@ -1955,17 +1984,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              waitExpectSuccess,
-                                              &mX);
+                    CREATETHREAD(handle[i], waitExpectSuccess, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < k_NUM_THREAD; i += 2) {
                     mX.postWithRedundantSignal(2, 8, 8);
@@ -1978,17 +2007,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              timedWaitExpectSuccess,
-                                              &mX);
+                    CREATETHREAD(handle[i], timedWaitExpectSuccess, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < k_NUM_THREAD; i += 3) {
                     mX.postWithRedundantSignal(3, 8, 8);
@@ -2037,17 +2066,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              waitExpectDisabled,
-                                              &mX);
+                    CREATETHREAD(handle[i], waitExpectDisabled, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 mX.disable();
 
@@ -2058,17 +2087,17 @@ int main(int argc, char *argv[])
             {
                 const int k_NUM_THREAD = 6;
 
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              timedWaitExpectDisabled,
-                                              &mX);
+                    CREATETHREAD(handle[i], timedWaitExpectDisabled, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 mX.disable();
 
@@ -2085,10 +2114,19 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nVerify guaranteed outcomes." << endl;
         for (int i = 0; i < 1000; ++i) {
             {
-
                 Obj mX;
                 bslmt::ThreadUtil::Handle handle;
-                bslmt::ThreadUtil::create(&handle, waitExpectDisabled, &mX);
+                CREATETHREAD(handle, waitExpectDisabled, mX);
+
+                mX.disable();
+                mX.post();
+
+                bslmt::ThreadUtil::join(handle);
+            }
+            {
+                Obj mX;
+                bslmt::ThreadUtil::Handle handle;
+                CREATETHREAD(handle, timedWaitExpectDisabled, mX);
 
                 mX.disable();
                 mX.post();
@@ -2099,20 +2137,7 @@ int main(int argc, char *argv[])
 
                 Obj mX;
                 bslmt::ThreadUtil::Handle handle;
-                bslmt::ThreadUtil::create(&handle,
-                                          timedWaitExpectDisabled,
-                                          &mX);
-
-                mX.disable();
-                mX.post();
-
-                bslmt::ThreadUtil::join(handle);
-            }
-            {
-
-                Obj mX;
-                bslmt::ThreadUtil::Handle handle;
-                bslmt::ThreadUtil::create(&handle, waitExpectSuccess, &mX);
+                CREATETHREAD(handle, waitExpectSuccess, mX);
 
                 mX.post();
                 while (mX.getValue()) {
@@ -2126,9 +2151,7 @@ int main(int argc, char *argv[])
 
                 Obj mX;
                 bslmt::ThreadUtil::Handle handle;
-                bslmt::ThreadUtil::create(&handle,
-                                          timedWaitExpectSuccess,
-                                          &mX);
+                CREATETHREAD(handle, timedWaitExpectSuccess, mX);
 
                 mX.post();
                 while (mX.getValue()) {
@@ -2608,17 +2631,17 @@ cout << endl
                                       const_cast<char *>("enable/disable"));
 
             for (int length = 1; length <= k_MAX_LENGTH; ++length) {
-                Obj mX;
+                Obj mX;  const Obj& X = mX;
 
                 bslmt::ThreadUtil::Handle handle[k_NUM_THREAD];
                 for (int i = 0; i < k_NUM_THREAD; ++i) {
-                    bslmt::ThreadUtil::create(&handle[i],
-                                              waitExpectDisabled,
-                                              &mX);
+                    CREATETHREAD(handle[i], waitExpectDisabled, mX);
                 }
 
                 // sleep to allow the threads to block
-                bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                while (-k_NUM_THREAD != X.getValueRaw()) {
+                    bslmt::ThreadUtil::microSleep(k_DECISECOND);
+                }
 
                 for (int i = 0; i < length; ++i) {
                     mX.disable();
