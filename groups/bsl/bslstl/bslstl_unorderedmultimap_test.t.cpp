@@ -2263,6 +2263,8 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
     static const bsl::integral_constant<bool, NV2 == 1> MOVE_V2 = {};
     static const bsl::integral_constant<bool, NV3 == 1> MOVE_V3 = {};
 
+    const bool hintWasEnd = (hint == target->end());
+
     bslma::TestAllocator *testAlloc = dynamic_cast<bslma::TestAllocator *>(
                                           target->get_allocator().mechanism());
     if (!testAlloc) {
@@ -2484,9 +2486,10 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase31a_RunTest(Obj   *target,
         }
         proctor.release();
 
-        if (mX.end() != hint) {
-            ASSERTV(true == (&(*result) != &(*hint)));
-        }
+        // If `hint` was the end iterator, it was invalidated by the insertion
+        // (and we should not dereference it, even if it wasn't invalidated).
+        ASSERT(X.end() != result);
+        ASSERTV(hintWasEnd, hintWasEnd || &(*result) != &(*hint));
 
         ASSERTV(MOVE_K1, AK1.movedFrom(),
                MOVE_K1 == (MoveState::e_MOVED == AK1.movedFrom()) || 2 == NK1);

@@ -2225,6 +2225,8 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
     BSLMF_ASSERT((0 <= NUM_KEY_ARGS   && NUM_KEY_ARGS   <= 3));
     BSLMF_ASSERT((0 <= NUM_VALUE_ARGS && NUM_VALUE_ARGS <= 3));
 
+    const bool hintWasEnd = (hint == target->end());
+
     // In C++17, these become the simpler-to-name `bool_constant`.
 
     static const bsl::integral_constant<bool, NK1 == 1> MOVE_K1 = {};
@@ -2457,7 +2459,11 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32a_RunTest(Obj   *target,
 
         proctor.release();
 
-        ASSERTV(inserted, inserted == (&(*result) != &(*hint)));
+        // If `hint` was the end iterator, it was invalidated by the insertion
+        // (and we should not dereference it, even if it wasn't invalidated).
+        ASSERTV(inserted, hintWasEnd,
+                (hintWasEnd && inserted) ||
+                (!hintWasEnd && (inserted == (&*result != &*hint))));
 
         ASSERTV(MOVE_K1, AK1.movedFrom(),
                MOVE_K1 == (MoveState::e_MOVED == AK1.movedFrom()) || 2 == NK1);

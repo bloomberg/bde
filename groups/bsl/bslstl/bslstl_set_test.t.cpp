@@ -2187,7 +2187,8 @@ TestDriver<KEY, COMP, ALLOC>::testCase31a_RunTest(Obj   *target,
                                                   CIter  hint,
                                                   bool   inserted)
 {
-    const int TYPE_ALLOC =  bslma::UsesBslmaAllocator<KEY>::value;
+    const bool hintWasEnd = (hint == target->end());
+    const int  TYPE_ALLOC =  bslma::UsesBslmaAllocator<KEY>::value;
     if (verbose)
         printf("\nTesting parameters: TYPE_ALLOC = %d.\n", TYPE_ALLOC);
 
@@ -2370,7 +2371,11 @@ TestDriver<KEY, COMP, ALLOC>::testCase31a_RunTest(Obj   *target,
         }
         proctor.release();
 
-        ASSERTV(inserted, inserted == (&(*result) != &(*hint)));
+        // If `hint` was the end iterator, it was invalidated by the insertion
+        // (and we should not dereference it, even if it wasn't invalidated).
+        ASSERTV(inserted, hintWasEnd,
+                (hintWasEnd && inserted) ||
+                (!hintWasEnd && (inserted == (&*result != &*hint))));
 
         ASSERTV(MOVE_01, A01.movedFrom(),
                MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()) || 2 == N01);
