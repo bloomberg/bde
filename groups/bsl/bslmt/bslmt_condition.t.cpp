@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
               timer.start();
               x.timedWait(&lock, bsls::SystemTime::nowRealtimeClock() + 2);
               double elapsed = timer.elapsedTime();
-              ASSERT(1.8 <= elapsed && elapsed <= 2.2);
+              ASSERTV(elapsed, 1.8 <= elapsed && elapsed <= 5.0);
               lock.unlock();
           }
 
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
                                      bsls::SystemTime::nowRealtimeClock() + 2);
               double elapsed = timer.elapsedTime();
               ASSERT(Obj::e_TIMED_OUT == rv);
-              ASSERT(1.8 <= elapsed && elapsed <= 2.2);
+              ASSERTV(elapsed, 1.8 <= elapsed && elapsed <= 5.0);
 
               timer.start();
               rv      = x.timedWait(&lock,

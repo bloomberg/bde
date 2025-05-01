@@ -322,6 +322,32 @@ const bsltf::MoveState::Enum expAssignMoveState = e_NOT_MOVED;
 const bool                   expAssignMove      = false;
 #endif
 
+#define CREATETHREAD(h, f) \
+    if (0 != bslmt::ThreadUtil::create(&h, f)) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != bslmt::ThreadUtil::create(&h, f)) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != bslmt::ThreadUtil::create(&h, f)) { \
+                cout << "`create` failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
+#define CREATEARGTHREAD(h, f, a) \
+    if (0 != bslmt::ThreadUtil::create(&h, f, &a)) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != bslmt::ThreadUtil::create(&h, f, &a)) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != bslmt::ThreadUtil::create(&h, f, &a)) { \
+                cout << "`create` failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
 const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
 
 static bsls::AtomicInt s_continue;
@@ -1957,7 +1983,7 @@ void testTimedPushPopMove()
 
         TimedPopRecordBack<ELEMENT> testMObj(&x, &barrier, T3, VA);
         bslmt::ThreadUtil::Handle thread;
-        ASSERT(0 == bslmt::ThreadUtil::create(&thread, testMObj));
+        CREATETHREAD(thread, testMObj);
 
         barrier.wait();
 
@@ -2021,7 +2047,7 @@ void testTimedPushPopMove()
 
         TimedPopRecordFront<ELEMENT> testMObj(&x, &barrier, T3, VA);
         bslmt::ThreadUtil::Handle thread;
-        ASSERT(0 == bslmt::ThreadUtil::create(&thread, testMObj));
+        CREATETHREAD(thread, testMObj);
 
         barrier.wait();
 
@@ -4001,16 +4027,16 @@ void testMultiThreadedTryPop()
             switch (vecType) {
               case u::e_BSL: {
                 TestPopFront<bsl::vector<ELEMENT> > frontFunc(&mX, &ta);
-                ASSERT(0 == bslmt::ThreadUtil::create(&handle, frontFunc));
+                CREATETHREAD(handle, frontFunc);
               } break;
               case u::e_STD: {
                 TestPopFront<std::vector<ELEMENT> > frontFunc(&mX, &ta);
-                ASSERT(0 == bslmt::ThreadUtil::create(&handle, frontFunc));
+                CREATETHREAD(handle, frontFunc);
               } break;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
               case u::e_PMR: {
                 TestPopFront<std::pmr::vector<ELEMENT> > frontFunc(&mX, &ta);
-                ASSERT(0 == bslmt::ThreadUtil::create(&handle, frontFunc));
+                CREATETHREAD(handle, frontFunc);
               } break;
 #endif
               default: {
@@ -4035,16 +4061,16 @@ void testMultiThreadedTryPop()
             switch (vecType) {
               case u::e_BSL: {
                 TestPopBack<bsl::vector<ELEMENT> > backFunc(&mX, &ta);
-                ASSERT(0 == bslmt::ThreadUtil::create(&handle, backFunc));
+                CREATETHREAD(handle, backFunc);
               } break;
               case u::e_STD: {
                 TestPopBack<std::vector<ELEMENT> > backFunc(&mX, &ta);
-                ASSERT(0 == bslmt::ThreadUtil::create(&handle, backFunc));
+                CREATETHREAD(handle, backFunc);
               } break;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR
               case u::e_PMR: {
                 TestPopBack<std::pmr::vector<ELEMENT> > backFunc(&mX, &ta);
-                ASSERT(0 == bslmt::ThreadUtil::create(&handle, backFunc));
+                CREATETHREAD(handle, backFunc);
               } break;
 #endif
               default: {
@@ -4230,7 +4256,7 @@ void highWaterMarkTest()
         HighWaterMarkFunctor<ELEMENT> functor(&mX);
 
         bslmt::ThreadUtil::Handle handle;
-        ASSERT(0 == bslmt::ThreadUtil::create(&handle, functor));
+        CREATETHREAD(handle, functor);
 
         while (X.length() < 4) {
             bslmt::ThreadUtil::yield();
@@ -6034,12 +6060,10 @@ int main(int argc, char *argv[])
         for (int ii = 0; ii < NUM_THREADS; ++ii) {
             endDeques[ii] = new (ta) bdlcc::Deque<unsigned>(&ta);
 
-            int rc = bslmt::ThreadUtil::create(
-                                &handles[ii],
-                                MultiThreadedRangeTryPushTest(&container,
-                                                              ii,
-                                                              endDeques[ii]));
-            ASSERT(0 == rc);
+            CREATETHREAD(handles[ii],
+                         MultiThreadedRangeTryPushTest(&container,
+                                                       ii,
+                                                       endDeques[ii]));
         }
 
         for (int isForward = 0; isForward < 2; ++isForward) {
@@ -6357,10 +6381,8 @@ int main(int argc, char *argv[])
 
         bslmt::ThreadUtil::Handle handles[4];
         for (int ii = 0; ii < 4; ++ii) {
-            int rc = bslmt::ThreadUtil::create(
-                                   &handles[ii],
-                                   MultiThreadedForcePushTest(&container, ii));
-            ASSERT(0 == rc);
+            CREATETHREAD(handles[ii],
+                         MultiThreadedForcePushTest(&container, ii));
         }
 
         static unsigned expecteds[4];    // all initted to 0
@@ -6512,10 +6534,7 @@ int main(int argc, char *argv[])
                 ASSERT(X.length() == startLength);
 
                 bslmt::ThreadUtil::Handle handle;
-                ASSERT(0 == bslmt::ThreadUtil::create(
-                                                  &handle,
-                                                  FATHWMStressTest(&mX,
-                                                                   &barrier)));
+                CREATETHREAD(handle, FATHWMStressTest(&mX, &barrier));
 
                 barrier.wait();
 
@@ -6705,9 +6724,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == X.length());
 
             bslmt::ThreadUtil::Handle handle;
-            ASSERT(0 == bslmt::ThreadUtil::create(&handle,
-                                                  HWMStressTest(&mX,
-                                                                &barrier)));
+            CREATETHREAD(handle, HWMStressTest(&mX, &barrier));
 
             while (X.length() < HIGH_WATER_MARK) {
                 bslmt::ThreadUtil::microSleep(10 * 1000);
@@ -7001,7 +7018,7 @@ int main(int argc, char *argv[])
 
         TC::EmptyDequeFunctor functor(&mX, &barrier, &status);
 
-        ASSERT(0 == bslmt::ThreadUtil::create(&handle, functor));
+        CREATETHREAD(handle, functor);
 
         mX.pushFront(e);
         mX.pushBack(e);
@@ -7576,14 +7593,11 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::Handle threads[TC::k_NUM_THREADS];
             int                       threadIdx = 0;
-            int                       rc;
             for (unsigned ti = 0; ti < TC::k_NUM_POPPERS; ++ti) {
-                rc = bslmt::ThreadUtil::create(&threads[threadIdx++], popper);
-                ASSERT(0 == rc);
+                CREATETHREAD(threads[threadIdx++], popper);
             }
 
-            rc = bslmt::ThreadUtil::create(&threads[threadIdx++], transferrer);
-            ASSERT(0 == rc);
+            CREATETHREAD(threads[threadIdx++], transferrer);
 
             unsigned ti;
             for (ti = 1; ti <= TC::k_NUM_DIRECT_PUSHERS; ++ti) {
@@ -7592,9 +7606,7 @@ int main(int argc, char *argv[])
                                                           TC::e_DIRECT_PUSHER,
                                                           ti,
                                                           backWard);
-                rc = bslmt::ThreadUtil::create(&threads[threadIdx++],
-                                               directPusher);
-                ASSERT(0 == rc);
+                CREATETHREAD(threads[threadIdx++], directPusher);
             }
 
             for (; ti <= TC::k_NUM_DIRECT_PUSHERS + TC::k_NUM_SRC_PUSHERS;
@@ -7604,13 +7616,12 @@ int main(int argc, char *argv[])
                                                     TC::e_SRC_PUSHER,
                                                     ti,
                                                     backWard);
-                rc = bslmt::ThreadUtil::create(&threads[threadIdx++], pusher);
-                ASSERT(0 == rc);
+                CREATETHREAD(threads[threadIdx++], pusher);
             }
 
             while (threadIdx > 0) {
-                rc = bslmt::ThreadUtil::join(threads[--threadIdx]);
-                ASSERT(0 == rc);
+                int rc = bslmt::ThreadUtil::join(threads[--threadIdx]);
+                ASSERTV(rc, 0 == rc);
             }
 
             ASSERT(0 == dstDeque.length());
@@ -7744,9 +7755,7 @@ int main(int argc, char *argv[])
             ASSERT(VA == u::myBack(x));
 
             bslmt::ThreadUtil::Handle thread;
-            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
-                                                  &TC::doTimedHWMRecordBack,
-                                                  &testObj));
+            CREATEARGTHREAD(thread, &TC::doTimedHWMRecordBack, testObj);
 
             while (0 == TC::waitingFlag) {
                 bslmt::ThreadUtil::yield();
@@ -7858,9 +7867,7 @@ int main(int argc, char *argv[])
             ASSERT(VA == u::myFront(x));
 
             bslmt::ThreadUtil::Handle thread;
-            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
-                                                  &TC::doTimedHWMRecordFront,
-                                                  &testObj));
+            CREATEARGTHREAD(thread, &TC::doTimedHWMRecordFront, testObj);
 
             while (0 == TC::waitingFlag) {
                 bslmt::ThreadUtil::yield();
@@ -8082,7 +8089,7 @@ int main(int argc, char *argv[])
                 }
 
                 bslmt::ThreadUtil::Handle thread;
-                ASSERT(0 == bslmt::ThreadUtil::create(&thread, testObj));
+                CREATETHREAD(thread, testObj);
 
                 for (int j = 0; 0 == TC::waitingFlag && j < 50; ++j) {
                     bslmt::ThreadUtil::yield();
@@ -8132,7 +8139,7 @@ int main(int argc, char *argv[])
                 }
 
                 bslmt::ThreadUtil::Handle thread;
-                ASSERT(0 == bslmt::ThreadUtil::create(&thread, testObj));
+                CREATETHREAD(thread, testObj);
 
                 for (int j = 0; 0 == TC::waitingFlag && j < 50; ++j) {
                     bslmt::ThreadUtil::yield();
@@ -8204,9 +8211,7 @@ int main(int argc, char *argv[])
             TimedPopRecordBack testAObj(&x, &barrier, T10, VA);
 
             bslmt::ThreadUtil::Handle thread;
-            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
-                                                  &testClass4BackCaller,
-                                                  &testAObj));
+            CREATEARGTHREAD(thread, &testClass4BackCaller, testAObj);
 
             barrier.wait();
 
@@ -8237,9 +8242,7 @@ int main(int argc, char *argv[])
             TimedPopRecordFront testAObj(&x, &barrier, T10, VA);
 
             bslmt::ThreadUtil::Handle thread;
-            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
-                                                  &testClass4FrontCaller,
-                                                  &testAObj));
+            CREATEARGTHREAD(thread, &testClass4FrontCaller, testAObj);
 
             barrier.wait();
 
@@ -8325,9 +8328,7 @@ int main(int argc, char *argv[])
             PushPopRecordBack testObj(&x, VA, (!ti ? BY_VALUE : THROUGH_PTR));
 
             bslmt::ThreadUtil::Handle thread;
-            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
-                                                  pushPopFunctionBack,
-                                                  &testObj));
+            CREATEARGTHREAD(thread, pushPopFunctionBack, testObj);
 
             // Yielding is not bullet-proof because it does not ENSURE that
             // `testObj` is blocking on the `popFront`, so we make sure by
@@ -8365,9 +8366,7 @@ int main(int argc, char *argv[])
             PushPopRecordFront testObj(&x, VA, (!ti ? BY_VALUE : THROUGH_PTR));
 
             bslmt::ThreadUtil::Handle thread;
-            ASSERT(0 == bslmt::ThreadUtil::create(&thread,
-                                                  pushPopFunctionFront,
-                                                  &testObj));
+            CREATEARGTHREAD(thread, pushPopFunctionFront, testObj);
 
             // See note above.
 

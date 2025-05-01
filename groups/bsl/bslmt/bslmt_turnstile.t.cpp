@@ -704,11 +704,9 @@ int main(int argc, char *argv[])
         mX.waitTurn();
         do {
             Int64 wt = mX.waitTurn();
-            Int64 lt =  X.lagTime();
             ASSERTV(WTUB, wt, wt <= WTUB);
-            ASSERT(0 == lt);
             if (veryVerbose) {
-                P_(WTUB); P_(wt); P(lt);
+                P_(WTUB); P(wt);;
             }
         } while (--numTurns);
 

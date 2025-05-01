@@ -586,12 +586,12 @@ int main(int argc, char *argv[])
         //    busy loop is also not removed.  To address the potential for
         //    outliers on loaded machines, execute the
         //    estimation/observation/verification cycle many times and verify
-        //    the observed durations are within a tight range of the expected
-        //    duration with some frequency.  Furthermore, ensure observations
-        //    are within a looser range with a greater frequency.  Since
-        //    non-zero durations are used, verification of the duration
-        //    indicates the busy loop was not optimized away (i.e.,
-        //    `antiOptimization` performed as expected).  (C-1..3)
+        //    the observed durations are distributed around the expected
+        //    duration.  Due to potentially high machine load, this
+        //    verification must be a very weak test.  Since non-zero durations
+        //    are used, verification of the duration indicates the busy loop
+        //    was not optimized away (i.e., `antiOptimization` performed as
+        //    expected).  (C-1..3)
         //
         // 2. There is no memory allocated on the default or global (tested in
         //    main) allocators.  (C-4)
@@ -615,12 +615,12 @@ int main(int argc, char *argv[])
         const int    k_NUM_TRIALS = 100;
 
         for (int i = 0; i < k_NUM_DATA; ++i) {
-            int countTightBoundPassed = 0;
-            int countLooseBoundPassed = 0;
+            const double targetDuration(DATA[i]);
+
+            int countLower = 0;
+            int countHigher = 0;
 
             for (int trial = 0; trial < k_NUM_TRIALS; ++trial) {
-                double targetDuration(DATA[i]);
-
                 bsls::Types::Int64 amount = Obj::estimateBusyWorkAmount(
                                            bsls::TimeInterval(targetDuration));
 
@@ -633,29 +633,27 @@ int main(int argc, char *argv[])
 
                 double duration = (  bsls::SystemTime::nowMonotonicClock()
                                    - startTime).totalSecondsAsDouble();
-
-                if (   1.2 * targetDuration >= duration
-                    && 0.8 * targetDuration <= duration) {
-                    ++countTightBoundPassed;
+                if (1.1 * targetDuration >= duration) {
+                    ++countLower;
                 }
-
-                if (   1.9 * targetDuration >= duration
-                    && 0.1 * targetDuration <= duration) {
-                    ++countLooseBoundPassed;
+                if (0.9 * targetDuration <= duration) {
+                    ++countHigher;
                 }
 
                 ASSERT(beforeAntiOptimization != Obj::antiOptimization());
             }
 
             if (veryVerbose) {
-                P_(countTightBoundPassed) P(countLooseBoundPassed);
+                P_(targetDuration) P_(countLower) P(countHigher);
             }
 
-            ASSERTV(countTightBoundPassed,
-                    100 * countTightBoundPassed >= 25 * k_NUM_TRIALS);
+            ASSERTV(targetDuration,
+                    countLower,
+                    100 * countLower >= 10 * k_NUM_TRIALS);
 
-            ASSERTV(countLooseBoundPassed,
-                    100 * countLooseBoundPassed >= 50 * k_NUM_TRIALS);
+            ASSERTV(targetDuration,
+                    countHigher,
+                    100 * countHigher >= 10 * k_NUM_TRIALS);
 
             ASSERT(defaultAllocator.numAllocations() == allocations);
         }

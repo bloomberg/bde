@@ -4729,6 +4729,15 @@ int main(int argc, char *argv[]) {
                  << "================================" << endl;
         }
 
+        bslmt::ThreadUtil::Handle watchdogHandle;
+
+        s_continue = 1;
+
+        ASSERT(0 == bslmt::ThreadUtil::create(
+                              &watchdogHandle,
+                              watchdog,
+                              const_cast<char *>("case 7")));
+
         bslma::TestAllocator ta(veryVeryVerbose);
         {
             enum {
@@ -4769,7 +4778,7 @@ int main(int argc, char *argv[]) {
                 // that all elements are processed, but neither the queue nor
                 // the threads are destroyed.
 
-                pool.start();
+                STARTPOOL(pool);
 
                 STARTPOOL(mX);
                 ASSERT(0 == tp.numPendingJobs());
@@ -4850,6 +4859,10 @@ int main(int argc, char *argv[]) {
         }
         ASSERT(0 <  ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
+
+        s_continue = 0;
+
+        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 6: {
         // --------------------------------------------------------------------

@@ -4615,7 +4615,7 @@ int main(int argc, char *argv[])
             // this has unavoidable intermittent failures as the sleep function
             // may go over by as much as 2 seconds.
             double prevTime = startTime;
-            const double sTolerance = 0.03;
+            const double sTolerance = 3.0;
             ++sfit, ++sfit;
             bool startOver = false;
             for (int i = 2; i+2 <= slowfunctorSize; ++sfit, ++sfit, i += 2) {

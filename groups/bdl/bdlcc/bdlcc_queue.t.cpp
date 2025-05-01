@@ -845,9 +845,9 @@ class TestClass12 {      // this class is a functor passed to thread::create
         d_barrier = barrier;
         d_status_p = status;
 
-        // have everything time out 4 seconds after thread object creation
+        // have everything time out 10 seconds after thread object creation
 
-        d_timeout = u::now() + bsls::TimeInterval(4.0);
+        d_timeout = u::now() + bsls::TimeInterval(10.0);
     }
     ~TestClass12()
         // make sure we did not wait until timeout
