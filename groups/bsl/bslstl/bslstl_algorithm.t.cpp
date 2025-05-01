@@ -126,7 +126,7 @@ static bool veryVeryVeryVerbose;
 
 struct IsOdd {
     // A standard compliant C++03 unary predicate functor that returns `true`
-    // if an `int` value is odd.
+    // if a `char` value is odd.
 
     // PUBLIC TYPES
     typedef char argument_type;
@@ -529,10 +529,12 @@ int main(int argc, char *argv[])
                             "\n==============\n");
 
 #ifdef BSLSTL_ALGORITHMWORKAROUND_IMPLEMENTS_COPY_IF
-        const int INPUT_ARRAY[] = { 0, 1, 2, 3, 4, 5, 6, 7};
-        const int * const INPUT_BEGIN = INPUT_ARRAY;
-        const size_t INPUT_SIZE = sizeof(INPUT_ARRAY) / sizeof(*INPUT_ARRAY);
-        const int * const INPUT_END = INPUT_BEGIN + INPUT_SIZE;
+        const char         INPUT_ARRAY[] = { 0, 1, 2, 3, 4, 5, 6, 7};
+        const char * const INPUT_BEGIN   = INPUT_ARRAY;
+        const size_t       INPUT_SIZE    = sizeof(INPUT_ARRAY) /
+                                           sizeof(*INPUT_ARRAY);
+        const char * const INPUT_END     = INPUT_BEGIN + INPUT_SIZE;
+
         int OUTPUT_ARRAY[INPUT_SIZE] = {};
 
         const int * const OUTPUT_END =

@@ -365,8 +365,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsla_nodiscard.h>
+
 #include <bsls_alignmentutil.h>
-#include <bsls_annotation.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -423,7 +424,7 @@ class memory_resource {
     /// throw `bad_alloc` or other suitable exception.  The behavior is
     /// undefined unless `alignment` is a power of two.  Note that this
     /// function calls the derived-class implementation of `do_allocate`.
-    BSLS_ANNOTATION_NODISCARD
+    BSLA_NODISCARD
     void *allocate(size_t bytes, size_t alignment = k_MAX_ALIGN);
 
     /// Deallocate the block of memory at the specified address `p` and

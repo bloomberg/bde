@@ -26,6 +26,7 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
+#include <bsls_platform.h>
 #include <bsls_util.h>
 
 #include <algorithm>
@@ -43,6 +44,10 @@
 
 using namespace BloombergLP;
 using namespace bslstl;
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 
 // BDE_VERIFY pragma: -TP06  // `Testing` section should contain this item
 
