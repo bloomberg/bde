@@ -1341,13 +1341,10 @@ int main(int argc, char *argv[])
             NUM_THREADS = 8,
             NUM_PRIORITIES = 4,
             GARBAGE_VAL = 0x8f,
-            NUM_JOBS = 10,
-            MAX_LOOP = 4
+            NUM_JOBS = 10
         };
 
-        int ii;
-        for (ii = 0; ii <= MAX_LOOP; ++ii) {
-            bool startOverFromScratch = false;
+        {
             bdlmt::MultipriorityThreadPool pool(NUM_THREADS,
                                                 NUM_PRIORITIES,
                                                 &ta);
@@ -1399,13 +1396,7 @@ int main(int argc, char *argv[])
             // execute jobs and verify the jobs have not begun executing
 
             for (int j = 0; 10 > j; ++j) {
-                if (pool.startThreads()) {
-                    startOverFromScratch = true;
-                    if (verbose) {
-                        P_(L_); P_(ii); P(j);
-                    }
-                    break;
-                }
+                STARTTHREADS(pool);
 
                 bslmt::ThreadUtil::yield();
                 bslmt::ThreadUtil::microSleep(10 * 1000);
@@ -1449,22 +1440,12 @@ int main(int argc, char *argv[])
                 ASSERT(0 == resultsVecIdx);
                 ASSERT(NUM_JOBS == pool.numPendingJobs());
             }
-            if (startOverFromScratch) {
-                continue;
-            }
 
             // repeat that last experiment, not as many times, redundantly
             // calling the state changes.
 
             for (int j = 0; 5 > j; ++j) {
-                if (pool.startThreads()) {
-                    startOverFromScratch = true;
-                    if (verbose) {
-                        P_(L_); P_(ii); P(j);
-                    }
-                    break;
-                }
-                ASSERT(0 == pool.startThreads());
+                STARTTHREADS(pool);
 
                 bslmt::ThreadUtil::yield();
                 bslmt::ThreadUtil::microSleep(10 * 1000);
@@ -1511,16 +1492,8 @@ int main(int argc, char *argv[])
                 ASSERT(0 == resultsVecIdx);
                 ASSERT(NUM_JOBS == pool.numPendingJobs());
             }
-            if (startOverFromScratch) {
-                continue;
-            }
 
-            if (pool.startThreads()) {
-                if (verbose) {
-                    P_(L_); P(ii);
-                }
-                continue;
-            }
+            STARTTHREADS(pool);
             pool.resumeProcessing();
             pool.drainJobs();
 
@@ -1574,11 +1547,7 @@ int main(int argc, char *argv[])
             }
 
             pool.stopThreads();
-
-            break;
         }
-        ASSERT(ii <= MAX_LOOP);
-        if (verbose) { P_(L_); P(ii); }
       }  break;
       case 5: {
         // --------------------------------------------------------------------

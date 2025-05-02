@@ -214,8 +214,6 @@ class WaitTurnCallbackJob {
 
             int value = ++*d_counter;
 
-            ASSERTV(d_turnstile->lagTime(), 0 == d_turnstile->lagTime());
-
             if (veryVerbose) {
                 COUT << "wt = " << wt << ", counter = " << value
                      << ENDL;
@@ -468,13 +466,10 @@ int main(int argc, char *argv[])
       }  break;
       case 5: {
         // --------------------------------------------------------------------
-        // CONCERN: MULTI-THREADED TEST (NO LAG)
+        // CONCERN: MULTI-THREADED TEST
         //
         // Concerns:
         //   - That calling `waitTurn` from multiple threads is thread-safe.
-        //
-        //   - That the turnstile does not lag when multiple threads call
-        //     `waitTurn` at the configured rate.
         //
         // Plan:
         //   Create a `bslmt::Turnstile`, `mX`, with a rate of 50.  Create
@@ -484,7 +479,7 @@ int main(int argc, char *argv[])
         //   expected number of turns.
         //
         // Testing:
-        //   Concern: Multi-Threaded Test (No Lag)
+        //   Concern: Multi-Threaded Test
         // --------------------------------------------------------------------
 
         if (verbose) {

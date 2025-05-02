@@ -4114,7 +4114,7 @@ enum {
     FRONT_VAL           = 45,
     BACK_VAL            = 46 };
 
-static unsigned pushCount;
+static bsls::AtomicUint pushCount;
 
 int threadResult = -1;
 
@@ -4258,18 +4258,13 @@ void highWaterMarkTest()
         bslmt::ThreadUtil::Handle handle;
         CREATETHREAD(handle, functor);
 
-        while (X.length() < 4) {
-            bslmt::ThreadUtil::yield();
-        }
-
         for (unsigned u = 0; u <= 32 - 4; ++u) {
-            bslmt::ThreadUtil::yield();
-            bslmt::ThreadUtil::microSleep(50 * 1000);        // 50 mSec
-
-            bsl::size_t len = X.length();
+            while (4 + u > pushCount) {
+                bslmt::ThreadUtil::yield();
+            }
 
             ASSERTV(u, pushCount, 4 + u == pushCount);
-            ASSERTV(len,          4     == len);
+            ASSERTV(X.length(),   4     == X.length());
 
             if (veryVerbose) { P_(u);    P(ta.numBlocksInUse()); }
 
