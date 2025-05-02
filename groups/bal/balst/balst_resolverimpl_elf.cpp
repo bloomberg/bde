@@ -4074,89 +4074,71 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     // may match 'libraryFileName' or, in the case of the main executable, may
     // be found somewhere under "/proc/self".
 
-    const char *nameToOpen = 0;
+    const char *nameToOpen = libraryFileName;
 
     d_hidden.reset();
 
-    // we may temporarily trash scratch buffer A here
-
     if (u::e_IS_LINUX) {
+        // On Solaris, `d_isMainExecutable` is set before this function is
+        // called.
+
         d_isMainExecutable = (!libraryFileName || !libraryFileName[0]);
-        if (d_isMainExecutable) {
-            // `/proc/self/exe` is simultaneously both a symlink and a hard
-            // link:
-            //: o If read as a symlink, it will give the name of the executable
-            //:   file, or something like "<file name> (deleted)" if that file
-            //:   has been deleted from the file system.
-            //:
-            //: o If opened as a hard link, it will open the executable file,
-            //:   whether or not that file has been deleted from the file
-            //:   system.
-
-            const char *selfLink = "/proc/self/exe";
-            nameToOpen = selfLink;
-
-            const int len = static_cast<int>(
-                  ::readlink(selfLink, d_scratchBufA_p, u::k_SCRATCH_BUF_LEN));
-            if (len > 0) {
-                u_ASSERT_BAIL(len < u::k_SCRATCH_BUF_LEN);
-                d_scratchBufA_p[len] = 0;
-            }
-            else {
-                u_TRACES && u_zprintf("readlink of /proc/self/exe failed\n");
-
-                return -1;                                            // RETURN
-            }
-
-            libraryFileName = bdlb::String::copy(d_scratchBufA_p, &d_hbpAlloc);
-        }
-        else {
-            nameToOpen = libraryFileName;
-        }
     }
-    else {
-        // Solaris: `d_isMainExecutable` was set by the caller of this
-        // function.
+    if (d_isMainExecutable) {
+        // On Linux, the file "/proc/self/exe" is a funny symlink.  If the
+        // main executable file hasn't been deleted, it's a symlink that points
+        // to that file, but if the file has been deleted, it either:
+        //
+        //: o points to "<file name> (deleted)" but if opened as a hard link,
+        //:   still opens the executable file.
+        //:
+        //: o on Linux nfs, points to a ".nfs<long hex number>" gremlin file
+        //:   which is the remnant of the deleted executable, so whether it's
+        //:   a symlink or not, opening it opens the executable file.
+        //
+        // On Solaris, "/proc/self/exe" doesn't exist, but there is
+        // "/proc/self/object/a.out" (which doesn't exist on Linux) which is a
+        // hard link to the executable.
 
-        if (d_isMainExecutable) {
-            // The file `/proc/self/object/a.out` is a hard link to the main
-            // executable.
+        nameToOpen = u::e_IS_LINUX ? "/proc/self/exe"
+                                   : "/proc/self/object/a.out";
 
-            nameToOpen = "/proc/self/object/a.out";
+        // The file at "/proc/self/cmdline" is a hard link to a file whose
+        // contents begin with a null-terminated `argv[0]`, the path of the
+        // filename of the executable, which might or might not still be in the
+        // file system.
 
-            // The file `/proc/self/execname` is a non-symlink file whose
-            // contents are a null-terminated path of the filename of the
-            // executable, which might or might not still be in the file
-            // system.
+        typedef bdls::FilesystemUtil Util;
+        Util::FileDescriptor fd = Util::open("/proc/self/cmdline",
+                                             Util::e_OPEN,
+                                             Util::e_READ_ONLY);
+        u_ASSERT_BAIL(Util::k_INVALID_FD != fd);
 
-            typedef bdls::FilesystemUtil Util;
-            Util::FileDescriptor fd = Util::open("/proc/self/execname",
-                                                 Util::e_OPEN,
-                                                 Util::e_READ_ONLY);
-            u_ASSERT_BAIL(Util::k_INVALID_FD != fd);
-            int len = Util::read(fd, d_scratchBufA_p, u::k_SCRATCH_BUF_LEN);
-            u_ASSERT_BAIL(0 < len && d_scratchBufA_p[0]);
-            u_ASSERT_BAIL(len < u::k_SCRATCH_BUF_LEN);
-            if (d_scratchBufA_p[len - 1]) {
-                d_scratchBufA_p[len] = 0;
-            }
+        // We temporarily trash scratch buffer A here, but we're done with it
+        // before we leave this block.
 
-            int rc = Util::close(fd);
-            u_ASSERT_BAIL(0 == rc);
-
-            libraryFileName = bdlb::String::copy(d_scratchBufA_p, &d_hbpAlloc);
+        int len = Util::read(fd, d_scratchBufA_p, u::k_SCRATCH_BUF_LEN);
+        u_ASSERT_BAIL(0 < len && d_scratchBufA_p[0]);
+        if (u::k_SCRATCH_BUF_LEN <= len) {
+            BSLS_ASSERT(u::k_SCRATCH_BUF_LEN == len);
+            --len;
         }
-        else {
-            nameToOpen = libraryFileName;
+        if (d_scratchBufA_p[len - 1]) {
+            d_scratchBufA_p[len] = 0;
         }
+
+        int rc = Util::close(fd);
+        u_ASSERT_BAIL(0 == rc);
+
+        libraryFileName = bdlb::String::copy(d_scratchBufA_p, &d_hbpAlloc);
     }
 
     u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);
     u_ASSERT_BAIL(nameToOpen      && nameToOpen[0]);
 
-    u_TRACES && u_zprintf("processing loaded image: fn:\"%s\","
+    u_TRACES && u_zprintf("%s: fn:\"%s\","
                        " nameToOpen:\"%s\" main:%d numHdrs:%d unmatched:%ld\n",
-                                  libraryFileName ? libraryFileName : "(null)",
+                              rn, libraryFileName ? libraryFileName : "(null)",
                                             nameToOpen ? nameToOpen : "(null)",
                                           static_cast<int>(d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
@@ -4166,7 +4148,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     if (rc) {
 #if defined(BSLS_PLATFORM_OS_LINUX)
         if (!bsl::strstr(libraryFileName, "vdso")) {
-            u_TRACES && u_zprintf("unable to open %s\n", nameToOpen);
+            u_TRACES && u_zprintf("%s: unable to open %s\n", rn, nameToOpen);
             return -1;                                                // RETURN
         }
 
@@ -4175,12 +4157,12 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
         rc = helper.openMappedFile(mappedFile);
         if (rc) {
-            u_TRACES && u_zprintf("Couldn't access vdso file %s\n",
+            u_TRACES && u_zprintf("%s: Couldn't access vdso file %s\n", rn,
                                   libraryFileName);
             return -1;                                                // RETURN
         }
 #else
-        u_TRACES && u_zprintf("unable to open %s\n", nameToOpen);
+        u_TRACES && u_zprintf("%s: unable to open %s\n", rn, nameToOpen);
         return -1;                                                    // RETURN
 #endif
     }
