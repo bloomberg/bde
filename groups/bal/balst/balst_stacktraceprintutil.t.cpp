@@ -44,6 +44,10 @@
 
 # pragma optimize("", off)
 
+#else
+
+# include <unistd.h>    // unlink
+
 #endif
 
 using namespace BloombergLP;
@@ -906,6 +910,13 @@ int main(int argc, char *argv[])
     // make sure the shared lib containing `malloc` is loaded
 
     BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    if (50 < test) {
+        ::unlink(argv[0]);
+        test -= 50;
+    }
+#endif
 
     // see if we can avoid calling `malloc` from here on out
 

@@ -67,7 +67,7 @@
 
 #else
 
-#include <unistd.h>    // sbrk
+#include <unistd.h>    // sbrk, unlink
 
 #endif
 
@@ -1929,6 +1929,13 @@ int main(int argc, char *argv[])
     // see if we can avoid calling `malloc` from here on out
 
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    if (50 < test) {
+        ::unlink(argv[0]);
+        test -= 50;
+    }
+#endif
 
     // `dummyOstream` is a way of achieving the equivalent of opening /dev/null
     // that works on Windoze.

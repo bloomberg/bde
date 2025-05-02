@@ -199,6 +199,7 @@ int Resolver_FileHelper::openFile(const char *fileName)
     }
 
     d_reader.emplace<FileReader>(fd);
+    d_fileSize = FilesystemUtil::getFileSize(fd);
 
     return 0;
 }
@@ -211,6 +212,7 @@ int Resolver_FileHelper::openMappedFile(const CSpan& mappedFile)
     }
 
     d_reader.emplace<MappedFileReader>(mappedFile);
+    d_fileSize = mappedFile.size();
 
     return 0;
 }

@@ -10,6 +10,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_review.h>
@@ -24,6 +25,8 @@
 #include <bsl_sstream.h>
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
+
+#include <unistd.h>
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -291,13 +294,20 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator ta;
+    bslma::NewDeleteAllocator ta;
 
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+
+    bool vanish = false;
+    if (50 < test) {
+        vanish = true;
+        ::unlink(argv[0]);
+        test -= 50;
+    }
 
     switch (test) { case 0:
       case 2: {
@@ -370,6 +380,9 @@ int main(int argc, char *argv[])
         }
 
         for (int demangle = 0; demangle < 2; ++demangle) {
+            if (verbose) cout << "Trace with" << (demangle ? "" : "out") <<
+                                                              " demangling.\n";
+
             balst::StackTrace stackTrace;
             stackTrace.resize(5);
             stackTrace[0].setAddress(addFixedOffset((UintPtr) &funcGlobalOne));
@@ -454,7 +467,8 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < stackTrace.length(); ++i) {
 #undef  IS_KNOWN
-#define IS_KNOWN(name) ASSERTV(i, stackTrace[i].is ## name ## Known());
+#define IS_KNOWN(name) ASSERTV(i, stackTrace[i],                              \
+                                          stackTrace[i].is ## name ## Known());
                 IS_KNOWN(Address);
                 IS_KNOWN(LibraryFileName);
                 IS_KNOWN(MangledSymbolName);
@@ -490,7 +504,7 @@ int main(int argc, char *argv[])
                 const char *name = stackTrace[i].sourceFileName().c_str();
                 ASSERTV(i, name, !e_IS_DWARF || '/' == *name);
                 ASSERTV(i, name, !e_IS_DWARF ||
-                                           bdls::FilesystemUtil::exists(name));
+                     bdls::FilesystemUtil::exists(name) || (vanish && 0 == i));
 
                 const char *pc = name + bsl::strlen(name);
                 while (pc > name && '/' != pc[-1]) {
@@ -574,7 +588,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        ASSERT(0 == defaultAllocator.numAllocations());
+        ASSERTV(defaultAllocator.numAllocations(),
+                                       0 == defaultAllocator.numAllocations());
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
