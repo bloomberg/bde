@@ -189,15 +189,17 @@ class ResolverImpl<ObjectFileFormat::Elf> {
     /// its length, it is a `void *` because the type `ElfProgramHeader` is
     /// local to the implementation file.  Specify one of `textSegPtr` and
     /// `baseAddress`, and the other as 0, this method will infer the one
-    /// specified as 0 from the other.  Return 0 on success and a non-zero
-    /// value otherwise.  Note that this method is not to be called by external
-    /// users of this component, it is only public so a static routine in the
-    /// implementation file can call it.
+    /// specified as 0 from the other.  Specify `isMainExecutable`, indicating
+    /// whether the image is the main executable.  Return 0 on success and a
+    /// non-zero value otherwise.  Note that this method is not to be called by
+    /// external users of this component, it is only public so a static routine
+    /// in the implementation file can call it.
     int processLoadedImage(const char *libraryFileName,
                            const void *programHeaders,
                            int         numProgramHeaders,
                            void       *textSegPtr,
-                           void       *baseAddress);
+                           void       *baseAddress,
+                           bool        isMainExecutable);
 
     // ACCESSOR
 

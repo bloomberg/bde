@@ -4057,7 +4057,8 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                     const void *programHeaders,
                                     int         numProgramHeaders,
                                     void       *textSegPtr,
-                                    void       *baseAddress)
+                                    void       *baseAddress,
+                                    bool        isMainExecutable)
     // Note this must be public so 'linkMapCallBack' can call it on Solaris.
     // Also note that it assumes that both scratch buffers are available for
     // writing.  Note that on Solaris, 'd_isMainExecutable' is to be set prior
@@ -4067,6 +4068,8 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     static const char rn[] = { "Resolver::processLoadedImage" };    (void) rn;
 
     BSLS_ASSERT(!textSegPtr || !baseAddress);
+
+    d_isMainExecutable = isMainExecutable;
 
     // 'libraryFileName' is to be potentially reassigned -- it is the file name
     // to be displayed as the 'libraryFileName' field of the stack trace frame.
@@ -4078,13 +4081,18 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
     d_hidden.reset();
 
-    if (u::e_IS_LINUX) {
-        // On Solaris, `d_isMainExecutable` is set before this function is
-        // called.
+    if (isMainExecutable) {
+        // We expect the main executable to contain most of the symbols.  Under
+        // some circumstances, the main executable is deleted from the file
+        // system while the task is still running.  So we find the main
+        // executable through the "/proc/self" directory, which will work
+        // whether the file is still in the file system or not.
+        //
+        // If any image other than the main executable has been deleted from
+        // the file system, we are to harmlessly skip over that image (most
+        // shared libs don't contain a lot of symbols of interest, and there is
+        // no way to access them through "/proc/self").
 
-        d_isMainExecutable = (!libraryFileName || !libraryFileName[0]);
-    }
-    if (d_isMainExecutable) {
         // On Linux, the file "/proc/self/exe" is a funny symlink.  If the
         // main executable file hasn't been deleted, it's a symlink that points
         // to that file, but if the file has been deleted, it either:
@@ -4107,7 +4115,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // contents are all the strings in `argv[*]` concatenated with '\0's
         // separating them, so reading that file into a buffer then reading the
         // buffer as a null-terminated string gives us `argv[0]`, the filename
-        // of the executaqble, which might or might not still be in the file
+        // of the executable, which might or might not still be in the file
         // system.
 
         typedef bdls::FilesystemUtil Util;
@@ -4635,12 +4643,16 @@ int linkmapCallback(struct dl_phdr_info *info,
     // here the base address is known and text segment loading address is
     // unknown
 
+    const char *libraryFileName  = info->dlpi_name;
+    const bool  isMainExecutable = !libraryFileName || !libraryFileName[0];
+
     int rc = resolver->processLoadedImage(
-                                    info->dlpi_name,
+                                    libraryFileName,
                                     info->dlpi_phdr,
                                     info->dlpi_phnum,
                                     0,
-                                    reinterpret_cast<void *>(info->dlpi_addr));
+                                    reinterpret_cast<void *>(info->dlpi_addr),
+                                    isMainExecutable);
     if (rc) {
         u_TRACES && u_zprintf("processLoadedImage failed on %s\n",
                                                               info->dlpi_name);
@@ -4744,8 +4756,6 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
 
         int numProgramHeaders = elfHeader->e_phnum;
 
-        resolver.d_isMainExecutable = (0 == i);
-
         // Here the text segment address is known, not base address.  On this
         // platform, but not necessarily on other platforms, the text segment
         // begins with the Elf Header.
@@ -4754,7 +4764,8 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
                                              programHeaders,
                                              numProgramHeaders,
                                              static_cast<void *>(elfHeader),
-                                             0);
+                                             0,
+                                             0 == i);
         if (rc) {
             u_TRACES && u_zprintf("processLoadedImage failed on %s at $d\n",
                                                            linkMap->l_name, i);
