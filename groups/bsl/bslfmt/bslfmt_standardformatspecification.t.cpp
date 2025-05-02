@@ -142,13 +142,17 @@ void aSsErT(bool condition, const char *message, int line)
     #define BSLFMT_FORMAT_WSTRING_PARAMETER bslfmt::wformat_string
 #endif
 
-#define VERIFY_EXCEPTION_IS_THROWN(action)                                    \
-try {                                                                         \
-    action                                                                    \
-    ASSERTV("Exception hasn't been thrown", false);                           \
-}                                                                             \
-catch (const bsl::format_error&) {                                            \
-}
+#define VERIFY_EXCEPTION_IS_THROWN(line, action)                              \
+do {                                                                          \
+    bool formatErrorWasCaught = false;                                        \
+    try {                                                                     \
+        action;                                                               \
+    }                                                                         \
+    catch(const bslfmt::format_error&) {                                      \
+        formatErrorWasCaught = true;                                          \
+    }                                                                         \
+    ASSERTV(line, formatErrorWasCaught);                                      \
+} while (false);
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -169,7 +173,8 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL CharSpec parseStandard(
 {
     CharSpec                       spec;
     bsl::string_view               input(inputSpecification.get());
-    bslfmt::MockParseContext<char> context(input, 4);
+    const int                      numArgs = 4;
+    bslfmt::MockParseContext<char> context(input, numArgs);
 
     spec.parse(&context, category);
 
@@ -182,27 +187,29 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL WcharSpec parseStandard(
 {
     WcharSpec                         spec;
     bsl::wstring_view                 input(inputSpecification.get());
-    bslfmt::MockParseContext<wchar_t> context(input, 4);
+    const int                         numArgs = 4;
+    bslfmt::MockParseContext<wchar_t> context(input, numArgs);
 
     spec.parse(&context, category);
 
     return spec;
 }
 
-void checkStandard(int                                line,
-                   const CharSpec&                    originalSpec,
-                   bsl::basic_string_view<char>       filler,
-                   CharSpec::Alignment                alignment,
-                   CharSpec::Sign                     sign,
-                   bool                               alternativeFlag,
-                   bool                               zeroPaddingFlag,
-                   FormatterSpecificationNumericValue postprocessedWidth,
-                   FormatterSpecificationNumericValue postprocessedPrecision,
-                   bool                               localeSpecificFlag,
-                   CharSpec::FormatType               formatType)
+void postprocessAndVerifyResult(
+                 int                                    line,
+                 const CharSpec&                        originalSpec,
+                 const bslfmt::MockFormatContext<char>& mfc,
+                 bsl::basic_string_view<char>           filler,
+                 CharSpec::Alignment                    alignment,
+                 CharSpec::Sign                         sign,
+                 bool                                   alternativeFlag,
+                 bool                                   zeroPaddingFlag,
+                 FormatterSpecificationNumericValue     postprocessedWidth,
+                 FormatterSpecificationNumericValue     postprocessedPrecision,
+                 bool                                   localeSpecificFlag,
+                 CharSpec::FormatType                   formatType)
 {
-    CharSpec                        spec = originalSpec;
-    bslfmt::MockFormatContext<char> mfc(99, 98, 97, 96);
+    CharSpec spec = originalSpec;
     spec.postprocess(mfc);
 
     ASSERTV(line, filler                 == bsl::string_view(
@@ -218,20 +225,21 @@ void checkStandard(int                                line,
     ASSERTV(line, formatType             == spec.formatType());
 }
 
-void checkStandard(int                                line,
-                   const WcharSpec&                   originalSpec,
-                   bsl::basic_string_view<wchar_t>    filler,
-                   WcharSpec::Alignment               alignment,
-                   WcharSpec::Sign                    sign,
-                   bool                               alternativeFlag,
-                   bool                               zeroPaddingFlag,
-                   FormatterSpecificationNumericValue postprocessedWidth,
-                   FormatterSpecificationNumericValue postprocessedPrecision,
-                   bool                               localeSpecificFlag,
-                   WcharSpec::FormatType              formatType)
+void postprocessAndVerifyResult(
+              int                                       line,
+              const WcharSpec&                          originalSpec,
+              const bslfmt::MockFormatContext<wchar_t>& mfc,
+              bsl::basic_string_view<wchar_t>           filler,
+              WcharSpec::Alignment                      alignment,
+              WcharSpec::Sign                           sign,
+              bool                                      alternativeFlag,
+              bool                                      zeroPaddingFlag,
+              FormatterSpecificationNumericValue        postprocessedWidth,
+              FormatterSpecificationNumericValue        postprocessedPrecision,
+              bool                                      localeSpecificFlag,
+              WcharSpec::FormatType                     formatType)
 {
     WcharSpec                          spec = originalSpec;
-    bslfmt::MockFormatContext<wchar_t> mfc(99, 98, 97, 96);
     spec.postprocess(mfc);
 
     ASSERTV(line, filler                 == bsl::wstring_view(
@@ -247,16 +255,16 @@ void checkStandard(int                                line,
     ASSERTV(line, formatType             == spec.formatType());
 }
 
-/// Verify the state of the specified `specification` after processing the
-/// specification generated for the current state of the specified `generator`
-/// with the specified `category`.
+/// Verify the state of the specified `specification` after parsing with the
+/// specified `category` the spec generated by the specified `generator` in its
+/// current state.
 template <class t_CHAR>
 void verifyParsedState(
           const StandardFormatSpecification<t_CHAR>&             specification,
           const TestSpecificationGenerator<t_CHAR>&              generator,
           typename StandardFormatSpecification<t_CHAR>::Category category)
 {
-    typedef TestSpecificationGenerator<t_CHAR>  TSG;
+    typedef TestSpecificationGenerator<t_CHAR>  Generator;
     typedef StandardFormatSpecification<t_CHAR> Obj;
 
     const t_CHAR *const SPEC = generator.spec().c_str();
@@ -322,13 +330,13 @@ void verifyParsedState(
         switch (category) {
           case Obj::e_CATEGORY_STRING: {
             switch (generator.type()) {
-              case TSG::e_TYPE_STRING: {
+              case Generator::e_TYPE_STRING: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_STRING_DEFAULT == specification.formatType());
               } break;
-              case TSG::e_TYPE_ESCAPED: {
+              case Generator::e_TYPE_ESCAPED: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
@@ -342,45 +350,45 @@ void verifyParsedState(
 
           case Obj::e_CATEGORY_INTEGRAL: {
             switch (generator.type()) {
-              case TSG::e_TYPE_BINARY: {
+              case Generator::e_TYPE_BINARY: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_BINARY == specification.formatType());
               } break;
-              case TSG::e_TYPE_BINARY_UC: {
+              case Generator::e_TYPE_BINARY_UC: {
                 ASSERTV(
                       SPEC,
                       category,
                       specification.formatType(),
                       Obj::e_INTEGRAL_BINARY_UC == specification.formatType());
               } break;
-              case TSG::e_TYPE_CHARACTER: {
+              case Generator::e_TYPE_CHARACTER: {
                 ASSERTV(
                       SPEC,
                       category,
                       specification.formatType(),
                       Obj::e_INTEGRAL_CHARACTER == specification.formatType());
               } break;
-              case TSG::e_TYPE_DECIMAL: {
+              case Generator::e_TYPE_DECIMAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_DECIMAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_OCTAL: {
+              case Generator::e_TYPE_OCTAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_OCTAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_INT_HEX: {
+              case Generator::e_TYPE_INT_HEX: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_HEX == specification.formatType());
               } break;
-              case TSG::e_TYPE_INT_HEX_UC: {
+              case Generator::e_TYPE_INT_HEX_UC: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
@@ -394,52 +402,52 @@ void verifyParsedState(
 
           case Obj::e_CATEGORY_CHARACTER: {
             switch (generator.type()) {
-              case TSG::e_TYPE_BINARY: {
+              case Generator::e_TYPE_BINARY: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_BINARY == specification.formatType());
               } break;
-              case TSG::e_TYPE_BINARY_UC: {
+              case Generator::e_TYPE_BINARY_UC: {
                 ASSERTV(
                       SPEC,
                       category,
                       specification.formatType(),
                       Obj::e_INTEGRAL_BINARY_UC == specification.formatType());
               } break;
-              case TSG::e_TYPE_CHARACTER: {
+              case Generator::e_TYPE_CHARACTER: {
                 ASSERTV(
                      SPEC,
                      category,
                      specification.formatType(),
                      Obj::e_CHARACTER_CHARACTER == specification.formatType());
               } break;
-              case TSG::e_TYPE_ESCAPED: {
+              case Generator::e_TYPE_ESCAPED: {
                 ASSERTV(
                        SPEC,
                        category,
                        specification.formatType(),
                        Obj::e_CHARACTER_ESCAPED == specification.formatType());
               } break;
-              case TSG::e_TYPE_DECIMAL: {
+              case Generator::e_TYPE_DECIMAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_DECIMAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_OCTAL: {
+              case Generator::e_TYPE_OCTAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_OCTAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_INT_HEX: {
+              case Generator::e_TYPE_INT_HEX: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_HEX == specification.formatType());
               } break;
-              case TSG::e_TYPE_INT_HEX_UC: {
+              case Generator::e_TYPE_INT_HEX_UC: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
@@ -453,44 +461,44 @@ void verifyParsedState(
 
           case Obj::e_CATEGORY_BOOLEAN: {
             switch (generator.type()) {
-              case TSG::e_TYPE_BINARY: {
+              case Generator::e_TYPE_BINARY: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_BINARY == specification.formatType());
               } break;
-              case TSG::e_TYPE_BINARY_UC: {
+              case Generator::e_TYPE_BINARY_UC: {
                 ASSERTV(
                       SPEC,
                       category,
                       specification.formatType(),
                       Obj::e_INTEGRAL_BINARY_UC == specification.formatType());
               } break;
-              case TSG::e_TYPE_STRING: {
+              case Generator::e_TYPE_STRING: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_BOOLEAN_STRING == specification.formatType());
               } break;
-              case TSG::e_TYPE_DECIMAL: {
+              case Generator::e_TYPE_DECIMAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_DECIMAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_OCTAL: {
+              case Generator::e_TYPE_OCTAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_OCTAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_INT_HEX: {
+              case Generator::e_TYPE_INT_HEX: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_INTEGRAL_HEX == specification.formatType());
               } break;
-              case TSG::e_TYPE_INT_HEX_UC: {
+              case Generator::e_TYPE_INT_HEX_UC: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
@@ -504,52 +512,52 @@ void verifyParsedState(
 
           case Obj::e_CATEGORY_FLOATING: {
             switch (generator.type()) {
-              case TSG::e_TYPE_FLOAT_HEX: {
+              case Generator::e_TYPE_FLOAT_HEX: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_FLOATING_HEX == specification.formatType());
               } break;
-              case TSG::e_TYPE_FLOAT_HEX_UC: {
+              case Generator::e_TYPE_FLOAT_HEX_UC: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_FLOATING_HEX_UC == specification.formatType());
               } break;
-              case TSG::e_TYPE_SCIENTIFIC: {
+              case Generator::e_TYPE_SCIENTIFIC: {
                 ASSERTV(
                      SPEC,
                      category,
                      specification.formatType(),
                      Obj::e_FLOATING_SCIENTIFIC == specification.formatType());
               } break;
-              case TSG::e_TYPE_SCIENTIFIC_UC: {
+              case Generator::e_TYPE_SCIENTIFIC_UC: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_FLOATING_SCIENTIFIC_UC ==
                             specification.formatType());
               } break;
-              case TSG::e_TYPE_FIXED: {
+              case Generator::e_TYPE_FIXED: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_FLOATING_FIXED == specification.formatType());
               } break;
-              case TSG::e_TYPE_FIXED_UC: {
+              case Generator::e_TYPE_FIXED_UC: {
                 ASSERTV(
                        SPEC,
                        category,
                        specification.formatType(),
                        Obj::e_FLOATING_FIXED_UC == specification.formatType());
               } break;
-              case TSG::e_TYPE_GENERAL: {
+              case Generator::e_TYPE_GENERAL: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_FLOATING_GENERAL == specification.formatType());
               } break;
-              case TSG::e_TYPE_GENERAL_UC: {
+              case Generator::e_TYPE_GENERAL_UC: {
                 ASSERTV(
                      SPEC,
                      category,
@@ -564,13 +572,13 @@ void verifyParsedState(
 
           case Obj::e_CATEGORY_POINTER: {
             switch (generator.type()) {
-              case TSG::e_TYPE_POINTER: {
+              case Generator::e_TYPE_POINTER: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
                         Obj::e_POINTER_HEX == specification.formatType());
               } break;
-              case TSG::e_TYPE_POINTER_UC: {
+              case Generator::e_TYPE_POINTER_UC: {
                 ASSERTV(SPEC,
                         category,
                         specification.formatType(),
@@ -700,7 +708,8 @@ void verifyPostprocessedState(
                      arg2 == postprocessedWidth.value());
           } break;
           default: {
-              ASSERTV("Unexpected value", generator.nestedWidthVariant(),
+              ASSERTV("Unexpected nested width variant",
+                      generator.nestedWidthVariant(),
                       false);
           }
         }
@@ -751,7 +760,8 @@ void verifyPostprocessedState(
                      arg2 == postprocessedPrecision.value());
           } break;
           default: {
-              ASSERTV("Unexpected value", generator.nestedPrecisionVariant(),
+              ASSERTV("Unexpected nested precision variant",
+                      generator.nestedPrecisionVariant(),
                       false);
           }
         }
@@ -955,6 +965,8 @@ int main(int argc, char **argv)
         if (verbose) printf("\nTESTING `postprocess`"
                             "\n=====================\n");
 
+        ASSERTV(sizeof(wchar_t), 4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
+
         if (verbose) printf("\tTesting fill character postprocessing.\n");
         {
             static const struct {
@@ -980,6 +992,7 @@ int main(int argc, char **argv)
             const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
             // `char`
+
             for (size_t i = 0; i < NUM_DATA; ++i) {
                 const int     LINE        = DATA[i].d_line;
                 const char   *FILL_SYMBOL = DATA[i].d_utf8String;
@@ -1042,8 +1055,6 @@ int main(int argc, char **argv)
             const size_t NUM_WDATA = sizeof WDATA / sizeof *WDATA;
 
             // `wchar_t`
-            ASSERTV(sizeof(wchar_t),
-                    4 == sizeof(wchar_t) || 2 == sizeof(wchar_t));
 
             for (size_t i = 0; i < NUM_WDATA; ++i) {
                 const int      LINE            = WDATA[i].d_line;
@@ -1952,17 +1963,17 @@ int main(int argc, char **argv)
             ASSERTV(mXc.processingState(),
                     Enums::e_STATE_UNPARSED == mXc.processingState());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXc.filler();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.numFillerCharacters();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.alignment();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.sign();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.alternativeFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.zeroPaddingFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedPrecision();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.localeSpecificFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.formatType();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.filler()                      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.numFillerCharacters()         )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.alignment()                   )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.sign()                        )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.alternativeFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.zeroPaddingFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedPrecision()      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.localeSpecificFlag()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.formatType()                  )
 
             bslfmt::MockParseContext<char> parseContext("", 1);
             mXc.parse(&parseContext, CharSpec::e_CATEGORY_INTEGRAL);
@@ -1978,9 +1989,9 @@ int main(int argc, char **argv)
             ASSERTV(mXc.formatType(),
                     CharSpec::e_INTEGRAL_DECIMAL == mXc.formatType());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXc.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedPrecision()      )
 
             MockFormatContext<char> formatContext(0);
             mXc.postprocess(formatContext);
@@ -1999,17 +2010,17 @@ int main(int argc, char **argv)
             ASSERTV(mXc.processingState(),
                     Enums::e_STATE_UNPARSED == mXc.processingState());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXc.filler();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.numFillerCharacters();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.alignment();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.sign();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.alternativeFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.zeroPaddingFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedPrecision();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.localeSpecificFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.formatType();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.filler()                      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.numFillerCharacters()         )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.alignment()                   )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.sign()                        )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.alternativeFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.zeroPaddingFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedPrecision()      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.localeSpecificFlag()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.formatType()                  )
 
             bslfmt::MockParseContext<char> parseContext("*<+#06.5Lg", 1);
             mXc.parse(&parseContext, CharSpec::e_CATEGORY_FLOATING);
@@ -2024,9 +2035,9 @@ int main(int argc, char **argv)
             ASSERTV(mXc.formatType(),
                     CharSpec::e_FLOATING_GENERAL == mXc.formatType());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXc.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXc.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXc.postprocessedPrecision()      )
 
             MockFormatContext<char> formatContext(0);
             mXc.postprocess(formatContext);
@@ -2050,17 +2061,17 @@ int main(int argc, char **argv)
             ASSERTV(mXw.processingState(),
                     Enums::e_STATE_UNPARSED == mXw.processingState());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXw.filler();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.numFillerCharacters();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.alignment();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.sign();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.alternativeFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.zeroPaddingFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedPrecision();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.localeSpecificFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.formatType();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.filler()                      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.numFillerCharacters()         )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.alignment()                   )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.sign()                        )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.alternativeFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.zeroPaddingFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedPrecision()      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.localeSpecificFlag()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.formatType()                  )
 
             bslfmt::MockParseContext<wchar_t> parseContext(L"", 1);
             mXw.parse(&parseContext, WcharSpec::e_CATEGORY_CHARACTER);
@@ -2076,9 +2087,9 @@ int main(int argc, char **argv)
             ASSERTV(mXw.formatType(),
                     WcharSpec::e_CHARACTER_CHARACTER == mXw.formatType());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXw.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedPrecision()      )
 
             MockFormatContext<wchar_t> formatContext(0);
             mXw.postprocess(formatContext);
@@ -2098,17 +2109,17 @@ int main(int argc, char **argv)
             ASSERTV(mXw.processingState(),
                     Enums::e_STATE_UNPARSED == mXw.processingState());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXw.filler();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.numFillerCharacters();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.alignment();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.sign();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.alternativeFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.zeroPaddingFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedPrecision();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.localeSpecificFlag();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.formatType();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.filler()                      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.numFillerCharacters()         )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.alignment()                   )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.sign()                        )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.alternativeFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.zeroPaddingFlag()             )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedPrecision()      )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.localeSpecificFlag()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.formatType()                  )
 
             bslfmt::MockParseContext<wchar_t> parseContext(L"*<6.5Ls", 1);
             mXw.parse(&parseContext, WcharSpec::e_CATEGORY_STRING);
@@ -2122,9 +2133,9 @@ int main(int argc, char **argv)
             ASSERTV(mXw.formatType(),
                     WcharSpec::e_STRING_DEFAULT == mXw.formatType());
 
-            VERIFY_EXCEPTION_IS_THROWN(mXw.fillerCodePointDisplayWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedWidth();)
-            VERIFY_EXCEPTION_IS_THROWN(mXw.postprocessedPrecision();)
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.fillerCodePointDisplayWidth() )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedWidth()          )
+            VERIFY_EXCEPTION_IS_THROWN(L_, mXw.postprocessedPrecision()      )
 
             MockFormatContext<wchar_t> formatContext(0);
             mXw.postprocess(formatContext);
@@ -2204,8 +2215,22 @@ int main(int argc, char **argv)
         typedef StandardFormatSpecification<wchar_t> WcharSpec;
         typedef FormatterSpecificationNumericValue   NumericValue;
 
-        checkStandard(L_,
+        const int                          arg0 = 99;
+        const int                          arg1 = 98;
+        const int                          arg2 = 97;
+        const int                          arg3 = 96;
+        bslfmt::MockFormatContext<char>    cFormatContext(arg0,
+                                                          arg1,
+                                                          arg2,
+                                                          arg3);
+        bslfmt::MockFormatContext<wchar_t> wFormatContext(arg0,
+                                                          arg1,
+                                                          arg2,
+                                                          arg3);
+
+        postprocessAndVerifyResult(L_,
                       parseStandard("", CharSpec::e_CATEGORY_STRING),
+                      cFormatContext,
                       " ",
                       CharSpec::e_ALIGN_DEFAULT,
                       CharSpec::e_SIGN_DEFAULT,
@@ -2216,8 +2241,9 @@ int main(int argc, char **argv)
                       false,
                       CharSpec::e_STRING_DEFAULT);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard("2.3s", CharSpec::e_CATEGORY_STRING),
+                      cFormatContext,
                       " ",
                       CharSpec::e_ALIGN_DEFAULT,
                       CharSpec::e_SIGN_DEFAULT,
@@ -2228,33 +2254,36 @@ int main(int argc, char **argv)
                       false,
                       CharSpec::e_STRING_DEFAULT);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard("{3}.{2}", CharSpec::e_CATEGORY_STRING),
+                      cFormatContext,
                       " ",
                       CharSpec::e_ALIGN_DEFAULT,
                       CharSpec::e_SIGN_DEFAULT,
                       false,
                       false,
-                      NumericValue(NumericValue::e_VALUE, 96),
-                      NumericValue(NumericValue::e_VALUE, 97),
+                      NumericValue(NumericValue::e_VALUE, arg3),
+                      NumericValue(NumericValue::e_VALUE, arg2),
                       false,
                       CharSpec::e_STRING_DEFAULT);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard("*<{1}.{3}F",
                                     CharSpec::e_CATEGORY_FLOATING),
+                      cFormatContext,
                       "*",
                       CharSpec::e_ALIGN_LEFT,
                       CharSpec::e_SIGN_DEFAULT,
                       false,
                       false,
-                      NumericValue(NumericValue::e_VALUE, 98),
-                      NumericValue(NumericValue::e_VALUE, 96),
+                      NumericValue(NumericValue::e_VALUE, arg1),
+                      NumericValue(NumericValue::e_VALUE, arg3),
                       false,
                       CharSpec::e_FLOATING_FIXED_UC);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard(L"", WcharSpec::e_CATEGORY_STRING),
+                      wFormatContext,
                       L" ",
                       WcharSpec::e_ALIGN_DEFAULT,
                       WcharSpec::e_SIGN_DEFAULT,
@@ -2265,8 +2294,9 @@ int main(int argc, char **argv)
                       false,
                       WcharSpec::e_STRING_DEFAULT);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard(L"2.3s", WcharSpec::e_CATEGORY_STRING),
+                      wFormatContext,
                       L" ",
                       WcharSpec::e_ALIGN_DEFAULT,
                       WcharSpec::e_SIGN_DEFAULT,
@@ -2277,28 +2307,30 @@ int main(int argc, char **argv)
                       false,
                       WcharSpec::e_STRING_DEFAULT);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard(L"{2}.{1}", WcharSpec::e_CATEGORY_STRING),
+                      wFormatContext,
                       L" ",
                       WcharSpec::e_ALIGN_DEFAULT,
                       WcharSpec::e_SIGN_DEFAULT,
                       false,
                       false,
-                      NumericValue(NumericValue::e_VALUE, 97),
-                      NumericValue(NumericValue::e_VALUE, 98),
+                      NumericValue(NumericValue::e_VALUE, arg2),
+                      NumericValue(NumericValue::e_VALUE, arg1),
                       false,
                       WcharSpec::e_STRING_DEFAULT);
 
-        checkStandard(L_,
+        postprocessAndVerifyResult(L_,
                       parseStandard(L"*<{0}.{3}f",
                                     WcharSpec::e_CATEGORY_FLOATING),
+                      wFormatContext,
                       L"*",
                       WcharSpec::e_ALIGN_LEFT,
                       WcharSpec::e_SIGN_DEFAULT,
                       false,
                       false,
-                      NumericValue(NumericValue::e_VALUE, 99),
-                      NumericValue(NumericValue::e_VALUE, 96),
+                      NumericValue(NumericValue::e_VALUE, arg0),
+                      NumericValue(NumericValue::e_VALUE, arg3),
                       false,
                       WcharSpec::e_FLOATING_FIXED);
 

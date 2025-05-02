@@ -179,7 +179,8 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL CharParser parseStandard(
 
     CharParser                     parser;
     bsl::basic_string_view<char>   input(inputSpecification.get());
-    bslfmt::MockParseContext<char> context(input, 3);
+    const int                      numArgs = 4;
+    bslfmt::MockParseContext<char> context(input, numArgs);
 
     parser.parse(&context, sect);
 
@@ -201,30 +202,31 @@ BSLFMT_FORMATTER_TEST_CONSTEVAL WcharParser parseStandard(
 
     WcharParser                       parser;
     bsl::basic_string_view<wchar_t>   input(inputSpecification.get());
-    bslfmt::MockParseContext<wchar_t> context(input, 3);
+    const int                         numArgs = 4;
+    bslfmt::MockParseContext<wchar_t> context(input, numArgs);
 
     parser.parse(&context, sect);
 
     return parser;
 }
 
-void checkStandard(int                   line,
-                   const CharParser&     originalParser,
-                   bsl::string_view      filler,
-                   CharParser::Alignment alignment,
-                   CharParser::Sign      sign,
-                   bool                  alternativeFlag,
-                   bool                  zeroPaddingFlag,
-                   NumericValue          rawWidth,
-                   NumericValue          postprocessedWidth,
-                   NumericValue          rawPrecision,
-                   NumericValue          postprocessedPrecision,
-                   bool                  localeSpecificFlag,
-                   bsl::string_view      remainingSpec)
+void postprocessAndVerifyResult(
+                 int                                    line,
+                 const CharParser&                      originalParser,
+                 const bslfmt::MockFormatContext<char>& context,
+                 bsl::string_view                       filler,
+                 CharParser::Alignment                  alignment,
+                 CharParser::Sign                       sign,
+                 bool                                   alternativeFlag,
+                 bool                                   zeroPaddingFlag,
+                 NumericValue                           rawWidth,
+                 NumericValue                           postprocessedWidth,
+                 NumericValue                           rawPrecision,
+                 NumericValue                           postprocessedPrecision,
+                 bool                                   localeSpecificFlag,
+                 bsl::string_view                       remainingSpec)
 {
     CharParser parser = originalParser;
-
-    bslfmt::MockFormatContext<char> context(99, 98, 97);
     parser.postprocess(context);
 
     ASSERTV(line, parser.filler(), parser.numFillerCharacters(),
@@ -243,23 +245,23 @@ void checkStandard(int                   line,
     ASSERTV(line, remainingSpec          == parser.remainingSpec());
 }
 
-void checkStandard(int                    line,
-                   const WcharParser&     originalParser,
-                   bsl::wstring_view      filler,
-                   WcharParser::Alignment alignment,
-                   WcharParser::Sign      sign,
-                   bool                   alternativeFlag,
-                   bool                   zeroPaddingFlag,
-                   NumericValue           rawWidth,
-                   NumericValue           postprocessedWidth,
-                   NumericValue           rawPrecision,
-                   NumericValue           postprocessedPrecision,
-                   bool                   localeSpecificFlag,
-                   bsl::wstring_view      remainingSpec)
+void postprocessAndVerifyResult(
+              int                                       line,
+              const WcharParser&                        originalParser,
+              const bslfmt::MockFormatContext<wchar_t>& context,
+              bsl::wstring_view                         filler,
+              WcharParser::Alignment                    alignment,
+              WcharParser::Sign                         sign,
+              bool                                      alternativeFlag,
+              bool                                      zeroPaddingFlag,
+              NumericValue                              rawWidth,
+              NumericValue                              postprocessedWidth,
+              NumericValue                              rawPrecision,
+              NumericValue                              postprocessedPrecision,
+              bool                                      localeSpecificFlag,
+              bsl::wstring_view                         remainingSpec)
 {
     WcharParser parser = originalParser;
-
-    bslfmt::MockFormatContext<wchar_t> context(99, 98, 97);
     parser.postprocess(context);
 
     ASSERTV(line, parser.filler(), parser.numFillerCharacters(),
@@ -1800,117 +1802,147 @@ int main(int argc, char **argv)
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
 
-        checkStandard(L_,
-                      parseStandard(""),
-                      " ",
-                      CharParser::e_ALIGN_DEFAULT,
-                      CharParser::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(),
-                      NumericValue(),
-                      NumericValue(),
-                      NumericValue(),
-                      false,
-                      "");
 
-        checkStandard(L_,
-                      parseStandard("*<06.3XYZ"),
-                      "*",
-                      CharParser::e_ALIGN_LEFT,
-                      CharParser::e_SIGN_DEFAULT,
-                      false,
-                      true,
-                      NumericValue(NumericValue::e_VALUE, 6),
-                      NumericValue(NumericValue::e_VALUE, 6),
-                      NumericValue(NumericValue::e_VALUE, 3),
-                      NumericValue(NumericValue::e_VALUE, 3),
-                      false,
-                      "XYZ");
+        const int                          arg0 = 99;
+        const int                          arg1 = 98;
+        const int                          arg2 = 97;
+        const int                          arg3 = 96;
+        bslfmt::MockFormatContext<char>    cFormatContext(arg0,
+                                                          arg1,
+                                                          arg2,
+                                                          arg3);
+        bslfmt::MockFormatContext<wchar_t> wFormatContext(arg0,
+                                                          arg1,
+                                                          arg2,
+                                                          arg3);
 
-        checkStandard(L_,
-                      parseStandard("*<{}.{}XYZ"),
-                      "*",
-                      CharParser::e_ALIGN_LEFT,
-                      CharParser::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_ARG_ID, 0 ),
-                      NumericValue(NumericValue::e_VALUE,  99),
-                      NumericValue(NumericValue::e_ARG_ID, 1 ),
-                      NumericValue(NumericValue::e_VALUE,  98),
-                      false,
-                      "XYZ");
+        postprocessAndVerifyResult(
+                      L_,                           // line
+                      parseStandard(""),            // parser
+                      cFormatContext,               // format context
+                      " ",                          // filler
+                      CharParser::e_ALIGN_DEFAULT,  // alignment
+                      CharParser::e_SIGN_DEFAULT,   // sign
+                      false,                        // alternative flag
+                      false,                        // zero flag
+                      NumericValue(),               // raw width
+                      NumericValue(),               // postprocessed width
+                      NumericValue(),               // raw precision
+                      NumericValue(),               // postprocessed precision
+                      false,                        // locale
+                      "");                          // remaining spec
 
-        checkStandard(L_,
-                      parseStandard("*<{1}.{2}XYZ"),
-                      "*",
-                      CharParser::e_ALIGN_LEFT,
-                      CharParser::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_ARG_ID, 1 ),
-                      NumericValue(NumericValue::e_VALUE,  98),
-                      NumericValue(NumericValue::e_ARG_ID, 2 ),
-                      NumericValue(NumericValue::e_VALUE,  97),
-                      false,
-                      "XYZ");
+        postprocessAndVerifyResult(
+                      L_,                                      // line
+                      parseStandard("*<06.3XYZ"),              // parser
+                      cFormatContext,                          // format ctxt
+                      "*",                                     // filler
+                      CharParser::e_ALIGN_LEFT,                // alignment
+                      CharParser::e_SIGN_DEFAULT,              // sign
+                      false,                                   // alternative
+                      true,                                    // zero flag
+                      NumericValue(NumericValue::e_VALUE, 6),  // raw width
+                      NumericValue(NumericValue::e_VALUE, 6),  // processed w
+                      NumericValue(NumericValue::e_VALUE, 3),  // raw precision
+                      NumericValue(NumericValue::e_VALUE, 3),  // processed p
+                      false,                                   // locale
+                      "XYZ");                                  // remaining
 
-        checkStandard(L_,
-                      parseStandard(L""),
-                      L" ",
-                      WcharParser::e_ALIGN_DEFAULT,
-                      WcharParser::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(),
-                      NumericValue(),
-                      NumericValue(),
-                      NumericValue(),
-                      false,
-                      L"");
+        postprocessAndVerifyResult(
+                      L_,                                         // line
+                      parseStandard("*<{}.{}XYZ"),                // parser
+                      cFormatContext,                             // fmt ctxt
+                      "*",                                        // filler
+                      CharParser::e_ALIGN_LEFT,                   // alignment
+                      CharParser::e_SIGN_DEFAULT,                 // sign
+                      false,                                      // alter
+                      false,                                      // zero flag
+                      NumericValue(NumericValue::e_ARG_ID, 0),    // raw width
+                      NumericValue(NumericValue::e_VALUE, arg0),  // post w
+                      NumericValue(NumericValue::e_ARG_ID, 1),    // raw p
+                      NumericValue(NumericValue::e_VALUE, arg1),  // post p
+                      false,                                      // locale
+                      "XYZ");                                     // remaining
 
-        checkStandard(L_,
-                      parseStandard(L"*<06.3XYZ"),
-                      L"*",
-                      WcharParser::e_ALIGN_LEFT,
-                      WcharParser::e_SIGN_DEFAULT,
-                      false,
-                      true,
-                      NumericValue(NumericValue::e_VALUE, 6),
-                      NumericValue(NumericValue::e_VALUE, 6),
-                      NumericValue(NumericValue::e_VALUE, 3),
-                      NumericValue(NumericValue::e_VALUE, 3),
-                      false,
-                      L"XYZ");
+        postprocessAndVerifyResult(
+                      L_,                                          // line
+                      parseStandard("*<{1}.{2}XYZ"),               // parser
+                      cFormatContext,                              // fmt ctxt
+                      "*",                                         // filler
+                      CharParser::e_ALIGN_LEFT,                    // alignment
+                      CharParser::e_SIGN_DEFAULT,                  // sign
+                      false,                                       // alter
+                      false,                                       // zero flag
+                      NumericValue(NumericValue::e_ARG_ID, 1   ),  // raw width
+                      NumericValue(NumericValue::e_VALUE,  arg1),  // post w
+                      NumericValue(NumericValue::e_ARG_ID, 2   ),  // raw p
+                      NumericValue(NumericValue::e_VALUE,  arg2),  // post p
+                      false,                                       // locale
+                      "XYZ");                                      // remaining
 
-        checkStandard(L_,
-                      parseStandard(L"*<{}.{}XYZ"),
-                      L"*",
-                      WcharParser::e_ALIGN_LEFT,
-                      WcharParser::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_ARG_ID, 0 ),
-                      NumericValue(NumericValue::e_VALUE,  99),
-                      NumericValue(NumericValue::e_ARG_ID, 1 ),
-                      NumericValue(NumericValue::e_VALUE,  98),
-                      false,
-                      L"XYZ");
+        postprocessAndVerifyResult(
+                      L_,                            // line
+                      parseStandard(L""),            // parser
+                      wFormatContext,                // format context
+                      L" ",                          // filler
+                      WcharParser::e_ALIGN_DEFAULT,  // alignment
+                      WcharParser::e_SIGN_DEFAULT,   // sign
+                      false,                         // alternative flag
+                      false,                         // zero flag
+                      NumericValue(),                // raw width
+                      NumericValue(),                // postprocessed width
+                      NumericValue(),                // raw precision
+                      NumericValue(),                // postprocessed precision
+                      false,                         // locale
+                      L"");                          // remaining spec
 
-        checkStandard(L_,
-                      parseStandard(L"*<{1}.{2}XYZ"),
-                      L"*",
-                      WcharParser::e_ALIGN_LEFT,
-                      WcharParser::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_ARG_ID, 1 ),
-                      NumericValue(NumericValue::e_VALUE,  98),
-                      NumericValue(NumericValue::e_ARG_ID, 2 ),
-                      NumericValue(NumericValue::e_VALUE,  97),
-                      false,
-                      L"XYZ");
+        postprocessAndVerifyResult(
+                      L_,                                      // line
+                      parseStandard(L"*<06.3XYZ"),             // parser
+                      wFormatContext,                          // format ctxt
+                      L"*",                                    // filler
+                      WcharParser::e_ALIGN_LEFT,               // alignment
+                      WcharParser::e_SIGN_DEFAULT,             // sign
+                      false,                                   // alternative
+                      true,                                    // zero flag
+                      NumericValue(NumericValue::e_VALUE, 6),  // raw width
+                      NumericValue(NumericValue::e_VALUE, 6),  // processed w
+                      NumericValue(NumericValue::e_VALUE, 3),  // raw precision
+                      NumericValue(NumericValue::e_VALUE, 3),  // processed p
+                      false,                                   // locale
+                      L"XYZ");                                 // remaining
+
+        postprocessAndVerifyResult(
+                      L_,                                          // line
+                      parseStandard(L"*<{}.{}XYZ"),                // parser
+                      wFormatContext,                              // fmt ctxt
+                      L"*",                                        // filler
+                      WcharParser::e_ALIGN_LEFT,                   // alignment
+                      WcharParser::e_SIGN_DEFAULT,                 // sign
+                      false,                                       // alter
+                      false,                                       // zero flag
+                      NumericValue(NumericValue::e_ARG_ID, 0   ),  // raw width
+                      NumericValue(NumericValue::e_VALUE,  arg0),  // post w
+                      NumericValue(NumericValue::e_ARG_ID, 1   ),  // raw p
+                      NumericValue(NumericValue::e_VALUE,  arg1),  // post p
+                      false,                                       // locale
+                      L"XYZ");                                     // remaining
+
+        postprocessAndVerifyResult(
+                      L_,                                          // line
+                      parseStandard(L"*<{1}.{2}XYZ"),              // parser
+                      wFormatContext,                              // fmt ctxt
+                      L"*",                                        // filler
+                      WcharParser::e_ALIGN_LEFT,                   // alignment
+                      WcharParser::e_SIGN_DEFAULT,                 // sign
+                      false,                                       // alter
+                      false,                                       // zero flag
+                      NumericValue(NumericValue::e_ARG_ID, 1   ),  // raw width
+                      NumericValue(NumericValue::e_VALUE,  arg1),  // post w
+                      NumericValue(NumericValue::e_ARG_ID, 2   ),  // raw p
+                      NumericValue(NumericValue::e_VALUE,  arg2),  // post p
+                      false,                                       // locale
+                      L"XYZ");                                     // remaining
 
       } break;
       default: {
