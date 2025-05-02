@@ -4104,9 +4104,11 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                    : "/proc/self/object/a.out";
 
         // The file at "/proc/self/cmdline" is a hard link to a file whose
-        // contents begin with a null-terminated `argv[0]`, the path of the
-        // filename of the executable, which might or might not still be in the
-        // file system.
+        // contents are all the strings in `argv[*]` concatenated with '\0's
+        // separating them, so reading that file into a buffer then reading the
+        // buffer as a null-terminated string gives us `argv[0]`, the filename
+        // of the executaqble, which might or might not still be in the file
+        // system.
 
         typedef bdls::FilesystemUtil Util;
         Util::FileDescriptor fd = Util::open("/proc/self/cmdline",
@@ -4119,13 +4121,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
         int len = Util::read(fd, d_scratchBufA_p, u::k_SCRATCH_BUF_LEN);
         u_ASSERT_BAIL(0 < len && d_scratchBufA_p[0]);
-        if (u::k_SCRATCH_BUF_LEN <= len) {
-            BSLS_ASSERT(u::k_SCRATCH_BUF_LEN == len);
-            --len;
-        }
-        if (d_scratchBufA_p[len - 1]) {
-            d_scratchBufA_p[len] = 0;
-        }
+        d_scratchBufA_p[u::k_SCRATCH_BUF_LEN - 1] = 0;
 
         int rc = Util::close(fd);
         u_ASSERT_BAIL(0 == rc);
