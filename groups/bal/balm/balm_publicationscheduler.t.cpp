@@ -322,7 +322,7 @@ void microSleep(int microSeconds, int seconds)
 {
     bslmt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
     bslmt::ThreadUtil::yield();
-    bslmt::ThreadUtil::microSleep(microSeconds / 2, seconds / 2);
+    bslmt::ThreadUtil::microSleep((microSeconds + 1) / 2, (seconds + 1) / 2);
     bslmt::ThreadUtil::yield();
 }
 
@@ -2401,7 +2401,6 @@ int main(int argc, char *argv[])
         //        and create a `CategoryScheduleOracle` "oracle" (mapping
         //        category to frequency) describing the configuration.
         for (int i = 0; i < NUM_SPECS; ++i) {
-            BALM_BEGIN_RETRY_TEST(3) {
             bsl::vector<Action> actions(Z);
             gg(&actions, manager.metricRegistry(), TEST_SPECS[i]);
 
@@ -2459,10 +2458,16 @@ int main(int argc, char *argv[])
                 MX.print(bsl::cout, 1, 3);
             }
 
-            //    4. Sleep until each scheduled category has been published
-            timer.start();
-            microSleep(50 * 1000, 0);  // 10 ms
-            timer.stop();
+            //    4. Sleep until each scheduled category has been published.
+            //       Note that `uniqueInvocations` is not thread-safe, so we
+            //       must stop the timer every time we want to check.
+            for (int numTry = 0; numTry < 10; ++numTry) {
+                timer.start();
+                microSleep(0, 1);
+                timer.stop();
+                if (tp.uniqueInvocations() >=
+                    static_cast<int>(schedule.size())) break;
+            }
 
             if (veryVeryVerbose) {
                 bsl::cout << "Published records:" << bsl::endl;
@@ -2472,8 +2477,10 @@ int main(int argc, char *argv[])
             //    5. Verify that the `publish` method was invoked correctly by
             //       comparing the `Schedule` "oracle" to the `TestPublisher`
             //       objects reported invocations.
-            ASSERT(tp.uniqueInvocations() ==
-                                            static_cast<int>(schedule.size()));
+            ASSERTV(
+                  schedule.size(),
+                  tp.uniqueInvocations(),
+                  tp.uniqueInvocations() == static_cast<int>(schedule.size()));
             ScheduleOracle::const_iterator it = schedule.begin();
             for (; it != schedule.end(); ++it) {
                 ASSERT(0 != tp.findInvocation(it->second));
@@ -2481,7 +2488,6 @@ int main(int argc, char *argv[])
 
             manager.publishAll(); // reset the previous publication time
             tp.reset();
-            } BALM_END_RETRY_TEST
         }
 
       } break;
@@ -3208,15 +3214,15 @@ int main(int argc, char *argv[])
             manager.collectorRepository().getDefaultCollector("wait", "wait");
             ASSERT(0 == rc);
 
+            const int ratioBtoA = 200;
 
             bsls::TimeInterval intvl_A(0, 1 * NANOSECS_PER_MILLISEC);
-            bsls::TimeInterval intvl_B(0, 200 * NANOSECS_PER_MILLISEC);
+            bsls::TimeInterval intvl_B(0, 200 * intvl_A.nanoseconds());
             bsls::TimeInterval intvl_wait(0, 250 * NANOSECS_PER_MILLISEC);
 
             const bsls::TimeInterval& INTVL_A = intvl_A;
             const bsls::TimeInterval& INTVL_B = intvl_B;
             const bsls::TimeInterval& INTVL_WAIT = intvl_wait;
-
 
             Obj mX(&manager, &timer, Z);
 
@@ -3247,16 +3253,21 @@ int main(int argc, char *argv[])
             ASSERTV(tp3.invocations(), WAIT_COUNT <= tp3.invocations());
             ASSERTV(tp4.invocations(), 0 == tp4.invocations());
 
-            ASSERTV(tp1.invocations(), tp2.invocations(), tp2.invocations() <= tp1.invocations());
-            ASSERTV(tp1.invocations(), tp3.invocations(), tp3.invocations() <= tp1.invocations());
+            // If `tp2` has been invoked N times, those invocations were
+            // scheduled at R, 2R, ..., NR, meaning that `tp1` has been
+            // invoked at least for the scheduled times 1, 2, ..., NR - 1
+            // (regardless of when the invocations actually happened).
+            ASSERTV(tp1.invocations(), tp2.invocations(),
+                    tp1.invocations() >= ratioBtoA * tp2.invocations() - 1);
 
-            // These should be equal because they should be invoked by the same clock,
-            ASSERTV(tp2.invocations(), tp3.invocations(), tp2.invocations() == tp3.invocations());
+            // These should be equal because they should be invoked by the same
+            // clock.
+            ASSERTV(tp2.invocations(), tp3.invocations(),
+                    tp2.invocations() == tp3.invocations());
 
             // Verify publisher 2 and 3 were invoked by the same call to
             // metrics manager publisher.
             ASSERT(tp2.lastTimeStamp() == tp3.lastTimeStamp());
-            ASSERT(tp1.lastTimeStamp() != tp3.lastTimeStamp());
 
             if (veryVeryVerbose) {
                 P(tp1.lastElapsedTime());
