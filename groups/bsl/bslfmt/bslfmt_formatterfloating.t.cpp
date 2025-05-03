@@ -1265,7 +1265,7 @@ int main(int argc, char **argv)
 
             // general .0 ALTERNATE
             ROW("1.e-37",   "{:#.0g}",   1.234e-37f),
-#define u_MSVC_LAST_BAD_VER 194334808
+#define u_MSVC_LAST_BAD_VER 194334810
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37f),
