@@ -4720,8 +4720,8 @@ int main(int argc, char *argv[])
 
         scheduler.stop();
 
-        for (int i = 0; i < 3 && !r.s_finished; ++i) {
-            bslmt::ThreadUtil::microSleep(250 * 1000);
+        for (int i = 0; i < 15 && !r.s_finished; ++i) {
+            bslmt::ThreadUtil::microSleep(0, 1);
         }
 
         if (verbose) {

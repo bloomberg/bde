@@ -73,7 +73,7 @@ bsls::Types::Int64 ThroughputBenchmark::estimateBusyWorkAmount(
         targetDurationNanos = k_MAX_TARGET_DURATION_NANOS;
     }
 
-    const int k_EST_ITER  =  3;  // number of estimation iterations
+    const int k_EST_ITER  =  5;  // number of estimation iterations
 
     const int k_OBS_ITER  = 20;  // number of observation iterations
 
@@ -83,8 +83,7 @@ bsls::Types::Int64 ThroughputBenchmark::estimateBusyWorkAmount(
                                  // median)
 
     bsl::array<bsls::Types::Int64, k_OBS_ITER> observations;
-
-    bsls::Types::Int64 busyWorkAmount = 200000;  // initial value
+    bsls::Types::Int64 busyWorkAmount = 100000;  // initial value
 
     for (int i = 0; i < k_EST_ITER; ++i) {
         for (int j = 0; j < k_OBS_ITER; ++j) {
