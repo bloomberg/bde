@@ -184,10 +184,10 @@ FormatterPointer_Imp<t_VALUE, t_CHAR>::format(
     prefixBuf[0] = '0';
 
     switch (parsedSpec.formatType()) {
-      case Specification::e_INTEGRAL_HEX: {
+      case Specification::e_POINTER_HEX: {
         prefixBuf[1] = 'x';
       } break;
-      case Specification::e_INTEGRAL_HEX_UC: {
+      case Specification::e_POINTER_HEX_UC: {
         prefixBuf[1] = 'X';
       } break;
       default: {
@@ -245,10 +245,10 @@ typename t_FORMAT_CONTEXT::iterator FormatterPointer_Nullptr<t_CHAR>::format(
     prefixBuf[0] = '0';
 
     switch (parsedSpec.formatType()) {
-      case Specification::e_INTEGRAL_HEX: {
+      case Specification::e_POINTER_HEX: {
         prefixBuf[1] = 'x';
       } break;
-      case Specification::e_INTEGRAL_HEX_UC: {
+      case Specification::e_POINTER_HEX_UC: {
         prefixBuf[1] = 'X';
       } break;
       default: {

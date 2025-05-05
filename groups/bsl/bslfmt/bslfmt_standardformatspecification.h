@@ -57,7 +57,7 @@ class StandardFormatSpecification
         e_TYPE_UNASSIGNED,
 
         // String presentation types
-        e_STRING_DEFAULT,      // `n` (default for strings)
+        e_STRING_DEFAULT,      // `s` (default for strings)
         e_STRING_ESCAPED,      // `?`
 
         // Integer presentation types
@@ -66,8 +66,8 @@ class StandardFormatSpecification
         e_INTEGRAL_CHARACTER,  // `c`
         e_INTEGRAL_DECIMAL,    // `d` (default for integers)
         e_INTEGRAL_OCTAL,      // `o`
-        e_INTEGRAL_HEX,        // `x` or `p` for pointers (default for ptrs)
-        e_INTEGRAL_HEX_UC,     // `X` or `P` for pointers
+        e_INTEGRAL_HEX,        // `x`
+        e_INTEGRAL_HEX_UC,     // `X`
 
         // Character presentation types
         e_CHARACTER_CHARACTER,  // `c` (default for characters)
@@ -86,6 +86,10 @@ class StandardFormatSpecification
         e_FLOATING_FIXED_UC,      // `F`
         e_FLOATING_GENERAL,       // `g`
         e_FLOATING_GENERAL_UC,    // `G`
+
+        // Pointer types
+        e_POINTER_HEX,            // `p` for pointers (default for pointers)
+        e_POINTER_HEX_UC,         // `P` for pointer
     };
 
   private:
@@ -109,6 +113,19 @@ class StandardFormatSpecification
                               const bsl::basic_string_view<t_CHAR>& typeString,
                               Category                              category);
 
+    // PRIVATE ACCESSORS
+    /// Return `true`if the integer presentation type is requested, and `false`
+    /// otherwise.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool isIntegerPresentationType() const;
+
+    /// Return `true`if the floating-point presentation type is requested, and
+    /// `false` otherwise.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool isFloatingPresentationType() const;
+
+    /// Return `true`if the pointer presentation type is requested, and `false`
+    /// otherwise.
+    BSLS_KEYWORD_CONSTEXPR_CPP20 bool isPointerPresentationType() const;
+
   public:
     // CREATORS
 
@@ -119,10 +136,10 @@ class StandardFormatSpecification
 
     /// Parse a format string using the iterator-range from the specified
     /// `context` assuming it is a Standard format specification for arguments
-    /// of category `category` and if successful update this object with the
-    /// parsing result, as well as set the status to `e_PARSED`; otherwise, if
-    /// the format specification denoted by the `context` iterator-range is not
-    /// a valid Standard format specification for arguments of category
+    /// of the specified `category` and if successful update this object with
+    /// the parsing result, as well as set the status to `e_PARSED`; otherwise,
+    /// if the format specification denoted by the `context` iterator-range is
+    /// not a valid Standard format specification for arguments of category
     /// `category` throw a `bsl::format_error` exception.
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 void parse(t_PARSE_CONTEXT *context,
@@ -207,10 +224,14 @@ class StandardFormatSpecification
     /// this flags set will result in an exception indicating that.
     BSLS_KEYWORD_CONSTEXPR_CPP20 bool localeSpecificFlag() const;
 
-    /// Return the enumerator representing the requested format type requested
-    /// unless the status is not at least `e_STATE_PARSED` in which case throw
-    /// a `bsl::format_error` exception indicating that error.
+    /// Return the enumerator representing the requested format type unless the
+    /// status is not at least `e_STATE_PARSED` in which case throw a
+    /// `bsl::format_error` exception indicating that error.
     BSLS_KEYWORD_CONSTEXPR_CPP20 FormatType formatType() const;
+
+    /// Return the current processing state of this specification.
+    BSLS_KEYWORD_CONSTEXPR_CPP20
+    FormatSpecificationParserEnums::ProcessingState processingState() const;
 };
 
 // ============================================================================
@@ -234,8 +255,7 @@ void StandardFormatSpecification<t_CHAR>::parseType(
         switch (category) {
           case e_CATEGORY_UNASSIGNED: {
             d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                 bsl::format_error("No default type for category"));   // THROW
+            BSLS_THROW(bsl::format_error("Unassigned category"));      // THROW
           } break;
           case e_CATEGORY_STRING: {
             d_formatType = e_STRING_DEFAULT;
@@ -253,12 +273,11 @@ void StandardFormatSpecification<t_CHAR>::parseType(
             d_formatType = e_FLOATING_DEFAULT;
           } break;
           case e_CATEGORY_POINTER: {
-            d_formatType = e_INTEGRAL_HEX;
+            d_formatType = e_POINTER_HEX;
           } break;
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
-            BSLS_THROW(
-                 bsl::format_error("No default type for category"));   // THROW
+            BSLS_THROW(bsl::format_error("Unexpected category"));      // THROW
           }
         }
         return;                                                       // RETURN
@@ -281,8 +300,7 @@ void StandardFormatSpecification<t_CHAR>::parseType(
     switch (category) {
       case e_CATEGORY_UNASSIGNED: {
         d_formatType = e_TYPE_UNASSIGNED;
-        BSLS_THROW(
-                 bsl::format_error("Invalid type for unassigned."));   // THROW
+        BSLS_THROW(bsl::format_error("Invalid unassigned category"));  // THROW
       } break;
       case e_CATEGORY_STRING: {
         switch (typeChar) {
@@ -295,7 +313,7 @@ void StandardFormatSpecification<t_CHAR>::parseType(
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
             BSLS_THROW(
-                     bsl::format_error("Invalid type for string."));   // THROW
+                     bsl::format_error("Invalid type for string"));   // THROW
           }
         }
       } break;
@@ -325,7 +343,7 @@ void StandardFormatSpecification<t_CHAR>::parseType(
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
             BSLS_THROW(
-                   bsl::format_error("Invalid type for integers."));   // THROW
+                   bsl::format_error("Invalid type for integers"));   // THROW
           }
         }
       } break;
@@ -358,7 +376,7 @@ void StandardFormatSpecification<t_CHAR>::parseType(
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
             BSLS_THROW(
-            bsl::format_error("Invalid type for character types."));   // THROW
+            bsl::format_error("Invalid type for character types"));    // THROW
           }
         }
       } break;
@@ -388,7 +406,7 @@ void StandardFormatSpecification<t_CHAR>::parseType(
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
             BSLS_THROW(
-                bsl::format_error("Invalid type for booleans."));      // THROW
+                     bsl::format_error("Invalid type for booleans"));  // THROW
           }
         }
       } break;
@@ -421,29 +439,29 @@ void StandardFormatSpecification<t_CHAR>::parseType(
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
             BSLS_THROW(
-            bsl::format_error("Invalid type for floating points."));   // THROW
+              bsl::format_error("Invalid type for floating points"));  // THROW
           }
         }
       } break;
       case e_CATEGORY_POINTER: {
         switch (typeChar) {
           case 'p': {
-            d_formatType = e_INTEGRAL_HEX;
+            d_formatType = e_POINTER_HEX;
           } break;
           case 'P': {
-            d_formatType = e_INTEGRAL_HEX_UC;
+            d_formatType = e_POINTER_HEX_UC;
           } break;
           default: {
             d_formatType = e_TYPE_UNASSIGNED;
             BSLS_THROW(
-                   bsl::format_error("Invalid type for pointers."));   // THROW
+                     bsl::format_error("Invalid type for pointers"));  // THROW
           }
         }
       } break;
       default: {
         d_formatType = e_TYPE_UNASSIGNED;
         BSLS_THROW(
-           bsl::format_error("Invalid type for default category."));   // THROW
+           bsl::format_error("Invalid type for default category"));    // THROW
       }
     }
 
@@ -451,6 +469,44 @@ void StandardFormatSpecification<t_CHAR>::parseType(
         BSLS_THROW(
         bsl::format_error("Failed to parse type (reason unknown)"));   // THROW
     }
+}
+
+    // PRIVATE ACCESSORS
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool StandardFormatSpecification<t_CHAR>::isIntegerPresentationType() const
+{
+    return  e_INTEGRAL_BINARY    == formatType() ||  // `b`
+            e_INTEGRAL_BINARY_UC == formatType() ||  // `B`
+            e_INTEGRAL_CHARACTER == formatType() ||  // `c`
+            e_INTEGRAL_DECIMAL   == formatType() ||  // `d` (default)
+            e_INTEGRAL_OCTAL     == formatType() ||  // `o`
+            e_INTEGRAL_HEX       == formatType() ||  // `x`
+            e_INTEGRAL_HEX_UC    == formatType();    // `X`
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool StandardFormatSpecification<t_CHAR>::isFloatingPresentationType() const
+{
+    return  e_FLOATING_DEFAULT       == formatType() ||  // none (default)
+            e_FLOATING_HEX           == formatType() ||  // `a`
+            e_FLOATING_HEX_UC        == formatType() ||  // `A`
+            e_FLOATING_SCIENTIFIC    == formatType() ||  // `e`
+            e_FLOATING_SCIENTIFIC_UC == formatType() ||  // `E`
+            e_FLOATING_FIXED         == formatType() ||  // `f`
+            e_FLOATING_FIXED_UC      == formatType() ||  // `F`
+            e_FLOATING_GENERAL       == formatType() ||  // `g`
+            e_FLOATING_GENERAL_UC    == formatType();    // `G`
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+bool StandardFormatSpecification<t_CHAR>::isPointerPresentationType() const
+{
+    return  e_POINTER_HEX    == formatType() ||  // `p`
+            e_POINTER_HEX_UC == formatType();    // `P`
 }
 
 // CLASS METHODS
@@ -490,6 +546,21 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 void StandardFormatSpecification<t_CHAR>::parse(
     }
 
     parseType(d_basicParser.remainingSpec(), category);
+
+    if (e_SIGN_DEFAULT != sign() || alternativeFlag()) {
+        if (!isIntegerPresentationType() && !isFloatingPresentationType()) {
+            BSLS_THROW(bsl::format_error("Hash / sign option requires an "
+            "arithmetic presentation type"));                          // THROW
+        }
+    }
+
+    if (zeroPaddingFlag()) {
+        if (!isIntegerPresentationType() && !isFloatingPresentationType() &&
+            !isPointerPresentationType()) {
+            BSLS_THROW(bsl::format_error("Zero option requires an "
+            "arithmetic presentation type"));                          // THROW
+        }
+    }
 
     if (context->begin() == context->end() || *context->begin() == '}') {
         return;                                                       // RETURN
@@ -638,6 +709,14 @@ StandardFormatSpecification<t_CHAR>::formatType() const
               "Format standard specification '.parse' not called"));   // THROW
 
     return d_formatType;
+}
+
+template <class t_CHAR>
+BSLS_KEYWORD_CONSTEXPR_CPP20
+FormatSpecificationParserEnums::ProcessingState
+StandardFormatSpecification<t_CHAR>::processingState() const
+{
+    return d_processingState;
 }
 
 }  // close package namespace

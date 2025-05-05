@@ -9,7 +9,7 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 28 components having 9 levels of physical
+ The 'bslfmt' package currently has 29 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -39,6 +39,7 @@ bslfmt.txt
      bslfmt_formatparsecontext
      bslfmt_formatterspecificationnumericvalue
      bslfmt_mockparsecontext
+     bslfmt_testspecificationgenerator
      bslfmt_unicodecodepoint
 
   2. bslfmt_format_string                                             !PRIVATE!
@@ -55,7 +56,7 @@ bslfmt.txt
 /Component Synopsis
 /------------------
 : 'bslfmt_format':
-:      Provide a standard compliant `format` implementation.
+:      Provide a standard compliant `format` implementation
 :
 : 'bslfmt_format_arg':                                                !PRIVATE!
 :      Provide a proxy for an argument for use by bsl::format
@@ -70,7 +71,7 @@ bslfmt.txt
 :      Provide C++03 implementation for bslfmt_format_args.h
 :
 : 'bslfmt_format_context':                                            !PRIVATE!
-:      Provides access to formatting state.
+:      Provides access to formatting state
 :
 : 'bslfmt_format_imp':                                                !PRIVATE!
 :      Provide a standard compliant `format` implementation
@@ -82,16 +83,16 @@ bslfmt.txt
 :      Provide a string_view wrapper for formatting library usage
 :
 : 'bslfmt_formaterror':
-:      Provide an exception type for format library errors.
+:      Provide an exception type for format library errors
 :
 : 'bslfmt_formatparsecontext':
-:      Provides access to formatting parsing string and parsing state.
+:      Provides access to formatting parsing string and parsing state
 :
 : 'bslfmt_formatspecificationparser':
 :      Tokenization utility for use within BSL `format` spec parsers
 :
 : 'bslfmt_formatterbase':
-:      Provide a base template for formatter specializations.
+:      Provide a base template for formatter specializations
 :
 : 'bslfmt_formatterbool':
 :      Provide a formatter customization for bool type
@@ -100,7 +101,7 @@ bslfmt.txt
 :      Provide a formatter customization for character types
 :
 : 'bslfmt_formattercharutil':
-:      Character conversion utilities for `bsl::format`.
+:      Character conversion utilities for `bsl::format`
 :
 : 'bslfmt_formatterfloating':
 :      Provide a formatter customization for floating point types
@@ -134,6 +135,9 @@ bslfmt.txt
 :
 : 'bslfmt_standardformatspecification':
 :      Private utility for use within BSL `format` standard spec parsers
+:
+: 'bslfmt_testspecificationgenerator':
+:      Provide a generator for test format specifications
 :
 : 'bslfmt_unicodecodepoint':
 :      Provide a unicode code point representation

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Apr 29 17:44:27 2025
+// Generated on Thu Apr 24 06:19:46 2025
 // Command line: sim_cpp11_features.pl bslfmt_format_imp.h
 
 #ifdef COMPILING_BSLFMT_FORMAT_IMP_H
