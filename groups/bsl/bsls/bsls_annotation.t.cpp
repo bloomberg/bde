@@ -310,7 +310,10 @@ int test_FALLTHROUGH_function(int i)
     {
       case 0:
         if (true) {
+#if !defined(BSLS_PLATFORM_CMP_MSVC)
+// Microsoft does not support this annotation placement.
             BSLS_ANNOTATION_FALLTHROUGH;
+#endif
         }
         else {
             return 7;                                                 // RETURN
