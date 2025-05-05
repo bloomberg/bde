@@ -34,6 +34,7 @@
 #include <bsl_map.h>
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
+#include <bsl_utility.h>
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf_s
@@ -2649,9 +2650,10 @@ int main(int argc, char *argv[])
         const char *METRICS[] = { "A", "B", "C", "MyMetric", "903metric" };
         const int   NUM_METRICS = sizeof (METRICS) / sizeof (*METRICS);
 
-        const int TIME_UNIT = 50 * NANOSECS_PER_MILLISEC; // 50ms
+        const int TIME_UNIT = 10 * NANOSECS_PER_MICROSEC;  // 10 microseconds
 
-        bsls::TimeInterval creationTime = bdlt::CurrentTime::now();
+        bsl::pair<bsls::TimeInterval, bsls::TimeInterval> creationWindow;
+        creationWindow.first = bdlt::CurrentTime::now();
 
         Obj mX(Z);
         Registry& registry     = mX.metricRegistry();
@@ -2662,12 +2664,16 @@ int main(int argc, char *argv[])
         PubPtr gPub_p(&gPub, bslstl::SharedPtrNilDeleter(), Z);
         mX.addGeneralPublisher(gPub_p);
 
-        bsl::map<const Category *, bsls::TimeInterval> lastPublicationTimes(Z);
+        creationWindow.second = bdlt::CurrentTime::now();
+
+        bsl::map<const Category *,
+                 bsl::pair<bsls::TimeInterval, bsls::TimeInterval> >
+                                      lastPublicationWindow(Z);
         bsl::vector<const Category *> allCategories(Z);
         for (int i = 0; i < NUM_CATEGORIES; ++i) {
             const Category *CAT = registry.getCategory(CATEGORIES[i]);
             allCategories.push_back(CAT);
-            lastPublicationTimes[CAT] = creationTime;
+            lastPublicationWindow[CAT] = creationWindow;
         }
 
         // Perform a test iteration for each *combination* of categories from
@@ -2691,8 +2697,11 @@ int main(int argc, char *argv[])
 
             // Publish the records.
             bslmt::ThreadUtil::sleep(bsls::TimeInterval(0, TIME_UNIT));
-            bsls::TimeInterval publicationTime = bdlt::CurrentTime::now();
+            bsl::pair<bsls::TimeInterval,
+                      bsls::TimeInterval> publicationWindow;
+            publicationWindow.first = bdlt::CurrentTime::now();
             mX.publishAll();
+            publicationWindow.second = bdlt::CurrentTime::now();
 
             // Verify the "general" publishers has been invoked.
             const int EXP_INV = combIt.current().empty() ? 0 : 1;
@@ -2707,9 +2716,15 @@ int main(int argc, char *argv[])
             // Verify the correct metrics were published.
             for (bsl::size_t i = 0; i < combIt.current().size(); ++i) {
                 const Category *CATEGORY = combIt.current()[i];
-                bsls::TimeInterval elapsedTime =
-                              publicationTime - lastPublicationTimes[CATEGORY];
-                lastPublicationTimes[CATEGORY] = publicationTime;
+
+                bsls::TimeInterval minElapsedTime =
+                                        publicationWindow.first -
+                                        lastPublicationWindow[CATEGORY].second;
+                bsls::TimeInterval maxElapsedTime =
+                                        publicationWindow.second -
+                                        lastPublicationWindow[CATEGORY].first;
+
+                lastPublicationWindow[CATEGORY] = publicationWindow;
 
                 int  groupIndex = -1;
                 for (int j = 0; j < sample.numGroups(); ++j) {
@@ -2720,11 +2735,12 @@ int main(int argc, char *argv[])
                     // elapsed time.
                     if (CATEGORY == group.records()->metricId().category()) {
                         ASSERT(-1 == groupIndex);
-                        ASSERT(withinWindow(group.elapsedTime(),
-                                            elapsedTime,
-                                            10));
+                        ASSERTV(minElapsedTime,
+                                group.elapsedTime(),
+                                maxElapsedTime,
+                                minElapsedTime <= group.elapsedTime() &&
+                                group.elapsedTime() <= maxElapsedTime);
                         groupIndex = j;
-
                     }
                     for (int k = 0; k < group.numRecords(); ++k) {
                         ASSERT((groupIndex == j) ==
