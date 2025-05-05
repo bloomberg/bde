@@ -10725,7 +10725,7 @@ int main(int argc, char *argv[])
     !defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
 // clang on Darwin (and other platforms where it uses libc++) is unable to
 // compile code in this test case due to the key type being move-only.  For
-// further details see {DRQS 178235026<GO>}, the underlying problem is complex.
+// further details see {DRQS 177180189<GO>}, the underlying problem is complex.
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         RUN_EACH_TYPE(TestDriver,
                       testCase8,
