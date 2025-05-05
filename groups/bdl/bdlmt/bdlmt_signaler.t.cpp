@@ -217,6 +217,20 @@ const GlobalAllocatorInstallation globalAllocatorInstallation;
 // ============================================================================
 //                            TEST HELPERS UTILITY
 // ----------------------------------------------------------------------------
+
+#define STARTPOOL(x) \
+    if (0 != x.start()) { \
+        bslmt::ThreadUtil::microSleep(0, 1); \
+        if (0 != x.start()) { \
+            bslmt::ThreadUtil::microSleep(0, 3); \
+            if (0 != x.start()) { \
+                cout << "Thread start() failed.  Thread quota exceeded?" \
+                     << bsl::endl; \
+                ASSERT(false); \
+            } \
+        } \
+    }
+
 namespace {
 namespace u {
 
@@ -1346,8 +1360,7 @@ static void test6_signaler_disconnectGroupAndWait()
         Sig            sig(&alloc);     // invoked from threads #1 and #2
 
         // start the thread pool
-        int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
+        STARTPOOL(threadPool);
 
         // connect a couple of no-op slots to group '1'
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 1);
@@ -1589,8 +1602,7 @@ static void test8_signaler_disconnectAllSlotsAndWait()
         Sig            sig(&alloc);     // invoked from threads #1 and #2
 
         // start the thread pool
-        int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
+        STARTPOOL(threadPool);
 
         for (int i = 0; i < 10; ++i) {
             // Repeat 10 times.
@@ -2102,8 +2114,7 @@ static void test13_connection_disconnectAndWait()
         Sig            sig(&alloc);     // invoked from threads #1 and #2
 
         // start the thread pool
-        int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
+        STARTPOOL(threadPool);
 
         // connect a couple of no-op slots
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp());
@@ -3524,8 +3535,7 @@ static void test24_destroyGuardAndWait()
         Sig            sig(&alloc);     // invoked from threads #1 and #2
 
         // start the thread pool
-        int rc = threadPool.start();
-        BSLS_ASSERT_OPT(rc == 0);  (void)rc;
+        STARTPOOL(threadPool);
 
         // connect a couple of no-op slots to group '1'
         bdlmt::SignalerConnection con1 = sig.connect(u::NoOp(), 1);
