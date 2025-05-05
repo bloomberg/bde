@@ -2228,111 +2228,124 @@ int main(int argc, char **argv)
                                                           arg2,
                                                           arg3);
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard("", CharSpec::e_CATEGORY_STRING),
-                      cFormatContext,
-                      " ",
-                      CharSpec::e_ALIGN_DEFAULT,
-                      CharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(),
-                      NumericValue(),
-                      false,
-                      CharSpec::e_STRING_DEFAULT);
+        postprocessAndVerifyResult(
+               L_,                                          // line
+               parseStandard("",                            // spec
+                             CharSpec::e_CATEGORY_STRING),  // category
+               cFormatContext,                              // format context
+               " ",                                         // filler
+               CharSpec::e_ALIGN_DEFAULT,                   // alignment
+               CharSpec::e_SIGN_DEFAULT,                    // sign
+               false,                                       // alternative flag
+               false,                                       // zero flag
+               NumericValue(),                              // width
+               NumericValue(),                              // precision
+               false,                                       // locale
+               CharSpec::e_STRING_DEFAULT);                 // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard("2.3s", CharSpec::e_CATEGORY_STRING),
-                      cFormatContext,
-                      " ",
-                      CharSpec::e_ALIGN_DEFAULT,
-                      CharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_VALUE, 2),
-                      NumericValue(NumericValue::e_VALUE, 3),
-                      false,
-                      CharSpec::e_STRING_DEFAULT);
+        postprocessAndVerifyResult(L_,                      // line
+               parseStandard("2.3s",                        // spec
+                             CharSpec::e_CATEGORY_STRING),  // category
+               cFormatContext,                              // format context
+               " ",                                         // filler
+               CharSpec::e_ALIGN_DEFAULT,                   // alignment
+               CharSpec::e_SIGN_DEFAULT,                    // sign
+               false,                                       // alternative flag
+               false,                                       // zero flag
+               NumericValue(NumericValue::e_VALUE, 2),      // width
+               NumericValue(NumericValue::e_VALUE, 3),      // precision
+               false,                                       // locale
+               CharSpec::e_STRING_DEFAULT);                 // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard("{3}.{2}", CharSpec::e_CATEGORY_STRING),
-                      cFormatContext,
-                      " ",
-                      CharSpec::e_ALIGN_DEFAULT,
-                      CharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_VALUE, arg3),
-                      NumericValue(NumericValue::e_VALUE, arg2),
-                      false,
-                      CharSpec::e_STRING_DEFAULT);
+        postprocessAndVerifyResult(
+               L_,                                          // line
+               parseStandard("{3}.{2}",                     // spec
+                             CharSpec::e_CATEGORY_STRING),  // category
+               cFormatContext,                              // format context
+               " ",                                         // filler
+               CharSpec::e_ALIGN_DEFAULT,                   // alignment
+               CharSpec::e_SIGN_DEFAULT,                    // sign
+               false,                                       // alternative flag
+               false,                                       // zero flag
+               NumericValue(NumericValue::e_VALUE, arg3),   // width
+               NumericValue(NumericValue::e_VALUE, arg2),   // precision
+               false,                                       // locale
+               CharSpec::e_STRING_DEFAULT);                 // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard("*<{1}.{3}F",
-                                    CharSpec::e_CATEGORY_FLOATING),
-                      cFormatContext,
-                      "*",
-                      CharSpec::e_ALIGN_LEFT,
-                      CharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_VALUE, arg1),
-                      NumericValue(NumericValue::e_VALUE, arg3),
-                      false,
-                      CharSpec::e_FLOATING_FIXED_UC);
+        postprocessAndVerifyResult(
+               L_,                                            // line
+               parseStandard("*<{1}.{3}F",                    // spec
+                             CharSpec::e_CATEGORY_FLOATING),  // category
+               cFormatContext,                                // format context
+               "*",                                           // filler
+               CharSpec::e_ALIGN_LEFT,                        // alignment
+               CharSpec::e_SIGN_DEFAULT,                      // sign
+               false,                                         // alternative
+               false,                                         // zero flag
+               NumericValue(NumericValue::e_VALUE, arg1),     // width
+               NumericValue(NumericValue::e_VALUE, arg3),     // precision
+               false,                                         // locale
+               CharSpec::e_FLOATING_FIXED_UC);                // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard(L"", WcharSpec::e_CATEGORY_STRING),
-                      wFormatContext,
-                      L" ",
-                      WcharSpec::e_ALIGN_DEFAULT,
-                      WcharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(),
-                      NumericValue(),
-                      false,
-                      WcharSpec::e_STRING_DEFAULT);
+        postprocessAndVerifyResult(
+               L_,                                           // line
+               parseStandard(L"",                            // spec
+                             WcharSpec::e_CATEGORY_STRING),  // category
+               wFormatContext,                               // format context
+               L" ",                                         // filler
+               WcharSpec::e_ALIGN_DEFAULT,                   // alignment
+               WcharSpec::e_SIGN_DEFAULT,                    // sign
+               false,                                        // alternative flg
+               false,                                        // zero flag
+               NumericValue(),                               // width
+               NumericValue(),                               // precision
+               false,                                        // locale
+               WcharSpec::e_STRING_DEFAULT);                 // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard(L"2.3s", WcharSpec::e_CATEGORY_STRING),
-                      wFormatContext,
-                      L" ",
-                      WcharSpec::e_ALIGN_DEFAULT,
-                      WcharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_VALUE, 2),
-                      NumericValue(NumericValue::e_VALUE, 3),
-                      false,
-                      WcharSpec::e_STRING_DEFAULT);
+        postprocessAndVerifyResult(
+               L_,                                           // line
+               parseStandard(L"2.3s",                        // spec
+                             WcharSpec::e_CATEGORY_STRING),  // category
+               wFormatContext,                               // format context
+               L" ",                                         // filler
+               WcharSpec::e_ALIGN_DEFAULT,                   // alignment
+               WcharSpec::e_SIGN_DEFAULT,                    // sign
+               false,                                        // alternative flg
+               false,                                        // zero flag
+               NumericValue(NumericValue::e_VALUE, 2),       // width
+               NumericValue(NumericValue::e_VALUE, 3),       // precision
+               false,                                        // locale
+               WcharSpec::e_STRING_DEFAULT);                 // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard(L"{2}.{1}", WcharSpec::e_CATEGORY_STRING),
-                      wFormatContext,
-                      L" ",
-                      WcharSpec::e_ALIGN_DEFAULT,
-                      WcharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_VALUE, arg2),
-                      NumericValue(NumericValue::e_VALUE, arg1),
-                      false,
-                      WcharSpec::e_STRING_DEFAULT);
+        postprocessAndVerifyResult(
+               L_,                                           // line
+               parseStandard(L"{2}.{1}",                     // spec
+                             WcharSpec::e_CATEGORY_STRING),  // category
+               wFormatContext,                               // format context
+               L" ",                                         // filler
+               WcharSpec::e_ALIGN_DEFAULT,                   // alignment
+               WcharSpec::e_SIGN_DEFAULT,                    // sign
+               false,                                        // alternative flg
+               false,                                        // zero flag
+               NumericValue(NumericValue::e_VALUE, arg2),    // width
+               NumericValue(NumericValue::e_VALUE, arg1),    // precision
+               false,                                        // locale
+               WcharSpec::e_STRING_DEFAULT);                 // format type
 
-        postprocessAndVerifyResult(L_,
-                      parseStandard(L"*<{0}.{3}f",
-                                    WcharSpec::e_CATEGORY_FLOATING),
-                      wFormatContext,
-                      L"*",
-                      WcharSpec::e_ALIGN_LEFT,
-                      WcharSpec::e_SIGN_DEFAULT,
-                      false,
-                      false,
-                      NumericValue(NumericValue::e_VALUE, arg0),
-                      NumericValue(NumericValue::e_VALUE, arg3),
-                      false,
-                      WcharSpec::e_FLOATING_FIXED);
+        postprocessAndVerifyResult(
+               L_,                                             // line
+               parseStandard(L"*<{0}.{3}f",                    // spec
+                             WcharSpec::e_CATEGORY_FLOATING),  // category
+               wFormatContext,                                 // context
+               L"*",                                           // filler
+               WcharSpec::e_ALIGN_LEFT,                        // alignment
+               WcharSpec::e_SIGN_DEFAULT,                      // sign
+               false,                                          // alternative
+               false,                                          // zero flag
+               NumericValue(NumericValue::e_VALUE, arg0),      // width
+               NumericValue(NumericValue::e_VALUE, arg3),      // precision
+               false,                                          // locale
+               WcharSpec::e_FLOATING_FIXED);                   // format type
 
       } break;
       default: {

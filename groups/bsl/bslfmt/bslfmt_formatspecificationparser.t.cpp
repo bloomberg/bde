@@ -7,8 +7,6 @@
 #include <bslfmt_mockparsecontext.h>
 #include <bslfmt_testspecificationgenerator.h>
 
-#include <bslalg_numericformatterutil.h>  // `toChar` `ToCharsMaxLength`
-
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
 
