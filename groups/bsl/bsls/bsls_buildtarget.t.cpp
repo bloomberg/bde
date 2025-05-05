@@ -145,7 +145,7 @@ static void printMacroFlag(const char *name, const char *value)
 static void printFlags()
 {
 #define u_STR2(...) "" #__VA_ARGS__
-#define u_STR(a) u_STR2(a)
+#define u_STR(...) u_STR2(__VA_ARGS__)
 
 #define u_PRINT_UNDEF(a_NAME) printMacroFlag(#a_NAME, 0)
 #define u_PRINT_VALUE(a_NAME) printMacroFlag(#a_NAME, u_STR(a_NAME))

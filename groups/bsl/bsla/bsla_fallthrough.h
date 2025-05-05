@@ -56,9 +56,11 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next, we see that `BSLA_FALLTHROUGH;` as the last statement in a `case`
 // block before falling through silences the fall-through warning from the
-// compiler:
+// compiler, except on Microsoft Visual C++ that does not support it:
 // ```
-//              BSLA_FALLTHROUGH;
+// #if !defined(BSLS_PLATFORM_CMP_MSVC)
+//             BSLA_FALLTHROUGH;
+// #endif
 //           }
 //           case 1:
 // ```
