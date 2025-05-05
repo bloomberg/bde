@@ -1058,6 +1058,23 @@ int main(int argc, char *argv[])
         for (int mi = e_STRING; mi < e_END; ++mi) {
             const Mode mode = static_cast<Mode>(mi);
 
+            // To avoid issues with deleting `fileName` when the antivirus
+            // software may have it open on Windows, we will overwrite the file
+            // on each iteration instead of deleting and recreating it, and
+            // keep it open so no one else can obtain exclusive access to it.
+            bdls::FilesystemUtil::FileDescriptor fd =
+                                            bdls::FilesystemUtil::k_INVALID_FD;
+
+            if (e_FILE == mode) {
+                fd = bdls::FilesystemUtil::open(
+                                        fileName,
+                                        bdls::FilesystemUtil::e_OPEN_OR_CREATE,
+                                        bdls::FilesystemUtil::e_WRITE_ONLY,
+                                        bdls::FilesystemUtil::e_TRUNCATE);
+                ASSERT(bdls::FilesystemUtil::k_INVALID_FD != fd);
+                if (bdls::FilesystemUtil::k_INVALID_FD == fd) continue;
+            }
+
             for (int badPos = 0; badPos < (int) xmlRaw.length(); ++badPos) {
                 bsl::string xmlStr = xmlRaw;
 
@@ -1069,8 +1086,6 @@ int main(int argc, char *argv[])
                 balxml::PrefixStack prefixStack(&namespaces);
                 reader.setPrefixStack(&prefixStack);
 
-                bdls::FilesystemUtil::remove(fileName);
-
                 bdlsb::FixedMemInStreamBuf sb("", 0);
 
                 int rc = 0;
@@ -1079,10 +1094,13 @@ int main(int argc, char *argv[])
                     rc = reader.open(xmlStr.c_str(), xmlStr.length());
                   } break;
                   case e_FILE: {
-                    bsl::ofstream of(fileName);
-                    of << xmlStr;
-                    of.close();
-
+                    int rc2 = bdls::FilesystemUtil::truncateFileSize(fd, 0);
+                    ASSERTV(rc, 0 == rc2);
+                    rc2 = bdls::FilesystemUtil::write(fd,
+                                                      xmlStr.c_str(),
+                                                      (int)xmlStr.size());
+                    ASSERTV(rc2, (int)xmlStr.size() == rc2);
+                    if ((int)xmlStr.size() != rc2) continue;
                     rc = reader.open(fileName);
                   } break;
                   case e_STREAMBUF: {
@@ -1129,9 +1147,11 @@ int main(int argc, char *argv[])
                             colFail, mode, errorInfo.columnNumber() == expCol);
                 }
             }
+            if (e_FILE == mode) {
+                bdls::FilesystemUtil::close(fd);
+                bdls::FilesystemUtil::remove(fileName);
+            }
         }
-
-        bdls::FilesystemUtil::remove(fileName);
       } break;
 
       case 14: {
