@@ -1594,26 +1594,18 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime t0 = bdlt::CurrentTime::utc();
 
-            bslmt::ThreadUtil::microSleep(100000, 1);       // 1.1 s
-            bdlt::Datetime t1 = bdlt::CurrentTime::utc();
+            bdlt::Datetime tEnd = t0 + bsls::TimeInterval(5);
 
-            publishRecord(&mX, "test message 1");
-            ASSERTV(t0, t1, cb.numInvocations(), 1 == cb.numInvocations());
+            while (bdlt::CurrentTime::utc() < tEnd ) {
+                publishRecord(&mX, "test message");
 
-            // Delay the next message so that it is in the middle of an
-            // scheduled rotation.
-            bslmt::ThreadUtil::microSleep(800000, 1);  // 1.8s
-            bdlt::Datetime t2 = bdlt::CurrentTime::utc();
+                bdlt::Datetime tNow = bdlt::CurrentTime::utc();
+                ASSERTV((tNow-t0).seconds(),
+                        cb.numInvocations(),
+                        (tNow-t0).seconds() == cb.numInvocations());
 
-            publishRecord(&mX, "test message 2");
-            ASSERTV(t0, t1, t2, cb.numInvocations(), 2 == cb.numInvocations());
-
-            // Verify we are back on schedule.
-            bslmt::ThreadUtil::microSleep(300000, 0);  // .3s
-            bdlt::Datetime t3 = bdlt::CurrentTime::utc();
-
-            publishRecord(&mX, "test message 3");
-            ASSERTV(t0, t1, t2, t3, cb.numInvocations(), 3 == cb.numInvocations());
+                bslmt::ThreadUtil::microSleep(100000, 0);  // .1
+            }
 
             mX.disableFileLogging();
         }
