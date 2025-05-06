@@ -7,6 +7,37 @@
 #pragma error_messages(off, SEC_NULL_PTR_DEREF)
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc gives a static analysis warning for this file that does not contain
+  // the line (of this file) that triggers the warning.  The warning also seems
+  // to be a false positive (if not this test driver would crash).  Since it
+  // would be an enormous amount of work to determine which line triggers the
+  // warning we disable it for the whole file.  And since the warning comes
+  // from a header that is included by the component header we have to disable
+  // this warning at the very beginning.
+  //
+  // bslstl_simplepool.h: In member function
+  //    'void BloombergLP::bslstl::SimplePool<VALUE,
+  //                                          ALLOCATOR>::reserve(size_type)
+  //    [with
+  //      VALUE = BloombergLP::bslalg::BidirectionalNode<
+  //                                               bsl::pair<const int, int> >;
+  //      ALLOCATOR = {anonymous}::u::DummyAllocator<
+  //          BloombergLP::bslalg::BidirectionalNode<
+  //                                           bsl::pair<const int, int> > >]':
+  //  bslstl_simplepool.h:611:10: warning: array subscript 0 is outside array
+  //      bounds of 'BloombergLP::bslstl::SimplePool<
+  //        BloombergLP::bslalg::BidirectionalNode<bsl::pair<const int, int> >,
+  //            {anonymous}::u::DummyAllocator<
+  //            BloombergLP::bslalg::BidirectionalNode<
+  //                bsl::pair<const int, int> > > >::Block [0]'
+  //  [-Warray-bounds=]
+  // 611 |     end->d_next_p = d_freeList_p;  // Handle the last block here
+  //     |     ~~~~~^~~~~~~~
+  // cc1plus: note: source object is likely at address zero
+#endif
+
 #include <bslstl_unorderedmap_test.h>
 
 #include <bslstl_hash.h>

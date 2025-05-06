@@ -8373,7 +8373,14 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<Partial> p1 =
                            bsl::allocate_shared_for_overwrite<Partial>(allocA);
             ASSERT(0             == p1->d_initialized);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
             ASSERT(scribbleValue == p1->d_not_initialized);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
 
         // statically-sized array
@@ -8435,7 +8442,14 @@ int main(int argc, char *argv[])
             bsl::shared_ptr<Partial> p1 =
                               bsl::allocate_shared_for_overwrite<Partial>(&sa);
             ASSERT(0              == p1->d_initialized);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
             ASSERT(scribbleValue  == p1->d_not_initialized);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
 
         // statically-sized array

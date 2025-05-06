@@ -10,6 +10,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
@@ -3353,7 +3354,19 @@ if (veryVerbose) {
             }
             {
                 Obj mX(o.data(), o.length());
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wstringop-overflow="
+  // false overflow warning:
+  //
+  // 'void* memcpy(void*, const void*, size_t)' specified bound
+  //     18446744073709551615 exceeds maximum object size
+  //     9223372036854775807 [-Wstringop - overflow = ]
+#endif
                 ASSERT_SAFE_FAIL(mX.getArrayUint8(DATA, -1));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
             }
             {
                 Obj mX(o.data(), o.length());

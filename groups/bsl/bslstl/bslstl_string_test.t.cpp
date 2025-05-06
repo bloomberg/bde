@@ -7507,7 +7507,19 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24Negative()
     if (veryVerbose) printf("\tcompare(pos1, n1, s)\n");
 
     {
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wnonnull"
+  // gcc does not understand that `BSLS_ASSERT_SAFE` here throws and gives a
+  // warning for essentially unreachable code.
+  //
+  // argument 1 null where non-null expected [-Wnonnull]
+  //    return __builtin_strlen(__s);
+#endif
         ASSERT_SAFE_FAIL(X.compare(0, X.size(), nullStr));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         ASSERT_SAFE_PASS(X.compare(0, X.size(), X.c_str()));
     }
 

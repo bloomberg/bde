@@ -1417,8 +1417,10 @@ int main(int argc, char *argv[])
         // Verify the object's attribute values.
         // -------------------------------------
 
-        mX.setColor(D1);
+        // parent pointer must be set first for setColor not to use
+        // uninitialized memory as the color is stored in the parent pointer.
         mX.setParent(D2);
+        mX.setColor(D1);
         mX.setLeftChild(D3);
         mX.setRightChild(D4);
 
@@ -1635,8 +1637,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n Create an object `w`.\n");
 
         Obj mW;  const Obj& W = mW;
-        mW.setColor(D1);
+        // parent pointer must be set first for setColor not to use
+        // uninitialized memory as the color is stored in the parent
+        // pointer.
         mW.setParent(D2);
+        mW.setColor(D1);
         mW.setLeftChild(D3);
         mW.setRightChild(D4);
 

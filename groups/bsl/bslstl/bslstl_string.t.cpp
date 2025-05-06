@@ -3099,9 +3099,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9Negative()
     if (verbose) printf("\tassigning a NULL C-string\n");
 
     {
-        const TYPE *s = 0;
-        (void) s; // to disable "unused variable" warning
+        const TYPE *s = 0;  (void)s;
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wnonnull"
+  // gcc does not understand that `BSLS_ASSERT_SAFE` here throws and gives a
+  // warning for essentially unreachable code.
+  //
+  // argument 1 null where non-null expected [-Wnonnull]
+  //    return __builtin_strlen(__s);
+#endif
         ASSERT_SAFE_FAIL(X = s);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
     }
 
     if (verbose) printf("\tassigning a valid C-string\n");

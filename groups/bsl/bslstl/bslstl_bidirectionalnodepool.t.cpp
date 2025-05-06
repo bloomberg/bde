@@ -19,6 +19,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_platform.h>
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>
@@ -631,7 +632,19 @@ void TestDriver<VALUE>::createFreeBlocks(Obj   *result,
     // Free up the necessary number of blocks.
 
     for (int i = 0; i < numBlocks; ++i) {
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
         result->deleteNode(usedBlocks->back());
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         usedBlocks->pop();
     }
 }
@@ -801,14 +814,38 @@ void TestDriver<VALUE>::testCase10()
 
                         while(!freeX.empty()) {
                             Link *ptr = mY.emplaceIntoNewNode();
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
                             ASSERTV(LINE1, LINE2, freeX.back() == ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
                             freeX.pop();
                             usedX.push(ptr);
                         }
 
                         while(!freeY.empty()) {
                             Link *ptr = mX.emplaceIntoNewNode();
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
                             ASSERTV(LINE1, LINE2, freeY.back() == ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
                             freeY.pop();
                             usedY.push(ptr);
                         }
@@ -878,14 +915,38 @@ void TestDriver<VALUE>::testCase10()
 
                         while(!freeX.empty()) {
                             Link *ptr = mY.emplaceIntoNewNode();
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
                             ASSERTV(LINE1, LINE2, freeX.back() == ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
                             freeX.pop();
                             usedX.push(ptr);
                         }
 
                         while(!freeY.empty()) {
                             Link *ptr = mX.emplaceIntoNewNode();
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
                             ASSERTV(LINE1, LINE2, freeY.back() == ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
                             freeY.pop();
                             usedY.push(ptr);
                         }
@@ -983,14 +1044,38 @@ void TestDriver<VALUE>::testCase10()
 
                     while(!freeX.empty()) {
                         Link *ptr = mY.emplaceIntoNewNode();
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
                         ASSERTV(LINE1, LINE2, freeX.back() == ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
                         freeX.pop();
                         usedX.push(ptr);
                     }
 
                     while(!freeY.empty()) {
                         Link *ptr = mX.emplaceIntoNewNode();
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we are reading the `back` of an empty `Stack` here, but that is
+  // impossible due to the loop condition.
+  //
+  // array subscript 18446744073709551615 is above array bounds of
+  //    'Link* const [128]'
+#endif
                         ASSERTV(LINE1, LINE2, freeY.back() == ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+#endif
                         freeY.pop();
                         usedY.push(ptr);
                     }
@@ -1554,7 +1639,19 @@ void TestDriver<VALUE>::testCase5()
             if (SEQUENCE[tj] == 'A') {
                 Link *ptr = mX.emplaceIntoNewNode();
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we run out of the `CAPACITY` of the `Stack` here, but that is
+  // impossible since the inner loop will never add 128 blocks, the strings in
+  // `DATA` never have that many 'A' characters.
+  //
+  // array subscript 128 is above array bounds of 'Link* [128]'
+#endif
                 usedBlocks.push(ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
 
                 if (!freeBlocks.empty()) {
                     ASSERTV(LINE, tj, freeBlocks.back() == ptr);

@@ -17,6 +17,7 @@
 #include <bsls_alignmentutil.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_keyword.h>
+#include <bsls_platform.h>
 
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_stdtestallocator.h>
@@ -1351,7 +1352,19 @@ void TestDriver<VALUE>::testCase5()
             if (SEQUENCE[tj] == 'A') {
                 VALUE *ptr = mX.allocate();
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds"
+  // gcc thinks we run out of the `CAPACITY` of the `Stack` here, but that is
+  // impossible since the inner loop will never add 128 blocks, the strings in
+  // `DATA` never have that many 'A' characters.
+  //
+  // array subscript 128 is above array bounds of 'Link* [128]'
+#endif
                 usedBlocks.push(ptr);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
 
                 if (!freeBlocks.empty()) {
                     ASSERTV(LINE, tj, freeBlocks.top() == ptr);

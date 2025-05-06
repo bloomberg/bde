@@ -395,7 +395,6 @@ int main(int argc, char *argv[]) {
     ASSERT(newValues[1] == values[1]);
     ASSERT(newValues[2] == values[2]);
 // ```
-
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -490,7 +489,6 @@ int main(int argc, char *argv[]) {
         }
 
         if (verbose) cerr << "END" << endl;
-
       } break;
       case 23: {
         // --------------------------------------------------------------------
@@ -723,7 +721,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayFloat32(VALUES, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayFloat32(VALUES, BUFFER, 0));
         }
-
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -971,7 +968,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayFloat64(VALUES, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayFloat64(VALUES, BUFFER, 0));
         }
-
       } break;
       case 21: {
         // --------------------------------------------------------------------
@@ -1230,7 +1226,6 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getArrayInt8(UV, BUFFER, -1));
             ASSERT_SAFE_PASS(MarshallingUtil::getArrayInt8(UV, BUFFER, 0));
         }
-
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -1450,7 +1445,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint16(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint16(UV, BUFFER, 0));
         }
-
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -1683,7 +1677,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint24(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint24(UV, BUFFER, 0));
         }
-
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -1912,7 +1905,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint32(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint32(UV, BUFFER, 0));
         }
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -2152,7 +2144,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint40(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint40(UV, BUFFER, 0));
         }
-
       } break;
       case 16: {
         // --------------------------------------------------------------------
@@ -2392,7 +2383,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint48(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint48(UV, BUFFER, 0));
         }
-
       } break;
       case 15: {
         // --------------------------------------------------------------------
@@ -2632,7 +2622,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint56(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint56(UV, BUFFER, 0));
         }
-
       } break;
       case 14: {
         // --------------------------------------------------------------------
@@ -2868,7 +2857,6 @@ int main(int argc, char *argv[]) {
             ASSERT_FAIL(MarshallingUtil::getArrayUint64(UV, BUFFER, -1));
             ASSERT_PASS(MarshallingUtil::getArrayUint64(UV, BUFFER, 0));
         }
-
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -3102,7 +3090,6 @@ int main(int argc, char *argv[]) {
             // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getFloat32(ZTPTR, BUFFER));
         }
-
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -3341,7 +3328,6 @@ int main(int argc, char *argv[]) {
             // invalid `value`
             ASSERT_SAFE_FAIL(MarshallingUtil::getFloat64(ZTPTR, BUFFER));
         }
-
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -3531,7 +3517,6 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZUPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt8(ZSPTR, BUFFER));
         }
-
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -3677,10 +3662,21 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint16(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt16(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint16(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -3834,10 +3830,21 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint24(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt24(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint24(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -3984,10 +3991,22 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint32(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt32(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint32(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         }
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -4140,10 +4159,21 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint40(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt40(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint40(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -4297,10 +4327,21 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint48(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt48(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint48(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -4454,10 +4495,21 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint56(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt56(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint56(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -4606,10 +4658,21 @@ int main(int argc, char *argv[]) {
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint64(&TU, ZCHARPTR));
 
             // invalid `value`
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+  // false uninitialized use warning due to gcc not understanding that the
+  // `BSLS_ASSERT_SAFE` will throw and analyzes essentially unreachable code:
+  //
+  // 'BUFFER[0]' may be used uninitialized [-Wmaybe-uninitialized]
+  // 'BUFFER[1]' may be used uninitialized [-Wmaybe-uninitialized]
+#endif
             ASSERT_SAFE_FAIL(MarshallingUtil::getInt64(ZTPTR, BUFFER));
             ASSERT_SAFE_FAIL(MarshallingUtil::getUint64(ZUPTR, BUFFER));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -4979,7 +5042,6 @@ int main(int argc, char *argv[]) {
             }
 
         }
-
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

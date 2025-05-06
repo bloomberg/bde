@@ -3125,7 +3125,19 @@ void testConstructFromCallableObjImp(FUNC                  func,
     EXCEPTION_TEST_BEGIN(ta, &copyMoveLimit) {
         EXCEPTION_TEST_TRY {
             if (skipExcTest) {
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wstringop-overflow="
+  // false overflow warning in `bsls_atomicoperations_all_all_gccintrinsics.h`
+  //
+  // 'void __atomic_store_8(volatile void*, long unsigned int, int)' writing 8
+  //     bytes into a region of size 0 overflows the destination
+  //     [-Wstringop-overflow=]
+#endif
                 ta->setAllocationLimit(-1);
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
                 copyMoveLimit = -1;
             }
             funcMonitor.reset(L_);

@@ -3340,7 +3340,18 @@ void TestDriver<CHAR_TYPE>::testCase9()
         if (verbose) printf("\tNegative testing `startIndex <= or.length`.\n");
         {
             ASSERT_SAFE_PASS_RAW(Obj(ORIGINAL, ORIGINAL.length(), 0));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Warray-bounds="
+  // gcc does not understand that `BSLS_ASSERT_SAFE` here throws and gives a
+  // warning for essentially unreachable code.
+  //
+  // array subscript 9 is outside array bounds of 'char [8]'
+#endif
             ASSERT_SAFE_FAIL_RAW(Obj(ORIGINAL, ORIGINAL.length() + 1, 0));
+#ifdef BSLS_PLATFORM_CMP_GNU
+  #pragma GCC diagnostic pop
+#endif
         }
     }
 }

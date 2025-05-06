@@ -360,7 +360,7 @@ class SimplePool : public SimplePool_Type<ALLOCATOR>::AllocatorType {
     // MANIPULATORS
 
     /// Adopt all outstanding memory allocations associated with the
-    /// specfied memory `pool`.  The behavior is undefined unless this pool
+    /// specified memory `pool`.  The behavior is undefined unless this pool
     /// uses the same allocator as that associated with `pool`.  The
     /// behavior is undefined unless this pool is in the default-constructed
     /// state.
