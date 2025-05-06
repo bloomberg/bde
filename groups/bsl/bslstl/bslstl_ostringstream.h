@@ -564,11 +564,18 @@ inline
 void basic_ostringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::swap(
                                                     basic_ostringstream& other)
 {
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     BSLS_ASSERT(
            bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value
         || get_allocator() == other.get_allocator());
     this->BaseType::swap(other);
     this->BaseStream::swap(other);
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop
+#endif
 }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
