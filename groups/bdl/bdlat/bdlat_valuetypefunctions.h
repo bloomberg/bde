@@ -880,6 +880,18 @@ void bdlat_ValueTypeFunctions_Imp::reset(TYPE *object, UseDefaultCtor)
 
 }  // close enterprise namespace
 
+namespace bsl {
+
+template <class t_TYPE>
+inline
+int bdlat_valueTypeAssign(vector<t_TYPE> *lhs, const vector<t_TYPE>& rhs)
+{
+    *lhs = rhs;
+    return 0;
+}
+
+}  // close namespace bsl
+
 #endif
 
 // ----------------------------------------------------------------------------

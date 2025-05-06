@@ -28,9 +28,10 @@ using namespace bsl;
 //                                  TBD doc
 //-----------------------------------------------------------------------------
 // [ 2] void bdlat_ValueTypeFunctions::reset(TYPE *object);
+// [ 3] int bdlat_ValueTypeFunctions::assign(LHS_TYPE *, const RHS_TYPE&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -599,7 +600,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -614,6 +615,32 @@ int main(int argc, char *argv[])
         g();  yourUsageScenario();
         h(); theirUsageScenario();
 
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TEST ASSIGN
+        //
+        // Concerns:
+        //
+        // Plan:
+        //
+        // Testing:
+        //   int bdlat_ValueTypeFunctions::assign(LHS_TYPE *, const RHS_TYPE&);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting `assign`"
+                             "\n================" << endl;
+
+        if (verbose) cout << "\nTesting `bsl::vector`" << endl;
+        {
+            bsl::vector<int> rhs;
+            rhs.push_back(42);
+
+            bsl::vector<int> lhs;
+            ASSERT(lhs != rhs);
+            ASSERT(bdlat_ValueTypeFunctions::assign(&lhs, rhs) == 0);
+            ASSERT(lhs == rhs);
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
