@@ -1594,18 +1594,44 @@ int main(int argc, char *argv[])
 
             bdlt::Datetime t0 = bdlt::CurrentTime::utc();
 
-            bdlt::Datetime tEnd = t0 + bsls::TimeInterval(5);
+            bdlt::Datetime tEnd = t0 + bsls::TimeInterval(6);
+            int expectedRotations = 0;
 
             while (bdlt::CurrentTime::utc() < tEnd ) {
                 bdlt::Datetime tNow = bdlt::CurrentTime::utc();
 
                 publishRecord(&mX, "test message");
 
-                ASSERTV((tNow-t0).seconds(),
-                        cb.numInvocations(),
-                        (tNow-t0).seconds() == cb.numInvocations());
+                int elapsedSeconds = (tNow - t0).seconds();
 
-                bslmt::ThreadUtil::microSleep(100000, 0);  // .1
+                double rotationWindow =
+                        (t0 + bsls::TimeInterval(expectedRotations + 1) - tNow)
+                            .totalSecondsAsDouble();
+                // Poor man abs(double);
+                if (rotationWindow < 0) {
+                    rotationWindow = -rotationWindow;
+                }
+
+                // If we are within the epsilon of the next rotation, we
+                // should expect a rotation.
+                if (rotationWindow < 0.05) {
+                    // Inside rotation "window" - observing and registering the
+                    // rotation.
+                    if (expectedRotations + 1 == cb.numInvocations()) {
+                        ++expectedRotations;
+                    }
+                } else {
+                    // Outside rotation "window" - no new rotations expected.
+                    expectedRotations = elapsedSeconds;
+                }
+
+                ASSERTV(expectedRotations,
+                        cb.numInvocations(),
+                        expectedRotations == cb.numInvocations());
+
+                // Keep the sleep time small to hit both code inside and
+                // outside the rotation window.
+                bslmt::ThreadUtil::microSleep(100000, 0);  // .1s
             }
 
             mX.disableFileLogging();
