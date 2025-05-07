@@ -1597,9 +1597,10 @@ int main(int argc, char *argv[])
             bdlt::Datetime tEnd = t0 + bsls::TimeInterval(5);
 
             while (bdlt::CurrentTime::utc() < tEnd ) {
+                bdlt::Datetime tNow = bdlt::CurrentTime::utc();
+
                 publishRecord(&mX, "test message");
 
-                bdlt::Datetime tNow = bdlt::CurrentTime::utc();
                 ASSERTV((tNow-t0).seconds(),
                         cb.numInvocations(),
                         (tNow-t0).seconds() == cb.numInvocations());
