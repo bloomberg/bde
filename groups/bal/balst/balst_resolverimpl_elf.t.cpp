@@ -294,13 +294,19 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::NewDeleteAllocator ta;
+    bslma::NewDeleteAllocator ta;    // Avoid `TestAllocator` for when we want
+                                     // to put a breakpoint on `TestAllocator`
+                                     // to track down accidental use of default
+                                     // allocator.
 
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
+
+    // If `test` is greater than 50, delete the executable and run test case
+    // `test - 50`.
 
     bool vanish = false;
     if (50 < test) {

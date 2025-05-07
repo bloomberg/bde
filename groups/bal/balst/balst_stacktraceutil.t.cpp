@@ -1931,6 +1931,9 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
+    // If `test` is greater than 50, delete the executable and run test case
+    // `test - 50`.
+
     if (50 < test) {
         ::unlink(argv[0]);
         test -= 50;

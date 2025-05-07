@@ -30,6 +30,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_cstdarg.h>
 #include <bsl_deque.h>
+#include <bsl_fstream.h>
 #include <bsl_limits.h>
 #include <bsl_vector.h>
 
@@ -4061,9 +4062,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                     bool        isMainExecutable)
     // Note this must be public so 'linkMapCallBack' can call it on Solaris.
     // Also note that it assumes that both scratch buffers are available for
-    // writing.  Note that on Solaris, 'd_isMainExecutable' is to be set prior
-    // to this function being called, while on Linux we set it within this
-    // function.
+    // writing.
 {
     static const char rn[] = { "Resolver::processLoadedImage" };    (void) rn;
 
@@ -4078,6 +4077,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     // be found somewhere under "/proc/self".
 
     const char *nameToOpen = libraryFileName;
+    bsl::string fileNameIfExecutableFile(&d_hbpAlloc);
 
     d_hidden.reset();
 
@@ -4093,16 +4093,16 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // shared libs don't contain a lot of symbols of interest, and there is
         // no way to access them through "/proc/self").
 
-        // On Linux, the file "/proc/self/exe" is a funny symlink.  If the
+        // On Linux, the file "/proc/self/exe" is a special symlink.  If the
         // main executable file hasn't been deleted, it's a symlink that points
         // to that file, but if the file has been deleted, it either:
         //
-        //: o points to "<file name> (deleted)" but if opened as a hard link,
-        //:   still opens the executable file.
-        //:
-        //: o on Linux nfs, points to a ".nfs<long hex number>" gremlin file
-        //:   which is the remnant of the deleted executable, so whether it's
-        //:   a symlink or not, opening it opens the executable file.
+        // * points to "<file name> (deleted)" but if opened as a hard link,
+        //   still opens the executable file.
+        //
+        // * on Linux nfs, points to a ".nfs<long hex number>" gremlin file
+        //   which is the remnant of the deleted executable, so whether it's
+        //   a symlink or not, opening it opens the executable file.
         //
         // On Solaris, "/proc/self/exe" doesn't exist, but there is
         // "/proc/self/object/a.out" (which doesn't exist on Linux) which is a
@@ -4113,28 +4113,13 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
         // The file at "/proc/self/cmdline" is a hard link to a file whose
         // contents are all the strings in `argv[*]` concatenated with '\0's
-        // separating them, so reading that file into a buffer then reading the
-        // buffer as a null-terminated string gives us `argv[0]`, the filename
-        // of the executable, which might or might not still be in the file
-        // system.
+        // separating them, so reading the first null-terminated string from
+        // that file gives us `argv[0]`, the filename of the executable, which
+        // might or might not still be in the file system.
 
-        typedef bdls::FilesystemUtil Util;
-        Util::FileDescriptor fd = Util::open("/proc/self/cmdline",
-                                             Util::e_OPEN,
-                                             Util::e_READ_ONLY);
-        u_ASSERT_BAIL(Util::k_INVALID_FD != fd);
-
-        // We temporarily trash scratch buffer A here, but we're done with it
-        // before we leave this block.
-
-        int len = Util::read(fd, d_scratchBufA_p, u::k_SCRATCH_BUF_LEN);
-        u_ASSERT_BAIL(0 < len && d_scratchBufA_p[0]);
-        d_scratchBufA_p[u::k_SCRATCH_BUF_LEN - 1] = 0;
-
-        int rc = Util::close(fd);
-        u_ASSERT_BAIL(0 == rc);
-
-        libraryFileName = bdlb::String::copy(d_scratchBufA_p, &d_hbpAlloc);
+        bsl::ifstream cmdLineFile("/proc/self/cmdline");
+        bsl::getline(cmdLineFile, fileNameIfExecutableFile, '\0');
+        libraryFileName = fileNameIfExecutableFile.c_str();
     }
 
     u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);

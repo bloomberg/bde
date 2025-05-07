@@ -38,6 +38,12 @@ Resolver_FileHelper::FileReader::~FileReader()
 }
 
 // ACCESSORS
+inline
+Resolver_FileHelper::Offset Resolver_FileHelper::FileReader::fileSize() const
+{
+    return FilesystemUtil::getFileSize(d_fd);
+}
+
 bsl::string_view Resolver_FileHelper::FileReader::loadString(
                                                       const Span& writeSpan,
                                                       Offset      offset) const
@@ -118,11 +124,20 @@ bsl::span<const char> Resolver_FileHelper::FileReader::readBytes(
                                 // MappedFileReader
                                 // ----------------
 
+// CREATORS
 Resolver_FileHelper::MappedFileReader::MappedFileReader(
                                                        const CSpan& mappedFile)
 : d_mappedFile(mappedFile)
 {
     BSLS_ASSERT(!mappedFile.empty());
+}
+
+// ACCESSORS
+inline
+Resolver_FileHelper::Offset
+Resolver_FileHelper::MappedFileReader::fileSize() const
+{
+    return d_mappedFile.size();
 }
 
 bsl::string_view Resolver_FileHelper::MappedFileReader::loadString(
@@ -199,7 +214,6 @@ int Resolver_FileHelper::openFile(const char *fileName)
     }
 
     d_reader.emplace<FileReader>(fd);
-    d_fileSize = FilesystemUtil::getFileSize(fd);
 
     return 0;
 }
@@ -212,12 +226,30 @@ int Resolver_FileHelper::openMappedFile(const CSpan& mappedFile)
     }
 
     d_reader.emplace<MappedFileReader>(mappedFile);
-    d_fileSize = mappedFile.size();
 
     return 0;
 }
 
 // ACCESSORS
+Resolver_FileHelper::Offset Resolver_FileHelper::fileSize() const
+{
+    switch (d_reader.index()) {
+      case e_OPEN_FILE: {
+        const FileReader& fileReader = bsl::get<FileReader>(d_reader);
+        return fileReader.fileSize();                                 // RETURN
+      } break;
+      case e_MAPPED_FILE: {
+        const MappedFileReader& mappedFileReader =
+                                          bsl::get<MappedFileReader>(d_reader);
+        return mappedFileReader.fileSize();                           // RETURN
+      } break;
+      default: {
+        BSLS_ASSERT_INVOKE_NORETURN(
+                                 "`fileSize` called on unopened `FileHelper`");
+      }
+    }
+}
+
 bsl::string_view Resolver_FileHelper::loadString(const Span& writeSpan,
                                                  Offset      offset) const
 {

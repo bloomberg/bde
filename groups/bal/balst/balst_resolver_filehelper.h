@@ -174,6 +174,9 @@ class Resolver_FileHelper {
 
         // ACCESSORS
 
+        /// The size of the open file.
+        Offset fileSize() const;
+
         /// Load a string, terminated by either a null, by EOF, or by the end
         /// of the file, into the specified `writeSpan` and return a
         /// `string_view` referring to it.  The resulting `string_view` will
@@ -202,6 +205,9 @@ class Resolver_FileHelper {
         MappedFileReader(const CSpan& mappedFile);
 
         // ACCESSORS
+
+        /// The size of the mapped segment.
+        Offset fileSize() const;
 
         /// Return a `string_view` referring to a null-terminated string from
         /// `d_mappedFile` beginning at the specified `offset`.  If no `\0` is
@@ -234,8 +240,6 @@ class Resolver_FileHelper {
                                 // file, or a string_view of a file image in
                                 // memory
 
-    Offset     d_fileSize;      // The size of the file or mapped segment.
-
   private:
     // NOT IMPLEMENTED
     Resolver_FileHelper(const Resolver_FileHelper&);
@@ -245,7 +249,6 @@ class Resolver_FileHelper {
     // CREATORS
 
     /// Create a file helper object in an invalid state.
-    explicit
     Resolver_FileHelper();
 
     // MANIPULATOR
@@ -299,12 +302,6 @@ class Resolver_FileHelper {
                              // -------------------
 
 // ACCESSORS
-inline
-Resolver_FileHelper::Offset Resolver_FileHelper::fileSize() const
-{
-    return d_fileSize;
-}
-
 inline
 int Resolver_FileHelper::readExact(const Span& outSpan, Offset offset) const
 {
