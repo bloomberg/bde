@@ -129,6 +129,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+  #include <format>
+#endif
+
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 #define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
     typedef void FormatterBase_PreventStdDelegation
@@ -195,9 +199,6 @@ struct formatter {
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 namespace std {
-
-template <class t_ARG, class t_CHAR>
-struct formatter;
 
 /// Partial `formatter` specialization in the `std` namespace to enable use of
 /// formatters defined in the `bsl` namespace.
