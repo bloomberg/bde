@@ -15,6 +15,8 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
+#include <bsltf_alloctesttype.h>
+
 #include <algorithm>
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
@@ -851,13 +853,12 @@ void removeFile(const char *fileName)
 //=============================================================================
 
 // This section provides a facility analogous to `bsltf_templatetestfacility`
-// (which cannot be directly included here for dependency reasons).
+// for historical reasons (`bslalg` used to not be able to depend on `bsltf`).
 //
 ///Test Types and Associated Policies
 ///----------------------------------
 //  - PrimitiveTestTypes         - a set of typedefs for primitive types
 //  - SimpleTestType             - a simple non-allocating test object type
-//  - AllocTestType              - a simple allocating test object
 //  - TestTypeValue<VALUE>       - a policy for creating a test type value
 //  - TestTypeComparator<VALUE>  - a policy for comparing test type objects
 //
@@ -1024,166 +1025,6 @@ bool operator!=(const SimpleTestType& lhs, const SimpleTestType& rhs)
 }
 
                         // ===================
-                        // class AllocTestType
-                        // ===================
-
-/// This unconstrained (value-semantic) attribute class that uses a
-/// `bslma::Allocator` to allocate memory and defines the type trait
-/// `bslma::UsesBslmaAllocator`.  See the Attributes section under
-/// @DESCRIPTION in the component-level documentation for information on the
-/// class attributes.
-class AllocTestType {
-
-    // DATA
-    int             *d_data_p;       // pointer to the integer class value
-    bslma::Allocator *d_allocator_p;  // allocator, (held, not owned)
-    AllocTestType   *d_self_p;       // pointer to self
-
-  public:
-    // CREATORS
-
-    /// Create a `AllocTestType` object having the (default) attribute
-    /// values:
-    /// ```
-    /// data() == 0
-    /// ```
-    /// Optionally specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.
-    explicit AllocTestType(bslma::Allocator *basicAllocator = 0);
-
-    /// Create a `AllocTestType` object having the specified `data`
-    /// attribute value.  Optionally specify a `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
-    explicit AllocTestType(int data, bslma::Allocator *basicAllocator = 0);
-
-    /// Create a `AllocTestType` object having the same value as the
-    /// specified `original` object.  Optionally specify a `basicAllocator`
-    /// used to supply memory.  If `basicAllocator` is 0, the currently
-    /// installed default allocator is used.
-    AllocTestType(const AllocTestType&  original,
-                  bslma::Allocator      *basicAllocator = 0);
-
-    /// Destroy this object.
-    ~AllocTestType();
-
-    // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object, and
-    /// return a reference providing modifiable access to this object.
-    AllocTestType& operator=(const AllocTestType& rhs);
-
-    /// Set the `data` attribute of this object to the specified `value`.
-    void setData(int value);
-
-    // ACCESSORS
-
-    /// Return the value of the `data` attribute of this object.
-    int data() const;
-};
-
-// TRAITS
-namespace BloombergLP {
-namespace bslma {
-template <> struct UsesBslmaAllocator<AllocTestType> : bsl::true_type {};
-}  // close namespace bslma
-}  // close enterprise namespace
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `AllocTestType` objects have the same
-/// if their `data` attributes are the same.
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same value, and `false` otherwise.  Two `AllocTestType` objects do not
-/// have the same value if their `data` attributes are not the same.
-bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs);
-
-                        // -------------------
-                        // class AllocTestType
-                        // -------------------
-
-// CREATORS
-inline
-AllocTestType::AllocTestType(bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = (int *) d_allocator_p->allocate(sizeof(int));
-    *d_data_p = 0;
-}
-
-inline
-AllocTestType::AllocTestType(int data, bslma::Allocator *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = (int *) d_allocator_p->allocate(sizeof(int));
-    *d_data_p = data;
-}
-
-inline
-AllocTestType::AllocTestType(const AllocTestType& original,
-                             bslma::Allocator     *basicAllocator)
-: d_allocator_p(bslma::Default::allocator(basicAllocator))
-, d_self_p(this)
-{
-    d_data_p = (int *) d_allocator_p->allocate(sizeof(int));
-    *d_data_p = *original.d_data_p;
-}
-
-inline
-AllocTestType::~AllocTestType()
-{
-    // Ensure that this objects has not been bitwise moved.
-    BSLS_ASSERT_OPT(this == d_self_p);
-    d_allocator_p->deallocate(d_data_p);
-}
-
-// MANIPULATORS
-inline
-AllocTestType& AllocTestType::operator=(const AllocTestType& rhs)
-{
-    if (&rhs != this)
-    {
-        int *newData = (int *) d_allocator_p->allocate(sizeof(int));
-        d_allocator_p->deallocate(d_data_p);
-        d_data_p = newData;
-        *d_data_p = *rhs.d_data_p;
-    }
-    return *this;
-}
-
-inline
-void AllocTestType::setData(int value)
-{
-    *d_data_p = value;
-}
-
-// ACCESSORS
-inline
-int AllocTestType::data() const
-{
-    return *d_data_p;
-}
-
-// FREE OPERATORS
-inline
-bool operator==(const AllocTestType& lhs, const AllocTestType& rhs)
-{
-    return lhs.data() == rhs.data();
-}
-
-inline
-bool operator!=(const AllocTestType& lhs, const AllocTestType& rhs)
-{
-    return lhs.data() != rhs.data();
-}
-
-                        // ===================
                         // class TestTypeValue
                         // ===================
 
@@ -1242,16 +1083,16 @@ struct TestTypeValue<PrimitiveTestTypes::FunctionPtr>
 /// Provide a specialization of `TestTypeValue` to create, and obtain
 /// the value of an `AllocTestType`.
 template <>
-struct TestTypeValue<AllocTestType> {
+struct TestTypeValue<bsltf::AllocTestType> {
 
-    AllocTestType create(int value) const {
+    bsltf::AllocTestType create(int value) const {
         BSLS_ASSERT(0 <= value);
-        AllocTestType result;
+        bsltf::AllocTestType result;
         result.setData(value);
         return result;
     }
 
-    int getValue(const AllocTestType& value) const {
+    int getValue(const bsltf::AllocTestType& value) const {
         return value.data();
     }
 };
@@ -1294,8 +1135,9 @@ struct TestTypeComparator<SimpleTestType>{
 };
 
 template <>
-struct TestTypeComparator<AllocTestType>{
-    bool operator()(const AllocTestType& lhs, const AllocTestType& rhs) const {
+struct TestTypeComparator<bsltf::AllocTestType>{
+    bool operator()(const bsltf::AllocTestType& lhs,
+                    const bsltf::AllocTestType& rhs) const {
         return lhs.data() < rhs.data();
     }
 };
@@ -1544,7 +1386,7 @@ class TestNodeFactory {
     TEST_DRIVER<PrimitiveTestTypes::FunctionPtr>::TEST_FUNCTION(); \
     TEST_DRIVER<PrimitiveTestTypes::SizeT>::TEST_FUNCTION();   \
     TEST_DRIVER<SimpleTestType>::TEST_FUNCTION(); \
-    TEST_DRIVER<AllocTestType>::TEST_FUNCTION(); \
+    TEST_DRIVER<bsltf::AllocTestType>::TEST_FUNCTION(); \
 
 
 //=============================================================================

@@ -67,6 +67,10 @@ using namespace BloombergLP;
 
 #include <bsls_platform.h>
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 #if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC) && \
                                                defined(BSLS_PLATFORM_CMP_CLANG)
     #pragma clang diagnostic ignored "-Wordered-compare-function-pointers"

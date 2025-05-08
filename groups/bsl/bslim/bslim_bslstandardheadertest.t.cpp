@@ -235,8 +235,9 @@ using namespace BloombergLP;
   #pragma clang diagnostic ignored "-Wconstant-evaluated"
 #endif  // clang 10.0+
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 60000
-  #pragma GCC diagnostic ignored "-Wtautological-compare"
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic ignored "-Warray-bounds"
+# pragma GCC diagnostic ignored "-Wtautological-compare"
 #endif
 
 //=============================================================================

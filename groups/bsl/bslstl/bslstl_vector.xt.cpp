@@ -76,6 +76,10 @@
   #endif
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_SUN
+# pragma error_messages (off, SEC_ARR_OUTSIDE_BOUND_READ)
+#endif
+
 // Don't put any `using` declaration or directive here, see swap helpers below.
 
 //=============================================================================

@@ -251,9 +251,16 @@ void noThrowFunction() BSLS_NOTHROW_SPEC
 }
 
 #if !BSLS_DEPRECATE_IS_ACTIVE(BDE, 3, 17)
+# ifdef BSLS_PLATFORM_CMP_GNU
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdeprecated"
+# endif
 void exceptionSpecFunction() BSLS_EXCEPTION_SPEC((TestExceptionClass))
 {
 }
+# ifdef BSLS_PLATFORM_CMP_GNU
+#  pragma GCC diagnostic pop
+# endif
 #endif // BSLS_DEPRECATE_IS_ACTIVE
 
 struct CustomException : std::exception {

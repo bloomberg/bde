@@ -73,6 +73,10 @@
 using namespace BloombergLP;
 using namespace bsl;
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 // COMPILE-FAIL CONFIGURATION MACROS
 // ---------------------------------
 //  Uncomment the following macros to produce the defined number of compiler
