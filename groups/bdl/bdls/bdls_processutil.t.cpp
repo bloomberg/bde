@@ -473,20 +473,31 @@ int main(int argc, char *argv[])
             testStatus = bsl::min(101, testStatus + rc);
         }
 
-        if (!u::e_UNIX) {
+        ASSERT(FUtil::isDirectory(directoryName));
+        
+        if (u::e_UNIX) {
+            rc = FUtil::remove(directoryName, true);
+        } else {
             // Windows needs a few seconds after the script finishes to be
             // allowed to delete the script and the executable at
             // `copiedExecutablePath` and the directory `directoryName`
             // containing them.
-
-            bslmt::ThreadUtil::microSleep(0, 5);    // 5 seconds
+            bslmt::ThreadUtil::microSleep(0, 5);  // 5 seconds
+            for (int removeTry = 0; removeTry < 5; ++removeTry) {
+                bslmt::ThreadUtil::microSleep(0, 1);
+                rc = FUtil::remove(directoryName, true);
+                if (0 == rc) break;
+            }
         }
 
-        ASSERT(FUtil::isDirectory(directoryName));
-        rc = FUtil::remove(directoryName, true);
-        ASSERT(0 == rc);
-        ASSERT(!FUtil::exists(directoryName));
-        ASSERT(!FUtil::exists(copiedExecutablePath));
+        if (0 == rc) {
+            ASSERT(!FUtil::exists(directoryName));
+            ASSERT(!FUtil::exists(copiedExecutablePath));
+        } else {
+            if (verbose) {
+                cout << "Failed to clean up " << directoryName << endl;
+            }
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
