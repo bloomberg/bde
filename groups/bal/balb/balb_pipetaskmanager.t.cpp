@@ -10,6 +10,7 @@
 #include <bdls_filesystemutil.h>
 #include <bdls_pathutil.h>
 #include <bdls_pipeutil.h>
+#include <bdls_processutil.h>
 
 #include <bslim_testutil.h>
 
@@ -25,11 +26,11 @@
 #include <bsls_stopwatch.h>
 
 #include <bsl_cstddef.h>   // `bsl::size_t`
-#include <bsl_cstdlib.h>   // `bsl::atoi`
+#include <bsl_cstdlib.h>   // `bsl::atoi`, `bsl::getenv`
 #include <bsl_iostream.h>
 #include <bsl_memory.h>    // `bsl::shared_ptr`, `bsl::(make|allocate)_shared`
 #include <bsl_ostream.h>   // `operator<<`
-#include <bsl_sstream.h>   // `bsl::ostringstring`
+#include <bsl_sstream.h>   // `bsl::ostringstream`
 #include <bsl_streambuf.h> // `bsl::streambuf`
 #include <bsl_string.h>
 #include <bsl_string_view.h>
@@ -389,9 +390,18 @@ namespace Usage {
     #endif
 // ```
 // Then, start listening for incoming messages at pipe having the name based on
-// on the name "MyApplication.CTRL".
+// on the name "MyApplication.CTRL".  To avoid collisions when this test case
+// is run simultaneously on a single machine (or on different machines sharing
+// an NFS mount), we will append the hostname and process ID to the base name.
 // ```
-        rc = taskManager.start("MyApplication.CTRL");
+        const char *hostname = bsl::getenv("HOSTNAME");
+        if (!hostname) hostname = "Windows";
+        bsl::ostringstream ss;
+        ss << "MyApplication.CTRL."
+           << hostname << '.'
+           << bdls::ProcessUtil::getProcessId();
+        bsl::string pipeBaseName = ss.str();
+        rc = taskManager.start(pipeBaseName);
         ASSERT(0 == rc);
 // ```
 // Next, for expository purposes, confirm that a pipe of that name exists in
@@ -410,7 +420,8 @@ namespace Usage {
         bdls::PathUtil::getLeaf   (&canonicalLeafName, pipeName);
 
         ASSERT(0 == bsl::strcmp(expectedDirectory, canonicalDirname.c_str()));
-        ASSERT("myapplication.ctrl" == canonicalLeafName);
+        bdlb::String::toLower(&pipeBaseName);
+        ASSERT(pipeBaseName == canonicalLeafName);
 // ```
 // Notice that given `baseName` has been canonically converted to lowercase.
 //

@@ -297,9 +297,18 @@ BSLS_IDENT("$Id: $")
 // #endif
 // ```
 // Then, start listening for incoming messages at pipe having the name based on
-// on the name "MyApplication.CTRL".
+// on the name "MyApplication.CTRL".  To avoid collisions when this test case
+// is run simultaneously on a single machine (or on different machines sharing
+// an NFS mount), we will append the hostname and process ID to the base name.
 // ```
-//     rc = taskManager.start("MyApplication.CTRL");
+//     const char *hostname = bsl::getenv("HOSTNAME");
+//     if (!hostname) hostname = "Windows";
+//     bsl::ostringstream ss;
+//     ss << "MyApplication.CTRL."
+//        << hostname << '.'
+//        << bdls::ProcessUtil::getProcessId();
+//     bsl::string pipeBaseName = ss.str();
+//     rc = taskManager.start(pipeBaseName);
 //     assert(0 == rc);
 // ```
 // Next, for expository purposes, confirm that a pipe of that name exists in
@@ -318,7 +327,8 @@ BSLS_IDENT("$Id: $")
 //     bdls::PathUtil::getLeaf   (&canonicalLeafName, pipeName);
 //
 //     assert(0 == bsl::strcmp(expectedDirectory, canonicalDirname.c_str()));
-//     assert("myapplication.ctrl" == canonicalLeafName);
+//     bdlb::String::toLower(&pipeBaseName);
+//     assert(pipeBaseName == canonicalLeafName);
 // ```
 // Notice that given `baseName` has been canonically converted to lowercase.
 //
