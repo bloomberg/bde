@@ -483,7 +483,7 @@ struct MockArgsContext {
     // DATA
     mutable StatusEnum d_status;  // Argument-access status
 
-    int                d_argId;
+    size_t             d_argId;
     long long          d_value;
 
     // CREATORS
@@ -492,7 +492,7 @@ struct MockArgsContext {
     /// the type `t_VALUE_TYPE` for the specified `argId`, an argument with of
     /// `e_BAD_TYPE` with an unspecified value for `argId + 1`, while providing
     /// empty (`monostate`) arguments for any other argument id.
-    MockArgsContext(int argId, long long value)
+    MockArgsContext(size_t argId, long long value)
     : d_status(Status::e_NOT_ACCESSED)
     , d_argId(argId)
     , d_value(value)
