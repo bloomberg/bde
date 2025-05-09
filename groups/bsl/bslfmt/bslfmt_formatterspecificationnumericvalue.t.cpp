@@ -223,11 +223,18 @@ struct ArgTypingVisitor : ArgType {
     void operator()(unsigned long long) {
         d_argType = e_UNSIGNED_LONG_LONG;
     }
+
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) && \
     __GLIBCXX__ >= 20230426 && defined(__SIZEOF_INT128__)
     // gcc-13 supports printing its non-standard 128-bit integer types so we
     // must "support" those signatures in our visitor.
-
+  #define u_NEED_INT128
+#endif
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+    // clang-17 uses __int128 and unsigned __int128 for __handle.
+  #define u_NEED_INT128
+#endif
+#ifdef u_NEED_INT128
     void operator()(__int128) {
         // We will not use `__int128` so we do not need to set anything here.
         // But for paranoia we do `ASSERT` if we get here somehow.
@@ -308,72 +315,8 @@ ArgType::Enum getArgType(const bslfmt::basic_format_arg<t_CONTEXT>& arg)
 template <class t_CHAR, class t_VALUE_TYPE, class t_BAD_TYPE>
 struct MockArgsContext;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-namespace std {
-/// This specialization of `basic_arg_format` for `MockArgsContext` is used
-/// when the standard library supports a sufficiently functional format library
-/// so that we do not use our own, but rather extend the existing one.  This
-/// specialization has to inherit from `basic_format_arg` of `format_context`
-/// or `wformat_context` because `std::visit_format_arg` only exists for those.
-/// The conversion constructor from the base class exists so that we can use
-/// (the only way of creating format-arguments the) `make_format_args` function
-/// that does not have a specialization for our context type, only for
-/// `std::format_context` and `std::wformat_context`.  See `MockArgsContext`.
-template <class t_CHAR, class t_VALUE_TYPE, class t_BAD_TYPE>
-class basic_format_arg<MockArgsContext<t_CHAR, t_VALUE_TYPE, t_BAD_TYPE> >
-: public basic_format_arg<typename bsl::conditional<
-                                             bsl::is_same<t_CHAR, char>::value,
-                                             format_context,
-                                             wformat_context>::type>
-{
-  public:
-
-    // TYPES
-
-    /// The context type of the base class.
-    typedef typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
-                                      format_context,
-                                      wformat_context>::type       BaseContext;
-
-    // CREATORS
-
-    /// Create an empty argument that visits as `std::monostate`.
-    basic_format_arg() {}
-
-    /// Create a `basic_format_arg` (of a `MockArgsContext` type) from an
-    /// object of its base class.  This constructor is necessary to make the
-    /// conversion in the return statement of `createIntegralValue` and
-    /// `createBadValue` work.
-    basic_format_arg(const basic_format_arg<BaseContext>& other)    // IMPLICIT
-    : basic_format_arg<BaseContext>(other)
-    {
-    }
-
-    // CLASS METHODS
-
-    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with the
-    /// specified `value` and having `t_VALUE_TYPE` as its type.
-    static basic_format_arg createIntegralValue(long long value)
-    {
-        static t_VALUE_TYPE typedValue;
-        typedValue = static_cast<t_VALUE_TYPE>(value);
-        return basic_format_args(
-               make_format_args<BaseContext, t_VALUE_TYPE>(typedValue)).get(0);
-    }
-
-    /// Create a `basic_format_arg` (of a `MockArgsContext` type) with an
-    /// unspecified value and having `t_BAD_TYPE` as its type.  This method is
-    /// used to create type that cannot be used as numeric values (width or
-    /// precision).
-    static basic_format_arg createBadValue()
-    {
-        static t_BAD_TYPE x;
-        return basic_format_args(
-                          make_format_args<BaseContext, t_BAD_TYPE>(x)).get(0);
-    }
-};
-}  // close namespace std
-#else  // there is no usable `std::format`
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+// there is no usable `std::format`
 namespace BloombergLP {
 namespace bslfmt {
 /// This specialization of `basic_arg_format` for a `char`-based
@@ -527,6 +470,9 @@ struct MockArgsContext {
 #else
     typedef bslfmt::basic_format_arg<MockArgsContext> FormatArgType;
 #endif
+    typedef typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
+                                      std::format_context,
+                                      std::wformat_context>::type  StdContext;
 
     // DATA
     mutable StatusEnum d_status;  // Argument-access status
@@ -551,9 +497,9 @@ struct MockArgsContext {
 
     void advance_to(iterator) {}
 
-    iterator out();
+    iterator out() { return iterator(); }
 
-    std::locale locale();
+    std::locale locale() { return std::locale(); }
 
     // Reset this object's `status` to `e_NOT_ACCESSED`.
     void reset() {
@@ -584,14 +530,19 @@ struct MockArgsContext {
             if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
                 d_status = Status::e_INTEGRAL_ARG_ACCESSED;
             }
-            return FormatArgType::createIntegralValue(d_value);       // RETURN
+            static t_INT_TYPE typedValue;
+            typedValue = static_cast<t_INT_TYPE>(d_value);
+            return std::basic_format_args(
+                std::make_format_args<MockArgsContext, t_INT_TYPE>(typedValue)).get(0);
         }
 
         if (id == d_argId + 1) {
             if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
                 d_status = Status::e_BAD_TYPE_ARG_ACCESSED;
             }
-            return FormatArgType::createBadValue();                   // RETURN
+            static t_BAD_TYPE x;
+            return std::basic_format_args(
+                    std::make_format_args<MockArgsContext, t_BAD_TYPE>(x)).get(0);
         }
 
         if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
