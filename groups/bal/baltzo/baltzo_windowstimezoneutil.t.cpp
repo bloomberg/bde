@@ -1348,12 +1348,20 @@ int main(int argc, char *argv[])
                 localTimezone.assign(standardName);
             }
 
-            const char *timeZoneId;
-            rc = baltzo::WindowsTimeZoneUtil::getZoneinfoId(
+            // See DRQS  178953830, "Coordinated Universal Time" does not
+            // appear in windows time zone data.  Created a follow up ticket
+            // 179195663 to track updating the mapping provided by this
+            // component.
+            if (localTimezone != "Coordinated Universal Time") {
+                const char *timeZoneId;
+                rc = baltzo::WindowsTimeZoneUtil::getZoneinfoId(
                                                         &timeZoneId,
                                                         localTimezone.c_str());
-            ASSERT(0 == rc);
-            if (veryVerbose) { T_ P_(localTimezone) P_(timeZoneId) }
+                ASSERT(0 == rc);
+                if (veryVerbose) {
+                    T_ P_(localTimezone) P_(timeZoneId)
+                }
+            }
         }
 #else
         cout << "Run on Windows Platform Only" << endl;
