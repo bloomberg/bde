@@ -6,8 +6,11 @@
 
 #include <bsls_bsltestutil.h>
 
-#include <limits.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    #include <format>
+#endif
 
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -462,10 +465,21 @@ struct MockArgsContext {
 #endif
     // TYPES
 
-    typedef char *iterator;  // Necessary due to libc++ concept use.
+    typedef typename u_NAMESPACE_FMT::basic_format_parse_context<t_CHAR>::iterator iterator;  // Necessary due to concept use.
 
     template <class t_TYPE>
-    struct formatter_type : u_NAMESPACE::formatter<t_TYPE, t_CHAR> { };
+    struct formatter_type { 
+        iterator format(t_TYPE, MockArgsContext) const
+        {
+            return iterator();
+        }
+
+        template <class t_PARSE_CONTEXT>
+        typename t_PARSE_CONTEXT::iterator parse(t_PARSE_CONTEXT&)
+        {
+            return typename t_PARSE_CONTEXT::iterator();
+        }
+    };
         // Necessary due to libc++ concept use.
 
     typedef MockArgsContextStatus Status;
