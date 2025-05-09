@@ -29,6 +29,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
+#include <bslma_bslallocator.h>
+#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+
 namespace bsl {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 // BDE does not provide its own implementation of an allocator-aware
