@@ -512,6 +512,11 @@ template <class t_CHAR, class t_INT_TYPE, class t_BAD_TYPE>
 struct MockArgsContext {
     // TYPES
 
+    typedef char *iterator;
+
+    template <class t_TYPE>
+    struct formatter_type : std::formatter<t_TYPE, t_CHAR> { };
+
     typedef MockArgsContextStatus Status;
     typedef Status::Enum          StatusEnum;
 
@@ -544,6 +549,12 @@ struct MockArgsContext {
 
     // MANIPULATORS
 
+    void advance_to(iterator) {}
+
+    iterator out();
+
+    std::locale locale();
+
     // Reset this object's `status` to `e_NOT_ACCESSED`.
     void reset() {
         d_status = Status::e_NOT_ACCESSED;
@@ -564,7 +575,7 @@ struct MockArgsContext {
     /// value.  Return an empty (`monostate`) `format_arg` for every other ID.
     /// Also set the argument access `status` of the object to the appropriate
     /// value.
-    FormatArgType arg(int id) const {
+    FormatArgType arg(size_t id) const {
         if (d_status != Status::e_NOT_ACCESSED) {
             d_status = Status::e_MORE_THAN_ONE_ARG_ACCESSED;
         }
