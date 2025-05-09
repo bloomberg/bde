@@ -456,7 +456,7 @@ struct MockArgsContextStatus{
 /// method.
 template <class t_CHAR, class t_INT_TYPE, class t_BAD_TYPE>
 struct MockArgsContext {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
     #define u_NAMESPACE std
     #define u_NAMESPACE_FMT std
 #else
@@ -465,10 +465,14 @@ struct MockArgsContext {
 #endif
     // TYPES
 
-    typedef typename u_NAMESPACE_FMT::basic_format_parse_context<t_CHAR>::iterator iterator;  // Necessary due to concept use.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    typedef
+        typename u_NAMESPACE_FMT::basic_format_parse_context<t_CHAR>::iterator
+            iterator;
+        // Necessary due to concepts use.
 
     template <class t_TYPE>
-    struct formatter_type { 
+    struct formatter_type {
         iterator format(t_TYPE, MockArgsContext) const
         {
             return iterator();
@@ -480,7 +484,8 @@ struct MockArgsContext {
             return typename t_PARSE_CONTEXT::iterator();
         }
     };
-        // Necessary due to libc++ concept use.
+        // Necessary due to concepts use.
+#endif  // Based on `std::format`
 
     typedef MockArgsContextStatus Status;
     typedef Status::Enum          StatusEnum;
@@ -515,14 +520,16 @@ struct MockArgsContext {
 
     // MANIPULATORS
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
     void advance_to(iterator) {}
-        // Stub necessary due to libc++ concept use.
+        // Stub necessary due to concepts use.
 
     iterator out() { return iterator(); }
-        // Stub necessary due to libc++ concept use.
+        // Stub necessary due to concepts use.
 
     std::locale locale() { return std::locale(); }
-        // Stub necessary due to libc++ concept use.
+        // Stub necessary due to concepts use.
+#endif  // Based on `std::format`
 
     // Reset this object's `status` to `e_NOT_ACCESSED`.
     void reset() {
