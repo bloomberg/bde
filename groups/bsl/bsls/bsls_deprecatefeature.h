@@ -237,7 +237,7 @@
 // ```
 // // bdet_date.h
 //
-// #include <bsls_deprecate_feature.h>
+// #include <bsls_deprecatefeature.h>
 //
 // BSLS_DEPRECATE_FEATURE_HEADER("bdet",
 //                               "bdet_date",
