@@ -106,6 +106,7 @@ using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
 
+
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
@@ -219,7 +220,7 @@ const double epsilon = 2e-9;        // 2 nanoseconds (the timer used by the
 
 const double minSleep = 0.00001 - epsilon;
 
-/// Return the time in seconds since New Year, 1970 GMT, according to a
+/// Return the time in seconds since an arbitrary epoch, using the
 /// monotonic clock.
 inline
 double doubleClock()
@@ -271,6 +272,7 @@ enum TestType {
 
 /// Stream the specified `testType` to the specified `stream`, and return
 /// `stream`.
+BSLS_ANNOTATION_UNUSED
 bsl::ostream& operator<<(bsl::ostream& stream, u::TestType testType)
 {
     switch (testType) {
@@ -514,157 +516,143 @@ void simpleExample()
 
 }  // close namespace usage
 
-                                // ---------------
-                                // MultiPeriodTest
-                                // ---------------
+                              // ---------------
+                              // MultiPeriodTest
+                              // ---------------
 
 namespace MultiPeriodTest {
 
-/// This function runs the multi period test, one `period` being the
-/// `NANOSECONDS_PER_MESSAGE` passed to the throttle.  Use the specified
-/// observer `*TO`, and the specified `alloc` for memory allocation.  The
-/// specified `testType` indicates whether we are to perform a stream-style
-/// or printf-style test.
+#define LOG_VA BALL_LOGTHROTTLEVA_INFO
+#define LOG BALL_LOGTHROTTLE_INFO
+
+/// This function runs tests that the throttling macros work correctly for
+/// multiple time periods (as determined by the `NANOSECONDS_PER_MESSAGE`
+/// parameter).
 ///
-/// Note that this test, described in test cases 5 and 6 where it is called,
-/// is single threaded.
+/// Note that this test, described in test cases 5 and 6 where it is called, is
+/// single threaded.
 void testMain(
              const bsl::shared_ptr<BloombergLP::ball::TestObserver>&  TO,
              u::TestType                                              testType,
              TestAllocator                                           *alloc)
 {
-    BloombergLP::ball::LoggerManagerConfiguration lmc;
-    BloombergLP::ball::LoggerManagerScopedGuard lmg(lmc, alloc);
-    BloombergLP::ball::LoggerManager::singleton().registerObserver(TO, "TO");
+    using namespace BloombergLP;
+    ball::LoggerManagerConfiguration lmc;
+    ball::LoggerManagerScopedGuard   lmg(lmc, alloc);
+    ball::LoggerManager::singleton().registerObserver(TO, "TO");
 
-    BloombergLP::ball::Administration::addCategory(
-                                      "sieve",
+    ball::Administration::addCategory("sieve",
                                       BloombergLP::ball::Severity::e_DEBUG,
                                       BloombergLP::ball::Severity::e_DEBUG,
                                       0,
                                       0);
     BALL_LOG_SET_CATEGORY("sieve");
 
-    enum { k_BURST_SIZE              = 10,
-           k_NANOSECONDS_PER_MESSAGE = 400 * 1000 * 1000,
-           k_II_LOOPS                = 10,
-           k_JJ_LOOPS                = k_BURST_SIZE * 5 };
-
-    const double secondsPerMessage = static_cast<double>(
-                                             k_NANOSECONDS_PER_MESSAGE) * 1e-9;
-    const double sleepTime         = secondsPerMessage * 0.51;
-
-    int retries = 0, expTotal = 0;
-    double start = u::doubleClock(), lastEpoch = start;
-    for (int ii = 0; ii < k_II_LOOPS; ++ii) {
-        const double rawEpoch = (u::doubleClock() - lastEpoch) /
-                                                             secondsPerMessage;
-        const double epochs   = bsl::floor(rawEpoch);
-        ASSERTV(ii, rawEpoch, epochs, 0 <= rawEpoch && 0 <= epochs);
-
-        if (2.0 <= epochs) {
-            ++retries;
-
-            cout << "Excessive sleep: epoch: " << epochs << ", retries: " <<
-                                                               retries << endl;
-
-            ASSERTV(retries, retries < 5);
-            if (5 <= retries) {
-                return;                                               // RETURN
-            }
-
-            u::doubleSleep(static_cast<double>(k_BURST_SIZE)
-                                                    * secondsPerMessage * 1.1);
-            ii = -1;
-            start = u::doubleClock(), lastEpoch = start;
-            continue;
-        }
-        ASSERTV(ii, epochs, !ii || !(ii & 1) == (1.0 == epochs));
-
-        ASSERTV(epochs, epochs < 2.0);
-
-        const int iiExp = 0 == ii
-                        ? 10
-                        : 0.0 == epochs
-                        ? 0
-                        : 1;
-        if (ii && 0 < iiExp) {
-            ASSERT(1.0 == epochs);
-
-            lastEpoch += secondsPerMessage;
-        }
-
-        for (int jj = 1; jj <= k_JJ_LOOPS; ++jj) {
-            switch (testType) {
-              case u::e_PRINTF_STYLE: {
-                // Threshold is `e_DEBUG`, so trace shouldn't be published, but
-                // info should.
-
-                BALL_LOGTHROTTLEVA_INFO(
-                                      k_BURST_SIZE,
-                                      k_NANOSECONDS_PER_MESSAGE,
-                                      "Info:  Printf: ii: %d, jj: %d", ii, jj);
-
-                BALL_LOGTHROTTLEVA_TRACE(
-                                      k_BURST_SIZE,
-                                      k_NANOSECONDS_PER_MESSAGE,
-                                      "Trace: Printf: ii: %d, jj: %d", ii, jj);
-              } break;
-              case u::e_STREAM_STYLE: {
-                // Threshold is `e_DEBUG`, so trace shouldn't be published, but
-                // info should.
-
-                BALL_LOGTHROTTLE_INFO( k_BURST_SIZE,
-                                       k_NANOSECONDS_PER_MESSAGE) <<
-                                 "Info:  Stream: ii: " << ii << ", jj: " << jj;
-
-                BALL_LOGTHROTTLE_TRACE(k_BURST_SIZE,
-                                       k_NANOSECONDS_PER_MESSAGE) <<
-                                 "Trace: Stream: ii: " << ii << ", jj: " << jj;
-              } break;
-              default: {
-                BSLS_ASSERT_OPT(0 && "invalid testType");
-              }
-            }
-
-            const int jjExp = jj < iiExp ? jj : iiExp;
-            ASSERTV(expTotal, jjExp, iiExp, TO->numPublishedRecords(), epochs,
-                                expTotal + jjExp == TO->numPublishedRecords());
-        }
-
-        expTotal += iiExp;
-        ASSERTV(ii, iiExp, expTotal, TO->numPublishedRecords(), epochs,
-                                        expTotal == TO->numPublishedRecords());
-
-        if (veryVerbose) {
-            P_(ii);    P_(expTotal);    P(TO->numPublishedRecords());
-        }
-
-        const double toSleep = sleepTime * (ii+1) - (u::doubleClock() - start);
-        u::doubleSleep(toSleep);
-    }
-
-    const double elapsed = u::doubleClock() - start;
-
-    const BloombergLP::ball::RecordAttributes& attributes =
-                                       TO->lastPublishedRecord().fixedFields();
-
-    const int    numPublished = TO->numPublishedRecords();
-    const char  *lastTrace    = attributes.message();
-    const Level  severity     = static_cast<Level>(attributes.severity());
-
-    ASSERTV(expTotal, numPublished, expTotal == numPublished);
-    ASSERTV(severity, INFO == severity);
-    const char * const expTrace = u::e_PRINTF_STYLE == testType
-                                ? "Info:  Printf: ii: 8, jj: 1"
-                                : "Info:  Stream: ii: 8, jj: 1";
-
-    ASSERTV(testType, lastTrace, expTrace, !strcmp(lastTrace, expTrace));
+    const double k_TEST_TIME_SECONDS = .25;
 
     if (verbose) {
-        P_(numPublished);    P_(severity);    P_(lastTrace);    P(elapsed);
+        bsl::cout << "Testing expected messages per second."
+                  << bsl::endl;
+    }
+    {
+        // To test the expected messages per second, we use a relatively low
+        // rate of 1 message per milliseond, and run the test for 1/4 of a
+        // second.  This should yield 250 messages.  We allow a margin of error
+        // on the lower bound, and a tighter margin of error on the upper bound
+        // (since heavy load should not effect the maximum number of messages written).
+        enum {
+            k_NS_PER_MSG = 1 *
+                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MILLISECOND
+        };
+
+        double startTime = u::doubleClock();
+        double endTime   = startTime + k_TEST_TIME_SECONDS;
+
+        bsls::Types::Uint64 numStartPublished = TO->numPublishedRecords();
+
+        bsls::Types::Uint64 idx = 0;
+        while (u::doubleClock() < endTime) {
+            if (testType == u::e_PRINTF_STYLE) {
+                LOG_VA(1, k_NS_PER_MSG, "Message: %lld", idx);
+            }
+            else {
+                LOG(1, k_NS_PER_MSG) << "Message" << idx;
+            }
+            ++idx;
+        }
+        double actualTime = u::doubleClock() - startTime;
+        double maxExpectedMessages =
+                  actualTime *
+                      ((double)bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND /
+                      (double)k_NS_PER_MSG);
+
+        double actualNumPublished = (double)TO->numPublishedRecords() -
+                                    (double)numStartPublished;
+
+        ASSERTV(actualTime,
+                maxExpectedMessages,
+                actualNumPublished,
+                    actualNumPublished <= maxExpectedMessages * 1.1);
+        ASSERTV(actualTime,
+                maxExpectedMessages,
+                actualNumPublished,
+                actualNumPublished > maxExpectedMessages * .75);
+    }
+
+    if (verbose) {
+        bsl::cout << "Test a burst of messages."
+                  << bsl::endl;
+    }
+    {
+        // To test a burst of messages, we use a very low rate of 1 message per
+        // 125ms, and run the test for 1/4 of a second.  We do this with a
+        // burst configuration of 10.  This should yield 12ish messages.  We
+        // allow a margin of error on the lower bound, and a relatively tight
+        // margin of error on the upper bound (since heavy load should not
+        // effect the maximum number of messages written).
+        enum {
+            k_NS_PER_MSG = 125 *
+                           bdlt::TimeUnitRatio::k_NANOSECONDS_PER_MILLISECOND,
+            k_BURST_SIZE = 10
+        };
+
+        double startTime = u::doubleClock();
+        double endTime   = startTime + k_TEST_TIME_SECONDS;
+        bsls::Types::Uint64 numStartPublished = TO->numPublishedRecords();
+
+        bsls::Types::Uint64 idx = 0;
+        while (u::doubleClock() < endTime) {
+            if (testType == u::e_PRINTF_STYLE) {
+                LOG_VA(k_BURST_SIZE, k_NS_PER_MSG, "Message: %lld", idx);
+            }
+            else {
+                LOG(k_BURST_SIZE, k_NS_PER_MSG) << "Message" << idx;
+            }
+            ++idx;
+        }
+        double actualTime = u::doubleClock() - startTime;
+        double maxExpectedMessages =
+                   (double)k_BURST_SIZE +
+                   actualTime *
+                       ((double)bdlt::TimeUnitRatio::k_NANOSECONDS_PER_SECOND /
+                        (double)k_NS_PER_MSG);
+
+        double actualNumPublished = (double)TO->numPublishedRecords() -
+                                    (double)numStartPublished;
+
+        ASSERTV(actualTime,
+                maxExpectedMessages,
+                actualNumPublished,
+                    actualNumPublished <= maxExpectedMessages * 1.1);
+        ASSERTV(actualTime,
+                maxExpectedMessages,
+                actualNumPublished,
+                actualNumPublished > maxExpectedMessages * .75);
     }
 }
+#undef LOG_VA
+#undef LOG
+
 
 }  // close namespace MultiPeriodTest
 
@@ -904,25 +892,16 @@ int main(int argc, char *argv[])
         //    `NANOSECONDS_PER_MESSAGE` periods.
         //
         // Plan:
-        // 1. Do a single-threaded test, where attempts to are made to issue
-        //    bursts of traces.
+        // 1. Using a sustained rate of a low number of messages per
+        //    millisecond, and burst of 1, write throttled log messages (with a
+        //    small burst configuration) for several hundred milliseconds.
+        //    Validate the actual number of messages published is within a
+        //    reasonable range of the expected number.
         //
-        // 2. The length of each attempted burst will greatly exceed the number
-        //    that the throttle is configured to permit.
-        //
-        // 3. Each attempted burst will be completed in less time than the
-        //    `NANOSECONDS_PER_MESSAGE` period length specified to the
-        //    throttle.
-        //
-        // 4. Between bursts, sleep barely over half a period.
-        //
-        // 5. It will thus be possible, at any point, to calculate the exact
-        //    number of traces that will have been published.  Each iteration,
-        //    do so, and query the observer to verify that that is what
-        //    happened.
-        //
-        // 6. Confirm that the message in the last trace is exactly as
-        //    predicted.
+        // 2. Using a very low rate of messages per millisecond, and burst of 10,
+        //    write throttled log messages for several milliseconds.  Validate the
+        //    actual number of messages published is within a reasonable range of
+        //    the expected number.
         //
         // Testing:
         //   MULTI PERIOD STREAM TEST
@@ -945,25 +924,16 @@ int main(int argc, char *argv[])
         //    `NANOSECONDS_PER_MESSAGE` periods.
         //
         // Plan:
-        // 1. Do a single-threaded test, where attempts to are made to issue
-        //    bursts of traces.
+        // 1. Using a sustained rate of a low number of messages per
+        //    millisecond, and burst of 1, write throttled log messages (with a
+        //    small burst configuration) for several hundred milliseconds.
+        //    Validate the actual number of messages published is within a
+        //    reasonable range of the expected number.
         //
-        // 2. The length of each attempted burst will greatly exceed the number
-        //    that the throttle is configured to permit.
-        //
-        // 3. Each attempted burst will be completed in less time than the
-        //    `NANOSECONDS_PER_MESSAGE` period length specified to the
-        //    throttle.
-        //
-        // 4. Between bursts, sleep barely over half a period.
-        //
-        // 5. It will thus be possible, at any point, to calculate the exact
-        //    number of traces that will have been published.  Each iteration,
-        //    do so, and query the observer to verify that that is what
-        //    happened.
-        //
-        // 6. Confirm that the message in the last trace is exactly as
-        //    predicted.
+        // 2. Using a very low rate of messages per millisecond, and burst of 10,
+        //    write throttled log messages for several milliseconds.  Validate the
+        //    actual number of messages published is within a reasonable range of
+        //    the expected number.
         //
         // Testing:
         //   MULTI PERIOD PRINTF TEST
