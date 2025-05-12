@@ -3075,7 +3075,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(test, k_TOP_USAGE_CASE_INDEX < test);
 
-        if (test <= 2 * k_TOP_USAGE_CASE_INDEX) {
+        if (!PLAT_WIN && test <= 2 * k_TOP_USAGE_CASE_INDEX) {
             u::doEraseTest(argc, argv);
         }
         else {

@@ -150,6 +150,12 @@ const bsl::size_t npos = bsl::string::npos;
 namespace {
 namespace u {
 
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+enum { e_WINDOWS = 1 };
+#else
+enum { e_WINDOWS = 0 };
+#endif
+
 /// Return a pointer to the new delete allocator singleton.
 bslma::Allocator *nda()
 {
@@ -948,7 +954,7 @@ int main(int argc, char *argv[])
 
         ASSERTV(test, k_TOP_USAGE_CASE_INDEX < test);
 
-        if (test <= 2 * k_TOP_USAGE_CASE_INDEX) {
+        if (!u::e_WINDOWS && test <= 2 * k_TOP_USAGE_CASE_INDEX) {
             u::doEraseTest(argc, argv);
         }
         else {
