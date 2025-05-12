@@ -236,7 +236,7 @@ struct ArgTypingVisitor : ArgType {
 #endif
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) &&                              \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    // clang-17 requires these overloads, bug is reported as
+    // libc++ requires these overloads, bug is reported as
     // https://github.com/llvm/llvm-project/issues/139582
   #define u_NEED_INT128
 #endif
@@ -447,11 +447,11 @@ struct MockArgsContextStatus{
 };
 
 
-/// Creating the two `basic_format_arg` values for `MockArgsContext`.
+/// Provide an implementation for `MockArgsCreator`.
 template <class t_CONTEXT, class t_CHAR>
 struct MockArgsCreator_Impl;
 
-/// Creating the two `basic_format_arg` values for `MockArgsContext<char...>`.
+/// The `char` `char_type` implementation.
 template <class t_CONTEXT>
 struct MockArgsCreator_Impl<t_CONTEXT, char> {
     typedef t_CONTEXT                               MockArgsContext;
@@ -489,8 +489,7 @@ struct MockArgsCreator_Impl<t_CONTEXT, char> {
     }
 };
 
-/// Creating the two `basic_format_arg` values for
-/// `MockArgsContext<wchar_t...>`.
+/// The `whar_t` `char_type` implementation.
 template <class t_CONTEXT>
 struct MockArgsCreator_Impl<t_CONTEXT, wchar_t> {
     typedef t_CONTEXT                               MockArgsContext;
@@ -529,7 +528,11 @@ struct MockArgsCreator_Impl<t_CONTEXT, wchar_t> {
     }
 };
 
-/// Creating the two `basic_format_arg` values for `MockArgsContext<...>`.
+/// Creating the two `basic_format_arg` values for `MockArgsContext<...>`.  For
+/// t_CHAR` that is either `char` or `wchar_t`, provide member functions
+/// `createIntegralValue` and `createBadValue` that return a
+/// `basic_format_arg<t_CONTEXT>` object referring to a single argument with
+/// the requested type, and in case of integral value, value.
 template <class t_CONTEXT>
 struct MockArgsCreator
 : MockArgsCreator_Impl<t_CONTEXT, typename t_CONTEXT::char_type> {
