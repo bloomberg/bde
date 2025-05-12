@@ -21,12 +21,14 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
 #ifdef BALST_OBJECTFILEFORMAT_RESOLVER_ELF
 
 #include <unistd.h>
+#include <sys/stat.h>    // chmod
 
 using namespace BloombergLP;
 using bsl::cin;
@@ -129,6 +131,105 @@ enum { e_IS_DWARF = 0 };
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+/// Return a pointer to the new delete allocator singleton.
+bslma::Allocator *nda()
+{
+    // We use the new delete allocator here, because if we want to track down
+    // accidental uses of the default allocator, we'll want to put a breakpoint
+    // on `bslma::TestAllocator::allocate`.
+
+    return &bslma::NewDeleteAllocator::singleton();
+}
+
+void checkExpendibleExecutableName(int topCaseIndex, char **argv)
+{
+    int test = bsl::atoi(argv[1]);
+
+    ASSERTV(test, topCaseIndex, topCaseIndex < test);
+    ASSERTV(test, topCaseIndex, test <= 2 * topCaseIndex);
+    ASSERTV(argv[0], bsl::strstr(argv[0], "_expendible_"));
+    ASSERTV(argv[0], test, bsl::strstr(argv[0], argv[1]));
+}
+
+/// Copy the file `fromFileName` to a new file `toFileName`.
+void copyExecutable(const char *toFileName,
+                    const char *fromFileName)
+{
+    using namespace bsl;
+    typedef bdls::FilesystemUtil   Util;
+    typedef bsl::char_traits<char> Traits;
+
+    // `FilesystemUtil` functions use the default allocator on Windows.
+
+    bslma::DefaultAllocatorGuard guard(u::nda());
+
+    (void) Util::remove(toFileName);
+    const Util::Offset fileSize = Util::getFileSize(fromFileName);
+
+    {
+        ofstream toStream(  toFileName,   ios_base::out | ios_base::binary);
+        ifstream fromStream(fromFileName, ios_base::in  | ios_base::binary);
+
+        ASSERT(toStream.  good());
+        ASSERT(fromStream.good());
+
+        streambuf *toSb   = toStream.  rdbuf();
+        streambuf *fromSb = fromStream.rdbuf();
+
+        copy(istreambuf_iterator<char>(fromSb),
+             istreambuf_iterator<char>(),
+             ostreambuf_iterator<char>(toSb));
+
+        // Since we operated directly on the `streambuf`s, the `fstream`s were
+        // uninformed about how it went.  Query the `streambuf`s directly to
+        // verify that it went OK.
+
+        const Traits::pos_type toOff = toSb->pubseekoff(0, ios_base::cur);
+        ASSERTV(fileSize, toOff, fileSize == toOff);
+        ASSERT(Traits::eof() == fromSb->sbumpc());
+    }    // close the streams
+
+    ASSERT(Util::getFileSize(toFileName) == fileSize);
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    int rc = ::chmod(toFileName, 0777);
+    ASSERT(0 == rc);
+#endif
+}
+
+void doEraseTest(int argc, char **argv)
+{
+    bsl::string cmd(argv[0], u::nda());
+    cmd += "_expendible_";
+    cmd += argv[1];            // `test` in text form
+    cmd += ".t";
+
+    // `cmd` is now the child exec name
+
+    u::copyExecutable(cmd.c_str(), argv[0]);
+
+    // command: run the test case
+
+    cmd += ' ';
+    cmd += argv[1];
+    cmd += " --erase";
+    for (int ii = 2; ii < argc; ++ii) {
+        cmd += ' ';
+        cmd += argv[ii];
+    }
+    int rc = ::system(cmd.c_str());
+    ASSERT(0 == rc);
+    if (0 < rc) {
+        testStatus += rc;
+    }
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 template <class TYPE>
 static TYPE abs(TYPE num)
@@ -291,13 +392,34 @@ int main(int argc, char *argv[])
     int test = argc > 1 ? bsl::atoi(argv[1]) : 0;
     int verbose = argc > 2;
     int veryVerbose = argc > 3;
+    int veryVeryVerbose = argc > 4;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    enum { k_TOP_TEST_CASE_INDEX = 2 };
 
-    bslma::NewDeleteAllocator ta;    // Avoid `TestAllocator` for when we want
-                                     // to put a breakpoint on `TestAllocator`
-                                     // to track down accidental use of default
-                                     // allocator.
+    const bool eraseExecutable = verbose && !bsl::strcmp("--erase", argv[2]);
+    if (eraseExecutable) {
+        // `FilesystemUtil` functions uses the default allocator on Windows.
+
+        bslma::DefaultAllocatorGuard guard(u::nda());
+
+        u::checkExpendibleExecutableName(k_TOP_TEST_CASE_INDEX, argv);
+
+        int rc = bdls::FilesystemUtil::remove(argv[0]);
+        ASSERT(0 == rc);
+        ASSERT(!bdls::FilesystemUtil::exists(argv[0]));
+
+        test        -= k_TOP_TEST_CASE_INDEX;
+
+        verbose     =  veryVerbose;
+        veryVerbose =  veryVeryVerbose;
+    }
+
+    cout << "TEST " << __FILE__ << " CASE " << test <<
+                                   (eraseExecutable ? " --erase" : "") << endl;
+
+    if (verbose && eraseExecutable) {
+        cout << argv[0] << " erased\n";
+    }
 
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
@@ -305,18 +427,8 @@ int main(int argc, char *argv[])
     bslma::TestAllocator defaultAllocator;
     bslma::DefaultAllocatorGuard guard(&defaultAllocator);
 
-    // If `test` is greater than 50, delete the executable and run test case
-    // `test - 50`.
-
-    bool vanish = false;
-    if (50 < test) {
-        vanish = true;
-        ::unlink(argv[0]);
-        test -= 50;
-    }
-
     switch (test) { case 0:
-      case 2: {
+      case k_TOP_TEST_CASE_INDEX: {
         // --------------------------------------------------------------------
         // GARBAGE TEST
         //
@@ -342,6 +454,8 @@ int main(int argc, char *argv[])
         // Note that the stringstream below will use temporaries using the
         // default allocator whether it's constructed with another allocator
         // or not.
+
+        bslma::DefaultAllocatorGuard guard(u::nda());
 
         for (int vecIndex = 0; vecIndex < (int) stackTrace.length();
                                                              vecIndex += 128) {
@@ -487,7 +601,7 @@ int main(int argc, char *argv[])
 #undef IS_KNOWN
 
             const char *libName = stackTrace[0].libraryFileName().c_str();
-            bsl::string progName(&ta);
+            bsl::string progName(u::nda());
             bdls::PathUtil::getBasename(&progName, argv[0]);
             const char *thisLib = progName.c_str();
 #undef  GOOD_LIBNAME
@@ -510,7 +624,8 @@ int main(int argc, char *argv[])
                 const char *name = stackTrace[i].sourceFileName().c_str();
                 ASSERTV(i, name, !e_IS_DWARF || '/' == *name);
                 ASSERTV(i, name, !e_IS_DWARF ||
-                     bdls::FilesystemUtil::exists(name) || (vanish && 0 == i));
+                     bdls::FilesystemUtil::exists(name) ||
+                                                  (eraseExecutable && 0 == i));
 
                 const char *pc = name + bsl::strlen(name);
                 while (pc > name && '/' != pc[-1]) {
@@ -593,15 +708,24 @@ int main(int argc, char *argv[])
 #undef  SM
             }
         }
-
-        ASSERTV(defaultAllocator.numAllocations(),
-                                       0 == defaultAllocator.numAllocations());
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+        BSLS_ASSERT_OPT(!eraseExecutable);
+
+        ASSERTV(test, k_TOP_TEST_CASE_INDEX < test);
+
+        if (test <= 2 * k_TOP_TEST_CASE_INDEX) {
+            u::doEraseTest(argc, argv);
+        }
+        else {
+            cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+            testStatus = -1;
+        }
       }
     }
+
+    ASSERTV(defaultAllocator.numAllocations(),
+                                       0 == defaultAllocator.numAllocations());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "."
