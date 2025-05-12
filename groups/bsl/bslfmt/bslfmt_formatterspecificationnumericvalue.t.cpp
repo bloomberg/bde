@@ -582,12 +582,11 @@ struct MockArgsContext {
             return typename t_PARSE_CONTEXT::iterator();
         }
     };
-        // Necessary due to concepts use.
 
     typedef MockArgsContextStatus Status;
     typedef Status::Enum          StatusEnum;
 
-    typedef t_CHAR char_type;  // Required by `ArgTypingVisitor`
+    typedef t_CHAR char_type;
 
     typedef u_NAMESPACE_FMT::basic_format_arg<MockArgsContext> FormatArgType;
 
