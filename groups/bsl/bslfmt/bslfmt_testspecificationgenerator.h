@@ -451,6 +451,7 @@ class TestSpecificationGenerator {
     };
 
     enum FormatType {
+        e_TYPE_UNSPECIFIED,    // default value
         e_TYPE_STRING,         // 's'
         e_TYPE_ESCAPED,        // '?'
         e_TYPE_BINARY,         // `b`
@@ -1001,6 +1002,7 @@ TestSpecificationGenerator<t_CHAR>::TestSpecificationGenerator(
 , d_nestedPrecisionIsPresent(false)
 , d_localeOptionIsPresent(false)
 , d_typeOptionIsPresent(false)
+, d_type(e_TYPE_UNSPECIFIED)
 , d_spec(basicAllocator)
 , d_formatSpec(basicAllocator)
 , d_fillCharacters(basicAllocator)
