@@ -3,6 +3,7 @@
 
 #include <bslfmt_format_arg.h>          // Testing only
 #include <bslfmt_format_args.h>         // Testing only
+#include <bslfmt_formatparsecontext.h>  // Testing only
 
 #include <bsls_bsltestutil.h>
 
@@ -229,12 +230,14 @@ struct ArgTypingVisitor : ArgType {
 
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) && \
     __GLIBCXX__ >= 20230426 && defined(__SIZEOF_INT128__)
-    // gcc-13 supports printing its non-standard 128-bit integer types so we
-    // must "support" those signatures in our visitor.
+    // the 128-bit int overloads are required prior to version 15, due to
+    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108053
   #define u_NEED_INT128
 #endif
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-    // clang-17 uses __int128 and unsigned __int128 for __handle.
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) &&                              \
+    defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+    // clang-17 requires these overloads, bug is reported as
+    // https://github.com/llvm/llvm-project/issues/139582
   #define u_NEED_INT128
 #endif
 #ifdef u_NEED_INT128
@@ -444,48 +447,142 @@ struct MockArgsContextStatus{
 };
 
 
+/// Creating the two `basic_format_arg` values for `MockArgsContext`.
+template <class t_CONTEXT, class t_CHAR>
+struct MockArgsCreator_Impl;
+
+/// Creating the two `basic_format_arg` values for `MockArgsContext<char...>`.
+template <class t_CONTEXT>
+struct MockArgsCreator_Impl<t_CONTEXT, char> {
+    typedef t_CONTEXT                               MockArgsContext;
+    typedef typename MockArgsContext::FormatArgType FormatArgType;
+    typedef typename MockArgsContext::IntType       IntType;
+    typedef typename MockArgsContext::BadType       BadType;
+
+    static FormatArgType createIntegralValue(long long value)
+    {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        static IntType typedValue;
+        typedValue = static_cast<IntType>(value);
+        return std::basic_format_args(
+                   std::make_format_args<MockArgsContext, IntType>(typedValue))
+            .get(0);
+#else
+        static IntType typedValue;
+        typedValue = static_cast<IntType>(value);
+        return bslfmt::format_args(bslfmt::make_format_args(typedValue))
+            .get(0);
+#endif
+    }
+    static FormatArgType createBadValue()
+    {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        static BadType typedValue;
+        return std::basic_format_args(
+                   std::make_format_args<MockArgsContext, BadType>(typedValue))
+            .get(0);
+#else
+        static BadType typedValue;
+        return bslfmt::format_args(bslfmt::make_format_args(typedValue))
+            .get(0);
+#endif
+    }
+};
+
+/// Creating the two `basic_format_arg` values for
+/// `MockArgsContext<wchar_t...>`.
+template <class t_CONTEXT>
+struct MockArgsCreator_Impl<t_CONTEXT, wchar_t> {
+    typedef t_CONTEXT                               MockArgsContext;
+    typedef typename MockArgsContext::FormatArgType FormatArgType;
+    typedef typename MockArgsContext::IntType       IntType;
+    typedef typename MockArgsContext::BadType       BadType;
+
+    static FormatArgType createIntegralValue(long long value)
+    {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        static IntType typedValue;
+        typedValue = static_cast<IntType>(value);
+        return std::basic_format_args(
+                   std::make_format_args<MockArgsContext, IntType>(typedValue))
+            .get(0);
+#else
+        static IntType typedValue;
+        typedValue = static_cast<IntType>(value);
+        return bslfmt::wformat_args(bslfmt::make_wformat_args(typedValue))
+            .get(0);
+#endif
+    }
+    static FormatArgType createBadValue()
+    {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        static BadType typedValue;
+        return std::basic_format_args(
+                   std::make_format_args<MockArgsContext, BadType>(
+                                  typedValue))
+            .get(0);
+#else
+        static BadType typedValue;
+        return bslfmt::wformat_args(bslfmt::make_wformat_args(typedValue))
+            .get(0);
+#endif
+    }
+};
+
+/// Creating the two `basic_format_arg` values for `MockArgsContext<...>`.
+template <class t_CONTEXT>
+struct MockArgsCreator
+: MockArgsCreator_Impl<t_CONTEXT, typename t_CONTEXT::char_type> {
+};
+
 /// A format context that implements the bare minimum of functionality required
-/// by the `postprocess` method (the `arg` method).  It serves one argument
+/// by the `postprocess` method (the `arg` method).  It also provides some of
+/// the members provided by `basic_format_context` that are not supposed to be
+/// used but must be declared to satisfy the requirements `basic_format_arg`
+/// places on its template argument.  The context class serves one argument
 /// for an argument identifier and value stored as attributes, and the
-/// `t_VALUE_TYPE` type.  For `argId + 1` it serves an argument of `t_BAD_TYPE`
-/// with an unspecified value.  All other argument identifiers will return an
-/// "empty argument" (visits as `monostate`).  The object also maintains an
-/// argument-access status that starts out as "not accessed", and may be set
-/// to "empty argument access", "integral argument accessed", bad-type argument
-/// accessed", or "more than one argument accessed" during a call to the `arg`
-/// method.
+/// specified `t_VALUE_TYPE` type.  For `argId + 1` it serves an argument of
+/// the specified `t_BAD_TYPE` with an unspecified value.  All other argument
+/// identifiers will return an "empty argument" (visits as `monostate`).  The
+/// object also maintains an argument-access status that starts out as "not
+/// accessed", and may be set to "empty argument access", "integral argument
+/// accessed", bad-type argument accessed", or "more than one argument
+/// accessed" during a call to the `arg` method.
 template <class t_CHAR, class t_INT_TYPE, class t_BAD_TYPE>
 struct MockArgsContext {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-    #define u_NAMESPACE std
-    #define u_NAMESPACE_FMT std
-#else
-    #define u_NAMESPACE bsl
-    #define u_NAMESPACE_FMT bslfmt
-#endif
+
+    #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        #define u_NAMESPACE std
+        #define u_NAMESPACE_FMT std
+    #else
+        #define u_NAMESPACE bsl
+        #define u_NAMESPACE_FMT bslfmt
+    #endif
+
     // TYPES
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
     typedef
         typename u_NAMESPACE_FMT::basic_format_parse_context<t_CHAR>::iterator
             iterator;
-        // Necessary due to concepts use.
+            // Necessary for fulfilling `basic_format_arg` requirements.
 
+    /// Necessary for fulfilling `basic_format_arg` requirements.
     template <class t_TYPE>
     struct formatter_type {
         iterator format(t_TYPE, MockArgsContext) const
         {
+            ASSERT(false);
             return iterator();
         }
 
         template <class t_PARSE_CONTEXT>
         typename t_PARSE_CONTEXT::iterator parse(t_PARSE_CONTEXT&)
         {
+            ASSERT(false);
             return typename t_PARSE_CONTEXT::iterator();
         }
     };
         // Necessary due to concepts use.
-#endif  // Based on `std::format`
 
     typedef MockArgsContextStatus Status;
     typedef Status::Enum          StatusEnum;
@@ -494,10 +591,8 @@ struct MockArgsContext {
 
     typedef u_NAMESPACE_FMT::basic_format_arg<MockArgsContext> FormatArgType;
 
-    typedef typename bsl::conditional<bsl::is_same<t_CHAR, char>::value,
-                                      u_NAMESPACE_FMT::format_context,
-                                      u_NAMESPACE_FMT::wformat_context>::type
-        StdContext;
+    typedef t_INT_TYPE IntType;
+    typedef t_BAD_TYPE BadType;
 
     // DATA
     mutable StatusEnum d_status;  // Argument-access status
@@ -520,16 +615,22 @@ struct MockArgsContext {
 
     // MANIPULATORS
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-    void advance_to(iterator) {}
-        // Stub necessary due to concepts use.
+    void advance_to(iterator)
+    {
+        ASSERT(false);
+    }
 
-    iterator out() { return iterator(); }
-        // Stub necessary due to concepts use.
+    iterator out()
+    {
+        ASSERT(false);
+        return iterator();
+    }
 
-    std::locale locale() { return std::locale(); }
-        // Stub necessary due to concepts use.
-#endif  // Based on `std::format`
+    std::locale locale()
+    {
+        ASSERT(false);
+        return std::locale();
+    }
 
     // Reset this object's `status` to `e_NOT_ACCESSED`.
     void reset() {
@@ -550,8 +651,12 @@ struct MockArgsContext {
     /// is `argId + 1 ` return an argument of `e_BAD_TYPE` with an unspecified
     /// value.  Return an empty (`monostate`) `format_arg` for every other ID.
     /// Also set the argument access `status` of the object to the appropriate
-    /// value.
-    FormatArgType arg(size_t id) const {
+    /// value.  Beware that due to the nature of `make_format_args` (that it
+    /// works on references) the implementation of this method uses mutable
+    /// `static` variables to keep the value around, therefore not suitable for
+    /// use in multi-threaded code.
+    FormatArgType arg(size_t id) const
+    {
         if (d_status != Status::e_NOT_ACCESSED) {
             d_status = Status::e_MORE_THAN_ONE_ARG_ACCESSED;
         }
@@ -560,30 +665,15 @@ struct MockArgsContext {
             if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
                 d_status = Status::e_INTEGRAL_ARG_ACCESSED;
             }
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-            static t_INT_TYPE typedValue;
-            typedValue = static_cast<t_INT_TYPE>(d_value);
-            return std::basic_format_args(
-                            std::make_format_args<MockArgsContext, t_INT_TYPE>(
-                                typedValue))
-                .get(0);
-#else
-            return FormatArgType::createIntegralValue(d_value);
-#endif
+            return MockArgsCreator<MockArgsContext>::createIntegralValue(
+                                                                      d_value);
         }
 
         if (id == d_argId + 1) {
             if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
                 d_status = Status::e_BAD_TYPE_ARG_ACCESSED;
             }
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-            static t_BAD_TYPE x;
-            return std::basic_format_args(
-                         std::make_format_args<MockArgsContext, t_BAD_TYPE>(x))
-                .get(0);
-#else
-            return FormatArgType::createBadValue();
-#endif
+            return MockArgsCreator<MockArgsContext>::createBadValue();
         }
 
         if (d_status != Status::e_MORE_THAN_ONE_ARG_ACCESSED) {
@@ -593,9 +683,13 @@ struct MockArgsContext {
     }
 
     /// Return the argument-access `status` of this object.  See also `reset`.
-    StatusEnum status() const {
+    StatusEnum status() const
+    {
         return d_status;
     }
+
+    #undef u_NAMESPACE
+    #undef u_NAMESPACE_FMT
 };
 
 //=============================================================================
