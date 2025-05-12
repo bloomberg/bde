@@ -13,6 +13,10 @@
     #include <cpuid.h>
 #endif
 
+#if BSLS_PLATFORM_CPU_X86 || BSLS_PLATFORM_CPU_X86_64
+    #include <immintrin.h>
+#endif
+
 using namespace BloombergLP;
 
 // ============================================================================
@@ -38,7 +42,7 @@ using namespace BloombergLP;
 // [ 2] BSLS_PLATFORM_IS_LITTLE_ENDIAN
 // [ 2] BSLS_PLATFORM_IS_BIG_ENDIAN
 // [ 3] BSLS_PLATFORM_NO_64_BIT_LITERALS
-// [ 5] BSLS_PLATFORM_CPU_SSE*
+// [ 5] BSLS_PLATFORM_CPU_SSE*, BSLS_PLATFORM_CPU_AVX*
 // ============================================================================
 
 // ============================================================================
@@ -2044,6 +2048,21 @@ static void printFlags()
     }
 #endif
 
+#ifdef BSLS_PLATFORM_CPU_AVX
+    /// Return the results of the `xgetbv` instruction invoked with an `xcr`
+    /// value of 0.  Note that this intrinsic wrapper provides information on
+    /// the features currently enabled on the processor.
+    unsigned long long xgetbv0()
+    {
+        return _xgetbv(0);
+    }
+#else
+    unsigned long long xgetbv0()
+    {
+        return 0;
+    }
+#endif
+
 // ============================================================================
 //                            MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -2085,6 +2104,7 @@ int main(int argc, char *argv[])
         //
         // Testing
         //   BSLS_PLATFORM_CPU_SSE*
+        //   BSLS_PLATFORM_CPU_AVX*
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING SSE MACROS"
@@ -2092,11 +2112,15 @@ int main(int argc, char *argv[])
 
         #if !defined(BSLS_PLATFORM_CPU_ARM)
 
-        int info[4];
+        int supportedLevel;
+        {
+            int temp[4];
+            cpuid(temp, 0);
+            supportedLevel = temp[0];
+        }
 
-        cpuid(info, 0);
-
-        if (info[0] >= 0x00000001) {
+        int info[4] = { 0 };
+        if (supportedLevel >= 0x00000001) {
             cpuid(info, 0x00000001);
         }
 
@@ -2119,6 +2143,38 @@ int main(int argc, char *argv[])
         #ifdef BSLS_PLATFORM_CPU_SSE4_2
             ASSERT(1 == ((info[2] >> 20) & 0x1));
         #endif
+
+        #if defined(BSLS_PLATFORM_CPU_SSE)    || \
+            defined(BSLS_PLATFORM_CPU_SSE2)   || \
+            defined(BSLS_PLATFORM_CPU_SSE3)   || \
+            defined(BSLS_PLATFORM_CPU_SSE4_1) || \
+            defined(BSLS_PLATFORM_CPU_SSE4_2)
+            // FXSR (bit 24): XMM state saving must be supported by OS
+            ASSERT(1 == ((info[3] >> 24) & 0x1));
+        #endif
+
+        #if defined(BSLS_PLATFORM_CPU_AVX) || defined(BSLS_PLATFORM_CPU_AVX2)
+            // See https://stackoverflow.com/a/44157138
+
+            // XSAVE   (bit 26): AVX state saving must be supported by CPU
+            // OSXSAVE (bit 27): AVX state saving must be supported by OS
+            // AVX     (bit 28): AVX instructions must be supported by CPU
+            ASSERT((info[2] & 0x1c000000) == 0x1c000000);
+
+            // AVX (bit 2): AVX state saving is enabled by the OS
+            ASSERT(xgetbv0() & 0x4);
+        #endif
+
+        #ifdef BSLS_PLATFORM_CPU_AVX2
+            int info7[4] = { 0 };
+            if (supportedLevel >= 0x00000007) {
+                cpuid(info7, 0x00000007);
+            }
+
+            // AVX2 (bit 5): AVX2 instructions must be supported by CPU
+            ASSERT(1 == ((info7[1] >> 5) & 0x1));
+        #endif
+
 
         #if  defined(BSLS_PLATFORM_CPU_SSE)    \
          && !defined(BSLS_PLATFORM_CPU_X86)    \
@@ -2150,6 +2206,18 @@ int main(int argc, char *argv[])
             ASSERT(false);
         #endif
 
+        #if  defined(BSLS_PLATFORM_CPU_AVX) \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
+        #endif
+
+        #if  defined(BSLS_PLATFORM_CPU_AVX2) \
+         && !defined(BSLS_PLATFORM_CPU_X86)    \
+         && !defined(BSLS_PLATFORM_CPU_X86_64)
+            ASSERT(false);
+        #endif
+
         #else  // !ARM
 
         #if defined(BSLS_PLATFORM_CPU_SSE)
@@ -2157,6 +2225,8 @@ int main(int argc, char *argv[])
          || defined(BSLS_PLATFORM_CPU_SSE3)
          || defined(BSLS_PLATFORM_CPU_SSE4_1)
          || defined(BSLS_PLATFORM_CPU_SSE4_2)
+         || defined(BSLS_PLATFORM_CPU_AVX)
+         || defined(BSLS_PLATFORM_CPU_AVX2)
             ASSERT(false);
         #endif
 

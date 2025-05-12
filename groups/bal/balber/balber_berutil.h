@@ -4491,11 +4491,11 @@ int BerUtil_Iso8601ImpUtil::getValue(TYPE           *value,
         return -1;                                                    // RETURN
     }
 
-    char               localBuf[32];  // for common case where length < 32
-    bsl::vector<char>  vecBuf;        // for length >= 32
+    char               localBuf[32];  // for common case where length <= 32
+    bsl::vector<char>  vecBuf;        // for length > 32
     char              *buf;
 
-    if (length < 32) {
+    if (length <= 32) {
         buf = localBuf;
     }
     else {

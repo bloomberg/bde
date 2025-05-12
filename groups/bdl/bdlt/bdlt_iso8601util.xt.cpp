@@ -15,6 +15,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_asserttest.h>
+#include <bsls_platform.h>
 #include <bsls_review.h>
 
 #include <bsl_climits.h>
@@ -1604,6 +1605,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "PARSE `DatetimeOrDatetimeTz`\n"
                              "============================\n";
+
+#if defined(BSLS_PLATFORM_CPU_AVX2)
+        if (veryVerbose) cout << "  (AVX2 implementation in use)\n";
+#elif defined(BSLS_PLATFORM_CPU_SSE4_2)
+        if (veryVerbose) cout << "  (SSE4 implementation in use)\n";
+#endif
 
         Util::DatetimeOrDatetimeTz        mX;
         const Util::DatetimeOrDatetimeTz& X = mX;
@@ -10134,6 +10141,12 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "PARSE: DATETIME & DATETIMETZ\n"
                              "============================\n";
+
+#if defined(BSLS_PLATFORM_CPU_AVX2)
+        if (veryVerbose) cout << "  (AVX2 implementation in use)\n";
+#elif defined(BSLS_PLATFORM_CPU_SSE4_2)
+        if (veryVerbose) cout << "  (SSE4 implementation in use)\n";
+#endif
 
         char buffer[Util::k_MAX_STRLEN];
 

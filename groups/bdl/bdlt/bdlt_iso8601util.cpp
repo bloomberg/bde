@@ -3,12 +3,21 @@
 
 #include <bdlt_datetimeinterval.h>
 
+#include <bsls_performancehint.h>
+#include <bsls_platform.h>
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlt_iso8601util_cpp,"$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
+
+#if defined(BSLS_PLATFORM_CPU_AVX2)
+#include <immintrin.h>
+#elif defined(BSLS_PLATFORM_CPU_SSE4_2)
+#include <nmmintrin.h>
+#endif
 
 namespace {
 namespace u {
@@ -853,21 +862,279 @@ int parseTime(Time               *time,
     return 0;
 }
 
+#if defined(BSLS_PLATFORM_CPU_AVX2) || defined(BSLS_PLATFORM_CPU_SSE4_2)
+/// Parse the specified ISO-8601 `data` and load it into the specified
+/// `datetimeTz`.  Return 0 on success, and a non-zero value (with no effect on
+/// `datetimeTz`) otherwise.  Only the first 32 characters of `data` are read
+/// and validated to be in the following format:
+///     yyyy-mm-ddTHH:MM:SS.ffffff+ZZ:zz
+/// where:
+///     - `yyyy` is the year (0000-9999)
+///     - `mm` is the month (01-12)
+///     - `dd` is the day of month (01-31)
+///     - `T` is one of 'T' or 't'
+///     - `HH` is the hour of the day (00-23, or 24 with all other time
+///        components and time zone offset set to 0)
+///     - `MM` is the minute (0-59)
+///     - `SS` is the second (0-60, where 60 represents a leap second)
+///     - `.` is one of '.' or ','
+///     - `ffffff` are the fractional seconds (000000-999999 microseconds)
+///     - `+` is one of '-' or '+' corresponding to the direction of the time
+///       zone offset
+///     - `ZZ` is the time zone offset hours (00-23)
+///     - `zz` is the time zone offset minutes (00-59)
+///     - all other characters represent themselves as literals
+int parseDatetimeSse(DatetimeTz *datetimeTz, const char data[32])
+{
+    const bool negativeTzOffset = data[26] == '-';
+
+#ifdef BSLS_PLATFORM_CPU_AVX2
+    // Load the 32-byte string into a register; note that due to the little-
+    // endian architecture, the first byte will be in the low logical bits
+    __m256i str = _mm256_lddqu_si256(reinterpret_cast<const __m256i *>(data));
+
+    // Load the minimum values for each byte
+    const __m256i min = _mm256_setr_epi8('0', '0', '0', '0', '-', '0', '0', '-',
+                                         '0', '0', 'T', '0', '0', ':', '0', '0',
+                                         ':', '0', '0', ',', '0', '0', '0', '0',
+                                         '0', '0', '+', '0', '0', ':', '0', '0');
+
+    // Load the maximum values for each byte
+    __m256i max = _mm256_setr_epi8('9', '9', '9', '9', '-', '1', '9', '-',
+                                   '3', '9', 't', '2', '9', ':', '5', '9',
+                                   ':', '6', '9', '.', '9', '9', '9', '9',
+                                   '9', '9', '-', '2', '9', ':', '5', '9');
+
+    // Compare each byte against the maximum values; if any are too large, the
+    // high bit for that byte will be set in the result
+    __m256i invalid = _mm256_cmpgt_epi8(str, max);
+
+    // Subtract the minimum values from each byte; for digits, this will yield
+    // their decimal values; if any value is out of range (too small) its high
+    // bit will be set.  Note that this is a saturating subtraction, so invalid
+    // values cannot wrap around -- they will stay negative with their high
+    // bits set.
+    str = _mm256_subs_epi8(str, min);
+
+    // Combine the high bits from the min and max range checks to determine the
+    // complete set of invalid characters so far
+    invalid = _mm256_or_si256(invalid, str);
+
+    // Select each decimal digit in the 'tens' position (in preparation for
+    // multiplying them by 10).  See the digits indicated in the `^` positions
+    // in the diagram below.
+    __m256i mask = _mm256_setr_epi8(-1,  0, -1,  0,  0, -1,  0,  0,
+                                    -1,  0,  0, -1,  0,  0, -1,  0,
+                                     0, -1,  0,  0,  0, -1,  0,  0,
+                                     -1, 0,  0, -1,  0,  0, -1,  0);
+    __m256i tens = _mm256_and_si256(mask, str);
+
+    // Multiply the 'tens' by 10 by shifting left by 1 and separately by 3 then
+    // accumulating (x * 10 == x * 2 + x * 8); simultaneously shift by 8 in
+    // order to line up the result with the 'ones' positions.
+    // Since there is no 256-bit shift instruction, we must divide the input
+    // into four 64-bit lanes, which temporarily reverses the byte order within
+    // each lane due to the little-endian architecture:
+    //                  .----------+----------+----------+----------.
+    //     as bytes:    | yyyy-mm- | ddTHH:MM | :SS.ffff | ff+ZZ:zz |
+    //                  '----------+----------+----------+----------'
+    //     tens:          ^ ^  ^     ^  ^  ^     ^   ^     ^  ^  ^
+    //                                     becomes
+    //                  .----------+----------+----------+----------.
+    //     as int64s:   | -mm-yyyy | MM:HHTdd | ffff.SS: | zz:ZZ+ff |
+    //                  '----------+----------+----------+----------'
+    //     tens:            ^  ^ ^ |  ^  ^  ^ |   ^   ^  |  ^  ^  ^
+    // Because of the reversal of byte direction when viewed as 64-bit lanes,
+    // the byte shift from the 'tens' to 'ones' column becomes a left shift.
+    // The shifts to double and octuple the values within each bytes remain
+    // left shifts.
+    const __m256i doubled = _mm256_slli_epi64(tens, 8 + 1);
+    const __m256i octupled = _mm256_slli_epi64(tens, 8 + 3);
+    tens = _mm256_add_epi64(doubled, octupled);
+
+    // Add the tens to the ones columns to yield bytes containing the final
+    // decimal values for each pair of ones-tens digits.
+    // Since the result of shifting logically by 8 and multiplying by 10 does
+    // not cross a logical byte boundary (nor a 64-bit lane boundary), we can
+    // simply add the values as 64-bit values here (note that overflow between
+    // bytes is impossible if the earlier validation succeeded) to reverse the
+    // earlier flip in logical byte positions within each 64-bit lane.
+    str = _mm256_add_epi64(str, tens);
+
+    // Load a mask to transform 't' -> 'T', '.' -> ',', and '-' -> '+' (all
+    // equally valid and off from each other by a one-bit delta)
+    mask = _mm256_setr_epi8(0,  0,  0,  0,  0,  0,  0,  0,
+                            0,  0, 32,  0,  0,  0,  0,  0,
+                            0,  0,  0,  2,  0,  0,  0,  0,
+                            0,  0,  2,  0,  0,  0,  0,  0);
+
+    // Mask out the bits in 'mask' if set
+    str = _mm256_andnot_si256(mask, str);
+
+    // Load the new maximum values for each byte
+    max = _mm256_setr_epi8(9, 99,  9, 99,  0,  1, 12,  0,
+                           3, 31,  0,  2, 24,  0,  5, 59,
+                           0,  6, 60,  0,  9,  9, 99,  9,
+                           9, 99,  0,  2, 23,  0,  5, 59);
+
+    // Combine the high bits from the previous range checks to determine the
+    // complete set of invalid bytes so far
+    invalid = _mm256_or_si256(invalid, _mm256_cmpgt_epi8(str, max));
+
+    const int year = _mm256_extract_epi8(str, 1) * 100 +
+                     _mm256_extract_epi8(str, 3);
+    const int month = _mm256_extract_epi8(str, 6);
+    const int day = _mm256_extract_epi8(str, 9);
+    const int hour = _mm256_extract_epi8(str, 12);
+    const int minute = _mm256_extract_epi8(str, 15);
+    int second = _mm256_extract_epi8(str, 18);
+    const int millisecond = _mm256_extract_epi8(str, 20) * 100 +
+                            _mm256_extract_epi8(str, 22);
+    const int microsecond = _mm256_extract_epi8(str, 23) * 100 +
+                            _mm256_extract_epi8(str, 25);
+    const int tzOffset = _mm256_extract_epi8(str, 28) * 60 +
+                         _mm256_extract_epi8(str, 31);
+
+    // Extract the high bit from every byte
+    const int anyInvalid = _mm256_movemask_epi8(invalid);
+
+#else  // BSLS_PLATFORM_CPU_SSE4_2
+    // The SSE4 implementation below follows the exact same logic as the AVX2
+    // implementation above, but using a pair of instructions (manipulating
+    // 128-bit values) in place of each AVX2 instruction (manipulating 256-bit
+    // values).  See the comments on the above AVX2 implementation for an
+    // explanation of the algorithm.
+
+    __m128i str0 = _mm_lddqu_si128(reinterpret_cast<const __m128i *>(data));
+    __m128i str1 = _mm_lddqu_si128(
+                                 reinterpret_cast<const __m128i *>(data + 16));
+
+    const __m128i min0 = _mm_setr_epi8('0', '0', '0', '0', '-', '0', '0', '-',
+                                       '0', '0', 'T', '0', '0', ':', '0', '0');
+    const __m128i min1 = _mm_setr_epi8(':', '0', '0', ',', '0', '0', '0', '0',
+                                       '0', '0', '+', '0', '0', ':', '0', '0');
+
+    __m128i max0 = _mm_setr_epi8('9', '9', '9', '9', '-', '1', '9', '-',
+                                 '3', '9', 't', '2', '9', ':', '5', '9');
+    __m128i max1 = _mm_setr_epi8(':', '6', '9', '.', '9', '9', '9', '9',
+                                 '9', '9', '-', '2', '9', ':', '5', '9');
+
+    __m128i invalid0 = _mm_cmpgt_epi8(str0, max0);
+    __m128i invalid1 = _mm_cmpgt_epi8(str1, max1);
+
+    str0 = _mm_subs_epi8(str0, min0);
+    str1 = _mm_subs_epi8(str1, min1);
+
+    invalid0 = _mm_or_si128(invalid0, str0);
+    invalid1 = _mm_or_si128(invalid1, str1);
+
+    __m128i mask0 = _mm_setr_epi8(-1,  0, -1,  0,  0, -1,  0,  0,
+                                  -1,  0,  0, -1,  0,  0, -1,  0);
+    __m128i mask1 = _mm_setr_epi8( 0, -1,  0,  0,  0, -1,  0,  0,
+                                  -1,  0,  0, -1,  0,  0, -1,  0);
+    __m128i tens0 = _mm_and_si128(mask0, str0);
+    __m128i tens1 = _mm_and_si128(mask1, str1);
+
+    const __m128i doubled0 = _mm_slli_epi64(tens0, 8 + 1);
+    const __m128i doubled1 = _mm_slli_epi64(tens1, 8 + 1);
+    const __m128i octupled0 = _mm_slli_epi64(tens0, 8 + 3);
+    const __m128i octupled1 = _mm_slli_epi64(tens1, 8 + 3);
+    tens0 = _mm_add_epi64(doubled0, octupled0);
+    tens1 = _mm_add_epi64(doubled1, octupled1);
+
+    str0 = _mm_add_epi64(str0, tens0);
+    str1 = _mm_add_epi64(str1, tens1);
+
+    mask0 = _mm_setr_epi8(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0);
+    mask1 = _mm_setr_epi8(0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0);
+
+    str0 = _mm_andnot_si128(mask0, str0);
+    str1 = _mm_andnot_si128(mask1, str1);
+
+    max0 = _mm_setr_epi8(9, 99, 9, 99, 0, 1, 12, 0, 3, 31, 0, 2, 24, 0, 5, 59);
+    max1 = _mm_setr_epi8(0, 6, 60, 0, 9, 9, 99, 9, 9, 99, 0, 2, 23, 0, 5, 59);
+
+    invalid0 = _mm_or_si128(invalid0, _mm_cmpgt_epi8(str0, max0));
+    invalid1 = _mm_or_si128(invalid1, _mm_cmpgt_epi8(str1, max1));
+
+    const int year = _mm_extract_epi8(str0, 1) * 100 +
+                     _mm_extract_epi8(str0, 3);
+    const int month = _mm_extract_epi8(str0, 6);
+    const int day = _mm_extract_epi8(str0, 9);
+    const int hour = _mm_extract_epi8(str0, 12);
+    const int minute = _mm_extract_epi8(str0, 15);
+    int second = _mm_extract_epi8(str1, 18 - 16);
+    const int millisecond = _mm_extract_epi8(str1, 20 - 16) * 100 +
+                            _mm_extract_epi8(str1, 22 - 16);
+    const int microsecond = _mm_extract_epi8(str1, 23 - 16) * 100 +
+                            _mm_extract_epi8(str1, 25 - 16);
+    const int tzOffset = _mm_extract_epi8(str1, 28 - 16) * 60 +
+                         _mm_extract_epi8(str1, 31 - 16);
+
+    const int anyInvalid = _mm_movemask_epi8(invalid0) |
+                           _mm_movemask_epi8(invalid1);
+#endif
+
+    // Verify special 24-hour value is valid
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(hour == 24 &&
+                  (minute | second | millisecond | microsecond | tzOffset))) {
+        // 24:00:00+00:00 is a valid time but no other times may have hour 24
+        return -1;                                                    // RETURN
+    }
+
+    // Verify range checks succeeded
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(anyInvalid)) {
+        return -1;                                                    // RETURN
+    }
+
+    // Verify day of month is valid
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                               !Date::isValidYearMonthDay(year, month, day))) {
+        return -1;                                                    // RETURN
+    }
+
+    const bool hasLeapSecond = second == 60;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(hasLeapSecond)) {
+        // Handle leap second
+        second = 59;
+    }
+    Datetime localDatetime(year,
+                           month,
+                           day,
+                           hour,
+                           minute,
+                           second,
+                           millisecond,
+                           microsecond);
+
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(hasLeapSecond)) {
+        DatetimeInterval resultAdjustment;
+        resultAdjustment.addSeconds(1);
+
+        const Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
+        if (maxDatetime - resultAdjustment < localDatetime) {
+            return -1;                                                // RETURN
+        }
+
+        localDatetime += resultAdjustment;
+    }
+    datetimeTz->setDatetimeTz(localDatetime,
+                              negativeTzOffset ? -tzOffset : tzOffset);
+    return 0;
+}
+#endif
+
 /// Parse the specified initial `length` characters of the specified ISO
-/// 8601 `string` as a `Datetime` value, using the specified
-/// `configuration`, and load the value into the specified `datetime`.  If
+/// 8601 `string` as a `DatetimeTz` value, using the specified
+/// `configuration`, and load the value into the specified `datetimeTz`.  If
 /// `configuration.basic()` is `false`, dashes and colons are expected,
 /// otherwise, they are not.  If `configuration.relaxed()` is `false`, the
 /// character separating the date and time must be `T` or `t`, otherwise,
-/// `T`, `t`, or ` ` are allowed.  If zone designator is presented in the
-/// input, load into the specified `tzOffset` the indicated offset (in
-/// minutes) from UTC and set the variable pointed by the specified
-/// `hasZoneDesignator` to `true`.  Optionally specify a
-/// `allowSpaceInsteadOfT` to allow usage of a SPACE character instead of
-/// `T`.  Return 0 on success, and a non-zero value (with no effect on the
-/// `datetime`) otherwise.
-int parseDatetime(Datetime           *datetime,
-                  int                *tzOffset,
+/// `T`, `t`, or ` ` are allowed.  If a zone designator is present in the
+/// input, store `true` into the specified `hasZoneDesignator`, otherwise store
+/// `false`.  Return 0 on success, and a non-zero value (with no effect on
+/// `datetimeTz`, but an unspecified effect on `hasZoneDesignator`) otherwise.
+int parseDatetime(DatetimeTz         *datetimeTz,
                   bool               *hasZoneDesignator,
                   const char         *string,
                   ssize_t             length,
@@ -876,6 +1143,15 @@ int parseDatetime(Datetime           *datetime,
     // Sample ISO 8601 datetime: "2005-01-31T08:59:59.999999-04:00"
     //
     // The fractional second and zone designator are independently optional.
+
+#if defined(BSLS_PLATFORM_CPU_AVX2) || defined(BSLS_PLATFORM_CPU_SSE4_2)
+    if (length == 32 && !configuration.basic() && !configuration.relaxed()) {
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(string[29] == ':')) {
+            *hasZoneDesignator = true;
+            return parseDatetimeSse(datetimeTz, string);
+        }
+    }
+#endif
 
     const ssize_t minLength = configuration.basic()
                             ? sizeof "YYYYMMDDThhmmss" - 1
@@ -936,13 +1212,13 @@ int parseDatetime(Datetime           *datetime,
 
     // 3. Parse zone designator, if any.
 
-    *tzOffset          = 0;
+    int tzOffset       = 0;      // minutes from UTC
     *hasZoneDesignator = false;
 
     if (shuttle != end) {
         *hasZoneDesignator = true;
         if (0 != u::parseZoneDesignator(
-                     &shuttle, tzOffset, shuttle, end) ||
+                     &shuttle, &tzOffset, shuttle, end) ||
             shuttle != end) {
             return -1;                                                // RETURN
         }
@@ -969,7 +1245,7 @@ int parseDatetime(Datetime           *datetime,
     if (24 == hour) {
         // '24 == hour' is allowed only for the value '24:00:00.000000' in UTC.
 
-        if (minute || second || millisecond || microsecond || *tzOffset) {
+        if (minute || second || millisecond || microsecond || tzOffset) {
             return -1;                                                // RETURN
         }
     }
@@ -988,14 +1264,15 @@ int parseDatetime(Datetime           *datetime,
 
     // 5. Load a 'Datetime'.
 
-    if (0 != datetime->setDatetimeIfValid(year,
-                                          month,
-                                          day,
-                                          hour,
-                                          minute,
-                                          second,
-                                          millisecond,
-                                          static_cast<int>(microsecond))) {
+    Datetime localDatetime;
+    if (0 != localDatetime.setDatetimeIfValid(year,
+                                              month,
+                                              day,
+                                              hour,
+                                              minute,
+                                              second,
+                                              millisecond,
+                                              static_cast<int>(microsecond))) {
         return -1;                                                    // RETURN
     }
 
@@ -1010,12 +1287,13 @@ int parseDatetime(Datetime           *datetime,
 
         const Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
 
-        if (maxDatetime - resultAdjustment < *datetime) {
+        if (maxDatetime - resultAdjustment < localDatetime) {
             return -1;                                                // RETURN
         }
 
-        *datetime += resultAdjustment;
+        localDatetime += resultAdjustment;
     }
+    *datetimeTz = DatetimeTz(localDatetime, tzOffset);
 
     return 0;
 }
@@ -1026,7 +1304,7 @@ int parseDatetime(Datetime           *datetime,
 /// parsed, otherwise they must not be present.  If
 /// `configuration.relaxed()` is `true`, the date and time may be separated
 /// by `T`, `t`, ` `, otherwise the separator must be `T` or `t`.  If a time
-/// zone is parsed, add it into 'result.  Return 0 for success and a
+/// zone is parsed, add it into `result`.  Return 0 for success and a
 /// non-zero value otherwise.
 int parseImp(Datetime           *result,
              const char         *string,
@@ -1045,12 +1323,10 @@ int parseImp(Datetime           *result,
 
     // 1. Parse as a 'DatetimeTz'.
 
-    Datetime localDatetime;
-    int      tzOffset          = 0;      // minutes from UTC
-    bool     hasZoneDesignator = false;
+    DatetimeTz datetimeTz;
+    bool       hasZoneDesignator = false;
 
-    if (0 != u::parseDatetime(&localDatetime,
-                              &tzOffset,
+    if (0 != u::parseDatetime(&datetimeTz,
                               &hasZoneDesignator,
                               string,
                               length,
@@ -1060,32 +1336,31 @@ int parseImp(Datetime           *result,
 
     // 2. Account for edge cases.
 
-    if (tzOffset > 0) {
+    if (datetimeTz.offset() > 0) {
         static const Datetime minDatetime(0001, 01, 01, 00, 00, 00, 000, 000);
         Datetime minBoundary(minDatetime);
 
-        minBoundary.addMinutes(tzOffset);
+        minBoundary.addMinutes(datetimeTz.offset());
 
-        if (minBoundary > localDatetime) {
+        if (minBoundary > datetimeTz.localDatetime()) {
             return -1;                                                // RETURN
         }
     }
-    else if (tzOffset < 0) {
+    else if (datetimeTz.offset() < 0) {
         static const Datetime maxDatetime(9999, 12, 31, 23, 59, 59, 999, 999);
         Datetime maxBoundary(maxDatetime);
 
-        maxBoundary.addMinutes(tzOffset);
+        maxBoundary.addMinutes(datetimeTz.offset());
 
-        if (maxBoundary < localDatetime) {
+        if (maxBoundary < datetimeTz.localDatetime()) {
             return -1;                                                // RETURN
         }
     }
 
-    if (tzOffset) {
-        localDatetime.addMinutes(-tzOffset);
+    *result = datetimeTz.localDatetime();
+    if (datetimeTz.offset()) {
+        result->addMinutes(-datetimeTz.offset());
     }
-
-    *result = localDatetime;
 
     return 0;
 }
@@ -1102,22 +1377,13 @@ int parseImp(DatetimeTz         *result,
              ssize_t             length,
              ParseConfiguration  configuration = ParseConfiguration())
 {
-    Datetime localDatetime;
-    int      tzOffset          = 0;      // minutes from UTC
-    bool     hasZoneDesignator = false;
+    bool hasZoneDesignator;
 
-    if (0 != u::parseDatetime(&localDatetime,
-                              &tzOffset,
-                              &hasZoneDesignator,
-                              string,
-                              length,
-                              configuration)) {
-        return -1;                                                    // RETURN
-    }
-
-    result->setDatetimeTz(localDatetime, tzOffset);
-
-    return 0;
+    return u::parseDatetime(result,
+                            &hasZoneDesignator,
+                            string,
+                            length,
+                            configuration);
 }
 
 /// Parse the specified `string` of length `length` into the specified
@@ -1135,12 +1401,10 @@ int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
              ParseConfiguration                 configuration =
                                                           ParseConfiguration())
 {
-    Datetime localDatetime;
-    int      tzOffset          = 0;      // minutes from UTC
-    bool     hasZoneDesignator = false;
+    DatetimeTz datetimeTz;
+    bool       hasZoneDesignator = false;
 
-    if (0 != u::parseDatetime(&localDatetime,
-                              &tzOffset,
+    if (0 != u::parseDatetime(&datetimeTz,
                               &hasZoneDesignator,
                               string,
                               length,
@@ -1149,10 +1413,10 @@ int parseImp(Iso8601Util::DatetimeOrDatetimeTz *result,
     }
 
     if (hasZoneDesignator) {
-        result->createInPlace<DatetimeTz>(localDatetime, tzOffset);
+        result->createInPlace<DatetimeTz>(datetimeTz);
     }
     else {
-        result->assign<Datetime>(localDatetime);
+        result->assign<Datetime>(datetimeTz.localDatetime());
     }
 
     return 0;

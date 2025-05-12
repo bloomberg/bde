@@ -842,6 +842,12 @@ struct bsls_Platform_Assert;
     #if defined(__SSE4_2__)
         #define BSLS_PLATFORM_CPU_SSE4_2                                      1
     #endif
+    #if defined(__AVX__)
+        #define BSLS_PLATFORM_CPU_AVX                                         1
+    #endif
+    #if defined(__AVX2__)
+        #define BSLS_PLATFORM_CPU_AVX2                                        1
+    #endif
 #endif
 
 // ----------------------------------------------------------------------------
