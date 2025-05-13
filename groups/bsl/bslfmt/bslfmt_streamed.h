@@ -339,8 +339,6 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     size_t streamedWidth = 0;
     bool   leftPadded    = false;
 
-    // Note that, per the C++ spec, the fill character is always assumed to
-    // have a field width of one, regardless of its actual field width.
     switch (d_spec.alignment()) {
       case Specification::e_ALIGN_MIDDLE:
       case Specification::e_ALIGN_RIGHT: {
@@ -390,6 +388,8 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
     if (leftPadded) {
+        // Note that, per the C++ spec, the fill character is always assumed to
+        // have a field width of one, regardless of its actual field width.
         for (size_t i = 0; i < numPaddingChars; ++i) {
             outIterator = bsl::copy(
                           finalSpec.filler(),
@@ -410,6 +410,10 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     outIterator = buf.outIterator();
     streamedWidth = buf.counter();
 
+    // In case we did not start with printing padding (no left padding) the
+    // number of characters was just calculated now, as we printed them, hence
+    // we need to calculate the full length of the padding now.
+
     if (!leftPadded) {
         switch (finalWidth.category()) {
           case NumericValue::e_VALUE: {
@@ -421,10 +425,11 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
         }
     }
 
+    // Finally we can calculate the number of padding characters needed on the
+    // right side and print them.
+
     numPaddingChars = 0;
 
-    // Note that, per the C++ spec, the fill character is always assumed to
-    // have a field width of one, regardless of its actual field width.
     switch (d_spec.alignment()) {
       case Specification::e_ALIGN_DEFAULT:
       case Specification::e_ALIGN_LEFT: {
@@ -439,6 +444,8 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     }
 
     for (size_t i = 0; i < numPaddingChars; ++i) {
+        // Note that, per the C++ spec, the fill character is always assumed to
+        // have a field width of one, regardless of its actual field width.
         outIterator = bsl::copy(
                           finalSpec.filler(),
                           finalSpec.filler() + finalSpec.numFillerCharacters(),
