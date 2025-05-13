@@ -25,5 +25,6 @@ bslfmt_formatterunicodedata
 bslfmt_mockformatcontext
 bslfmt_mockparsecontext
 bslfmt_standardformatspecification
+bslfmt_streamed
 bslfmt_testspecificationgenerator
 bslfmt_unicodecodepoint
