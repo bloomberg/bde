@@ -11,28 +11,113 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::Streamed<t_TYPE>: narrow `char` streaming wrapper class template
 //
-//@DESCRIPTION: This component provides a
+//@DESCRIPTION: This component provides both a wrapper class template and (for
+// use with C++ standards that have no class template argument deduction) a
+// wrapper-creator function template to enable `bsl::format`ting values that
+// already offer an `ostream` insert `operator<<`.  (On platforms that have a
+// working `std::format` the wrapper enables that, too.
+//
+///The Format String
+///-----------------
+// The wrapper's formatter supports the same format string syntax as formatting
+// a string-like type: alignment, width, and truncation using the "precision"
+// value.
+//
 //
 ///Usage
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example: TBD
-/// - - - - - - - - - - - - - - - - -
-// Suppose we want to TBD
+///Example 1: Formatting a Streamable Object Using the Function
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<`.  When writing portable code that
+// should work on compilers that do not support class template argument
+// deduction we would use the wrapper-creator function `bslfmt::streamed` to
+// avoid having to know and write the type of the object.
 //
-// ```
-//  TBD
-// ```
+// First, for the sake of demonstration we create a type with an obscure and
+// long name that we neither want to remember nor ever to write down, and which
+// can be streamed out:
 //
+//```
+//  class ThisTypeHasLongAndObscureNameButStreamable {
+//  };
+//
+//  std::ostream& operator<<(
+//                       std::ostream&                                     os,
+//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//  {
+//      return os << "The printout";
+//  }
+//```
+//
+// Then, we create an object of said type that we want to print out:
+//
+//```
+//  const ThisTypeHasLongAndObscureNameButStreamable obj;
+//```
+// Next, we format the "value" using `bsl::format` with the wrapper-creator
+// function:
+//
+//```
+//  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+//```
+// Finally, we verify the output is correct:
+//
+//```
+//  assert(s == "The printout");
+//```
+//
+///Example 2: Formatting with CTAD support
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<` and we target only modern compilers.
+// In such case the wrapper class template can be used directly, without the
+// need for the function.
+//
+// First, for the sake of demonstration we create a type with an obscure and
+// long name that we neither want to remember nor ever to write down, and which
+// can be streamed out:
+//
+//```
+//  class ThisTypeHasLongAndObscureNameButStreamable {
+//  };
+//
+//  std::ostream& operator<<(
+//                       std::ostream&                                     os,
+//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//  {
+//      return os << "The printout";
+//  }
+//```
+//
+// Then, we create an object of said type that we want to print out:
+//
+//```
+//  const ThisTypeHasLongAndObscureNameButStreamable obj;
+//```
+// Next, we format the "value" using `bsl::format` with the wrapper class
+// template, class template argument deduction takes care of the type:
+//
+//```
+//  bsl::string s = bsl::format("{}", bslfmt::Streamed(obj));
+//```
+// Finally, we verify the output is correct:
+//
+//```
+//  assert(s == "The printout");
+//```
 
 #include <bslscm_version.h>
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_formatterstring.h>
 #include <bslfmt_standardformatspecification.h>
 
-#include <bslalg_numericformatterutil.h>
+#include <bslstl_iterator.h>
+#include <bslstl_string.h>
 
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
@@ -70,26 +155,6 @@ class Streamed {
     const t_STREAMED& object() const;
 };
 
-                            // ====================
-                            // Streamed_CountingBuf
-                            // ====================
-
-class Streamed_CountingBuf : public std::streambuf {
-    // DATA
-    size_t d_counter;
-    size_t d_limit;
-
-  public:
-    // CREATORS
-    Streamed_CountingBuf(size_t limit);
-
-    // MANIPULATORS
-    int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
-
-    // ACCESSORS
-    size_t counter() const;
-};
-
                             // ===================
                             // Streamed_OutIterBuf
                             // ===================
@@ -124,13 +189,11 @@ template <class t_TYPE>
 struct Streamed_Formatter;
 
 template <class t_STREAMED>
-struct Streamed_Formatter<Streamed<t_STREAMED> > {
+struct Streamed_Formatter<Streamed<t_STREAMED> >
+: bsl::formatter<bsl::basic_string<char>, char> {
   private:
     // PRIVATE TYPES
-    typedef StandardFormatSpecification<char> Specification;
-
-    // DATA
-    Specification d_spec;  // parsed specification.
+    typedef typename bsl::formatter<bsl::string>::Specification Specification;
 
   public:
     // MANIPULATORS
@@ -195,35 +258,6 @@ const t_STREAMED& Streamed<t_STREAMED>::object() const
     return d_object;
 }
 
-                            // --------------------
-                            // Streamed_CountingBuf
-                            // --------------------
-
-// CREATORS
-inline
-Streamed_CountingBuf::Streamed_CountingBuf(size_t limit)
-: d_counter(0)
-, d_limit(limit)
-{
-}
-
-// MANIPULATORS
-inline
-Streamed_CountingBuf::int_type Streamed_CountingBuf::overflow(int_type c)
-{
-    if (d_limit && traits_type::eof() != c && d_limit--) {
-        ++d_counter;
-    }
-    return traits_type::not_eof(c);
-}
-
-// ACCESSORS
-inline
-size_t Streamed_CountingBuf::counter() const
-{
-    return d_counter;
-}
-
                             // -------------------
                             // Streamed_OutIterBuf
                             // -------------------
@@ -278,24 +312,8 @@ template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
 Streamed_Formatter<Streamed<t_STREAMED> >::parse(t_PARSE_CONTEXT& parseContext)
 {
-    d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
-
-    if (d_spec.sign() != Specification::e_SIGN_DEFAULT)
-        BSLS_THROW(bsl::format_error(
-                    "Formatting sign specifier not valid for streamed types"));
-
-    if (d_spec.alternativeFlag())
-        BSLS_THROW(bsl::format_error(
-                       "Formatting # specifier not valid for streamed types"));
-
-    if (d_spec.zeroPaddingFlag())
-        BSLS_THROW(bsl::format_error(
-                       "Formatting 0 specifier not valid for streamed types"));
-
-    if (d_spec.localeSpecificFlag())
-        BSLS_THROW(bsl::format_error("Formatting L specifier not supported"));
-
-    return parseContext.begin();
+    return static_cast<bsl::formatter<bsl::string> *>(this)->parse(
+                                                                 parseContext);
 }
 
 // ACCESSORS
@@ -331,72 +349,34 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
       }
     }
 
-    // If necessary, count the number of the characters printed to the stream,
-    // up to the maximum of `maxStreamedCharacters` determined above.  Notice
-    // that this pre-calculation is necessary only when we have to start with
-    // padding characters due to alignment.
+    const bool leftPadded = d_spec.alignment() ==
+                                Specification::e_ALIGN_MIDDLE ||
+                            d_spec.alignment() == Specification::e_ALIGN_RIGHT;
 
-    size_t streamedWidth = 0;
-    bool   leftPadded    = false;
-
-    switch (d_spec.alignment()) {
-      case Specification::e_ALIGN_MIDDLE:
-      case Specification::e_ALIGN_RIGHT: {
-        Streamed_CountingBuf buf(maxStreamedCharacters);
-        std::ostream         os(&buf);
-        os << value.object();
-        streamedWidth = buf.counter();
-        leftPadded    = true;
-      } break;
-      default: {
-        ;
-      } break;
-    }
-
-    size_t fullPaddingLength = 0;
-
-    switch (finalWidth.category()) {
-      case NumericValue::e_DEFAULT: {
-        fullPaddingLength = 0;
-      } break;
-      case NumericValue::e_VALUE: {
-        fullPaddingLength = finalWidth.value() - streamedWidth;
-      } break;
-      default: {
-        BSLS_THROW(bsl::format_error("Invalid precision specifier"));
-      }
-    }
-
-    // Calculate the number of padding characters on the left; the padding that
-    // we begin "printing" with.
-
-    size_t numPaddingChars = 0;
-
-    // Note that, per the C++ spec, the fill character is always assumed to
-    // have a field width of one, regardless of its actual field width.
-    switch (d_spec.alignment()) {
-      case Specification::e_ALIGN_MIDDLE: {
-        numPaddingChars = (fullPaddingLength / 2);
-      } break;
-      case Specification::e_ALIGN_RIGHT: {
-        numPaddingChars = fullPaddingLength;
-      } break;
-      default: {
-      } break;
-    }
-
-    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
+    // Anything that is padded on the left needs to know the number of printed
+    // characters before it can start "printing", therefore we handle all such
+    // formats by first printing the possibly truncated value into a string,
+    // then print the string itself via the private base which is the string
+    // formatter itself.
 
     if (leftPadded) {
-        // Note that, per the C++ spec, the fill character is always assumed to
-        // have a field width of one, regardless of its actual field width.
-        for (size_t i = 0; i < numPaddingChars; ++i) {
-            outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-        }
+        bsl::string content;
+
+        Streamed_OutIterBuf<bsl::back_insert_iterator<bsl::string> > buf(
+                              bsl::back_insert_iterator<bsl::string>(content),
+                              maxStreamedCharacters);
+        std::ostream os(&buf);
+        os << value.object();
+
+        return static_cast<const bsl::formatter<bsl::string> *>(this)->format(
+                                                     content,
+                                                     formatContext);  // RETURN
     }
+
+    // Left-padded formats have been handled above, so there is no padding
+    // before "printing" the content.
+
+    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
     // Print the necessary characters from the stream output and calculate the
     // printed length.  (Only need it when there is no left padding present but
@@ -408,40 +388,18 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     std::ostream os(&buf);
     os << value.object();
     outIterator = buf.outIterator();
-    streamedWidth = buf.counter();
+    size_t contentWidth = buf.counter();
 
-    // In case we did not start with printing padding (no left padding) the
-    // number of characters was just calculated now, as we printed them, hence
-    // we need to calculate the full length of the padding now.
+    // Knowing the width of the content "printed" via streaming we can now
+    // calculate the necessary trailing padding length.  Since anything
+    // left-padded has been handled on a different branch here we may only have
+    // the cases when the alignment is left alignment (which is also the
+    // default alignment).  Right and middle alignments both may need
+    // left-padding so they were handled separately.
 
-    if (!leftPadded) {
-        switch (finalWidth.category()) {
-          case NumericValue::e_VALUE: {
-            fullPaddingLength = finalWidth.value() - streamedWidth;
-          } break;
-          default: {
-            ;
-          } break;
-        }
-    }
-
-    // Finally we can calculate the number of padding characters needed on the
-    // right side and print them.
-
-    numPaddingChars = 0;
-
-    switch (d_spec.alignment()) {
-      case Specification::e_ALIGN_DEFAULT:
-      case Specification::e_ALIGN_LEFT: {
-        numPaddingChars = fullPaddingLength;
-      } break;
-      case Specification::e_ALIGN_MIDDLE: {
-        numPaddingChars = ((fullPaddingLength + 1) / 2);
-      } break;
-      default: {
-        ;
-      } break;
-    }
+    size_t numPaddingChars = finalWidth.category() == NumericValue::e_VALUE
+                                 ? finalWidth.value() - contentWidth
+                                 : 0;
 
     for (size_t i = 0; i < numPaddingChars; ++i) {
         // Note that, per the C++ spec, the fill character is always assumed to

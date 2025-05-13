@@ -5,40 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslfmt_streamed_cpp, "$Id$ $CSID$")
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<const char *, char> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<const wchar_t *, wchar_t> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<std::string_view, char> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<std::wstring_view, wchar_t> >::value));
-
-#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<bsl::string_view, char> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<bsl::wstring_view, wchar_t> >::value));
-
-#else // not aliased
-
-BSLMF_ASSERT(!(BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<bsl::string_view, char> >::value));
-
-BSLMF_ASSERT(!(BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<bsl::wstring_view, wchar_t> >::value));
-
-#endif // BSLSTL_STRING_VIEW_IS_ALIASED
-
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-
 // ----------------------------------------------------------------------------
 // Copyright 2025 Bloomberg Finance L.P.
 //

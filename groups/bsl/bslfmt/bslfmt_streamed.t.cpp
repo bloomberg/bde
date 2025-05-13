@@ -155,6 +155,56 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
     return os << obj.d_content;
 }
 
+//=============================================================================
+//                              USAGE EXAMPLE
+//-----------------------------------------------------------------------------
+
+///Example 1: Formatting a Streamable Object Using the Function
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<`.  When writing portable code that
+// should work on compilers that do not support class template argument
+// deduction we would use the wrapper-creator function `bslfmt::streamed` to
+// avoid having to know and write the type of the object.
+//
+// First, for the sake of demonstration we create a type with an obscure and
+// long name that we neither want to remember nor ever to write down, and which
+// can be streamed out:
+//
+//```
+    class ThisTypeHasLongAndObscureNameButStreamable {
+    };
+
+    std::ostream& operator<<(
+                         std::ostream&                                     os,
+                         const ThisTypeHasLongAndObscureNameButStreamable& obj)
+    {
+        return os << "The printout";
+    }
+//```
+
+///Example 2: Formatting with CTAD support
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<` and we target only modern compilers.
+// In such case the wrapper class template can be used directly, without the
+// need for the function.
+//
+// First, for the sake of demonstration we create a type with an obscure and
+// long name that we neither want to remember nor ever to write down, and which
+// can be streamed out:
+//
+//```
+//  class ThisTypeHasLongAndObscureNameButStreamable {
+//  };
+//
+//  std::ostream& operator<<(
+//                       std::ostream&                                     os,
+//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//  {
+//      return os << "The printout";
+//  }
+//```
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -187,6 +237,90 @@ int main(int argc, char **argv)
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
 
+        {
+///Example 1: Formatting a Streamable Object Using the Function
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<`.  When writing portable code that
+// should work on compilers that do not support class template argument
+// deduction we would use the wrapper-creator function `bslfmt::streamed` to
+// avoid having to know and write the type of the object.
+//
+// First, for the sake of demonstration we create a type with an obscure and
+// long name that we neither want to remember nor ever to write down, and which
+// can be streamed out:
+//
+//```
+//  class ThisTypeHasLongAndObscureNameButStreamable {
+//  };
+//
+//  std::ostream& operator<<(
+//                       std::ostream&                                     os,
+//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//  {
+//      return os << "The printout";
+//  }
+//```
+//
+// Then, we create an object of said type that we want to print out:
+//
+//```
+    const ThisTypeHasLongAndObscureNameButStreamable obj;
+//```
+// Next, we format the "value" using `bsl::format` with the wrapper-creator
+// function:
+//
+//```
+    bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+//```
+// Finally, we verify the output is correct:
+//
+//```
+    ASSERT(s == "The printout");
+//```
+        }
+
+        {
+///Example 2: Formatting with CTAD support
+///- - - - - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<` and we target only modern compilers.
+// In such case the wrapper class template can be used directly, without the
+// need for the function.
+//
+// First, for the sake of demonstration we create a type with an obscure and
+// long name that we neither want to remember nor ever to write down, and which
+// can be streamed out:
+//
+//```
+//  class ThisTypeHasLongAndObscureNameButStreamable {
+//  };
+//
+//  std::ostream& operator<<(
+//                       std::ostream&                                     os,
+//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//  {
+//      return os << "The printout";
+//  }
+//```
+//
+// Then, we create an object of said type that we want to print out:
+//
+//```
+    const ThisTypeHasLongAndObscureNameButStreamable obj;
+//```
+// Next, we format the "value" using `bsl::format` with the wrapper class
+// template, class template argument deduction takes care of the type:
+//
+//```
+    bsl::string s = bsl::format("{}", bslfmt::Streamed(obj));
+//```
+// Finally, we verify the output is correct:
+//
+//```
+    ASSERT(s == "The printout");
+//```
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
