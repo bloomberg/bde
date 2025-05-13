@@ -58,7 +58,6 @@
 #endif
 
 using namespace BloombergLP;
-using bsl::cin;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
@@ -302,13 +301,13 @@ bslma::Allocator *nda()
     return &bslma::NewDeleteAllocator::singleton();
 }
 
-void checkExpendibleExecutableName(int topCaseIndex, char **argv)
+void checkCondemnedExecutableName(int topCaseIndex, char **argv)
 {
     int test = bsl::atoi(argv[1]);
 
     ASSERTV(test, topCaseIndex, topCaseIndex < test);
     ASSERTV(test, topCaseIndex, test <= 2 * topCaseIndex);
-    ASSERTV(argv[0], bsl::strstr(argv[0], "_expendible_"));
+    ASSERTV(argv[0], bsl::strstr(argv[0], "_condemned_"));
     ASSERTV(argv[0], test, bsl::strstr(argv[0], argv[1]));
 }
 
@@ -358,10 +357,13 @@ void copyExecutable(const char *toFileName,
 #endif
 }
 
+/// Copy the executable `argv[0]` to a "condemned" copy and then run that copy
+/// with `argv[2]` == "--erase", which will result in the condemned copy being
+/// erased at the beginning of the test.
 void doEraseTest(int argc, char **argv)
 {
     bsl::string cmd(argv[0], u::nda());
-    cmd += "_expendible_";
+    cmd += "_condemned_";
     cmd += argv[1];            // `test` in text form
     cmd += ".t";
 
@@ -380,9 +382,7 @@ void doEraseTest(int argc, char **argv)
     }
     int rc = ::system(cmd.c_str());
     ASSERT(0 == rc);
-    if (0 < rc) {
-        testStatus += rc;
-    }
+    testStatus += rc < 0 ? -rc : rc;
 }
 
 }  // close namespace u
@@ -1149,13 +1149,13 @@ int main(int argc, char *argv[])
 
     enum { k_TOP_USAGE_CASE_INDEX = 23 };
 
-    const bool eraseExecutable = verbose && !bsl::strcmp("--erase", argv[2]);
+    const bool eraseExecutable = 2 < argc && !bsl::strcmp("--erase", argv[2]);
     if (eraseExecutable) {
         // `FilesystemUtil` functions uses the default allocator on Windows.
 
         bslma::DefaultAllocatorGuard guard(u::nda());
 
-        u::checkExpendibleExecutableName(k_TOP_USAGE_CASE_INDEX, argv);
+        u::checkCondemnedExecutableName(k_TOP_USAGE_CASE_INDEX, argv);
 
         int rc = bdls::FilesystemUtil::remove(argv[0]);
         ASSERT(0 == rc);
@@ -3749,6 +3749,9 @@ int main(int argc, char *argv[])
         ASSERTV(test, k_TOP_USAGE_CASE_INDEX < test);
 
         if (!e_WINDOWS && test <= 2 * k_TOP_USAGE_CASE_INDEX) {
+            // Run test case `test - k_TO_USAGE_CASE_INDEX` with erasing the
+            // executable.
+
             u::doEraseTest(argc, argv);
         }
         else {

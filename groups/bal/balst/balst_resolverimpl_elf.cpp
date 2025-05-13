@@ -4119,11 +4119,11 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
         bsl::ifstream cmdLineFile("/proc/self/cmdline");
         u_ASSERT_BAIL(cmdLineFile.good());
-        cmdLineFile.getline(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
+        cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
         u_ASSERT_BAIL(cmdLineFile.good());
-        const size_t len = static_cast<size_t>(cmdLineFile.gcount());
-        u_ASSERT_BAIL(0 < len);
-        fileNameIfExecutableFile.assign(d_scratchBufA_p, len - 1);
+        fileNameIfExecutableFile.assign(
+                                    d_scratchBufA_p,
+                                    static_cast<size_t>(cmdLineFile.gcount()));
         libraryFileName = fileNameIfExecutableFile.c_str();
     }
 
