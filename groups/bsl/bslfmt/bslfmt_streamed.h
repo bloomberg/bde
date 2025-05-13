@@ -47,6 +47,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
+                             // ========
+                             // Streamed
+                             // ========
 
 template <class t_STREAMED>
 class Streamed {
@@ -55,15 +58,15 @@ class Streamed {
 
   public:
     // CREATORS
-    Streamed(const t_STREAMED& object)
-    : d_object(object)
-    {
-    }
+    Streamed(const t_STREAMED& object);
 
     // ACCESSORS
-    const t_STREAMED& object() const { return d_object; }
+    const t_STREAMED& object() const;
 };
 
+                            // ====================
+                            // Streamed_CountingBuf
+                            // ====================
 
 class Streamed_CountingBuf : public std::streambuf {
     // DATA
@@ -72,24 +75,18 @@ class Streamed_CountingBuf : public std::streambuf {
 
   public:
     // CREATORS
-    Streamed_CountingBuf(size_t limit)
-    : d_counter(0)
-    , d_limit(limit)
-    {
-    }
+    Streamed_CountingBuf(size_t limit);
 
     // MANIPULATORS
-    int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE
-    {
-        if (d_limit && traits_type::eof() != c && d_limit--) {
-            ++d_counter;
-        }
-        return traits_type::not_eof(c);
-    }
+    int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
-    size_t counter() const { return d_counter; }
+    size_t counter() const;
 };
+
+                            // ===================
+                            // Streamed_OutIterBuf
+                            // ===================
 
 template <class t_OUT_ITER>
 class Streamed_OutIterBuf : public std::streambuf {
@@ -99,30 +96,16 @@ class Streamed_OutIterBuf : public std::streambuf {
 
   public:
     // CREATORS
-    Streamed_OutIterBuf(t_OUT_ITER iter, size_t limit)
-    : d_iter(iter)
-    , d_limit(limit)
-    , d_counter(0)
-    {
-    }
+    Streamed_OutIterBuf(t_OUT_ITER iter, size_t limit);
 
     // MANUPILATORS
-    int_type overflow(int_type c) override
-    {
-        if (d_limit && traits_type::eof() != c && d_limit--) {
-            *d_iter = traits_type::to_char_type(c);
-            ++d_iter;
-            ++d_counter;
-        }
-        return traits_type::not_eof(c);
-    }
+    int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
-    t_OUT_ITER outIterator() const { return d_iter; }
+    t_OUT_ITER outIterator() const;
 
-    size_t counter() const { return d_counter; }
+    size_t counter() const;
 };
-
 
                          // =========================
                          // struct Streamed_Formatter
@@ -175,10 +158,7 @@ struct Streamed_Formatter<Streamed<t_STREAMED> > {
 // ============================================================================
 
 template <class t_STREAMABLE>
-Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object)
-{
-    return Streamed<t_STREAMABLE>(object);
-}
+Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 
 }  // close package namespace
 }  // close enterprise namespace
@@ -189,6 +169,102 @@ Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object)
 
 namespace BloombergLP {
 namespace bslfmt {
+                             // --------
+                             // Streamed
+                             // --------
+
+// CREATORS
+template <class t_STREAMED>
+inline
+Streamed<t_STREAMED>::Streamed(const t_STREAMED& object)
+: d_object(object)
+{
+}
+
+// ACCESSORS
+template <class t_STREAMED>
+inline
+const t_STREAMED& Streamed<t_STREAMED>::object() const
+{
+    return d_object;
+}
+
+                            // --------------------
+                            // Streamed_CountingBuf
+                            // --------------------
+
+// CREATORS
+inline
+Streamed_CountingBuf::Streamed_CountingBuf(size_t limit)
+: d_counter(0)
+, d_limit(limit)
+{
+}
+
+// MANIPULATORS
+inline
+Streamed_CountingBuf::int_type Streamed_CountingBuf::overflow(int_type c)
+{
+    if (d_limit && traits_type::eof() != c && d_limit--) {
+        ++d_counter;
+    }
+    return traits_type::not_eof(c);
+}
+
+// ACCESSORS
+inline
+size_t Streamed_CountingBuf::counter() const
+{
+    return d_counter;
+}
+
+                            // -------------------
+                            // Streamed_OutIterBuf
+                            // -------------------
+
+// CREATORS
+template <class t_OUT_ITER>
+inline
+Streamed_OutIterBuf<t_OUT_ITER>::Streamed_OutIterBuf(t_OUT_ITER iter,
+                                                     size_t     limit)
+: d_iter(iter)
+, d_limit(limit)
+, d_counter(0)
+{
+}
+
+// MANUPILATORS
+template <class t_OUT_ITER>
+inline
+Streamed_OutIterBuf<t_OUT_ITER>::int_type
+Streamed_OutIterBuf<t_OUT_ITER>::overflow(int_type c)
+{
+    if (d_limit && traits_type::eof() != c && d_limit--) {
+        *d_iter = traits_type::to_char_type(c);
+        ++d_iter;
+        ++d_counter;
+    }
+    return traits_type::not_eof(c);
+}
+
+// ACCESSORS
+template <class t_OUT_ITER>
+inline
+t_OUT_ITER Streamed_OutIterBuf<t_OUT_ITER>::outIterator() const
+{
+    return d_iter;
+}
+
+template <class t_OUT_ITER>
+inline
+size_t Streamed_OutIterBuf<t_OUT_ITER>::counter() const
+{
+    return d_counter;
+}
+
+                             // ------------------
+                             // Streamed_Formatter
+                             // ------------------
 
 // MANIPULATORS
 template <class t_STREAMED>
@@ -367,6 +443,17 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
 }
 
 }  // close package namespace
+
+// ============================================================================
+//                         FREESTANDING FUNCTIONS
+// ============================================================================
+
+template <class t_STREAMABLE>
+bslfmt::Streamed<t_STREAMABLE> bslfmt::streamed(const t_STREAMABLE& object)
+{
+    return Streamed<t_STREAMABLE>(object);
+}
+
 }  // close enterprise namespace
 
 namespace bsl {
