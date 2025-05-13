@@ -37,9 +37,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
-#include <bslstl_string.h>
-#include <bslstl_stringview.h>
-
 #include <limits>     // for 'std::numeric_limits'
 
 #include <streambuf>
@@ -51,6 +48,9 @@ namespace bslfmt {
                              // Streamed
                              // ========
 
+/// A wrapper class to be used with streamable (`ostream::operator<<`) types
+/// that adds `bsl::format` capability to the type (and `std::format` when that
+/// is available).
 template <class t_STREAMED>
 class Streamed {
     // DATA
@@ -58,9 +58,15 @@ class Streamed {
 
   public:
     // CREATORS
+
+    /// Created a `Streamed` wrapper instance around the specified `object`.
+    /// The behavior is undefined unless the lifetime of `object` is at least
+    /// as long as that of the wrapper created.
     Streamed(const t_STREAMED& object);
 
     // ACCESSORS
+
+    /// Return a non-modifiable reference to the wrapped object.
     const t_STREAMED& object() const;
 };
 
@@ -236,7 +242,7 @@ Streamed_OutIterBuf<t_OUT_ITER>::Streamed_OutIterBuf(t_OUT_ITER iter,
 // MANUPILATORS
 template <class t_OUT_ITER>
 inline
-Streamed_OutIterBuf<t_OUT_ITER>::int_type
+typename Streamed_OutIterBuf<t_OUT_ITER>::int_type
 Streamed_OutIterBuf<t_OUT_ITER>::overflow(int_type c)
 {
     if (d_limit && traits_type::eof() != c && d_limit--) {
@@ -366,7 +372,7 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     // Calculate the number of padding characters on the left; the padding that
     // we begin "printing" with.
 
-    int numPaddingChars = 0;
+    size_t numPaddingChars = 0;
 
     // Note that, per the C++ spec, the fill character is always assumed to
     // have a field width of one, regardless of its actual field width.
@@ -384,7 +390,7 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
     if (leftPadded) {
-        for (int i = 0; i < numPaddingChars; ++i) {
+        for (size_t i = 0; i < numPaddingChars; ++i) {
             outIterator = bsl::copy(
                           finalSpec.filler(),
                           finalSpec.filler() + finalSpec.numFillerCharacters(),
@@ -432,7 +438,7 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
       } break;
     }
 
-    for (int i = 0; i < numPaddingChars; ++i) {
+    for (size_t i = 0; i < numPaddingChars; ++i) {
         outIterator = bsl::copy(
                           finalSpec.filler(),
                           finalSpec.filler() + finalSpec.numFillerCharacters(),
