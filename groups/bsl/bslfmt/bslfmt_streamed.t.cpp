@@ -177,7 +177,7 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
 
     std::ostream& operator<<(
                          std::ostream&                                     os,
-                         const ThisTypeHasLongAndObscureNameButStreamable& obj)
+                         const ThisTypeHasLongAndObscureNameButStreamable& )
     {
         return os << "The printout";
     }
@@ -200,7 +200,7 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
 //
 //  std::ostream& operator<<(
 //                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//                       const ThisTypeHasLongAndObscureNameButStreamable& )
 //  {
 //      return os << "The printout";
 //  }
@@ -256,7 +256,7 @@ int main(int argc, char **argv)
 //
 //  std::ostream& operator<<(
 //                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//                       const ThisTypeHasLongAndObscureNameButStreamable& )
 //  {
 //      return os << "The printout";
 //  }
@@ -280,6 +280,7 @@ int main(int argc, char **argv)
 //```
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         {
 ///Example 2: Formatting with CTAD support
 ///- - - - - - - - - - - - - - - - - - - -
@@ -298,7 +299,7 @@ int main(int argc, char **argv)
 //
 //  std::ostream& operator<<(
 //                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//                       const ThisTypeHasLongAndObscureNameButStreamable& )
 //  {
 //      return os << "The printout";
 //  }
@@ -321,6 +322,8 @@ int main(int argc, char **argv)
     ASSERT(s == "The printout");
 //```
         }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+
       } break;
       case 1: {
         // --------------------------------------------------------------------

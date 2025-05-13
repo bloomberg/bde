@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a wrapper to format using the ostream insert operator
+//@PURPOSE: Provide a wrapper to format using the `ostream` insert operator
 //
 //@CLASSES:
 //  bsl::Streamed<t_TYPE>: narrow `char` streaming wrapper class template
@@ -46,7 +46,7 @@ BSLS_IDENT("$Id: $")
 //
 //  std::ostream& operator<<(
 //                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//                       const ThisTypeHasLongAndObscureNameButStreamable& )
 //  {
 //      return os << "The printout";
 //  }
@@ -86,7 +86,7 @@ BSLS_IDENT("$Id: $")
 //
 //  std::ostream& operator<<(
 //                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& obj)
+//                       const ThisTypeHasLongAndObscureNameButStreamable& )
 //  {
 //      return os << "The printout";
 //  }
@@ -190,7 +190,7 @@ struct Streamed_Formatter;
 
 template <class t_STREAMED>
 struct Streamed_Formatter<Streamed<t_STREAMED> >
-: bsl::formatter<bsl::basic_string<char>, char> {
+: private bsl::formatter<bsl::basic_string<char>, char> {
   private:
     // PRIVATE TYPES
     typedef typename bsl::formatter<bsl::string>::Specification Specification;
@@ -349,9 +349,13 @@ Streamed_Formatter<Streamed<t_STREAMED> >::format(
       }
     }
 
-    const bool leftPadded = d_spec.alignment() ==
-                                Specification::e_ALIGN_MIDDLE ||
-                            d_spec.alignment() == Specification::e_ALIGN_RIGHT;
+    const bool thereMayBePadding = finalWidth.category() ==
+                                   NumericValue::e_VALUE;
+
+    const bool leftPadded =
+                        thereMayBePadding &&
+                        (d_spec.alignment() == Specification::e_ALIGN_MIDDLE ||
+                         d_spec.alignment() == Specification::e_ALIGN_RIGHT);
 
     // Anything that is padded on the left needs to know the number of printed
     // characters before it can start "printing", therefore we handle all such

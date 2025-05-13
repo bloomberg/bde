@@ -9,11 +9,13 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 29 components having 9 levels of physical
+ The 'bslfmt' package currently has 30 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+ 10. bslfmt_streamed
+
   9. bslfmt_format
 
   8. bslfmt_format_imp                                                !PRIVATE!
@@ -55,6 +57,9 @@ bslfmt.txt
 
 /Component Synopsis
 /------------------
+: 'bslfmt_streamed':
+:      Provide a wrapper to format using the `ostream` insert operator
+:
 : 'bslfmt_format':
 :      Provide a standard compliant `format` implementation.
 :
