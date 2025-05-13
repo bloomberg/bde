@@ -20,8 +20,8 @@ BSLS_IDENT("$Id: $")
 ///----------
 // ```
 // Name               Type  Default  Simple Constraints
-// -----------------  ----  -------  ------------------
-// version            char  '\0'     == '\0' || == '2' || == '3'
+// -----------------  ----  -------  ------------------------------
+// version            char  '\0'     == '\0' || ( >= '2' && <= '4')
 // numIsGmt           int    0       >= 0
 // numIsStd           int    0       >= 0
 // numLeaps           int    0       == 0
@@ -30,8 +30,8 @@ BSLS_IDENT("$Id: $")
 // abbrevDataSize     int    1       >= 1
 // ```
 //
-// * `version`: Zoneinfo file format version, as of 2013, either '\0', `2`,
-//    or `3`.
+// * `version`: Zoneinfo file format version, as of 2025, either '\0', `2`, `3`
+//    or `4`.
 // * `numIsGmt`: number of encoded UTC/local indicators in the file,
 //   indicating whether a transition time was originally specified as UTC in
 //   the rule file.
@@ -208,38 +208,38 @@ class ZoneinfoBinaryHeader {
   public:
     // CLASS METHODS
 
-    /// Return `true` if the specified value equals '\0' or `2`, and `false`
-    /// otherwise.
+    /// Return `true` if the specified value equals '\0', `2`, `3` or `4`, and
+    /// `false` otherwise.
     static bool isValidVersion(char value);
 
-    /// Return `true` if the specified `value` is greater than or equal to
-    /// 0, and `false` otherwise'.
+    /// Return `true` if the specified `value` is greater than or equal to 0,
+    /// and `false` otherwise'.
     static bool isValidNumIsGmt(int value);
 
-    /// Return `true` if the specified `value` is greater than or equal to
-    /// 0, and `false` otherwise'.
+    /// Return `true` if the specified `value` is greater than or equal to 0,
+    /// and `false` otherwise'.
     static bool isValidNumIsStd(int value);
 
-    /// Return `true` if the specified value equals 0, and `false`
-    /// otherwise'.
+    /// Return `true` if the specified `value` is greater than or equal to 0,
+    /// and `false` otherwise'.
     static bool isValidNumLeaps(int value);
 
-    /// Return `true` if the specified `value` is greater than or equal to
-    /// 0, and `false` otherwise'.
+    /// Return `true` if the specified `value` is greater than or equal to 0,
+    /// and `false` otherwise'.
     static bool isValidNumTransitions(int value);
 
-    /// Return `true` if the specified `value` is greater than or equal to
-    /// 1, and `false` otherwise'.
+    /// Return `true` if the specified `value` is greater than or equal to 1,
+    /// and `false` otherwise'.
     static bool isValidNumLocalTimeTypes(int value);
 
-    /// Return `true` if the specified `value` is greater than or equal to
-    /// 1, and `false` otherwise'.
+    /// Return `true` if the specified `value` is greater than or equal to 1,
+    /// and `false` otherwise'.
     static bool isValidAbbrevDataSize(int value);
 
     // CREATORS
 
-    /// Create a `ZoneinfoBinaryHeader` object having the (default)
-    /// attribute values:
+    /// Create a `ZoneinfoBinaryHeader` object having the (default) attribute
+    /// values:
     /// ```
     /// version()           == 0
     /// numIsGmt()          == 0
@@ -258,11 +258,9 @@ class ZoneinfoBinaryHeader {
     /// Create a `ZoneinfoBinaryHeader` having the specified `version`,
     /// `numIsGmt`, `numIsStd`, `numLeaps`, `numTransitions`,
     /// `numLocalTimeTypes`, and `abbrevDataSize` values.  The behavior is
-    /// undefined unless `0 == version || 50 == version || 51 == version`,
-    /// `0 <= numIsGmt`, `0 <= numIsStd`, `0 == numLeaps`,
-    /// `0 <= numTransitions`, `1 <= numLocalTimeTypes`, and
-    /// `1 <= abbrevDataSize`.  Note that 50 is the value of ASCII
-    /// character `2` and 51 is the value of ASCII character `3`.
+    /// undefined unless ('0' <= version && version <= '4')`, `0 <= numIsGmt`,
+    /// `0 <= numIsStd`, `0 <= numLeaps`, `0 <= numTransitions`,
+    /// `1 <= numLocalTimeTypes`, and `1 <= abbrevDataSize`.
     ZoneinfoBinaryHeader(char version,
                          int  numIsGmt,
                          int  numIsStd,
@@ -281,29 +279,33 @@ class ZoneinfoBinaryHeader {
     ZoneinfoBinaryHeader& operator=(const ZoneinfoBinaryHeader& rhs);
 
     /// Set the `version` attribute of this object to the specified `value`.
-    /// The behavior is undefined unless '0 == value || 50 == value ||
-    /// 51 == value'.  Note that 50 is the value of ASCII character `2` and
-    /// 51 is the value of ASCII character `3`.
+    /// The behavior is undefined unless
+    /// '0 == value || (50 >= value || 52 <= value)'.  Note that 50 is the
+    /// value of ASCII character `2` and 52 is the value of ASCII character
+    /// `4`.
     void setVersion(char value);
 
-    /// Set the `numIsGmt` attribute of this object to the specified
-    /// `value`.  The behavior is undefined unless `0 <= value`.
+    /// Set the `numIsGmt` attribute of this object to the specified `value`.
+    /// The behavior is undefined unless `0 <= value`.
     void setNumIsGmt(int value);
 
-    /// Set the `numIsStd` attribute of this object to the specified
-    /// `value`.  The behavior is undefined unless `0 <= value`.
+    /// Set the `numIsStd` attribute of this object to the specified `value`.
+    /// The behavior is undefined unless `0 <= value`.
     void setNumIsStd(int value);
 
-    /// Set the `numLeaps` attribute of this object to the specified
-    /// `value`.  The behavior is undefined unless `0 == value`.
+    /// Set the `numLeaps` attribute of this object to the specified `value`.
+    /// The behavior is undefined unless `0 <= value`.  While we do not provide
+    /// parsed leap second transitions to clients, the requirement to be able
+    /// to handle version `4` of the Zoneinfo binary data files as well forces
+    /// us to allow a non-zero number of such transactions to be accepted.
     void setNumLeaps(int value);
 
     /// Set the `numTransitions` attribute of this object to the specified
     /// `value`.  The behavior is undefined unless `0 <= value`.
     void setNumTransitions(int value);
 
-    /// Set the `numLocalTimeTypes` attribute of this object to the
-    /// specified `value`.  The behavior is undefined unless `1 <= value`.
+    /// Set the `numLocalTimeTypes` attribute of this object to the specified
+    /// `value`.  The behavior is undefined unless `1 <= value`.
     void setNumLocalTimeTypes(int value);
 
     /// Set the `abbrevDataSize` attribute of this object to the specified
@@ -332,8 +334,7 @@ class ZoneinfoBinaryHeader {
     /// Return the value of the `numTransitions` attribute of this object.
     int numTransitions() const;
 
-    /// Return the value of the `numLocalTimeTypes` attribute of this
-    /// object.
+    /// Return the value of the `numLocalTimeTypes` attribute of this object.
     int numLocalTimeTypes() const;
 
     /// Return the value of the `abbrevDataSize` attribute of this object.
@@ -342,17 +343,17 @@ class ZoneinfoBinaryHeader {
                         // Aspects
 
     /// Write the value of this object to the specified output `stream` in a
-    /// human-readable format, and return a reference to `stream`.
-    /// Optionally specify an initial indentation `level`, whose absolute
-    /// value is incremented recursively for nested objects.  If `level` is
-    /// specified, optionally specify `spacesPerLevel`, whose absolute value
-    /// indicates the number of spaces per indentation level for this and
-    /// all of its nested objects.  If `level` is negative, suppress
-    /// indentation of the first line.  If `spacesPerLevel` is negative,
-    /// format the entire output on one line, suppressing all but the
-    /// initial indentation (as governed by `level`).  If `stream` is not
-    /// valid on entry, this operation has no effect.  Note that the format
-    /// is not fully specified, and can change without notice.
+    /// human-readable format, and return a reference to `stream`.  Optionally
+    /// specify an initial indentation `level`, whose absolute value is
+    /// incremented recursively for nested objects.  If `level` is specified,
+    /// optionally specify `spacesPerLevel`, whose absolute value indicates the
+    /// number of spaces per indentation level for this and all of its nested
+    /// objects.  If `level` is negative, suppress indentation of the first
+    /// line.  If `spacesPerLevel` is negative, format the entire output on one
+    /// line, suppressing all but the initial indentation (as governed by
+    /// `level`).  If `stream` is not valid on entry, this operation has no
+    /// effect.  Note that the format is not fully specified, and can change
+    /// without notice.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
@@ -360,35 +361,35 @@ class ZoneinfoBinaryHeader {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `ZoneinfoBinaryHeader` objects have
-/// the same value if the corresponding values of their `version`,
-/// `numIsGmt`, `numIsStd`, `numLeaps`, `numTransitions`,
-/// `numLocalTimeTypes`, and `abbrevDataSize` attributes are the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `ZoneinfoBinaryHeader` objects have the same
+/// value if the corresponding values of their `version`, `numIsGmt`,
+/// `numIsStd`, `numLeaps`, `numTransitions`, `numLocalTimeTypes`, and
+/// `abbrevDataSize` attributes are the same.
 bool operator==(const ZoneinfoBinaryHeader& lhs,
                 const ZoneinfoBinaryHeader& rhs);
 
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `ZoneinfoBinaryHeader` objects do not
-/// have the same value if the corresponding values of their `version`,
-/// `numIsGmt`, `numIsStd`, `numLeaps`, `numTransitions`,
-/// `numLocalTimeTypes`, or `abbrevDataSize` attributes are not the same.
+/// Return `true` if the specified `lhs` and `rhs` objects have the same value,
+/// and `false` otherwise.  Two `ZoneinfoBinaryHeader` objects do not have the
+/// same value if the corresponding values of their `version`, `numIsGmt`,
+/// `numIsStd`, `numLeaps`, `numTransitions`, `numLocalTimeTypes`, or
+/// `abbrevDataSize` attributes are not the same.
 bool operator!=(const ZoneinfoBinaryHeader& lhs,
                 const ZoneinfoBinaryHeader& rhs);
 
-/// Write the value of the specified `object` to the specified output
-/// `stream` in a single-line format, and return a reference to `stream`.
-/// If `stream` is not valid on entry, this operation has no effect.  Note
-/// that this human-readable format is not fully specified and can change
-/// without notice.  Also note that this method has the same behavior as
+/// Write the value of the specified `object` to the specified output `stream`
+/// in a single-line format, and return a reference to `stream`.  If `stream`
+/// is not valid on entry, this operation has no effect.  Note that this
+/// human-readable format is not fully specified and can change without notice.
+/// Also note that this method has the same behavior as
 /// `object.print(stream, 0, -1)`.
 bsl::ostream& operator<<(bsl::ostream&               stream,
                          const ZoneinfoBinaryHeader& object);
 
 // FREE FUNCTIONS
 
-/// Efficiently exchange the values of the specified `a` and `b` objects.
-/// This function provides the no-throw exception-safety guarantee.
+/// Efficiently exchange the values of the specified `a` and `b` objects.  This
+/// function provides the no-throw exception-safety guarantee.
 void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
 
 // ============================================================================
@@ -403,7 +404,7 @@ void swap(baltzo::ZoneinfoBinaryHeader& a, baltzo::ZoneinfoBinaryHeader& b);
 inline
 bool ZoneinfoBinaryHeader::isValidVersion(char value)
 {
-    return '\0' == value || '2' == value || '3' == value;
+    return '\0' == value || ('2' <= value && '4' >= value);
 }
 
 inline
@@ -421,7 +422,7 @@ bool ZoneinfoBinaryHeader::isValidNumIsStd(int value)
 inline
 bool ZoneinfoBinaryHeader::isValidNumLeaps(int value)
 {
-    return value == 0;
+    return value >= 0;
 }
 
 inline

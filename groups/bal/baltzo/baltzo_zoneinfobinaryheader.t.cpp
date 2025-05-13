@@ -2,7 +2,7 @@
 
 #include <baltzo_zoneinfobinaryheader.h>
 
-#include <bsl_string.h>
+#include <bslim_testutil.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -20,6 +20,7 @@
 #include <bsl_cstdlib.h>     // atoi()
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
+#include <bsl_string.h>
 
 // ============================================================================
 //                           ADL SWAP TEST HELPER
@@ -120,6 +121,7 @@ using namespace bsl;
 // [ 2] baltzo::ZoneinfoBinaryHeader();
 // [ 3] baltzo::ZoneinfoBinaryHeader(char, int, int, int, int, int, int);
 // [ 2] ~baltzo::ZoneinfoBinaryHeader();
+// [ 7] ZoneinfoBinaryHeader(const ZoneinfoBinaryHeader& original);
 //
 // MANIPULATORS
 // [ 9] operator=(const baltzo::ZoneinfoBinaryHeader& rhs);
@@ -160,69 +162,55 @@ using namespace bsl;
 // [ 3] CONCERN: Precondition violations are detected when enabled.
 
 // ============================================================================
-//                      STANDARD BDE ASSERT TEST MACROS
+//                     STANDARD BDE ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
-static int testStatus = 0;
+namespace {
 
-static void aSsErT(int c, const char *s, int i)
+int testStatus = 0;
+
+void aSsErT(bool condition, const char *message, int line)
 {
-    if (c) {
-        cout << "Error " << __FILE__ << "(" << i << "): " << s
+    if (condition) {
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
-        if (testStatus >= 0 && testStatus <= 100) ++testStatus;
+
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
+        }
     }
 }
-# define ASSERT(X) { aSsErT(!(X), #X, __LINE__); }
+
+}  // close unnamed namespace
 
 // ============================================================================
-//                   STANDARD BDE LOOP-ASSERT TEST MACROS
+//               STANDARD BDE TEST DRIVER MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define LOOP_ASSERT(I,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\n"; aSsErT(1, #X, __LINE__);}}
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-#define LOOP2_ASSERT(I,J,X) { \
-    if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " \
-              << J << "\n"; aSsErT(1, #X, __LINE__); } }
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
 
-#define LOOP3_ASSERT(I,J,K,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" \
-              << #K << ": " << K << "\n"; aSsErT(1, #X, __LINE__); } }
-
-#define LOOP4_ASSERT(I,J,K,L,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP5_ASSERT(I,J,K,L,M,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
-
-#define LOOP6_ASSERT(I,J,K,L,M,N,X) { \
-   if (!(X)) { cout << #I << ": " << I << "\t" << #J << ": " << J << "\t" << \
-       #K << ": " << K << "\t" << #L << ": " << L << "\t" << \
-       #M << ": " << M << "\t" << #N << ": " << N << "\n"; \
-       aSsErT(1, #X, __LINE__); } }
+#define Q            BSLIM_TESTUTIL_Q   // Quote identifier literally.
+#define P            BSLIM_TESTUTIL_P   // Print identifier and value.
+#define P_           BSLIM_TESTUTIL_P_  // P(X) without '\n'.
+#define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
+#define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                     SEMI-STANDARD TEST OUTPUT MACROS
+//                  NEGATIVE-TEST MACRO ABBREVIATIONS
 // ----------------------------------------------------------------------------
 
-#define P(X) cout << #X " = " << (X) << endl; // Print identifier and value.
-#define Q(X) cout << "<| " #X " |>" << endl;  // Quote identifier literally.
-#define P_(X) cout << #X " = " << (X) << ", " << flush; // P(X) without '\n'
-#define T_ cout << "\t" << flush;             // Print tab w/o newline
-#define L_ __LINE__                           // current Line number
-
-// ============================================================================
-//                     NEGATIVE-TEST MACRO ABBREVIATIONS
-// ----------------------------------------------------------------------------
-
-#define ASSERT_SAFE_FAIL(expr) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(expr)
-#define ASSERT_SAFE_PASS(expr) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(expr)
+#define ASSERT_SAFE_PASS(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPR)
+#define ASSERT_SAFE_FAIL(EXPR) BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPR)
 #define ASSERT_PASS(EXPR)      BSLS_ASSERTTEST_ASSERT_PASS(EXPR)
 #define ASSERT_FAIL(EXPR)      BSLS_ASSERTTEST_ASSERT_FAIL(EXPR)
 
@@ -266,6 +254,7 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   '\0',       0,       0,       0,       0,       1,       1 },
     { L_,    '2',       0,       0,       0,       0,       1,       1 },
     { L_,    '3',       0,       0,       0,       0,       1,       1 },
+    { L_,    '4',       0,       0,       0,       0,       1,       1 },
 
     // `numIsGmt`
     { L_,   '\0',       0,       0,       0,       0,       1,       1 },
@@ -277,6 +266,7 @@ const DefaultDataRow DEFAULT_DATA[] =
 
     // `numLeaps`
     { L_,   '\0',       0,       0,       0,       0,       1,       1 },
+    { L_,   '\0',       0,       0, INT_MAX,       0,       1,       1 },
 
     // `numTransitions`
     { L_,   '\0',       0,       0,       0,       0,       1,       1 },
@@ -292,37 +282,65 @@ const DefaultDataRow DEFAULT_DATA[] =
     { L_,   '\0',       0,       0,       0,       0,       1, INT_MAX },
 
     // other
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1 },
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX },
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX },
     { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX,       1 },
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX,       1, INT_MAX },
-    { L_,   '\0', INT_MAX, INT_MAX,       0,       0, INT_MAX, INT_MAX },
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,   '\0', INT_MAX,       0,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,   '\0',       0, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
+    { L_,   '\0', INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,   '\0',       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
 
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX,       2 },
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX,       2, INT_MAX },
-    { L_,   '\0', INT_MAX, INT_MAX,       0,       1, INT_MAX, INT_MAX },
-    { L_,   '\0', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,   '\0', INT_MAX,       1,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,   '\0',       1, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2 },
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2, INT_MAX },
+    { L_,   '\0', INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX },
+    { L_,   '\0', INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX },
+    { L_,   '\0', INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,   '\0',       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
 
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1 },
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX },
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX },
     { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX,       1 },
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX,       1, INT_MAX },
-    { L_,    '2', INT_MAX, INT_MAX,       0,       0, INT_MAX, INT_MAX },
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,    '2', INT_MAX,       0,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,    '2',       0, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '2', INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '2',       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
 
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX,       2 },
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX,       2, INT_MAX },
-    { L_,    '2', INT_MAX, INT_MAX,       0,       1, INT_MAX, INT_MAX },
-    { L_,    '2', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,    '2', INT_MAX,       1,       0, INT_MAX, INT_MAX, INT_MAX },
-    { L_,    '2',       1, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2 },
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2, INT_MAX },
+    { L_,    '2', INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX },
+    { L_,    '2', INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '2', INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '2',       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1 },
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX },
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX },
+    { L_,    '3', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '3', INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '3',       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2 },
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2, INT_MAX },
+    { L_,    '3', INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX },
+    { L_,    '3', INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '3', INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '3',       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1 },
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX },
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX },
+    { L_,    '4', INT_MAX, INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '4', INT_MAX,       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '4',       0, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2 },
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX, INT_MAX,       2, INT_MAX },
+    { L_,    '4', INT_MAX, INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX },
+    { L_,    '4', INT_MAX, INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '4', INT_MAX,       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
+    { L_,    '4',       1, INT_MAX, INT_MAX, INT_MAX, INT_MAX, INT_MAX },
 
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -685,7 +703,8 @@ int main(int argc, char *argv[])
                 { L_,        '2' - 1,   false   },
                 { L_,        '2' + 0,    true   },
                 { L_,        '3' + 0,    true   },
-                { L_,        '3' + 1,   false   },
+                { L_,        '4' + 0,    true   },
+                { L_,        '4' + 1,   false   },
 
                 { L_,   CHAR_MAX - 1,   false   },
                 { L_,   CHAR_MAX + 0,   false   },
@@ -798,10 +817,10 @@ int main(int argc, char *argv[])
 
                 { L_,          0 - 1,   false   },
                 { L_,          0 + 0,    true   },
-                { L_,          0 + 1,   false   },
+                { L_,          0 + 1,    true   },
 
-                { L_,    INT_MAX - 1,   false   },
-                { L_,    INT_MAX + 0,   false   },
+                { L_,    INT_MAX - 1,    true   },
+                { L_,    INT_MAX + 0,    true   },
 
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1491,21 +1510,123 @@ int main(int argc, char *argv[])
         //   other one, such that the two objects have the same value.
         //
         // Concerns:
-        //   N/A
+        // 1. The copy constructor  creates an object having the same value as
+        //    that of the supplied original object.
+        //
+        // 2. There is no memory allocation from any allocator.
+        //
+        // 3. The original object is passed as a `const` reference.
+        //
+        // 4. The value of the original object is unchanged.
         //
         // Plan:
-        //   N/A
+        // 1. Create a `bslma::TestAllocator` object and install it as the
+        //    current default allocator.
+        //
+        // 2. Using the table-driven technique specify a set of (unique) valid
+        //    object values (one per row) in terms of their individual
+        //    attributes, including (a) first, the default value, (b) boundary
+        //    values corresponding to every range of values that each
+        //    individual attribute can independently attain.
+        //
+        // 3. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-2:
+        //
+        //   1. Use the value constructor to create source `const` `Obj` `Y`
+        //      and control `const` `Obj` `Z`, each having the value `V`.
+        //
+        //   2. Use the copy constructor to create an object `X`, supplying it
+        //      the `const` object `Y`.  (C-3)
+        //
+        //   3. Use the equality-comparison operator to verify that:
+        //
+        //       1. The newly constructed object, `X`, has the same value as
+        //          that of `Y`.  (C-1)
+        //
+        //       2. `Y` still has the same value as that of `Z`.  (C-4)
+        //
+        //   4. Verify that no memory has been allocated from the default
+        //      allocator.  (C-2)
         //
         // Testing:
-        //   Reserved for copy construction.
+        //   ZoneinfoBinaryHeader(const ZoneinfoBinaryHeader& original);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
                           << "COPY CONSTRUCTOR" << endl
                           << "================" << endl;
 
-        if (verbose) cout << "Not yet implemented." << endl;
+        if (verbose) cout << "\nVerify that signature is standard." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(const Obj&);
 
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorAssignment = &Obj::operator=;
+
+            (void)operatorAssignment;  // quash potential compiler warning
+        }
+
+        if (verbose) cout << "\nTest copy constructor." << endl;
+
+        // Create a test allocator and install it as the default.
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        const int                    NUM_DATA  = DEFAULT_NUM_DATA;
+        const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE   = DATA[ti].d_line;
+            const char VERSION = DATA[ti].d_version;
+            const int  NISGMT = DATA[ti].d_numIsGmt;
+            const int  NISSTD = DATA[ti].d_numIsStd;
+            const int  NLEAPS = DATA[ti].d_numLeaps;
+            const int  NTRANS = DATA[ti].d_numTransitions;
+            const int  NLTT   = DATA[ti].d_numLocalTimeTypes;
+            const int  ABBRSZ = DATA[ti].d_abbrevDataSize;
+
+            const Obj Y(VERSION,  // source object
+                        NISGMT,
+                        NISSTD,
+                        NLEAPS,
+                        NTRANS,
+                        NLTT,
+                        ABBRSZ);
+            const Obj Z(VERSION,  // control object
+                        NISGMT,
+                        NISSTD,
+                        NLEAPS,
+                        NTRANS,
+                        NLTT,
+                        ABBRSZ);
+
+            ASSERTV(LINE, Y, Z, Y == Z);
+            if (veryVerbose) { T_ P_(LINE) P_(Y) P(Z) }
+
+            // Ensure the first row of the table contains the
+            // default-constructed value.
+
+            static bool firstFlag = true;
+            if (firstFlag) {
+                LOOP3_ASSERT(LINE, Obj(), Z, Obj() == Z);
+                firstFlag = false;
+            }
+
+            // Construction
+            Obj        mX(Y);
+            const Obj& X = mX;
+
+            // Verify the value of the object.
+            ASSERTV(LINE, Y, X, Y == X);
+
+            // Verify that the value of source object has not changed.
+            ASSERTV(LINE, Z, Y, Z == Y);
+
+            // Verify that no extra memory has been allocated.
+            ASSERTV(LINE, 0 == da.numBlocksTotal());
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -1561,8 +1682,6 @@ int main(int argc, char *argv[])
         //    a pair of rows that differ (slightly) in only the column
         //    corresponding to that attribute, and (b) all attribute values
         //    that can allocate memory on construction do so.
-        //    - Note that `numLeaps` (Attribute 4) is excluded here because it
-        //      it must always be 0.
         //
         // 4. For each row `R1` in the table of P-3:  (C-1..7)
         //
@@ -1615,8 +1734,6 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
             "\nCreate a test allocator and install it as the default." << endl;
 
-        const int           NLEAPS = 0;
-
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
@@ -1627,6 +1744,8 @@ int main(int argc, char *argv[])
 
         const T1 A1 = '\0';                 // baseline
         const T1 B1 =  '2';
+        const T1 C1 =  '3';
+        const T1 D1 =  '4';
 
         // Attribute 2 Values: `numIsGmt`
 
@@ -1638,22 +1757,25 @@ int main(int argc, char *argv[])
         const T3 A3 =  3;                   // baseline
         const T3 B3 =  4;
 
-        // Attribute 4 Values: `numLeaps`   Excluded per P-3.
+        // Attribute 4 Values: `numLeaps`
+
+        const T4 A4 =  5;                   // baseline
+        const T4 B4 =  6;
 
         // Attribute 5 Values: `numTransitions`
 
-        const T5 A5 =  5;                   // baseline
-        const T5 B5 =  6;
+        const T5 A5 =  7;                   // baseline
+        const T5 B5 =  8;
 
         // Attribute 6 Values: `numLocalTimeTypes`
 
-        const T6 A6 =  7;                   // baseline
-        const T6 B6 =  8;
+        const T6 A6 =  9;                   // baseline
+        const T6 B6 = 10;
 
         // Attribute 7 Values: `abbrevDataSize`
 
-        const T7 A7 =  9;                   // baseline
-        const T7 B7 = 10;
+        const T7 A7 = 11;                   // baseline
+        const T7 B7 = 12;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -1663,6 +1785,7 @@ int main(int argc, char *argv[])
             char d_version;
             int  d_numIsGmt;
             int  d_numIsStd;
+            int  d_numLeaps;
             int  d_numTransitions;
             int  d_numLocalTimeTypes;
             int  d_abbrevDataSize;
@@ -1670,20 +1793,21 @@ int main(int argc, char *argv[])
             // The first row of the table below represents an object value
             // consisting of "baseline" attribute values (A1..A3,A5..An).  Each
             // subsequent row differs (slightly) from the first in exactly one
-            // attribute value (Bi).  Note that `numLeaps` (A4) is excluded be
-            // it must always be 0.
+            // attribute value (Bi).
 
-            //LINE VER NISGMT NISSTD NTRANS NLTT ABBRSZ
-            //---- --- ------ ------ ------ ---- ------
+            //LINE VER NISGMT NISSTD NLEAPS NTRANS NLTT ABBRSZ
+            //---- --- ------ ------ ------ ------ ---- ------
+            { L_,  A1, A2,    A3,    A4,    A5,    A6,  A7    },  // baseline
 
-            { L_,  A1, A2,    A3,    A5,    A6,  A7    },  // baseline
-
-            { L_,  B1, A2,    A3,    A5,    A6,  A7    },
-            { L_,  A1, B2,    A3,    A5,    A6,  A7    },
-            { L_,  A1, A2,    B3,    A5,    A6,  A7    },
-            { L_,  A1, A2,    A3,    B5,    A6,  A7    },
-            { L_,  A1, A2,    A3,    A5,    B6,  A7    },
-            { L_,  A1, A2,    A3,    A5,    A6,  B7    },
+            { L_,  B1, A2,    A3,    A4,    A5,    A6,  A7    },
+            { L_,  C1, A2,    A3,    A4,    A5,    A6,  A7    },
+            { L_,  D1, A2,    A3,    A4,    A5,    A6,  A7    },
+            { L_,  A1, B2,    A3,    A4,    A5,    A6,  A7    },
+            { L_,  A1, A2,    B3,    A4,    A5,    A6,  A7    },
+            { L_,  A1, A2,    A3,    B4,    A5,    A6,  A7    },
+            { L_,  A1, A2,    A3,    A4,    B5,    A6,  A7    },
+            { L_,  A1, A2,    A3,    A4,    A5,    B6,  A7    },
+            { L_,  A1, A2,    A3,    A4,    A5,    A6,  B7    },
         };
 
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1695,6 +1819,7 @@ int main(int argc, char *argv[])
             const char VER1    = DATA[ti].d_version;
             const int  NISGMT1 = DATA[ti].d_numIsGmt;
             const int  NISSTD1 = DATA[ti].d_numIsStd;
+            const int  NLEAPS1 = DATA[ti].d_numLeaps;
             const int  NTRANS1 = DATA[ti].d_numTransitions;
             const int  NLTT1   = DATA[ti].d_numLocalTimeTypes;
             const int  ABBRSZ1 = DATA[ti].d_abbrevDataSize;
@@ -1703,6 +1828,7 @@ int main(int argc, char *argv[])
                                   P_((int)VER1)
                                   P_(NISGMT1)
                                   P_(NISSTD1)
+                                  P_(NLEAPS1)
                                   P_(NTRANS1)
                                   P_(NLTT1)
                                   P(ABBRSZ1)
@@ -1713,7 +1839,7 @@ int main(int argc, char *argv[])
                 const Obj X(VER1,
                             NISGMT1,
                             NISSTD1,
-                            NLEAPS,
+                            NLEAPS1,
                             NTRANS1,
                             NLTT1,
                             ABBRSZ1);
@@ -1727,6 +1853,7 @@ int main(int argc, char *argv[])
                 const char VER2    = DATA[tj].d_version;
                 const int  NISGMT2 = DATA[tj].d_numIsGmt;
                 const int  NISSTD2 = DATA[tj].d_numIsStd;
+                const int  NLEAPS2 = DATA[tj].d_numLeaps;
                 const int  NTRANS2 = DATA[tj].d_numTransitions;
                 const int  NLTT2   = DATA[tj].d_numLocalTimeTypes;
                 const int  ABBRSZ2 = DATA[tj].d_abbrevDataSize;
@@ -1735,6 +1862,7 @@ int main(int argc, char *argv[])
                                       P_((int)VER2)
                                       P_(NISGMT2)
                                       P_(NISSTD2)
+                                      P_(NLEAPS2)
                                       P_(NTRANS2)
                                       P_(NLTT2)
                                       P(ABBRSZ2)
@@ -1745,7 +1873,7 @@ int main(int argc, char *argv[])
                 const Obj X(VER1,
                             NISGMT1,
                             NISSTD1,
-                            NLEAPS,
+                            NLEAPS1,
                             NTRANS1,
                             NLTT1,
                             ABBRSZ1);
@@ -1753,7 +1881,7 @@ int main(int argc, char *argv[])
                 const Obj Y(VER2,
                             NISGMT2,
                             NISSTD2,
-                            NLEAPS,
+                            NLEAPS2,
                             NTRANS2,
                             NLTT2,
                             ABBRSZ2);
@@ -1807,16 +1935,17 @@ int main(int argc, char *argv[])
         //
         // 2. Using the table-driven technique:  (C-1..3, 5, 7)
         //
-        //   1. Define thirteen carefully selected combinations of (three)
-        //      object values (`A`, `B` and `C`), having distinct values for
-        //      each corresponding salient attribute, and various values for
-        //      the two formatting parameters, along with the expected output
-        //      ( `value` x  `level`   x `spacesPerLevel` ):
+        //   1. Define thirteen carefully selected combinations of (four)
+        //      object values (`A`, `B`, `C` and `D`), having distinct values
+        //      for each corresponding salient attribute, and various values
+        //      for the two formatting parameters, along with the expected
+        //      output ( `value` x  `level`   x `spacesPerLevel` ):
         //     1. { A   } x {  0     } x {  0, 1, -1 }  -->  3 expected outputs
         //     2. { A   } x {  3, -3 } x {  0, 2, -2 }  -->  6 expected outputs
         //     3. { B   } x {  2     } x {  3        }  -->  1 expected output
         //     4. { A B } x { -9     } x { -9        }  -->  2 expected output
         //     5. { C   } x {  2     } x {  3        }  -->  1 expected output
+        //     6. { D   } x {  2     } x {  3        }  -->  1 expected output
         //
         //   2. For each row in the table defined in P-2.1:  (C-1..3, 5, 7)
         //
@@ -1887,37 +2016,37 @@ int main(int argc, char *argv[])
         // P-2.1.1: { A } x { 0 }     x { 0, 1, -1 }  -->  3 expected outputs
         // ------------------------------------------------------------------
 
-        { L_,   0,  0, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,   0,  0, '\0',    11,    12,   13,    14,  15,    16,
                                                     "["                      NL
                                                     "version = 0"            NL
                                                     "numIsGmt = 11"          NL
                                                     "numIsStd = 12"          NL
-                                                    "numLeaps = 0"           NL
-                                                    "numTransitions = 13"    NL
-                                                    "numLocalTimeTypes = 14" NL
-                                                    "abbrevDataSize = 15"    NL
+                                                    "numLeaps = 13"          NL
+                                                    "numTransitions = 14"    NL
+                                                    "numLocalTimeTypes = 15" NL
+                                                    "abbrevDataSize = 16"    NL
                                                     "]"                      NL
                                                                              },
-        { L_,   0,  1, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,   0,  1, '\0',    11,    12,   13,    14,  15,    16,
                                                    "["                       NL
                                                    " version = 0"            NL
                                                    " numIsGmt = 11"          NL
                                                    " numIsStd = 12"          NL
-                                                   " numLeaps = 0"           NL
-                                                   " numTransitions = 13"    NL
-                                                   " numLocalTimeTypes = 14" NL
-                                                   " abbrevDataSize = 15"    NL
+                                                   " numLeaps = 13"          NL
+                                                   " numTransitions = 14"    NL
+                                                   " numLocalTimeTypes = 15" NL
+                                                   " abbrevDataSize = 16"    NL
                                                    "]"                       NL
                                                                              },
-        { L_,   0, -1, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,   0, -1, '\0',    11,    12,   13,    14,  15,    16,
                                                     "["                      SP
                                                     "version = 0"            SP
                                                     "numIsGmt = 11"          SP
                                                     "numIsStd = 12"          SP
-                                                    "numLeaps = 0"           SP
-                                                    "numTransitions = 13"    SP
-                                                    "numLocalTimeTypes = 14" SP
-                                                    "abbrevDataSize = 15"    SP
+                                                    "numLeaps = 13"          SP
+                                                    "numTransitions = 14"    SP
+                                                    "numLocalTimeTypes = 15" SP
+                                                    "abbrevDataSize = 16"    SP
                                                     "]"
                                                                              },
 
@@ -1925,70 +2054,70 @@ int main(int argc, char *argv[])
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 }  -->  6 expected outputs
         // ------------------------------------------------------------------
 
-        { L_,   3,  0, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,   3,  0, '\0',    11,    12,   13,    14,  15,    16,
                                                     "["                      NL
                                                     "version = 0"            NL
                                                     "numIsGmt = 11"          NL
                                                     "numIsStd = 12"          NL
-                                                    "numLeaps = 0"           NL
-                                                    "numTransitions = 13"    NL
-                                                    "numLocalTimeTypes = 14" NL
-                                                    "abbrevDataSize = 15"    NL
+                                                    "numLeaps = 13"          NL
+                                                    "numTransitions = 14"    NL
+                                                    "numLocalTimeTypes = 15" NL
+                                                    "abbrevDataSize = 16"    NL
                                                     "]"                      NL
                                                                              },
-        { L_,   3,  2, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,   3,  2, '\0',    11,    12,   13,    14,  15,    16,
                                             "      ["                        NL
                                             "        version = 0"            NL
                                             "        numIsGmt = 11"          NL
                                             "        numIsStd = 12"          NL
-                                            "        numLeaps = 0"           NL
-                                            "        numTransitions = 13"    NL
-                                            "        numLocalTimeTypes = 14" NL
-                                            "        abbrevDataSize = 15"    NL
+                                            "        numLeaps = 13"          NL
+                                            "        numTransitions = 14"    NL
+                                            "        numLocalTimeTypes = 15" NL
+                                            "        abbrevDataSize = 16"    NL
                                             "      ]"                        NL
                                                                              },
-        { L_,   3, -2, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,   3, -2, '\0',    11,    12,   13,    14,  15,    16,
                                                    "      ["                 SP
                                                    "version = 0"             SP
                                                    "numIsGmt = 11"           SP
                                                    "numIsStd = 12"           SP
-                                                   "numLeaps = 0"            SP
-                                                   "numTransitions = 13"     SP
-                                                   "numLocalTimeTypes = 14"  SP
-                                                   "abbrevDataSize = 15"     SP
+                                                   "numLeaps = 13"           SP
+                                                   "numTransitions = 14"     SP
+                                                   "numLocalTimeTypes = 15"  SP
+                                                   "abbrevDataSize = 16"     SP
                                                    "]"
                                                                              },
-        { L_,  -3,  0, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,  -3,  0, '\0',    11,    12,   13,    14,  15,    16,
                                                     "["                      NL
                                                     "version = 0"            NL
                                                     "numIsGmt = 11"          NL
                                                     "numIsStd = 12"          NL
-                                                    "numLeaps = 0"           NL
-                                                    "numTransitions = 13"    NL
-                                                    "numLocalTimeTypes = 14" NL
-                                                    "abbrevDataSize = 15"    NL
+                                                    "numLeaps = 13"          NL
+                                                    "numTransitions = 14"    NL
+                                                    "numLocalTimeTypes = 15" NL
+                                                    "abbrevDataSize = 16"    NL
                                                     "]"                      NL
                                                                              },
-        { L_,  -3,  2, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,  -3,  2, '\0',    11,    12,   13,    14,  15,    16,
                                             "["                              NL
                                             "        version = 0"            NL
                                             "        numIsGmt = 11"          NL
                                             "        numIsStd = 12"          NL
-                                            "        numLeaps = 0"           NL
-                                            "        numTransitions = 13"    NL
-                                            "        numLocalTimeTypes = 14" NL
-                                            "        abbrevDataSize = 15"    NL
+                                            "        numLeaps = 13"          NL
+                                            "        numTransitions = 14"    NL
+                                            "        numLocalTimeTypes = 15" NL
+                                            "        abbrevDataSize = 16"    NL
                                             "      ]"                        NL
                                                                              },
-        { L_,  -3, -2, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,  -3, -2, '\0',    11,    12,   13,    14,  15,    16,
                                                    "["                       SP
                                                    "version = 0"             SP
                                                    "numIsGmt = 11"           SP
                                                    "numIsStd = 12"           SP
-                                                   "numLeaps = 0"            SP
-                                                   "numTransitions = 13"     SP
-                                                   "numLocalTimeTypes = 14"  SP
-                                                   "abbrevDataSize = 15"     SP
+                                                   "numLeaps = 13"           SP
+                                                   "numTransitions = 14"     SP
+                                                   "numLocalTimeTypes = 15"  SP
+                                                   "abbrevDataSize = 16"     SP
                                                    "]"
                                                                              },
 
@@ -1996,15 +2125,15 @@ int main(int argc, char *argv[])
         // P-2.1.3: { B } x { 2 }     x { 3 }         -->  1 expected output
         // -----------------------------------------------------------------
 
-        { L_,   2,  3,  '2',    21,    22,     0,    23,  24,    25,
+        { L_,   2,  3,  '2',    21,    22,   23,    24,  25,    26,
                                            "      ["                         NL
                                            "         version = 50"           NL
                                            "         numIsGmt = 21"          NL
                                            "         numIsStd = 22"          NL
-                                           "         numLeaps = 0"           NL
-                                           "         numTransitions = 23"    NL
-                                           "         numLocalTimeTypes = 24" NL
-                                           "         abbrevDataSize = 25"    NL
+                                           "         numLeaps = 23"          NL
+                                           "         numTransitions = 24"    NL
+                                           "         numLocalTimeTypes = 25" NL
+                                           "         abbrevDataSize = 26"    NL
                                            "      ]"                         NL
                                                                              },
 
@@ -2012,26 +2141,26 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 }   x { -9 }      -->  2 expected outputs
         // -----------------------------------------------------------------
 
-        { L_,  -9, -9, '\0',    11,    12,     0,    13,  14,    15,
+        { L_,  -9, -9, '\0',    11,    12,   13,    14,  15,    16,
                                                     "["                      SP
                                                     "version = 0"            SP
                                                     "numIsGmt = 11"          SP
                                                     "numIsStd = 12"          SP
-                                                    "numLeaps = 0"           SP
-                                                    "numTransitions = 13"    SP
-                                                    "numLocalTimeTypes = 14" SP
-                                                    "abbrevDataSize = 15"    SP
+                                                    "numLeaps = 13"          SP
+                                                    "numTransitions = 14"    SP
+                                                    "numLocalTimeTypes = 15" SP
+                                                    "abbrevDataSize = 16"    SP
                                                     "]"
                                                                              },
-        { L_,  -9, -9,  '2',    21,    22,     0,    23,  24,    25,
+        { L_,  -9, -9,  '2',    21,    22,   23,    24,  25,    26,
                                                     "["                      SP
                                                     "version = 50"           SP
                                                     "numIsGmt = 21"          SP
                                                     "numIsStd = 22"          SP
-                                                    "numLeaps = 0"           SP
-                                                    "numTransitions = 23"    SP
-                                                    "numLocalTimeTypes = 24" SP
-                                                    "abbrevDataSize = 25"    SP
+                                                    "numLeaps = 23"          SP
+                                                    "numTransitions = 24"    SP
+                                                    "numLocalTimeTypes = 25" SP
+                                                    "abbrevDataSize = 26"    SP
                                                     "]"
                                                                              },
 
@@ -2039,15 +2168,31 @@ int main(int argc, char *argv[])
         // P-2.1.5: { C } x { 2 }     x { 3 }         -->  1 expected output
         // -----------------------------------------------------------------
 
-        { L_,   2,  3,  '3',    21,    22,     0,    23,  24,    25,
+        { L_,   2,  3,  '3',    31,    32,   33,    34,  35,    36,
                                            "      ["                         NL
                                            "         version = 51"           NL
-                                           "         numIsGmt = 21"          NL
-                                           "         numIsStd = 22"          NL
-                                           "         numLeaps = 0"           NL
-                                           "         numTransitions = 23"    NL
-                                           "         numLocalTimeTypes = 24" NL
-                                           "         abbrevDataSize = 25"    NL
+                                           "         numIsGmt = 31"          NL
+                                           "         numIsStd = 32"          NL
+                                           "         numLeaps = 33"          NL
+                                           "         numTransitions = 34"    NL
+                                           "         numLocalTimeTypes = 35" NL
+                                           "         abbrevDataSize = 36"    NL
+                                           "      ]"                         NL
+                                                                             },
+
+        // -----------------------------------------------------------------
+        // P-2.1.6: { D } x { 2 }     x { 3 }         -->  1 expected output
+        // -----------------------------------------------------------------
+
+        { L_,   2,  3,  '4',    41,    42,   43,    44,  45,    46,
+                                           "      ["                         NL
+                                           "         version = 52"           NL
+                                           "         numIsGmt = 41"          NL
+                                           "         numIsStd = 42"          NL
+                                           "         numLeaps = 43"          NL
+                                           "         numTransitions = 44"    NL
+                                           "         numLocalTimeTypes = 45" NL
+                                           "         abbrevDataSize = 46"    NL
                                            "      ]"                         NL
                                                                              },
 #undef NL
@@ -2118,7 +2263,6 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, EXP, os.str(), EXP == os.str());
             }
         }
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2133,10 +2277,6 @@ int main(int argc, char *argv[])
         //
         // 3. No accessor allocates any memory.
         //
-        // 4. Accessors for attributes that can allocate memory (i.e., those
-        //    that take an allocator in their constructor) return a reference
-        //    providing only non-modifiable access.
-        //
         // Plan:
         //   In case 3 we demonstrated that all basic accessors work properly
         //   with respect to attributes initialized by the value constructor.
@@ -2144,12 +2284,12 @@ int main(int argc, char *argv[])
         //   which were fully tested in case 2, to further corroborate that
         //   these accessors are properly interpreting object state.
         //
-        // 1. Create two `bslma::TestAllocator` objects, and install one as
+        // 1. Create a `bslma::TestAllocator` object and install it as
         //    the current default allocator (note that a ubiquitous test
         //    allocator is already installed as the global allocator).
         //
-        // 2. Use the default constructor, using the other test allocator
-        //    from P-1, to create an object (having default attribute values).
+        // 2. Use the default constructor to create an object (having default
+        //    attribute values).
         //
         // 3. Verify that each basic accessor, invoked on a reference providing
         //    non-modifiable access to the object created in P2, returns the
@@ -2162,9 +2302,9 @@ int main(int argc, char *argv[])
         //   2. Use the corresponding basic accessor to verify the new
         //      expected value.  (C-1)
         //
-        //   3. Monitor the memory allocated from both the default and object
-        //      allocators before and after calling the accessor; verify that
-        //      there is no change in total memory allocation.  (C-3..4)
+        //   3. Monitor the memory allocated from the default allocator before
+        //      and after calling the accessor; verify that there is no change
+        //      in total memory allocation.  (C-3)
         //
         // Testing:
         //   char version() const;
@@ -2182,9 +2322,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // -----------------------------------------------------
-        // `D` values: These are the default-constructed values.
-        // -----------------------------------------------------
+        // `D` values: These are the expected default-constructed values.
 
         const T1 D1 = '\0'; // `version`
         const T2 D2 =  0;   // `numIsGmt`
@@ -2194,17 +2332,14 @@ int main(int argc, char *argv[])
         const T6 D6 =  1;   // `numLocalTimeTypes`
         const T7 D7 =  1;   // `abbrevDataSize`
 
-        // ----------
-        // `A` values
-        // ----------
 
-        const T1 A1 = '2';
-        const T2 A2 =  1;
-        const T3 A3 =  1;
-        const T4 A4 =  0;
-        const T5 A5 =  1;
-        const T6 A6 =  1;
-        const T7 A7 =  1;
+        // Valid values for attributes.
+
+        const char   versionValues[]    = {'\0', '2', '3', '4'};
+        const size_t numVersionValues   = sizeof(versionValues);
+        const int    attributeValues[]  = {1, 2, INT_MAX -1, INT_MAX};
+        const size_t numAttributeValues =
+                                         sizeof(attributeValues) / sizeof(int);
 
         if (verbose) cout <<
            "\nCreate a test allocators; install it as the default." << endl;
@@ -2250,87 +2385,73 @@ int main(int argc, char *argv[])
             "\nApply primary manipulators and verify expected values." << endl;
 
         if (veryVerbose) { T_ Q(version) }
-        {
-            mX.setVersion(A1);
+        for (size_t i = 0; i < numVersionValues; ++i) {
+            const char VERSION = versionValues[i];
 
+            mX.setVersion(VERSION);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T1& version = X.version();
-            LOOP2_ASSERT(A1, version, A1 == version);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(VERSION == X.version());
+            ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(numIsGmt) }
-        {
-            mX.setNumIsGmt(A2);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NISGMT = attributeValues[i];
 
+            mX.setNumIsGmt(NISGMT);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T2& numIsGmt = X.numIsGmt();
-            LOOP2_ASSERT(A2, numIsGmt, A2 == numIsGmt);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(NISGMT == X.numIsGmt());
+            ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(numIsStd) }
-        {
-            mX.setNumIsStd(A3);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NISSTD = attributeValues[i];
 
+            mX.setNumIsStd(NISSTD);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T3& numIsStd = X.numIsStd();
-            LOOP2_ASSERT(A3, numIsStd, A3 == numIsStd);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(NISSTD == X.numIsStd());
+            ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(numLeaps) }
-        {
-            mX.setNumLeaps(A4);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NLEAPS = attributeValues[i];
 
+            mX.setNumLeaps(NLEAPS);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T4& numLeaps = X.numLeaps();
-            LOOP2_ASSERT(A4, numLeaps, A4 == numLeaps);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(NLEAPS == X.numLeaps());
+            ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(numTransitions) }
-        {
-            mX.setNumTransitions(A5);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NTRANS = attributeValues[i];
 
+            mX.setNumTransitions(NTRANS);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T5& numTransitions = X.numTransitions();
-            LOOP2_ASSERT(A5, numTransitions, A5 == numTransitions);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(NTRANS == X.numTransitions());
+            ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(numLocalTimeTypes) }
-        {
-            mX.setNumLocalTimeTypes(A6);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NLTT = attributeValues[i];
 
+            mX.setNumLocalTimeTypes(NLTT);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T6& numLocalTimeTypes = X.numLocalTimeTypes();
-            LOOP2_ASSERT(A6, numLocalTimeTypes, A6 == numLocalTimeTypes);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(NLTT == X.numLocalTimeTypes());
+            ASSERT(dam.isTotalSame());
         }
 
         if (veryVerbose) { T_ Q(abbrevDataSize) }
-        {
-            mX.setAbbrevDataSize(A7);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int ABBRSZ = attributeValues[i];
 
+            mX.setAbbrevDataSize(ABBRSZ);
             bslma::TestAllocatorMonitor dam(&da);
-
-            const T7& abbrevDataSize = X.abbrevDataSize();
-            LOOP2_ASSERT(A7, abbrevDataSize, A7 == abbrevDataSize);
-
-            ASSERT(dam.isInUseSame());
+            ASSERT(ABBRSZ == X.abbrevDataSize());
+            ASSERT(dam.isTotalSame());
         }
 
         // Double check that no default memory was allocated.
@@ -2574,7 +2695,14 @@ int main(int argc, char *argv[])
                                 NTRANS,
                                 NLTT,
                                 ABBRSZ));
-                ASSERT_FAIL(Obj('3' + 1,        // version
+                ASSERT_PASS(Obj('4',            // version
+                                NISGMT,
+                                NISSTD,
+                                NLEAPS,
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_FAIL(Obj('4' + 1,        // version
                                 NISGMT,
                                 NISSTD,
                                 NLEAPS,
@@ -2677,10 +2805,24 @@ int main(int argc, char *argv[])
                                 NTRANS,
                                 NLTT,
                                 ABBRSZ));
-                ASSERT_FAIL(Obj(VER,
+                ASSERT_PASS(Obj(VER,
                                 NISGMT,
                                 NISSTD,
                                 0 + 1,          // numLeaps
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                INT_MAX - 1,    // numLeaps
+                                NTRANS,
+                                NLTT,
+                                ABBRSZ));
+                ASSERT_PASS(Obj(VER,
+                                NISGMT,
+                                NISSTD,
+                                INT_MAX,        // numLeaps
                                 NTRANS,
                                 NLTT,
                                 ABBRSZ));
@@ -2830,18 +2972,13 @@ int main(int argc, char *argv[])
         // 6. QoI: Asserted precondition violations are detected when enabled.
         //
         // Plan:
-        // 1. Create three sets of attribute values for the object: (`D`)
-        //    values corresponding to the default-constructed object, (`A`)
-        //    values that allocate memory if possible, and (`B`) other values
-        //    that do not cause additional memory allocation beyond that which
-        //    may be incurred by `A`.  Both the `A` and `B` attribute values
-        //    should be chosen to be boundary values where possible.  If an
-        //    attribute can be supplied via alternate C++ types (e.g., `string`
-        //    instead of `char *`), use the alternate type for `B`.
+        // 1. Create two sets of valid attribute values for the object: one for
+        //    the `version` attribute having `char` type and another for the
+        //    other `int` attributes.
         //
         // 2. Since objects of this class do not take an allocator, use a
         //    simplified form of the standard plan for simply constrained
-        //    attribute types.  (C-1..6)
+        //    attribute types.  (C-1..5)
         //
         //   1. Create two `bslma::TestAllocator` objects, and install one as
         //      as the current default allocator (note that a ubiquitous test
@@ -2858,17 +2995,15 @@ int main(int argc, char *argv[])
         //      accessors to verify the default-constructed value.  (C-1)
         //
         //   6. For each attribute `i`, in turn, create a local block.  Then
-        //      inside the block, using brute force, set that attribute's
-        //      value, passing a `const` argument representing each of the
-        //      three test values, in turn (see P-1), first to `Ai`, then to
-        //      (`Di` -> `Ai`), and that the corresponding primary manipulator.
-        //      After each transition, use the (as yet unproven) basic
-        //      accessors to verify that only the intended attribute value
-        //      changed.  (C-4..5)
+        //      inside the block, using loop-based approach, set that
+        //      attribute's value, using the corresponding primary manipulator
+        //      and passing values from the sets, created in P-1.  After each
+        //      transition, use the (as yet unproven) basic accessors to verify
+        //      that only the intended attribute value changed.  (C-4..5)
         //
         //   7. Corroborate that attributes are modifiable independently by
-        //      first setting all of the attributes to their `A` values, then
-        //      setting all of the attributes to their `B` values.  (C-3)
+        //      first setting all of the attributes to some values, then
+        //      setting all of the attributes to another values.  (C-3)
         //
         //   8. Verify that no (temporary) memory is allocated from the default
         //      allocator.  (C-2)
@@ -2896,7 +3031,7 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
-        // `D` values: These are the default-constructed values.
+        // `D` values: These are the expected default-constructed values.
 
         const char D1   = '\0';     // `version`
         const int  D2   =  0;       // `numIsGmt`
@@ -2906,25 +3041,13 @@ int main(int argc, char *argv[])
         const int  D6   =  1;       // `numLocalTimeTypes`
         const int  D7   =  1;       // `abbrevDataSize`
 
-        // `A` values
+        // Valid values for attributes.
 
-        const char A1   = '2';
-        const int  A2   =  1;
-        const int  A3   =  1;
-        const int  A4   =  0;
-        const int  A5   =  1;
-        const int  A6   =  1;
-        const int  A7   =  1;
-
-        // `B` values
-
-        const char B1   = '3';
-        const int  B2   =  INT_MAX;
-        const int  B3   =  INT_MAX;
-        const int  B4   =  0;
-        const int  B5   =  INT_MAX;
-        const int  B6   =  INT_MAX;
-        const int  B7   =  INT_MAX;
+        const char   versionValues[]    = {'\0', '2', '3', '4'};
+        const size_t numVersionValues   = sizeof(versionValues);
+        const int    attributeValues[]  = {1, 2, INT_MAX -1, INT_MAX};
+        const size_t numAttributeValues =
+                                         sizeof(attributeValues) / sizeof(int);
 
         if (verbose) cout << "\nTesting with various allocator configurations."
                           << endl;
@@ -2937,13 +3060,12 @@ int main(int argc, char *argv[])
         Obj  *objPtr = new (fa) Obj();
         Obj&  mX     = *objPtr;  const Obj& X = mX;
 
-        // Verify no allocation from the default allocator.
+        // Verify memory allocation.
 
-        LOOP_ASSERT(da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        ASSERTV(da.numBytesTotal(), 0           == da.numBytesTotal());
+        ASSERTV(fa.numBytesTotal(), sizeof(Obj) == fa.numBytesTotal());
 
-        // -------------------------------------
         // Verify the object's attribute values.
-        // -------------------------------------
 
         LOOP2_ASSERT(D1, X.version(),           D1 == X.version());
         LOOP2_ASSERT(D2, X.numIsGmt(),          D2 == X.numIsGmt());
@@ -2953,289 +3075,180 @@ int main(int argc, char *argv[])
         LOOP2_ASSERT(D3, X.numLocalTimeTypes(), D6 == X.numLocalTimeTypes());
         LOOP2_ASSERT(D3, X.abbrevDataSize(),    D7 == X.abbrevDataSize());
 
-        // -----------------------------------------------------
         // Verify that each attribute is independently settable.
-        // -----------------------------------------------------
 
         if (veryVerbose) { T_ Q(version) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numVersionValues; ++i) {
+            const char VERSION = versionValues[i];
 
-            mX.setVersion(A1);
-            ASSERT(A1 == X.version());           // version
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setVersion(B1);
-            ASSERT(B1 == X.version());           // version
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            mX.setVersion(VERSION);
+            ASSERT(VERSION == X.version());           // version
+            ASSERT(D2      == X.numIsGmt());
+            ASSERT(D3      == X.numIsStd());
+            ASSERT(D4      == X.numLeaps());
+            ASSERT(D5      == X.numTransitions());
+            ASSERT(D6      == X.numLocalTimeTypes());
+            ASSERT(D7      == X.abbrevDataSize());
 
-            mX.setVersion(D1);
-            ASSERT(D1 == X.version());           // version
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setVersion(D1);
 
         if (veryVerbose) { T_ Q(numIsGmt) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NISGMT = attributeValues[i];
 
-            mX.setNumIsGmt(A2);
-            ASSERT(D1 == X.version());
-            ASSERT(A2 == X.numIsGmt());           // numIsGmt
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setNumIsGmt(B2);
-            ASSERT(D1 == X.version());
-            ASSERT(B2 == X.numIsGmt());           // numIsGmt
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            mX.setNumIsGmt(NISGMT);
+            ASSERT(D1     == X.version());
+            ASSERT(NISGMT == X.numIsGmt());           // numIsGmt
+            ASSERT(D3     == X.numIsStd());
+            ASSERT(D4     == X.numLeaps());
+            ASSERT(D5     == X.numTransitions());
+            ASSERT(D6     == X.numLocalTimeTypes());
+            ASSERT(D7     == X.abbrevDataSize());
 
-            mX.setNumIsGmt(D2);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());           // numIsGmt
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setNumIsGmt(D2);
 
         if (veryVerbose) { T_ Q(numIsStd) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NISSTD = attributeValues[i];
 
-            mX.setNumIsStd(A3);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(A3 == X.numIsStd());           // numIsStd
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setNumIsStd(B3);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(B3 == X.numIsStd());           // numIsStd
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            mX.setNumIsStd(NISSTD);
+            ASSERT(D1     == X.version());
+            ASSERT(D2     == X.numIsGmt());
+            ASSERT(NISSTD == X.numIsStd());           // numIsStd
+            ASSERT(D4     == X.numLeaps());
+            ASSERT(D5     == X.numTransitions());
+            ASSERT(D6     == X.numLocalTimeTypes());
+            ASSERT(D7     == X.abbrevDataSize());
 
-            mX.setNumIsStd(D3);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());           // numIsStd
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setNumIsStd(D3);
 
         if (veryVerbose) { T_ Q(numLeaps) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NLEAPS = attributeValues[i];
 
-            mX.setNumLeaps(A4);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(A4 == X.numLeaps());           // numLeaps
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setNumLeaps(B4);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(B4 == X.numLeaps());           // numLeaps
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            mX.setNumLeaps(NLEAPS);
+            ASSERT(D1     == X.version());
+            ASSERT(D2     == X.numIsGmt());
+            ASSERT(D3     == X.numIsStd());
+            ASSERT(NLEAPS == X.numLeaps());           // numLeaps
+            ASSERT(D5     == X.numTransitions());
+            ASSERT(D6     == X.numLocalTimeTypes());
+            ASSERT(D7     == X.abbrevDataSize());
 
-            mX.setNumLeaps(D4);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());           // numLeaps
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setNumLeaps(D4);
 
         if (veryVerbose) { T_ Q(numTransitions) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NTRANS = attributeValues[i];
 
-            mX.setNumTransitions(A5);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(A5 == X.numTransitions());     // numTransitions
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setNumTransitions(B5);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(B5 == X.numTransitions());     // numTransitions
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
+            mX.setNumTransitions(NTRANS);
+            ASSERT(D1     == X.version());
+            ASSERT(D2     == X.numIsGmt());
+            ASSERT(D3     == X.numIsStd());
+            ASSERT(D4     == X.numLeaps());
+            ASSERT(NTRANS == X.numTransitions());     // numTransitions
+            ASSERT(D6     == X.numLocalTimeTypes());
+            ASSERT(D7     == X.abbrevDataSize());
 
-            mX.setNumTransitions(D5);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());     // numTransitions
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setNumTransitions(D5);
 
         if (veryVerbose) { T_ Q(numLocalTimeTypes) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int NLTT = attributeValues[i];
 
-            mX.setNumLocalTimeTypes(A6);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(A6 == X.numLocalTimeTypes());  // numLocalTimeTypes
-            ASSERT(D7 == X.abbrevDataSize());
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setNumLocalTimeTypes(B6);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(B6 == X.numLocalTimeTypes());  // numLocalTimeTypes
-            ASSERT(D7 == X.abbrevDataSize());
+            mX.setNumLocalTimeTypes(NLTT);
+            ASSERT(D1     == X.version());
+            ASSERT(D2     == X.numIsGmt());
+            ASSERT(D3     == X.numIsStd());
+            ASSERT(D4     == X.numLeaps());
+            ASSERT(D5     == X.numTransitions());
+            ASSERT(NLTT   == X.numLocalTimeTypes());  // numLocalTimeTypes
+            ASSERT(D7     == X.abbrevDataSize());
 
-            mX.setNumLocalTimeTypes(D6);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());  // numLocalTimeTypes
-            ASSERT(D7 == X.abbrevDataSize());
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setNumLocalTimeTypes(D6);
 
         if (veryVerbose) { T_ Q(abbrevDataSize) }
-        {
-            bslma::TestAllocatorMonitor tam(&da);
+        for (size_t i = 0; i < numAttributeValues; ++i) {
+            const int ABBRSZ = attributeValues[i];
 
-            mX.setAbbrevDataSize(A7);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(A7 == X.abbrevDataSize());     // abbrevDataSize
+            bslma::TestAllocatorMonitor dam(&da);
 
-            mX.setAbbrevDataSize(B7);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(B7 == X.abbrevDataSize());     // abbrevDataSize
+            mX.setAbbrevDataSize(ABBRSZ);
+            ASSERT(D1     == X.version());
+            ASSERT(D2     == X.numIsGmt());
+            ASSERT(D3     == X.numIsStd());
+            ASSERT(D4     == X.numLeaps());
+            ASSERT(D5     == X.numTransitions());
+            ASSERT(D6     == X.numLocalTimeTypes());
+            ASSERT(ABBRSZ == X.abbrevDataSize());     // abbrevDataSize
 
-            mX.setAbbrevDataSize(D7);
-            ASSERT(D1 == X.version());
-            ASSERT(D2 == X.numIsGmt());
-            ASSERT(D3 == X.numIsStd());
-            ASSERT(D4 == X.numLeaps());
-            ASSERT(D5 == X.numTransitions());
-            ASSERT(D6 == X.numLocalTimeTypes());
-            ASSERT(D7 == X.abbrevDataSize());     // abbrevDataSize
-
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
+        mX.setNumLocalTimeTypes(D7);
 
         // Corroborate attribute independence.
         {
-            bslma::TestAllocatorMonitor tam(&da);
+            bslma::TestAllocatorMonitor dam(&da);
 
-            // Set all attributes to their `A` values.
+            mX.setVersion('3');
+            mX.setNumIsGmt(4);
+            mX.setNumIsStd(5);
+            mX.setNumLeaps(6);
+            mX.setNumTransitions(7);
+            mX.setNumLocalTimeTypes(8);
+            mX.setAbbrevDataSize(9);
 
-            mX.setVersion(A1);
-            mX.setNumIsGmt(A2);
-            mX.setNumIsStd(A3);
-            mX.setNumLeaps(A4);
-            mX.setNumTransitions(A5);
-            mX.setNumLocalTimeTypes(A6);
-            mX.setAbbrevDataSize(A7);
-
-            ASSERT(A1 == X.version());
-            ASSERT(A2 == X.numIsGmt());
-            ASSERT(A3 == X.numIsStd());
-            ASSERT(A4 == X.numLeaps());
-            ASSERT(A5 == X.numTransitions());
-            ASSERT(A6 == X.numLocalTimeTypes());
-            ASSERT(A7 == X.abbrevDataSize());
+            ASSERT('3' == X.version());
+            ASSERT(4   == X.numIsGmt());
+            ASSERT(5   == X.numIsStd());
+            ASSERT(6   == X.numLeaps());
+            ASSERT(7   == X.numTransitions());
+            ASSERT(8   == X.numLocalTimeTypes());
+            ASSERT(9   == X.abbrevDataSize());
 
             // Set all attributes to their `B` values.
 
-            mX.setVersion(B1);
-            mX.setNumIsGmt(B2);
-            mX.setNumIsStd(B3);
-            mX.setNumLeaps(B4);
-            mX.setNumTransitions(B5);
-            mX.setNumLocalTimeTypes(B6);
-            mX.setAbbrevDataSize(B7);
+            mX.setVersion('4');
+            mX.setNumIsGmt(5);
+            mX.setNumIsStd(6);
+            mX.setNumLeaps(7);
+            mX.setNumTransitions(8);
+            mX.setNumLocalTimeTypes(9);
+            mX.setAbbrevDataSize(10);
 
-            ASSERT(B1 == X.version());
-            ASSERT(B2 == X.numIsGmt());
-            ASSERT(B3 == X.numIsStd());
-            ASSERT(B4 == X.numLeaps());
-            ASSERT(B5 == X.numTransitions());
-            ASSERT(B6 == X.numLocalTimeTypes());
-            ASSERT(B7 == X.abbrevDataSize());
+            ASSERT('4' == X.version());
+            ASSERT(5   == X.numIsGmt());
+            ASSERT(6   == X.numIsStd());
+            ASSERT(7   == X.numLeaps());
+            ASSERT(8   == X.numTransitions());
+            ASSERT(9   == X.numLocalTimeTypes());
+            ASSERT(10  == X.abbrevDataSize());
 
-            ASSERT(tam.isTotalSame());
+            ASSERT(dam.isTotalSame());
         }
 
         // Verify no temporary memory is allocated from the default allocator.
@@ -3266,7 +3279,8 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(obj.setVersion('2' - 1));
                 ASSERT_PASS(obj.setVersion('2'    ));
                 ASSERT_PASS(obj.setVersion('3'    ));
-                ASSERT_FAIL(obj.setVersion('3' + 1));
+                ASSERT_PASS(obj.setVersion('4'    ));
+                ASSERT_FAIL(obj.setVersion('4' + 1));
             }
 
             if (veryVerbose) cout << "\tnumIsGmt" << endl;
@@ -3293,7 +3307,10 @@ int main(int argc, char *argv[])
             {
                 ASSERT_FAIL(obj.setNumLeaps(0 - 1));
                 ASSERT_PASS(obj.setNumLeaps(0    ));
-                ASSERT_FAIL(obj.setNumLeaps(0 + 1));
+                ASSERT_PASS(obj.setNumLeaps(0 + 1));
+
+                ASSERT_PASS(obj.setNumLeaps(INT_MAX - 1));
+                ASSERT_PASS(obj.setNumLeaps(INT_MAX    ));
             }
 
             if (veryVerbose) cout << "\tnumTransitions" << endl;
@@ -3383,7 +3400,7 @@ int main(int argc, char *argv[])
         // Attribute 4 Values: `numLeaps`
 
         const T4 D4 = 0;              // default value
-        const T4 A4 = 0;              // no alternate value
+        const T4 A4 = 1;
 
         // Attribute 5 Values: `numTransitions`
 

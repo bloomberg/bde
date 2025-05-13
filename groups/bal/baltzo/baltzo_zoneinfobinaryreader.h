@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 //    Byte | Name              | Description
 // ---------+-------------------+----------------------------------------------
 //  0 -  3 | 'T''Z''i''f'      | magic characters to identify the file
-//       4 | version           | '\0', '2', or '3' to identify the version
+//       4 | version           | '\0', '2', '3' or '4' to identify the version
 //  5 - 19 | reserved          | unused
 // 20 - 23 | numIsGmt          | number of UTC/local-time indicators
 // 24 - 27 | numIsStd          | number of standard/local-time indicators
@@ -135,8 +135,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Leap Corrections
 /// - - - - - - - -
-// Leap corrections are currently not supported by this component.  Attempts to
-// read a stream containing leap corrections will result in an error.
+// Leap corrections are currently not supported by this component (i.e. it does
+// not provide tools to obtain leap corrections data from the stream).
 //
 // There is a slight difference between the mean length of a day and 86400
 // (24 * 60 * 60) seconds.  Leap corrections are adjustments to the UTC time to
@@ -182,6 +182,13 @@ BSLS_IDENT("$Id: $")
 // environment string (found at the end of the data) were changed (see
 // ftp://ftp.iana.org/tz/code/tzfile.h for more information).
 //
+///Version `4`
+///- - - - - -
+// Version `4` format of the Zoneinfo binary data is identical to the versions
+// `2` and `3` described above except for changes in leap second records.  Note
+// that leap corrections are currently not supported by this component
+// (see [](#Leap Corrections)).
+//
 ///Additional Information
 /// - - - - - - - - - - -
 // Additional documentation for the Zoneinfo file format can be found at
@@ -209,44 +216,43 @@ BSLS_IDENT("$Id: $")
 // obtainable as part of the standard Zoneinfo distribution (see
 // `http://www.iana.org/time-zones`):
 // ```
-// const char ASIA_BANGKOK_DATA[] = {
-//     0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
-//     0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
-//     0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x08, 0xa2, 0x6a, 0x67, 0xc4,
-//     0x01, 0x00, 0x00, 0x5e, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x62, 0x70, 0x00,
-//     0x04, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
-//     0x00, 0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//     0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//     0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x0c, 0xff, 0xff, 0xff,
-//     0xff, 0x56, 0xb6, 0x85, 0xc4, 0xff, 0xff, 0xff, 0xff, 0xa2, 0x6a, 0x67,
-//     0xc4, 0x01, 0x02, 0x00, 0x00, 0x5e, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x5e,
-//     0x3c, 0x00, 0x04, 0x00, 0x00, 0x62, 0x70, 0x00, 0x08, 0x4c, 0x4d, 0x54,
-//     0x00, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
-//     0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a
-// };
+//  const unsigned char ASIA_BANGKOK_DATA[] = {
+//      0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
+//      0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01,
+//      0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x08, 0xa2, 0x6a, 0x67, 0xc4,
+//      0x01, 0x00, 0x00, 0x5e, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x62, 0x70, 0x00,
+//      0x04, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
+//      0x00, 0x54, 0x5a, 0x69, 0x66, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//      0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//      0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x0c, 0xff, 0xff, 0xff,
+//      0xff, 0x56, 0xb6, 0x85, 0xc4, 0xff, 0xff, 0xff, 0xff, 0xa2, 0x6a, 0x67,
+//      0xc4, 0x01, 0x02, 0x00, 0x00, 0x5e, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x5e,
+//      0x3c, 0x00, 0x04, 0x00, 0x00, 0x62, 0x70, 0x00, 0x08, 0x4c, 0x4d, 0x54,
+//      0x00, 0x42, 0x4d, 0x54, 0x00, 0x49, 0x43, 0x54, 0x00, 0x00, 0x00, 0x00,
+//      0x00, 0x00, 0x00, 0x0a, 0x49, 0x43, 0x54, 0x2d, 0x37, 0x0a
+//  };
 // ```
 // Then, we load this data into a stream buffer.
 // ```
-// bdlsb::FixedMemInStreamBuf inStreamBuf(ASIA_BANGKOK_DATA,
-//                                        sizeof(ASIA_BANGKOK_DATA));
-// bsl::istream inputStream(&inStreamBuf);
+//  bdlsb::FixedMemInStreamBuf inStreamBuf(
+//                          reinterpret_cast<const char *>(ASIA_BANGKOK_DATA),
+//                          sizeof(ASIA_BANGKOK_DATA));
+//  bsl::istream inputStream(&inStreamBuf);
 // ```
 // Now, we read the `inputStream` using `baltzo::ZoneinfoBinaryReader::read`.
 // ```
-//
-//   baltzo::Zoneinfo timeZone;
-//   if (0 != baltzo::ZoneinfoBinaryReader::read(&timeZone,
-//                                               inputStream)) {
-//       bsl::cerr << "baltzo::ZoneinfoBinaryReader::load failed"
-//                 << bsl::endl;
-//       return 1;                                                      //RETURN
-//   }
+//  baltzo::Zoneinfo timeZone;
+//  if (0 != baltzo::ZoneinfoBinaryReader::read(&timeZone, inputStream)) {
+//      bsl::cerr << "baltzo::ZoneinfoBinaryReader::load failed"
+//                << bsl::endl;
+//      return 1;                                                     // RETURN
+//  }
 // ```
 // Finally, we write a description of the loaded Zoneinfo to the console.
 // ```
-// timeZone.print(bsl::cout, 1, 3);
+//  timeZone.print(bsl::cout, 1, 3);
 // ```
 // The output of the preceding statement should look like:
 // ```
@@ -297,24 +303,24 @@ class ZoneinfoBinaryHeader;
                         // struct ZoneinfoBinaryReader
                         // ===========================
 
-/// This struct provides a namespace for functions that read Zoneinfo time
-/// zone data from a binary input stream.  The primary method, `read`, makes
-/// use of a stream containing a Zoneinfo time zone database to populate a
-/// `Zoneinfo` object.
+/// This struct provides a namespace for functions that read Zoneinfo time zone
+/// data from a binary input stream.  The primary method, `read`, makes use of
+/// a stream containing a Zoneinfo time zone database to populate a `Zoneinfo`
+/// object.
 struct ZoneinfoBinaryReader {
 
     // CLASS METHODS
 
     /// Read time zone information from the specified `stream`, and load the
-    /// description into the specified `zoneinfoResult`.  The
-    /// `zoneinfoResult` will have a sentinel transition at 01-01-001,
-    /// meeting the first two requirements for a "well-formed" object (see
+    /// description into the specified `zoneinfoResult`.  The `zoneinfoResult`
+    /// will have a sentinel transition at 01-01-001, meeting the first two
+    /// requirements for a "well-formed" object (see
     /// `baltzo::ZoneinfoUtil::isWellFormed` documentation).  Return 0 on
-    /// success and a non-zero value if `stream` does not provide a sequence
-    /// of bytes consistent with the Zoneinfo binary format.  If an error
-    /// occurs during the operation, `zoneinfoResult` is unspecified.
-    /// Optionally specify a `headerResult` that, on success, will be
-    /// populated with a summary of the `stream` contents.
+    /// success and a non-zero value if `stream` does not provide a sequence of
+    /// bytes consistent with the Zoneinfo binary format.  If an error occurs
+    /// during the operation, `zoneinfoResult` is unspecified.  Optionally
+    /// specify a `headerResult` that, on success, will be populated with a
+    /// summary of the `stream` contents.
     static int read(Zoneinfo      *zoneinfoResult,
                     bsl::istream&  stream);
     static int read(Zoneinfo             *zoneinfoResult,
@@ -322,19 +328,19 @@ struct ZoneinfoBinaryReader {
                     bsl::istream&         stream);
 
     /// Read time zone information from the specified `stream`, and load the
-    /// description into the specified `zoneinfoResult` exactly in
-    /// accordance with the original data.   The `zoneinfoResult` may not be
-    /// a "well-formed" object (see `baltzo::ZoneinfoUtil::isWellFormed`
-    /// documentation for details).  Return 0 on success and a non-zero
-    /// value if `stream` does not provide a sequence of bytes consistent
-    /// with the Zoneinfo binary format.  If an error occurs during the
-    /// operation, `zoneinfoResult` is unspecified.  Optionally specify a
-    /// `headerResult` that, on success, will be populated with a summary of
-    /// the `stream` contents.  Note that time zone data files created by
-    /// certain versions of the `zic` time zone compiler will have a
-    /// sentinel transition prior to 01-01-0001 (the first representable
-    /// `Datetime` value) and the `zoneinfoResult` will therefore be
-    /// non-well formed (use `read` instead).
+    /// description into the specified `zoneinfoResult` exactly in accordance
+    /// with the original data.   The `zoneinfoResult` may not be a
+    /// "well-formed" object (see `baltzo::ZoneinfoUtil::isWellFormed`
+    /// documentation for details).  Return 0 on success and a non-zero value
+    /// if `stream` does not provide a sequence of bytes consistent with the
+    /// Zoneinfo binary format.  If an error occurs during the operation,
+    /// `zoneinfoResult` is unspecified.  Optionally specify a `headerResult`
+    /// that, on success, will be populated with a summary of the `stream`
+    /// contents.  Note that time zone data files created by certain versions
+    /// of the `zic` time zone compiler will have a sentinel transition prior
+    /// to 01-01-0001 (the first representable `Datetime` value) and the
+    /// `zoneinfoResult` will therefore be non-well formed (use `read`
+    /// instead).
     static int readRaw(Zoneinfo      *zoneinfoResult,
                        bsl::istream&  stream);
     static int readRaw(Zoneinfo             *zoneinfoResult,

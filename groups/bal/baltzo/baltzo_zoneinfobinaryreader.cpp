@@ -263,9 +263,11 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
     }
 
     char version = *rawHeader.d_version;
-    if ('\0' != version && '2' != version && '3' != version) {
+    if ('\0' != version && ('2' > version  || '4' < version)) {
         BSLS_LOG_ERROR("Found unexpected version value: %d ('%c'). "
-                       "Expecting '\\0', '2', or '3'.", (int)version, version);
+                       "Expecting '\\0', '2', '3' or '4'.",
+                       (int)version,
+                       version);
         return -3;                                                    // RETURN
     }
     result->setVersion(version);
@@ -304,11 +306,17 @@ int readHeader(baltzo::ZoneinfoBinaryHeader *result, bsl::istream& stream)
                       "Zoneinfo file.");
     }
 
+    // While we do not currently provide leap second information to clients, we
+    // must still accept files containing leap second correction data. Note
+    // that this is particularly true for the version `4` tzdata file format,
+    // which should only be preferred if the new leap second features it
+    // supports are needed for a time zone (previously none of our time zone
+    // data had leap second corrections).
+
     int numLeaps = decode32(rawHeader.d_numLeaps);
-    if (0 != numLeaps) {
-        BSLS_LOG_ERROR("Non-zero number of leap corrections found in "
-                       "Zoneinfo file.  Leap correction is not supported "
-                       "by 'baltzo::ZoneinfoBinaryReader'.");
+    if (numLeaps < 0) {
+        BSLS_LOG_ERROR("A negative number of leap corrections found in "
+                       "Zoneinfo file.");
         return -7;                                                    // RETURN
     }
     result->setNumLeaps(numLeaps);
@@ -388,17 +396,17 @@ int loadLocalTimeDescriptors(
     return 0;
 }
 
-/// Read time zone information in the version `2` or `3` file format from
-/// the specified `stream`, and load the description into the specified
+/// Read time zone information in file format version `2` or higher from the
+/// specified `stream`, and load the description into the specified
 /// `zoneinfoResult`, and the header information into the specified
 /// `headerResult` in accordance with the specified `mode`.  Return 0 on
 /// success and a non-zero value if `stream` does not provide a sequence of
-/// bytes consistent with version `2` or `3` Zoneinfo binary format.  The
-/// `stream` must refer to the first byte of the version `2` or `3` header
-/// (which typically follows the version '\0' format data in a Zoneinfo
-/// binary file).  If an error occurs during the operation, the resulting
-/// value of `zoneinfoResult` is unspecified.
-static int readVersion2Or3FormatData(
+/// bytes consistent with version `2` or higher Zoneinfo binary format.  The
+/// `stream` must refer to the first byte of the version `2` or higher header
+/// (which typically follows the version '\0' format data in a Zoneinfo binary
+/// file).  If an error occurs during the operation, the resulting value of
+/// `zoneinfoResult` is unspecified.
+static int readVersionTwoOrHigherFormatData(
                                   baltzo::Zoneinfo             *zoneinfoResult,
                                   baltzo::ZoneinfoBinaryHeader *headerResult,
                                   ReadMode                      mode,
@@ -441,6 +449,9 @@ static int readVersion2Or3FormatData(
                        "file.");
         return -26;                                                   // RETURN
     }
+
+    // While we do not provide parsed leap second transitions to clients, we
+    // need to read this data from the stream.
 
     bsl::vector<RawLeapInfo64> leapInfos;
     if (0 != readRawArray(&leapInfos, stream, headerResult->numLeaps())) {
@@ -528,7 +539,7 @@ static int readVersion2Or3FormatData(
     }
 
     // Add the optional trailing POSIX(-like) TZ environment string.
-    if (headerResult->version() == '2' || headerResult->version() == '3')  {
+    if (headerResult->version() >= '2')  {
         bsl::string tz;
         if (0 != readRawTz(&tz, stream)) {
             BSLS_LOG_ERROR(
@@ -584,6 +595,9 @@ int readImpl(baltzo::Zoneinfo             *zoneinfoResult,
         return -13;                                                   // RETURN
     }
 
+    // While we do not provide parsed leap second transitions to clients, we
+    // need to read this data from the stream.
+
     bsl::vector<RawLeapInfo> leapInfos;
     if (0 != readRawArray(&leapInfos, stream, headerResult->numLeaps())) {
         BSLS_LOG_ERROR("Error reading leap information from Zoneinfo file.");
@@ -604,19 +618,19 @@ int readImpl(baltzo::Zoneinfo             *zoneinfoResult,
         return -16;                                                   // RETURN
     }
 
-    if ('2' == headerResult->version() || '3' == headerResult->version()) {
-        // If the file is version '2' or '3', then the data containing 32-bit
-        // epoch offsets is immediately followed by another header and set of
-        // data containing 64-bit epoch offsets.  The data containing 64-bit
-        // epoch offsets is always used because it contains additional
+    if ('2' <= headerResult->version()) {
+        // If the file is version '2' or higher, then the data containing
+        // 32-bit epoch offsets is immediately followed by another header and
+        // set of data containing 64-bit epoch offsets.  The data containing
+        // 64-bit epoch offsets is always used because it contains additional
         // transitions that can not be represented in 32-bit values.  In
         // addition, a POSIX(-like) TZ environment string may be found after
         // the data.
 
-        return readVersion2Or3FormatData(zoneinfoResult,
-                                         headerResult,
-                                         mode,
-                                         stream);                     // RETURN
+        return readVersionTwoOrHigherFormatData(zoneinfoResult,
+                                                headerResult,
+                                                mode,
+                                                stream);              // RETURN
     }
 
     // Convert raw type objects into their associated types exposed by
