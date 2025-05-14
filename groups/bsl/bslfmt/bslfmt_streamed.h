@@ -21,8 +21,7 @@ BSLS_IDENT("$Id: $")
 ///-----------------
 // The wrapper's formatter supports the same format string syntax as formatting
 // a string-like type: alignment, width, and truncation using the "precision"
-// value.
-//
+// value.  See Format String Options usage example.
 //
 ///Usage
 ///-----
@@ -57,14 +56,14 @@ BSLS_IDENT("$Id: $")
 //```
 //  const ThisTypeHasLongAndObscureNameButStreamable obj;
 //```
+//
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
-//
 //```
 //  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
-// Finally, we verify the output is correct:
 //
+// Finally, we verify the output is correct:
 //```
 //  assert(s == "The printout");
 //```
@@ -108,6 +107,76 @@ BSLS_IDENT("$Id: $")
 //```
 //  assert(s == "The printout");
 //```
+//
+///Example 3: Format String Options
+/// - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<` for an environment that requires the
+// output to be padded, aligned, and/or truncation of the output.  In this
+// example we will introduce the effects of the various possible format string
+// specifications.
+//
+// First, for the sake of demonstration we create a type that prints a series
+// of digits to help demonstrate the effects of the various formattings:
+//
+//```
+//  class Streamable {
+//  };
+//
+//  std::ostream& operator<<(std::ostream& os, const Streamable&)
+//  {
+//      return os << "12345678";
+//  }
+//```
+//
+// Then, we create an object of said type that we will format:
+//
+//```
+//  const Streamable obj;
+//```
+//
+// Next, we format the "value" using many different format strings, starting
+// with the default for completeness:
+//```
+//  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+//  assert(s == "12345678");
+//```
+//
+// Then, we format with specifying just a width:
+//```
+//  s = bsl::format("{:10}", bslfmt::streamed(obj));
+//  assert(s == "12345678  ");
+//```
+//
+// Next, we format with specifying a width, and alignments:
+//```
+//  s = bsl::format("{:<10}", bslfmt::streamed(obj));
+//  assert(s == "12345678  ");
+//
+//  s = bsl::format("{:^10}", bslfmt::streamed(obj));
+//  assert(s == " 12345678 ");
+//
+//  s = bsl::format("{:>10}", bslfmt::streamed(obj));
+//  assert(s == "  12345678");
+//```
+//
+// Finally, we demonstrate the truncation using a "precision" value:
+//```
+//  s = bsl::format("{:.6}", bslfmt::streamed(obj));
+//  assert(s == "123456");
+//
+//  s = bsl::format("{:8.6}", bslfmt::streamed(obj));
+//  assert(s == "123456  ");
+//
+//  s = bsl::format("{:<8.6}", bslfmt::streamed(obj));
+//  assert(s == "123456  ");
+//
+//  s = bsl::format("{:^8.6}", bslfmt::streamed(obj));
+//  assert(s == " 123456 ");
+//
+//  s = bsl::format("{:>8.6}", bslfmt::streamed(obj));
+//  assert(s == "  123456");
+//```
 
 #include <bslscm_version.h>
 
@@ -119,6 +188,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
@@ -312,8 +382,24 @@ template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
 Streamed_Formatter<Streamed<t_STREAMED> >::parse(t_PARSE_CONTEXT& parseContext)
 {
-    return static_cast<bsl::formatter<bsl::string> *>(this)->parse(
-                                                                 parseContext);
+    d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
+
+    if (d_spec.sign() != Specification::e_SIGN_DEFAULT)
+        BSLS_THROW(bsl::format_error(
+                    "Formatting sign specifier not valid for streamed types"));
+
+    if (d_spec.alternativeFlag())
+        BSLS_THROW(bsl::format_error(
+                       "Formatting # specifier not valid for streamed types"));
+
+    if (d_spec.zeroPaddingFlag())
+        BSLS_THROW(bsl::format_error(
+                       "Formatting 0 specifier not valid for streamed types"));
+
+    if (d_spec.localeSpecificFlag())
+        BSLS_THROW(bsl::format_error("Formatting L specifier not supported"));
+
+    return parseContext.begin();
 }
 
 // ACCESSORS

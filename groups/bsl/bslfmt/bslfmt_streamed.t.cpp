@@ -3,11 +3,8 @@
 
 #include <bslfmt_format.h>
 
-#include <bsla_maybeunused.h>
-
 #include <bsls_bsltestutil.h>
 
-#include <bslstl_algorithm.h>
 #include <bslstl_string.h>
 
 #include <stdio.h>
@@ -26,53 +23,20 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// 'bsl::formatter<t_TYPE, t_CHAR>' where t_TYPE is a string type is a
-// partial specialization of 'bsl::formatter' to enable formatting of
-// strings. It is hard to test standalone as the interface is designed to
-// be called by the 'bslfmt::format' suite of functions, and such testing
-// requires the creation of "mock" contexts. The 'format' and 'parse'
-// functions are designed to be called in order, and it is not possible to
-// test a successful parse individually in isolation. As a result test 10
-// ('parse') will focus on parsing failures while parsing successes will be
-// tested in test 11 ('format').
-//
-// It should meet the requirements specified in [format.string.std].
-//
+// Tested are the wrapper class template `bslfmt::Streamed<t_STREAMED>` as well
+// as the wrapper-creator function template (mainly for C++03 compatibility)
+// `bslfmt::streamed`.
 //-----------------------------------------------------------------------------
-// CLASS 'bsl::formatter'
-//
-// CREATORS
-// [ 3] formatter();
-// [ 3] ~formatter();
-// [ 7] formatter(const formatter &);
-//
-// MANIPULATORS
-// [ 9] operator=(const formatter &);
-// [11] parse(PARSE_CONTEXT&);
-//
-// ACCESSORS
-// [12] format(TYPE, FORMAT_CONTEXT&);
-//
-// FREE FUNCTIONS
-// [ 8] swap(formatter &, formatter&);
-//
-// OUTPUT
-// [ 5] parsing failures
-//
+// [  ] TBD
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] TESTING PRIMARY MANIPULATORS: Not Applicable
-// [ 4] TESTING BASIC ACCESSORS:      Not Applicable
-// [ 5] TESTING OUTPUT:               Not Applicable
-// [ 6] TESTING EQUALITY OPERATOR:    Not Applicable
-// [10] STREAMING FUNCTIONALITY:      Not Applicable
-// [13] USAGE EXAMPLE
+// [ 2] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
-
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
+
 namespace {
 
 int testStatus = 0;
@@ -206,6 +170,27 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
 //  }
 //```
 
+///Example 3: Format String Options
+/// - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<` for an environment that requires the
+// output to be padded, aligned, and/or truncation of the output.  In this
+// example we will introduce the effects of the various possible format string
+// specifications.
+//
+// First, for the sake of demonstration we create a type that prints a series
+// of digits to help demonstrate the effects of the various formattings:
+//
+//```
+    class Streamable {
+    };
+
+    std::ostream& operator<<(std::ostream& os, const Streamable&)
+    {
+        return os << "12345678";
+    }
+//```
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -220,7 +205,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 13: {
+      case 2: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -324,6 +309,77 @@ int main(int argc, char **argv)
         }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
+        {
+///Example 3: Format String Options
+/// - - - - - - - - - - - - - - - -
+// Suppose we want to format an object that already supports streaming into an
+// `ostream` using the insert `operator<<` for an environment that requires the
+// output to be padded, aligned, and/or truncation of the output.  In this
+// example we will introduce the effects of the various possible format string
+// specifications.
+//
+// First, for the sake of demonstration we create a type that prints a series
+// of digits to help demonstrate the effects of the various formattings:
+//
+//```
+//  class Streamable {
+//  };
+//
+//  std::ostream& operator<<(std::ostream& os, const Streamable&)
+//  {
+//      return os << "12345678";
+//  }
+//```
+//
+// Then, we create an object of said type that we will format:
+//
+//```
+    const Streamable obj;
+//```
+//
+// Next, we format the "value" using many different format strings, starting
+// with the default for completeness:
+//```
+    bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+    ASSERT(s == "12345678");
+//```
+//
+// Then, we format with specifying just a width:
+//```
+    s = bsl::format("{:10}", bslfmt::streamed(obj));
+    ASSERT(s == "12345678  ");
+//```
+//
+// Next, we format with specifying a width, and alignments:
+//```
+    s = bsl::format("{:<10}", bslfmt::streamed(obj));
+    ASSERT(s == "12345678  ");
+
+    s = bsl::format("{:^10}", bslfmt::streamed(obj));
+    ASSERT(s == " 12345678 ");
+
+    s = bsl::format("{:>10}", bslfmt::streamed(obj));
+    ASSERT(s == "  12345678");
+//```
+//
+// Finally, we demonstrate the truncation using a "precision" value:
+//```
+    s = bsl::format("{:.6}", bslfmt::streamed(obj));
+    ASSERT(s == "123456");
+
+    s = bsl::format("{:8.6}", bslfmt::streamed(obj));
+    ASSERT(s == "123456  ");
+
+    s = bsl::format("{:<8.6}", bslfmt::streamed(obj));
+    ASSERT(s == "123456  ");
+
+    s = bsl::format("{:^8.6}", bslfmt::streamed(obj));
+    ASSERT(s == " 123456 ");
+
+    s = bsl::format("{:>8.6}", bslfmt::streamed(obj));
+    ASSERT(s == "  123456");
+//```
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -357,7 +413,7 @@ int main(int argc, char **argv)
     ASSERTV(result.c_str(), result == res)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-  #define TEST_LINE_STD(fmt, res)                                               \
+  #define TEST_LINE_STD(fmt, res)                                             \
     stdResult = std::format(fmt, bslfmt::Streamed<CanStream>(X));             \
     ASSERTV(stdResult.c_str(), stdResult == res);                             \
                                                                               \
@@ -389,7 +445,6 @@ int main(int argc, char **argv)
         TEST_LINE("{:<10.12}", "0123456789");
         TEST_LINE("{:<10.12}", "0123456789");
         TEST_LINE("{:^10.12}", "0123456789");
-
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
@@ -404,7 +459,7 @@ int main(int argc, char **argv)
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
