@@ -143,6 +143,12 @@ bslma::Allocator *nda()
     return &bslma::NewDeleteAllocator::singleton();
 }
 
+/// Check that:
+/// * `test` (== `atoi(argv[1]`) is above the specified `topCaseIndex` and
+///   less than or equal to `2 * topCaseIndex`.
+///
+/// * The executable file name `argv[0]` matches expectations for a "condemned"
+///   executable.
 void checkCondemnedExecutableName(int topCaseIndex, char **argv)
 {
     int test = bsl::atoi(argv[1]);
@@ -223,7 +229,7 @@ void doEraseTest(int argc, char **argv)
     }
     int rc = ::system(cmd.c_str());
     ASSERT(0 == rc);
-    testStatus += rc < 0 ? -rc : rc;
+    testStatus += bsl::abs(rc);
 }
 
 }  // close namespace u

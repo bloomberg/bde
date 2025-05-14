@@ -273,6 +273,12 @@ bslma::Allocator *nda()
     return &bslma::NewDeleteAllocator::singleton();
 }
 
+/// Check that:
+/// * `test` (== `atoi(argv[1]`) is above the specified `topCaseIndex` and
+///   less than or equal to `2 * topCaseIndex`.
+///
+/// * The executable file name `argv[0]` matches expectations for a "condemned"
+///   executable.
 void checkCondemnedExecutableName(int topCaseIndex, char **argv)
 {
     int test = bsl::atoi(argv[1]);
@@ -354,7 +360,7 @@ void doEraseTest(int argc, char **argv)
     }
     int rc = ::system(cmd.c_str());
     ASSERT(0 == rc);
-    testStatus += rc < 0 ? -rc : rc;
+    testStatus += bsl::abs(rc);
 }
 
 }  // close namespace u
@@ -1310,7 +1316,7 @@ int main(int argc, char *argv[])
         ASSERTV(test, k_TOP_USAGE_CASE_INDEX < test);
 
         if (!e_PLAT_WIN && test <= 2 * k_TOP_USAGE_CASE_INDEX) {
-            // Run test case `test - k_TO_USAGE_CASE_INDEX` with erasing the
+            // Run test case `test - k_TOP_USAGE_CASE_INDEX` with erasing the
             // executable.
 
             u::doEraseTest(argc, argv);
