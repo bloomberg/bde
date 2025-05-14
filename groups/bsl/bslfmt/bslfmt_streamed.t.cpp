@@ -1,4 +1,6 @@
 // bslstl_streamed.t.cpp                                              -*-C++-*-
+#define BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING                      1
+
 #include <bslfmt_streamed.h>
 
 #include <bslfmt_format.h>
@@ -445,6 +447,8 @@ int main(int argc, char **argv)
         TEST_LINE("{:<10.12}", "0123456789");
         TEST_LINE("{:<10.12}", "0123456789");
         TEST_LINE("{:^10.12}", "0123456789");
+
+        bsl::string s = bsl::format("{}", bslfmt::streamed(12));
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
