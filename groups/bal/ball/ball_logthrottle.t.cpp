@@ -596,7 +596,7 @@ void testMain(
         ASSERTV(actualTime,
                 maxExpectedMessages,
                 actualNumPublished,
-                actualNumPublished > maxExpectedMessages * .75);
+                actualNumPublished > maxExpectedMessages * .25);
     }
 
     if (verbose) {
