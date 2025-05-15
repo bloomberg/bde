@@ -216,15 +216,15 @@ namespace bslfmt {
 /// A wrapper class to be used with streamable (`ostream::operator<<`) types
 /// that adds `bsl::format` capability to the type (and `std::format` when that
 /// is available).
-template <class t_STREAMED>
+template <class t_STREAMABLE>
 class BSLFMT_STREAMED_CLASS {
   public:
     // TYPES
-    typedef t_STREAMED object_type;
+    typedef t_STREAMABLE object_type;
 
   private:
     // DATA
-    const t_STREAMED& d_object;
+    const t_STREAMABLE& d_object;
 
   public:
     // CREATORS
@@ -232,17 +232,17 @@ class BSLFMT_STREAMED_CLASS {
     /// Create a wrapper instance around the specified `object`.  The behavior
     /// is undefined unless the lifetime of `object` is at least as long as
     /// that of the wrapper created.
-    BSLFMT_STREAMED_CLASS(const t_STREAMED& object);
+    BSLFMT_STREAMED_CLASS(const t_STREAMABLE& object);
 
     // ACCESSORS
 
     /// Return a non-modifiable reference to the wrapped object.
-    const t_STREAMED& object() const;
+    const t_STREAMABLE& object() const;
 };
 
 #ifdef BSLFMT_FORMATTABLE_DEFINED
-template <class t_STREAMED>
-struct Streamed : BSLFMT_STREAMED_CLASS<t_STREAMED> {
+template <class t_STREAMABLE>
+struct Streamed : BSLFMT_STREAMED_CLASS<t_STREAMABLE> {
     // CREATORS
 
     /// Create a `Streamed` wrapper instance around the specified `object`.
@@ -250,22 +250,22 @@ struct Streamed : BSLFMT_STREAMED_CLASS<t_STREAMED> {
     /// as long as that of the wrapper created.
     template <class t_TYPE>
     requires(bsl::formattable<t_TYPE> &&
-             std::is_convertible_v<t_TYPE, t_STREAMED>)
+             std::is_convertible_v<t_TYPE, t_STREAMABLE>)
     BSLS_DEPRECATE_FEATURE(
-               "bslfmt",
-               "streamed",
-               "There is already a formatter available for the specified type,"
-               "use that instead of streaming.")
+              "bslfmt",
+              "streamed",
+              "There is already a formatter available for the specified type, "
+              "use that instead of streaming.")
     Streamed(const t_TYPE& object)
-    : BSLFMT_STREAMED_CLASS<t_STREAMED>(object)
+    : BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object)
     {
     }
 
     template <class t_TYPE>
     Streamed(const t_TYPE& object)
     requires(!bsl::formattable<t_TYPE> &&
-             std::is_convertible_v<t_TYPE, t_STREAMED>)
-    : BSLFMT_STREAMED_CLASS<t_STREAMED>(object)
+             std::is_convertible_v<t_TYPE, t_STREAMABLE>)
+    : BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object)
     {
     }
 };
@@ -307,12 +307,14 @@ class Streamed_OutIterBuf : public std::streambuf {
 template <class t_TYPE>
 struct Streamed_Formatter;
 
-template <class t_STREAMED>
-struct Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >
-: private bsl::formatter<bsl::basic_string<char>, char> {
+template <class t_STREAMABLE>
+struct Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
   private:
     // PRIVATE TYPES
-    typedef typename bsl::formatter<bsl::string>::Specification Specification;
+    typedef StandardFormatSpecification<char> Specification;
+
+    // DATA
+    Specification d_spec;  // parsed specification.
 
   public:
     // MANIPULATORS
@@ -337,14 +339,14 @@ struct Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >
     /// Throw an exception of type `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
-                 const BSLFMT_STREAMED_CLASS<t_STREAMED>& value,
+                 const BSLFMT_STREAMED_CLASS<t_STREAMABLE>& value,
                  t_FORMAT_CONTEXT&                        formatContext) const;
 };
 
 #ifdef BSLFMT_FORMATTABLE_DEFINED
-template <class t_STREAMED>
-struct Streamed_Formatter<Streamed<t_STREAMED> >
-: Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> > {
+template <class t_STREAMABLE>
+struct Streamed_Formatter<Streamed<t_STREAMABLE> >
+: Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
 };
 #endif
 
@@ -360,10 +362,10 @@ BSLFMT_STREAMED_CLASS<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 template <class t_STREAMABLE>
 requires(bsl::formattable<t_STREAMABLE>)
 BSLS_DEPRECATE_FEATURE(
-               "bslfmt",
-               "streamed",
-               "There is already a formatter available for the specified type,"
-               "use that instead of streaming.")
+              "bslfmt",
+              "streamed",
+              "There is already a formatter available for the specified type, "
+              "use that instead of streaming.")
 BSLFMT_STREAMED_CLASS<t_STREAMABLE>
 streamed(const t_STREAMABLE& object);
 #else
@@ -385,18 +387,18 @@ namespace bslfmt {
                              // --------
 
 // CREATORS
-template <class t_STREAMED>
+template <class t_STREAMABLE>
 inline
-BSLFMT_STREAMED_CLASS<t_STREAMED>::BSLFMT_STREAMED_CLASS(
-                                                      const t_STREAMED& object)
+BSLFMT_STREAMED_CLASS<t_STREAMABLE>::BSLFMT_STREAMED_CLASS(
+                                                      const t_STREAMABLE& object)
 : d_object(object)
 {
 }
 
 // ACCESSORS
-template <class t_STREAMED>
+template <class t_STREAMABLE>
 inline
-const t_STREAMED& BSLFMT_STREAMED_CLASS<t_STREAMED>::object() const
+const t_STREAMABLE& BSLFMT_STREAMED_CLASS<t_STREAMABLE>::object() const
 {
     return d_object;
 }
@@ -450,10 +452,10 @@ size_t Streamed_OutIterBuf<t_OUT_ITER>::counter() const
                              // ------------------
 
 // MANIPULATORS
-template <class t_STREAMED>
+template <class t_STREAMABLE>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >::parse(
+Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> >::parse(
                                                  t_PARSE_CONTEXT& parseContext)
 {
     d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
@@ -477,11 +479,11 @@ Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >::parse(
 }
 
 // ACCESSORS
-template <class t_STREAMED>
+template <class t_STREAMABLE>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >::format(
-                  const BSLFMT_STREAMED_CLASS<t_STREAMED>& value,
+Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> >::format(
+                  const BSLFMT_STREAMED_CLASS<t_STREAMABLE>& value,
                   t_FORMAT_CONTEXT&                        formatContext) const
 {
     Specification finalSpec(d_spec);
@@ -523,36 +525,64 @@ Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >::format(
     // then print the string itself via the private base which is the string
     // formatter itself.
 
-    if (leftPadded) {
-        bsl::string content;
-
-        Streamed_OutIterBuf<bsl::back_insert_iterator<bsl::string> > buf(
-                              bsl::back_insert_iterator<bsl::string>(content),
-                              maxStreamedCharacters);
-        std::ostream os(&buf);
-        os << value.object();
-
-        return static_cast<const bsl::formatter<bsl::string> *>(this)->format(
-                                                     content,
-                                                     formatContext);  // RETURN
-    }
-
-    // Left-padded formats have been handled above, so there is no padding
-    // before "printing" the content.
-
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
-
-    // Print the necessary characters from the stream output and calculate the
-    // printed length.  (Only need it when there is no left padding present but
-    // there is no reason to have an `if`, it'll be the same value.)
 
     Streamed_OutIterBuf<typename t_FORMAT_CONTEXT::iterator> buf(
                                                         outIterator,
                                                         maxStreamedCharacters);
-    std::ostream os(&buf);
-    os << value.object();
-    outIterator = buf.outIterator();
-    size_t contentWidth = buf.counter();
+
+    bsl::string content;
+    size_t      contentWidth;
+    if (leftPadded) {
+        Streamed_OutIterBuf<bsl::back_insert_iterator<bsl::string> > strBuf(
+                              bsl::back_insert_iterator<bsl::string>(content),
+                              maxStreamedCharacters);
+        std::ostream strOs(&strBuf);
+        strOs << value.object();
+        contentWidth = content.length();
+
+        size_t allPadding =
+              finalWidth.category() == NumericValue::e_VALUE
+            ? bsl::max<size_t>(finalWidth.value(), contentWidth) - contentWidth
+            : 0;
+
+        size_t numPaddingChars = 0;
+        switch (d_spec.alignment()) {
+          case Specification::e_ALIGN_MIDDLE: {
+            numPaddingChars = (allPadding / 2);
+          } break;
+          case Specification::e_ALIGN_RIGHT: {
+            numPaddingChars = allPadding;
+          } break;
+          default: {
+            ;
+          } break;
+        }
+
+        for (size_t i = 0; i < numPaddingChars; ++i) {
+            // Note that, per the C++ spec, the fill character is always
+            // assumed to have a field width of one, regardless of its actual
+            // field width.
+            outIterator = bsl::copy(
+                          finalSpec.filler(),
+                          finalSpec.filler() + finalSpec.numFillerCharacters(),
+                          outIterator);
+        }
+
+        std::ostream os(&buf);
+        os << content;
+        outIterator = buf.outIterator();
+    }
+    else {
+        // Print the necessary characters from the stream output and calculate
+        // the printed length.  (Only need it when there is no left padding
+        // present but there is no reason to have an `if`, it'll be the same
+        // value.)
+        std::ostream os(&buf);
+        os << value.object();
+        outIterator  = buf.outIterator();
+        contentWidth = buf.counter();
+    }
 
     // Knowing the width of the content "printed" via streaming we can now
     // calculate the necessary trailing padding length.  Since anything
@@ -561,9 +591,24 @@ Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMED> >::format(
     // default alignment).  Right and middle alignments both may need
     // left-padding so they were handled separately.
 
-    size_t numPaddingChars = finalWidth.category() == NumericValue::e_VALUE
-                                 ? finalWidth.value() - contentWidth
-                                 : 0;
+    size_t allPadding =
+              finalWidth.category() == NumericValue::e_VALUE
+            ? bsl::max<size_t>(finalWidth.value(), contentWidth) - contentWidth
+            : 0;
+
+    size_t numPaddingChars = 0;
+    switch (d_spec.alignment()) {
+      case Specification::e_ALIGN_DEFAULT:
+      case Specification::e_ALIGN_LEFT: {
+        numPaddingChars = allPadding;
+      } break;
+      case Specification::e_ALIGN_MIDDLE: {
+        numPaddingChars = (allPadding + 1) / 2;
+      } break;
+      default: {
+        ;
+      } break;
+    }
 
     for (size_t i = 0; i < numPaddingChars; ++i) {
         // Note that, per the C++ spec, the fill character is always assumed to
@@ -595,10 +640,10 @@ bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> bslfmt::streamed(
 template <class t_STREAMABLE>
 requires(bsl::formattable<t_STREAMABLE>)
 BSLS_DEPRECATE_FEATURE(
-               "bslfmt",
-               "streamed",
-               "There is already a formatter available for the specified type,"
-               "use that instead of streaming.")
+              "bslfmt",
+              "streamed",
+              "There is already a formatter available for the specified type, "
+              "use that instead of streaming.")
 bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE>
 bslfmt::streamed(const t_STREAMABLE& object)
 {
@@ -616,16 +661,16 @@ bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> bslfmt::streamed(
 
 namespace bsl {
 
-template <class t_STREAMED>
-struct formatter<BloombergLP::bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMED>, char>
+template <class t_STREAMABLE>
+struct formatter<BloombergLP::bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
-      BloombergLP::bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMED> > {
+      BloombergLP::bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
 };
 #ifdef BSLFMT_FORMATTABLE_DEFINED
-template <class t_STREAMED>
-struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMED>, char>
+template <class t_STREAMABLE>
+struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
-      BloombergLP::bslfmt::Streamed<t_STREAMED> > {
+      BloombergLP::bslfmt::Streamed<t_STREAMABLE> > {
 };
 #endif
 

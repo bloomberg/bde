@@ -168,7 +168,7 @@ class FormatterString_GraphemeCluster {
 /// that specification.
 template <class t_CHAR>
 struct FormatterString_Imp {
-  protected:
+  private:
     // PRIVATE TYPES
     typedef StandardFormatSpecification<t_CHAR> Specification;
 

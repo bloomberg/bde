@@ -267,7 +267,7 @@ int main(int argc, char **argv)
 //```
         }
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         {
 ///Example 2: Formatting with CTAD support
 ///- - - - - - - - - - - - - - - - - - - -
@@ -449,6 +449,9 @@ int main(int argc, char **argv)
         TEST_LINE("{:^10.12}", "0123456789");
 
         bsl::string s = bsl::format("{}", bslfmt::streamed(12));
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        s = bsl::format("{}", bslfmt::Streamed(12));
+#endif
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

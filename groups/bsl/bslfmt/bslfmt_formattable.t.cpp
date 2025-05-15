@@ -158,6 +158,8 @@ int main(int argc, char **argv)
         ASSERT((bsl::formattable<NotFormattable> == false));
 
         ASSERT((bsl::formattable<int> == true));
+#else
+        ASSERT(true);  // Avoid unused warning
 #endif  // BSLFMT_FORMATTABLE_DEFINED
       } break;
       default: {
