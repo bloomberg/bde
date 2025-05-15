@@ -3106,6 +3106,8 @@ int main(int argc, char *argv[])
 
 #else
 
+// CYGWIN
+
 int main()
 {
     return -1;

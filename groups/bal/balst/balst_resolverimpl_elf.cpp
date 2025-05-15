@@ -4070,14 +4070,19 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
     d_isMainExecutable = isMainExecutable;
 
-    // 'libraryFileName' is to be potentially reassigned -- it is the file name
+    // `libraryFileName is to be potentially reassigned -- it is the file name
     // to be displayed as the 'libraryFileName' field of the stack trace frame.
     // 'nameToOpen' is the file name we are to open to access the binary, which
     // may match 'libraryFileName' or, in the case of the main executable, may
-    // be found somewhere under "/proc/self".
+    // be found somewhere under "/proc/self".  Note that on some operating
+    // systems, if the library is the main program, `libraryFileName == 0`.
+    //
+    // `fileNameIfExecutable` is only used if the file is the main executable:
+    // the variable is a string to store `argv[0]` once we fetch it from
+    // "/proc".
 
-    const char *nameToOpen = libraryFileName;
-    bsl::string fileNameIfExecutableFile(&d_hbpAlloc);
+    const char  *nameToOpen = libraryFileName;
+    bsl::string  fileNameIfExecutableFile(&d_hbpAlloc);
 
     d_hidden.reset();
 
@@ -4085,20 +4090,32 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // We expect the main executable to contain most of the symbols.  Under
         // some circumstances, the main executable is deleted from the file
         // system while the task is still running.  So we find the main
-        // executable through the "/proc/self" directory, which will work
-        // whether the file is still in the file system or not.
+        // executable through the "/proc" directory, which will work whether
+        // the file is still in the file system or not.
+        //
+        // On Linux and Solaris, there is a "/proc" directory tree, where
+        // "/proc/<pid>" is a subtree with a lot of detailed information about
+        // the process whose process id is `<pid>`.  There is also
+        // "/proc/self", which is just a link to "/proc/<pid>" where `<pid>` is
+        // the process id of the process accessing "/proc/self".
+        //
+        // The contents of "/proc/<pid>" on Linux are described in
+        // https://www.kernel.org/doc/html/latest/filesystems/proc.html
+        //
+        // The contents of "/proc/<pid>" on Solaris are described in
+        // https://docs.oracle.com/cd/E88353_01/html/E37852/proc-5.html
         //
         // If any image other than the main executable has been deleted from
         // the file system, we are to harmlessly skip over that image (most
         // shared libs don't contain a lot of symbols of interest, and there is
-        // no way to access them through "/proc/self").
-
+        // no way to access them through "/proc").
+        //
         // On Linux, the file "/proc/self/exe" is a special symlink.  If the
         // main executable file hasn't been deleted, it's a symlink that points
         // to that file, but if the file has been deleted, it either:
         //
-        // * points to "<file name> (deleted)" but if opened as a hard link,
-        //   still opens the executable file.
+        // * if read as a symlink, points to "<file name> (deleted)" but if
+        //   opened as a hard link, still opens the executable file.
         //
         // * on Linux nfs, points to a ".nfs<long hex number>" gremlin file
         //   which is the remnant of the deleted executable, so whether it's
@@ -4139,13 +4156,8 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
     balst::Resolver_FileHelper helper;
     int rc = helper.openFile(nameToOpen);
-    if (rc) {
 #if defined(BSLS_PLATFORM_OS_LINUX)
-        if (!bsl::strstr(libraryFileName, "vdso")) {
-            u_TRACES && u_zprintf("%s: unable to open %s\n", rn, nameToOpen);
-            return -1;                                                // RETURN
-        }
-
+    if (rc && !d_isMainExecutable && bsl::strstr(libraryFileName, "vdso")) {
         char *vdsoStart = reinterpret_cast<char *>(
                                                  ::getauxval(AT_SYSINFO_EHDR));
         Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
@@ -4155,10 +4167,14 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                   libraryFileName);
             return -1;                                                // RETURN
         }
-#else
-        u_TRACES && u_zprintf("%s: unable to open %s\n", rn, nameToOpen);
-        return -1;                                                    // RETURN
+
+        // `rc == 0`
+    }
 #endif
+    if (rc) {
+        u_TRACES && u_zprintf("%s: unable to open%s %s\n", rn,
+                  d_isMainExecutable ? " main executable at" : "", nameToOpen);
+        return -1;                                                    // RETURN
     }
 
     // all scratch buffers are now free to be trashed by `resolveSegment`
@@ -4193,7 +4209,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
             }
 
             // 'resolveSegment' trashes scratch buffers A and B, and if DWARF
-            // resolved, also C, D, and E.
+            // resolving occurs, also C, D, and E.
 
             rc = resolveSegment(localBaseAddress,    // base address
                                 localTextSegPtr,     // seg ptr
