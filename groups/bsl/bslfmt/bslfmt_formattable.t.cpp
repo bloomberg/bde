@@ -155,9 +155,9 @@ int main(int argc, char **argv)
                           "\n==============");
 
 #ifdef BSLFMT_FORMATTABLE_DEFINED
-        ASSERT((bsl::formattable<NotFormattable> == false));
+        ASSERT((bsl::formattable<NotFormattable, char> == false));
 
-        ASSERT((bsl::formattable<int> == true));
+        ASSERT((bsl::formattable<int, char> == true));
 #else
         ASSERT(true);  // Avoid unused warning
 #endif  // BSLFMT_FORMATTABLE_DEFINED

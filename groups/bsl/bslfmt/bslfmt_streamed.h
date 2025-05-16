@@ -203,11 +203,12 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-#ifdef BSLFMT_FORMATTABLE_DEFINED
-#define BSLFMT_STREAMED_CLASS Streamed_Impl
-#else
-#define BSLFMT_STREAMED_CLASS Streamed
-#endif
+#define BSLFMT_STREAMED_INSTANCE_DEPRECATED_                                  \
+    BSLS_DEPRECATE_FEATURE(                                                   \
+            "bslfmt",                                                         \
+            "streamed",                                                       \
+            "There is already a formatter available for the specified type, " \
+            "please use that instead of streaming.")
 
                              // ========
                              // Streamed
@@ -217,7 +218,7 @@ namespace bslfmt {
 /// that adds `bsl::format` capability to the type (and `std::format` when that
 /// is available).
 template <class t_STREAMABLE>
-class BSLFMT_STREAMED_CLASS {
+class Streamed_Impl {
   public:
     // TYPES
     typedef t_STREAMABLE object_type;
@@ -232,7 +233,7 @@ class BSLFMT_STREAMED_CLASS {
     /// Create a wrapper instance around the specified `object`.  The behavior
     /// is undefined unless the lifetime of `object` is at least as long as
     /// that of the wrapper created.
-    BSLFMT_STREAMED_CLASS(const t_STREAMABLE& object);
+    Streamed_Impl(const t_STREAMABLE& object);
 
     // ACCESSORS
 
@@ -240,44 +241,49 @@ class BSLFMT_STREAMED_CLASS {
     const t_STREAMABLE& object() const;
 };
 
-#ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
-struct Streamed : BSLFMT_STREAMED_CLASS<t_STREAMABLE> {
+struct Streamed : Streamed_Impl<t_STREAMABLE> {
     // CREATORS
 
     /// Create a `Streamed` wrapper instance around the specified `object`.
     /// The behavior is undefined unless the lifetime of `object` is at least
     /// as long as that of the wrapper created.
     template <class t_TYPE>
-    requires(bsl::formattable<t_TYPE> &&
-             std::is_convertible_v<t_TYPE, t_STREAMABLE>)
-    BSLS_DEPRECATE_FEATURE(
-              "bslfmt",
-              "streamed",
-              "There is already a formatter available for the specified type, "
-              "use that instead of streaming.")
     Streamed(const t_TYPE& object)
-    : BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object)
+#ifdef BSLFMT_FORMATTABLE_DEFINED
+    requires(!bsl::formattable<t_TYPE, char> &&
+             std::is_same_v<t_TYPE, t_STREAMABLE>)
+#endif  // BSLFMT_FORMATTABLE_DEFINED
+    : Streamed_Impl<t_STREAMABLE>(object)
     {
     }
-
+#ifdef BSLFMT_FORMATTABLE_DEFINED
     template <class t_TYPE>
+    requires(bsl::formattable<t_TYPE, char> &&
+             std::is_same_v<t_TYPE, t_STREAMABLE>)
+    BSLFMT_STREAMED_INSTANCE_DEPRECATED_
     Streamed(const t_TYPE& object)
-    requires(!bsl::formattable<t_TYPE> &&
-             std::is_convertible_v<t_TYPE, t_STREAMABLE>)
-    : BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object)
+    : Streamed_Impl<t_STREAMABLE>(object)
     {
     }
+#endif  // BSLFMT_FORMATTABLE_DEFINED
 };
 
 template <class t_TYPE>
 Streamed(const t_TYPE& object) -> Streamed<t_TYPE>;
-#endif
 
                             // ===================
                             // Streamed_OutIterBuf
                             // ===================
 
+/// `Streamed_OutIterBuf` provides a standard stream buffer for the specified
+/// `t_OUT_ITER`.  The behavior is undefined unless `t_OUT_ITER` is an output
+/// iterator (new concept, not the `LegacyOutputIterator`).  This stream buffer
+/// supports not only writing the output to a specified output iterator, but
+/// also to limit said output to a certain number of characters (see
+/// constructor), and to count the number of characters actually written.  The
+/// current value of the output iterator and the counter is accessible to the
+/// user.
 template <class t_OUT_ITER>
 class Streamed_OutIterBuf : public std::streambuf {
     t_OUT_ITER d_iter;
@@ -286,14 +292,30 @@ class Streamed_OutIterBuf : public std::streambuf {
 
   public:
     // CREATORS
+
+    /// Create a `Streamed_OutIterBuf` object that writes into the specified
+    /// output iterator `iter`, and limits its output to the specified `limit`
+    /// number of characters.  Note that to have no limit the maximum value of
+    /// `size_t` needs to be passed as the `limit` argument.  Also note that we
+    /// do not concern ourselves with the possible difference between the size
+    /// of `size_t` and `streamsize_t` (on 32-bit platforms) as this buffer is
+    /// only intended to write into string-like output, not files.
     Streamed_OutIterBuf(t_OUT_ITER iter, size_t limit);
 
     // MANUPILATORS
+
+    /// If the current limit value is not zero write the specified character
+    /// `c` to the output iterator, increment the output iterator, decrement
+    /// limit, and return an unspecified non-EOF value.  If the current limit
+    /// is zero do nothing and return `traits_type::eof()` value.
     int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
+
+    /// Return the current value of the output iterator.
     t_OUT_ITER outIterator() const;
 
+    /// Return the current value of the outputted character counter.
     size_t counter() const;
 };
 
@@ -308,7 +330,7 @@ template <class t_TYPE>
 struct Streamed_Formatter;
 
 template <class t_STREAMABLE>
-struct Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
+struct Streamed_Formatter<Streamed_Impl<t_STREAMABLE> > {
   private:
     // PRIVATE TYPES
     typedef StandardFormatSpecification<char> Specification;
@@ -339,16 +361,9 @@ struct Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
     /// Throw an exception of type `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
-                 const BSLFMT_STREAMED_CLASS<t_STREAMABLE>& value,
-                 t_FORMAT_CONTEXT&                        formatContext) const;
+                       const Streamed_Impl<t_STREAMABLE>& value,
+                       t_FORMAT_CONTEXT&                  formatContext) const;
 };
-
-#ifdef BSLFMT_FORMATTABLE_DEFINED
-template <class t_STREAMABLE>
-struct Streamed_Formatter<Streamed<t_STREAMABLE> >
-: Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
-};
-#endif
 
 // ============================================================================
 //                         FREESTANDING FUNCTIONS
@@ -356,21 +371,17 @@ struct Streamed_Formatter<Streamed<t_STREAMABLE> >
 
 #ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
-requires(!bsl::formattable<t_STREAMABLE>)
-BSLFMT_STREAMED_CLASS<t_STREAMABLE> streamed(const t_STREAMABLE& object);
+requires(!bsl::formattable<t_STREAMABLE, char>)
+Streamed_Impl<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 
 template <class t_STREAMABLE>
-requires(bsl::formattable<t_STREAMABLE>)
-BSLS_DEPRECATE_FEATURE(
-              "bslfmt",
-              "streamed",
-              "There is already a formatter available for the specified type, "
-              "use that instead of streaming.")
-BSLFMT_STREAMED_CLASS<t_STREAMABLE>
+requires(bsl::formattable<t_STREAMABLE, char>)
+BSLFMT_STREAMED_INSTANCE_DEPRECATED_
+Streamed_Impl<t_STREAMABLE>
 streamed(const t_STREAMABLE& object);
 #else
 template <class t_STREAMABLE>
-BSLFMT_STREAMED_CLASS<t_STREAMABLE> streamed(const t_STREAMABLE& object);
+Streamed_Impl<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 #endif
 
 }  // close package namespace
@@ -389,8 +400,7 @@ namespace bslfmt {
 // CREATORS
 template <class t_STREAMABLE>
 inline
-BSLFMT_STREAMED_CLASS<t_STREAMABLE>::BSLFMT_STREAMED_CLASS(
-                                                      const t_STREAMABLE& object)
+Streamed_Impl<t_STREAMABLE>::Streamed_Impl(const t_STREAMABLE& object)
 : d_object(object)
 {
 }
@@ -398,7 +408,7 @@ BSLFMT_STREAMED_CLASS<t_STREAMABLE>::BSLFMT_STREAMED_CLASS(
 // ACCESSORS
 template <class t_STREAMABLE>
 inline
-const t_STREAMABLE& BSLFMT_STREAMED_CLASS<t_STREAMABLE>::object() const
+const t_STREAMABLE& Streamed_Impl<t_STREAMABLE>::object() const
 {
     return d_object;
 }
@@ -424,10 +434,15 @@ inline
 typename Streamed_OutIterBuf<t_OUT_ITER>::int_type
 Streamed_OutIterBuf<t_OUT_ITER>::overflow(int_type c)
 {
-    if (d_limit && traits_type::eof() != c && d_limit--) {
+    if (0 == d_limit) {
+        return traits_type::eof();                                    // RETURN
+    }
+
+    if (traits_type::eof() != c) {
         *d_iter = traits_type::to_char_type(c);
         ++d_iter;
         ++d_counter;
+        --d_limit;
     }
     return traits_type::not_eof(c);
 }
@@ -455,7 +470,7 @@ size_t Streamed_OutIterBuf<t_OUT_ITER>::counter() const
 template <class t_STREAMABLE>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> >::parse(
+Streamed_Formatter<Streamed_Impl<t_STREAMABLE> >::parse(
                                                  t_PARSE_CONTEXT& parseContext)
 {
     d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
@@ -482,9 +497,9 @@ Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> >::parse(
 template <class t_STREAMABLE>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> >::format(
-                  const BSLFMT_STREAMED_CLASS<t_STREAMABLE>& value,
-                  t_FORMAT_CONTEXT&                        formatContext) const
+Streamed_Formatter<Streamed_Impl<t_STREAMABLE> >::format(
+                        const Streamed_Impl<t_STREAMABLE>& value,
+                        t_FORMAT_CONTEXT&                  formatContext) const
 {
     Specification finalSpec(d_spec);
 
@@ -630,31 +645,27 @@ Streamed_Formatter<BSLFMT_STREAMED_CLASS<t_STREAMABLE> >::format(
 
 #ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
-requires(!bsl::formattable<t_STREAMABLE>)
-bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> bslfmt::streamed(
+requires(!bsl::formattable<t_STREAMABLE, char>)
+bslfmt::Streamed_Impl<t_STREAMABLE> bslfmt::streamed(
                                                     const t_STREAMABLE& object)
 {
-    return BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object);
+    return Streamed_Impl<t_STREAMABLE>(object);
 }
 
 template <class t_STREAMABLE>
-requires(bsl::formattable<t_STREAMABLE>)
-BSLS_DEPRECATE_FEATURE(
-              "bslfmt",
-              "streamed",
-              "There is already a formatter available for the specified type, "
-              "use that instead of streaming.")
-bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE>
+requires(bsl::formattable<t_STREAMABLE, char>)
+BSLFMT_STREAMED_INSTANCE_DEPRECATED_
+bslfmt::Streamed_Impl<t_STREAMABLE>
 bslfmt::streamed(const t_STREAMABLE& object)
 {
-    return BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object);
+    return Streamed_Impl<t_STREAMABLE>(object);
 }
-#else
+#else  // BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
-bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> bslfmt::streamed(
+bslfmt::Streamed_Impl<t_STREAMABLE> bslfmt::streamed(
                                                     const t_STREAMABLE& object)
 {
-    return BSLFMT_STREAMED_CLASS<t_STREAMABLE>(object);
+    return Streamed_Impl<t_STREAMABLE>(object);
 }
 #endif  // BSLFMT_FORMATTABLE_DEFINED
 }  // close enterprise namespace
@@ -662,17 +673,17 @@ bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> bslfmt::streamed(
 namespace bsl {
 
 template <class t_STREAMABLE>
-struct formatter<BloombergLP::bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE>, char>
+struct formatter<BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
-      BloombergLP::bslfmt::BSLFMT_STREAMED_CLASS<t_STREAMABLE> > {
+      BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE> > {
 };
 #ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
-      BloombergLP::bslfmt::Streamed<t_STREAMABLE> > {
+      BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE> > {
 };
-#endif
+#endif  // BSLFMT_FORMATTABLE_DEFINED
 
 }  // close namespace bsl
 

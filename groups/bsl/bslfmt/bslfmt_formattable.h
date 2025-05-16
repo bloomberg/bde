@@ -12,9 +12,20 @@ BSLS_IDENT("$Id: $")
 //  bsl::formattable<t_TYPE, t_CHAR>: `bsl::formatter` presence trait
 //
 //@MACROS:
-//  BSLFMT_FORMATTABLE_DEFINED: `bsl::formatter` exists
+//  BSLFMT_FORMATTABLE_DEFINED: `bsl::formatter` is provided
 //
-//@DESCRIPTION: This component conditionally provides ...
+//@DESCRIPTION: This component conditionally provides `bsl::formatter`, a
+// concept that determines if a type has an existing formatter for a given
+// character type (of `char` or `wchar_t`).  The concept is defined only if the
+// compiler and standard used has usable concept support.  The macro
+// `BSLFMT_FORMATTABLE_DEFINED` may be used to determine if the concept is
+// present or not.
+//
+// FOR BDE INTERNAL USE ONLY!  This concepts does not always exist, which is an
+// unusual (but unavoidable) behavior for names provided by BDE style code
+// therefore we strongly discourage direct use by users of BDE.  If you have a
+// need to use this concept you are probably writing code that should really be
+// part of `bslfmt`.
 //
 ///Usage
 ///-----
@@ -55,20 +66,31 @@ namespace bsl {
 namespace BloombergLP {
 namespace bslfmt {
 
+/// A dummy class that looks like an output iterator to use in the concept
+/// implementation instead of the unknown (unspecified) output iterator that is
+/// actually used by the standard implementation.  Note that we know the output
+/// iterator our implementation uses but that is a component-private type, so
+/// not really usable here either.
 template <class t_CHAR>
-class Formattable_OutputIterator {
+class Formattable_DummyOutputIterator {
   public:
     using difference_type = ptrdiff_t;
 
     // MANIPULATORS
-    Formattable_OutputIterator& operator++();
-    Formattable_OutputIterator operator++(int);
+    Formattable_DummyOutputIterator& operator++();
+    Formattable_DummyOutputIterator operator++(int);
 
     // ACCESSORS
     t_CHAR& operator*() const;
 };
 
-
+/// This concept, `bslfmt::Formattable_With`, is an implementation detail of
+/// the `bsl::formattable` concept and it is not to be used directly.
+///
+/// This concept answers the question if the specified `t_TYPE` is formattable
+/// with the given `t_CONTEXT`.  The `t_FORMATTER` type parameter is just a
+/// "local variable" that retrieves the actual formatter type from the context,
+/// it must not be specified when the concept is invoked.
 template <class t_TYPE,
           class t_CONTEXT,
           class t_FORMATTER =
@@ -87,13 +109,17 @@ concept Formattable_With =
 }  // close package namespace
 }  // close enterprise namespace
 
+/// The `bsl::formattable` concept answers the question if the specified
+/// `t_TYPE` has a formatter specialization for the specified `t_CHAR`
+/// character type available, in other words if `t_TYPE` can be used as a
+/// `bsl::format` formatted argument with a format string of `t_CHAR`.
+/// The `t_CHAR` character type must be one of `char` or `wchar_t`.
 namespace bsl {
-template <class t_TYPE, class t_CHAR = char>
+template <class t_TYPE, class t_CHAR>
 concept formattable = BloombergLP::bslfmt::Formattable_With<
     std::remove_reference_t<t_TYPE>,
     bsl::basic_format_context<
-        //BloombergLP::bslfmt::Format_ContextOutputIteratorRef<t_CHAR>,
-        BloombergLP::bslfmt::Formattable_OutputIterator<t_CHAR>,
+        BloombergLP::bslfmt::Formattable_DummyOutputIterator<t_CHAR>,
         t_CHAR> >;
 }  // close namespace bsl
 
