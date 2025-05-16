@@ -5,12 +5,8 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bslstl_ostringstream.h>
 #include <bslstl_string.h>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-  #include <format>
-  #include <string>
-#endif
 
 using namespace BloombergLP;
 
@@ -101,6 +97,83 @@ struct NotFormattable {};
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
+///Example: Verify the Presence of a bsl::formatter
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to verify in code that a given type may be used with
+// `bsl::format` and fall back to using standard streaming if not.
+//
+// First we create a type that supports streaming but not formatting with
+// `bsl::format`:
+//
+//```
+    struct Streamable {};
+    std::ostream& operator<<(std::ostream& os, const Streamable&) {
+        return os << "Streamable";
+    }
+//```
+//
+// Then we demonstrate that this type is not formattable, but an `int` is.
+// Since the concept may not exists (older compilers/standards) we need to
+// protect the code with the preprocessor:
+//```
+//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//  assert(false == (bsl::formattable<Streamable, char>));
+//  assert(true  == (bsl::formattable<int,        char>));
+//#endif
+//```
+//
+// Next we create a generic function to convert a value to string,
+// center-aligned, and we provide two implementations, the first one for types
+// that are formattable in case the concept exists, and just the stream-based
+// variation if it does not.
+//
+//```
+    template <class t_TYPE>
+    bsl::string
+    centeredIn(const t_TYPE& obj, size_t width)
+#ifdef BSLFMT_FORMATTABLE_DEFINED
+    requires (!bsl::formattable<t_TYPE, char>)
+#endif
+   {
+       bsl::ostringstream os;
+       os << obj;
+       bsl::string s = os.str();
+
+       width = bsl::max(width, s.length());
+
+       const size_t allPadding = width - s.length();
+       s.insert(s.begin(), allPadding / 2, ' ');
+       s.append(allPadding - allPadding / 2, ' ');
+
+       return s;
+   }
+//```
+//
+// Then, if the concept is present, we define the format-based overload:
+//
+//```
+#ifdef BSLFMT_FORMATTABLE_DEFINED
+    template <class t_TYPE>
+    bsl::string
+    centeredIn(const t_TYPE& obj, size_t width)
+    requires (bsl::formattable<t_TYPE, char>)
+    {
+        return bsl::format("{:^{}}", obj, width);
+    }
+#endif
+//```
+//
+// Finally, we can call the `centeredIn` function and let concepts select the
+// right variation (if concepts are available):
+//
+//```
+//  bsl::string s = centeredIn(Streamable(), 14);
+//  assert(s == "  Streamable  ");
+//
+//  s = centeredIn(42, 8);
+//  assert(s == "   42   ");
+//```
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -132,6 +205,82 @@ int main(int argc, char **argv)
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
 
+///Example: Verify the Presence of a bsl::formatter
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// Suppose we want to verify in code that a given type may be used with
+// `bsl::format` and fall back to using standard streaming if not.
+//
+// First we create a type that supports streaming but not formatting with
+// `bsl::format`:
+//
+//```
+//  struct Streamable {};
+//  std::ostream& operator<<(std::ostream& os, const Streamable&) {
+//      return os << "Streamable";
+//  }
+//```
+//
+// Then we demonstrate that this type is not formattable, but an `int` is.
+// Since the concept may not exists (older compilers/standards) we need to
+// protect the code with the preprocessor:
+//```
+#ifdef BSLFMT_FORMATTABLE_DEFINED
+        ASSERT(false == (bsl::formattable<Streamable, char>));
+        ASSERT(true  == (bsl::formattable<int,        char>));
+#endif
+//```
+//
+// Next we create a generic function to convert a value to string,
+// center-aligned, and we provide two implementations, the first one for types
+// that are formattable in case the concept exists, and just the stream-based
+// variation if it does not.
+//
+//```
+//  template <class t_TYPE>
+//  bsl::string
+//  centeredIn(const t_TYPE& obj, size_t width)
+//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//  requires (!bsl::formattable<t_TYPE, char>)
+//#endif
+// {
+//     bsl::ostringstream os;
+//     os << obj;
+//     bsl::string s = os.str();
+//
+//     width = bsl::max(width, s.length());
+//
+//     const size_t allPadding = width - s.length();
+//     s.insert(s.begin(), allPadding / 2, ' ');
+//     s.append(allPadding - allPadding / 2, ' ');
+//
+//     return s;
+// }
+//```
+//
+// Then, if the concept is present, we define the format-based overload:
+//
+//```
+//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//  template <class t_TYPE>
+//  bsl::string
+//  centeredIn(const t_TYPE& obj, size_t width)
+//  requires (bsl::formattable<t_TYPE, char>)
+//  {
+//      return bsl::format("{:^{}}", obj, width);
+//  }
+//#endif
+//```
+//
+// Finally, we can call the `centeredIn` function and let concepts select the
+// right variation (if concepts are available):
+//
+//```
+        bsl::string s = centeredIn(Streamable(), 14);
+        ASSERT(s == "  Streamable  ");
+
+        s = centeredIn(42, 8);
+        ASSERT(s == "   42   ");
+//```
       } break;
       case 1: {
         // --------------------------------------------------------------------
