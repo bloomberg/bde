@@ -125,7 +125,8 @@ using namespace bsl;
 // [10] CONCERN: VFORMAT, VFORMAT_TO
 // [11] CONCERN: ARGUMENT PASSING
 // [12] CONCERN: BAD FORMAT STRINGS
-// [13] USAGE EXAMPLES
+// [13] EXAMPLES IN BDE DOCUMENTATION
+// [14] USAGE EXAMPLES
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -1234,6 +1235,116 @@ void verifyArgAndArgs(int LINE, const bsl::wformat_args& fargs)
 
     }  // close namespace bsl
 // ```
+
+// ============================================================================
+//                               WEBSITE EXAMPLES
+// ----------------------------------------------------------------------------
+
+// The following classes are used in the usage examples on the BDE web page
+// about `bsl::format`.  We want to make sure that these examples compile and
+// produce the expected output.
+// Full link to the `bsl::format` page:
+// https://bde.bloomberg.com/bde/articles/bslfmt.html
+
+class MyType {
+};
+
+namespace bsl {
+template <class t_CHAR>
+struct formatter<MyType, t_CHAR> {
+  public:
+    template <class t_PARSE_CONTEXT>
+    typename t_PARSE_CONTEXT::iterator BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
+                                                              t_PARSE_CONTEXT&)
+    {
+        // TODO
+    }
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const MyType&,
+                                               t_FORMAT_CONTEXT&) const
+    {
+        // TODO
+    }
+};
+}  // close namespace bsl
+
+struct Complex {
+    double d_real;
+    double d_imaginary;
+};
+
+namespace bsl {  // Formatter needs to be in namespace `bsl`
+/// Partial specialization of `bsl::formatter` for type `Complex`
+template <class t_CHAR>
+struct formatter<Complex, t_CHAR> {
+  private:
+    formatter<double, t_CHAR> d_doubleFormatter;
+        // Use a standard formatter to which we delegate floating point
+        // formatting
+
+    bool                      d_isJ;
+        // Whether the imaginary part uses an 'i' or a 'j'
+
+  public:
+    // CREATORS
+    formatter()
+    : d_doubleFormatter()
+    , d_isJ (false)
+    {}
+
+    // MANIPULATORS
+    template <class t_PARSE_CONTEXT>
+    typename t_PARSE_CONTEXT::iterator BSLS_KEYWORD_CONSTEXPR_CPP20 parse(
+                                                           t_PARSE_CONTEXT& pc)
+    {
+        if (pc.begin() == pc.end() || *pc.begin() == '}') {
+            // Initialize the standard floating point formatter If a
+            // default (empty) format specification is provided.
+            return d_doubleFormatter.parse(pc);
+        }
+        if (*pc.begin() == 'i' || *pc.begin() == 'j') {
+            // The user has specified 'i' vs 'j' for output
+            if (*pc.begin() == 'j') {
+                d_isJ = true;
+            }
+            pc.advance_to(pc.begin() + 1);  // skip 'i' or 'I'
+        }
+        if (pc.begin() != pc.end()) {
+            // Initialize the format specification with the provided
+            // floating point format
+            if (*pc.begin() != ':') {
+                BSLS_THROW(format_error("missing separator"));
+            }
+            pc.advance_to(pc.begin() + 1);  // skip ':'
+        }
+        // Update the iterator in the context and return the same.
+        pc.advance_to(d_doubleFormatter.parse(pc));
+        return pc.begin();
+    };
+
+    // ACCESSORS
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(const Complex&    value,
+                                               t_FORMAT_CONTEXT& fc) const
+    {
+        typename t_FORMAT_CONTEXT::iterator out = fc.out();
+        // Write out the first floating point value
+        out = d_doubleFormatter.format(value.d_real, fc);
+        // Write out the separator
+        *out++ = (t_CHAR)'+';
+            // Update the iterator in the context before passing it to the
+            // floating point formatter again.
+        fc.advance_to(out);
+        // Write out the second floating point value
+        out = d_doubleFormatter.format(value.d_imaginary, fc);
+        // Write out 'i' or 'j' for the imaginary part
+        *out++ = d_isJ ? (t_CHAR)'j' : (t_CHAR)'i';
+            // Update the iterator in the context and return the same.
+        fc.advance_to(out);
+        return out;
+    }
+};
+}  // close namespace bsl
 
 //=============================================================================
 //                          GLOBAL VERBOSITIES
@@ -3114,7 +3225,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLES
         //   Extracted from component header file.
@@ -3159,6 +3270,222 @@ int main(int argc, char **argv)
     result = bsl::format("{:N}", date);
     ASSERT(bsl::string("1999-10-23") == result);
 // ```
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING EXAMPLES IN BDE DOCUMENTATION
+        //   Website `https://bde.bloomberg.com` contains several usage
+        //   examples showing how to use `bsl::format`.  We want to make sure
+        //   that these examples compile and produce the expected output.
+        //   Full page link:
+        //   https://bde.bloomberg.com/bde/articles/bslfmt.html
+        //
+        // Concerns:
+        // 1. The usage examples provided on the BDE website compile, link, and
+        //    run as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage examples from the website into test driver,
+        //     remove comments, and replace `cout` outputs with `ASSERT`.
+        //     (C-1)
+        //
+        // Testing:
+        //   EXAMPLES IN BDE DOCUMENTATION
+        // --------------------------------------------------------------------
+
+        if (verbose)
+                puts("\nTESTING EXAMPLES IN BDE DOCUMENTATION"
+                     "\n=====================================");
+
+        bsl::string result;
+
+        // Simple Example
+
+        {
+            int x = 42;
+
+            result = bsl::format("The value of {} is {}\n", "x", x);
+            ASSERTV(result.c_str(), "The value of x is 42\n" == result);
+
+            result = bsl::format("Escaped left {{ and right }} braces\n");
+            ASSERTV(result.c_str(),
+                    "Escaped left { and right } braces\n" == result);
+
+            result = bsl::format("Print a value in braces {{{}}}", x);
+            ASSERTV(result.c_str(), "Print a value in braces {42}" == result);
+        }
+
+        // Positional Placeholders
+
+        {
+            double value = 3.14159265359;
+            int width = 8, precision = 3;
+
+            result =
+                    bsl::format("Pi is {2:{0}.{1}f}", width, precision, value);
+            // Note: The numbers in the braces state which arguments to use
+            ASSERTV(result.c_str(), "Pi is    3.142" == result);
+
+            result = bsl::format("Pi is {:{}.{}f}", value, width, precision);
+            // Note: The arguments are in the order of the (unescaped) opening
+            // braces '{'
+            ASSERTV(result.c_str(), "Pi is    3.142" == result);
+        }
+
+        // Formatting Specifications
+
+        {
+            double value = 3.14159265359;
+
+            result = bsl::format("Pi is {}", value);
+            ASSERTV(result.c_str(), "Pi is 3.14159265359" == result);
+
+            result = bsl::format("Pi is {:f} default precision", value);
+            ASSERTV(result.c_str(),
+                    "Pi is 3.141593 default precision" == result);
+
+            result = bsl::format("Pi is {0:f} default precision", value);
+            ASSERTV(result.c_str(),
+                    "Pi is 3.141593 default precision" == result);
+
+            result = bsl::format("Pi is {:.4f} smaller precision", value);
+            ASSERTV(result.c_str(),
+                    "Pi is 3.1416 smaller precision" == result);
+
+            result = bsl::format("Pi is {:.4e} exponential", value);
+            ASSERTV(result.c_str(), "Pi is 3.1416e+00 exponential" == result);
+
+            result = bsl::format("Pi is {:20.4e} in a wide field", value);
+            ASSERTV(result.c_str(),
+                    "Pi is           3.1416e+00 in a wide field" == result);
+        }
+        {
+            int day = 23, month = 1, year = 24;
+
+            result = bsl::format(
+                             "The date in US format is {1:02}/{0:02}/{2:02}\n",
+                             day,
+                             month,
+                             year);
+            ASSERTV(result.c_str(),
+                    "The date in US format is 01/23/24\n" == result);
+
+            result = bsl::format(
+                             "The date in UK format is {0:02}/{1:02}/{2:02}\n",
+                             day,
+                             month,
+                             year);
+            ASSERTV(result.c_str(),
+                    "The date in UK format is 23/01/24\n" == result);
+        }
+        {
+            double value = 3.14159265359;
+
+            result = bsl::format("Pi to the left is   '{:<20f}'", value);
+            ASSERTV(result.c_str(),
+                    "Pi to the left is   '3.141593            '" == result);
+
+            result = bsl::format("Pi to the right is  '{:>20f}'", value);
+            ASSERTV(result.c_str(),
+                    "Pi to the right is  '            3.141593'" == result);
+
+            result = bsl::format("Pi in the middle is '{:^20f}'", value);
+            ASSERTV(result.c_str(),
+                    "Pi in the middle is '      3.141593      '" == result);
+
+            result = bsl::format("Pi to the left is   '{:=<20f}'", value);
+            ASSERTV(result.c_str(),
+                    "Pi to the left is   '3.141593============'" == result);
+
+            result = bsl::format("Pi to the right is  '{:=>20f}'", value);
+            ASSERTV(result.c_str(),
+                    "Pi to the right is  '============3.141593'" == result);
+
+            result = bsl::format("Pi in the middle is '{:=^20f}'", value);
+            ASSERTV(result.c_str(),
+                    "Pi in the middle is '======3.141593======'" == result);
+        }
+
+        // Runtime Defined Format Strings
+
+        {
+            int value = 42;
+            string spec = "Value is {}\n";
+
+            // The following won't compile:
+            // result = format(spec, value);
+
+            // Need to use this instead:
+            result = vformat(spec, make_format_args(value));
+            ASSERTV(result.c_str(), "Value is 42\n" == result);
+
+            // Note the following would also give a compile-time error:
+            // result = vformat(spec, make_format_args(42));
+            // (arguments have to be lvalues)
+        }
+
+        {
+            int    value = 42;
+            string spec = "Value is {:z}\n"; // Invalid format spec for in
+
+            try {
+                result = bsl::vformat(spec, make_format_args(value));
+                ASSERTV(false);
+            }
+            catch (const format_error&) {
+            }
+        }
+
+        // Support for Allocators
+
+        {
+            bslma::TestAllocator ta("test");
+
+            ASSERT(ta.numAllocations() == 0);
+
+            bsl::string testStr = bsl::format(
+                    &ta,
+                    "Here we do a test with a long string and some number {}",
+                    42);
+
+            ASSERT(testStr.get_allocator().mechanism() == &ta);
+            ASSERT(ta.numAllocations() > 0);
+        }
+
+        // Basic rules for formatting user defined types
+
+        {
+            bsl::formatter<MyType, char> formatter;
+            (void) formatter;  // suppress compiler warning
+        }
+
+        // Example code for a fully-fledged formatter for a user defined type
+        {
+            Complex c = {2.71828182845, 3.14159265359};
+
+            result = bsl::format("Value is {}", c);
+            ASSERTV(result.c_str(),
+                    "Value is 2.71828182845+3.14159265359i" == result);
+
+            result = bsl::format("Value is {0:}", c);
+            ASSERTV(result.c_str(),
+                    "Value is 2.71828182845+3.14159265359i" == result);
+
+            result = bsl::format("Value is {::}", c);
+            ASSERTV(result.c_str(),
+                    "Value is 2.71828182845+3.14159265359i" == result);
+
+            result = bsl::format("Value is {:j:}", c);
+            ASSERTV(result.c_str(),
+                    "Value is 2.71828182845+3.14159265359j" == result);
+
+            result = bsl::format("Value is {:j:.2f}", c);
+            ASSERTV(result.c_str(), "Value is 2.72+3.14j" == result);
+
+            bsl::wstring wresult = bsl::format(L"Value is {:j:}", c);
+            ASSERTV(L"Value is 2.71828182845+3.14159265359j" == wresult);
+
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
