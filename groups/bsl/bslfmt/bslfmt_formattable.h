@@ -52,12 +52,6 @@ namespace bsl {
 
 #include <stddef.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-#define BSLFMT_FORMATTABLE_NAMESPACE_ std
-#else   // of ifdef sBSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-#define BSLFMT_FORMATTABLE_NAMESPACE_ bsl
-#endif  // else of - BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-
 namespace BloombergLP {
 namespace bslfmt {
 
@@ -83,7 +77,7 @@ template <class t_TYPE,
 concept Formattable_With =
   std::semiregular<t_FORMATTER> &&
   requires (t_FORMATTER& f, const t_FORMATTER& cf, t_TYPE&& t, t_CONTEXT fc,
-            BSLFMT_FORMATTABLE_NAMESPACE_::basic_format_parse_context<
+            bsl::basic_format_parse_context<
                      typename t_CONTEXT::char_type
             > pc) {
     { f.parse(pc) } -> std::same_as<typename decltype(pc)::iterator>;
@@ -97,13 +91,11 @@ namespace bsl {
 template <class t_TYPE, class t_CHAR = char>
 concept formattable = BloombergLP::bslfmt::Formattable_With<
     std::remove_reference_t<t_TYPE>,
-    BSLFMT_FORMATTABLE_NAMESPACE_::basic_format_context<
+    bsl::basic_format_context<
         //BloombergLP::bslfmt::Format_ContextOutputIteratorRef<t_CHAR>,
         BloombergLP::bslfmt::Formattable_OutputIterator<t_CHAR>,
         t_CHAR> >;
 }  // close namespace bsl
-
-#undef BSLFMT_FORMATTABLE_NAMESPACE_
 
 #endif  // else of - BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
