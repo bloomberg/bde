@@ -7,6 +7,7 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bslstl_ostringstream.h>
 #include <bslstl_string.h>
 
 #include <stdio.h>
@@ -29,10 +30,10 @@ using namespace BloombergLP;
 // as the wrapper-creator function template (mainly for C++03 compatibility)
 // `bslfmt::streamed`.
 //-----------------------------------------------------------------------------
-// [  ] TBD
+// [ 2] Streamed_OutIterBuf
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 3] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -121,6 +122,84 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
     return os << obj.d_content;
 }
 
+                      // ================================
+                      // OutputIteratorStreamBufferTester
+                      // ================================
+
+/// This type is used to test the content-limiting behavior of
+/// `Streamed_OutIterBuf`.  It can print to stream up to 62 characters, and it
+/// verifies the state of the stream after each print.  It saves after which
+/// print has it encountered a bad state, in other words the position of the
+/// first character it was unable to print to the stream.  Once the bad state
+/// is encountered it won't print any more characters (as well behaved
+/// operators would work).  The class is made so that the same instance is
+/// reusable is it both has a `reset` method to reset the bad-position and a
+/// method to update the number of characters printed.  The 62 characters
+/// printed go from 0-9, then a-z, then A-Z.
+class OutputIteratorStreamBufferTester {
+    // DATA
+    int         d_numCharsPrinted;
+    mutable int d_badPos;
+
+    // PRIVATE CLASS METHODS
+    static char nthChar(int n)
+    {
+        if (n < 10) {
+            return '0' + n;
+        }
+        else if (n < 36) {
+            return 'a' + (n - 10);
+        }
+        else {
+            return 'A' + (n - 36);
+        }
+    }
+
+  public:
+    // CREATORS
+    OutputIteratorStreamBufferTester(int numChars)
+    : d_numCharsPrinted(numChars)
+    , d_badPos(-1)
+    {
+        ASSERT(numChars >= 0);
+        ASSERT(numChars <= 62);
+    }
+
+    // MANIPULATORS
+    void reset() { d_badPos = -1; }
+
+    void setNumChars(int numChars)
+    {
+        ASSERT(numChars >= 0);
+        ASSERT(numChars <= 62);
+
+        d_numCharsPrinted = numChars;
+    }
+
+    // ACCESSORS
+    int badPos() const { return d_badPos; }
+
+    std::ostream& streamInsert(std::ostream& os) const
+    {
+        for (int n = 0; n < d_numCharsPrinted; ++n) {
+            if (os.bad()) {
+                d_badPos = n;
+                break;                                                 // BREAK
+            }
+
+            os << nthChar(n);
+        }
+
+        return os;
+    }
+};
+
+std::ostream& operator<<(std::ostream&                           os,
+                         const OutputIteratorStreamBufferTester& obj)
+{
+    return obj.streamInsert(os);
+}
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -207,7 +286,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -382,6 +461,61 @@ int main(int argc, char **argv)
     ASSERT(s == "  123456");
 //```
         }
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // OUTPUT ITERATOR STREAM BUFFER
+        //
+        // Concern:
+        //: 1 Demonstrate the functioning of this component.
+        //
+        // Plan:
+        //: 1 Use test contexts to format a single string.
+        //
+        // Testing:
+        //   Streamed_OutIterBuf
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nOUTPUT ITERATOR STREAM BUFFER"
+                          "\n=============================");
+
+        // First a rudimentary test of the test machinery
+        {
+            OutputIteratorStreamBufferTester tester(10);
+            bsl::ostringstream               os;
+
+            os << tester;
+            ASSERTV(os.str().c_str(), os.str() == "0123456789");
+            ASSERTV(tester.badPos(), -1 == tester.badPos());
+            ASSERT(os.good());
+
+            os.str("");
+            os.setstate(std::ios_base::badbit);
+            os << tester;
+            ASSERTV(os.str().c_str(), os.str() == "");
+            ASSERTV(tester.badPos(), 0 == tester.badPos());
+            ASSERT(os.bad());
+            tester.reset();
+            ASSERTV(tester.badPos(), -1 == tester.badPos());
+
+            os.str("");
+            os.clear();
+            tester.setNumChars(16);
+            os << tester;
+            ASSERTV(os.str().c_str(), os.str() == "0123456789abcdef");
+            ASSERTV(tester.badPos(), -1 == tester.badPos());
+            ASSERT(os.good());
+
+            os.str("");
+            tester.setNumChars(37);
+            os << tester;
+            ASSERTV(os.str().c_str(),
+                    os.str() == "0123456789abcdefghijklmnopqrstuvwxyzA");
+            ASSERTV(tester.badPos(), -1 == tester.badPos());
+            ASSERT(os.good());
+        }
+
+
       } break;
       case 1: {
         // --------------------------------------------------------------------

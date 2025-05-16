@@ -687,6 +687,8 @@ struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMABLE>, char>
 
 }  // close namespace bsl
 
+#undef BSLFMT_STREAMED_INSTANCE_DEPRECATED_
+
 #endif  // INCLUDED_BSLFMT_STREAMED
 
 // ----------------------------------------------------------------------------
