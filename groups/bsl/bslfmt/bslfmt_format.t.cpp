@@ -1287,7 +1287,7 @@ struct formatter<Complex, t_CHAR> {
 
   public:
     // CREATORS
-    formatter()
+    BSLS_KEYWORD_CONSTEXPR_CPP20 formatter()
     : d_doubleFormatter()
     , d_isJ (false)
     {}
