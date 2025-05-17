@@ -269,8 +269,10 @@ struct Streamed : Streamed_Impl<t_STREAMABLE> {
 #endif  // BSLFMT_FORMATTABLE_DEFINED
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 template <class t_TYPE>
 Streamed(const t_TYPE& object) -> Streamed<t_TYPE>;
+#endif
 
                             // ===================
                             // Streamed_OutIterBuf
@@ -677,13 +679,11 @@ struct formatter<BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
       BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE> > {
 };
-#ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
       BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE> > {
 };
-#endif  // BSLFMT_FORMATTABLE_DEFINED
 
 }  // close namespace bsl
 

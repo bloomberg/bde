@@ -7,9 +7,11 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <bslstl_iterator.h>
 #include <bslstl_ostringstream.h>
 #include <bslstl_string.h>
 
+#include <limits.h>
 #include <stdio.h>
 
 #include <iostream>
@@ -113,6 +115,9 @@ struct CanStream {
     {
     }
 
+    // MANIPULATORS
+    void setContent(const char *content) { d_content = content; }
+
     // ACCESSORS
     const char *content() const { return d_content; }
 };
@@ -145,13 +150,13 @@ class OutputIteratorStreamBufferTester {
     static char nthChar(int n)
     {
         if (n < 10) {
-            return '0' + n;
+            return static_cast<char>('0' + n);
         }
         else if (n < 36) {
-            return 'a' + (n - 10);
+            return static_cast<char>('a' + (n - 10));
         }
         else {
-            return 'A' + (n - 36);
+            return static_cast<char>('A' + (n - 36));
         }
     }
 
@@ -184,10 +189,14 @@ class OutputIteratorStreamBufferTester {
         for (int n = 0; n < d_numCharsPrinted; ++n) {
             if (os.bad()) {
                 d_badPos = n;
-                break;                                                 // BREAK
+                return os;                                            // RETURN
             }
 
             os << nthChar(n);
+        }
+
+        if (os.bad()) {
+            d_badPos = d_numCharsPrinted;
         }
 
         return os;
@@ -281,7 +290,6 @@ int main(int argc, char **argv)
     const int  test        = argc > 1 ? atoi(argv[1]) : 0;
     const bool verbose     = argc > 2;
     const bool veryVerbose = argc > 3;
-    (void) veryVerbose;
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
@@ -515,7 +523,81 @@ int main(int argc, char **argv)
             ASSERT(os.good());
         }
 
+        // Now the actual test
 
+        const int X = INT_MAX;  // X is no limit
+
+        static struct {
+            int         d_line;
+            int         d_numChars;
+            int         d_limit;
+            int         d_badPos;
+            const char *d_expected;
+        } DATA[] = {
+            { L_, 1, X, -1, "0" },
+            { L_, 1, 1, -1, "0" },
+            { L_, 1, 0,  1, ""  },
+
+            { L_, 5, X, -1, "01234" },
+            { L_, 5, 9, -1, "01234" },
+            { L_, 5, 6, -1, "01234" },
+            { L_, 5, 5, -1, "01234" },
+            { L_, 5, 4,  5, "0123"  },
+            { L_, 5, 3,  4, "012"   },
+            { L_, 5, 2,  3, "01"    },
+            { L_, 5, 1,  2, "0"     },
+            { L_, 5, 0,  1, ""      },
+
+            { L_, 16,  X, -1, "0123456789abcdef" },
+            { L_, 16, 99, -1, "0123456789abcdef" },
+            { L_, 16, 66, -1, "0123456789abcdef" },
+            { L_, 16, 33, -1, "0123456789abcdef" },
+            { L_, 16, 16, -1, "0123456789abcdef" },
+            { L_, 16, 15, 16, "0123456789abcde"  },
+            { L_, 16, 14, 15, "0123456789abcd"   },
+            { L_, 16, 13, 14, "0123456789abc"    },
+            { L_, 16, 12, 13, "0123456789ab"     },
+            { L_, 16, 11, 12, "0123456789a"      },
+            { L_, 16, 10, 11, "0123456789"       },
+            { L_, 16,  9, 10, "012345678"        },
+            { L_, 16,  8,  9, "01234567"         },
+            { L_, 16,  7,  8, "0123456"          },
+            { L_, 16,  6,  7, "012345"           },
+            { L_, 16,  5,  6, "01234"            },
+            { L_, 16,  4,  5, "0123"             },
+            { L_, 16,  3,  4, "012"              },
+            { L_, 16,  2,  3, "01"               },
+            { L_, 16,  1,  2, "0"                },
+            { L_, 16,  0,  1, ""                 },
+        };
+
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (size_t i = 0; i < NUM_DATA; ++i) {
+            const int          LINE      = DATA[i].d_line;
+            const int          NUM_CHARS = DATA[i].d_numChars;
+            const int          LIMIT     = DATA[i].d_limit;
+            const int          BAD_POS   = DATA[i].d_badPos;
+            const char *const  EXPECTED  = DATA[i].d_expected;
+
+            if (veryVerbose) {
+                P_(LINE) P_(NUM_CHARS) P_(LIMIT) P_(BAD_POS) P(EXPECTED);
+            }
+
+            const OutputIteratorStreamBufferTester tester(NUM_CHARS);
+
+            typedef bsl::back_insert_iterator<bsl::string> Iter;
+
+            bsl::string result;
+            bslfmt::Streamed_OutIterBuf<Iter> buf(bsl::back_inserter(result),
+                                                  LIMIT);
+            std::ostream                      os(&buf);
+
+            os << tester;
+
+            ASSERTV(LINE, EXPECTED, result.c_str(), EXPECTED == result);
+            ASSERTV(LINE, BAD_POS,  tester.badPos(), BAD_POS == tester.badPos());
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -581,6 +663,102 @@ int main(int argc, char **argv)
         TEST_LINE("{:<10.12}", "0123456789");
         TEST_LINE("{:<10.12}", "0123456789");
         TEST_LINE("{:^10.12}", "0123456789");
+
+        TEST_LINE("{:*<12}", "0123456789**");
+        TEST_LINE("{:*>12}", "**0123456789");
+        TEST_LINE("{:*^12}", "*0123456789*");
+
+        TEST_LINE("{:*<10.7}", "0123456***");
+        TEST_LINE("{:*>10.7}", "***0123456");
+        TEST_LINE("{:*^10.7}", "*0123456**");
+
+        mX.setContent(
+          //           1         2         3         4         5         6
+          //  12345678901234567890123456789012345678901234567890123456789012
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        TEST_LINE(
+             "{}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        TEST_LINE(
+             "{:62}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+            "{:63}",
+            "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ");
+        TEST_LINE(
+           "{:64}",
+           "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ  ");
+        TEST_LINE(
+        "{:67}",
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ     ");
+        TEST_LINE(
+        "{:<67}",
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ     ");
+        TEST_LINE(
+        "{:^67}",
+        "  0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ   ");
+        TEST_LINE(
+        "{:>67}",
+        "     0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+        "{:-<67}",
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-----");
+        TEST_LINE(
+        "{::^67}",
+        "::0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:::");
+        TEST_LINE(
+        "{:^>67}",
+        "^^^^^0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:61}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:60}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:30}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:1}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+
+        TEST_LINE(
+             "{:.100}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:.70}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:.63}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:.62}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        TEST_LINE(
+             "{:.61}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXY");
+        TEST_LINE(
+             "{:.60}",
+             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWX");
+        TEST_LINE( "{:.36}", "0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE( "{:.10}", "0123456789");
+
+        TEST_LINE("{:1.36}",    "0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE("{:10.36}",   "0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE("{:30.36}",   "0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE("{:36.36}",   "0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE("{:37.36}",   "0123456789abcdefghijklmnopqrstuvwxyz ");
+        TEST_LINE("{:<37.36}",  "0123456789abcdefghijklmnopqrstuvwxyz ");
+        TEST_LINE("{:^37.36}",  "0123456789abcdefghijklmnopqrstuvwxyz ");
+        TEST_LINE("{:>37.36}",  " 0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE("{:<40.36}",  "0123456789abcdefghijklmnopqrstuvwxyz    ");
+        TEST_LINE("{:^40.36}",  "  0123456789abcdefghijklmnopqrstuvwxyz  ");
+        TEST_LINE("{:>40.36}",  "    0123456789abcdefghijklmnopqrstuvwxyz");
+        TEST_LINE("{:|<40.36}", "0123456789abcdefghijklmnopqrstuvwxyz||||");
+        TEST_LINE("{:+^40.36}", "++0123456789abcdefghijklmnopqrstuvwxyz++");
+        TEST_LINE("{:.>40.36}", "....0123456789abcdefghijklmnopqrstuvwxyz");
 
         bsl::string s = bsl::format("{}", bslfmt::streamed(12));
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
