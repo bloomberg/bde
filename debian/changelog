@@ -1,5 +1,72 @@
-bsl-internal (4.24.0.0) unstable; urgency=low
+bsl-internal (4.25.0.0) unstable; urgency=low
 
+  * 8048e56c2 Bumped version to 4.25.0.0
+  * 57a5a2ce3 Merge pull request #5364 from bchapman/balst_resolverimpl_elf-proc-pid-image-drqs-179086565
+  * 3de3aa513 [bsl::format] Website examples have been added to the 'bslfmt_format.t' DRQS 179253404 (#5397)
+  * 23488a2f8 Adjust lower bound for multi-period test (#5394)
+  * 6137649e6 Support for version 4 of timezone binary files has been added. DRQS 177946610 (#5193)
+  * fc9e9713b Merge pull request #5388 from afeher/drqs-179180702-fix-clang-17-fmt-numval-test-driver
+  * 9f9143a55 Rewrite MultiPeriodTest (#5390)
+  * 72e91115e Speed up ISO-8601 parsing of default-formatted `DatetimeTz` objects by ~3.9x - {DRQS 179001831} (#5315)
+  * 9665db980 UBSAN matrix build failures have been fixed (#5389)
+  * a16a8dcf8 Fix incorrect include in comment in bsls_deprecatefeature.h (#5387)
+  * 803372ff6 If needed, add missing include to bsl_forward_list.h (#5381)
+  * a859288a4 Disable test that fails on windows build machine (#5385)
+  * c1eeca7e7 suppress bsl warnings (DRQS 179176258) (#5384)
+  * 684237fd3 balb_pipetaskmanager.t make pipe name unique (DRQS 179109637) (#5382)
+  * a891f68a3 bdls_processutil.t remove unnecessary failure on windows (#5383)
+  * cd29a93a4 Merge pull request #5377 from afeher/drqs-179083713-fix-std-format-use-on-llvm
+  * 9f39d0632 Fix DBL_TRUE_MIN on Solaris. (#5378)
+  * efb8ce77a  bdlat_ValueTypeFunctions::assign() for bsl::vector (#5366)
+  * f551cf459 silence false positive in bsl::ostringstream::swap (#5374)
+  * d6b01f40b gcc warnings removed. (#5370)
+  * 10e4d27df Time-based test for rotation. (#5375)
+  * 7506129e2 fix balm_metricsmanager.t timing issue (#5373)
+  * 9e0b044ab retry threadpool start (#5371)
+  * b9622578c Drqs 179147660/nb 20250505 (#5368)
+  * 3975b1e70 fix windows file deletion issue in balxml_minireader.t (#5369)
+  * 7ba12e9d3 Merge pull request #5367 from afeher/drqs-179147744-windows-warnings
+  * e1db06346 Merge pull request #5319 from dsokolov7/review/bde-bsl-format-standardformatspecification-gold-drqs-178235026
+  * 9a6461447 Merge pull request #5359 from afeher/drqs-179083755-darwin-compilation-error-workaround
+  * dcbdbfcc9 fix balm_publicationscheduler.t cases 1 and 4 (DRQS 178998309) (#5363)
+  * c56dc33f3 Merge pull request #5365 from afeher/drqs-179109624-msvc-is-still-bad-floating-alternate-format
+  * 7f2ec80e1 Attempt 2 to fix ball fileobserver2 TD (#5362)
+  * 5f7a5f55d Drqs 179109614/nb 20250502 (#5361)
+  * 173a0d7e0 reduce issues (#5358)
+  * 41f4e02b4 suppress bsl C++03 warnings on gcc (#5356)
+  * 7d9120385 correct warnings (#5357)
+  * 86a803260 fix ball_asyncfileobserver.t Windows failures (DRQS 178984021) (#5355)
+  * 79948e46b remove test vectors looking for reviews in anone builds (#5354)
+  * a82871639 getValueRaw and improve test driver (#5353)
+  * 7a0720440 balst_resolverimpl_elf.cpp: handle error on Linux where non-vdso lib fails to open (#5348)
+  * f5447e6c4 clean warnings (#5351)
+  * 15a556059 clang cpp20 bslfmt comp error (DRQS 179060592) (#5347)
+  * cf76002ff reduce issues (#5349)
+  * e2d39721d remove UB from emplace_hint tests (DRQS 179073334) (#5346)
+  * 1b616bf8a improved timestamp updating (#5345)
+  * 568331cc5 investigate timeouts (#5343)
+  * 1e09e9b15 alloc traits darwin warnings. (DRQS 179051367) (#5338)
+  * 366d8e616 Fix nullptr use in bdlpcre::RegEx::replace when passing a null errorOffset ptr (DRQS 179010677) (#5333)
+  * 0aa5010dd reduce issues (#5342)
+  * 92bab761c fix misbehaving allocator in bslma_allocatorutil.t.cpp (#5340)
+  * 1973a0895 remove UB from bdls_fdstreambuf.t case 8 (DRQS 179021995) (#5339)
+  * 634884c88 Skip a buggy test on older Darwin compiler (#5337)
+  * 6045de75f reduce warnings (#5336)
+  * 39c007c7d disable bsl::deque tests for pointer to member functions in GCC 12-15 (#5332)
+  * 2993cf9eb improve writer-preference comment and test (#5334)
+  * 8f1c43578 fix bsls_libraryfeatures test for is_pointer_interconvertible (#5331)
+  * b5025e551 allocator_traits::rebind deprecated (DRQS 178920128) (#5324)
+  * eca50aac6 Fixing bdl darwin warnings. (#5330)
+  * 97cd22823 correct warning (#5329)
+  * a6d10e601 reduce nb issues (#5328)
+  * c1a3450f7 Revert "reduce nb issues" (#5327)
+  * 2bdf295c0 reduce nb issues (#5326)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 18 May 2025 18:36:57 +0000
+
+bsl-internal (4.24.0.0) git; urgency=low
+
+  * c20c1a8f0 Changelog for version 4.24.0.0
   * 5b73cff90 Add enable disable to metricsregistry drqs178968645 (#5308)
   * a5672beeb Bumped version to 4.24.0.0
   * a29468db2 improve estimation algorithm (#5323)
@@ -36,7 +103,7 @@ bsl-internal (4.24.0.0) unstable; urgency=low
   * f8d08d453 bdlt_date fix buffer overflow for out-of-range month (DRQS 178292903) (#5283)
   * ce5d2f3eb Bdlmt threadpool functor allocator drqs178166768 (#5282)
 
- -- Henry Verschell <hverschell@bloomberg.net>  Thu, 24 Apr 2025 14:39:51 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 24 Apr 2025 14:49:35 -0400
 
 bsl-internal (4.23.0.0) git; urgency=low
 
