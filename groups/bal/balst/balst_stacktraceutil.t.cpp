@@ -40,6 +40,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
@@ -67,12 +68,12 @@
 
 #else
 
-#include <unistd.h>    // sbrk
+# include <unistd.h>      // sbrk
+
 
 #endif
 
 using namespace BloombergLP;
-using bsl::cin;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
@@ -248,6 +249,7 @@ typedef bsls::Types::IntPtr    IntPtr;
 static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
+static int veryVeryVeryVerbose;
 
 static bslma::TestAllocator ota;
 static bdlma::SequentialAllocator ta(&ota);
@@ -326,6 +328,112 @@ void stripReturnType(bsl::string *dst, const bsl::string& symbol)
 //=============================================================================
 // GLOBAL HELPER FUNCTIONS FOR TESTING
 //-----------------------------------------------------------------------------
+
+namespace {
+namespace u {
+
+/// Return a pointer to the new delete allocator singleton.
+bslma::Allocator *nda()
+{
+    // We use the new delete allocator here, because if we want to track down
+    // accidental uses of the default allocator, we'll want to put a breakpoint
+    // on `bslma::TestAllocator::allocate`.
+
+    return &bslma::NewDeleteAllocator::singleton();
+}
+
+/// Check that:
+/// * `test` (== `atoi(argv[1]`) is above the specified `topCaseIndex` and
+///   less than or equal to `2 * topCaseIndex`.
+///
+/// * The executable file name `argv[0]` matches expectations for a "condemned"
+///   executable.
+void checkCondemnedExecutableName(int topCaseIndex, char **argv)
+{
+    int test = bsl::atoi(argv[1]);
+
+    ASSERTV(test, topCaseIndex, topCaseIndex < test);
+    ASSERTV(test, topCaseIndex, test <= 2 * topCaseIndex);
+    ASSERTV(argv[0], bsl::strstr(argv[0], "_condemned_"));
+    ASSERTV(argv[0], test, bsl::strstr(argv[0], argv[1]));
+}
+
+/// Copy the file `fromFileName` to a new file `toFileName`.
+void copyExecutable(const char *toFileName,
+                    const char *fromFileName)
+{
+    using namespace bsl;
+    typedef bdls::FilesystemUtil   Util;
+    typedef bsl::char_traits<char> Traits;
+
+    // `FilesystemUtil` functions use the default allocator on Windows.
+
+    bslma::DefaultAllocatorGuard guard(u::nda());
+
+    (void) Util::remove(toFileName);
+    const Util::Offset fileSize = Util::getFileSize(fromFileName);
+
+    {
+        ofstream toStream(  toFileName,   ios_base::out | ios_base::binary);
+        ifstream fromStream(fromFileName, ios_base::in  | ios_base::binary);
+
+        ASSERT(toStream.  good());
+        ASSERT(fromStream.good());
+
+        streambuf *toSb   = toStream.  rdbuf();
+        streambuf *fromSb = fromStream.rdbuf();
+
+        copy(istreambuf_iterator<char>(fromSb),
+             istreambuf_iterator<char>(),
+             ostreambuf_iterator<char>(toSb));
+
+        // Since we operated directly on the `streambuf`s, the `fstream`s were
+        // uninformed about how it went.  Query the `streambuf`s directly to
+        // verify that it went OK.
+
+        const Traits::pos_type toOff = toSb->pubseekoff(0, ios_base::cur);
+        ASSERTV(fileSize, toOff, fileSize == toOff);
+        ASSERT(Traits::eof() == fromSb->sbumpc());
+    }    // close the streams
+
+    ASSERT(Util::getFileSize(toFileName) == fileSize);
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    int rc = ::chmod(toFileName, 0777);
+    ASSERT(0 == rc);
+#endif
+}
+
+/// Copy the executable `argv[0]` to a "condemned" copy and then run that copy
+/// with `argv[2]` == "--erase", which will result in the condemned copy being
+/// erased at the beginning of the test.
+void doEraseTest(int argc, char **argv)
+{
+    bsl::string cmd(argv[0], u::nda());
+    cmd += "_condemned_";
+    cmd += argv[1];            // `test` in text form
+    cmd += ".t";
+
+    // `cmd` is now the child exec name
+
+    u::copyExecutable(cmd.c_str(), argv[0]);
+
+    // command: run the test case
+
+    cmd += ' ';
+    cmd += argv[1];
+    cmd += " --erase";
+    for (int ii = 2; ii < argc; ++ii) {
+        cmd += ' ';
+        cmd += argv[ii];
+    }
+    int rc = ::system(cmd.c_str());
+    ASSERT(0 == rc);
+    testStatus += bsl::abs(rc);
+}
+
+}  // close namespace u
+}  // close unnamed namespace
 
 /// check that the specified `str` contains all the strings specified in the
 /// vector `matches` in order.  Note that `matches` may be modified.
@@ -1915,12 +2023,39 @@ void bottom(bslma::Allocator *alloc)
 
 int main(int argc, char *argv[])
 {
-    int test        = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose         = argc > 2;
-    veryVerbose     = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose             = argc > 2;
+    veryVerbose         = argc > 3;
+    veryVeryVerbose     = argc > 4;
+    veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    enum { k_TOP_USAGE_CASE_INDEX = 18 };
+
+    const bool eraseExecutable = 2 < argc && !bsl::strcmp("--erase", argv[2]);
+    if (eraseExecutable) {
+        // `FilesystemUtil` functions uses the default allocator on Windows.
+
+        bslma::DefaultAllocatorGuard guard(u::nda());
+
+        u::checkCondemnedExecutableName(k_TOP_USAGE_CASE_INDEX, argv);
+
+        int rc = bdls::FilesystemUtil::remove(argv[0]);
+        ASSERT(0 == rc);
+        ASSERT(!bdls::FilesystemUtil::exists(argv[0]));
+
+        test            -= k_TOP_USAGE_CASE_INDEX;
+
+        verbose         =  veryVerbose;
+        veryVerbose     =  veryVeryVerbose;
+        veryVeryVerbose =  veryVeryVeryVerbose;
+    }
+
+    cout << "TEST " << __FILE__ << " CASE " << test <<
+                                   (eraseExecutable ? " --erase" : "") << endl;
+
+    if (verbose && eraseExecutable) {
+        cout << argv[0] << " erased\n";
+    }
 
     // make sure the shared lib containing `malloc` is loaded
 
@@ -1942,7 +2077,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 18: {
+      case k_TOP_USAGE_CASE_INDEX: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE THREE
         //
@@ -2942,8 +3077,20 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numAllocations());
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+        BSLS_ASSERT_OPT(!eraseExecutable);
+
+        ASSERTV(test, k_TOP_USAGE_CASE_INDEX < test);
+
+        if (!PLAT_WIN && test <= 2 * k_TOP_USAGE_CASE_INDEX) {
+            // Run test case `test - k_TOP_USAGE_CASE_INDEX` with erasing the
+            // executable.
+
+            u::doEraseTest(argc, argv);
+        }
+        else {
+            cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+            testStatus = -1;
+        }
       }
     }
 
@@ -2958,6 +3105,8 @@ int main(int argc, char *argv[])
 }
 
 #else
+
+// CYGWIN
 
 int main()
 {

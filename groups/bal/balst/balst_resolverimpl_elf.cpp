@@ -30,6 +30,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_cstdarg.h>
 #include <bsl_deque.h>
+#include <bsl_fstream.h>
 #include <bsl_limits.h>
 #include <bsl_vector.h>
 
@@ -1370,7 +1371,7 @@ class FreeGuard {
 
 /// The specified 'start' points to a vdso file that resides in memory.
 /// Traverse its data to determine its length, and return that length.
-static size_t calculateVdsoLength(const void *start)
+size_t calculateVdsoLength(const void *start)
 {
     const char         *charStart = static_cast<const char *>(start);
     const u::ElfHeader *elfHdr = static_cast<const u::ElfHeader *>(start);
@@ -1417,7 +1418,7 @@ static size_t calculateVdsoLength(const void *start)
     return ret;
 }
 
-static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
+int cleanupString(bsl::string *str, bslma::Allocator *alloc)
     // Eliminate all instances of "/./" from the specified '*str', and also as
     // many instances of "/../" as possible.  Do not resolve symlinks.  Use the
     // specified 'alloc' for memory allocation of temporaries.  Return 0 unless
@@ -1484,7 +1485,6 @@ static int cleanupString(bsl::string *str, bslma::Allocator *alloc)
     return 0;
 }
 
-static
 void bruteMemset(void *start, char fill, size_t length)
     // This function is identical in result to calling 'memset' in theory, but
     // it turns out that 'memset' has a show-stopper bug in clang-5.0 if called
@@ -1499,7 +1499,7 @@ void bruteMemset(void *start, char fill, size_t length)
 }
 
 #ifdef u_DWARF
-static int dumpBinary(u::Reader *reader, int numRows)
+int dumpBinary(u::Reader *reader, int numRows)
     // Dump out the specified 'numRows' of 16 byte rows of the binary about to
     // be read by the specified 'reader'.  Note that this function is called
     // for debugging when we encounter unexpected things in the binary.
@@ -1538,7 +1538,6 @@ static int dumpBinary(u::Reader *reader, int numRows)
 }
 #endif
 
-static
 int checkElfHeader(u::ElfHeader *elfHeader)
     // Return 0 if the magic numbers in the specified 'elfHeader' are correct
     // and a non-zero value otherwise.
@@ -1907,10 +1906,6 @@ struct u::Resolver::HiddenRec {
     int                d_numTotalUnmatched;// Total number of unmatched frames
                                            // remaining in this resolve.
 
-    bool               d_isMainExecutable; // 'true' if in main executable
-                                           // segment, as opposed to a shared
-                                           // library
-
     bslma::Allocator  *d_allocator_p;      // The resolver's heap bypass
                                            // allocator.
 
@@ -2023,7 +2018,6 @@ u::Resolver::HiddenRec::HiddenRec(u::Resolver *resolver)
 , d_scratchBufE_p(resolver->d_scratchBufE_p)
 #endif
 , d_numTotalUnmatched(resolver->d_stackTrace_p->length())
-, d_isMainExecutable(0)
 , d_allocator_p(&resolver->d_hbpAlloc)
 {
     d_frameRecs.reserve(d_numTotalUnmatched);
@@ -3921,6 +3915,7 @@ u::Resolver::ResolverImpl(balst::StackTrace *stackTrace,
 , d_hidden(*(new (d_hbpAlloc) HiddenRec(this)))    // must be after scratch
                                                    // buffers
 , d_demangle(demanglingPreferredFlag)
+, d_isMainExecutable(false)
 {
 }
 
@@ -4004,7 +3999,7 @@ int u::Resolver::loadSymbols(int matched)
                         // in ELF, filename information is only accurate
                         // for statics in the main executable
 
-                        if (d_hidden.d_isMainExecutable
+                        if (d_isMainExecutable
                            && STB_LOCAL == ELF32_ST_BIND(sym->st_info)
                            && u::maxOffset != sourceFileNameOffset) {
                             frame.setSourceFileName(
@@ -4059,11 +4054,12 @@ int u::Resolver::loadSymbols(int matched)
     return 0;
 }
 
-int u::Resolver::processLoadedImage(const char *fileName,
+int u::Resolver::processLoadedImage(const char *libraryFileName,
                                     const void *programHeaders,
                                     int         numProgramHeaders,
                                     void       *textSegPtr,
-                                    void       *baseAddress)
+                                    void       *baseAddress,
+                                    bool        isMainExecutable)
     // Note this must be public so 'linkMapCallBack' can call it on Solaris.
     // Also note that it assumes that both scratch buffers are available for
     // writing.
@@ -4072,77 +4068,116 @@ int u::Resolver::processLoadedImage(const char *fileName,
 
     BSLS_ASSERT(!textSegPtr || !baseAddress);
 
-    // Scratch buffers: some platforms use A to read the link, then
-    // 'resolveSegment' will trash both A and B.
+    d_isMainExecutable = isMainExecutable;
+
+    // `libraryFileName` is to be potentially reassigned -- it is the file name
+    // to be displayed as the 'libraryFileName' field of the stack trace frame.
+    // 'nameToOpen' is the file name we are to open to access the binary, which
+    // may match `libraryFileName` or, in the case of the main executable, may
+    // be found somewhere under "/proc/self".  Note that on some operating
+    // systems, if the library is the main program, `libraryFileName == 0`.
+    //
+    // `fileNameIfExecutable` is only used if the file is the main executable:
+    // the variable is a string to store `argv[0]` once we fetch it from
+    // "/proc".
+
+    const char  *nameToOpen = libraryFileName;
+    bsl::string  fileNameIfExecutableFile(&d_hbpAlloc);
 
     d_hidden.reset();
 
-    const char *name = 0;
-    if (fileName && fileName[0]) {
-        if (u::e_IS_LINUX) {
-            d_hidden.d_isMainExecutable = false;
-        }
+    if (isMainExecutable) {
+        // We expect the main executable to contain most of the symbols.  Under
+        // some circumstances, the main executable is deleted from the file
+        // system while the task is still running.  So we find the main
+        // executable through the "/proc" directory, which will work whether
+        // the file is still in the file system or not.
+        //
+        // On Linux and Solaris, there is a "/proc" directory tree, where
+        // "/proc/<pid>" is a subtree with a lot of detailed information about
+        // the process whose process id is `<pid>`.  There is also
+        // "/proc/self", which is just a link to "/proc/<pid>" where `<pid>` is
+        // the process id of the process accessing "/proc/self".
+        //
+        // The contents of "/proc/<pid>" on Linux are described in
+        // https://www.kernel.org/doc/html/latest/filesystems/proc.html
+        //
+        // The contents of "/proc/<pid>" on Solaris are described in
+        // https://docs.oracle.com/cd/E88353_01/html/E37852/proc-5.html
+        //
+        // If any image other than the main executable has been deleted from
+        // the file system, we are to harmlessly skip over that image (most
+        // shared libs don't contain a lot of symbols of interest, and there is
+        // no way to access them through "/proc").
+        //
+        // On Linux, the file "/proc/self/exe" is a special symlink.  If the
+        // main executable file hasn't been deleted, it's a symlink that points
+        // to that file, but if the file has been deleted, it either:
+        //
+        // * if read as a symlink, points to "<file name> (deleted)" but if
+        //   opened as a hard link, still opens the executable file.
+        //
+        // * on Linux nfs, points to a ".nfs<long hex number>" gremlin file
+        //   which is the remnant of the deleted executable, so whether it's
+        //   a symlink or not, opening it opens the executable file.
+        //
+        // On Solaris, "/proc/self/exe" doesn't exist, but there is
+        // "/proc/self/object/a.out" (which doesn't exist on Linux) which is a
+        // hard link to the executable.
 
-        name = fileName;
+        nameToOpen = u::e_IS_LINUX ? "/proc/self/exe"
+                                   : "/proc/self/object/a.out";
+
+        // The file at "/proc/self/cmdline" is a hard link to a file whose
+        // contents are all the strings in `argv[*]` concatenated with '\0's
+        // separating them, so reading the first null-terminated string from
+        // that file gives us `argv[0]`, the filename of the executable, which
+        // might or might not still be in the file system.
+
+        bsl::ifstream cmdLineFile("/proc/self/cmdline");
+        u_ASSERT_BAIL(cmdLineFile.good());
+        cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
+        u_ASSERT_BAIL(cmdLineFile.good() || cmdLineFile.eof());
+        fileNameIfExecutableFile.assign(
+                                    d_scratchBufA_p,
+                                    static_cast<size_t>(cmdLineFile.gcount()));
+        libraryFileName = fileNameIfExecutableFile.c_str();
     }
-    else {
-        if (u::e_IS_LINUX) {
-            d_hidden.d_isMainExecutable = true;
-        }
-        else {
-            u_ASSERT_BAIL(d_hidden.d_isMainExecutable);
-        }
 
-        // On Solaris and Linux, 'fileName' is sometimes null for the main
-        // executable file, but those platforms have a standard virtual symlink
-        // that points to the executable file name.
+    u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);
+    u_ASSERT_BAIL(nameToOpen      && nameToOpen[0]);
 
-        const int numChars = static_cast<int>(readlink("/proc/self/exe",
-                                                       d_scratchBufA_p,
-                                                       u::k_SCRATCH_BUF_LEN));
-        if (numChars > 0) {
-            u_ASSERT_BAIL(numChars < u::k_SCRATCH_BUF_LEN);
-            d_scratchBufA_p[numChars] = 0;
-            name = d_scratchBufA_p;
-        }
-        else {
-            u_TRACES && u_zprintf("readlink of /proc/self/exe failed\n");
-
-            return -1;                                                // RETURN
-        }
-    }
-
-    name = bdlb::String::copy(name, &d_hbpAlloc);   // so we can trash the
-                                                    // scratch buffers later
-
-    u_TRACES && u_zprintf("processing loaded image: fn:\"%s\", name:\"%s\""
-                                         " main:%d numHdrs:%d unmatched:%ld\n",
-                        fileName ? fileName : "(null)", name ? name : "(null)",
-                                 static_cast<int>(d_hidden.d_isMainExecutable),
+    u_TRACES && u_zprintf("%s: fn:\"%s\","
+                       " nameToOpen:\"%s\" main:%d numHdrs:%d unmatched:%ld\n",
+                              rn, libraryFileName ? libraryFileName : "(null)",
+                                            nameToOpen ? nameToOpen : "(null)",
+                                          static_cast<int>(d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
     balst::Resolver_FileHelper helper;
-    int rc = helper.openFile(name);
-    if (rc) {
+    int rc = helper.openFile(nameToOpen);
 #if defined(BSLS_PLATFORM_OS_LINUX)
-        if (bsl::strstr(fileName, "vdso")) {
-            char *vdsoStart = reinterpret_cast<char *>(
+    if (rc && !d_isMainExecutable && bsl::strstr(libraryFileName, "vdso")) {
+        char *vdsoStart = reinterpret_cast<char *>(
                                                  ::getauxval(AT_SYSINFO_EHDR));
-            Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
-            rc = helper.openMappedFile(mappedFile);
-            if (rc) {
-                u_TRACES && u_zprintf("Couldn't access file %s\n", fileName);
-
-                return -1;                                            // RETURN
-            }
-        }
-        else {
+        Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
+        rc = helper.openMappedFile(mappedFile);
+        if (rc) {
+            u_TRACES && u_zprintf("%s: Couldn't access vdso file %s\n", rn,
+                                  libraryFileName);
             return -1;                                                // RETURN
         }
-#else
-        return -1;                                                    // RETURN
-#endif
+
+        // `rc == 0`
     }
+#endif
+    if (rc) {
+        u_TRACES && u_zprintf("%s: unable to open%s %s\n", rn,
+                  d_isMainExecutable ? " main executable at" : "", nameToOpen);
+        return -1;                                                    // RETURN
+    }
+
+    // all scratch buffers are now free to be trashed by `resolveSegment`
 
     d_hidden.d_helper_p = &helper;
 
@@ -4173,12 +4208,13 @@ int u::Resolver::processLoadedImage(const char *fileName,
                                 static_cast<char *>(baseAddress) + ph->p_vaddr;
             }
 
-            // 'resolveSegment' trashes scratch buffers A and B
+            // 'resolveSegment' trashes scratch buffers A and B, and if DWARF
+            // resolving occurs, also C, D, and E.
 
             rc = resolveSegment(localBaseAddress,    // base address
                                 localTextSegPtr,     // seg ptr
                                 ph->p_memsz,         // seg size
-                                name);               // file name
+                                libraryFileName);    // library file name
             if (rc) {
                 return -1;                                            // RETURN
             }
@@ -4237,8 +4273,7 @@ int u::Resolver::resolveSegment(void       *segmentBaseAddress,
         return 0;                                                     // RETURN
     }
 
-    d_hidden.d_libraryFileSize = bdls::FilesystemUtil::getFileSize(
-                                                              libraryFileName);
+    d_hidden.d_libraryFileSize = d_hidden.d_helper_p->fileSize();
 
     bsl::string libName(libraryFileName, &d_hbpAlloc);
     int cleanupRc = u::cleanupString(&libName, &d_hbpAlloc);
@@ -4614,12 +4649,16 @@ int linkmapCallback(struct dl_phdr_info *info,
     // here the base address is known and text segment loading address is
     // unknown
 
+    const char *libraryFileName  = info->dlpi_name;
+    const bool  isMainExecutable = !libraryFileName || !libraryFileName[0];
+
     int rc = resolver->processLoadedImage(
-                                    info->dlpi_name,
+                                    libraryFileName,
                                     info->dlpi_phdr,
                                     info->dlpi_phnum,
                                     0,
-                                    reinterpret_cast<void *>(info->dlpi_addr));
+                                    reinterpret_cast<void *>(info->dlpi_addr),
+                                    isMainExecutable);
     if (rc) {
         u_TRACES && u_zprintf("processLoadedImage failed on %s\n",
                                                               info->dlpi_name);
@@ -4650,10 +4689,17 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
         return 0;                                                     // RETURN
     }
 
+    if (u_TRACES) {
+        u_zprintf("resolve: %d addresses: ", stackTrace->length());
+        for (int ii = 0; ii < stackTrace->length(); ++ii) {
+            u_zprintf("%s%p", ii ? ", " : "", (*stackTrace)[ii].address());
+        }
+        u_zprintf("\n");
+    }
+
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
-    u::Resolver resolver(stackTrace,
-                                       demanglingPreferredFlag);
+    u::Resolver resolver(stackTrace, demanglingPreferredFlag);
 
     // 'dl_iterate_phdr' will iterate over all loaded files, the executable and
     // all the .so's.  It doesn't exist on Solaris.
@@ -4663,12 +4709,11 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
 
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
 
-    u::Resolver resolver(stackTrace,
-                                       demanglingPreferredFlag);
+    u::Resolver resolver(stackTrace, demanglingPreferredFlag);
 
     struct link_map *linkMap = 0;
 
-#if 0
+# if 0
     // This method of getting the linkMap was deemed less desirable because it
     // calls 'malloc'.
 
@@ -4676,7 +4721,7 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
     if (0 == linkMap) {
         return -1;                                                    // RETURN
     }
-#else
+# else
     // This method was adopted as superior to the above (commented out) method.
 
     u::ElfDynamic *dynamic = reinterpret_cast<u::ElfDynamic *>(&_DYNAMIC);
@@ -4696,7 +4741,7 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
             break;
         }
     }
-#endif
+# endif
 
     for (int i = 0; 0 < resolver.numUnmatchedFrames() && linkMap;
                                               ++i, linkMap = linkMap->l_next) {
@@ -4717,8 +4762,6 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
 
         int numProgramHeaders = elfHeader->e_phnum;
 
-        resolver.d_hidden.d_isMainExecutable = (0 == i);
-
         // Here the text segment address is known, not base address.  On this
         // platform, but not necessarily on other platforms, the text segment
         // begins with the Elf Header.
@@ -4727,9 +4770,10 @@ int u::Resolver::resolve(balst::StackTrace *stackTrace,
                                              programHeaders,
                                              numProgramHeaders,
                                              static_cast<void *>(elfHeader),
-                                             0);
+                                             0,
+                                             0 == i);
         if (rc) {
-            u_TRACES && u_zprintf("processLoadedImage failed on  %s at $d\n",
+            u_TRACES && u_zprintf("processLoadedImage failed on %s at $d\n",
                                                            linkMap->l_name, i);
         }
     }

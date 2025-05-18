@@ -140,13 +140,24 @@ class Resolver_FileHelper {
     // PRIVATE TYPES
     typedef bdls::FilesystemUtil             FilesystemUtil;
     typedef FilesystemUtil::FileDescriptor   FileDescriptor;
-    typedef FilesystemUtil::Offset           Offset;
     typedef bsls::Types::UintPtr             UintPtr;
     typedef bsls::Types::IntPtr              IntPtr;
     typedef bsl::span<char>                  Span;
     typedef bsl::span<const char>            CSpan;
     typedef bsl::ptrdiff_t                   ptrdiff_t;
 
+  public:
+    // PUBLIC CONSTANTS
+
+    /// length in bytes of d_buffer_p; 32K minus a little so we don't waste a
+    /// page
+    enum { k_DEFAULT_SCRATCH_BUF_LEN = (1 << 15) - 64 };
+
+    // PUBLIC TYPES
+    typedef FilesystemUtil::Offset           Offset;
+
+  private:
+    // PRIVATE TYPES
     class FileReader {
         // DATA
         FileDescriptor d_fd;
@@ -162,6 +173,9 @@ class Resolver_FileHelper {
         ~FileReader();
 
         // ACCESSORS
+
+        /// The size of the open file.
+        Offset fileSize() const;
 
         /// Load a string, terminated by either a null, by EOF, or by the end
         /// of the file, into the specified `writeSpan` and return a
@@ -192,6 +206,9 @@ class Resolver_FileHelper {
 
         // ACCESSORS
 
+        /// The size of the mapped segment.
+        Offset fileSize() const;
+
         /// Return a `string_view` referring to a null-terminated string from
         /// `d_mappedFile` beginning at the specified `offset`.  If no `\0` is
         /// found, return a `string_view` ranging from `offset` to the end of
@@ -217,13 +234,6 @@ class Resolver_FileHelper {
                        e_OPEN_FILE,
                        e_MAPPED_FILE };
 
-  public:
-    // PUBLIC CONSTANTS
-
-    /// length in bytes of d_buffer_p; 32K minus a little so we don't waste a
-    /// page
-    enum { k_DEFAULT_SCRATCH_BUF_LEN = (1 << 15) - 64 };
-
   private:
     // DATA
     ReaderType d_reader;        // Either null, or a file descriptor of an open
@@ -239,7 +249,6 @@ class Resolver_FileHelper {
     // CREATORS
 
     /// Create a file helper object in an invalid state.
-    explicit
     Resolver_FileHelper();
 
     // MANIPULATOR
@@ -256,6 +265,9 @@ class Resolver_FileHelper {
     int openMappedFile(const CSpan& mappedFile);
 
     // ACCESSORS
+
+    /// The size of the open file or mapped segment.
+    Offset fileSize() const;
 
     /// Read a null-terminated string from `offset` in the file or mapped file
     /// into `writeSpan` and return a `string_view` to the string.  If we run

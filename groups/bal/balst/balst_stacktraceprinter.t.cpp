@@ -6,8 +6,11 @@
 
 //#include <ball_log.h>
 
+#include <bdls_filesystemutil.h>
+
 #include <bslim_testutil.h>
 
+#include <bslma_newdeleteallocator.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
@@ -17,6 +20,8 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_fstream.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
@@ -26,16 +31,18 @@
 
 #pragma optimize("", off)
 
+#else
+
+#include <sys/stat.h>    // chmod
+
 #endif
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
 
 using namespace BloombergLP;
-using bsl::cin;
 using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
-using bsl::flush;
 
 //=============================================================================
 //                                  TEST PLAN
@@ -134,43 +141,122 @@ static int verbose;
 static int veryVerbose;
 static int veryVeryVerbose;
 static int veryVeryVeryVerbose;
+static int veryVeryVeryVeryVerbose;
 
 const bsl::size_t npos = bsl::string::npos;
 
-/// The function just returns `funcPtr`, but only after putting it through a
-/// transform that the optimizer can't possibly understand that leaves it
-/// with its original value.  `TYPE` is expected to be a function pointer
-/// type.
-///
-/// Note that it's still necessary to put a lot of the routines through
-/// contortions to avoid the optimizer optimizing tail calls as jumps.
-template <class TYPE>
-TYPE foilOptimizer(const TYPE funcPtr)
+namespace {
+namespace u {
+
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
+enum { e_WINDOWS = 1 };
+#else
+enum { e_WINDOWS = 0 };
+#endif
+
+/// Return a pointer to the new delete allocator singleton.
+bslma::Allocator *nda()
 {
-    TYPE ret, ret2 = funcPtr;
+    // We use the new delete allocator here, because if we want to track down
+    // accidental uses of the default allocator, we'll want to put a breakpoint
+    // on `bslma::TestAllocator::allocate`.
 
-    UintPtr u = (UintPtr) funcPtr;
-
-    const int loopGuard  = 0x8edf1000;    // garbage with a lot of trailing
-                                          // 0's.
-    const int toggleMask = 0xa72c3dca;    // pure garbage
-
-    UintPtr u2 = u;
-    for (int i = 0; !(i & loopGuard); ++i) {
-        u ^= (i & toggleMask);
-    }
-
-    ret = (TYPE) u;
-
-    // That previous loop toggled all the bits in `u` that it touched an even
-    // number of times, so `ret == ret2`, but I'm pretty sure the optimizer
-    // can't figure that out.
-
-    ASSERT(  u2 ==   u);
-    ASSERT(ret2 == ret);
-
-    return ret;
+    return &bslma::NewDeleteAllocator::singleton();
 }
+
+/// Check that:
+/// * `test` (== `atoi(argv[1]`) is above the specified `topCaseIndex` and
+///   less than or equal to `2 * topCaseIndex`.
+///
+/// * The executable file name `argv[0]` matches expectations for a "condemned"
+///   executable.
+void checkCondemnedExecutableName(int topCaseIndex, char **argv)
+{
+    int test = bsl::atoi(argv[1]);
+
+    ASSERTV(test, topCaseIndex, topCaseIndex < test);
+    ASSERTV(test, topCaseIndex, test <= 2 * topCaseIndex);
+    ASSERTV(argv[0], bsl::strstr(argv[0], "_condemned_"));
+    ASSERTV(argv[0], test, bsl::strstr(argv[0], argv[1]));
+}
+
+/// Copy the file `fromFileName` to a new file `toFileName`.
+void copyExecutable(const char *toFileName,
+                    const char *fromFileName)
+{
+    using namespace bsl;
+    typedef bdls::FilesystemUtil   Util;
+    typedef bsl::char_traits<char> Traits;
+
+    // `FilesystemUtil` functions use the default allocator on Windows.
+
+    bslma::DefaultAllocatorGuard guard(u::nda());
+
+    (void) Util::remove(toFileName);
+    const Util::Offset fileSize = Util::getFileSize(fromFileName);
+
+    {
+        ofstream toStream(  toFileName,   ios_base::out | ios_base::binary);
+        ifstream fromStream(fromFileName, ios_base::in  | ios_base::binary);
+
+        ASSERT(toStream.  good());
+        ASSERT(fromStream.good());
+
+        streambuf *toSb   = toStream.  rdbuf();
+        streambuf *fromSb = fromStream.rdbuf();
+
+        copy(istreambuf_iterator<char>(fromSb),
+             istreambuf_iterator<char>(),
+             ostreambuf_iterator<char>(toSb));
+
+        // Since we operated directly on the `streambuf`s, the `fstream`s were
+        // uninformed about how it went.  Query the `streambuf`s directly to
+        // verify that it went OK.
+
+        const Traits::pos_type toOff = toSb->pubseekoff(0, ios_base::cur);
+        ASSERTV(fileSize, toOff, fileSize == toOff);
+        ASSERT(Traits::eof() == fromSb->sbumpc());
+    }    // close the streams
+
+    ASSERT(Util::getFileSize(toFileName) == fileSize);
+
+#ifdef BSLS_PLATFORM_OS_UNIX
+    int rc = ::chmod(toFileName, 0777);
+    ASSERT(0 == rc);
+#endif
+}
+
+/// Copy the executable `argv[0]` to a "condemned" copy and then run that copy
+/// with `argv[2]` == "--erase", which will result in the condemned copy being
+/// erased at the beginning of the test.
+void doEraseTest(int argc, char **argv)
+{
+    bsl::string cmd(argv[0], u::nda());
+    cmd += "_condemned_";
+    cmd += argv[1];            // `test` in text form
+    cmd += ".t";
+
+    // `cmd` is now the child exec name
+
+    u::copyExecutable(cmd.c_str(), argv[0]);
+
+    // command: run the test case
+
+    cmd += ' ';
+    cmd += argv[1];
+    cmd += " --erase";
+    for (int ii = 2; ii < argc; ++ii) {
+        cmd += ' ';
+        cmd += argv[ii];
+    }
+    int rc = ::system(cmd.c_str());
+    ASSERT(0 == rc);
+    testStatus += bsl::abs(rc);
+}
+
+}  // close namespace u
+}  // close unnamed namespace
+
                                 // ------
                                 // case 2
                                 // ------
@@ -630,16 +716,44 @@ int under(bsl::ostream& stream)
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    verbose             = argc > 2;
-    veryVerbose         = argc > 3;
-    veryVeryVerbose     = argc > 4;
-    veryVeryVeryVerbose = argc > 5;
+    int test                = argc > 1 ? bsl::atoi(argv[1]) : 0;
+    verbose                 = argc > 2;
+    veryVerbose             = argc > 3;
+    veryVeryVerbose         = argc > 4;
+    veryVeryVeryVerbose     = argc > 5;
+    veryVeryVeryVeryVerbose = argc > 6;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+    enum { k_TOP_USAGE_CASE_INDEX = 3 };
+
+    const bool eraseExecutable = 2 < argc && !bsl::strcmp("--erase", argv[2]);
+    if (eraseExecutable) {
+        // `FilesystemUtil` functions uses the default allocator on Windows.
+
+        bslma::DefaultAllocatorGuard guard(u::nda());
+
+        u::checkCondemnedExecutableName(k_TOP_USAGE_CASE_INDEX, argv);
+
+        int rc = bdls::FilesystemUtil::remove(argv[0]);
+        ASSERT(0 == rc);
+        ASSERT(!bdls::FilesystemUtil::exists(argv[0]));
+
+        test                    -= k_TOP_USAGE_CASE_INDEX;
+
+        verbose                 =  veryVerbose;
+        veryVerbose             =  veryVeryVerbose;
+        veryVeryVerbose         =  veryVeryVeryVerbose;
+        veryVeryVeryVerbose     =  veryVeryVeryVeryVerbose;
+    }
+
+    cout << "TEST " << __FILE__ << " CASE " << test <<
+                                   (eraseExecutable ? " --erase" : "") << endl;
+
+    if (verbose && eraseExecutable) {
+        cout << argv[0] << " erased\n";
+    }
 
     switch (test) { case 0:
-      case 3: {
+      case k_TOP_USAGE_CASE_INDEX: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -841,8 +955,20 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+        BSLS_ASSERT_OPT(!eraseExecutable);
+
+        ASSERTV(test, k_TOP_USAGE_CASE_INDEX < test);
+
+        if (!u::e_WINDOWS && test <= 2 * k_TOP_USAGE_CASE_INDEX) {
+            // Run test case `test - k_TOP_USAGE_CASE_INDEX` with erasing the
+            // executable.
+
+            u::doEraseTest(argc, argv);
+        }
+        else {
+            cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+            testStatus = -1;
+        }
       }
     }
 

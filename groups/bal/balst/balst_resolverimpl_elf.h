@@ -108,6 +108,10 @@ class ResolverImpl<ObjectFileFormat::Elf> {
 
     bool               d_demangle;          // whether we demangle names
 
+    bool               d_isMainExecutable;  // 'true' if in main executable
+                                            // segment, as opposed to a shared
+                                            // library
+
   private:
     // NOT IMPLEMENTED
     ResolverImpl(const ResolverImpl&);
@@ -139,8 +143,8 @@ class ResolverImpl<ObjectFileFormat::Elf> {
     /// Identify which stack trace frames in `*d_stackTrace_p` are in the
     /// segment pointed at by the specified `segmentPtr` of the specified
     /// `segmentSize`, and initialize as many fields of those stack trace
-    /// frames as possible.  The segment is defined in the executable file
-    /// or shared library `libraryFileName`.  Return 0 on success and a
+    /// frames as possible.  The name of the executable file or shared segment
+    /// in the file system is `libraryFileName`.  Return 0 on success and a
     /// non-zero value otherwise.
     int resolveSegment(void       *segmentBaseAddress,
                        void       *segmentPtr,
@@ -177,23 +181,27 @@ class ResolverImpl<ObjectFileFormat::Elf> {
 
     // MANIPULATOR
 
-    /// Process a loaded image found via the link map, either the main
-    /// program or some shared library.  The specified `fileName` is the
-    /// name of the file containing the image.  If `fileName == 0`, the file
-    /// is the main program.  The specified `programHeaders` is a pointer to
-    /// an array of elf program headers and the specified
+    /// Process a loaded image found via the link map, either the main program
+    /// or some shared library.  The specified `libraryFileName` is the name of
+    /// the file containing the image.  The specified `programHeaders` is a
+    /// pointer to an array of elf program headers and the specified
     /// `numProgramHeaders` is its length, it is a `void *` because the type
-    /// `ElfProgramHeader` is local to the implementation file.  Specify one
-    /// of `textSegPtr` and `baseAddress`, and the other as 0, this method
-    /// will infer the one specified as 0 from the other.  Return 0 on
-    /// success and a non-zero value otherwise.  Note that this method is
-    /// not to be called by external users of this component, it is only
-    /// public so a static routine in the implementation file can call it.
-    int processLoadedImage(const char *fileName,
+    /// `ElfProgramHeader` is local to the implementation file.  Specify one of
+    /// `textSegPtr` and `baseAddress`, and the other as 0, this method will
+    /// infer the one specified as 0 from the other.  Specify
+    /// `isMainExecutable`, indicating whether the image is the main
+    /// executable.  Return 0 on success and a non-zero value otherwise.  Note
+    /// that this method is not to be called by external users of this
+    /// component, it is only public so a static routine in the implementation
+    /// file can call it.  Also note that if `isMainExecutable` is set,
+    /// `libraryFileName` is ignored and the `argv[0]` the program was called
+    /// with is used in its place.
+    int processLoadedImage(const char *libraryFileName,
                            const void *programHeaders,
                            int         numProgramHeaders,
                            void       *textSegPtr,
-                           void       *baseAddress);
+                           void       *baseAddress,
+                           bool        isMainExecutable);
 
     // ACCESSOR
 
