@@ -4070,10 +4070,10 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
     d_isMainExecutable = isMainExecutable;
 
-    // `libraryFileName is to be potentially reassigned -- it is the file name
+    // `libraryFileName` is to be potentially reassigned -- it is the file name
     // to be displayed as the 'libraryFileName' field of the stack trace frame.
     // 'nameToOpen' is the file name we are to open to access the binary, which
-    // may match 'libraryFileName' or, in the case of the main executable, may
+    // may match `libraryFileName` or, in the case of the main executable, may
     // be found somewhere under "/proc/self".  Note that on some operating
     // systems, if the library is the main program, `libraryFileName == 0`.
     //
@@ -4137,7 +4137,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         bsl::ifstream cmdLineFile("/proc/self/cmdline");
         u_ASSERT_BAIL(cmdLineFile.good());
         cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
-        u_ASSERT_BAIL(cmdLineFile.good());
+        u_ASSERT_BAIL(cmdLineFile.good() || cmdLineFile.eof());
         fileNameIfExecutableFile.assign(
                                     d_scratchBufA_p,
                                     static_cast<size_t>(cmdLineFile.gcount()));
