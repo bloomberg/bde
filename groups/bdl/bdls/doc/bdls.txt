@@ -52,7 +52,7 @@
 :      Provide testable `bdls::FilesystemUtil` operations for some Unixes.
 :
 : 'bdls_filesystemutil_unixplatform':                                 !PRIVATE!
-:      Provide Unix timstamp and offset type width detection macros.
+:      Provide Unix timestamp and offset type width detection macros.
 :
 : 'bdls_filesystemutil_windowsimputil':                               !PRIVATE!
 :      Provide testable `bdls::FilesystemUtil` operations on Windows.
