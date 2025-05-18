@@ -218,7 +218,7 @@ namespace bslfmt {
 /// that adds `bsl::format` capability to the type (and `std::format` when that
 /// is available).
 template <class t_STREAMABLE>
-class Streamed_Impl {
+class Streamed_Imp {
   public:
     // TYPES
     typedef t_STREAMABLE object_type;
@@ -233,7 +233,7 @@ class Streamed_Impl {
     /// Create a wrapper instance around the specified `object`.  The behavior
     /// is undefined unless the lifetime of `object` is at least as long as
     /// that of the wrapper created.
-    Streamed_Impl(const t_STREAMABLE& object);
+    Streamed_Imp(const t_STREAMABLE& object);
 
     // ACCESSORS
 
@@ -242,7 +242,7 @@ class Streamed_Impl {
 };
 
 template <class t_STREAMABLE>
-struct Streamed : Streamed_Impl<t_STREAMABLE> {
+struct Streamed : Streamed_Imp<t_STREAMABLE> {
     // CREATORS
 
     /// Create a `Streamed` wrapper instance around the specified `object`.
@@ -254,7 +254,7 @@ struct Streamed : Streamed_Impl<t_STREAMABLE> {
     requires(!bsl::formattable<t_TYPE, char> &&
              std::is_same_v<t_TYPE, t_STREAMABLE>)
 #endif  // BSLFMT_FORMATTABLE_DEFINED
-    : Streamed_Impl<t_STREAMABLE>(object)
+    : Streamed_Imp<t_STREAMABLE>(object)
     {
     }
 #ifdef BSLFMT_FORMATTABLE_DEFINED
@@ -263,7 +263,7 @@ struct Streamed : Streamed_Impl<t_STREAMABLE> {
              std::is_same_v<t_TYPE, t_STREAMABLE>)
     BSLFMT_STREAMED_INSTANCE_DEPRECATED_
     Streamed(const t_TYPE& object)
-    : Streamed_Impl<t_STREAMABLE>(object)
+    : Streamed_Imp<t_STREAMABLE>(object)
     {
     }
 #endif  // BSLFMT_FORMATTABLE_DEFINED
@@ -332,7 +332,7 @@ template <class t_TYPE>
 struct Streamed_Formatter;
 
 template <class t_STREAMABLE>
-struct Streamed_Formatter<Streamed_Impl<t_STREAMABLE> > {
+struct Streamed_Formatter<Streamed_Imp<t_STREAMABLE> > {
   private:
     // PRIVATE TYPES
     typedef StandardFormatSpecification<char> Specification;
@@ -363,8 +363,8 @@ struct Streamed_Formatter<Streamed_Impl<t_STREAMABLE> > {
     /// Throw an exception of type `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
-                       const Streamed_Impl<t_STREAMABLE>& value,
-                       t_FORMAT_CONTEXT&                  formatContext) const;
+                        const Streamed_Imp<t_STREAMABLE>& value,
+                        t_FORMAT_CONTEXT&                 formatContext) const;
 };
 
 // ============================================================================
@@ -374,16 +374,16 @@ struct Streamed_Formatter<Streamed_Impl<t_STREAMABLE> > {
 #ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 requires(!bsl::formattable<t_STREAMABLE, char>)
-Streamed_Impl<t_STREAMABLE> streamed(const t_STREAMABLE& object);
+Streamed_Imp<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 
 template <class t_STREAMABLE>
 requires(bsl::formattable<t_STREAMABLE, char>)
 BSLFMT_STREAMED_INSTANCE_DEPRECATED_
-Streamed_Impl<t_STREAMABLE>
+Streamed_Imp<t_STREAMABLE>
 streamed(const t_STREAMABLE& object);
 #else
 template <class t_STREAMABLE>
-Streamed_Impl<t_STREAMABLE> streamed(const t_STREAMABLE& object);
+Streamed_Imp<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 #endif
 
 }  // close package namespace
@@ -402,7 +402,7 @@ namespace bslfmt {
 // CREATORS
 template <class t_STREAMABLE>
 inline
-Streamed_Impl<t_STREAMABLE>::Streamed_Impl(const t_STREAMABLE& object)
+Streamed_Imp<t_STREAMABLE>::Streamed_Imp(const t_STREAMABLE& object)
 : d_object(object)
 {
 }
@@ -410,7 +410,7 @@ Streamed_Impl<t_STREAMABLE>::Streamed_Impl(const t_STREAMABLE& object)
 // ACCESSORS
 template <class t_STREAMABLE>
 inline
-const t_STREAMABLE& Streamed_Impl<t_STREAMABLE>::object() const
+const t_STREAMABLE& Streamed_Imp<t_STREAMABLE>::object() const
 {
     return d_object;
 }
@@ -472,7 +472,7 @@ size_t Streamed_OutIterBuf<t_OUT_ITER>::counter() const
 template <class t_STREAMABLE>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-Streamed_Formatter<Streamed_Impl<t_STREAMABLE> >::parse(
+Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::parse(
                                                  t_PARSE_CONTEXT& parseContext)
 {
     d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
@@ -499,9 +499,9 @@ Streamed_Formatter<Streamed_Impl<t_STREAMABLE> >::parse(
 template <class t_STREAMABLE>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Streamed_Formatter<Streamed_Impl<t_STREAMABLE> >::format(
-                        const Streamed_Impl<t_STREAMABLE>& value,
-                        t_FORMAT_CONTEXT&                  formatContext) const
+Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::format(
+                         const Streamed_Imp<t_STREAMABLE>& value,
+                         t_FORMAT_CONTEXT&                 formatContext) const
 {
     Specification finalSpec(d_spec);
 
@@ -648,26 +648,24 @@ Streamed_Formatter<Streamed_Impl<t_STREAMABLE> >::format(
 #ifdef BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 requires(!bsl::formattable<t_STREAMABLE, char>)
-bslfmt::Streamed_Impl<t_STREAMABLE> bslfmt::streamed(
-                                                    const t_STREAMABLE& object)
+bslfmt::Streamed_Imp<t_STREAMABLE> bslfmt::streamed(const t_STREAMABLE& object)
 {
-    return Streamed_Impl<t_STREAMABLE>(object);
+    return Streamed_Imp<t_STREAMABLE>(object);
 }
 
 template <class t_STREAMABLE>
 requires(bsl::formattable<t_STREAMABLE, char>)
 BSLFMT_STREAMED_INSTANCE_DEPRECATED_
-bslfmt::Streamed_Impl<t_STREAMABLE>
+bslfmt::Streamed_Imp<t_STREAMABLE>
 bslfmt::streamed(const t_STREAMABLE& object)
 {
-    return Streamed_Impl<t_STREAMABLE>(object);
+    return Streamed_Imp<t_STREAMABLE>(object);
 }
 #else  // BSLFMT_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
-bslfmt::Streamed_Impl<t_STREAMABLE> bslfmt::streamed(
-                                                    const t_STREAMABLE& object)
+bslfmt::Streamed_Imp<t_STREAMABLE> bslfmt::streamed(const t_STREAMABLE& object)
 {
-    return Streamed_Impl<t_STREAMABLE>(object);
+    return Streamed_Imp<t_STREAMABLE>(object);
 }
 #endif  // BSLFMT_FORMATTABLE_DEFINED
 }  // close enterprise namespace
@@ -675,14 +673,14 @@ bslfmt::Streamed_Impl<t_STREAMABLE> bslfmt::streamed(
 namespace bsl {
 
 template <class t_STREAMABLE>
-struct formatter<BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE>, char>
+struct formatter<BloombergLP::bslfmt::Streamed_Imp<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
-      BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE> > {
+      BloombergLP::bslfmt::Streamed_Imp<t_STREAMABLE> > {
 };
 template <class t_STREAMABLE>
 struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMABLE>, char>
 : BloombergLP::bslfmt::Streamed_Formatter<
-      BloombergLP::bslfmt::Streamed_Impl<t_STREAMABLE> > {
+      BloombergLP::bslfmt::Streamed_Imp<t_STREAMABLE> > {
 };
 
 }  // close namespace bsl
