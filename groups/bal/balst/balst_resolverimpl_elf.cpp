@@ -35,7 +35,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 #include <ctype.h>
-#include <dlfcn.h>        // dladdr
+#include <dlfcn.h>
 #include <elf.h>
 #include <sys/types.h>    // lstat
 #include <sys/stat.h>     // lstat
@@ -50,7 +50,6 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
 # include <cxxabi.h>
-# include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
 # include <sys/auxv.h>
@@ -61,8 +60,6 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 
 # if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #   include <cxxabi.h>
-# else
-#   include <dlfcn.h>
 # endif
 
 #else
@@ -686,8 +683,6 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // Debugging trace macros: 'eprintf' and 'zprintf'
 // ============================================================================
 
-int main(int, char **);
-
 #undef  u_TRACES
 #define u_TRACES 0  // 0 == debugging traces off, eprintf and zprint do nothing
                     // 1 == debugging traces on, eprintf is like zprintf
@@ -918,6 +913,13 @@ static TYPE approxAbs(TYPE x)
     BSLS_ASSERT(0 <= x);
 
     return x;
+}
+
+/// Return `true` if the specified `pc` is null or points to a string of zero
+/// length.
+bool empty(const char *pc)
+{
+    return !pc || !*pc;
 }
 
 template <class TYPE>
@@ -4077,12 +4079,12 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     // to be displayed as the 'libraryFileName' field of the stack trace frame.
     // 'nameToOpen' is the file name we are to open to access the binary, which
     // may match `libraryFileName` or, in the case of the main executable, may
-    // be found somewhere under "/proc/self".  Note that on some operating
-    // systems, if the library is the main program, `libraryFileName == 0`.
+    // be better found somewhere else.  Note that on Linux, if the library is
+    // the main program, `libraryFileName == 0`.
     //
     // `fileNameIfExecutable` is only used if the file is the main executable:
-    // the variable is a string to store `argv[0]` once we fetch it from
-    // "/proc".
+    // the variable is a string to store the library file name when we fetch
+    // it from somewhere.
 
     const char  *nameToOpen = libraryFileName;
     bsl::string  fileNameIfExecutableFile(&d_hbpAlloc);
@@ -4153,24 +4155,11 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                     static_cast<size_t>(cmdLineFile.gcount()));
             libraryFileName = fileNameIfExecutableFile.c_str();
         }
-        if (fileNameIfExecutableFile.empty()) {
-#if   defined(BSLS_PLATFORM_OS_LINUX)
-            typedef Dl_info        DlInfo;
-#elif defined(BSLS_PLATFORM_OS_SOLARIS)
-            typedef Dl_info_t      DlInfo;
-#else
-# error need to interpret `DlInfo` for this platform
-#endif
-            DlInfo      info;
-            const void *mainPtr = reinterpret_cast<const void *>(&::main);
-            int rc = ::dladdr(mainPtr, &info);
-            if (0 != rc && info.dli_fname[0]) {
-                fileNameIfExecutableFile = info.dli_fname;
-                libraryFileName = fileNameIfExecutableFile.c_str();
-            }
-        }
         if (fileNameIfExecutableFile.empty() &&
                                    bdls::FilesystemUtil::exists(procSelfExe)) {
+            // This is just in the unlikely chance that "/proc/self/exe" is
+            // available but "/pcoc/self/cmdline" wasn't.
+
             const u::Offset numChars = ::readlink(procSelfExe,
                                                   d_scratchBufA_p,
                                                   u::k_SCRATCH_BUF_LEN);
@@ -4182,15 +4171,15 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                 libraryFileName = fileNameIfExecutableFile.c_str();
             }
         }
-        if (fileNameIfExecutableFile.empty()) {
-            libraryFileName = "<unknown_main_executable_file>";
-        }
-        else if (!nameToOpen || !nameToOpen[0]) {
-            // Note that if the file has been deleted or moved, this might not
-            // work, but we're desperate, and if the file hasn't been deleted
-            // or moved, it should work.
+        if (u::empty(nameToOpen) && !u::empty(libraryFileName)) {
+            // We weren't able to get `nameToOpen` from "/proc/...", but we
+            // have something in `libraryFileName`, which is our best bet at
+            // this point.
 
             nameToOpen = libraryFileName;
+        }
+        if (u::empty(libraryFileName)) {
+            libraryFileName = "<unknown_main_executable_file>";
         }
     }
 
