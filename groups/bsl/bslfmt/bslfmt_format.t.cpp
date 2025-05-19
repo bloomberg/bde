@@ -3416,11 +3416,11 @@ int main(int argc, char **argv)
             // result = format(spec, value);
 
             // Need to use this instead:
-            result = vformat(spec, make_format_args(value));
+            result = bsl::vformat(spec, make_format_args(value));
             ASSERTV(result.c_str(), "Value is 42\n" == result);
 
             // Note the following would also give a compile-time error:
-            // result = vformat(spec, make_format_args(42));
+            // result = bsl::vformat(spec, make_format_args(42));
             // (arguments have to be lvalues)
         }
 
