@@ -35,6 +35,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 #include <ctype.h>
+#include <dlfcn.h>        // dladdr
 #include <elf.h>
 #include <sys/types.h>    // lstat
 #include <sys/stat.h>     // lstat
@@ -684,6 +685,8 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // ============================================================================
 // Debugging trace macros: 'eprintf' and 'zprintf'
 // ============================================================================
+
+int main(int, char **);
 
 #undef  u_TRACES
 #define u_TRACES 0  // 0 == debugging traces off, eprintf and zprint do nothing
@@ -4124,24 +4127,71 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // On Solaris, "/proc/self/exe" doesn't exist, but there is
         // "/proc/self/object/a.out" (which doesn't exist on Linux) which is a
         // hard link to the executable.
-
-        nameToOpen = u::e_IS_LINUX ? "/proc/self/exe"
-                                   : "/proc/self/object/a.out";
-
+        //
         // The file at "/proc/self/cmdline" is a hard link to a file whose
         // contents are all the strings in `argv[*]` concatenated with '\0's
         // separating them, so reading the first null-terminated string from
         // that file gives us `argv[0]`, the filename of the executable, which
         // might or might not still be in the file system.
+        //
+        // Under some circumstances, at least on Solaris, access to
+        // "/proc/self" may be disabled.
+
+        const char *procSelfExe   ="/proc/self/exe";
+        const char *procExecFile  = u::e_IS_LINUX ? procSelfExe
+                                                  : "/proc/self/object/a.out";
+        if (bdls::FilesystemUtil::exists(procExecFile)) {
+            nameToOpen = procExecFile;
+        }
 
         bsl::ifstream cmdLineFile("/proc/self/cmdline");
-        u_ASSERT_BAIL(cmdLineFile.good());
-        cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
-        u_ASSERT_BAIL(cmdLineFile.good() || cmdLineFile.eof());
-        fileNameIfExecutableFile.assign(
+        if (cmdLineFile.good()) {
+            cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
+            u_ASSERT_BAIL(cmdLineFile.good() || cmdLineFile.eof());
+            fileNameIfExecutableFile.assign(
                                     d_scratchBufA_p,
                                     static_cast<size_t>(cmdLineFile.gcount()));
-        libraryFileName = fileNameIfExecutableFile.c_str();
+            libraryFileName = fileNameIfExecutableFile.c_str();
+        }
+        if (fileNameIfExecutableFile.empty()) {
+#if   defined(BSLS_PLATFORM_OS_LINUX)
+            typedef Dl_info        DlInfo;
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
+            typedef Dl_info_t      DlInfo;
+#else
+# error need to interpret `DlInfo` for this platform
+#endif
+            DlInfo      info;
+            const void *mainPtr = reinterpret_cast<const void *>(&::main);
+            int rc = ::dladdr(mainPtr, &info);
+            if (0 != rc && info.dli_fname[0]) {
+                fileNameIfExecutableFile = info.dli_fname;
+                libraryFileName = fileNameIfExecutableFile.c_str();
+            }
+        }
+        if (fileNameIfExecutableFile.empty() &&
+                                   bdls::FilesystemUtil::exists(procSelfExe)) {
+            const u::Offset numChars = ::readlink(procSelfExe,
+                                                  d_scratchBufA_p,
+                                                  u::k_SCRATCH_BUF_LEN);
+            if (numChars > 0) {
+                u_ASSERT_BAIL(numChars < u::k_SCRATCH_BUF_LEN);
+                d_scratchBufA_p[numChars] = 0;
+                fileNameIfExecutableFile.assign(d_scratchBufA_p,
+                                                static_cast<size_t>(numChars));
+                libraryFileName = fileNameIfExecutableFile.c_str();
+            }
+        }
+        if (fileNameIfExecutableFile.empty()) {
+            libraryFileName = "<unknown_main_executable_file>";
+        }
+        else if (!nameToOpen || !nameToOpen[0]) {
+            // Note that if the file has been deleted or moved, this might not
+            // work, but we're desperate, and if the file hasn't been deleted
+            // or moved, it should work.
+
+            nameToOpen = libraryFileName;
+        }
     }
 
     u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);
