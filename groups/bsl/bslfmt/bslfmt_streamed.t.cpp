@@ -151,11 +151,8 @@ void aSsErT(bool condition, const char *message, int line)
         bsl::string errorMsg;                                                 \
         bool        rv;                                                       \
                                                                               \
-        rv =                                                                  \
-            bslfmt::FormatterTestUtil<char>::testParseVFormat<bslfmt<type> >( \
-                &errorMsg,                                                    \
-                false,                                                        \
-                fmtStr);                                                      \
+        rv = bslfmt::FormatterTestUtil<char>::testParseVFormat<               \
+            bslfmt::Streamed<type> >(&errorMsg, false, fmtStr);               \
         if (!rv) {                                                            \
             ASSERTV(errorMsg.c_str(), fmtStr, rv);                            \
         }                                                                     \
