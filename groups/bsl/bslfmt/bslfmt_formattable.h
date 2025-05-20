@@ -16,16 +16,14 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component conditionally provides `bsl::formatter`, a
 // concept that determines if a type has an existing formatter for a given
-// character type (of `char` or `wchar_t`).  The concept is defined only if the
-// compiler and standard used has usable concept support.  The macro
+// character type (i.e. `char` or `wchar_t`).  The concept is defined only if
+// concepts are available on the current platform.  The macro
 // `BSLFMT_FORMATTABLE_DEFINED` may be used to determine if the concept is
 // present or not.
 //
-// FOR BDE INTERNAL USE ONLY!  This concepts does not always exist, which is an
-// unusual (but unavoidable) behavior for names provided by BDE style code
-// therefore we strongly discourage direct use by users of BDE.  If you have a
-// need to use this concept you are probably writing code that should really be
-// part of `bslfmt`.
+// Because this component requires concept support it is not available portably
+// on all platforms, therefore any portable use of this concept should make use
+// of the appropriate preprocessor guards.
 //
 ///Usage
 ///-----

@@ -15,7 +15,7 @@ BSLS_IDENT("$Id: $")
 // use with C++ standards that have no class template argument deduction) a
 // wrapper-creator function template to enable `bsl::format`ting values that
 // already offer an `ostream` insert `operator<<`.  (On platforms that have a
-// working `std::format` the wrapper enables that, too.
+// working `std::format` the wrapper enables that, too.)
 //
 ///The Format String
 ///-----------------
@@ -492,6 +492,10 @@ Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::parse(
     if (d_spec.localeSpecificFlag())
         BSLS_THROW(bsl::format_error("Formatting L specifier not supported"));
 
+    if (d_spec.formatType() == Specification::e_STRING_ESCAPED) {
+        BSLS_THROW(bsl::format_error("Unsupported format type '?'"));
+    }
+
     return parseContext.begin();
 }
 
@@ -544,10 +548,6 @@ Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::format(
 
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
-    Streamed_OutIterBuf<typename t_FORMAT_CONTEXT::iterator> buf(
-                                                        outIterator,
-                                                        maxStreamedCharacters);
-
     bsl::string content;
     size_t      contentWidth;
     if (leftPadded) {
@@ -586,6 +586,9 @@ Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::format(
                           outIterator);
         }
 
+        Streamed_OutIterBuf<typename t_FORMAT_CONTEXT::iterator> buf(
+                                                        outIterator,
+                                                        maxStreamedCharacters);
         std::ostream os(&buf);
         os << content;
         outIterator = buf.outIterator();
@@ -595,18 +598,18 @@ Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::format(
         // the printed length.  (Only need it when there is no left padding
         // present but there is no reason to have an `if`, it'll be the same
         // value.)
+        Streamed_OutIterBuf<typename t_FORMAT_CONTEXT::iterator> buf(
+                                                        outIterator,
+                                                        maxStreamedCharacters);
         std::ostream os(&buf);
         os << value.object();
         outIterator  = buf.outIterator();
         contentWidth = buf.counter();
     }
 
-    // Knowing the width of the content "printed" via streaming we can now
-    // calculate the necessary trailing padding length.  Since anything
-    // left-padded has been handled on a different branch here we may only have
-    // the cases when the alignment is left alignment (which is also the
-    // default alignment).  Right and middle alignments both may need
-    // left-padding so they were handled separately.
+    // At this point left padding (if present) and the content itself had been
+    // output, `contentWidth` is set, and `outIterator` points where the right
+    // padding (if present) has to be placed.
 
     size_t allPadding =
               finalWidth.category() == NumericValue::e_VALUE
