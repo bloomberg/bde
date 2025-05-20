@@ -1376,13 +1376,11 @@ class FreeGuard {
                       // free functions in the unnamed namespace
                       // ---------------------------------------
 
-/// The specified 'start' points to a vdso file that resides in memory.
+/// The specified 'elfHdr' points to a vdso file that resides in memory.
 /// Traverse its data to determine its length, and return that length.
-size_t calculateVdsoLength(const void *start)
+size_t calculateVdsoLength(const ElfHeader *elfHdr)
 {
-    const char         *charStart = static_cast<const char *>(start);
-    const u::ElfHeader *elfHdr = static_cast<const u::ElfHeader *>(start);
-
+    const char *charStart = reinterpret_cast<const char *>(elfHdr);
     Offset oRet = 0;    // The size of the vdso entry.
 
     // The Elf header tells us how many program headers or section headers
@@ -1545,7 +1543,7 @@ int dumpBinary(u::Reader *reader, int numRows)
 }
 #endif
 
-int checkElfHeader(u::ElfHeader *elfHeader)
+int checkElfHeader(const u::ElfHeader *elfHeader)
     // Return 0 if the magic numbers in the specified 'elfHeader' are correct
     // and a non-zero value otherwise.
 {
@@ -4141,24 +4139,28 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // Under some circumstances, at least on Solaris, access to
         // "/proc/self" may be disabled.
 
-        const char *procSelfExe   = "/proc/self/exe";
-        const char *procExecFile  = u::e_IS_LINUX ? procSelfExe
-                                                  : "/proc/self/object/a.out";
+        const char *procSelfExe  = "/proc/self/exe";
+        const char *procExecFile = u::e_IS_LINUX ? procSelfExe
+                                                 : "/proc/self/object/a.out";
+        const char *cmdLineFile  = "/proc/self/cmdline";
+
         if (bdls::FilesystemUtil::exists(procExecFile)) {
             nameToOpen = procExecFile;
         }
 
-        bsl::ifstream cmdLineFile("/proc/self/cmdline");
-        if (cmdLineFile.good()) {
-            cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
-            u_ASSERT_BAIL(cmdLineFile.good() || cmdLineFile.eof());
-            fileNameIfExecutableFile.assign(
-                                    d_scratchBufA_p,
-                                    static_cast<size_t>(cmdLineFile.gcount()));
-            libraryFileName = fileNameIfExecutableFile.c_str();
+        if (u::empty(libraryFileName)) {
+            bsl::ifstream in(cmdLineFile);
+            if (in.good()) {
+                in.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
+                const int len = static_cast<int>(in.gcount());
+                if ((in.good() || in.eof()) && 0 < len) {
+                    fileNameIfExecutableFile.assign(d_scratchBufA_p, len);
+                    libraryFileName = fileNameIfExecutableFile.c_str();
+                }
+            }
         }
 #if defined(BSLS_PLATFORM_OS_LINUX)
-        if (fileNameIfExecutableFile.empty()) {
+        if (u::empty(libraryFileName)) {
             Dl_info  info;
             void    *mainPtr = const_cast<void *>(
                                       reinterpret_cast<const void *>(&::main));
@@ -4169,10 +4171,10 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
             }
         }
 #endif
-        if (fileNameIfExecutableFile.empty() &&
+        if (u::empty(libraryFileName) &&
                                    bdls::FilesystemUtil::exists(procSelfExe)) {
             // This is just in the unlikely chance that "/proc/self/exe" is
-            // available but "/pcoc/self/cmdline" wasn't.
+            // available but "/proc/self/cmdline" wasn't.
 
             const u::Offset numChars = ::readlink(procSelfExe,
                                                   d_scratchBufA_p,
@@ -4200,7 +4202,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);
     u_ASSERT_BAIL(nameToOpen      && nameToOpen[0]);
 
-    u_TRACES && u_zprintf("%s: fn:\"%s\","
+    u_TRACES && u_zprintf("%s: libFn:\"%s\","
                        " nameToOpen:\"%s\" main:%d numHdrs:%d unmatched:%ld\n",
                               rn, libraryFileName ? libraryFileName : "(null)",
                                             nameToOpen ? nameToOpen : "(null)",
@@ -4213,7 +4215,10 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     if (rc && !d_isMainExecutable && bsl::strstr(libraryFileName, "vdso")) {
         char *vdsoStart = reinterpret_cast<char *>(
                                                  ::getauxval(AT_SYSINFO_EHDR));
-        Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
+        const u::ElfHeader *vdsoElf = reinterpret_cast<const u::ElfHeader *>(
+                                                                    vdsoStart);
+        u_ASSERT_BAIL(0 == u::checkElfHeader(vdsoElf));
+        Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoElf));
         rc = helper.openMappedFile(mappedFile);
         if (rc) {
             u_TRACES && u_zprintf("%s: Couldn't access vdso file %s\n", rn,
