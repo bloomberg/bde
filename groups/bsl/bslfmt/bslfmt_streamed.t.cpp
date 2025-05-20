@@ -283,11 +283,9 @@ std::ostream& operator<<(std::ostream&                   os,
 //                     GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-BSLA_MAYBE_UNUSED static const int k_FILLCHAR_EMPTY   = 0;
-BSLA_MAYBE_UNUSED static const int k_FILLCHAR_ASCII   = 1;
-BSLA_MAYBE_UNUSED static const int k_FILLCHAR_UNICODE = 2;
-BSLA_MAYBE_UNUSED static const int k_FILLCHAR_DOUBLE  = 3;
-BSLA_MAYBE_UNUSED static const int k_FILLCHAR_COUNT   = 4;
+static const int                   k_FILLCHAR_EMPTY = 0;
+BSLA_MAYBE_UNUSED static const int k_FILLCHAR_ASCII = 1;
+static const int                   k_FILLCHAR_COUNT = 2;
 
 static const char    *FILLERS_C[] = {"", "*", "-", "+", "."};
 
@@ -299,12 +297,12 @@ static const int k_FILL_COUNT  = 4;
 
 static const char    *FILL_C[] = {"", ">", "<", "^"};
 
-BSLA_MAYBE_UNUSED static const int k_MAX_CHAR_COUNT = 20;
+static const int k_MAX_CHAR_COUNT = 20;
 
 BSLA_MAYBE_UNUSED static const int k_ARG_VALUE         = 0;
-BSLA_MAYBE_UNUSED static const int k_ARG_NESTED_NON_ID = 1;
-BSLA_MAYBE_UNUSED static const int k_ARG_NESTED_ARG_ID = 2;
-BSLA_MAYBE_UNUSED static const int k_ARG_COUNT         = 3;
+static const int                   k_ARG_NESTED_NON_ID = 1;
+static const int                   k_ARG_NESTED_ARG_ID = 2;
+static const int                   k_ARG_COUNT         = 3;
 
 // ============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
@@ -673,7 +671,7 @@ int main(int argc, char **argv)
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING format(VALUE, FORMAT_CONTEXT&);
+        // TESTING format(VALUE, FORMAT_CONTEXT&)
         //
         // Concerns:
         //: 1 After parsing a valid format spec, `format` will correctly format
@@ -694,8 +692,8 @@ int main(int argc, char **argv)
         // Testing:
         //   format(VALUE, FORMAT_CONTEXT&);
         // --------------------------------------------------------------------
-        if (verbose) puts("\nTESTING parse(PARSE_CONTEXT&);"
-                          "\n==============================");
+        if (verbose) puts("\nTESTING format(VALUE, FORMAT_CONTEXT&)"
+                          "\n======================================");
 
         for (int fc = 0; fc < k_FILLCHAR_COUNT; fc++) {
             for (int ft = 0; ft < k_FILL_COUNT; ft++) {
@@ -769,7 +767,7 @@ int main(int argc, char **argv)
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING parse(PARSE_CONTEXT&);
+        // TESTING parse(PARSE_CONTEXT&)
         //
         // Concerns:
         //: 1 Invalid format specs will generate a parse error
@@ -788,8 +786,8 @@ int main(int argc, char **argv)
         //   parse(PARSE_CONTEXT&);
         // --------------------------------------------------------------------
 
-        if (verbose) puts("\nTESTING parse(PARSE_CONTEXT&);"
-                          "\n==============================");
+        if (verbose) puts("\nTESTING parse(PARSE_CONTEXT&)"
+                          "\n=============================");
 
         // Bad fill character
         // Note can only test '{' as '}' closes the parse string.
