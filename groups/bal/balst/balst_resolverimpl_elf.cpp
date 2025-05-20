@@ -679,6 +679,8 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // header names, which will show whether the file contains the wanted DWARf
 // sections.
 
+extern int main(int, char **);
+
 // ============================================================================
 // Debugging trace macros: 'eprintf' and 'zprintf'
 // ============================================================================
@@ -4139,7 +4141,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // Under some circumstances, at least on Solaris, access to
         // "/proc/self" may be disabled.
 
-        const char *procSelfExe   ="/proc/self/exe";
+        const char *procSelfExe   = "/proc/self/exe";
         const char *procExecFile  = u::e_IS_LINUX ? procSelfExe
                                                   : "/proc/self/object/a.out";
         if (bdls::FilesystemUtil::exists(procExecFile)) {
@@ -4155,6 +4157,18 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                     static_cast<size_t>(cmdLineFile.gcount()));
             libraryFileName = fileNameIfExecutableFile.c_str();
         }
+#if defined(BSLS_PLATFORM_OS_LINUX)
+        if (fileNameIfExecutableFile.empty()) {
+            Dl_info  info;
+            void    *mainPtr = const_cast<void *>(
+                                      reinterpret_cast<const void *>(&::main));
+            int rc = ::dladdr(mainPtr, &info);
+            if (0 != rc && info.dli_fname[0]) {
+                fileNameIfExecutableFile = info.dli_fname;
+                libraryFileName = fileNameIfExecutableFile.c_str();
+            }
+        }
+#endif
         if (fileNameIfExecutableFile.empty() &&
                                    bdls::FilesystemUtil::exists(procSelfExe)) {
             // This is just in the unlikely chance that "/proc/self/exe" is
