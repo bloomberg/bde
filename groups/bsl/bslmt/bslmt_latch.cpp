@@ -43,7 +43,7 @@ void Latch::countDown(int numEvents)
 
     int current, expected;
     do {
-        current  = d_sigCount.loadRelaxed();
+        current  = d_sigCount.loadAcquire();
         expected = current - numEvents;
         BSLS_ASSERT(0 <= expected);
 
