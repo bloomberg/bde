@@ -760,10 +760,13 @@ int main(int argc, char **argv)
         TEST_LINE("{:+^40.36}", "++0123456789abcdefghijklmnopqrstuvwxyz++");
         TEST_LINE("{:.>40.36}", "....0123456789abcdefghijklmnopqrstuvwxyz");
 
+//#define BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
+#ifdef BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
         bsl::string s = bsl::format("{}", bslfmt::streamed(12));
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         s = bsl::format("{}", bslfmt::Streamed(12));
-#endif
+#endif  //BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#endif  // BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
