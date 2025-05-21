@@ -679,8 +679,6 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 // header names, which will show whether the file contains the wanted DWARf
 // sections.
 
-extern int main(int, char **);
-
 // ============================================================================
 // Debugging trace macros: 'eprintf' and 'zprintf'
 // ============================================================================
@@ -4159,18 +4157,6 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                 }
             }
         }
-#if defined(BSLS_PLATFORM_OS_LINUX)
-        if (u::empty(libraryFileName)) {
-            Dl_info  info;
-            void    *mainPtr = const_cast<void *>(
-                                      reinterpret_cast<const void *>(&::main));
-            int rc = ::dladdr(mainPtr, &info);
-            if (0 != rc && info.dli_fname[0]) {
-                fileNameIfExecutableFile = info.dli_fname;
-                libraryFileName = fileNameIfExecutableFile.c_str();
-            }
-        }
-#endif
         if (u::empty(libraryFileName) &&
                                    bdls::FilesystemUtil::exists(procSelfExe)) {
             // This is just in the unlikely chance that "/proc/self/exe" is
