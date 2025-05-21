@@ -1324,10 +1324,6 @@ int main(int argc, char *argv[])
 
         mX->startPublicationThread();
 
-        // Set callback to monitor rotation.
-
-        RotCb cb(Z);
-        mX->setOnFileRotationCallback(cb);
 
         // Create temporary directory for log files.
         bdls::TempDirectoryGuard tempDirGuard("ball_");
@@ -1336,7 +1332,6 @@ int main(int argc, char *argv[])
 
         ASSERT(0    == mX->enableFileLogging(fileName.c_str()));
         ASSERT(true == X->isFileLoggingEnabled());
-        ASSERT(0    == cb.numInvocations());
 
         BALL_LOG_SET_CATEGORY("ball::AsyncFileObserverTest");
 
@@ -1347,6 +1342,12 @@ int main(int argc, char *argv[])
             mX->disableFileLogging();
 
             for (int i = 0; i < 2; ++i) {
+                bslmt::Latch latch(1, bsls::SystemClockType::e_MONOTONIC);
+                // Set callback to monitor rotation.
+                RotCb cb(&latch, Z);
+                mX->setOnFileRotationCallback(cb);
+                ASSERT(0 == cb.numInvocations());
+
                 bdlt::Datetime startTime;
                 if (i == 0) {
                     mX->enablePublishInLocalTime();
@@ -1357,31 +1358,34 @@ int main(int argc, char *argv[])
                     startTime = bdlt::CurrentTime::utc();
                 }
 
+                // Set up daily rotation to next occur in 3 seconds
                 startTime += bdlt::DatetimeInterval(-1, 0, 0, 3);
                 mX->rotateOnTimeInterval(bdlt::DatetimeInterval(1), startTime);
                 ASSERT(0 == mX->enableFileLogging(fileName.c_str()));
 
                 BALL_LOG_TRACE << "log";
+                // Sleep for 1 second and make sure that no file rotation
+                // happened
                 bslmt::ThreadUtil::microSleep(0, 1);
                 ASSERTV(cb.numInvocations(), 0 == cb.numInvocations());
 
+                // Sleep for 3 more seconds.
                 bslmt::ThreadUtil::microSleep(0, 3);
 
+                // Emit a log entry to trigger the observer's publish thread
+                // and initiate rotation.
                 BALL_LOG_TRACE << "log";
-                bslmt::ThreadUtil::microSleep(0, 1);
 
-                // Wait up to 3 seconds for the file rotation to complete.
-
-                int loopCount = 0;
-                do {
-                    bslmt::ThreadUtil::microSleep(0, 1);
-                } while (0 == cb.numInvocations() && loopCount++ < 3);
+                // Wait up to 3 seconds for the publish thread to signal
+                // rotation completion.
+                ASSERT(0 ==
+                       latch.timedWait(bsls::SystemTime::now(latch.clockType())
+                                           .addSeconds(3)));
 
                 ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
 
                 ASSERT(true == FsUtil::exists(cb.rotatedFileName().c_str()));
 
-                cb.reset();
                 mX->disableFileLogging();
             }
         }
@@ -1389,7 +1393,8 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "Testing `disableTimeIntervalRotation`"
                               << endl;
         {
-            cb.reset();
+            RotCb cb(Z);
+            mX->setOnFileRotationCallback(cb);
 
             mX->disableTimeIntervalRotation();
             bslmt::ThreadUtil::microSleep(0, 3);
