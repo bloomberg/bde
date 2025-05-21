@@ -46,10 +46,20 @@ bool ControlManager::CaselessLessThan::operator()(
 ControlManager::ControlManager(bslma::Allocator *basicAllocator)
 : d_allocator_p(bslma::Default::allocator(basicAllocator))
 , d_registry(basicAllocator)
-{ }
+, d_defaultHandler(bsl::allocator_arg, basicAllocator)
+{
+}
 
 ControlManager::~ControlManager()
-{ }
+{
+}
+
+// ACCESSORS
+bool ControlManager::hasDefaultHandler() const
+{
+    bslmt::ReadLockGuard<bslmt::RWMutex> registryGuard(&d_registryMutex);
+    return d_defaultHandler.has_value();
+}
 
 // MANIPULATORS
 int ControlManager::registerHandler(const bsl::string_view& prefix,
@@ -90,6 +100,23 @@ int ControlManager::registerUsageHandler(bsl::ostream& stream)
                          "This process responds to the following messages: "));
 }
 
+int ControlManager::registerDefaultHandler(const ControlHandler& handler)
+{
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_registryMutex);
+
+    int retValue     = d_defaultHandler.has_value() ? 1 : 0;
+    d_defaultHandler = handler;
+    return retValue;
+}
+
+int ControlManager::deregisterDefaultHandler()
+{
+    bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_registryMutex);
+
+    d_defaultHandler.reset();
+    return 0;
+}
+
 int ControlManager::deregisterHandler(const bsl::string_view& prefix)
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_registryMutex);
@@ -125,6 +152,13 @@ int ControlManager::dispatchMessage(const bsl::string_view& message) const
         return 0;                                                     // RETURN
     }
 
+    if (d_defaultHandler.has_value()) {
+        ControlHandler callback = d_defaultHandler.value();
+        registryGuard.release()->unlock();
+        callback(token, messageStream);
+        return 0;                                                     // RETURN
+    }
+
     return -1;
 }
 
@@ -140,7 +174,14 @@ int ControlManager::dispatchMessage(const bsl::string& prefix,
     Registry::const_iterator it = d_registry.find(prefix);
 
     if (it != d_registry.end()) {
-        ControlHandler callback =  it->second.callback();
+        ControlHandler callback = it->second.callback();
+        registryGuard.release()->unlock();
+        callback(prefix, stream);
+        return 0;                                                     // RETURN
+    }
+
+    if (d_defaultHandler.has_value()) {
+        ControlHandler callback = d_defaultHandler.value();
         registryGuard.release()->unlock();
         callback(prefix, stream);
         return 0;                                                     // RETURN
@@ -153,8 +194,10 @@ void ControlManager::printUsage(bsl::ostream&           stream,
                                 const bsl::string_view& preamble) const
 {
     stream << preamble << bsl::endl;
-    d_registryMutex.lockRead();
-    for (Registry::const_iterator it =  d_registry.begin();
+
+    bslmt::ReadLockGuard<bslmt::RWMutex> registryGuard(&d_registryMutex);
+
+    for (Registry::const_iterator it  = d_registry.begin();
                                   it != d_registry.end();
                                 ++it)
     {
@@ -164,7 +207,11 @@ void ControlManager::printUsage(bsl::ostream&           stream,
           stream << "        " << it->second.description() << bsl::endl;
        }
     }
-    d_registryMutex.unlock();
+
+    if (d_defaultHandler.has_value()) {
+       stream << "    Has (default) handler for unregistered messages."
+              << bsl::endl;
+    }
 }
 
                         // --------------------------

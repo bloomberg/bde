@@ -11,6 +11,9 @@
 // maps control messages to callback functions on the basis of message
 // prefixes.
 //
+// The prefix (case-insensitive) "HELP" is reserved for use by the
+// `registerUsageHandler`.
+//
 ///Callback Function Requirements
 ///------------------------------
 // Functions registered as callbacks for messages must be invokable as
@@ -25,6 +28,15 @@
 // manipulate multiple distinct instances from different threads, and it is
 // safe to access and manipulate a single shared instance from different
 // threads.
+//
+///Default Handler
+///---------------
+// The `balb::ControlManager` ignores messages having (case-insensitive)
+// prefixes that have not been previously registered.  Optionally,
+// users can install a (default) handler for messages messages with
+// un-registered prefixes.  Note that "default" refers to the message prefix --
+// there is no such handler unless the user explicitly installs one using the
+// `setDefaultHandler` method.
 //
 ///Usage
 ///-----
@@ -78,6 +90,7 @@
 #include <bsl_functional.h>
 #include <bsl_iosfwd.h>
 #include <bsl_map.h>
+#include <bsl_optional.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
 
@@ -112,17 +125,16 @@ class ControlManager {
     // IMPLEMENTATION NOTE: The Sun Studio 12.3 compiler does not support
     // 'map's holding types that are incomplete at the point of declaration of
     // a data member.  Other compilers allow us to complete
-    // 'CalendarChache_Entry' at a later point in the code, but before any
+    // 'ControlManager_Entry' at a later point in the code, but before any
     // operation (such as 'insert') that would require the type to be complete.
     // If we did not have to support this compiler, this whole class could be
     // defined in the .cpp file; as it stands, it *must* be defined before
-    // class 'CalendarCache'.
+    // class 'ControlManager'.
 
-    /// This component-private class represents a function with
-    /// documentation.
+    /// This component-private class represents a function with documentation.
     class ControlManager_Entry {
 
-        // INSTANCE DATA
+        // DATA
         ControlManager::ControlHandler d_callback;     // processing callback
         bsl::string                    d_arguments;    // argument description
         bsl::string                    d_description;  // function description
@@ -139,7 +151,7 @@ class ControlManager {
         /// 0, the currently installed default allocator is used.
         explicit ControlManager_Entry(bslma::Allocator *basicAllocator = 0);
 
-        /// Create an ControlManager_Entry object with the specified initial
+        /// Create an `ControlManager_Entry` object with the specified initial
         /// values.
         ControlManager_Entry(
                     const ControlManager::ControlHandler&  callback,
@@ -147,7 +159,7 @@ class ControlManager {
                     const bsl::string_view&                description,
                     bslma::Allocator                      *basicAllocator = 0);
 
-        /// Create an ControlManager_Entry object having the value of the
+        /// Create an `ControlManager_Entry` object having the value of the
         /// specified `original` object.  Optionally specify a
         /// `basicAllocator` used to supply memory.  If `basicAllocator` is
         /// 0, the currently installed default allocator is used.
@@ -206,14 +218,19 @@ class ControlManager {
     typedef bsl::map<bsl::string, ControlManager_Entry, CaselessLessThan>
         Registry;
 
-    // INSTANCE DATA
-    bslma::Allocator       *d_allocator_p;    // memory allocator (held)
-    Registry                d_registry;       // registry
-    mutable bslmt::RWMutex  d_registryMutex;  // registry mutex
+    // DATA
+    bslma::Allocator              *d_allocator_p;    // memory allocator (held)
+
+    Registry                       d_registry;       // registry
+
+    mutable bslmt::RWMutex         d_registryMutex;  // mutex for registry
+                                                     // and default handler
+
+    bsl::optional<ControlHandler>  d_defaultHandler; // default handler
 
     // NOT IMPLEMENTED
     ControlManager(const ControlManager&);             // = deleted
-    ControlManager& operator=(const ControlManager&);  // = deletd
+    ControlManager& operator=(const ControlManager&);  // = deleted
 
   public:
     // TRAITS
@@ -233,7 +250,7 @@ class ControlManager {
 
     /// Register the specified `handler` to be invoked whenever a control
     /// message having the specified case-insensitive `prefix` is received
-    /// for this control manager.  Also register the specified `arguments`
+    /// by this control manager.  Also register the specified `arguments`
     /// string to describe the arguments accepted by the message, and the
     /// specified `description` to describe its operation; these are printed
     /// by `printUsage`.  Return a positive value if an existing callback
@@ -251,25 +268,47 @@ class ControlManager {
     /// 0 if no replacement occurred, and return a negative value otherwise.
     int registerUsageHandler(bsl::ostream& stream);
 
+    /// Register the specified `handler` to be invoked whenever a control
+    /// message having an unregistered (case-insensitive) `prefix` is received
+    /// by this control manager.  Return a positive value if an existing
+    /// callback was replaced, return 0 if no replacement occurred, and return
+    /// a negative value otherwise.
+    int registerDefaultHandler(const ControlHandler& hander);
+
     /// Deregister the callback function previously registered to handle the
     /// specified `prefix`.  Return 0 on success or a non-zero value
     /// otherwise.
     int deregisterHandler(const bsl::string_view& prefix);
+
+    // Deregister the callback function previously registered to handle "HELP"
+    // messages (see `registerUsageHandler`).  Return 0 on success or a
+    // non-zero value otherwise.
+    int deregisterUsageHandler();
+
+    /// Deregister the callback function previously registered (see
+    /// `registerDefaultHandler`) to handle messages with unregistered
+    /// prefixes.  Return 0 on success or a non-zero value otherwise.
+    int deregisterDefaultHandler();
 
     // ACCESSOR
 
     /// Parse the specified complete `message` and dispatch it.  Return
     /// 0 on success, and a non-zero value otherwise; in particular return
     /// non-zero if no registered callback could be found for the
-    /// case-insensitive prefix in `message`.
+    /// case-insensitive prefix in `message` and no default handler is
+    /// installed.
     int dispatchMessage(const bsl::string_view& message) const;
 
     /// Dispatch the message contained in the specified `stream` to the
     /// callback associated with the specified `prefix`.  Return 0 on
     /// success, and a non-zero value otherwise; in particular return
     /// non-zero if no registered callback could be found for the
-    /// case-insensitive `prefix`.
+    /// case-insensitive `prefix` and no default handler is installed.
     int dispatchMessage(const bsl::string& prefix, bsl::istream& stream) const;
+
+    /// Return `true` if this control manager has a default message handler
+    /// installed, and `false` otherwise.
+    bool hasDefaultHandler() const;
 
     /// Print to the specified `stream` the specified `preamble` text,
     /// followed by the registered commands and documentation for this
@@ -343,7 +382,15 @@ const bsl::string& ControlManager::ControlManager_Entry::description() const
                             // class ControlManager
                             // --------------------
 
+// MANIPULATORS
+inline
+int ControlManager::deregisterUsageHandler()
+{
+    return deregisterHandler("HELP");
+}
+
 // ACCESSORS
+
 inline
 void ControlManager::printUsageHelper(bsl::ostream            *stream,
                                       const bsl::string_view&  preamble) const
