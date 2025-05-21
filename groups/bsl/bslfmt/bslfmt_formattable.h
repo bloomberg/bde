@@ -6,20 +6,20 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a "trait" to check the presence of a `bsl::formatter`
+//@PURPOSE: Provide a concept to check the presence of a `bsl::formatter`
 //
 //@CLASSES:
-//  bsl::formattable<t_TYPE, t_CHAR>: `bsl::formatter` presence trait
+//  bsl::formattable<t_TYPE, t_CHAR>: `bsl::formatter` presence concept
 //
 //@MACROS:
-//  BSLFMT_FORMATTABLE_DEFINED: `bsl::formatter` is provided
+//  BSL_FORMATTABLE_DEFINED: `bsl::formatter` is provided
 //
-//@DESCRIPTION: This component conditionally provides `bsl::formatter`, a
-// concept that determines if a type has an existing formatter for a given
+//@DESCRIPTION: This component conditionally provides `bsl::formattable`, a
+// concept that determines if a type has a formatter enabled for a given
 // character type (i.e. `char` or `wchar_t`).  The concept is defined only if
 // concepts are available on the current platform.  The macro
-// `BSLFMT_FORMATTABLE_DEFINED` may be used to determine if the concept is
-// present or not.
+// `BSL_FORMATTABLE_DEFINED` may be used to determine if the concept is present
+// or not.
 //
 // Because this component requires concept support it is not available portably
 // on all platforms, therefore any portable use of this concept should make use
@@ -31,8 +31,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Example: Verify the Presence of a bsl::formatter
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// Suppose we want to verify in code that a given type may be used with
-// `bsl::format` and fall back to using standard streaming if not.
+// Suppose we want to write different code depending on if a type has a
+// formatter enabled, and fall back to using standard streaming if it does not.
 //
 // First we create a type that supports streaming but not formatting with
 // `bsl::format`:
@@ -48,7 +48,7 @@ BSLS_IDENT("$Id: $")
 // Since the concept may not exists (older compilers/standards) we need to
 // protect the code with the preprocessor:
 //```
-//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//#ifdef BSL_FORMATTABLE_DEFINED
 //  assert(false == (bsl::formattable<Streamable, char>));
 //  assert(true  == (bsl::formattable<int,        char>));
 //#endif
@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 //  template <class t_TYPE>
 //  bsl::string
 //  centeredIn(const t_TYPE& obj, size_t width)
-//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//#ifdef BSL_FORMATTABLE_DEFINED
 //  requires (!bsl::formattable<t_TYPE, char>)
 //#endif
 // {
@@ -84,7 +84,7 @@ BSLS_IDENT("$Id: $")
 // Then, if the concept is present, we define the format-based overload:
 //
 //```
-//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//#ifdef BSL_FORMATTABLE_DEFINED
 //  template <class t_TYPE>
 //  bsl::string
 //  centeredIn(const t_TYPE& obj, size_t width)
@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
 
-#define BSLFMT_FORMATTABLE_DEFINED                                            1
+#define BSL_FORMATTABLE_DEFINED                                            1
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT
 // In C++23 we just use the `std`-defined concept directly
@@ -148,6 +148,11 @@ class Formattable_DummyOutputIterator {
     // ACCESSORS
     t_CHAR& operator*() const;
 };
+
+static_assert(
+            std::output_iterator<Formattable_DummyOutputIterator<char>, char>);
+static_assert(
+      std::output_iterator<Formattable_DummyOutputIterator<wchar_t>, wchar_t>);
 
 /// This concept, `bslfmt::Formattable_With`, is an implementation detail of
 /// the `bsl::formattable` concept and it is not to be used directly.

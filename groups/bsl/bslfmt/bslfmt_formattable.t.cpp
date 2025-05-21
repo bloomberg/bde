@@ -116,7 +116,7 @@ struct NotFormattable {};
 // Since the concept may not exists (older compilers/standards) we need to
 // protect the code with the preprocessor:
 //```
-//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//#ifdef BSL_FORMATTABLE_DEFINED
 //  assert(false == (bsl::formattable<Streamable, char>));
 //  assert(true  == (bsl::formattable<int,        char>));
 //#endif
@@ -131,7 +131,7 @@ struct NotFormattable {};
     template <class t_TYPE>
     bsl::string
     centeredIn(const t_TYPE& obj, size_t width)
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
     requires (!bsl::formattable<t_TYPE, char>)
 #endif
    {
@@ -152,7 +152,7 @@ struct NotFormattable {};
 // Then, if the concept is present, we define the format-based overload:
 //
 //```
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
     template <class t_TYPE>
     bsl::string
     centeredIn(const t_TYPE& obj, size_t width)
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 // Since the concept may not exists (older compilers/standards) we need to
 // protect the code with the preprocessor:
 //```
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
         ASSERT(false == (bsl::formattable<Streamable, char>));
         ASSERT(true  == (bsl::formattable<int,        char>));
 #endif
@@ -239,7 +239,7 @@ int main(int argc, char **argv)
 //  template <class t_TYPE>
 //  bsl::string
 //  centeredIn(const t_TYPE& obj, size_t width)
-//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//#ifdef BSL_FORMATTABLE_DEFINED
 //  requires (!bsl::formattable<t_TYPE, char>)
 //#endif
 // {
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
 // Then, if the concept is present, we define the format-based overload:
 //
 //```
-//#ifdef BSLFMT_FORMATTABLE_DEFINED
+//#ifdef BSL_FORMATTABLE_DEFINED
 //  template <class t_TYPE>
 //  bsl::string
 //  centeredIn(const t_TYPE& obj, size_t width)
@@ -303,13 +303,13 @@ int main(int argc, char **argv)
         if (verbose) puts("\nBREATHING TEST"
                           "\n==============");
 
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
         ASSERT((bsl::formattable<NotFormattable, char> == false));
 
         ASSERT((bsl::formattable<int, char> == true));
 #else
         ASSERT(true);  // Avoid unused warning
-#endif  // BSLFMT_FORMATTABLE_DEFINED
+#endif  // BSL_FORMATTABLE_DEFINED
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

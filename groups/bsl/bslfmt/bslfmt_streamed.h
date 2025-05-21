@@ -219,10 +219,6 @@ namespace bslfmt {
 /// is available).
 template <class t_STREAMABLE>
 class Streamed_Imp {
-  public:
-    // TYPES
-    typedef t_STREAMABLE object_type;
-
   private:
     // DATA
     const t_STREAMABLE& d_object;
@@ -250,14 +246,14 @@ struct Streamed : Streamed_Imp<t_STREAMABLE> {
     /// as long as that of the wrapper created.
     template <class t_TYPE>
     Streamed(const t_TYPE& object)
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
     requires(!bsl::formattable<t_TYPE, char> &&
              std::is_same_v<t_TYPE, t_STREAMABLE>)
 #endif  // BSLFMT_FORMATTABLE_DEFINED
     : Streamed_Imp<t_STREAMABLE>(object)
     {
     }
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
     template <class t_TYPE>
     requires(bsl::formattable<t_TYPE, char> &&
              std::is_same_v<t_TYPE, t_STREAMABLE>)
@@ -279,13 +275,13 @@ Streamed(const t_TYPE& object) -> Streamed<t_TYPE>;
                             // ===================
 
 /// `Streamed_OutIterBuf` provides a standard stream buffer for the specified
-/// `t_OUT_ITER`.  The behavior is undefined unless `t_OUT_ITER` is an output
-/// iterator (new concept, not the `LegacyOutputIterator`).  This stream buffer
-/// supports not only writing the output to a specified output iterator, but
-/// also to limit said output to a certain number of characters (see
-/// constructor), and to count the number of characters actually written.  The
-/// current value of the output iterator and the counter is accessible to the
-/// user.
+/// `t_OUT_ITER`.  The behavior is undefined unless `t_OUT_ITER` models
+/// `std::output_iterator<char>` (the new concept, not `LegacyOutputIterator`).
+/// This stream buffer supports not only writing the output to a specified
+/// output iterator, but also to limit said output to a certain number of
+/// characters (see constructor), and to count the number of characters
+/// actually written.  The current value of the output iterator and the counter
+/// is accessible to the user.
 template <class t_OUT_ITER>
 class Streamed_OutIterBuf : public std::streambuf {
     t_OUT_ITER d_iter;
@@ -306,10 +302,10 @@ class Streamed_OutIterBuf : public std::streambuf {
 
     // MANUPILATORS
 
-    /// If the current limit value is not zero write the specified character
-    /// `c` to the output iterator, increment the output iterator, decrement
-    /// limit, and return an unspecified non-EOF value.  If the current limit
-    /// is zero do nothing and return `traits_type::eof()` value.
+    /// If the current limit value is zero return `traits_type::eof()`.  If the
+    /// specified character `c` is not EOF write it to the output iterator,
+    /// increment the output iterator, decrement limit.  Regardless of `c` is
+    /// EOF or not return an unspecified non-EOF value (if limit was not zero).
     int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
@@ -371,7 +367,7 @@ struct Streamed_Formatter<Streamed_Imp<t_STREAMABLE> > {
 //                         FREESTANDING FUNCTIONS
 // ============================================================================
 
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 requires(!bsl::formattable<t_STREAMABLE, char>)
 Streamed_Imp<t_STREAMABLE> streamed(const t_STREAMABLE& object);
@@ -648,7 +644,7 @@ Streamed_Formatter<Streamed_Imp<t_STREAMABLE> >::format(
 //                         FREESTANDING FUNCTIONS
 // ============================================================================
 
-#ifdef BSLFMT_FORMATTABLE_DEFINED
+#ifdef BSL_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 requires(!bsl::formattable<t_STREAMABLE, char>)
 bslfmt::Streamed_Imp<t_STREAMABLE> bslfmt::streamed(const t_STREAMABLE& object)
