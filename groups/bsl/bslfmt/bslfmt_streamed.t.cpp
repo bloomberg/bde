@@ -492,6 +492,7 @@ int main(int argc, char **argv)
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
+    for (test = 0; testStatus != -1 && printf("TEST %d\n", test); ++test)
     switch (test) {  case 0:
       case 9: {
         // --------------------------------------------------------------------
@@ -1117,50 +1118,77 @@ int main(int argc, char **argv)
 
         // Now the actual test
 
-        const int X = INT_MAX;  // X is no limit
-
         static struct {
             int         d_line;
             int         d_numChars;
-            int         d_limit;
-            int         d_badPos;
             const char *d_expected;
         } DATA[] = {
-            { L_, 1, X, -1, "0" },
-            { L_, 1, 1, -1, "0" },
-            { L_, 1, 0,  1, ""  },
+            { L_,  1, "0"                },
+            { L_,  2, "01"               },
+            { L_,  3, "012"              },
+            { L_,  4, "0123"             },
+            { L_,  5, "01234"            },
+            { L_,  6, "012345"           },
+            { L_,  7, "0123456"          },
+            { L_,  8, "01234567"         },
+            { L_,  9, "012345678"        },
+            { L_, 10, "0123456789"       },
+            { L_, 11, "0123456789a"      },
+            { L_, 12, "0123456789ab"     },
+            { L_, 13, "0123456789abc"    },
+            { L_, 14, "0123456789abcd"   },
+            { L_, 15, "0123456789abcde"  },
+            { L_, 16, "0123456789abcdef" },
 
-            { L_, 5, X, -1, "01234" },
-            { L_, 5, 9, -1, "01234" },
-            { L_, 5, 6, -1, "01234" },
-            { L_, 5, 5, -1, "01234" },
-            { L_, 5, 4,  5, "0123"  },
-            { L_, 5, 3,  4, "012"   },
-            { L_, 5, 2,  3, "01"    },
-            { L_, 5, 1,  2, "0"     },
-            { L_, 5, 0,  1, ""      },
+            { L_, 17, "0123456789abcdefg"                    },
+            { L_, 18, "0123456789abcdefgh"                   },
+            { L_, 19, "0123456789abcdefghi"                  },
+            { L_, 20, "0123456789abcdefghij"                 },
+            { L_, 21, "0123456789abcdefghijk"                },
+            { L_, 22, "0123456789abcdefghijkl"               },
+            { L_, 23, "0123456789abcdefghijklm"              },
+            { L_, 24, "0123456789abcdefghijklmn"             },
+            { L_, 25, "0123456789abcdefghijklmno"            },
+            { L_, 26, "0123456789abcdefghijklmnop"           },
+            { L_, 27, "0123456789abcdefghijklmnopq"          },
+            { L_, 28, "0123456789abcdefghijklmnopqr"         },
+            { L_, 29, "0123456789abcdefghijklmnopqrs"        },
+            { L_, 30, "0123456789abcdefghijklmnopqrst"       },
+            { L_, 31, "0123456789abcdefghijklmnopqrstu"      },
+            { L_, 32, "0123456789abcdefghijklmnopqrstuv"     },
+            { L_, 33, "0123456789abcdefghijklmnopqrstuvw"    },
+            { L_, 34, "0123456789abcdefghijklmnopqrstuvwx"   },
+            { L_, 35, "0123456789abcdefghijklmnopqrstuvwxy"  },
+            { L_, 36, "0123456789abcdefghijklmnopqrstuvwxyz" },
 
-            { L_, 16,  X, -1, "0123456789abcdef" },
-            { L_, 16, 99, -1, "0123456789abcdef" },
-            { L_, 16, 66, -1, "0123456789abcdef" },
-            { L_, 16, 33, -1, "0123456789abcdef" },
-            { L_, 16, 16, -1, "0123456789abcdef" },
-            { L_, 16, 15, 16, "0123456789abcde"  },
-            { L_, 16, 14, 15, "0123456789abcd"   },
-            { L_, 16, 13, 14, "0123456789abc"    },
-            { L_, 16, 12, 13, "0123456789ab"     },
-            { L_, 16, 11, 12, "0123456789a"      },
-            { L_, 16, 10, 11, "0123456789"       },
-            { L_, 16,  9, 10, "012345678"        },
-            { L_, 16,  8,  9, "01234567"         },
-            { L_, 16,  7,  8, "0123456"          },
-            { L_, 16,  6,  7, "012345"           },
-            { L_, 16,  5,  6, "01234"            },
-            { L_, 16,  4,  5, "0123"             },
-            { L_, 16,  3,  4, "012"              },
-            { L_, 16,  2,  3, "01"               },
-            { L_, 16,  1,  2, "0"                },
-            { L_, 16,  0,  1, ""                 },
+#define u_FIRST36 "0123456789abcdefghijklmnopqrstuvwxyz"
+            { L_, 37, u_FIRST36 "A"                          },
+            { L_, 38, u_FIRST36 "AB"                         },
+            { L_, 39, u_FIRST36 "ABC"                        },
+            { L_, 40, u_FIRST36 "ABCD"                       },
+            { L_, 41, u_FIRST36 "ABCDE"                      },
+            { L_, 42, u_FIRST36 "ABCDEF"                     },
+            { L_, 43, u_FIRST36 "ABCDEFG"                    },
+            { L_, 44, u_FIRST36 "ABCDEFGH"                   },
+            { L_, 45, u_FIRST36 "ABCDEFGHI"                  },
+            { L_, 46, u_FIRST36 "ABCDEFGHIJ"                 },
+            { L_, 47, u_FIRST36 "ABCDEFGHIJK"                },
+            { L_, 48, u_FIRST36 "ABCDEFGHIJKL"               },
+            { L_, 49, u_FIRST36 "ABCDEFGHIJKLM"              },
+            { L_, 50, u_FIRST36 "ABCDEFGHIJKLMN"             },
+            { L_, 51, u_FIRST36 "ABCDEFGHIJKLMNO"            },
+            { L_, 52, u_FIRST36 "ABCDEFGHIJKLMNOP"           },
+            { L_, 53, u_FIRST36 "ABCDEFGHIJKLMNOPQ"          },
+            { L_, 54, u_FIRST36 "ABCDEFGHIJKLMNOPQR"         },
+            { L_, 55, u_FIRST36 "ABCDEFGHIJKLMNOPQRS"        },
+            { L_, 56, u_FIRST36 "ABCDEFGHIJKLMNOPQRST"       },
+            { L_, 57, u_FIRST36 "ABCDEFGHIJKLMNOPQRSTU"      },
+            { L_, 58, u_FIRST36 "ABCDEFGHIJKLMNOPQRSTUV"     },
+            { L_, 59, u_FIRST36 "ABCDEFGHIJKLMNOPQRSTUVW"    },
+            { L_, 60, u_FIRST36 "ABCDEFGHIJKLMNOPQRSTUVWX"   },
+            { L_, 61, u_FIRST36 "ABCDEFGHIJKLMNOPQRSTUVWXY"  },
+            { L_, 62, u_FIRST36 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" },
+#undef u_FIRST36
         };
 
         const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -1168,12 +1196,10 @@ int main(int argc, char **argv)
         for (size_t i = 0; i < NUM_DATA; ++i) {
             const int          LINE      = DATA[i].d_line;
             const int          NUM_CHARS = DATA[i].d_numChars;
-            const int          LIMIT     = DATA[i].d_limit;
-            const int          BAD_POS   = DATA[i].d_badPos;
             const char *const  EXPECTED  = DATA[i].d_expected;
 
             if (veryVerbose) {
-                P_(LINE) P_(NUM_CHARS) P_(LIMIT) P_(BAD_POS) P(EXPECTED);
+                P_(LINE) P_(NUM_CHARS) P(EXPECTED);
             }
 
             const VariableLengthStreamable tester(NUM_CHARS);
@@ -1181,14 +1207,12 @@ int main(int argc, char **argv)
             typedef bsl::back_insert_iterator<bsl::string> Iter;
 
             bsl::string result;
-            bslfmt::Streamed_OutIterBuf<Iter> buf(bsl::back_inserter(result),
-                                                  LIMIT);
+            bslfmt::Streamed_OutIterBuf<Iter> buf(bsl::back_inserter(result));
             std::ostream                      os(&buf);
 
             os << tester;
 
             ASSERTV(LINE, EXPECTED, result.c_str(), EXPECTED == result);
-            ASSERTV(LINE, BAD_POS,  tester.badPos(), BAD_POS == tester.badPos());
         }
       } break;
       case 1: {

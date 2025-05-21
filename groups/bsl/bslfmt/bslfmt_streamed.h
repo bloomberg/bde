@@ -184,7 +184,6 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formattable.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formatterstring.h>
-#include <bslfmt_standardformatspecification.h>
 
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
@@ -282,44 +281,29 @@ class Streamed {
 /// `Streamed_OutIterBuf` provides a standard stream buffer for the specified
 /// `t_OUT_ITER`.  The behavior is undefined unless `t_OUT_ITER` models
 /// `std::output_iterator<char>` (the new concept, not `LegacyOutputIterator`).
-/// This stream buffer supports not only writing the output to a specified
-/// output iterator, but also to limit said output to a certain number of
-/// characters (see constructor), and to count the number of characters
-/// actually written.  The current value of the output iterator and the counter
-/// is accessible to the user.
+/// The current value of the output iterator is accessible to the user.
 template <class t_OUT_ITER>
 class Streamed_OutIterBuf : public std::streambuf {
     t_OUT_ITER d_iter;
-    size_t     d_limit;
-    size_t     d_counter;
 
   public:
     // CREATORS
 
     /// Create a `Streamed_OutIterBuf` object that writes into the specified
-    /// output iterator `iter`, and limits its output to the specified `limit`
-    /// number of characters.  Note that to have no limit the maximum value of
-    /// `size_t` needs to be passed as the `limit` argument.  Also note that we
-    /// do not concern ourselves with the possible difference between the size
-    /// of `size_t` and `streamsize_t` (on 32-bit platforms) as this buffer is
-    /// only intended to write into string-like output, not files.
-    Streamed_OutIterBuf(t_OUT_ITER iter, size_t limit);
+    /// output iterator `iter`.
+    Streamed_OutIterBuf(t_OUT_ITER iter);
 
     // MANUPILATORS
 
-    /// If the current limit value is zero return `traits_type::eof()`.  If the
-    /// specified character `c` is not EOF write it to the output iterator,
-    /// increment the output iterator, decrement limit.  Regardless of `c` is
-    /// EOF or not return an unspecified non-EOF value (if limit was not zero).
+    /// If the specified character `c` is not EOF write it to the output
+    /// iterator then increment the output iterator.  Regardless if `c` is
+    /// EOF or not return an unspecified non-EOF value.
     int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
 
     // ACCESSORS
 
     /// Return the current value of the output iterator.
     t_OUT_ITER outIterator() const;
-
-    /// Return the current value of the outputted character counter.
-    size_t counter() const;
 };
 
                          // =========================
@@ -335,11 +319,8 @@ struct Streamed_Formatter;
 template <class t_STREAMABLE>
 struct Streamed_Formatter<Streamed<t_STREAMABLE> > {
   private:
-    // PRIVATE TYPES
-    typedef StandardFormatSpecification<char> Specification;
-
     // DATA
-    Specification d_spec;  // parsed specification.
+    bsl::formatter<bsl::string, char> d_stringFormatter;
 
   public:
     // MANIPULATORS
@@ -446,11 +427,8 @@ requires(bsl::formattable<t_STREAMABLE, char>)
 // CREATORS
 template <class t_OUT_ITER>
 inline
-Streamed_OutIterBuf<t_OUT_ITER>::Streamed_OutIterBuf(t_OUT_ITER iter,
-                                                     size_t     limit)
+Streamed_OutIterBuf<t_OUT_ITER>::Streamed_OutIterBuf(t_OUT_ITER iter)
 : d_iter(iter)
-, d_limit(limit)
-, d_counter(0)
 {
 }
 
@@ -460,15 +438,9 @@ inline
 typename Streamed_OutIterBuf<t_OUT_ITER>::int_type
 Streamed_OutIterBuf<t_OUT_ITER>::overflow(int_type c)
 {
-    if (0 == d_limit) {
-        return traits_type::eof();                                    // RETURN
-    }
-
     if (traits_type::eof() != c) {
         *d_iter = traits_type::to_char_type(c);
         ++d_iter;
-        ++d_counter;
-        --d_limit;
     }
     return traits_type::not_eof(c);
 }
@@ -479,13 +451,6 @@ inline
 t_OUT_ITER Streamed_OutIterBuf<t_OUT_ITER>::outIterator() const
 {
     return d_iter;
-}
-
-template <class t_OUT_ITER>
-inline
-size_t Streamed_OutIterBuf<t_OUT_ITER>::counter() const
-{
-    return d_counter;
 }
 
                              // ------------------
@@ -499,28 +464,7 @@ BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
 Streamed_Formatter<Streamed<t_STREAMABLE> >::parse(
                                                  t_PARSE_CONTEXT& parseContext)
 {
-    d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
-
-    if (d_spec.sign() != Specification::e_SIGN_DEFAULT)
-        BSLS_THROW(bsl::format_error(
-                    "Formatting sign specifier not valid for streamed types"));
-
-    if (d_spec.alternativeFlag())
-        BSLS_THROW(bsl::format_error(
-                       "Formatting # specifier not valid for streamed types"));
-
-    if (d_spec.zeroPaddingFlag())
-        BSLS_THROW(bsl::format_error(
-                       "Formatting 0 specifier not valid for streamed types"));
-
-    if (d_spec.localeSpecificFlag())
-        BSLS_THROW(bsl::format_error("Formatting L specifier not supported"));
-
-    if (d_spec.formatType() == Specification::e_STRING_ESCAPED) {
-        BSLS_THROW(bsl::format_error("Unsupported format type '?'"));
-    }
-
-    return parseContext.begin();
+    return d_stringFormatter.parse(parseContext);
 }
 
 // ACCESSORS
@@ -531,139 +475,13 @@ Streamed_Formatter<Streamed<t_STREAMABLE> >::format(
                              const Streamed<t_STREAMABLE>& value,
                              t_FORMAT_CONTEXT&             formatContext) const
 {
-    Specification finalSpec(d_spec);
-
-    finalSpec.postprocess(formatContext);
-
-    typedef FormatterSpecificationNumericValue NumericValue;
-
-    NumericValue finalWidth(finalSpec.postprocessedWidth());
-
-    NumericValue finalPrecision(finalSpec.postprocessedPrecision());
-
-    // Retrieve the limit on the number of characters printed from the stream
-
-    size_t maxStreamedCharacters = 0;
-    switch (finalPrecision.category()) {
-      case NumericValue::e_DEFAULT: {
-        maxStreamedCharacters = std::numeric_limits<size_t>::max();
-      } break;
-      case NumericValue::e_VALUE: {
-        maxStreamedCharacters = finalPrecision.value();
-      } break;
-      default: {
-        BSLS_THROW(bsl::format_error("Invalid precision specifier"));  // THROW
-      }
-    }
-
-    const bool thereMayBePadding = finalWidth.category() ==
-                                   NumericValue::e_VALUE;
-
-    const bool leftPadded =
-                        thereMayBePadding &&
-                        (d_spec.alignment() == Specification::e_ALIGN_MIDDLE ||
-                         d_spec.alignment() == Specification::e_ALIGN_RIGHT);
-
-    // Anything that is padded on the left needs to know the number of printed
-    // characters before it can start "printing", therefore we handle all such
-    // formats by first printing the possibly truncated value into a string,
-    // then print the string itself via the private base which is the string
-    // formatter itself.
-
-    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
-
     bsl::string content;
-    size_t      contentWidth;
-    if (leftPadded) {
-        Streamed_OutIterBuf<bsl::back_insert_iterator<bsl::string> > strBuf(
-                              bsl::back_insert_iterator<bsl::string>(content),
-                              maxStreamedCharacters);
-        std::ostream strOs(&strBuf);
-        strOs << value.object();
-        contentWidth = content.length();
+    Streamed_OutIterBuf<bsl::back_insert_iterator<bsl::string> > strBuf(
+                            (bsl::back_insert_iterator<bsl::string>(content)));
+    std::ostream strOs(&strBuf);
+    strOs << value.object();
 
-        size_t allPadding =
-              finalWidth.category() == NumericValue::e_VALUE
-            ? bsl::max<size_t>(finalWidth.value(), contentWidth) - contentWidth
-            : 0;
-
-        size_t numPaddingChars = 0;
-        switch (d_spec.alignment()) {
-          case Specification::e_ALIGN_MIDDLE: {
-            numPaddingChars = (allPadding / 2);
-          } break;
-          case Specification::e_ALIGN_RIGHT: {
-            numPaddingChars = allPadding;
-          } break;
-          default: {
-            ;
-          } break;
-        }
-
-        for (size_t i = 0; i < numPaddingChars; ++i) {
-            // Note that, per the C++ spec, the fill character is always
-            // assumed to have a field width of one, regardless of its actual
-            // field width.
-            outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-        }
-
-        Streamed_OutIterBuf<typename t_FORMAT_CONTEXT::iterator> buf(
-                                                        outIterator,
-                                                        maxStreamedCharacters);
-        std::ostream os(&buf);
-        os << content;
-        outIterator = buf.outIterator();
-    }
-    else {
-        // Print the necessary characters from the stream output and calculate
-        // the printed length.  (Only need it when there is no left padding
-        // present but there is no reason to have an `if`, it'll be the same
-        // value.)
-        Streamed_OutIterBuf<typename t_FORMAT_CONTEXT::iterator> buf(
-                                                        outIterator,
-                                                        maxStreamedCharacters);
-        std::ostream os(&buf);
-        os << value.object();
-        outIterator  = buf.outIterator();
-        contentWidth = buf.counter();
-    }
-
-    // At this point left padding (if present) and the content itself had been
-    // output, `contentWidth` is set, and `outIterator` points where the right
-    // padding (if present) has to be placed.
-
-    size_t allPadding =
-              finalWidth.category() == NumericValue::e_VALUE
-            ? bsl::max<size_t>(finalWidth.value(), contentWidth) - contentWidth
-            : 0;
-
-    size_t numPaddingChars = 0;
-    switch (d_spec.alignment()) {
-      case Specification::e_ALIGN_DEFAULT:
-      case Specification::e_ALIGN_LEFT: {
-        numPaddingChars = allPadding;
-      } break;
-      case Specification::e_ALIGN_MIDDLE: {
-        numPaddingChars = (allPadding + 1) / 2;
-      } break;
-      default: {
-        ;
-      } break;
-    }
-
-    for (size_t i = 0; i < numPaddingChars; ++i) {
-        // Note that, per the C++ spec, the fill character is always assumed to
-        // have a field width of one, regardless of its actual field width.
-        outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-    }
-
-    return outIterator;
+    return d_stringFormatter.format(content, formatContext);
 }
 
 }  // close package namespace
