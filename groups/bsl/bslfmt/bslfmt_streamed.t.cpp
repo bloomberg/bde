@@ -419,12 +419,14 @@ void calculateResult(bsl::string                     *formatString,
 // `ostream` using the insert `operator<<`.  When writing portable code that
 // should work on compilers that do not support class template argument
 // deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.
+// avoid having to know and write the type of the object.  When writing code
+// that is aimed at modern compilers support CTAD (class template argument
+// deduction) the wrapper (`bslfmt::Streamed`) can also be used directly,
+// without specifying the type formatted.
 //
 // First, for the sake of demonstration we create a type with an obscure and
 // long name that we neither want to remember nor ever to write down, and which
 // can be streamed out:
-//
 //```
     class ThisTypeHasLongAndObscureNameButStreamable {
     };
@@ -437,29 +439,6 @@ void calculateResult(bsl::string                     *formatString,
     }
 //```
 
-///Example 2: Formatting with CTAD support
-///- - - - - - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<` and we target only modern compilers.
-// In such case the wrapper class template can be used directly, without the
-// need for the function.
-//
-// First, for the sake of demonstration we create a type with an obscure and
-// long name that we neither want to remember nor ever to write down, and which
-// can be streamed out:
-//
-//```
-//  class ThisTypeHasLongAndObscureNameButStreamable {
-//  };
-//
-//  std::ostream& operator<<(
-//                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& )
-//  {
-//      return os << "The printout";
-//  }
-//```
-
 ///Example 3: Format String Options
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
@@ -470,7 +449,6 @@ void calculateResult(bsl::string                     *formatString,
 //
 // First, for the sake of demonstration we create a type that prints a series
 // of digits to help demonstrate the effects of the various formattings:
-//
 //```
     class Streamable {
     };
@@ -518,12 +496,14 @@ int main(int argc, char **argv)
 // `ostream` using the insert `operator<<`.  When writing portable code that
 // should work on compilers that do not support class template argument
 // deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.
+// avoid having to know and write the type of the object.  When writing code
+// that is aimed at modern compilers support CTAD (class template argument
+// deduction) the wrapper (`bslfmt::Streamed`) can also be used directly,
+// without specifying the type formatted.
 //
 // First, for the sake of demonstration we create a type with an obscure and
 // long name that we neither want to remember nor ever to write down, and which
 // can be streamed out:
-//
 //```
 //  class ThisTypeHasLongAndObscureNameButStreamable {
 //  };
@@ -535,19 +515,27 @@ int main(int argc, char **argv)
 //      return os << "The printout";
 //  }
 //```
-//
 // Then, we create an object of said type that we want to print out:
-//
 //```
     const ThisTypeHasLongAndObscureNameButStreamable obj;
 //```
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
-//
 //```
     bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
-// Finally, we verify the output is correct:
+// Then, we verify the output is correct:
+//
+//```
+    ASSERT(s == "The printout");
+//```
+// Next, if supported, we format the "value" using the wrapper directly:
+//```
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    s = bsl::format("{}", bslfmt::Streamed(obj));
+#endif
+//```
+// Finally, we verify the output is still correct:
 //
 //```
     ASSERT(s == "The printout");

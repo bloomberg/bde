@@ -27,18 +27,20 @@ BSLS_IDENT("$Id: $")
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example 1: Formatting a Streamable Object Using the Function
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Example 1: Formatting a Streamable Object
+///- - - - - - - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
 // `ostream` using the insert `operator<<`.  When writing portable code that
 // should work on compilers that do not support class template argument
 // deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.
+// avoid having to know and write the type of the object.  When writing code
+// that is aimed at modern compilers support CTAD (class template argument
+// deduction) the wrapper (`bslfmt::Streamed`) can also be used directly,
+// without specifying the type formatted.
 //
 // First, for the sake of demonstration we create a type with an obscure and
 // long name that we neither want to remember nor ever to write down, and which
 // can be streamed out:
-//
 //```
 //  class ThisTypeHasLongAndObscureNameButStreamable {
 //  };
@@ -50,65 +52,32 @@ BSLS_IDENT("$Id: $")
 //      return os << "The printout";
 //  }
 //```
-//
 // Then, we create an object of said type that we want to print out:
-//
 //```
 //  const ThisTypeHasLongAndObscureNameButStreamable obj;
 //```
-//
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
 //```
 //  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
-//
-// Finally, we verify the output is correct:
+// Then, we verify the output is correct:
+//```
+//  assert(s == "The printout");
+//```
+//```
+// Next, if supported, we format the "value" using the wrapper directly:
+//```
+//#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+//  s = bsl::format("{}", bslfmt::Streamed(obj));
+//#endif
+//```
+// Finally, we verify the output is still correct:
 //```
 //  assert(s == "The printout");
 //```
 //
-///Example 2: Formatting with CTAD support
-///- - - - - - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<` and we target only modern compilers.
-// In such case the wrapper class template can be used directly, without the
-// need for the function.
-//
-// First, for the sake of demonstration we create a type with an obscure and
-// long name that we neither want to remember nor ever to write down, and which
-// can be streamed out:
-//
-//```
-//  class ThisTypeHasLongAndObscureNameButStreamable {
-//  };
-//
-//  std::ostream& operator<<(
-//                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& )
-//  {
-//      return os << "The printout";
-//  }
-//```
-//
-// Then, we create an object of said type that we want to print out:
-//
-//```
-//  const ThisTypeHasLongAndObscureNameButStreamable obj;
-//```
-// Next, we format the "value" using `bsl::format` with the wrapper class
-// template, class template argument deduction takes care of the type:
-//
-//```
-//  bsl::string s = bsl::format("{}", bslfmt::Streamed(obj));
-//```
-// Finally, we verify the output is correct:
-//
-//```
-//  assert(s == "The printout");
-//```
-//
-///Example 3: Format String Options
+///Example 2: Format String Options
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
 // `ostream` using the insert `operator<<` for an environment that requires the
@@ -118,7 +87,6 @@ BSLS_IDENT("$Id: $")
 //
 // First, for the sake of demonstration we create a type that prints a series
 // of digits to help demonstrate the effects of the various formattings:
-//
 //```
 //  class Streamable {
 //  };
@@ -128,26 +96,22 @@ BSLS_IDENT("$Id: $")
 //      return os << "12345678";
 //  }
 //```
-//
 // Then, we create an object of said type that we will format:
 //
 //```
 //  const Streamable obj;
 //```
-//
 // Next, we format the "value" using many different format strings, starting
 // with the default for completeness:
 //```
 //  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //  assert(s == "12345678");
 //```
-//
 // Then, we format with specifying just a width:
 //```
 //  s = bsl::format("{:10}", bslfmt::streamed(obj));
 //  assert(s == "12345678  ");
 //```
-//
 // Next, we format with specifying a width, and alignments:
 //```
 //  s = bsl::format("{:<10}", bslfmt::streamed(obj));
@@ -159,7 +123,6 @@ BSLS_IDENT("$Id: $")
 //  s = bsl::format("{:>10}", bslfmt::streamed(obj));
 //  assert(s == "  12345678");
 //```
-//
 // Finally, we demonstrate the truncation using a "precision" value:
 //```
 //  s = bsl::format("{:.6}", bslfmt::streamed(obj));
