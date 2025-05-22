@@ -186,6 +186,7 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterstring.h>
 
 #include <bslstl_iterator.h>
+#include <bslstl_ostringstream.h>
 #include <bslstl_string.h>
 
 #include <bsls_deprecatefeature.h>
@@ -274,53 +275,21 @@ class Streamed {
     const t_STREAMABLE& object() const;
 };
 
-                            // ===================
-                            // Streamed_OutIterBuf
-                            // ===================
-
-/// `Streamed_OutIterBuf` provides a standard stream buffer for the specified
-/// `t_OUT_ITER`.  The behavior is undefined unless `t_OUT_ITER` models
-/// `std::output_iterator<char>` (the new concept, not `LegacyOutputIterator`).
-/// The current value of the output iterator is accessible to the user.
-template <class t_OUT_ITER>
-class Streamed_OutIterBuf : public std::streambuf {
-    t_OUT_ITER d_iter;
-
-  public:
-    // CREATORS
-
-    /// Create a `Streamed_OutIterBuf` object that writes into the specified
-    /// output iterator `iter`.
-    Streamed_OutIterBuf(t_OUT_ITER iter);
-
-    // MANUPILATORS
-
-    /// If the specified character `c` is not EOF write it to the output
-    /// iterator then increment the output iterator.  Regardless if `c` is
-    /// EOF or not return an unspecified non-EOF value.
-    int_type overflow(int_type c) BSLS_KEYWORD_OVERRIDE;
-
-    // ACCESSORS
-
-    /// Return the current value of the output iterator.
-    t_OUT_ITER outIterator() const;
-};
-
-                         // =========================
-                         // struct Streamed_Formatter
-                         // =========================
+                      // ================================
+                      // struct Streamed_WrapperFormatter
+                      // ================================
 
 /// This component-private class provides the implementations for parsing
 /// stream formatting specifications and for formatting streamed according to
 /// that specification.
 template <class t_TYPE>
-struct Streamed_Formatter;
+struct Streamed_WrapperFormatter;
 
 template <class t_STREAMABLE>
-struct Streamed_Formatter<Streamed<t_STREAMABLE> > {
+struct Streamed_WrapperFormatter<Streamed<t_STREAMABLE> > {
   private:
     // DATA
-    bsl::formatter<bsl::string, char> d_stringFormatter;
+    bsl::formatter<bsl::string_view, char> d_stringFormatter;
 
   public:
     // MANIPULATORS
@@ -420,48 +389,15 @@ requires(bsl::formattable<t_STREAMABLE, char>)
 }
 #endif
 
-                            // -------------------
-                            // Streamed_OutIterBuf
-                            // -------------------
-
-// CREATORS
-template <class t_OUT_ITER>
-inline
-Streamed_OutIterBuf<t_OUT_ITER>::Streamed_OutIterBuf(t_OUT_ITER iter)
-: d_iter(iter)
-{
-}
-
-// MANUPILATORS
-template <class t_OUT_ITER>
-inline
-typename Streamed_OutIterBuf<t_OUT_ITER>::int_type
-Streamed_OutIterBuf<t_OUT_ITER>::overflow(int_type c)
-{
-    if (traits_type::eof() != c) {
-        *d_iter = traits_type::to_char_type(c);
-        ++d_iter;
-    }
-    return traits_type::not_eof(c);
-}
-
-// ACCESSORS
-template <class t_OUT_ITER>
-inline
-t_OUT_ITER Streamed_OutIterBuf<t_OUT_ITER>::outIterator() const
-{
-    return d_iter;
-}
-
-                             // ------------------
-                             // Streamed_Formatter
-                             // ------------------
+                         // -------------------------
+                         // Streamed_WrapperFormatter
+                         // -------------------------
 
 // MANIPULATORS
 template <class t_STREAMABLE>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-Streamed_Formatter<Streamed<t_STREAMABLE> >::parse(
+Streamed_WrapperFormatter<Streamed<t_STREAMABLE> >::parse(
                                                  t_PARSE_CONTEXT& parseContext)
 {
     return d_stringFormatter.parse(parseContext);
@@ -471,17 +407,14 @@ Streamed_Formatter<Streamed<t_STREAMABLE> >::parse(
 template <class t_STREAMABLE>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-Streamed_Formatter<Streamed<t_STREAMABLE> >::format(
+Streamed_WrapperFormatter<Streamed<t_STREAMABLE> >::format(
                              const Streamed<t_STREAMABLE>& value,
                              t_FORMAT_CONTEXT&             formatContext) const
 {
-    bsl::string content;
-    Streamed_OutIterBuf<bsl::back_insert_iterator<bsl::string> > strBuf(
-                            (bsl::back_insert_iterator<bsl::string>(content)));
-    std::ostream strOs(&strBuf);
-    strOs << value.object();
+    bsl::ostringstream os;
+    os << value.object();
 
-    return d_stringFormatter.format(content, formatContext);
+    return d_stringFormatter.format(os.view(), formatContext);
 }
 
 }  // close package namespace
@@ -519,7 +452,7 @@ namespace bsl {
 
 template <class t_STREAMABLE>
 struct formatter<BloombergLP::bslfmt::Streamed<t_STREAMABLE>, char>
-: BloombergLP::bslfmt::Streamed_Formatter<
+: BloombergLP::bslfmt::Streamed_WrapperFormatter<
       BloombergLP::bslfmt::Streamed<t_STREAMABLE> > {
 };
 
