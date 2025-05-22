@@ -3548,25 +3548,23 @@ make_shared(const typename remove_extent<ARRAY_TYPE>::type& value);
 
 // unbounded array overloads
 
-/// Return a `shared_ptr` object referring to and managing a new
-/// `ARRAY_TYPE` object, where `ARRAY_TYPE` is a unbounded array.  The
-/// specified `basicAllocator` will be used to supply a single contiguous
-/// region of memory holding the returned shared pointer's internal
-/// representation and the new `ARRAY_TYPE` containing the specified
-/// `numElements` number of elements, and each element in the array is
-/// default constructed.
+/// Return a `shared_ptr` object referring to and managing a new `ARRAY_TYPE`
+/// object, where `ARRAY_TYPE` is a unbounded array.  The default allocator
+/// will be used to supply a single contiguous region of memory holding the
+/// returned shared pointer's internal representation and the new `ARRAY_TYPE`
+/// containing the specified `numElements` number of elements, and each element
+/// in the array is default constructed.
 template<class ARRAY_TYPE>
 typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
                    shared_ptr<ARRAY_TYPE> >::type
 make_shared(size_t numElements);
 
-/// Return a `shared_ptr` object referring to and managing a new
-/// `ARRAY_TYPE` object, where `ARRAY_TYPE` is a unbounded array.  The
-/// specified `basicAllocator` will be used to supply a single contiguous
-/// region of memory holding the returned shared pointer's internal
-/// representation and the new `ARRAY_TYPE` containing the specified
-/// `numElements` number of elements, and each element in the array is
-/// constructed from the specified `value`.
+/// Return a `shared_ptr` object referring to and managing a new `ARRAY_TYPE`
+/// object, where `ARRAY_TYPE` is a unbounded array.  The default allocator
+/// will be used to supply a single contiguous region of memory holding the
+/// returned shared pointer's internal representation and the new `ARRAY_TYPE`
+/// containing the specified `numElements` number of elements, and each element
+/// in the array is constructed from the specified `value`.
 template<class ARRAY_TYPE>
 typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
                    shared_ptr<ARRAY_TYPE> >::type
@@ -3597,12 +3595,12 @@ typename enable_if<is_bounded_array<ARRAY_TYPE>::value,
                    shared_ptr<ARRAY_TYPE> >::type
 make_shared_for_overwrite();
 
-/// Return a `shared_ptr` object referring to and managing a new
-/// `ARRAY_TYPE` object, where `ARRAY_TYPE` is a unbounded array.  The
-/// specified `basicAllocator` will be used to supply a single contiguous
-/// region of memory holding the returned shared pointer's internal
-/// representation and the new `ARRAY_TYPE` containing the specified
-/// `numElements` number of elements, and the array is default-constructed.
+/// Return a `shared_ptr` object referring to and managing a new `ARRAY_TYPE`
+/// object, where `ARRAY_TYPE` is a unbounded array.  The default allocator
+/// will be used to supply a single contiguous region of memory holding the
+/// returned shared pointer's internal representation and the new `ARRAY_TYPE`
+/// containing the specified `numElements` number of elements, and the array is
+/// default-constructed.
 template<class ARRAY_TYPE>
 typename enable_if<is_unbounded_array<ARRAY_TYPE>::value,
                    shared_ptr<ARRAY_TYPE> >::type
