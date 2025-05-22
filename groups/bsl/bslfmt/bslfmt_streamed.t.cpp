@@ -1095,7 +1095,7 @@ int main(int argc, char **argv)
 
             const bsl::string_view result = os.view();
 
-            ASSERTV(i, result.length() == i);
+            ASSERTV(i, result.length() == static_cast<size_t>(i));
             ASSERTV(i,
                     0 == memcmp(result.data(),
                                 ALL_CHARS,
