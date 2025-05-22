@@ -1086,6 +1086,10 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < NUM_ALL_CHARS; ++i) {
 
+            if (veryVerbose) {
+                P(i);
+            }
+
             const VariableLengthStreamable tester(i);
 
             bsl::ostringstream os;
