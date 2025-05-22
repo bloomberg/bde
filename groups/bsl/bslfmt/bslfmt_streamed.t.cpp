@@ -1088,8 +1088,6 @@ int main(int argc, char **argv)
 
             const VariableLengthStreamable tester(i);
 
-            typedef bsl::back_insert_iterator<bsl::string> Iter;
-
             bsl::ostringstream os;
             os << tester;
 
