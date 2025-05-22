@@ -1082,8 +1082,9 @@ int main(int argc, char **argv)
 
         static const char ALL_CHARS[] =
               "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const int NUM_ALL_CHARS = static_cast<int>(sizeof(ALL_CHARS) - 1);
 
-        for (size_t i = 0; i < strlen(ALL_CHARS); ++i) {
+        for (int i = 0; i < NUM_ALL_CHARS; ++i) {
 
             const VariableLengthStreamable tester(i);
 
@@ -1098,7 +1099,7 @@ int main(int argc, char **argv)
             ASSERTV(i,
                     0 == memcmp(result.data(),
                                 ALL_CHARS,
-                                bsl::min(result.length(), i)));
+                                bsl::min<size_t>(result.length(), i)));
         }
       } break;
       case 1: {
