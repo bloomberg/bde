@@ -525,7 +525,6 @@ int main(int argc, char **argv)
     bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
 // Then, we verify the output is correct:
-//
 //```
     ASSERT(s == "The printout");
 //```
@@ -536,7 +535,6 @@ int main(int argc, char **argv)
 #endif
 //```
 // Finally, we verify the output is still correct:
-//
 //```
     ASSERT(s == "The printout");
 //```
@@ -553,7 +551,6 @@ int main(int argc, char **argv)
 //
 // First, for the sake of demonstration we create a type that prints a series
 // of digits to help demonstrate the effects of the various formattings:
-//
 //```
 //  class Streamable {
 //  };
@@ -563,20 +560,16 @@ int main(int argc, char **argv)
 //      return os << "12345678";
 //  }
 //```
-//
 // Then, we create an object of said type that we will format:
-//
 //```
     const Streamable obj;
 //```
-//
 // Next, we format the "value" using many different format strings, starting
 // with the default for completeness:
 //```
     bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
     ASSERT(s == "12345678");
 //```
-//
 // Then, we format with specifying just a width:
 //```
     s = bsl::format("{:10}", bslfmt::streamed(obj));
@@ -594,7 +587,6 @@ int main(int argc, char **argv)
     s = bsl::format("{:>10}", bslfmt::streamed(obj));
     ASSERT(s == "  12345678");
 //```
-//
 // Finally, we demonstrate the truncation using a "precision" value:
 //```
     s = bsl::format("{:.6}", bslfmt::streamed(obj));
