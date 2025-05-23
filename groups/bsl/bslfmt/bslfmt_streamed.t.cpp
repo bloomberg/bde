@@ -542,52 +542,8 @@ int main(int argc, char **argv)
 //```
         }
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
         {
-///Example 2: Formatting with CTAD support
-///- - - - - - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<` and we target only modern compilers.
-// In such case the wrapper class template can be used directly, without the
-// need for the function.
-//
-// First, for the sake of demonstration we create a type with an obscure and
-// long name that we neither want to remember nor ever to write down, and which
-// can be streamed out:
-//
-//```
-//  class ThisTypeHasLongAndObscureNameButStreamable {
-//  };
-//
-//  std::ostream& operator<<(
-//                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& )
-//  {
-//      return os << "The printout";
-//  }
-//```
-//
-// Then, we create an object of said type that we want to print out:
-//
-//```
-    const ThisTypeHasLongAndObscureNameButStreamable obj;
-//```
-// Next, we format the "value" using `bsl::format` with the wrapper class
-// template, class template argument deduction takes care of the type:
-//
-//```
-    bsl::string s = bsl::format("{}", bslfmt::Streamed(obj));
-//```
-// Finally, we verify the output is correct:
-//
-//```
-    ASSERT(s == "The printout");
-//```
-        }
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-
-        {
-///Example 3: Format String Options
+///Example 2: Format String Options
 /// - - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
 // `ostream` using the insert `operator<<` for an environment that requires the
@@ -1033,18 +989,12 @@ int main(int argc, char **argv)
         if (verbose) puts("\nTESTING (PRIMITIVE) GENERATORS"
                           "\n==============================");
 
-        if (verbose)
-            printf("\nValidating bslfmt construction\n");
-
         {
             bsl::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
             (void)dummy_c;
         }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-        if (verbose)
-            printf("\nValidating std construction\n");
-
         {
             std::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
             (void)dummy_c;
