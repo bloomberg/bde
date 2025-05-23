@@ -33,10 +33,7 @@ BSLS_IDENT("$Id: $")
 // `ostream` using the insert `operator<<`.  When writing portable code that
 // should work on compilers that do not support class template argument
 // deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.  When writing code
-// that is aimed at modern compilers support CTAD (class template argument
-// deduction) the wrapper (`bslfmt::Streamed`) can also be used directly,
-// without specifying the type formatted.
+// avoid having to know and write the type of the object.
 //
 // First, for the sake of demonstration we create a type with an obscure and
 // long name that we neither want to remember nor ever to write down, and which
@@ -61,18 +58,7 @@ BSLS_IDENT("$Id: $")
 //```
 //  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
-// Then, we verify the output is correct:
-//```
-//  assert(s == "The printout");
-//```
-//```
-// Next, if supported, we format the "value" using the wrapper directly:
-//```
-//#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-//  s = bsl::format("{}", bslfmt::Streamed(obj));
-//#endif
-//```
-// Finally, we verify the output is still correct:
+// Finally, we verify the output is correct:
 //```
 //  assert(s == "The printout");
 //```

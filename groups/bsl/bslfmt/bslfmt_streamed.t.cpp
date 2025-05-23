@@ -524,17 +524,7 @@ int main(int argc, char **argv)
 //```
     bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
-// Then, we verify the output is correct:
-//```
-    ASSERT(s == "The printout");
-//```
-// Next, if supported, we format the "value" using the wrapper directly:
-//```
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-    s = bsl::format("{}", bslfmt::Streamed(obj));
-#endif
-//```
-// Finally, we verify the output is still correct:
+// Finally, we verify the output is correct:
 //```
     ASSERT(s == "The printout");
 //```
