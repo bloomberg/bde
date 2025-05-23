@@ -1984,6 +1984,9 @@ void testCase10()
         bsl::string_view  bslView("Text");
         bsl::wstring_view bslWview(L"Text");
 
+        bslstl::StringRef     bslStringRef("Text");
+        bslstl::StringRefWide bslWStringRef(L"Text");
+
 #ifdef u_STD_STRING_VIEW_EXISTS
         std::string_view stdView("Text");
         std::wstring_view stdWview(L"Text");
@@ -2004,6 +2007,8 @@ void testCase10()
     u_VERIFY_WVFORMAT(L##fmt, L##res, stdWstr);                               \
     u_VERIFY_VFORMAT(fmt, res, bslView);                                      \
     u_VERIFY_WVFORMAT(L##fmt, L##res, bslWview);                              \
+    u_VERIFY_VFORMAT(fmt, res, bslStringRef);                                 \
+    u_VERIFY_WVFORMAT(L##fmt, L##res, bslWStringRef);                         \
     u_STD_VIEW_TESTS(fmt, res)
 
         u_VERIFY_STRINGS("{}", "Text");
@@ -2385,6 +2390,8 @@ void testCase6()
     u_VERIFY_WFORMAT(L##fmt, L##res, bsl::wstring(L##lit));                   \
     u_VERIFY_FORMAT(fmt, res, bsl::string_view(lit));                         \
     u_VERIFY_WFORMAT(L##fmt, L##res, bsl::wstring_view(L##lit));              \
+    u_VERIFY_FORMAT(fmt, res, bslstl::StringRef(lit));                        \
+    u_VERIFY_WFORMAT(L##fmt, L##res, bslstl::StringRefWide(L##lit));          \
     u_VERIFY_STD_VIEWS(fmt, res, lit)
 
     // Simple printing of strings values
@@ -3757,6 +3764,12 @@ int main(int argc, char **argv)
         bsl::formatter<bsl::wstring_view, wchar_t> fmtrwbvwc;  (void)fmtrwbvwc;
 #endif  // u_STD_STRING_VIEW_EXISTS
 
+        // formatters for `bslstl::StringRefImp`
+        bsl::formatter<bslstl::StringRef, char>        fmtrsrc;
+        bsl::formatter<bslstl::StringRefWide, wchar_t> fmtrsrwc;
+        (void)fmtrsrc;
+        (void)fmtrsrwc;
+
         // formatters for arithmetic types
         bsl::formatter<bool, char>    fmtrbc;  (void)fmtrbc;
         bsl::formatter<bool, wchar_t> fmtrbwc; (void)fmtrbwc;
@@ -3894,6 +3907,15 @@ int main(int argc, char **argv)
             ASSERT(std::format("{}", v4) == bsl::string("Test 4"));
 #endif  //  BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
+        }
+
+        // -----------------------------------------------------------
+        // simple test to see if we can pass in `bslstl::StringRefImp`
+        {
+            bslstl::StringRef sr("StringRef");
+            check(bsl::format("{}", sr), "StringRef");
+            bslstl::StringRefWide srw(L"StringRefWide");
+            check(bsl::format(L"{}", srw), L"StringRefWide");
         }
 
         // -------------------------------

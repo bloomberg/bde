@@ -1,6 +1,9 @@
 // bslstl_formatterstring.t.cpp                                       -*-C++-*-
 #include <bslfmt_formatterstring.h>
 
+#include <bslfmt_format_imp.h> // Testing only (`bsl::format` - breathing test)
+#include <bslfmt_formattertestutil.h> // Testing only
+
 #include <bsla_maybeunused.h>
 
 #include <bsls_bsltestutil.h>
@@ -10,10 +13,6 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#include <bslfmt_format_imp.h> // Testing only (`bsl::format` - breathing test)
-
-#include <bslfmt_formattertestutil.h> // Testing only
 
 using namespace BloombergLP;
 
@@ -227,6 +226,16 @@ void aSsErT(bool condition, const char *message, int line)
             bsl::basic_string<type> formatStr(fmtStr);                        \
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<bslstl::StringRefImp<type> >(                \
+                                 &errorMsg,                                   \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
     } while (false)
 
 #define TEST_PARSE_SUCCESS_VF(type, fmtStr, useOracle)                        \
@@ -293,6 +302,16 @@ void aSsErT(bool condition, const char *message, int line)
                                                                               \
         rv = bslfmt::FormatterTestUtil<type>::testParseVFormat                \
                                                  <TEST_STD_STRING_VIEW<type> >\
+                                                              (&errorMsg,     \
+                                                               useOracle,     \
+                                                               fmtStr);       \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::testParseVFormat                \
+                                                 <bslstl::StringRefImp<type> >\
                                                               (&errorMsg,     \
                                                                useOracle,     \
                                                                fmtStr);       \
@@ -703,7 +722,7 @@ int main(int argc, char **argv)
         //: 1 Construct format specifications corresponding to multiple
         //:   precisions, widths and fills.
         //:
-        //: 2 Construct input strings of various lenghts, containing both ascii
+        //: 2 Construct input strings of various lengths, containing both ascii
         //:   and unicode.
         //:
         //: 3 Verify that, for each of the specificaitons and inputs
@@ -712,8 +731,8 @@ int main(int argc, char **argv)
         //:
         //: 4 Verify that, for each of the specificaitons and inputs
         //:   constructed in steps 1 and 2 the result of the `format` function
-        //:   matches the result from calling `std::format` where supported on the
-        //:   platform.
+        //:   matches the result from calling `std::format` where supported on
+        //:   the platform.
         //:
         //: 5 Repeat steps 1-4 for all of the supported string types:
         //:   - char *
@@ -722,6 +741,7 @@ int main(int argc, char **argv)
         //:   - bsl::string_view
         //:   - std::string
         //:   - bsl::string
+        //:   - bslstl::StringRef
         //:
         //: 6 Repeat step 5 for the wchar_t equivalent types.
         //
@@ -852,6 +872,21 @@ int main(int argc, char **argv)
                                     ASSERTV(formatString.c_str(),
                                             message.c_str(),
                                             rv);
+
+                                    bslstl::StringRef input_sr(
+                                                         inputString.c_str(),
+                                                         inputString.length());
+                                    rv = bslfmt::FormatterTestUtil<char>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_sr,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
                                 }
                             }
                         }
@@ -975,6 +1010,21 @@ int main(int argc, char **argv)
                                                             testOracle,
                                                             formatString,
                                                             input_bv,
+                                                            arg2,
+                                                            prec);
+                                    ASSERTV(formatString.c_str(),
+                                            message.c_str(),
+                                            rv);
+
+                                    bslstl::StringRefWide input_sr(
+                                                         inputString.c_str(),
+                                                         inputString.length());
+                                    rv = bslfmt::FormatterTestUtil<wchar_t>::
+                                        testEvaluateVFormat(&message,
+                                                            outputString,
+                                                            testOracle,
+                                                            formatString,
+                                                            input_sr,
                                                             arg2,
                                                             prec);
                                     ASSERTV(formatString.c_str(),
@@ -1467,6 +1517,14 @@ int main(int argc, char **argv)
             bsl::swap(dummy_w, dummy2_w);
         }
 #endif
+        {
+            bsl::formatter<bslstl::StringRefImp<C>, C> dummy_c;
+            bsl::formatter<bslstl::StringRefImp<W>, W> dummy_w;
+            bsl::formatter<bslstl::StringRefImp<C>, C> dummy2_c;
+            bsl::formatter<bslstl::StringRefImp<W>, W> dummy2_w;
+            bsl::swap(dummy_c, dummy2_c);
+            bsl::swap(dummy_w, dummy2_w);
+        }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
@@ -1505,14 +1563,6 @@ int main(int argc, char **argv)
             bsl::swap(dummy_w, dummy2_w);
         }
         {
-            std::formatter<std::basic_string<C>, C> dummy_c;
-            std::formatter<std::basic_string<W>, W> dummy_w;
-            std::formatter<std::basic_string<C>, C> dummy2_c;
-            std::formatter<std::basic_string<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
-        }
-        {
             std::formatter<bsl::basic_string_view<C>, C> dummy_c;
             std::formatter<bsl::basic_string_view<W>, W> dummy_w;
             std::formatter<bsl::basic_string_view<C>, C> dummy2_c;
@@ -1521,10 +1571,10 @@ int main(int argc, char **argv)
             bsl::swap(dummy_w, dummy2_w);
         }
         {
-            std::formatter<std::basic_string_view<C>, C> dummy_c;
-            std::formatter<std::basic_string_view<W>, W> dummy_w;
-            std::formatter<std::basic_string_view<C>, C> dummy2_c;
-            std::formatter<std::basic_string_view<W>, W> dummy2_w;
+            std::formatter<bslstl::StringRefImp<C>, C> dummy_c;
+            std::formatter<bslstl::StringRefImp<W>, W> dummy_w;
+            std::formatter<bslstl::StringRefImp<C>, C> dummy2_c;
+            std::formatter<bslstl::StringRefImp<W>, W> dummy2_w;
             bsl::swap(dummy_c, dummy2_c);
             bsl::swap(dummy_w, dummy2_w);
         }
@@ -1620,7 +1670,14 @@ int main(int argc, char **argv)
             (void)copy_w;
         }
 #endif
-
+        {
+            bsl::formatter<bslstl::StringRefImp<C>, C> dummy_c;
+            bsl::formatter<bslstl::StringRefImp<W>, W> dummy_w;
+            bsl::formatter<bslstl::StringRefImp<C>, C> copy_c(dummy_c);
+            bsl::formatter<bslstl::StringRefImp<W>, W> copy_w(dummy_w);
+            (void)copy_c;
+            (void)copy_w;
+        }
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
             printf("\nValidating std copy construction\n");
@@ -1658,14 +1715,6 @@ int main(int argc, char **argv)
             (void)copy_w;
         }
         {
-            const std::formatter<std::basic_string<C>, C> dummy_c;
-            const std::formatter<std::basic_string<W>, W> dummy_w;
-            std::formatter<std::basic_string<C>, C>       copy_c(dummy_c);
-            std::formatter<std::basic_string<W>, W>       copy_w(dummy_w);
-            (void)copy_c;
-            (void)copy_w;
-        }
-        {
             const std::formatter<bsl::basic_string_view<C>, C> dummy_c;
             const std::formatter<bsl::basic_string_view<W>, W> dummy_w;
             std::formatter<bsl::basic_string_view<C>, C>       copy_c(dummy_c);
@@ -1674,10 +1723,10 @@ int main(int argc, char **argv)
             (void)copy_w;
         }
         {
-            const std::formatter<std::basic_string_view<C>, C> dummy_c;
-            const std::formatter<std::basic_string_view<W>, W> dummy_w;
-            std::formatter<std::basic_string_view<C>, C>       copy_c(dummy_c);
-            std::formatter<std::basic_string_view<W>, W>       copy_w(dummy_w);
+            std::formatter<bslstl::StringRefImp<C>, C> dummy_c;
+            std::formatter<bslstl::StringRefImp<W>, W> dummy_w;
+            std::formatter<bslstl::StringRefImp<C>, C> copy_c(dummy_c);
+            std::formatter<bslstl::StringRefImp<W>, W> copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
@@ -1781,6 +1830,12 @@ int main(int argc, char **argv)
             (void)dummy_c;
             (void)dummy_w;
         }
+        {
+            bsl::formatter<bslstl::StringRefImp<char>, char>       dummy_c;
+            bsl::formatter<bslstl::StringRefImp<wchar_t>, wchar_t> dummy_w;
+            (void)dummy_c;
+            (void)dummy_w;
+        }
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
             bsl::formatter<std::basic_string_view<char>, char>       dummy_c;
@@ -1819,20 +1874,14 @@ int main(int argc, char **argv)
             (void)dummy_w;
         }
         {
-            std::formatter<std::basic_string<char>, char>       dummy_c;
-            std::formatter<std::basic_string<wchar_t>, wchar_t> dummy_w;
-            (void)dummy_c;
-            (void)dummy_w;
-        }
-        {
             std::formatter<bsl::basic_string_view<char>, char>       dummy_c;
             std::formatter<bsl::basic_string_view<wchar_t>, wchar_t> dummy_w;
             (void)dummy_c;
             (void)dummy_w;
         }
         {
-            std::formatter<std::basic_string_view<char>, char>       dummy_c;
-            std::formatter<std::basic_string_view<wchar_t>, wchar_t> dummy_w;
+            std::formatter<bslstl::StringRefImp<char>, char>       dummy_c;
+            std::formatter<bslstl::StringRefImp<wchar_t>, wchar_t> dummy_w;
             (void)dummy_c;
             (void)dummy_w;
         }
@@ -1871,7 +1920,7 @@ int main(int argc, char **argv)
             printf("\nBREATHING TEST"
                    "\n==============\n");
 
-        bsl::formatter<const char *, char>                  dummy1;
+        bsl::formatter<const char *, char>         dummy1;
         bsl::formatter<bsl::string_view, char>     dummy2;
         bsl::formatter<bsl::wstring_view, wchar_t> dummy3;
         (void)dummy1;
@@ -1907,30 +1956,28 @@ int main(int argc, char **argv)
         bool rv;
 
         rv = bslfmt::FormatterTestUtil<char>::testParseFormat<const char *>(
-                                                               &message,
-                                                               true,
-                                                               "{0:*^{1}.{2}}");
+                                                              &message,
+                                                              true,
+                                                              "{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
-        rv = bslfmt::FormatterTestUtil<wchar_t>::testParseFormat<const wchar_t *>(
-                                                              &message,
-                                                              true,
-                                                              L"{0:*^{1}.{2}}");
+        rv = bslfmt::FormatterTestUtil<wchar_t>::testParseFormat<
+            const wchar_t *>(&message, true, L"{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
         rv = bslfmt::FormatterTestUtil<char>::testParseVFormat<char *>(
-                                                               &message,
-                                                               true,
-                                                               "{0:*^{1}.{2}}");
+                                                              &message,
+                                                              true,
+                                                              "{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
         rv = bslfmt::FormatterTestUtil<wchar_t>::testParseVFormat<wchar_t *>(
-                                                              &message,
-                                                              true,
-                                                              L"{0:*^{1}.{2}}");
+                                                             &message,
+                                                             true,
+                                                             L"{0:*^{1}.{2}}");
 
         ASSERTV(message.c_str(), rv);
 
