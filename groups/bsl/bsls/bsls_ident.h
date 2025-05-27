@@ -169,9 +169,9 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
     /* (XXX: look into further if we ever use gcc to build prod tasks on AIX)
      */
     #ifndef lint
-    #define BSLS_IDENT_RCSID(tag,str)                                       \
-      static char BSLS_IDENT_JOIN(ident_,tag)[] __attribute__((__unused__)) \
-                                = str;
+    #define BSLS_IDENT_RCSID(tag,str)                                         \
+      static const char BSLS_IDENT_JOIN(ident_,tag)[]                         \
+             __attribute__((__unused__)) = str;
     #endif
   #endif
 #elif defined(__SUNPRO_C) || defined(__SUNPRO_CC)
@@ -180,7 +180,7 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
   #else /* Sun Studio CC does not support _Pragma() until Sun Studio 12 */
     #ifndef lint
     #define BSLS_IDENT_RCSID(tag,str) \
-      static char BSLS_IDENT_JOIN(ident_,tag)[] = str;
+      static const char BSLS_IDENT_JOIN(ident_,tag)[] = str;
     #endif
   #endif
 #elif defined(__IBMC__) || defined(__IBMCPP__)
@@ -205,7 +205,7 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
     /* xlC might end up optimizing this away, anyway */
     #ifndef lint
     #define BSLS_IDENT_RCSID(tag,str) \
-      static char BSLS_IDENT_JOIN(ident_,tag)[] = str;
+      static const char BSLS_IDENT_JOIN(ident_,tag)[] = str;
     #endif
   #endif
 #elif defined(_MSC_VER)
@@ -216,7 +216,7 @@ BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
   /* others: add conditions above for compilers able to support BSLS_IDENT */
   #ifndef lint
   #define BSLS_IDENT_RCSID(tag,str) \
-    static char BSLS_IDENT_JOIN(ident_,tag)[] = str;
+    static const char BSLS_IDENT_JOIN(ident_,tag)[] = str;
   #endif
 #endif
 
