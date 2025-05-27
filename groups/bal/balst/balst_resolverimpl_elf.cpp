@@ -4148,13 +4148,11 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
         if (u::empty(libraryFileName)) {
             bsl::ifstream in(cmdLineFile);
-            if (in.good()) {
-                in.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
+            if (in.good() &&
+                         in.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0')) {
                 const int len = static_cast<int>(in.gcount());
-                if ((in.good() || in.eof()) && 0 < len) {
-                    fileNameIfExecutableFile.assign(d_scratchBufA_p, len);
-                    libraryFileName = fileNameIfExecutableFile.c_str();
-                }
+                fileNameIfExecutableFile.assign(d_scratchBufA_p, len);
+                libraryFileName = fileNameIfExecutableFile.c_str();
             }
         }
         if (u::empty(libraryFileName) &&
@@ -4166,34 +4164,39 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                                   d_scratchBufA_p,
                                                   u::k_SCRATCH_BUF_LEN);
             if (numChars > 0) {
-                u_ASSERT_BAIL(numChars < u::k_SCRATCH_BUF_LEN);
-                d_scratchBufA_p[numChars] = 0;
+                u_ASSERT_BAIL(numChars <= u::k_SCRATCH_BUF_LEN);
                 fileNameIfExecutableFile.assign(d_scratchBufA_p,
                                                 static_cast<size_t>(numChars));
                 libraryFileName = fileNameIfExecutableFile.c_str();
             }
         }
-        if (u::empty(nameToOpen) && !u::empty(libraryFileName)) {
+        if (u::empty(libraryFileName)) {
+            libraryFileName = "<unknown_main_executable_file>";
+        }
+        else if (u::empty(nameToOpen)) {
             // We weren't able to get `nameToOpen` from "/proc/...", but we
             // have something in `libraryFileName`, which is our best bet at
             // this point.
 
             nameToOpen = libraryFileName;
         }
-        if (u::empty(libraryFileName)) {
-            libraryFileName = "<unknown_main_executable_file>";
-        }
     }
 
-    u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);
-    u_ASSERT_BAIL(nameToOpen      && nameToOpen[0]);
+    BSLS_ASSERT(!u::empty(libraryFileName));
 
-    u_TRACES && u_zprintf("%s: libFn:\"%s\","
+    u_zprintf("%s: libFn:\"%s\","
                        " nameToOpen:\"%s\" main:%d numHdrs:%d unmatched:%ld\n",
                               rn, libraryFileName ? libraryFileName : "(null)",
                                             nameToOpen ? nameToOpen : "(null)",
                                           static_cast<int>(d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
+
+    if (u::empty(nameToOpen)) {
+        u_eprintf("%s: unable to find %s\n", rn, d_isMainExecutable
+                                                 ? "main executable file"
+                                                 : "shared library");
+        return -1;                                                    // RETURN
+    }
 
     balst::Resolver_FileHelper helper;
     int rc = helper.openFile(nameToOpen);
@@ -4203,12 +4206,15 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                                                  ::getauxval(AT_SYSINFO_EHDR));
         const u::ElfHeader *vdsoElf = reinterpret_cast<const u::ElfHeader *>(
                                                                     vdsoStart);
-        u_ASSERT_BAIL(0 == u::checkElfHeader(vdsoElf));
+        if (0 != u::checkElfHeader(vdsoElf)) {
+            u_eprintf("%s: invalid vdso file\n", rn);
+            return -1;                                                // RETURN
+        }
         Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoElf));
         rc = helper.openMappedFile(mappedFile);
         if (rc) {
-            u_TRACES && u_zprintf("%s: Couldn't access vdso file %s\n", rn,
-                                  libraryFileName);
+            u_eprintf("%s: Couldn't access vdso file %s\n", rn,
+                                                              libraryFileName);
             return -1;                                                // RETURN
         }
 
