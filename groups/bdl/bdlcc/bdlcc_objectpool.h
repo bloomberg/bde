@@ -622,8 +622,8 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     union ObjectNode {
 
         struct {
-            ObjectNode                               *d_next_p;
-            bsls::AtomicOperations::AtomicTypes::Int  d_refCount;
+            bsls::AtomicOperations::AtomicTypes::Pointer d_next_p;
+            bsls::AtomicOperations::AtomicTypes::Int     d_refCount;
         } d_inUse;
         typename bsls::AlignmentFromType<TYPE>::Type d_dummy;
                                      // padding provider for proper alignment
@@ -984,7 +984,8 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
     AutoCleanup startGuard(start, last, &d_blockAllocator, 0);
 
     for (int i = 0; i < numObjects; ++i, ++startGuard) {
-        last->d_inUse.d_next_p = last + k_NUM_OBJECTS_PER_FRAME;
+        bsls::AtomicOperations::initPointer(&last->d_inUse.d_next_p,
+                                            last + k_NUM_OBJECTS_PER_FRAME);
         bsls::AtomicOperations::initInt(&last->d_inUse.d_refCount, 0);
         d_objectCreator.object()(last + 1, d_allocator_p);
         last += k_NUM_OBJECTS_PER_FRAME;
@@ -1003,7 +1004,7 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::addObjects(int numObjects)
     ObjectNode *old;
     do {
         old = d_freeObjectsList;
-        last->d_inUse.d_next_p = old;
+        bsls::AtomicOperations::setPtrRelaxed(&last->d_inUse.d_next_p, old);
     } while (old != d_freeObjectsList.testAndSwap(old, (ObjectNode *)start));
 
     d_numObjects.addRelaxed(numObjects);
@@ -1176,15 +1177,15 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         // thorough 'h->d_inUse.d_next_p' needs a load dependent barrier (no-op
         // on all current architectures though).
 
-        const ObjectNode * volatile h = d_freeObjectsList.loadRelaxed();
+        const ObjectNode *volatile h = d_freeObjectsList.loadRelaxed();
 
-        // Split the likely into 2 to workaround gcc 4.2 to gcc 4.4 bugs
-        // documented in 'bsls_performancehint'.
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(h == p)
-         && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                  d_freeObjectsList.testAndSwap(p,h->d_inUse.d_next_p) == p)) {
-            break;
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(h == p)) {
+            ObjectNode *next = static_cast<ObjectNode *>(
+                  bsls::AtomicOperations::getPtrRelaxed(&h->d_inUse.d_next_p));
+            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
+                                d_freeObjectsList.testAndSwap(p, next) == p)) {
+                break;
+            }
         }
 
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -1202,7 +1203,9 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
                                                     refCount,
                                                     refCount^1)) {
                     // Taken!
-                    p->d_inUse.d_next_p = 0;  // not strictly necessary
+                    bsls::AtomicOperations::setPtrRelaxed(
+                                                 &p->d_inUse.d_next_p,
+                                                 0);  // not strictly necessary
                     d_numAvailableObjects.addRelaxed(-1);
                     return (TYPE*)(p + 1);                            // RETURN
 
@@ -1217,7 +1220,8 @@ TYPE *ObjectPool<TYPE, CREATOR, RESETTER>::getObject()
         }
     } while (1);
 
-    p->d_inUse.d_next_p = 0;  // not strictly necessary
+    bsls::AtomicOperations::setPtrRelaxed(&p->d_inUse.d_next_p,
+                                          0);  // not strictly necessary
     d_numAvailableObjects.addRelaxed(-1);
     return (TYPE *)(p+1);
 }
@@ -1269,7 +1273,8 @@ void ObjectPool<TYPE, CREATOR, RESETTER>::releaseObject(TYPE *object)
 
     ObjectNode *head = d_freeObjectsList.loadRelaxed();
     for (;;) {
-        current->d_inUse.d_next_p = head;
+        bsls::AtomicOperations::setPtrRelaxed(&current->d_inUse.d_next_p,
+                                              head);
         ObjectNode * const oldHead = head;
         head = d_freeObjectsList.testAndSwap(head, current);
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(oldHead == head)) {

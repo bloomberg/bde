@@ -1061,8 +1061,8 @@ int my_CheckingClass::objCount = 0;
 
 union ObjectNode {
     struct {
-        ObjectNode                *d_next_p;
-        bsls::AtomicOperations::AtomicTypes::Int       d_refCount;
+        bsls::AtomicOperations::AtomicTypes::Pointer d_next_p;
+        bsls::AtomicOperations::AtomicTypes::Int     d_refCount;
     } d_inUse;
     bsls::AlignmentFromType<my_CheckingClass>::Type d_dummy;
 };
