@@ -225,7 +225,7 @@ using namespace bsl;
 // [25] IMPLICIT/EXPLICIT C'TORS TEST
 // [27] CONCEPTS
 // [29] INCOMPLETE TYPES
-// [30] CONSTRUCTION FROM NESTED BRACED LIST
+// [30] `constexpr` FUNCTIONS
 
 // Further, there are a number of behaviors that explicitly should not compile
 // by accident that we will provide tests for.  These tests should fail to
@@ -391,6 +391,40 @@ void myMemcpy(void *dst, const void *src, size_t size)
         *dstChar++ = *srcChar++;
     }
 }
+
+                                // ============
+                                // Test case 30
+                                // ============
+
+namespace {
+namespace test_case_30 {
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
+// avoid dependency on `bslstl_utility.h`
+template <class t_TYPE>
+constexpr const t_TYPE& asConst(t_TYPE& r) { return r; }
+
+struct S {
+    constexpr S(std::initializer_list<int> il)
+    : len(static_cast<int>(il.size())) {}
+    int len;
+};
+
+/// An empty non-`constexpr` function that is used to make constant evaluation
+/// fail, if called.  Note that this function does not require a definition,
+/// but some compilers will warn when a function with internal linkage is not
+/// defined.
+void constexpr_assert_fail() {}
+
+/// Cause constant evaluation to fail if the specified `b` is `false`.  Note
+/// that this function should be called only from (what is supposed to be) a
+/// constant expression.
+constexpr void constexpr_assert(bool b)
+{
+    if (!b) constexpr_assert_fail();
+}
+#endif
+}  // close namespace test_case_30
+}  // close namespace
 
                    // =====================================
                    // Forward declarations for test case 29
@@ -13510,6 +13544,228 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) {  case 0:
+      case 30: {
+        //---------------------------------------------------------------------
+        // TESTING `constexpr` FUNCTIONS
+        //
+        // Concern:
+        // 1. Functions that are `constexpr` for C++17 and C++20
+        //    `std::optional` are usable in constant expressions for
+        //    `bsl::optional<T>` in the respective language mode when `T` is
+        //    not allocator-aware.
+        //
+        // Plan:
+        // 1. Define various `constexpr` objects and employ various static
+        //    assertions to verify that constant evaluation behaves as
+        //    expected when functions that are declared `constexpr` in C++17
+        //    and C++20 are called.
+        //
+        // Testing:
+        //   `constexpr` FUNCTIONS
+        //---------------------------------------------------------------------
+        if (verbose) printf("\nTESTING `constexpr` FUNCTIONS"
+                            "\n=============================\n");
+
+#ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
+        using namespace test_case_30;
+
+        if (verbose) {
+            printf("Testing functions that are `constexpr` in C++17\n");
+        }
+
+        // C++17, excluding comparisons
+        static_assert([] {
+            // default constructor
+            bsl::optional<int> o1;
+            
+            // `has_value` and `operator bool`
+            constexpr_assert(!o1.has_value());
+            constexpr_assert(!bool(o1));
+
+            // `value_or` (2 overloads)
+            constexpr_assert(-1 == o1.value_or(-1));
+            constexpr_assert(-2 == bsl::move(o1).value_or(-2));
+
+            // value constructor
+            bsl::optional<int> o2(2);
+
+            // `value` (4 overloads) and `operator*` (4 overloads)
+            constexpr_assert(2 == o2.value());
+            constexpr_assert(2 == asConst(o2).value());
+            constexpr_assert(2 == bsl::move(o2).value());
+            constexpr_assert(2 == bsl::move(asConst(o2)).value());
+            constexpr_assert(2 == *o2);
+            constexpr_assert(2 == *asConst(o2));
+            constexpr_assert(2 == *bsl::move(o2));
+            constexpr_assert(2 == *bsl::move(asConst(o2)));
+
+            // copy assignment
+            o1 = o2;
+            constexpr_assert(2 == o1.value());
+
+            // `nullopt` constructor and move assignment
+            o1 = bsl::optional<int>(bsl::nullopt);
+            constexpr_assert(!o1.has_value());
+
+            // copy constructor
+            constexpr_assert(2 == bsl::optional<int>(o2).value());
+
+            // move constructor
+            constexpr_assert(2 == bsl::optional<int>(bsl::move(o2)).value());
+
+            // in-place constructor
+            constexpr_assert(3 ==
+                             bsl::optional<int>(bsl::in_place, 3).value());
+
+            // `make_optional` (deduced value type)
+            constexpr_assert(4 == bsl::make_optional(4).value());
+
+            // `make_optional` (specified value type)
+            constexpr_assert(0 == bsl::make_optional<int>().value());
+
+            // in-place constructor with initializer list
+            bsl::optional<S> o3(bsl::in_place, {-1, -2});
+            // `operator->` (2 overloads)
+            constexpr_assert(2 == o3->len);
+            constexpr_assert(2 == asConst(o3)->len);
+
+            // `make_optional` (initializer list)
+            constexpr_assert(3 == bsl::make_optional<S>({-1, -2, -3})->len);
+
+            return true;
+        }());
+
+        // C++17 comparisons
+        static_assert([] {
+            const bsl::optional<int> o1;
+
+            constexpr_assert(bsl::nullopt == o1);
+            constexpr_assert(o1 == bsl::nullopt);
+            constexpr_assert(!(bsl::nullopt != o1));
+            constexpr_assert(!(o1 != bsl::nullopt));
+            constexpr_assert(!(bsl::nullopt < o1));
+            constexpr_assert(!(o1 < bsl::nullopt));
+            constexpr_assert(!(bsl::nullopt > o1));
+            constexpr_assert(!(o1 > bsl::nullopt));
+            constexpr_assert(bsl::nullopt <= o1);
+            constexpr_assert(o1 <= bsl::nullopt);
+            constexpr_assert(bsl::nullopt >= o1);
+            constexpr_assert(o1 >= bsl::nullopt);
+
+            const bsl::optional<long> o2 = 1;
+
+            constexpr_assert(1 == o2);
+            constexpr_assert(o2 == 1);
+            constexpr_assert(2 != o2);
+            constexpr_assert(o2 != 2);
+            constexpr_assert(0 < o2);
+            constexpr_assert(o2 < 2);
+            constexpr_assert(2 > o2);
+            constexpr_assert(o2 > 0);
+            constexpr_assert(0 <= o2);
+            constexpr_assert(o2 <= 2);
+            constexpr_assert(2 >= o2);
+            constexpr_assert(o2 >= 0);
+
+            constexpr_assert(!(o1 == o2));
+            constexpr_assert(o1 != o2);
+            constexpr_assert(o1 < o2);
+            constexpr_assert(o2 > o1);
+            constexpr_assert(o1 <= o2);
+            constexpr_assert(o2 >= o1);
+
+            const std::optional<long> o3 = 2;
+
+            constexpr_assert(!(o1 == o3));
+            constexpr_assert(!(o3 == o1));
+            constexpr_assert(o1 != o3);
+            constexpr_assert(o3 != o1);
+            constexpr_assert(o1 < o3);
+            constexpr_assert(!(o3 < o1));
+            constexpr_assert(!(o1 > o3));
+            constexpr_assert(o3 > o1);
+            constexpr_assert(o1 <= o3);
+            constexpr_assert(!(o3 <= o1));
+            constexpr_assert(!(o1 >= o3));
+            constexpr_assert(o3 >= o1);
+
+            return true;
+        }());
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
+    defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20)
+        if (verbose) {
+            printf("Testing functions that are `constexpr` in C++20\n");
+        }
+
+        static_assert([] {
+            // construction from other `bsl::optional`s
+            bsl::optional<int> o1 = bsl::optional<long>(1);
+            constexpr_assert(1 == o1.value());
+            const bsl::optional<long> o2 = bsl::move(o1);
+            constexpr_assert(1 == o2.value());
+
+            // construction from `std::optional`s
+            std::optional<long> o3 = 2;
+            constexpr_assert(2 == bsl::optional<int>(o3).value());
+            constexpr_assert(2 == bsl::optional<int>(bsl::move(o3)).value());
+
+            // assignment from `nullopt`
+            o1 = bsl::nullopt;
+            constexpr_assert(!o1.has_value());
+
+            // assignment from other `bsl::optional`s
+            o1 = o2;
+            constexpr_assert(1 == o1.value());
+            o1 = bsl::move(o3);
+            constexpr_assert(2 == o1.value());
+
+            // value assignment
+            o1 = 3L;
+            constexpr_assert(3 == o1.value());
+
+            // assignment from `std::optional`s
+            o1 = o3;
+            constexpr_assert(2 == o1.value());
+            o1 = std::optional<long>(4L);
+            constexpr_assert(4 == o1.value());
+
+            // swap
+            bsl::optional<int> o4 = 5;
+            o1.swap(o4);
+            constexpr_assert(5 == o1.value());
+            bsl::swap(o1, o4);
+            constexpr_assert(4 == o1.value());
+
+            // `reset`
+            o1.reset();
+            constexpr_assert(!o1.has_value());
+
+            // `emplace`
+            o1.emplace(6);
+            constexpr_assert(6 == o1.value());
+
+            // `emplace` with initializer list
+            bsl::optional<S> o5;
+            o5.emplace({0});
+            constexpr_assert(1 == o5->len);
+
+            // C++20 comparisons
+            constexpr_assert(std::strong_ordering::greater ==
+                             (o1 <=> bsl::nullopt));
+            constexpr_assert(std::strong_ordering::less ==
+                             (bsl::nullopt <=> o1));
+            constexpr_assert(std::strong_ordering::greater == (o1 <=> o2));
+            constexpr_assert(std::strong_ordering::greater == (o1 <=> o3));
+            constexpr_assert(std::strong_ordering::less == (o3 <=> o1));
+
+            return true;
+        }());
+#endif  // end C++20 code
+#else  // end C++17 code
+        if (verbose) printf("Skipping case 30 before C++17...\n");
+#endif
+      } break;
       case 29: {
         //---------------------------------------------------------------------
         // TESTING INCOMPLETE TYPES
