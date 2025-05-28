@@ -198,7 +198,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //
 // Datum::destroy(datetime, allocator);
 //    // 'datetime' now refers to deallocated memory.  It cannot be used
-//    // used unless it is assigned a new value.
+//    // unless it is assigned a new value.
 // ```
 // Notice that the destroyed `Datum` again behaves similar to a raw-pointer
 // that has been deallocated: the destroyed `Datum` refers to garbage and must
