@@ -4148,15 +4148,13 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
         if (u::empty(libraryFileName)) {
             bsl::ifstream in(cmdLineFile);
-            if (in.good() &&
-                         in.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0')) {
-                const int len = static_cast<int>(in.gcount());
-                fileNameIfExecutableFile.assign(d_scratchBufA_p, len);
+            if (in.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0')) {
+                fileNameIfExecutableFile.assign(d_scratchBufA_p, in.gcount());
                 libraryFileName = fileNameIfExecutableFile.c_str();
             }
         }
         if (u::empty(libraryFileName) &&
-                                   bdls::FilesystemUtil::exists(procSelfExe)) {
+                           bdls::FilesystemUtil::isSymbolicLink(procSelfExe)) {
             // This is just in the unlikely chance that "/proc/self/exe" is
             // available but "/proc/self/cmdline" wasn't.
 
@@ -4182,8 +4180,6 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         }
     }
 
-    BSLS_ASSERT(!u::empty(libraryFileName));
-
     u_zprintf("%s: libFn:\"%s\","
                        " nameToOpen:\"%s\" main:%d numHdrs:%d unmatched:%ld\n",
                               rn, libraryFileName ? libraryFileName : "(null)",
@@ -4192,9 +4188,13 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
 
     if (u::empty(nameToOpen)) {
-        u_eprintf("%s: unable to find %s\n", rn, d_isMainExecutable
-                                                 ? "main executable file"
-                                                 : "shared library");
+        u_eprintf("%s: unable to find name to open for %s\n", rn,
+               d_isMainExecutable ? "main executable file" : "shared library");
+        return -1;                                                    // RETURN
+    }
+    if (u::empty(libraryFileName)) {
+        u_eprintf("%s: unable to find lib name for %s\n", rn,
+                    d_isMainExecutable ? "main executable" : "shared library");
         return -1;                                                    // RETURN
     }
 

@@ -261,6 +261,8 @@ bsl::ostream *out_p;    // pointer to either `cout` or a dummy stringstream
 
 static const bsl::size_t npos = bsl::string::npos;
 
+static const char *basenameArgv0 = 0;
+
 template <class TYPE>
 static inline
 TYPE approxAbs(TYPE x)
@@ -1422,9 +1424,13 @@ int case_4_top(bool demangle)
         bslma::TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
         matches.push_back(demangle ? "case_4_top(bool" : "case_4_top");
+        matches.push_back(basenameArgv0);
         matches.push_back(demangle ? "middle(bool" : "middle");
+        matches.push_back(basenameArgv0);
         matches.push_back(demangle ? "bottom(bool" : "bottom");
+        matches.push_back(basenameArgv0);
         matches.push_back("main");    // `main` is a C, not C++, symbol.
+        matches.push_back(basenameArgv0);
 
         bsl::stringstream os(&ta);
         Util::printFormatted(os, st);
@@ -2060,6 +2066,11 @@ int main(int argc, char *argv[])
     // make sure the shared lib containing `malloc` is loaded
 
     BSLA_MAYBE_UNUSED void *sharedLibMalloc = bsl::malloc(100);
+
+    bsl::string argv0(&ta);
+    int rc = bdls::PathUtil::getBasename(&argv0, argv[0]);
+    ASSERT(0 == rc);
+    basenameArgv0 = argv0.c_str();
 
     // see if we can avoid calling `malloc` from here on out
 
