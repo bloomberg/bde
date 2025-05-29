@@ -147,7 +147,7 @@ BSLS_IDENT("$Id: $")
 // assert(true  == options.escapeForwardSlash());
 // assert(true  == options.encodeAnonSequenceInChoice());
 // ```
-// Next, we populate that object to encode in a prett format using a
+// Next, we populate that object to encode in a pretty format using a
 // pre-defined initial indent level and spaces per level:
 // ```
 // options.setEncodingStyle(baljsn::EncodingStyle::e_PRETTY);
