@@ -1178,8 +1178,8 @@ int main(int argc, char **argv)
         {
             // Note that warnings for these two lines will appear only on
             // compilers that support concepts.
-            const bsl::string s = bsl::format("{}", bslfmt::Streamed(X));
-            ASSERTV(s, "0123456789" == s);
+            const bsl::string s = bsl::format("{:.10}", bslfmt::Streamed(X));
+            ASSERTV(s.c_str(), "0123456789" == s);
         }
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
       } break;
