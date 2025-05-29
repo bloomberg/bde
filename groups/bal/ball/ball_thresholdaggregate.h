@@ -9,6 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  ball::ThresholdAggregate: aggregate of four logging threshold levels
+//  ball::ThresholdAggregateUtil: `ball::ThresholdAggregate` helpers
 //
 //@SEE_ALSO: ball_severity
 //
@@ -16,7 +17,9 @@ BSLS_IDENT("$Id: $")
 // that aggregates four threshold levels: record level, pass-through level,
 // trigger level, and trigger-all level.  Each of these levels must in the
 // range `[0 .. 255]`, and represents a threshold which, if exceeded, will
-// invoke a certain action.
+// invoke a certain action.  `ball::ThresholdAggregateUtil` provides helper
+// methods for packing/unpacking `ball::ThresholdAggregate` objects to/from
+// integers.
 //
 ///Usage
 ///-----
@@ -42,6 +45,7 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {
@@ -174,6 +178,27 @@ class ThresholdAggregate {
                         int           spacesPerLevel = 4) const;
 };
 
+                      // ============================
+                      // class ThresholdAggregateUtil
+                      // ============================
+
+/// This class provides helper methods for working with
+/// `ball::ThresholdAggregate` objects.
+class ThresholdAggregateUtil {
+  public:
+    // CLASS METHODS
+
+    /// Return an unsigned integer holding a packed representation of the
+    /// specified `thresholds`.
+    static unsigned pack(ThresholdAggregate thresholds);
+
+    /// Return a threshold aggregate having the value equivalent to one that
+    /// was converted into the specified `packed` representation.  The behavior
+    /// is undefined unless the value for `packed` originated from a call to
+    /// `pack` in the same process instance.
+    static ThresholdAggregate unpack(unsigned packed);
+};
+
 // FREE OPERATORS
 
 /// Return `true` if the specified `lhs` and `rhs` threshold aggregates have
@@ -300,6 +325,33 @@ inline
 void ThresholdAggregate::setTriggerAllLevel(int triggerAllLevel)
 {
     d_triggerAllLevel = static_cast<unsigned char>(triggerAllLevel);
+}
+
+                      // ----------------------------
+                      // class ThresholdAggregateUtil
+                      // ----------------------------
+
+// CLASS METHODS
+inline
+unsigned ThresholdAggregateUtil::pack(ThresholdAggregate thresholds)
+{
+    unsigned char x[4] = {
+        static_cast<unsigned char>(thresholds.recordLevel()),
+        static_cast<unsigned char>(thresholds.passLevel()),
+        static_cast<unsigned char>(thresholds.triggerLevel()),
+        static_cast<unsigned char>(thresholds.triggerAllLevel())
+    };
+    unsigned packed;
+    memcpy(&packed, x, sizeof(x));
+    return packed;
+}
+
+inline
+ThresholdAggregate ThresholdAggregateUtil::unpack(unsigned packed)
+{
+    unsigned char x[4];
+    memcpy(x, &packed, sizeof(x));
+    return ThresholdAggregate(x[0], x[1], x[2], x[3]);
 }
 
 }  // close package namespace

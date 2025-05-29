@@ -136,29 +136,29 @@ class CategoryHolder;
 class Category {
 
     // DATA
-    ThresholdAggregate    d_thresholdLevels; // record, pass, trigger, and
-                                             // trigger-all levels
+    bsls::AtomicUint      d_thresholdLevels;   // record, pass, trigger, and
+                                               // trigger-all levels
 
-    bsls::AtomicInt       d_threshold;       // numerical maximum of the four
-                                             // levels
+    bsls::AtomicInt       d_threshold;         // numerical maximum of the four
+                                               // levels
 
-    const bsl::string     d_categoryName;    // category name
+    const bsl::string     d_categoryName;      // category name
 
-    CategoryHolder       *d_categoryHolder_p; // linked list of holders of this
-                                              // category
+    CategoryHolder       *d_categoryHolder_p;  // linked list of holders of
+                                               // this category
 
-    mutable bsls::AtomicOperations::AtomicTypes::Uint
-                          d_relevantRuleMask; // the mask indicating which
-                                              // rules are relevant (i.e., have
-                                              // been attached to this
-                                              // category)
+    mutable bsls::AtomicUint
+                          d_relevantRuleMask;  // the mask indicating which
+                                               // rules are relevant (i.e.,
+                                               // have been attached to this
+                                               // category)
 
-    mutable int           d_ruleThreshold;    // numerical maximum of all four
-                                              // levels for all relevant rules
+    mutable bsls::AtomicInt d_ruleThreshold;   // numerical maximum of all four
+                                               // levels for all relevant rules
 
-    mutable bslmt::Mutex  d_mutex;            // mutex providing mutually
-                                              // exclusive access to all
-                                              // non-atomic members
+    mutable bslmt::Mutex  d_mutex;             // mutex providing mutually
+                                               // exclusive access to all
+                                               // non-atomic members
 
     // FRIENDS
     friend class CategoryManagerImpUtil;
@@ -478,36 +478,35 @@ int Category::maxLevel() const
 inline
 int Category::recordLevel() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return d_thresholdLevels.recordLevel();
+    return ThresholdAggregateUtil::unpack(d_thresholdLevels.loadAcquire())
+            .recordLevel();
 }
 
 inline
 int Category::passLevel() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return d_thresholdLevels.passLevel();
+    return ThresholdAggregateUtil::unpack(d_thresholdLevels.loadAcquire())
+            .passLevel();
 }
 
 inline
 int Category::triggerLevel() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return d_thresholdLevels.triggerLevel();
+    return ThresholdAggregateUtil::unpack(d_thresholdLevels.loadAcquire())
+            .triggerLevel();
 }
 
 inline
 int Category::triggerAllLevel() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return d_thresholdLevels.triggerAllLevel();
+    return ThresholdAggregateUtil::unpack(d_thresholdLevels.loadAcquire())
+            .triggerAllLevel();
 }
 
 inline
 ThresholdAggregate Category::thresholdLevels() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return d_thresholdLevels;
+    return ThresholdAggregateUtil::unpack(d_thresholdLevels.loadAcquire());
 }
 
 inline
@@ -519,14 +518,13 @@ int Category::threshold() const
 inline
 int Category::ruleThreshold() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    return d_ruleThreshold;
+    return d_ruleThreshold.loadAcquire();
 }
 
 inline
 RuleSet::MaskType Category::relevantRuleMask() const
 {
-    return bsls::AtomicOperations::getUintAcquire(&d_relevantRuleMask);
+    return d_relevantRuleMask.loadAcquire();
 }
 
                         // --------------------
@@ -610,40 +608,36 @@ void CategoryManagerImpUtil::setRuleThreshold(Category *category,
                                               int       ruleThreshold)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&category->d_mutex);
-    category->d_ruleThreshold = ruleThreshold;
+    category->d_ruleThreshold.storeRelease(ruleThreshold);
 }
 
 inline
 void CategoryManagerImpUtil::enableRule(Category *category, int ruleIndex)
 {
-    unsigned int currentMask =
-         bsls::AtomicOperations::getUintRelaxed(&category->d_relevantRuleMask);
+    unsigned int currentMask = category->d_relevantRuleMask.loadRelaxed();
     unsigned int expectedMask;
     do {
         const unsigned int updatedMask = bdlb::BitUtil::withBitSet(currentMask,
                                                                    ruleIndex);
-        expectedMask                   = currentMask;
-        currentMask = bsls::AtomicOperations::testAndSwapUintAcqRel(
-                                                 &category->d_relevantRuleMask,
-                                                 currentMask,
-                                                 updatedMask);
+        expectedMask  = currentMask;
+        currentMask   = category->d_relevantRuleMask.testAndSwapAcqRel(
+                                                                  currentMask,
+                                                                  updatedMask);
     } while (expectedMask != currentMask);
 }
 
 inline
 void CategoryManagerImpUtil::disableRule(Category *category, int ruleIndex)
 {
-    unsigned int currentMask =
-         bsls::AtomicOperations::getUintRelaxed(&category->d_relevantRuleMask);
+    unsigned int currentMask = category->d_relevantRuleMask.loadRelaxed();
     unsigned int expectedMask;
     do {
         const unsigned int updatedMask =
                          bdlb::BitUtil::withBitCleared(currentMask, ruleIndex);
         expectedMask = currentMask;
-        currentMask = bsls::AtomicOperations::testAndSwapUintAcqRel(
-                                                 &category->d_relevantRuleMask,
-                                                 currentMask,
-                                                 updatedMask);
+        currentMask  = category->d_relevantRuleMask.testAndSwapAcqRel(
+                                                                  currentMask,
+                                                                  updatedMask);
     } while (expectedMask != currentMask);
 }
 
@@ -651,8 +645,7 @@ inline
 void CategoryManagerImpUtil::setRelevantRuleMask(Category          *category,
                                                  RuleSet::MaskType  mask)
 {
-    bsls::AtomicOperations::setUintRelease(&category->d_relevantRuleMask,
-                                           mask);
+    category->d_relevantRuleMask.storeRelease(mask);
 }
 
 // BDE_VERIFY pragma: pop

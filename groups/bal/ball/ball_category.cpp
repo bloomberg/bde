@@ -25,8 +25,8 @@ namespace ball {
                             // class Category
                             // --------------
 
-// d_relevantRuleMask is semantically of type 'RuleSet::MaskType', but needs
-// to be atomic.  Assert that the type of 'RuleSet::MaskType' hasn't changed.
+// `d_relevantRuleMask` is semantically of type `RuleSet::MaskType`, but needs
+// to be atomic.  Assert that the type of `RuleSet::MaskType` hasn't changed.
 BSLMF_ASSERT((bsl::is_same<RuleSet::MaskType, unsigned int>::value));
 
 // PRIVATE CREATORS
@@ -41,19 +41,19 @@ Category::Category(const char       *categoryName,
                    int               triggerLevel,
                    int               triggerAllLevel,
                    bslma::Allocator *basicAllocator)
-: d_thresholdLevels(recordLevel, passLevel, triggerLevel, triggerAllLevel)
+: d_thresholdLevels(ThresholdAggregateUtil::pack(
+    ThresholdAggregate(recordLevel, passLevel, triggerLevel, triggerAllLevel)))
 , d_threshold(ThresholdAggregate::maxLevel(recordLevel,
                                            passLevel,
                                            triggerLevel,
                                            triggerAllLevel))
 , d_categoryName(categoryName, basicAllocator)
 , d_categoryHolder_p(0)
-, d_relevantRuleMask()
+, d_relevantRuleMask(0)
 , d_ruleThreshold(0)
 , d_mutex()
 {
     BSLS_ASSERT(categoryName);
-    bsls::AtomicOperations::initUint(&d_relevantRuleMask, 0);
 }
 
 // PRIVATE MANIPULATORS
@@ -65,7 +65,7 @@ Category::linkCategoryHolder(CategoryHolder *categoryHolder)
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     if (!categoryHolder->category()) {
         categoryHolder->setThreshold(bsl::max(d_threshold.loadRelaxed(),
-                                              d_ruleThreshold));
+                                              d_ruleThreshold.loadRelaxed()));
         categoryHolder->setCategory(this);
         categoryHolder->setNext(d_categoryHolder_p);
         d_categoryHolder_p = categoryHolder;
@@ -94,7 +94,7 @@ void Category::updateThresholdForHolders()
     if (d_categoryHolder_p) {
         CategoryHolder *holder = d_categoryHolder_p;
         const int       threshold = bsl::max(d_threshold.loadRelaxed(),
-                                             d_ruleThreshold);
+                                             d_ruleThreshold.loadRelaxed());
         if (threshold != holder->threshold()) {
             do {
                 holder->setThreshold(threshold);
@@ -116,10 +116,11 @@ int Category::setLevels(int recordLevel,
                                           triggerAllLevel)) {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-        d_thresholdLevels.setLevels(recordLevel,
-                                    passLevel,
-                                    triggerLevel,
-                                    triggerAllLevel);
+        d_thresholdLevels = ThresholdAggregateUtil::pack(
+                ThresholdAggregate(recordLevel,
+                                   passLevel,
+                                   triggerLevel,
+                                   triggerAllLevel));
 
         d_threshold = ThresholdAggregate::maxLevel(recordLevel,
                                                    passLevel,

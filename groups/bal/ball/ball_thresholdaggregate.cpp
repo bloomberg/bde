@@ -7,6 +7,8 @@ BSLS_IDENT_RCSID(ball_thresholdaggregate_cpp,"$Id$ $CSID$")
 #include <bdlb_hashutil.h>
 #include <bdlb_print.h>
 
+#include <bslmf_assert.h>
+
 #include <bsls_assert.h>
 #include <bsls_platform.h>
 
@@ -125,6 +127,14 @@ ThresholdAggregate::print(bsl::ostream& stream,
 
     return stream;
 }
+
+                      // ----------------------------
+                      // class ThresholdAggregateUtil
+                      // ----------------------------
+
+// Assert that the packed type is bitwise compatible with the unpacked one.
+BSLMF_ASSERT(sizeof(unsigned) == sizeof(ThresholdAggregate));
+BSLMF_ASSERT(sizeof(unsigned) >= 4);
 
 }  // close package namespace
 }  // close enterprise namespace

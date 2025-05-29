@@ -22,6 +22,10 @@ using namespace bsl;
 // so we simply follow the standard 10-case test suite, but with those
 // apparatus-based test cases empty.
 //-----------------------------------------------------------------------------
+// class ThresholdAggregateUtil
+// [13] unsigned ThresholdAggregateUtil::pack(ThresholdAggregate thresholds);
+// [13] ThresholdAggregate ThresholdAggregateUtil::unpack(unsigned packed);
+// class ThresholdAggregate
 // [12] static int hash(const ball::ThresholdAggregate&, int size);
 // [11] static bool areValidThresholdLevels(int, int, int, int);
 // [ 2] ball::ThresholdAggregate();
@@ -42,7 +46,7 @@ using namespace bsl;
 // [ 1] BREATHING TEST
 // [ 3] UNUSED
 // [ 8] UNUSED
-// [13] USAGE EXAMPLE
+// [14] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -193,7 +197,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   The usage example provided in the component header file must
@@ -224,6 +228,78 @@ int main(int argc, char *argv[])
         ASSERT(96  == levels.triggerLevel());
         ASSERT(64  == levels.triggerAllLevel());
 
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // TESTING THRESHOLD AGGREGATE PACKING/UNPACKING
+        //
+        // Concerns:
+        //   (1) `ThresholdAggregate` can be round-tripped into an integer and
+        //       back without changing its value.
+        //
+        // Plan:
+        //   Pack then unpack a threshold aggregate consisting of distinct
+        //   threshold values.  Verify the unpacked aggregate is equivalent to
+        //   the original one.  Repeat with a variety of threshold values.
+        //
+        // Testing:
+        //   unsigned ThresholdAggregateUtil::pack(
+        //                                      ThresholdAggregate thresholds);
+        //   ThresholdAggregate ThresholdAggregateUtil::unpack(
+        //                                                    unsigned packed);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTesting aggregate packing"
+                          << "\n========================="
+                          << endl;
+
+        static const struct {
+            int d_line;            // line number
+            int d_recordLevel;     // record level
+            int d_passLevel;       // pass level
+            int d_triggerLevel;    // trigger level
+            int d_triggerAllLevel; // trigger all level
+        } DATA[] = {
+            ///line record pass  trigger trAll
+            ///no.  level  level  level  level
+            ///---- ------ -----  ------ -----
+            {  L_,  0,     0,     0,     0,     },
+            {  L_,  1,     0,     0,     0,     },
+            {  L_,  0,     1,     0,     0,     },
+            {  L_,  0,     0,     1,     0,     },
+            {  L_,  0,     0,     0,     1,     },
+            {  L_,  16,    32,    48,    64,    },
+            {  L_,  64,    48,    32,    16,    },
+            {  L_,  16,    32,    64,    48,    },
+            {  L_,  16,    48,    32,    64,    },
+            {  L_,  32,    16,    48,    64,    },
+            {  L_,  255,   0,     0,     0,     },
+            {  L_,  0,     255,   0,     0,     },
+            {  L_,  0,     0,     255,   0,     },
+            {  L_,  0,     0,     0,     255,   },
+            {  L_,  255,   255,   255,   255,   },
+        };
+
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+        for (int i = 0; i < NUM_DATA; ++i) {
+            int LINE = DATA[i].d_line;
+
+            const Obj X(DATA[i].d_recordLevel,
+                        DATA[i].d_passLevel,
+                        DATA[i].d_triggerLevel,
+                        DATA[i].d_triggerAllLevel);
+
+            unsigned packed = ball::ThresholdAggregateUtil::pack(X);
+            Obj unpacked = ball::ThresholdAggregateUtil::unpack(packed);
+
+            if (veryVerbose) {
+                cout << DATA[i].d_recordLevel     << ", "
+                     << DATA[i].d_passLevel       << ", "
+                     << DATA[i].d_triggerLevel    << ", "
+                     << DATA[i].d_triggerAllLevel
+                     << " ---> " << packed << endl;
+            }
+            LOOP_ASSERT(LINE, X == unpacked);
+        }
       } break;
       case 12: {
         // --------------------------------------------------------------------
