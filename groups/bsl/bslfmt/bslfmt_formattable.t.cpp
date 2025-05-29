@@ -104,7 +104,6 @@ struct NotFormattable {};
 //
 // First we create a type that supports streaming but not formatting with
 // `bsl::format`:
-//
 //```
     struct Streamable {};
     std::ostream& operator<<(std::ostream& os, const Streamable&) {
@@ -121,12 +120,10 @@ struct NotFormattable {};
 //  assert(true  == (bsl::formattable<int,        char>));
 //#endif
 //```
-//
 // Next we create a generic function to convert a value to string,
 // center-aligned, and we provide two implementations, the first one for types
 // that are formattable in case the concept exists, and just the stream-based
 // variation if it does not.
-//
 //```
     template <class t_TYPE>
     bsl::string
@@ -148,9 +145,7 @@ struct NotFormattable {};
        return s;
    }
 //```
-//
 // Then, if the concept is present, we define the format-based overload:
-//
 //```
 #ifdef BSL_FORMATTABLE_DEFINED
     template <class t_TYPE>
@@ -162,10 +157,8 @@ struct NotFormattable {};
     }
 #endif
 //```
-//
 // Finally, we can call the `centeredIn` function and let concepts select the
 // right variation (if concepts are available):
-//
 //```
 //  bsl::string s = centeredIn(Streamable(), 14);
 //  assert(s == "  Streamable  ");
@@ -193,10 +186,10 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // 1. Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single string.
+        // 1. Use test contexts to format a single string.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -212,14 +205,12 @@ int main(int argc, char **argv)
 //
 // First we create a type that supports streaming but not formatting with
 // `bsl::format`:
-//
 //```
 //  struct Streamable {};
 //  std::ostream& operator<<(std::ostream& os, const Streamable&) {
 //      return os << "Streamable";
 //  }
 //```
-//
 // Then we demonstrate that this type is not formattable, but an `int` is.
 // Since the concept may not exists (older compilers/standards) we need to
 // protect the code with the preprocessor:
@@ -229,12 +220,10 @@ int main(int argc, char **argv)
         ASSERT(true  == (bsl::formattable<int,        char>));
 #endif
 //```
-//
 // Next we create a generic function to convert a value to string,
 // center-aligned, and we provide two implementations, the first one for types
 // that are formattable in case the concept exists, and just the stream-based
 // variation if it does not.
-//
 //```
 //  template <class t_TYPE>
 //  bsl::string
@@ -242,23 +231,21 @@ int main(int argc, char **argv)
 //#ifdef BSL_FORMATTABLE_DEFINED
 //  requires (!bsl::formattable<t_TYPE, char>)
 //#endif
-// {
-//     bsl::ostringstream os;
-//     os << obj;
-//     bsl::string s = os.str();
+//  {
+//      bsl::ostringstream os;
+//      os << obj;
+//      bsl::string s = os.str();
 //
-//     width = bsl::max(width, s.length());
+//      width = bsl::max(width, s.length());
 //
-//     const size_t allPadding = width - s.length();
-//     s.insert(s.begin(), allPadding / 2, ' ');
-//     s.append(allPadding - allPadding / 2, ' ');
+//      const size_t allPadding = width - s.length();
+//      s.insert(s.begin(), allPadding / 2, ' ');
+//      s.append(allPadding - allPadding / 2, ' ');
 //
-//     return s;
-// }
+//      return s;
+//  }
 //```
-//
 // Then, if the concept is present, we define the format-based overload:
-//
 //```
 //#ifdef BSL_FORMATTABLE_DEFINED
 //  template <class t_TYPE>
@@ -270,10 +257,8 @@ int main(int argc, char **argv)
 //  }
 //#endif
 //```
-//
 // Finally, we can call the `centeredIn` function and let concepts select the
 // right variation (if concepts are available):
-//
 //```
         bsl::string s = centeredIn(Streamable(), 14);
         ASSERT(s == "  Streamable  ");
@@ -287,15 +272,12 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That basic functionality appears to work as advertised before
-        //:   before beginning testing in earnest:
-        //:   - default and copy constructors
-        //:   - assignment operator
-        //:   - primary manipulators, basic accessors
-        //:   - 'operator==', 'operator!='
+        // 1. That basic functionality appears to work as advertised before
+        //    before beginning testing in earnest.
         //
         // Plan:
-        //: 1 Test all public methods mentioned in concerns.  (C-1)
+        // 1. Demonstrate example of formattable and not formattable types.
+        //    (C-1)
         //
         // Testing:
         //   BREATHING TEST

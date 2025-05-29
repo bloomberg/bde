@@ -36,14 +36,12 @@ BSLS_IDENT("$Id: $")
 //
 // First we create a type that supports streaming but not formatting with
 // `bsl::format`:
-//
 //```
 //  struct Streamable {};
 //  std::ostream& operator<<(std::ostream& os, const Streamable&) {
 //      return os << "Streamable";
 //  }
 //```
-//
 // Then we demonstrate that this type is not formattable, but an `int` is.
 // Since the concept may not exists (older compilers/standards) we need to
 // protect the code with the preprocessor:
@@ -53,12 +51,10 @@ BSLS_IDENT("$Id: $")
 //  assert(true  == (bsl::formattable<int,        char>));
 //#endif
 //```
-//
 // Next we create a generic function to convert a value to string,
 // center-aligned, and we provide two implementations, the first one for types
 // that are formattable in case the concept exists, and just the stream-based
 // variation if it does not.
-//
 //```
 //  template <class t_TYPE>
 //  bsl::string
@@ -66,23 +62,21 @@ BSLS_IDENT("$Id: $")
 //#ifdef BSL_FORMATTABLE_DEFINED
 //  requires (!bsl::formattable<t_TYPE, char>)
 //#endif
-// {
-//     bsl::ostringstream os;
-//     os << obj;
-//     bsl::string s = os.str();
+//  {
+//      bsl::ostringstream os;
+//      os << obj;
+//      bsl::string s = os.str();
 //
-//     width = bsl::max(width, s.length());
+//      width = bsl::max(width, s.length());
 //
-//     const size_t allPadding = width - s.length();
-//     s.insert(s.begin(), allPadding / 2, ' ');
-//     s.append(allPadding - allPadding / 2, ' ');
+//      const size_t allPadding = width - s.length();
+//      s.insert(s.begin(), allPadding / 2, ' ');
+//      s.append(allPadding - allPadding / 2, ' ');
 //
-//     return s;
-// }
+//      return s;
+//  }
 //```
-//
 // Then, if the concept is present, we define the format-based overload:
-//
 //```
 //#ifdef BSL_FORMATTABLE_DEFINED
 //  template <class t_TYPE>
@@ -94,10 +88,8 @@ BSLS_IDENT("$Id: $")
 //  }
 //#endif
 //```
-//
 // Finally, we can call the `centeredIn` function and let concepts select the
 // right variation (if concepts are available):
-//
 //```
 //  bsl::string s = centeredIn(Streamable(), 14);
 //  assert(s == "  Streamable  ");
@@ -180,7 +172,7 @@ concept Formattable_With =
 }  // close enterprise namespace
 
 /// The `bsl::formattable` concept answers the question if the specified
-/// `t_TYPE` has a formatter specialization for the specified `t_CHAR`
+/// `t_TYPE` a formatter specialization enabled for the specified `t_CHAR`
 /// character type available, in other words if `t_TYPE` can be used as a
 /// `bsl::format` formatted argument with a format string of `t_CHAR`.
 /// The `t_CHAR` character type must be one of `char` or `wchar_t`.

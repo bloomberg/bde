@@ -224,6 +224,13 @@ class Streamed {
     const t_STREAMABLE& object() const;
 };
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+// Certain versions of clang do not support CTAD with concepts present due to
+// CWG issue 2628 resolution not yet applied, therefore we need an explicit
+// deduction guide.
+template <class t_TYPE>
+Streamed(const t_TYPE& object) -> Streamed<t_TYPE>;
+#endif
                       // ================================
                       // struct Streamed_WrapperFormatter
                       // ================================
@@ -276,7 +283,7 @@ template <class t_STREAMABLE>
 Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object)
 requires(!bsl::formattable<t_STREAMABLE, char>);
 
-    template <class t_STREAMABLE>
+template <class t_STREAMABLE>
 BSLFMT_STREAMED_INSTANCE_DEPRECATED_
 Streamed<t_STREAMABLE>
 streamed(const t_STREAMABLE& object)

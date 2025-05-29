@@ -34,23 +34,25 @@ using namespace BloombergLP;
 // as the wrapper-creator function template (mainly for C++03 compatibility)
 // `bslfmt::streamed`.
 //-----------------------------------------------------------------------------
-// IMP DETAILS
-// [ 2] Streamed_OutIterBuf
+// TEST MACHINERY
+// [ 2] VariableLengthStreamable
 //
 // CREATORS
 // [ 3] formatter();
 // [ 3] ~formatter();
 // [ 4] formatter(const formatter &);
+// [ 8] Streamed(const T&);
 //
 // MANIPULATORS
 // [ 6] operator=(const formatter &);
-// [ 7] parse(PARSE_CONTEXT&);
+// [ 7] formatter<Streamed<T> >::parse(PARSE_CONTEXT&);
 //
 // ACCESSORS
-// [ 8] format(TYPE, FORMAT_CONTEXT&);
+// [ 8] formatter<Streamed<T> >::format(TYPE, FORMAT_CONTEXT&);
 //
 // FREE FUNCTIONS
 // [ 5] swap(formatter &, formatter&);
+// [ 8] streamed(const T&);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 9] USAGE EXAMPLE
@@ -188,20 +190,12 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
                       // OutputIteratorStreamBufferTester
                       // ================================
 
-/// This type is used to test the content-limiting behavior of
-/// `Streamed_OutIterBuf`.  It can print to stream up to 62 characters, and it
-/// verifies the state of the stream after each print.  It saves after which
-/// print has it encountered a bad state, in other words the position of the
-/// first character it was unable to print to the stream.  Once the bad state
-/// is encountered it won't print any more characters (as well behaved
-/// operators would work).  The class is made so that the same instance is
-/// reusable is it both has a `reset` method to reset the bad-position and a
-/// method to update the number of characters printed.  The 62 characters
-/// printed go from 0-9, then a-z, then A-Z.
+/// This type can print to stream up to 62 characters, and it verifies the
+/// state of the stream after each print.  The 62 characters printed go from
+/// 0-9, then a-z, then A-Z.
 class VariableLengthStreamable {
     // DATA
-    int         d_numCharsPrinted;
-    mutable int d_badPos;
+    int d_numCharsPrinted;
 
     // PRIVATE CLASS METHODS
     static char nthChar(int n)
@@ -221,15 +215,12 @@ class VariableLengthStreamable {
     // CREATORS
     VariableLengthStreamable(int numChars)
     : d_numCharsPrinted(numChars)
-    , d_badPos(-1)
     {
         ASSERT(numChars >= 0);
         ASSERT(numChars <= 62);
     }
 
     // MANIPULATORS
-    void reset() { d_badPos = -1; }
-
     void setNumChars(int numChars)
     {
         ASSERT(numChars >= 0);
@@ -239,23 +230,12 @@ class VariableLengthStreamable {
     }
 
     // ACCESSORS
-    int badPos() const { return d_badPos; }
-
     int numChars() const { return d_numCharsPrinted; }
 
     std::ostream& streamInsert(std::ostream& os) const
     {
         for (int n = 0; n < d_numCharsPrinted; ++n) {
-            if (os.bad()) {
-                d_badPos = n;
-                return os;                                            // RETURN
-            }
-
             os << nthChar(n);
-        }
-
-        if (os.bad()) {
-            d_badPos = d_numCharsPrinted;
         }
 
         return os;
@@ -284,11 +264,9 @@ std::ostream& operator<<(std::ostream&                   os,
 //                     GLOBAL CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static const int                   k_FILLCHAR_EMPTY = 0;
-BSLA_MAYBE_UNUSED static const int k_FILLCHAR_ASCII = 1;
-static const int                   k_FILLCHAR_COUNT = 2;
-
-static const char    *FILLERS_C[] = {"", "*", "-", "+", "."};
+static const int   k_FILLCHAR_EMPTY = 0;
+static const char *FILLERS_C[]      = {"", "*", "-", "+", "."};
+static const int   k_FILLCHAR_COUNT = sizeof FILLERS_C / sizeof *FILLERS_C;
 
 static const int k_FILL_NONE   = 0;
 static const int k_FILL_LEFT   = 1;
@@ -296,7 +274,7 @@ static const int k_FILL_RIGHT  = 2;
 static const int k_FILL_MIDDLE = 3;
 static const int k_FILL_COUNT  = 4;
 
-static const char    *FILL_C[] = {"", ">", "<", "^"};
+static const char *FILL_C[] = {"", ">", "<", "^"};
 
 static const int k_MAX_CHAR_COUNT = 20;
 
@@ -309,9 +287,15 @@ static const int                   k_ARG_COUNT         = 3;
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
 
+/// Fill the specified `formatString` and the expected `outputString` based on
+/// the specified `input`, `fillChar`, `fillType`, `argType`, `width`, and
+/// `precision`.  A `width` of zero results in no width specification in the
+/// output `formatString`.  A `fillType` of `k_FILL_NONE` results in no fill
+/// character specified in the output `formatString`.  A negative `precision`
+/// value results in no precision specified in the output `formatString`.
 void calculateResult(bsl::string                     *formatString,
-                     const VariableLengthStreamable&  input,
                      bsl::string                     *outputString,
+                     const VariableLengthStreamable&  input,
                      int                              fillChar,
                      int                              fillType,
                      int                              argType,
@@ -477,10 +461,12 @@ int main(int argc, char **argv)
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // 1. Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single string.
+        // 1. Use the Usage Examples from the header by replacing `assert` with
+        //    `ASSERT` and moving definitions of types and functions outside of
+        //    `main`.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -601,23 +587,23 @@ int main(int argc, char **argv)
         // TESTING format(VALUE, FORMAT_CONTEXT&)
         //
         // Concerns:
-        //: 1 After parsing a valid format spec, `format` will correctly format
-        //:   a stream output.
-        //:
-        //: 2 Valid format strings will not generate a parse error.
+        // 1. After parsing a valid format spec, `format` will correctly format
+        //    a stream output.
+        //
+        // 2. Valid format strings will not generate a parse error.
         //
         // Plan:
-        //: 1 Construct format specifications corresponding to multiple
-        //:   precisions, widths and fills.
-        //:
-        //: 2 Construct streamable types that print various lengths.
-        //:
-        //: 3 Verify that, for each of the specifications and inputs
-        //:   constructed in steps 1 and 2 the result of the `format` function
-        //:   matches an independently calculated result.
+        // 1. Construct format specifications corresponding to multiple
+        //    precisions, widths and fills.
+        //
+        // 2. Construct streamable types that print various lengths.
+        //
+        // 3. Verify that, for each of the specifications and inputs
+        //    constructed in steps 1 and 2 the result of the `format` function
+        //    matches an independently calculated result.
         //
         // Testing:
-        //   format(VALUE, FORMAT_CONTEXT&);
+        //   formatter<Streamed<T> >::format(VALUE, FORMAT_CONTEXT&);
         // --------------------------------------------------------------------
         if (verbose) puts("\nTESTING format(VALUE, FORMAT_CONTEXT&)"
                           "\n======================================");
@@ -626,65 +612,45 @@ int main(int argc, char **argv)
             for (int ft = 0; ft < k_FILL_COUNT; ft++) {
                 for (int ct = 0; ct < k_MAX_CHAR_COUNT; ct++) {
                     for (int argType = 0; argType < k_ARG_COUNT; argType++) {
-                        for (int copies = -1; copies < 10; copies++) {
-                            for (int width = -1; width < 10; width++) {
-                                for (int prec = -1; prec < 10; prec++) {
-                                    bsl::string              formatString;
-                                    VariableLengthStreamable input(ct);
-                                    bsl::string              outputString;
+                        for (int width = -1; width < 10; width++) {
+                            for (int prec = -1; prec < 10; prec++) {
+                                bsl::string              formatString;
+                                VariableLengthStreamable input(ct);
+                                bsl::string              outputString;
 
-                                    calculateResult(&formatString,
-                                                    input,
-                                                    &outputString,
-                                                    fc,
-                                                    ft,
-                                                    argType,
-                                                    width,
-                                                    prec);
+                                calculateResult(&formatString,
+                                                &outputString,
+                                                input,
+                                                fc,
+                                                ft,
+                                                argType,
+                                                width,
+                                                prec);
 
-                                    bsl::string message;
-                                    bool        rv;
+                                bsl::string message;
+                                bool        rv;
 
-                                    int arg2 = width;
-                                    if (argType == k_ARG_NESTED_NON_ID &&
-                                        width <= 0)
-                                        arg2 = prec;
-
-                                    rv = bslfmt::FormatterTestUtil<char>::
-                                        testEvaluateVFormat(
-                                                       &message,
-                                                       outputString,
-                                                       false,
-                                                       formatString,
-                                                       bslfmt::streamed(input),
-                                                       arg2,
-                                                       prec);
-                                    if (!rv) {
-                                        calculateResult(&formatString,
-                                                        input,
-                                                        &outputString,
-                                                        fc,
-                                                        ft,
-                                                        argType,
-                                                        width,
-                                                        prec);
-                                    bslfmt::FormatterTestUtil<char>::
-                                        testEvaluateVFormat(
-                                                       &message,
-                                                       outputString,
-                                                       false,
-                                                       formatString,
-                                                       bslfmt::streamed(input),
-                                                       arg2,
-                                                       prec);
-                                    }
-                                    ASSERTV(formatString.c_str(),
-                                            message.c_str(),
-                                            ct,
-                                            width,
-                                            prec,
-                                            rv);
+                                int arg2 = width;
+                                if (argType == k_ARG_NESTED_NON_ID && width <=
+                                                                          0) {
+                                    arg2 = prec;
                                 }
+
+                                rv = bslfmt::FormatterTestUtil<char>::
+                                    testEvaluateVFormat(
+                                                       &message,
+                                                       outputString,
+                                                       false,
+                                                       formatString,
+                                                       bslfmt::streamed(input),
+                                                       arg2,
+                                                       prec);
+                                ASSERTV(formatString.c_str(),
+                                        message.c_str(),
+                                        ct,
+                                        width,
+                                        prec,
+                                        rv);
                             }
                         }
                     }
@@ -697,20 +663,19 @@ int main(int argc, char **argv)
         // TESTING parse(PARSE_CONTEXT&)
         //
         // Concerns:
-        //: 1 Invalid format specs will generate a parse error
-        //:
-        //: 2 Valid format specs will not generate a parse error
+        // 1. Invalid format specs will generate a parse error
+        // 2. Valid format specs will not generate a parse error
         //
         // Plan:
-        //: 1 Construct format specs corresponding to each of the known error
-        //:   conditions and verify that they result in a parse error. (C-1)
-        //:
-        //: 2 Construct format specs containing different combinations of
-        //:   valid specification components and verify that they correctly
-        //:   parse. (C-2)
+        // 1. Construct format specs corresponding to each of the known error
+        //    conditions and verify that they result in a parse error.  (C-1)
+        //
+        // 2. Construct format specs containing different combinations of
+        //    valid specification components and verify that they correctly
+        //    parse.  (C-2)
         //
         // Testing:
-        //   parse(PARSE_CONTEXT&);
+        //   formatter<Streamed<T> >::parse(PARSE_CONTEXT&);
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nTESTING parse(PARSE_CONTEXT&)"
@@ -838,18 +803,18 @@ int main(int argc, char **argv)
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 We can assign 'bsl::formatter' types for `Streamed` wrapper
-        //:   specializations.
-        //:
-        //: 2 We can assign 'std::formatter' types for `Streamed` wrapper
-        //:   specializations.
+        // 1. We can assign 'bsl::formatter' types for `Streamed` wrapper
+        //    specializations.
+        //
+        // 2. We can assign 'std::formatter' types for `Streamed` wrapper
+        //    specializations.
         //
         // Plan:
-        //: 1 Construct two 'bsl::formatter's for `Streamed` wrapper
-        //:   specializations, and assign one to the other. (C-1)
-        //:
-        //: 2 Construct two 'std::formatter's for `Streamed` wrapper
-        //:   specializations, and assign one to the other. (C-2)
+        // 1. Construct two 'bsl::formatter's for `Streamed` wrapper
+        //    specializations, and assign one to the other. (C-1)
+        //
+        // 2. Construct two 'std::formatter's for `Streamed` wrapper
+        //    specializations, and assign one to the other. (C-2)
         //
         // Testing:
         //   operator=(const formatter &);
@@ -877,18 +842,18 @@ int main(int argc, char **argv)
         // TESTING SWAP
         //
         // Concerns:
-        //: 1 We can swap two 'bsl::formatter' types of `Streamed` wrapper
-        //:   instantiations.
-        //:
-        //: 2 We can swap two 'std::formatter' types of `Streamed` wrapper
-        //:   instantiations.
+        // 1. We can swap two 'bsl::formatter' types of `Streamed` wrapper
+        //    instantiations.
+        //
+        // 2. We can swap two 'std::formatter' types of `Streamed` wrapper
+        //    instantiations.
         //
         // Plan:
-        //: 1 Construct two 'bsl::formatter's for a wrapper instance (type) and
-        //:   and swap them. (C-1)
-        //:
-        //: 2 Construct two 'std::formatter's for a wrapper instance (type) and
-        //:   and swap them. (C-2)
+        // 1. Construct two 'bsl::formatter's for a wrapper instance (type) and
+        //    and swap them. (C-1)
+        //
+        // 2. Construct two 'std::formatter's for a wrapper instance (type) and
+        //    and swap them. (C-2)
         //
         // Testing:
         //   swap(formatter &, formatter&);
@@ -916,18 +881,18 @@ int main(int argc, char **argv)
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        //: 1 We can copy construct 'bsl::formatter' types of `Streamed`
-        //:   wrapper instances.
-        //:
-        //: 2 We can copy construct 'std::formatter' types of `Streamed`
-        //:   wrapper instances.
+        // 1. We can copy construct 'bsl::formatter' types of `Streamed`
+        //    wrapper instances.
+        //
+        // 2. We can copy construct 'std::formatter' types of `Streamed`
+        //    wrapper instances.
         //
         // Plan:
-        //: 1 Construct a 'bsl::formatter' for a wrapper instance and copy it.
-        //:   (C-1)
-        //:
-        //: 2 Construct a 'std::formatter' for a wrapper instance and copy it.
-        //:   (C-2)
+        // 1. Construct a 'bsl::formatter' for a wrapper instance and copy it.
+        //    (C-1)
+        //
+        // 2. Construct a 'std::formatter' for a wrapper instance and copy it.
+        //    (C-2)
         //
         // Testing:
         //   formatter(const formatter &);
@@ -956,13 +921,18 @@ int main(int argc, char **argv)
         //   The only generator for 'formatter' is the default constructor.
         //
         // Concerns:
-        //: 1 We can construct 'bsl::formatter' types from wrapper instances.
-        //: 2 We can construct 'std::formatter' types from wrapper instances.
+        // 1. `bsl::formatter` types for `Streamed` types are default
+        //    constructible.
+        //
+        // 2. `std::formatter` types for `Streamed` types are default
+        //    constructible.
         //
         // Plan:
-        //: 1 Construct a 'bsl::formatter' for a wrapper instance. (C-1)
-        //:
-        //: 2 Construct a 'std::formatter' for a wrapper instance. (C-2)
+        // 1. Default construct a 'bsl::formatter' for a `Streamed` wrapper type
+        //    instance.  (C-1)
+        //
+        // 2. Default construct a 'std::formatter' for a `Streamed` wrapper type
+        //    instance.  (C-1)
         //
         // Testing:
         //   formatter();
@@ -988,13 +958,13 @@ int main(int argc, char **argv)
         // TEST MACHINERY
         //
         // Concern:
-        //: 1 `VariableLengthStreamable` print as many characters as we ask.
+        // 1. `VariableLengthStreamable` print as many characters as we ask.
         //
         // Plan:
-        //: 1 Use a loop up to the maximum length.
+        // 1. Use a loop up to the maximum length.
         //
         // Testing:
-        //   Streamed_OutIterBuf
+        //   VariableLengthStreamable
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nTEST MACHINERY"
@@ -1029,15 +999,19 @@ int main(int argc, char **argv)
         // BREATHING TEST
         //
         // Concerns:
-        //: 1 That basic functionality appears to work as advertised before
-        //:   before beginning testing in earnest:
-        //:   - default and copy constructors
-        //:   - assignment operator
-        //:   - primary manipulators, basic accessors
-        //:   - 'operator==', 'operator!='
+        // 1. That basic functionality appears to work as advertised before
+        //    before beginning testing in earnest.
+        //
+        // 2. That warning is generated for wrapped-types that already have a
+        //    formatter for `char` (and the type itself) enabled on compilers
+        //    that support concepts.
         //
         // Plan:
-        //: 1 Test all public methods mentioned in concerns.  (C-1)
+        // 1. Test formatting wrapped objects.  (C-1)
+        //
+        // 2. Attempt to format an `int` (if warning demonstration is
+        //    requested) and observe if a warning is generated for that line of
+        //    the test driver.  (C-2)
         //
         // Testing:
         //   BREATHING TEST
@@ -1185,12 +1159,11 @@ int main(int argc, char **argv)
         TEST_LINE("{:+^40.36}", "++0123456789abcdefghijklmnopqrstuvwxyz++");
         TEST_LINE("{:.>40.36}", "....0123456789abcdefghijklmnopqrstuvwxyz");
 
-//#define BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
 #ifdef BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
+        // Note that warnings for these two lines will appear only on compilers
+        // that support concepts.
         bsl::string s = bsl::format("{}", bslfmt::streamed(12));
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-        s = bsl::format("{}", bslfmt::Streamed(12));
-#endif  //BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        s             = bsl::format("{}", bslfmt::Streamed<int>(12));
 #endif  // BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
       } break;
       default: {

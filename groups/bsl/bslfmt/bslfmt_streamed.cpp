@@ -2,6 +2,9 @@
 
 #include <bslfmt_streamed.h>
 
+#include <bslfmt_format.h>             // for testing only
+#include <bslfmt_formattertestutil.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslfmt_streamed_cpp, "$Id$ $CSID$")
 
