@@ -6293,7 +6293,7 @@ void testCase3e()
         int d_x;
         int d_y;
     };
-    bsl::optional<Agg> o4{{5, 6}};
+    BSLA_MAYBE_UNUSED bsl::optional<Agg> o4{{5, 6}};
 #else
     if (verbose)
         printf("Skipping case 3e on C++03...\n");
@@ -13692,8 +13692,8 @@ int main(int argc, char **argv)
             return true;
         }());
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
-    defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
+     defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20)
         if (verbose) {
             printf("Testing functions that are `constexpr` in C++20\n");
         }
@@ -13750,7 +13750,20 @@ int main(int argc, char **argv)
             o5.emplace({0});
             constexpr_assert(1 == o5->len);
 
-            // C++20 comparisons
+            return true;
+        }());
+
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON) && \
+      defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS)
+        if (verbose) {
+            printf("Testing `constexpr` for spaceship operator\n");
+        }
+
+        static_assert([] {
+            bsl::optional<int>        o1 = 6;
+            const bsl::optional<long> o2 = 1L;
+            std::optional<long>       o3 = 2L;
+
             constexpr_assert(std::strong_ordering::greater ==
                              (o1 <=> bsl::nullopt));
             constexpr_assert(std::strong_ordering::less ==
@@ -13761,7 +13774,8 @@ int main(int argc, char **argv)
 
             return true;
         }());
-#endif  // end C++20 code
+#  endif  // end spaceship code
+# endif  // end C++20 code
 #else  // end C++17 code
         if (verbose) printf("Skipping case 30 before C++17...\n");
 #endif
