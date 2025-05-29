@@ -1006,12 +1006,18 @@ int main(int argc, char **argv)
         //    formatter for `char` (and the type itself) enabled on compilers
         //    that support concepts.
         //
+        // 3. Demonstrate the use of the wrapper class template with class
+        //    template argument deduction (CTAD) when it is available.
+        //
         // Plan:
         // 1. Test formatting wrapped objects.  (C-1)
         //
         // 2. Attempt to format an `int` (if warning demonstration is
         //    requested) and observe if a warning is generated for that line of
         //    the test driver.  (C-2)
+        //
+        // 3. If CTAD is available use the `Streamed` class without specifying
+        //    the wrapped type.
         //
         // Testing:
         //   BREATHING TEST
@@ -1160,11 +1166,22 @@ int main(int argc, char **argv)
         TEST_LINE("{:.>40.36}", "....0123456789abcdefghijklmnopqrstuvwxyz");
 
 #ifdef BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
-        // Note that warnings for these two lines will appear only on compilers
-        // that support concepts.
-        bsl::string s = bsl::format("{}", bslfmt::streamed(12));
-        s             = bsl::format("{}", bslfmt::Streamed<int>(12));
+        {
+            // Note that warnings for these two lines will appear only on
+            // compilers that support concepts.
+            bsl::string s = bsl::format("{}", bslfmt::streamed(12));
+            s             = bsl::format("{}", bslfmt::Streamed<int>(12));
+        }
 #endif  // BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        {
+            // Note that warnings for these two lines will appear only on
+            // compilers that support concepts.
+            const bsl::string s = bsl::format("{}", bslfmt::Streamed(X));
+            ASSERTV(s, "0123456789" == s);
+        }
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);
