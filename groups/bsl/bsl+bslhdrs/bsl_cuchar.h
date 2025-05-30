@@ -15,11 +15,20 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#include <cuchar>
+#include <bsls_platform.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+// In C++11 and later, libstdc++ provides `<cuchar>` even if `<uchar.h>` is not
+// provided by the C library.  In that case, including it has no effect.
+// However, all our supported platforms do provide `<uchar.h>`, except for
+// Solaris.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY) && \
+    !defined(BSLS_PLATFORM_OS_SOLARIS)
+#include <cuchar>
 
 namespace bsl {
 
@@ -34,6 +43,7 @@ namespace bsl {
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
 }  // close package namespace
+#endif  // C99
 
 #endif
 

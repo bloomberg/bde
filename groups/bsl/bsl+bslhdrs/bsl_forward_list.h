@@ -15,9 +15,14 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 
-#include <forward_list>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# include <bsls_nativestd.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+# include <forward_list>
 
 // According to C++11 Standard (24.6.5 range access) some functions ('begin',
 // 'cbegin', etc.) must be available not only via inclusion of the <iterator>
@@ -25,16 +30,9 @@ BSLS_IDENT("$Id: $")
 // requirement the following inclusion is added.
 # include <bslstl_iterator.h>
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
-#include <bslma_bslallocator.h>
-#endif // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+# include <bslma_bslallocator.h>
 
 namespace bsl {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES)
 // BDE does not provide its own implementation of an allocator-aware
 // 'forward_list'.  Instead, it relies on the native implementation functioning
 // correctly when 'bsl::allocator' is installed by specializations in the 'bsl'
@@ -45,8 +43,8 @@ namespace bsl {
 
     template <class TYPE>
     using forward_list = std::forward_list<TYPE, bsl::allocator<TYPE>>;
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
 }  // close package namespace
+#endif  // C++11
 
 #endif  // INCLUDED_BSL_FORWARD_LIST
 

@@ -15,11 +15,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#include <cinttypes>
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_C99_LIBRARY
+#include <cinttypes>
 
 namespace bsl {
     using std::imaxabs;
@@ -48,6 +49,7 @@ namespace bsl {
     // headers, but on newner platforms they are being removed.)
 
 }  // close package namespace
+#endif  // C99 support
 
 #endif
 

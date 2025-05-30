@@ -23,31 +23,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#if __cplusplus < 201103L \
-    && (defined(BSLS_PLATFORM_CMP_SUN) || defined(BSLS_PLATFORM_CMP_IBM))
-#   error This file requires compiler and library support for \
-          the ISO C++ 2011 standard.
-#endif
-
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 #include <tuple>
 
 #define BSL_TUPLE_SUPPORTS_TUPLE 1
 
-// Note the following logic assumes that if the preceding '#include <tuple>'
-// succeeded, 'std::tuple' is generally available with the exceptions:
-//  o libc++ for OSX has a C++03 version of tuple that is not complete.
-//  o GCC versions prior to 4.7 are not standard conforming (do not support
-//    forward_as_tuple)
-
-#if defined(BSLS_PLATFORM_CMP_CLANG) &&                                       \
-    !defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
-#undef BSL_TUPLE_SUPPORTS_TUPLE
-#elif defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION <= 40700
-#undef BSL_TUPLE_SUPPORTS_TUPLE
-#endif
-
-
-#if defined(BSL_TUPLE_SUPPORTS_TUPLE)
 namespace bsl {
 
     using std::tuple_size;
@@ -86,7 +66,7 @@ template <std::size_t I, class TYPE> using tuple_element_t =
 #endif
 
 }  // close namespace bsl
-#endif
+#endif  // `<tuple>` provided by standard library
 
 // Include Bloomberg's implementation, unless compilation is configured to
 // override native types in the 'std' namespace with Bloomberg's

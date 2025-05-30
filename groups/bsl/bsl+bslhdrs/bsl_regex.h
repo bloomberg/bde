@@ -13,13 +13,16 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
-#include <bslstl_iterator.h> // std::begin/end/rbegin/rend, etc
+#include <bsls_libraryfeatures.h>
 
-#include <regex>
+#include <bslstl_iterator.h> // std::begin/end/rbegin/rend, etc
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <regex>
 
 namespace bsl {
 //@SEE_ALSO: package bos+stdhdrs in the bos package group
@@ -96,6 +99,7 @@ namespace bsl {
     }  // close namespace regex_constants
 
 }  // close package namespace
+#endif  // C++11
 
 #endif
 

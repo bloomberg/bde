@@ -15,11 +15,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_libraryfeatures.h>
 
-#include <shared_mutex>
-
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#include <shared_mutex>
 
 namespace bsl {
     using std::shared_timed_mutex;
@@ -28,8 +29,9 @@ namespace bsl {
     using std::shared_mutex;
 #endif
 }  // close package namespace
+#endif  // C++14
 
-#endif  // INCLUDED_BSL_SHARED_MUTE
+#endif  // INCLUDED_BSL_SHARED_MUTEX
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

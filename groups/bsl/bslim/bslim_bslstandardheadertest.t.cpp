@@ -21,6 +21,7 @@
 
 #include <bslh_defaulthashalgorithm.h>
 #include <bslh_hashpair.h>
+#include <bslh_hashtuple.h>
 
 #include <bslim_testutil.h>
 
@@ -38,11 +39,6 @@
 #include <bsls_util.h>
 
 #include <bsltf_templatetestfacility.h>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-    #include <bslh_hashtuple.h>
-    #include <tuple>     // `std::tuple`, `std::make_tuple`
-#endif //  BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 
 // #include all of the headers defined in bsl+bslhdrs.
 
@@ -65,9 +61,10 @@
 #endif  // feature test macros are defined
 
 #include <bsl_algorithm.h>
-#include <bsl_array.h>
-#include <bsl_barrier.h>          // C++20 header
-#include <bsl_bit.h>              // C++20 header
+#include <bsl_array.h>               // C++11 header ported to C++03
+#include <bsl_atomic.h>              // C++11 header
+#include <bsl_barrier.h>             // C++20 header
+#include <bsl_bit.h>                 // C++20 header
 #include <bsl_bitset.h>
 #include <bsl_c_assert.h>
 #include <bsl_c_ctype.h>
@@ -97,73 +94,85 @@
 #include <bsl_cctype.h>
 #include <bsl_cerrno.h>
 #include <bsl_cfloat.h>
+#include <bsl_chrono.h>              // C++11 header
+#include <bsl_cinttypes.h>           // C++11 header
 #include <bsl_ciso646.h>
 #include <bsl_climits.h>
 #include <bsl_clocale.h>
 #include <bsl_cmath.h>
 #include <bsl_complex.h>
-#include <bsl_concepts.h>         // C++20 header
+#include <bsl_concepts.h>            // C++20 header
+#include <bsl_condition_variable.h>  // C++11 header
+#include <bsl_coroutine.h>           // C++20 header
 #include <bsl_csetjmp.h>
 #include <bsl_csignal.h>
 #include <bsl_cstdarg.h>
+#include <bsl_cstdbool.h>            // C++11 header
 #include <bsl_cstddef.h>
 #include <bsl_cstdint.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_ctgmath.h>             // C++11 header
 #include <bsl_ctime.h>
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION >= 1900)
-    // The standard header <cuchar> is not available on most platforms.
-    #include <bsl_cuchar.h>
-#endif  // MSVC 19.00+
-
-#include <bsl_coroutine.h>        // C++20 header
+#include <bsl_cuchar.h>              // C++11 header
 #include <bsl_cwchar.h>
 #include <bsl_cwctype.h>
 #include <bsl_deque.h>
 #include <bsl_exception.h>
-#include <bsl_execution.h>
-#include <bsl_format.h>           // C++20 header
+#include <bsl_execution.h>           // C++17 header
+#include <bsl_filesystem.h>          // C++17 header
+#include <bsl_format.h>              // C++20 header
+#include <bsl_forward_list.h>        // C++11 header
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
+#include <bsl_future.h>              // C++11 header
+#include <bsl_initializer_list.h>    // C++11 header
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
 #include <bsl_iosfwd.h>
 #include <bsl_iostream.h>
 #include <bsl_istream.h>
 #include <bsl_iterator.h>
-#include <bsl_latch.h>            // C++20 header
+#include <bsl_latch.h>               // C++20 header
 #include <bsl_limits.h>
 #include <bsl_list.h>
 #include <bsl_locale.h>
 #include <bsl_map.h>
 #include <bsl_memory.h>
-#include <bsl_mutex.h>
+#include <bsl_mutex.h>               // C++11 header
 #include <bsl_new.h>
-#include <bsl_numbers.h>          // C++20 header
+#include <bsl_numbers.h>             // C++20 header
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
-#include <bsl_optional.h>
+#include <bsl_optional.h>            // C++17 header ported to C++03
 #include <bsl_queue.h>
-#include <bsl_ranges.h>
-#include <bsl_semaphore.h>        // C++20 header
+#include <bsl_random.h>              // C++11 header
+#include <bsl_ranges.h>              // C++20 header
+#include <bsl_ratio.h>               // C++11 header
+#include <bsl_regex.h>               // C++11 header
+#include <bsl_scoped_allocator.h>    // C++11 header
+#include <bsl_semaphore.h>           // C++20 header
 #include <bsl_set.h>
-#include <bsl_span.h>
-#include <bsl_source_location.h>  // C++20 header
+#include <bsl_shared_mutex.h>        // C++14 header
+#include <bsl_span.h>                // C++20 header ported to C++03
+#include <bsl_source_location.h>     // C++20 header
 #include <bsl_sstream.h>
 #include <bsl_stack.h>
-#include <bsl_stop_token.h>       // C++20 header
+#include <bsl_stop_token.h>          // C++20 header ported to C++03
 #include <bsl_stdexcept.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
-#include <bsl_string_view.h>      // C++17 header ported to C++03
-#include <bsl_system_error.h>     // C++11 header ported to C++03
-#include <bsl_typeindex.h>        // C++11 header ported to C++03
+#include <bsl_string_view.h>         // C++17 header ported to C++03
+#include <bsl_system_error.h>        // C++11 header ported to C++03
+#include <bsl_thread.h>              // C++11 header
+#include <bsl_tuple.h>               // C++11 header
+#include <bsl_type_traits.h>         // C++11 header partially ported to C++03
+#include <bsl_typeindex.h>           // C++11 header ported to C++03
 #include <bsl_typeinfo.h>
-#include <bsl_unordered_map.h>    // C++11 header ported to C++03
-#include <bsl_unordered_set.h>    // C++11 header ported to C++03
+#include <bsl_unordered_map.h>       // C++11 header ported to C++03
+#include <bsl_unordered_set.h>       // C++11 header ported to C++03
 #include <bsl_utility.h>
 #include <bsl_valarray.h>
 #include <bsl_vector.h>
@@ -179,38 +188,8 @@
 #endif  // ndef BDE_OMIT_INTERNAL_DEPRECATED && ndef BDE_OPENSOURCE_PUBLICATION
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    #include <bsl_atomic.h>
     #include <bsl_cfenv.h>
-    #include <bsl_chrono.h>
-    #include <bsl_cinttypes.h>
-    #include <bsl_condition_variable.h>
-    #include <bsl_cstdbool.h>
-    #include <bsl_ctgmath.h>
-    #include <bsl_forward_list.h>
-    #include <bsl_future.h>
-    #include <bsl_initializer_list.h>
-    #include <bsl_mutex.h>
-    #include <bsl_random.h>
-    #include <bsl_ratio.h>
-    #include <bsl_regex.h>
-    #include <bsl_scoped_allocator.h>
-    #include <bsl_thread.h>
-    #include <bsl_tuple.h>
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-#include <bsl_type_traits.h>
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    #include <bsl_shared_mutex.h>
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
-    #include <bsl_filesystem.h>
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
-    #include <bsl_execution.h>
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
 
 #include <utility>     // `std::pair`
 

@@ -14,12 +14,13 @@ BSLS_IDENT("$Id: $")
 // included symbols from the `std` namespace (if any) into the `bsl` namespace.
 
 #include <bsls_libraryfeatures.h>
-#include <thread>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#include <thread>
 namespace bsl {
 
     //using std::this_thread;
@@ -35,6 +36,7 @@ namespace bsl {
     using std::jthread;
 #endif
 }  // close package namespace
+#endif  // C++11
 
 #endif
 

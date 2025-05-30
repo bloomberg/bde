@@ -13,15 +13,17 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the `std` namespace (if any) into the `bsl` namespace.
 
-#include <ctgmath>
+// Following usual practice, the `<bsl_ctgmath.h>` header would include
+// `<ctgmath>`.  However, that header is not available in C++03 mode, and the
+// only effect of including it in C++11 and later is to include the
+// `<ccomplex>` and `<cmath>` headers, so we include the corresponding bsl
+// headers, intentionally making their contents available transitively.
+#include <bsl_cmath.h>
+#include <bsl_complex.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-namespace bsl {
-    // ctgmath name sapce is emtpy
-}  // close package namespace
 
 #endif
 

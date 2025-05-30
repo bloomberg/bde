@@ -13,15 +13,19 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the `std` namespace (if any) into the `bsl` namespace.
 
-#include <cstdbool>
+// `<cstdbool>` is not available in C++03 mode.  However, all of our supported
+// compilers provide `<stdbool.h>`, so we include that header instead, making
+// an exception to our usual practice that `<bsl_cX>` headers include the
+// corresponding `<cX>` header.  Note that in C++, the only effect of including
+// either header is to make the macro `__bool_true_false_are_defined`
+// available.
+#include <stdbool.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace bsl {
-    // The cstdbool header adds 'bool' type and the 'true' and 'false' values
-    // as macro definitions.
 }  // close package namespace
 
 #endif
