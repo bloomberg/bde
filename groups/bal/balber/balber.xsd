@@ -172,6 +172,21 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name='EncodeArrayLengthHints'
+                  type='xs:boolean'
+                  default='false'
+                  bdem:allowsDirectManipulation='0'>
+        <xs:annotation>
+          <xs:documentation>
+            This *backward*-*compatibile* option controls whether or not array
+            length hints are encoded.  For backward-compatibility purposes, the
+            default value of this option is 'false'.  Setting this option to
+            'true' requires the receiving decoder to come from BDE release
+            '4.27.x' or later, or have the 'SkipUnknownElements' decoder option
+            set to 'true'.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>

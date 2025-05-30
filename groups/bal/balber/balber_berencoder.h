@@ -199,6 +199,7 @@ struct BerEncoder_encodeProxy;
 class  BerEncoder_Visitor;
 class  BerEncoder_UniversalElementVisitor;
 class  BerEncoder_LevelGuard;
+class  BerEncoder_UseArrayLengthHintGuard;
 
                               // ================
                               // class BerEncoder
@@ -214,6 +215,7 @@ class BerEncoder {
     friend class  BerEncoder_Visitor;
     friend class  BerEncoder_UniversalElementVisitor;
     friend class  BerEncoder_LevelGuard;
+    friend class  BerEncoder_UseArrayLengthHintGuard;
 
     // PRIVATE TYPES
 
@@ -289,6 +291,10 @@ class BerEncoder {
 
     bsl::streambuf                   *d_streamBuf;      // held, not owned
     int                               d_currentDepth;   // current depth
+
+    bool                              d_useArrayLengthHint;
+                                                        // encode the array
+                                                        // length hint
 
     // NOT IMPLEMENTED
     BerEncoder(const BerEncoder&);             // = delete;
@@ -445,6 +451,30 @@ class BerEncoder_LevelGuard {
     ~BerEncoder_LevelGuard();
 };
 
+             // ================================================
+             // private class BerEncoder_UseArrayLengthHintGuard
+             // ================================================
+
+/// This class serves the purpose to set and reset the value of
+/// `d_useArrayLengthHint`.
+class BerEncoder_UseArrayLengthHintGuard {
+
+    // DATA
+    BerEncoder *d_encoder;
+    bool        d_previous;
+
+    // NOT IMPLEMENTED
+    BerEncoder_UseArrayLengthHintGuard(
+                             BerEncoder_UseArrayLengthHintGuard&); // = delete;
+    BerEncoder_UseArrayLengthHintGuard& operator=(
+                             BerEncoder_UseArrayLengthHintGuard&); // = delete;
+
+  public:
+    // CREATORS
+    BerEncoder_UseArrayLengthHintGuard(BerEncoder *encoder, bool value);
+    ~BerEncoder_UseArrayLengthHintGuard();
+};
+
                       // ================================
                       // private class BerEncoder_Visitor
                       // ================================
@@ -596,6 +626,25 @@ BerEncoder_LevelGuard::~BerEncoder_LevelGuard()
     --d_encoder->d_currentDepth;
 }
 
+                 // ----------------------------------------
+                 // class BerEncoder_UseArrayLengthHintGuard
+                 // ----------------------------------------
+
+inline
+BerEncoder_UseArrayLengthHintGuard::BerEncoder_UseArrayLengthHintGuard(
+                                               BerEncoder *encoder, bool value)
+: d_encoder  (encoder)
+, d_previous (encoder->d_useArrayLengthHint)
+{
+    d_encoder->d_useArrayLengthHint = value;
+}
+
+inline
+BerEncoder_UseArrayLengthHintGuard::~BerEncoder_UseArrayLengthHintGuard()
+{
+    d_encoder->d_useArrayLengthHint = d_previous;
+}
+
                        // -----------------------------
                        // struct BerEncoder_encodeProxy
                        // -----------------------------
@@ -730,6 +779,8 @@ int BerEncoder::encodeImpl(const TYPE&                value,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
+    BerEncoder_UseArrayLengthHintGuard guard(this, false);
+
     const BerConstants::TagType tagType = BerConstants::e_CONSTRUCTED;
 
     int rc = BerUtil::putIdentifierOctets(d_streamBuf,
@@ -799,6 +850,8 @@ int BerEncoder::encodeImpl(const TYPE&                       value,
                            bdlat_TypeCategory::NullableValue )
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
+
+    BerEncoder_UseArrayLengthHintGuard guard(this, false);
 
     bool isNillable = formattingMode & bdlat_FormattingMode::e_NILLABLE;
 
@@ -896,6 +949,8 @@ int BerEncoder::encodeImpl(const TYPE&                  value,
                            int                          ,
                            bdlat_TypeCategory::Sequence )
 {
+    BerEncoder_UseArrayLengthHintGuard guard(this, true);
+
     BerEncoder_Visitor visitor(this);
 
     int rc = BerUtil::putIdentifierOctets(d_streamBuf,
@@ -964,12 +1019,25 @@ BerEncoder::encodeArrayImpl(const TYPE&             value,
         return k_SUCCESS;                                             // RETURN
     }
 
+    int rc = 0;
+
+    if (   d_useArrayLengthHint
+        && size > 1
+        && d_options->encodeArrayLengthHints()) {
+        rc |= BerUtil::putIdentifierOctets(
+                                 d_streamBuf,
+                                 tagClass,
+                                 BerConstants::e_PRIMITIVE,
+                                 BerConstants::k_ARRAY_LENGTH_HINT_TAG_NUMBER);
+        rc |= BerUtil::putValue(d_streamBuf, size);
+    }
+
     const BerConstants::TagType tagType = BerConstants::e_CONSTRUCTED;
 
-    int rc = BerUtil::putIdentifierOctets(d_streamBuf,
-                                          tagClass,
-                                          tagType,
-                                          tagNumber);
+    rc |= BerUtil::putIdentifierOctets(d_streamBuf,
+                                       tagClass,
+                                       tagType,
+                                       tagNumber);
     rc |= BerUtil::putIndefiniteLengthOctet(d_streamBuf);
     if (rc) {
         return k_FAILURE;                                             // RETURN

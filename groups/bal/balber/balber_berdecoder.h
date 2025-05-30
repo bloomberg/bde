@@ -211,6 +211,9 @@ class BerDecoder {
 
     BerDecoder_Node                 *d_topNode;      // last node
 
+    int                              d_arrayLengthHint;
+                                                     // length hint
+
     // NOT IMPLEMENTED
     BerDecoder(const BerDecoder&);             // = delete;
     BerDecoder& operator=(const BerDecoder&);  // = delete;
@@ -1067,6 +1070,11 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
                                                         visitor,
                                                         innerNode.tagNumber());
         }
+        else if (BerConstants::k_ARRAY_LENGTH_HINT_TAG_NUMBER ==
+                                                       innerNode.tagNumber()) {
+            rc = innerNode.decode(&d_decoder->d_arrayLengthHint,
+                                  bdlat_TypeCategory::Simple());
+        }
         else {
             rc = innerNode.skipField();
             d_decoder->setNumUnknownElementsSkipped(
@@ -1153,6 +1161,17 @@ BerDecoder_Node::decodeArray(TYPE *variable)
     }
 
     const int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
+
+    const int arrayLengthHint = d_decoder->d_arrayLengthHint;
+    if (0 < arrayLengthHint) {
+        int i = static_cast<int>(bdlat_ArrayFunctions::size(*variable));
+        bdlat_ArrayFunctions::resize(variable,
+                                       arrayLengthHint <= maxSize
+                                     ? arrayLengthHint
+                                     : maxSize);
+        bdlat_ArrayFunctions::resize(variable, i);
+        d_decoder->d_arrayLengthHint = 0;
+    }
 
     int i = static_cast<int>(bdlat_ArrayFunctions::size(*variable));
     while (this->hasMore()) {

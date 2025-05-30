@@ -89,8 +89,9 @@ using bsl::flush;
 // [10] ANONYMOUS CHOICES
 // [11] NILLABLE VALUES
 // [12] ARRAYS WITH `encodeEmptyArrays` OPTION {DRQS 29114951 <GO>}
-// [13] DATE/TIME COMPONENTS
-// [14] USAGE EXAMPLE
+// [13] ARRAYS WITH `encodeArrayLengthHints` OPTION
+// [14] DATE/TIME COMPONENTS
+// [15] USAGE EXAMPLE
 //
 // [-1] PERFORMANCE TEST
 
@@ -825,7 +826,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -847,7 +848,7 @@ int main(int argc, char *argv[])
                              "\n=============\n";
         usageExample();
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // DATE/TIME COMPONENTS
         //
@@ -2435,6 +2436,159 @@ int main(int argc, char *argv[])
                 LOOP2_ASSERT(LEN, osb.length(), LEN == (int)osb.length());
                 LOOP2_ASSERT(osb.data(), EXP,
                              0 == compareBuffers(osb.data(), EXP));
+
+                if (veryVerbose) {
+                    cout << "Output Buffer:";
+                    printBuffer(osb.data(), osb.length());
+                }
+            }
+        }
+      } break;
+      case 13: {
+        // --------------------------------------------------------------------
+        // ARRAYS WITH `encodeArrayLengthHints` OPTION
+        //
+        // Concerns:
+        // 1. If `balber::BerEncoderOptions` is not specified then length
+        //    hints are not encoded.
+        //
+        // 2. If `balber::BerEncoderOptions` is specified and the
+        //    `encodeArrayLengthHints` option is not set or set to `false` then
+        //    length hints are not encoded.
+        //
+        // 3. If `balber::BerEncoderOptions` is specified and the
+        //    `encodeArrayLengthHints` option is set to `true` then length
+        //    hints are encoded.
+        //
+        // 4. The expected encoding is produced.
+        //
+        // Plan:
+        // 1. Create three `balber::BerEncoderOptions` objects.  Set the
+        //    `encodeArrayLengthHints` option in one encoder options object to
+        //    `true` and to `false` in the another object.  Leave the third
+        //    encoder options object unmodified.
+        //
+        // 2. Create four `balber::BerEncoder` objects passing the three
+        //    `balber::BerEncoderOptions` objects created in step 1 to the
+        //    first three encoder objects.  The fourth encoder object is not
+        //    passed any encoder options.
+        //
+        // 3. Create four `bdlsb::MemOutStreamBuf` objects.
+        //
+        // 4. Populate a `MySequenceWithArray` object ensuring that its
+        //    underlying vector data member is not empty.
+        //
+        // 5. Encode the `MySequenceWithArray` object onto a
+        //    `bdlsb::MemOutStreamBuf` using one of the created
+        //    `balber::BerEncoder` objects.
+        //
+        // 6. Ensure that the vector length hint is encoded in only the case
+        //    where the encoder options are explicitly provided and the
+        //    `encodeArrayLengthHints` option on that object is set to `true`.
+        //    (C-1..3).
+        //
+        // 7. Directly test the encodings are as expected using the
+        //    table-driven technique.  (C-4)
+        //
+        // Testing:
+        //  Encoding of vectors
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nARRAYS WITH `encodeArrayLengthHints` OPTION"
+                             "\n===========================================\n";
+
+        if (verbose) cout << "\tVerify encoder option.\n";
+        {
+            balber::BerEncoderOptions options1, options2, options3;
+            options1.setEncodeArrayLengthHints(true);
+            options2.setEncodeArrayLengthHints(false);
+
+            balber::BerEncoder encoder1(&options1), encoder2(&options2),
+                            encoder3(&options3), encoder4;
+
+            bdlsb::MemOutStreamBuf osb1, osb2, osb3, osb4;
+
+            test::MySequenceWithArray value;
+            value.attribute1() = 34;
+            value.attribute2().push_back("Hello");
+            value.attribute2().push_back("World!");
+
+            ASSERT(0 == encoder1.encode(&osb1, value));
+            ASSERT(0 == encoder2.encode(&osb2, value));
+            ASSERT(0 == encoder3.encode(&osb3, value));
+            ASSERT(0 == encoder4.encode(&osb4, value));
+
+            ASSERT(osb1.length() >  osb2.length())
+            ASSERT(osb2.length() == osb3.length())
+            ASSERT(osb2.length() == osb4.length())
+            ASSERT(0 != memcmp(osb1.data(), osb2.data(), osb2.length()));
+            ASSERT(0 == memcmp(osb2.data(), osb3.data(), osb2.length()));
+            ASSERT(0 == memcmp(osb2.data(), osb4.data(), osb2.length()));
+
+            printDiagnostic(encoder1);
+            printDiagnostic(encoder2);
+            printDiagnostic(encoder3);
+            printDiagnostic(encoder4);
+
+            if (veryVerbose) {
+                P(osb1.length())
+                printBuffer(osb1.data(), osb1.length());
+
+                P(osb2.length())
+                printBuffer(osb2.data(), osb2.length());
+
+                P(osb3.length())
+                printBuffer(osb3.data(), osb3.length());
+
+                P(osb4.length())
+                printBuffer(osb4.data(), osb4.length());
+            }
+        }
+
+        if (verbose) cout << "\tVerify encoding of `MySequenceWithArray`.\n";
+        {
+            static const struct {
+                int         d_lineNum;   // source line number
+                int         d_size;      // size of array
+                bool        d_useHints;  // whether to use array length hints
+                const char *d_exp;       // expected output
+            } DATA[] = {
+    //----------^
+    //ln  size  hints  exp
+    //--  ----  -----  -----------------------------------------------------
+    { L_,    0,     0, "30808001 17a18000 000000"                            },
+    { L_,    0,     1, "30808001 17a18000 000000"                            },
+    { L_,    1,     0, "30808001 17a1800c 00000000 00"                       },
+    { L_,    1,     1, "30808001 17a1800c 00000000 00"                       },
+    { L_,    2,     0, "30808001 17a1800c 000c0000 000000"                   },
+    { L_,    2,     1, "30808001 179f87ff ffff7f01 02a1800c 000c0000 000000" },
+    //----------v
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE  = DATA[i].d_lineNum;
+                const int   SIZE  = DATA[i].d_size;
+                const bool  HINTS = DATA[i].d_useHints;
+                const char *EXP   = DATA[i].d_exp;
+                const int   LEN   = numOctets(EXP);
+
+                if (veryVerbose) { P_(SIZE) P(EXP) }
+
+                balber::BerEncoderOptions options;
+                options.setEncodeArrayLengthHints(HINTS);
+
+                test::MySequenceWithArray VALUE;
+                VALUE.attribute1() = 23;
+                VALUE.attribute2().resize(SIZE);
+
+                bdlsb::MemOutStreamBuf osb;
+                balber::BerEncoder encoder(&options);
+                ASSERTV(LINE, 0 == encoder.encode(&osb, VALUE));
+                ASSERTV(LINE, LEN, osb.length(), LEN == (int)osb.length());
+                ASSERTV(LINE,
+                        EXP,
+                        0 == compareBuffers(osb.data(), EXP));
 
                 if (veryVerbose) {
                     cout << "Output Buffer:";

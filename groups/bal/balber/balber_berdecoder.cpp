@@ -33,6 +33,7 @@ BerDecoder::BerDecoder(const BerDecoderOptions *options,
 , d_currentDepth(0)
 , d_numUnknownElementsSkipped(0)
 , d_topNode(0)
+, d_arrayLengthHint(0)
 {
 }
 

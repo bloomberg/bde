@@ -15,7 +15,9 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: The `balber::BerConstants` `struct` defined in this component
 // defines two enumerations, `balber::TagClass` and `balber::TagType`, that
 // contain symbolic constants for the corresponding tag classes and tag types,
-// as defined in the BER specification (X.690).
+// as defined in the BER specification (X.690).  Also defined are constants
+// used for encoding and decoding, such as the tag number for the array length
+// hint.
 //
 ///Usage
 ///-----
@@ -84,6 +86,8 @@ struct BerConstants {
       , CONSTRUCTED = e_CONSTRUCTED
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
+
+    static const int k_ARRAY_LENGTH_HINT_TAG_NUMBER = 0x7fffffff;
 };
 
 // FREE OPERATORS

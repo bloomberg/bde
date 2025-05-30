@@ -33,6 +33,7 @@
 ./generate s_baltst_mysequencewithnullable.xsd
 ./generate s_baltst_mysequencewithnullables.xsd
 ./generate s_baltst_mysequencewithprecisiondecimalattribute.xsd
+./generate s_baltst_mysequencewiththreearrays.xsd
 ./generate s_baltst_mysimplecontent.xsd
 ./generate s_baltst_mysimpleintcontent.xsd
 ./generate s_baltst_ratsnest.xsd

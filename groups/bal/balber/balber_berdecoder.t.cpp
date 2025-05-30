@@ -1,7 +1,9 @@
 // balber_berdecoder.t.cpp                                            -*-C++-*-
 #include <balber_berdecoder.h>
 
-#include <balber_berencoder.h>        // for testing only
+#include <balber_berdecoderoptions.h>
+#include <balber_berencoder.h>
+#include <balber_berencoderoptions.h>
 
 #include <s_baltst_address.h>
 #include <s_baltst_basicrecord.h>
@@ -18,6 +20,7 @@
 #include <s_baltst_mysequencewitharray.h>
 #include <s_baltst_mysequencewithnillable.h>
 #include <s_baltst_mysequencewithnullable.h>
+#include <s_baltst_mysequencewiththreearrays.h>
 #include <s_baltst_rawdata.h>
 #include <s_baltst_rawdataswitched.h>
 #include <s_baltst_rawdataunformatted.h>
@@ -168,6 +171,10 @@ static void aSsErT(int c, const char *s, int i) {
 static bool         verbose = false;
 static bool     veryVerbose = false;
 static bool veryVeryVerbose = false;
+
+static const char        *k_ALH_PREFIX        = "\x9f\x87\xff\xff\xff\x7f";
+static const char        *k_ALH_SKIP          = "\x9f\x87\xfe\xff\xff\x7f";
+static const bsl::size_t  k_ALH_PREFIX_LENGTH = strlen(k_ALH_PREFIX);
 
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -2342,12 +2349,17 @@ int main(int argc, char *argv[])
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
+    balber::BerEncoderOptions encodeALHOptions;
+    encodeALHOptions.setEncodeArrayLengthHints(true);
+
+    balber::BerEncoder encoder(0);
+    balber::BerEncoder encoderALH(&encodeALHOptions);
+
     balber::BerDecoderOptions options;
     if (veryVeryVerbose) {
        options.setTraceLevel(1);
     }
 
-    balber::BerEncoder encoder(0);
     balber::BerDecoder decoder(&options);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
@@ -6017,6 +6029,11 @@ int main(int argc, char *argv[])
             balber::BerEncoder encoder(&options);
             ASSERT(0 == encoder.encode(&osb, valueOut));
 
+            // verify array length hint is present
+            bsl::size_t pos = bsl::string(osb.data(),
+                                          osb.length()).find(k_ALH_PREFIX);
+            ASSERT(bsl::string::npos == pos);
+
             if (veryVerbose) {
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
@@ -6097,6 +6114,199 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
+            }
+        }
+
+        if (verbose) cout << "\nEmpty array with `encodeArrayLengthHints`.\n";
+        {
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithArray valueOut;
+            valueOut.attribute1() = 34;
+
+            ASSERT(0 == encoderALH.encode(&osb, valueOut));
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            test::MySequenceWithArray valueIn;
+            valueIn.attribute2().push_back("This");
+            valueIn.attribute2().push_back("is");
+            valueIn.attribute2().push_back("a");
+            valueIn.attribute2().push_back("test.");
+
+            ASSERT(valueOut != valueIn);
+            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+            ASSERT(0 == decoder.decode(&isb, &valueIn));
+            printDiagnostic(decoder);
+
+            ASSERT(valueOut == valueIn);
+        }
+
+        if (verbose) {
+            cout << "\nNon-empty array with `encodeArrayLengthHints`.\n";
+        }
+        {
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithArray valueOut;
+            valueOut.attribute1() = 34;
+            valueOut.attribute2().push_back("Hello");
+            valueOut.attribute2().push_back("World!");
+
+            ASSERT(0 == encoderALH.encode(&osb, valueOut));
+
+            // verify array length hint is present
+            bsl::string output(osb.data(), osb.length());
+            bsl::size_t pos = output.find(k_ALH_PREFIX);
+            ASSERT(bsl::string::npos != pos);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            {
+                test::MySequenceWithArray valueIn;
+
+                ASSERT(valueOut != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(0 == decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueOut == valueIn);
+                ASSERT(2 == valueIn.attribute2().capacity());
+                ASSERT(0 == decoder.numUnknownElementsSkipped());
+            }
+
+            // simulate having a hint in old code
+            output.replace(pos,
+                           k_ALH_PREFIX_LENGTH,
+                           k_ALH_SKIP,
+                           k_ALH_PREFIX_LENGTH);
+
+            {  // simulate decoding failure due to an unknown tag (the hint)
+                balber::BerDecoderOptions optionsLocal(options);
+                optionsLocal.setSkipUnknownElements(false);
+
+                balber::BerDecoder decoder(&optionsLocal);
+
+                test::MySequenceWithArray valueIn;
+
+                ASSERT(valueOut != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(output.data(), output.length());
+                ASSERT(0 != decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueOut != valueIn);
+                ASSERT(1 == decoder.numUnknownElementsSkipped());
+            }
+
+            {  // simulate skipping an unknown tag (the hint)
+                test::MySequenceWithArray valueIn;
+
+                ASSERT(valueOut != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(output.data(), output.length());
+                ASSERT(0 == decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueOut == valueIn);
+                ASSERT(1 == decoder.numUnknownElementsSkipped());
+            }
+
+            // replace correct hint
+            output.replace(pos,
+                           k_ALH_PREFIX_LENGTH,
+                           k_ALH_PREFIX,
+                           k_ALH_PREFIX_LENGTH);
+
+            // set hint to 9, larger than it should be
+            output[pos + k_ALH_PREFIX_LENGTH + 1] = '\x09';
+
+            {  // verify reserved capacity
+                test::MySequenceWithArray valueIn;
+
+                ASSERT(valueOut != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(output.data(), output.length());
+                ASSERT(0 == decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueOut == valueIn);
+                ASSERT(9 == valueIn.attribute2().capacity());
+                ASSERT(0 == decoder.numUnknownElementsSkipped());
+            }
+
+            {  // verify reserved capacity when capacity is larger than max
+                balber::BerDecoderOptions optionsLocal(options);
+                optionsLocal.setMaxSequenceSize(5);
+
+                balber::BerDecoder decoder(&optionsLocal);
+
+                test::MySequenceWithArray valueIn;
+
+                ASSERT(valueOut != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(output.data(), output.length());
+                ASSERT(0 == decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueOut == valueIn);
+                ASSERT(5 == valueIn.attribute2().capacity());
+                ASSERT(0 == decoder.numUnknownElementsSkipped());
+            }
+        }
+
+        if (verbose) {
+            cout << "\nThree arrays with `encodeArrayLengthHints`.\n";
+        }
+        {
+            bdlsb::MemOutStreamBuf osb;
+
+            test::MySequenceWithThreeArrays valueOut;
+            {
+                valueOut.attribute1().push_back("Hello");
+                valueOut.attribute1().push_back("World!");
+                valueOut.attribute1().push_back("alpha");
+                valueOut.attribute1().push_back("beta");
+                valueOut.attribute2().push_back(1);
+                valueOut.attribute2().push_back(2);
+                valueOut.attribute2().push_back(3);
+                valueOut.attribute3().push_back(4.0);
+                valueOut.attribute3().push_back(5.0);
+                valueOut.attribute3().push_back(6.0);
+                valueOut.attribute3().push_back(7.0);
+                valueOut.attribute3().push_back(8.0);
+            }
+
+            ASSERT(0 == encoderALH.encode(&osb, valueOut));
+
+            // verify array length hint is present exactly three times
+            bsl::string output(osb.data(), osb.length());
+            bsl::size_t pos = output.find(k_ALH_PREFIX);
+            ASSERT(bsl::string::npos != pos);
+            pos = output.find(k_ALH_PREFIX, pos + 1);
+            ASSERT(bsl::string::npos != pos);
+            pos = output.find(k_ALH_PREFIX, pos + 1);
+            ASSERT(bsl::string::npos != pos);
+            pos = output.find(k_ALH_PREFIX, pos + 1);
+            ASSERT(bsl::string::npos == pos);
+
+            if (veryVerbose) {
+                P(osb.length())
+                printBuffer(osb.data(), osb.length());
+            }
+
+            {
+                test::MySequenceWithThreeArrays valueIn;
+
+                ASSERT(valueOut != valueIn);
+                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
+                ASSERT(0 == decoder.decode(&isb, &valueIn));
+                printDiagnostic(decoder);
+
+                ASSERT(valueOut == valueIn);
+                ASSERT(0 == decoder.numUnknownElementsSkipped());
             }
         }
 

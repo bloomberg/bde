@@ -28,12 +28,13 @@ namespace balber {
 // CREATORS
 BerEncoder::BerEncoder(const BerEncoderOptions *options,
                        bslma::Allocator        *basicAllocator)
-: d_options      (options)
-, d_allocator    (bslma::Default::allocator(basicAllocator))
-, d_logStream    (0)
-, d_severity     (e_BER_SUCCESS)
-, d_streamBuf    (0)
-, d_currentDepth (0)
+: d_options            (options)
+, d_allocator          (bslma::Default::allocator(basicAllocator))
+, d_logStream          (0)
+, d_severity           (e_BER_SUCCESS)
+, d_streamBuf          (0)
+, d_currentDepth       (0)
+, d_useArrayLengthHint (true)
 {
 }
 

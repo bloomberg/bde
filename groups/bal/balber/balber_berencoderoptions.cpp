@@ -1,7 +1,7 @@
 // balber_berencoderoptions.cpp       *DO NOT EDIT*        @generated -*-C++-*-
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(balber_berencoderoptions_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(balber_berencoderoptions_cpp, "$Id$ $CSID$")
 
 #include <balber_berencoderoptions.h>
 
@@ -14,9 +14,11 @@ BSLS_IDENT_RCSID(balber_berencoderoptions_cpp,"$Id$ $CSID$")
 #include <bslim_printer.h>
 #include <bsls_assert.h>
 
+#include <bsl_cstring.h>
 #include <bsl_iomanip.h>
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
+#include <bsl_utility.h>
 
 namespace BloombergLP {
 namespace balber {
@@ -42,6 +44,8 @@ const int BerEncoderOptions::DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PREC
 const bool BerEncoderOptions::DEFAULT_INITIALIZER_DISABLE_UNSELECTED_CHOICE_ENCODING = false;
 
 const bool BerEncoderOptions::DEFAULT_INITIALIZER_PRESERVE_SIGN_OF_NEGATIVE_ZERO = false;
+
+const bool BerEncoderOptions::DEFAULT_INITIALIZER_ENCODE_ARRAY_LENGTH_HINTS = false;
 
 const bdlat_AttributeInfo BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -92,6 +96,13 @@ const bdlat_AttributeInfo BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("PreserveSignOfNegativeZero") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ENCODE_ARRAY_LENGTH_HINTS,
+        "EncodeArrayLengthHints",
+        sizeof("EncodeArrayLengthHints") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
@@ -101,7 +112,7 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 8; ++i) {
         const bdlat_AttributeInfo& attributeInfo =
                     BerEncoderOptions::ATTRIBUTE_INFO_ARRAY[i];
 
@@ -132,6 +143,8 @@ const bdlat_AttributeInfo *BerEncoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_DISABLE_UNSELECTED_CHOICE_ENCODING];
       case ATTRIBUTE_ID_PRESERVE_SIGN_OF_NEGATIVE_ZERO:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_PRESERVE_SIGN_OF_NEGATIVE_ZERO];
+      case ATTRIBUTE_ID_ENCODE_ARRAY_LENGTH_HINTS:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ENCODE_ARRAY_LENGTH_HINTS];
       default:
         return 0;
     }
@@ -147,60 +160,11 @@ BerEncoderOptions::BerEncoderOptions()
 , d_encodeDateAndTimeTypesAsBinary(DEFAULT_INITIALIZER_ENCODE_DATE_AND_TIME_TYPES_AS_BINARY)
 , d_disableUnselectedChoiceEncoding(DEFAULT_INITIALIZER_DISABLE_UNSELECTED_CHOICE_ENCODING)
 , d_preserveSignOfNegativeZero(DEFAULT_INITIALIZER_PRESERVE_SIGN_OF_NEGATIVE_ZERO)
-{
-}
-
-BerEncoderOptions::BerEncoderOptions(const BerEncoderOptions& original)
-: d_traceLevel(original.d_traceLevel)
-, d_bdeVersionConformance(original.d_bdeVersionConformance)
-, d_datetimeFractionalSecondPrecision(original.d_datetimeFractionalSecondPrecision)
-, d_encodeEmptyArrays(original.d_encodeEmptyArrays)
-, d_encodeDateAndTimeTypesAsBinary(original.d_encodeDateAndTimeTypesAsBinary)
-, d_disableUnselectedChoiceEncoding(original.d_disableUnselectedChoiceEncoding)
-, d_preserveSignOfNegativeZero(original.d_preserveSignOfNegativeZero)
-{
-}
-
-BerEncoderOptions::~BerEncoderOptions()
+, d_encodeArrayLengthHints(DEFAULT_INITIALIZER_ENCODE_ARRAY_LENGTH_HINTS)
 {
 }
 
 // MANIPULATORS
-
-BerEncoderOptions&
-BerEncoderOptions::operator=(const BerEncoderOptions& rhs)
-{
-    if (this != &rhs) {
-        d_traceLevel = rhs.d_traceLevel;
-        d_bdeVersionConformance = rhs.d_bdeVersionConformance;
-        d_encodeEmptyArrays = rhs.d_encodeEmptyArrays;
-        d_encodeDateAndTimeTypesAsBinary = rhs.d_encodeDateAndTimeTypesAsBinary;
-        d_datetimeFractionalSecondPrecision = rhs.d_datetimeFractionalSecondPrecision;
-        d_disableUnselectedChoiceEncoding = rhs.d_disableUnselectedChoiceEncoding;
-        d_preserveSignOfNegativeZero = rhs.d_preserveSignOfNegativeZero;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-BerEncoderOptions&
-BerEncoderOptions::operator=(BerEncoderOptions&& rhs)
-{
-    if (this != &rhs) {
-        d_traceLevel = bsl::move(rhs.d_traceLevel);
-        d_bdeVersionConformance = bsl::move(rhs.d_bdeVersionConformance);
-        d_encodeEmptyArrays = bsl::move(rhs.d_encodeEmptyArrays);
-        d_encodeDateAndTimeTypesAsBinary = bsl::move(rhs.d_encodeDateAndTimeTypesAsBinary);
-        d_datetimeFractionalSecondPrecision = bsl::move(rhs.d_datetimeFractionalSecondPrecision);
-        d_disableUnselectedChoiceEncoding = bsl::move(rhs.d_disableUnselectedChoiceEncoding);
-        d_preserveSignOfNegativeZero = bsl::move(rhs.d_preserveSignOfNegativeZero);
-    }
-
-    return *this;
-}
-#endif
 
 void BerEncoderOptions::reset()
 {
@@ -211,14 +175,14 @@ void BerEncoderOptions::reset()
     d_datetimeFractionalSecondPrecision = DEFAULT_INITIALIZER_DATETIME_FRACTIONAL_SECOND_PRECISION;
     d_disableUnselectedChoiceEncoding = DEFAULT_INITIALIZER_DISABLE_UNSELECTED_CHOICE_ENCODING;
     d_preserveSignOfNegativeZero = DEFAULT_INITIALIZER_PRESERVE_SIGN_OF_NEGATIVE_ZERO;
+    d_encodeArrayLengthHints = DEFAULT_INITIALIZER_ENCODE_ARRAY_LENGTH_HINTS;
 }
 
 // ACCESSORS
 
-bsl::ostream& BerEncoderOptions::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+bsl::ostream& BerEncoderOptions::print(bsl::ostream& stream,
+                                       int           level,
+                                       int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -229,6 +193,7 @@ bsl::ostream& BerEncoderOptions::print(
     printer.printAttribute("datetimeFractionalSecondPrecision", this->datetimeFractionalSecondPrecision());
     printer.printAttribute("disableUnselectedChoiceEncoding", this->disableUnselectedChoiceEncoding());
     printer.printAttribute("preserveSignOfNegativeZero", this->preserveSignOfNegativeZero());
+    printer.printAttribute("encodeArrayLengthHints", this->encodeArrayLengthHints());
     printer.end();
     return stream;
 }
@@ -237,11 +202,11 @@ bsl::ostream& BerEncoderOptions::print(
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY BLP_BAS_CODEGEN_2021.07.12.1
+// GENERATED BY BLP_BAS_CODEGEN_2025.05.15
 // USING bas_codegen.pl -m msg --msgExpand -p balber --noAggregateConversion --noHashSupport -c berencoderoptions balber.xsd
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2021 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.
