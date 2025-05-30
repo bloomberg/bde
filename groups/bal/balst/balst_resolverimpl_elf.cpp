@@ -35,6 +35,7 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #include <bsl_vector.h>
 
 #include <ctype.h>
+#include <dlfcn.h>
 #include <elf.h>
 #include <sys/types.h>    // lstat
 #include <sys/stat.h>     // lstat
@@ -49,7 +50,6 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 #if defined(BSLS_PLATFORM_OS_LINUX)
 
 # include <cxxabi.h>
-# include <dlfcn.h>
 # include <execinfo.h>
 # include <link.h>
 # include <sys/auxv.h>
@@ -60,8 +60,6 @@ BSLS_IDENT_RCSID(balst_resolverimpl_elf_cpp,"$Id$ $CSID$")
 
 # if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
 #   include <cxxabi.h>
-# else
-#   include <dlfcn.h>
 # endif
 
 #else
@@ -917,6 +915,13 @@ static TYPE approxAbs(TYPE x)
     return x;
 }
 
+/// Return `true` if the specified `pc` is null or points to a string of zero
+/// length.
+bool empty(const char *pc)
+{
+    return !pc || !*pc;
+}
+
 template <class TYPE>
 bsl::span<char> spanForType(TYPE *memory)
 {
@@ -1369,13 +1374,11 @@ class FreeGuard {
                       // free functions in the unnamed namespace
                       // ---------------------------------------
 
-/// The specified 'start' points to a vdso file that resides in memory.
+/// The specified 'elfHdr' points to a vdso file that resides in memory.
 /// Traverse its data to determine its length, and return that length.
-size_t calculateVdsoLength(const void *start)
+size_t calculateVdsoLength(const ElfHeader *elfHdr)
 {
-    const char         *charStart = static_cast<const char *>(start);
-    const u::ElfHeader *elfHdr = static_cast<const u::ElfHeader *>(start);
-
+    const char *charStart = reinterpret_cast<const char *>(elfHdr);
     Offset oRet = 0;    // The size of the vdso entry.
 
     // The Elf header tells us how many program headers or section headers
@@ -1538,7 +1541,7 @@ int dumpBinary(u::Reader *reader, int numRows)
 }
 #endif
 
-int checkElfHeader(u::ElfHeader *elfHeader)
+int checkElfHeader(const u::ElfHeader *elfHeader)
     // Return 0 if the magic numbers in the specified 'elfHeader' are correct
     // and a non-zero value otherwise.
 {
@@ -4074,12 +4077,12 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     // to be displayed as the 'libraryFileName' field of the stack trace frame.
     // 'nameToOpen' is the file name we are to open to access the binary, which
     // may match `libraryFileName` or, in the case of the main executable, may
-    // be found somewhere under "/proc/self".  Note that on some operating
-    // systems, if the library is the main program, `libraryFileName == 0`.
+    // be better found somewhere else.  Note that on Linux, if the library is
+    // the main program, `libraryFileName == 0`.
     //
     // `fileNameIfExecutable` is only used if the file is the main executable:
-    // the variable is a string to store `argv[0]` once we fetch it from
-    // "/proc".
+    // the variable is a string to store the library file name when we fetch
+    // it from somewhere.
 
     const char  *nameToOpen = libraryFileName;
     bsl::string  fileNameIfExecutableFile(&d_hbpAlloc);
@@ -4124,35 +4127,76 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
         // On Solaris, "/proc/self/exe" doesn't exist, but there is
         // "/proc/self/object/a.out" (which doesn't exist on Linux) which is a
         // hard link to the executable.
-
-        nameToOpen = u::e_IS_LINUX ? "/proc/self/exe"
-                                   : "/proc/self/object/a.out";
-
+        //
         // The file at "/proc/self/cmdline" is a hard link to a file whose
         // contents are all the strings in `argv[*]` concatenated with '\0's
         // separating them, so reading the first null-terminated string from
         // that file gives us `argv[0]`, the filename of the executable, which
         // might or might not still be in the file system.
+        //
+        // Under some circumstances, at least on Solaris, access to
+        // "/proc/self" may be disabled.
 
-        bsl::ifstream cmdLineFile("/proc/self/cmdline");
-        u_ASSERT_BAIL(cmdLineFile.good());
-        cmdLineFile.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0');
-        u_ASSERT_BAIL(cmdLineFile.good() || cmdLineFile.eof());
-        fileNameIfExecutableFile.assign(
-                                    d_scratchBufA_p,
-                                    static_cast<size_t>(cmdLineFile.gcount()));
-        libraryFileName = fileNameIfExecutableFile.c_str();
+        const char *procSelfExe  = "/proc/self/exe";
+        const char *procExecFile = u::e_IS_LINUX ? procSelfExe
+                                                 : "/proc/self/object/a.out";
+        const char *cmdLineFile  = "/proc/self/cmdline";
+
+        if (bdls::FilesystemUtil::exists(procExecFile)) {
+            nameToOpen = procExecFile;
+        }
+
+        if (u::empty(libraryFileName)) {
+            bsl::ifstream in(cmdLineFile);
+            if (in.get(d_scratchBufA_p, u::k_SCRATCH_BUF_LEN, '\0')) {
+                fileNameIfExecutableFile.assign(d_scratchBufA_p, in.gcount());
+                libraryFileName = fileNameIfExecutableFile.c_str();
+            }
+        }
+        if (u::empty(libraryFileName) &&
+                           bdls::FilesystemUtil::isSymbolicLink(procSelfExe)) {
+            // This is just in the unlikely chance that "/proc/self/exe" is
+            // available but "/proc/self/cmdline" wasn't.
+
+            const u::Offset numChars = ::readlink(procSelfExe,
+                                                  d_scratchBufA_p,
+                                                  u::k_SCRATCH_BUF_LEN);
+            if (numChars > 0) {
+                u_ASSERT_BAIL(numChars <= u::k_SCRATCH_BUF_LEN);
+                fileNameIfExecutableFile.assign(d_scratchBufA_p,
+                                                static_cast<size_t>(numChars));
+                libraryFileName = fileNameIfExecutableFile.c_str();
+            }
+        }
+        if (u::empty(libraryFileName)) {
+            libraryFileName = "<unknown_main_executable_file>";
+        }
+        else if (u::empty(nameToOpen)) {
+            // We weren't able to get `nameToOpen` from "/proc/...", but we
+            // have something in `libraryFileName`, which is our best bet at
+            // this point.
+
+            nameToOpen = libraryFileName;
+        }
     }
 
-    u_ASSERT_BAIL(libraryFileName && libraryFileName[0]);
-    u_ASSERT_BAIL(nameToOpen      && nameToOpen[0]);
-
-    u_TRACES && u_zprintf("%s: fn:\"%s\","
+    u_zprintf("%s: libFn:\"%s\","
                        " nameToOpen:\"%s\" main:%d numHdrs:%d unmatched:%ld\n",
                               rn, libraryFileName ? libraryFileName : "(null)",
                                             nameToOpen ? nameToOpen : "(null)",
                                           static_cast<int>(d_isMainExecutable),
                          numProgramHeaders, u::l(d_hidden.d_frameRecs.size()));
+
+    if (u::empty(nameToOpen)) {
+        u_eprintf("%s: unable to find name to open for %s\n", rn,
+                    d_isMainExecutable ? "main executable" : "shared library");
+        return -1;                                                    // RETURN
+    }
+    if (u::empty(libraryFileName)) {
+        u_eprintf("%s: unable to find lib name for %s\n", rn,
+                    d_isMainExecutable ? "main executable" : "shared library");
+        return -1;                                                    // RETURN
+    }
 
     balst::Resolver_FileHelper helper;
     int rc = helper.openFile(nameToOpen);
@@ -4160,11 +4204,17 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
     if (rc && !d_isMainExecutable && bsl::strstr(libraryFileName, "vdso")) {
         char *vdsoStart = reinterpret_cast<char *>(
                                                  ::getauxval(AT_SYSINFO_EHDR));
-        Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoStart));
+        const u::ElfHeader *vdsoElf = reinterpret_cast<const u::ElfHeader *>(
+                                                                    vdsoStart);
+        if (0 != u::checkElfHeader(vdsoElf)) {
+            u_eprintf("%s: invalid vdso file\n", rn);
+            return -1;                                                // RETURN
+        }
+        Span mappedFile(vdsoStart, u::calculateVdsoLength(vdsoElf));
         rc = helper.openMappedFile(mappedFile);
         if (rc) {
-            u_TRACES && u_zprintf("%s: Couldn't access vdso file %s\n", rn,
-                                  libraryFileName);
+            u_eprintf("%s: Couldn't access vdso file %s\n", rn,
+                                                              libraryFileName);
             return -1;                                                // RETURN
         }
 
