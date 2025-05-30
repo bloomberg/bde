@@ -3,5 +3,6 @@ balber_berdecoder
 balber_berdecoderoptions
 balber_berencoder
 balber_berencoderoptions
+balber_berencoderoptionsutil
 balber_beruniversaltagnumber
 balber_berutil
