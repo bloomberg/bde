@@ -4189,7 +4189,7 @@ int u::Resolver::processLoadedImage(const char *libraryFileName,
 
     if (u::empty(nameToOpen)) {
         u_eprintf("%s: unable to find name to open for %s\n", rn,
-               d_isMainExecutable ? "main executable file" : "shared library");
+                    d_isMainExecutable ? "main executable" : "shared library");
         return -1;                                                    // RETURN
     }
     if (u::empty(libraryFileName)) {
