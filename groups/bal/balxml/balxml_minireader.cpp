@@ -7,6 +7,7 @@ BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 #include <balxml_errorinfo.h>
 
 #include <bsls_assert.h>
+#include <bsls_review.h>
 
 #include <bsl_algorithm.h>  // for 'swap'
 #include <bsl_cctype.h>
@@ -1520,6 +1521,10 @@ MiniReader::scanOpenTag()
       case '/':         // End Element
         getChar();
         return scanEndElement();                                      // RETURN
+
+      case '>':         // Unexpected '>'
+        BSLS_REVIEW_INVOKE("Invalid XML input; unexpected '>' after '<'");
+        break;
 
     default:
         break;

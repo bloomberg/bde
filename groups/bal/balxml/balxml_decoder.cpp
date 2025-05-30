@@ -428,8 +428,8 @@ Decoder::parse(Decoder_ElementContext *context)
         }
 
         const char *attrName = attr.localName();
-        const char *attrVal = attr.value();
-        size_t       lenVal = attrVal ? bsl::strlen(attrVal) : 0;
+        const char *attrVal  = attr.value();
+        size_t      lenVal   = attrVal ? bsl::strlen(attrVal) : 0;
 
         if (0 != context->parseAttribute(attrName, attrVal, lenVal, this)) {
             BALXML_DECODER_LOG_ERROR(this)

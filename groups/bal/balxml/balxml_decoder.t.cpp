@@ -59,8 +59,6 @@
 #include <s_baltst_testtaggedvalue.h>
 #include <s_baltst_topchoice.h>
 
-#include <bslim_testutil.h>
-
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_enumeratorinfo.h>
@@ -106,6 +104,7 @@
 #include <bslmf_issame.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttestexception.h>
 #include <bsls_buildtarget.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
@@ -207,6 +206,7 @@ namespace Test = s_baltst;
 // [23] REPRODUCE SCENARIO FROM DRQS 171405619
 // [24] DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
 // [25] MAXDEPTH IS RESPECTED
+// [26] REPRODUCE SCENARIO FROM DRQS 175214775
 // [-1] TESTING VALID & INVALID UTF-8: e_STRING
 // [-1] TESTING VALID & INVALID UTF-8: e_STREAMBUF
 // [-1] TESTING VALID & INVALID UTF-8: e_ISTREAM
@@ -4443,6 +4443,82 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 26: {
+        // --------------------------------------------------------------------
+        // REPRODUCE SCENARIO FROM DRQS 175214775
+        //
+        // Concerns:
+        // 1. Decoding an invalid XML input that is not well-formed should
+        //    cause an error.
+        //
+        //
+        // Plan:
+        // 1. Attempt to decode some invalid XML input. Verify that an error is
+        //    reported. (C-1)
+        //
+        // Testing:
+        //   DRQS 175214775
+        // --------------------------------------------------------------------
+
+#ifdef BDE_BUILD_TARGET_EXC
+        bsls::ReviewFailureHandlerGuard logReviewGuard(
+                                                   &bsls::Review::failByThrow);
+
+        balxml::MiniReader     reader;
+        balxml::ErrorInfo      errInfo;
+        balxml::DecoderOptions options;
+
+        balxml::Decoder decoder(&options,
+                                &reader,
+                                &errInfo,
+                                &bsl::cerr,
+                                &bsl::cerr);
+
+        struct {
+            const char *d_input;
+            bool        d_isValid;
+            bool        d_ReviewHit;
+        } DATA[] = {
+            {"<>",                            true , true  },
+            {"<,>",                           false, false },
+            {"<:>",                           false, false },
+            {"<><SimpleRequest data=\"\"/>",  true,  true  },
+            {"<><SimpleRequest> <data>Hello</data> "
+              "<responseLength>64</responseLength> "
+              "</SimpleRequest>",             true,  true  },
+            {"<SimpleRequest <data>Hello</data> "
+              "<responseLength>64</responseLength> "
+              ">",                            false, false },
+            {"<SimpleRequest><data name=''>", false, false },
+            {"</>",                           false, false },
+            // -------------------------
+            {"<SimpleRequest> <data>Hello</data> "
+              "<responseLength>64</responseLength> "
+              "</SimpleRequest>",             true,  false }
+        };
+        const int NUM_DATA = sizeof(DATA) / sizeof(DATA[0]);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const char *INPUT = DATA[i].d_input;
+            const bool  IS_VALID = DATA[i].d_isValid;
+            const bool  IS_REVIEW = DATA[i].d_ReviewHit;
+
+            bdlsb::FixedMemInStreamBuf isb(INPUT, strlen(INPUT));
+            s_baltst::SimpleRequest    request;
+            int rc = 0;
+            try {
+                rc = decoder.decode(&isb, &request);
+                // If review is not hit, check the status.
+                ASSERTV(i, rc, IS_VALID, IS_VALID == ( 0 == rc));
+                ASSERTV(i, rc, IS_REVIEW, false == IS_REVIEW);
+            } catch (const bsls::AssertTestException& e) {
+                ASSERTV(i, rc, IS_VALID, IS_VALID == ( 0 == rc));
+                ASSERTV(i, rc, IS_REVIEW, true  == IS_REVIEW);
+            }
+        }
+#endif  // BDE_BUILD_TARGET_EXC
+
+      } break;
       case 25: {
         // --------------------------------------------------------------------
         // MAXDEPTH IS RESPECTED

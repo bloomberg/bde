@@ -168,8 +168,8 @@ class DecoderOptions {
     /// an attribute of this class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR&  manipulator,
-                            const char   *name,
-                            int           nameLength);
+                            const char     *name,
+                            int             nameLength);
 
     /// Set the "MaxDepth" attribute of this object to the specified
     /// `value`.
