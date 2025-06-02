@@ -190,9 +190,8 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
                       // OutputIteratorStreamBufferTester
                       // ================================
 
-/// This type can print to stream up to 62 characters, and it verifies the
-/// state of the stream after each print.  The 62 characters printed go from
-/// 0-9, then a-z, then A-Z.
+/// This type can print to stream up to 62 characters.  The 62 characters
+/// printed go from 0-9, then a-z, then A-Z.
 class VariableLengthStreamable {
     // DATA
     int d_numCharsPrinted;

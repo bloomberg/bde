@@ -172,10 +172,10 @@ concept Formattable_With =
 }  // close enterprise namespace
 
 /// The `bsl::formattable` concept answers the question if the specified
-/// `t_TYPE` a formatter specialization enabled for the specified `t_CHAR`
-/// character type available, in other words if `t_TYPE` can be used as a
-/// `bsl::format` formatted argument with a format string of `t_CHAR`.
-/// The `t_CHAR` character type must be one of `char` or `wchar_t`.
+/// `t_TYPE` has a formatter specialization enabled for the specified `t_CHAR`
+/// character type (in other words if `t_TYPE` can be used as a `bsl::format`
+/// formatted argument with a format string of `t_CHAR`).  The `t_CHAR`
+/// character type must be one of `char` or `wchar_t`.
 namespace bsl {
 template <class t_TYPE, class t_CHAR>
 concept formattable = BloombergLP::bslfmt::Formattable_With<
