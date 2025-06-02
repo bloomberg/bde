@@ -1,8 +1,6 @@
 // bdld_manageddatum.t.cpp                                            -*-C++-*-
 #include <bdld_manageddatum.h>
 
-#include <bdldfp_decimal.h>
-
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
@@ -60,15 +58,18 @@ using namespace bdld;
 // [ 5] ManagedDatum(const allocator_type& a);
 // [ 2] ManagedDatum(const Datum&, const allocator_type& a = {});
 // [ 5] ManagedDatum(const ManagedDatum&, const allocator_type& a = {});
+// [ 5] ManagedDatum(MovableRef<ManagedDatum> o);
+// [ 5] ManagedDatum(MovableRef<ManagedDatum> o, const allocator_type& a);
 // [ 2] ~ManagedDatum();
 //
 // MANIPULATORS
-// [ 9] ManagedDatum& operator=(const ManagedDatum&);
-// [ 8] void adopt(const Datum&);
-// [ 8] void clone(const Datum& value);
-// [ 8] Datum release();
-// [ 8] void makeNull();
-// [ 7] void swap(ManagedDatum& other);
+// [11] ManagedDatum& operator=(bslmf::MovableRef<ManagedDatum> rhs);
+// [10] ManagedDatum& operator=(const ManagedDatum& rhs);
+// [ 9] void adopt(const Datum&);
+// [ 9] void clone(const Datum& value);
+// [ 9] Datum release();
+// [ 9] void makeNull();
+// [ 8] void swap(ManagedDatum& other);
 //
 // ACCESSORS
 // [ 4] const Datum *operator->() const;
@@ -77,25 +78,25 @@ using namespace bdld;
 //
 // [ 4] bslma::Allocator *allocator() const;
 // [ 4] allocator_type get_allocator() const;
-// [11] ostream& print(ostream&, int, int) const;
+// [13] ostream& print(ostream&, int, int) const;
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const ManagedDatum&, const ManagedDatum&);
 // [ 6] bool operator!=(const ManagedDatum&, const ManagedDatum&);
-// [10] bsl::ostream& operator<<(bsl::ostream&, const ManagedDatum&);
+// [12] bsl::ostream& operator<<(bsl::ostream&, const ManagedDatum&);
 //
 // FREE FUNCTIONS
-// [13] void swap(ManagedDatum& a, ManagedDatum& b);
+// [15] void swap(ManagedDatum& a, ManagedDatum& b);
 //
 // TRAITS
-// [12] bslmf::IsBitwiseEqualityComparable
-// [12] bslma::UsesBslmaAllocator
-// [12] bsl::is_trivially_copyable
+// [14] bslmf::IsBitwiseEqualityComparable
+// [14] bslma::UsesBslmaAllocator
+// [14] bsl::is_trivially_copyable
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 3] TEST APPARATUS
-// [14] CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
-// [15] USAGE EXAMPLE
+// [16] CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
+// [17] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -293,7 +294,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocatorMonitor gam(&globalAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 15: {
+      case 17: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -434,7 +435,7 @@ int main(int argc, char *argv[])
     Datum::destroy(internalObj, obj.get_allocator());
 // ```
       } break;
-      case 14: {
+      case 16: {
         //---------------------------------------------------------------------
         // CONCERN: bsl::vector<ManagedDatum> (DRQS 90054827)
         //   A previous test case, 12, verifies the traits defined by
@@ -511,7 +512,7 @@ int main(int argc, char *argv[])
             ASSERT(false == dam.isMaxUp());
         }
       } break;
-      case 13: {
+      case 15: {
         //---------------------------------------------------------------------
         // TESTING FREE FUNCTION `swap`
         //
@@ -588,7 +589,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta2.numBytesInUse());
         }
       } break;
-      case 12: {
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING TRAITS
         //
@@ -615,7 +616,7 @@ int main(int argc, char *argv[])
         ASSERT(true  == bslma::UsesBslmaAllocator<Obj>::value);
         ASSERT(false == bsl::is_trivially_copyable<Obj>::value);
       } break;
-      case 11: {
+      case 13: {
         //---------------------------------------------------------------------
         // TESTING `print`
         //
@@ -652,7 +653,7 @@ int main(int argc, char *argv[])
         ASSERT(datumStream.str() == managedDatumStream.str());
         ASSERT(0                 == ta.numBytesInUse());
       } break;
-      case 10: {
+      case 12: {
         //---------------------------------------------------------------------
         // TESTING STREAMING OPERATOR
         //
@@ -692,9 +693,384 @@ int main(int argc, char *argv[])
             ASSERT(datumStream.str() == managedDatumStream.str());
         }
       } break;
-      case 9: {
+      case 11: {
+        // --------------------------------------------------------------------
+        // MOVE-ASSIGNMENT OPERATOR
+        //   Ensure that we can move the value of any object of the class to
+        //   any object of the class, such that the target object subsequently
+        //   has the source value, and
+        //   - there are no additional allocations if both source and target
+        //     objects have the same allocator
+        //   - the source object is unchanged if allocators are different.
+        //
+        // Concerns:
+        // 1. The move assignment operator can change the value of any
+        //    modifiable target object to that of any source object.
+        //
+        // 2. The allocators used by the source and target remain unchanged.
+        //
+        // 3. Any memory allocation is from the target object's allocator.
+        //
+        // 4. The signature and return type are standard.
+        //
+        // 5. The reference returned is to the target object (i.e., `*this`).
+        //
+        // 6. If the allocators are different, the value of the source object
+        //    is not modified.
+        //
+        // 7. If the allocators are the same, no new allocations happen when
+        //    the move assignment happens.
+        //
+        // 8. The allocator used by the source object is unchanged.
+        //
+        // 9. Any memory allocation is exception neutral.
+        //
+        // 10. Assigning an object to itself behaves as expected
+        //     (alias-safety).
+        //
+        // Plan:
+        // 1. Use the address of `operator=` to initialize a member-function
+        //    pointer having the appropriate signature and return type for the
+        //    copy-assignment operator defined in this component.  (C-4)
+        //
+        // 2. Create a `bslma::TestAllocator` object, and install it as the
+        //    default allocator (note that a ubiquitous test allocator is
+        //    already installed as the global allocator).
+        //
+        // 3. Using the table-driven technique specify a set of (unique) valid
+        //    object values (one per row) having different types, including
+        //    those that should require memory allocation.
+        //
+        // 4. For each row `R1` (representing a distinct object value, `V`) in
+        //    the table described in P-3:  (C-1..3, 5-6,8-10)
+        //
+        //   1. Use the value constructor and a "scratch" allocator to create
+        //      `const` `Obj` `Z`, having the value `V`.  This object is used
+        //      to verify the value of the object after the operation.
+        //
+        //   2. Execute an inner loop that iterates over each row `R2`
+        //      (representing a distinct object value, `W`) in the table
+        //      described in P-3:
+        //
+        //   3. For each of the iterations (P-4.2):  (C-1..2, 5..8, 11)
+        //
+        //     1. Create a `bslma::TestAllocator` objects `sa`.
+        //
+        //     2. Use the value constructor and `sa` to create a modifiable
+        //        `Obj`, `mY`, having the value `V`.
+        //
+        //     3. Use the value constructor and `sa` to create a modifiable
+        //        `Obj`, `mX`, having the value `W`.
+        //
+        //     4. Move-assign `mX` from `bslmf::MovableRefUtil::move(mY)`.
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality-comparison operator to verify that the
+        //        target object, `mX`, now has the same value as that of `Z`.
+        //
+        //     7. Use the `get_allocator` accessor of both `mX` and `mY` to
+        //        verify that the respective allocators used by the target and
+        //        source objects are unchanged.  (C-2, 7)
+        //
+        //     8. Use the appropriate test allocators to verify that no new
+        //        allocations were made by the move assignment operation.
+        //
+        //   4. For each of the iterations (P-4.2):  (C-1..2, 5, 7-9, 11)
+        //
+        //     1. Create two `bslma::TestAllocator` objects `soa` and `sa`.
+        //
+        //     2. Use the value constructor and `soa` to create a modifiable
+        //        `Obj`, `mY`, having the value `V`.
+        //
+        //     3. Use the value constructor and `sa` to create a modifiable
+        //        `Obj`, `mX`, having the value `W`.
+        //
+        //     4. Move-assign `mX` from `bslmf::MovableRefUtil::move(mY)`.
+        //
+        //     5. Verify that the address of the return value is the same as
+        //        that of `mX`.  (C-5)
+        //
+        //     6. Use the equality-comparison operator to verify that the
+        //        target object, `mX`, now has the same value as that of `Z`.
+        //
+        //     7. Use the equality-comparison operator to verify that the
+        //        source object, `mY`, now has the same value as that of `Z`.
+        //
+        //     8. Use the `get_allocator` accessor of both `mX` and `mF` to
+        //        verify that the respective allocators used by the target and
+        //        source objects are unchanged.  (C-2, 7)
+        //
+        // 5. Repeat steps similar to those described in P-2 except that, this
+        //    time, there is no inner loop (as in P-4.2); instead, the source
+        //    object, `Z`, is a reference to the target object, `mX`, and both
+        //    `mX` and `ZZ` are initialized to have the value `V`.  For each
+        //    row (representing a distinct object value, `V`) in the table
+        //    described in P-3:  (C-10)
+        //
+        //   1. Create a `bslma::TestAllocator` object, `sa`.
+        //
+        //   2. Use the value constructor and `sa` to create a modifiable `Obj`
+        //      `mX`; also use the value constructor and a distinct "scratch"
+        //      allocator to create a `const` `Obj` `Z`.
+        //
+        //   3. Let `mY` be a  reference to `mX`.
+        //
+        //   4. Assign `mX` from `bslmf::MovableRefUtil::move(mY)`.
+        //
+        //   5. Verify that the address of the return value is the same as that
+        //      of `mX`.
+        //
+        //   6. Use the equality-comparison operator to verify that the
+        //      target object, `mX`, still has the same value as that of `Z`.
+        //      (C-10)
+        //
+        //   7. Use the `get_allocator` accessor of `mX` to verify that it is
+        //      still the object allocator.
+        //
+        //   8. Use the appropriate test allocators to verify that:
+        //
+        //     1. Any memory that is allocated is from the object allocator.
+        //
+        //     2. No additional (e.g., temporary) object memory is allocated
+        //        when assigning an object value that did NOT initially require
+        //        allocated memory.
+        //
+        //     3. All object memory is released when the object is destroyed.
+        //
+        // 6. Use the test allocator from P-2 to verify that no memory is ever
+        //    allocated from the default allocator.  (C-3)
+        //
+        // Testing:
+        //   ManagedDatum& operator=(bslmf::MovableRef<ManagedDatum> rhs);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MOVE-ASSIGNMENT OPERATOR" << endl
+                          << "========================" << endl;
+
+        if (verbose) cout <<
+                 "\nAssign the address of the operator to a variable." << endl;
+        {
+            typedef Obj& (Obj::*operatorPtr)(bslmf::MovableRef<Obj>);
+
+            // Verify that the signature and return type are standard.
+
+            operatorPtr operatorAssignment = &Obj::operator=;
+
+            (void)operatorAssignment;  // quash potential compiler warning
+        }
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard dag(&da);
+
+        // Creating data for testing.
+
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        bdlt::Date udt;
+        bdlt::Date udt1;
+
+        static struct {
+            int         d_line;
+            bdld::Datum d_datum;
+        } DATA[] = {
+            { L_, Datum::createNull()},
+            { L_, Datum::createInteger(0)},
+            { L_, Datum::createInteger(1)},
+            { L_, Datum::createBoolean(true)},
+            { L_, Datum::createBoolean(false)},
+            { L_, Datum::createError(0)},
+            { L_, Datum::createError(1, "some error", &scratch)},
+            { L_, Datum::createDate(bdlt::Date(2010, 1, 5))},
+            { L_, Datum::createDate(bdlt::Date(1, 1, 1))},
+            { L_, Datum::createTime(bdlt::Time(16, 45, 32, 12))},
+            { L_, Datum::createTime(bdlt::Time(1, 1, 1, 1))},
+            { L_,
+             Datum::createDatetime(bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
+                                   &scratch)},
+            { L_,
+             Datum::createDatetime(bdlt::Datetime(1, 1, 1, 1, 1, 1, 1),
+                                   &scratch)},
+            { L_,
+             Datum::createDatetimeInterval(
+                                    bdlt::DatetimeInterval(34, 16, 45, 32, 12),
+                                    &scratch)},
+            { L_,
+             Datum::createDatetimeInterval(
+                                         bdlt::DatetimeInterval(1, 1, 1, 1, 1),
+                                         &scratch)},
+            { L_, Datum::createInteger64(9223372036854775807LL, &scratch)},
+            { L_, Datum::createInteger64(1229782938247303441LL, &scratch)},
+            { L_, Datum::copyString(LONG_STRING, &scratch)},
+            { L_, Datum::copyString(ANOTHER_LONG_STRING, &scratch)},
+            { L_, Datum::copyString("abc", &scratch)},
+            { L_, Datum::copyString("Abc", &scratch)},
+            { L_, Datum::createDouble(1.0)},
+            { L_, Datum::createDouble(1.2345)},
+            { L_, Datum::createDouble(-1.2346)},
+            { L_, Datum::createUdt(&udt, UDT_TYPE)},
+            { L_, Datum::createUdt(&udt, 1)},
+            { L_, Datum::createUdt(&udt1, UDT_TYPE)},
+            { L_, createArray(&scratch)},
+            { L_, createEmptyArray()},
+            { L_, createMap(&scratch)},
+            { L_, createEmptyMap()}
+        };
+        const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                    // this test allocates
+                                                    // some object memory.
+
+        for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+            const int         LINE1  = DATA[i].d_line;
+            const bdld::Datum DATUM1 = DATA[i].d_datum.clone(&scratch);
+
+            const Obj Z(DATUM1, &scratch); // control object
+
+            if (veryVerbose) { T_ T_ P(Z) }
+
+            // move assignment with the same allocator
+
+            for (bsl::size_t j = 0; j < NUM_DATA; ++j) {
+                const int         LINE2  = DATA[j].d_line;
+                const bdld::Datum DATUM2 = DATA[j].d_datum.clone(&scratch);
+
+                const Obj            TARGET_VALUE(DATUM2, &scratch);
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+                {
+                    // Test move assignment with same allocator.
+
+                    Obj        mY(Z, &sa);             // source object
+                    const Obj&  Y = mY;
+                    Obj        mX(TARGET_VALUE, &sa);  // target object
+                    const Obj&  X = mX;
+
+                    if (veryVerbose) { T_ P_(LINE2) P(Y) P(X) }
+
+                    ASSERTV(LINE1, LINE2, Y, X, (Y == X) == (LINE1 == LINE2));
+
+                    bslma::TestAllocatorMonitor sam(&sa);
+
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                    ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                    ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                    ASSERTV(LINE1, LINE2, sam.isTotalSame());
+
+                    ASSERTV(LINE1, LINE2, &sa, ALLOC_OF(X),
+                            &sa == X.get_allocator());
+                    ASSERTV(LINE1, LINE2, &sa, ALLOC_OF(Y),
+                            &sa == Y.get_allocator());
+
+                    ASSERTV(LINE1, LINE2,
+                            bdld::Datum::createNull() == Y.datum());
+
+                    if (sa.numBlocksInUse()) {
+                        anyObjectMemoryAllocatedFlag = true;
+                    }
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
+            }
+
+            // move assignment with different allocators
+
+            for (bsl::size_t j = 0; j < NUM_DATA; ++j) {
+                const int         LINE2  = DATA[j].d_line;
+                const bdld::Datum DATUM2 = DATA[j].d_datum.clone(&scratch);
+
+                const Obj            TARGET_VALUE(DATUM2, &scratch);
+                bslma::TestAllocator soa("source object", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",       veryVeryVeryVerbose);
+
+                {
+                    BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                        if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                        Obj        mY(Z, &soa);            // source object
+                        const Obj&  Y = mY;
+                        Obj        mX(TARGET_VALUE, &sa);  // target object
+                        const Obj&  X = mX;
+
+                        if (veryVerbose) { T_ P_(LINE2) P(Y) P(X) }
+
+                        ASSERTV(LINE1, LINE2, Y, X,
+                                (Y == X) == (LINE1 == LINE2));
+
+                        Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                        ASSERTV(LINE1, LINE2,  Z,   X,  Z == X);
+                        ASSERTV(LINE1, LINE2, mR, &mX, mR == &mX);
+
+                        ASSERTV(LINE1, LINE2,  Z,   Y,  Z == Y);
+
+                        ASSERTV(LINE1, LINE2, &sa, ALLOC_OF(X),
+                               &sa == X.get_allocator());
+                        ASSERTV(LINE1, LINE2, &soa, ALLOC_OF(Y),
+                               &soa == Y.get_allocator());
+                    } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                    if (soa.numBlocksInUse()) {
+                        anyObjectMemoryAllocatedFlag = true;
+                    }
+                }
+
+                // Verify all memory is released on object destruction.
+
+                ASSERTV(LINE1, LINE2, soa.numBlocksInUse(),
+                        0 == soa.numBlocksInUse());
+                ASSERTV(LINE1, LINE2, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
+            }
+
+            // self-assignment
+
+            {
+                bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+                {
+                    Obj        mX(Z, &sa);
+                    const Obj&  X = mX;
+                    Obj&       mY = mX;
+                    const Obj&  Y = mY;
+
+                    ASSERTV(LINE1, Y, Z, Y == Z);
+
+                    bslma::TestAllocatorMonitor sam(&sa);
+
+                    Obj *mR = &(mX = bslmf::MovableRefUtil::move(mY));
+                    ASSERTV(LINE1, X, Z, X == Z);
+                    ASSERTV(LINE1, mR, &mX, mR == &mX);
+
+                    ASSERTV(LINE1, &sa, ALLOC_OF(X), &sa == X.get_allocator());
+
+                    ASSERTV(LINE1, sam.isTotalSame());
+                    ASSERTV(LINE1, 0 == da.numBlocksTotal());
+                }
+
+                // Verify all object memory is released on destruction.
+
+                ASSERTV(LINE1, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+            }
+        }
+
+        // Double check that some object memory was allocated.
+
+        ASSERT(anyObjectMemoryAllocatedFlag);
+
+        // Release the memory allocated in `DATA`.
+        for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+            Datum::destroy(DATA[i].d_datum, &scratch);
+        }
+      } break;
+      case 10: {
         //---------------------------------------------------------------------
-        // TESTING ASSIGNMENT OPERATOR
+        // TESTING COPY-ASSIGNMENT OPERATOR
         //
         // Concerns:
         // 1. The assignment operator destroys the `Datum` object currently
@@ -727,11 +1103,12 @@ int main(int argc, char *argv[])
         //    second object hasn't been changed.  (C-1..4)
         //
         // Testing:
-        //   ManagedDatum& operator=(const ManagedDatum&);
+        //   ManagedDatum& operator=(const ManagedDatum& rhs);
         //---------------------------------------------------------------------
 
-        if (verbose) cout << endl << "TESTING ASSIGNMENT OPERATOR" << endl
-                                  << "===========================" << endl;
+        if (verbose) cout << endl
+                          << "TESTING COPY-ASSIGNMENT OPERATOR" << endl
+                          << "================================" << endl;
 
         bslma::TestAllocator ta("test", veryVeryVerbose);
         bslma::TestAllocator aa("assignment", veryVeryVeryVerbose);
@@ -779,7 +1156,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == ta.status());
         ASSERT(0 == aa.status());
       } break;
-      case 8: {
+      case 9: {
         //---------------------------------------------------------------------
         // TESTING MANIPULATORS
         //
@@ -944,7 +1321,7 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.status());
       } break;
-      case 7: {
+      case 8: {
         //---------------------------------------------------------------------
         // TESTING `swap`
         //
@@ -1092,6 +1469,386 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == ta.status());
 
+      } break;
+      case 7: {
+        // --------------------------------------------------------------------
+        // MOVE CONSTRUCTOR
+        //   Ensure that we can create a distinct object of the class from any
+        //   other one, such that the new object has the original value.
+        //
+        // Concerns:
+        // 1. The move constructor (with or without a supplied allocator)
+        //    creates an object having the same value as the original object
+        //    started with.
+        //
+        // 2. If an allocator is NOT supplied, the allocator of the new object
+        //    is the same as the original object, and no new allocations occur.
+        //
+        // 3. If an allocator is supplied that is the same as the original
+        //    object, then no new allocations occur.
+        //
+        // 4. If an allocator is supplied that is different from the original
+        //    object, then the original object's value remains unchanged.
+        //
+        // 5. Supplying a default-constructed allocator explicitly is the same
+        //    as supplying the default allocator.
+        //
+        // 6. Any memory allocation is from the object allocator.
+        //
+        // 7. There is no temporary memory allocation from any allocator.
+        //
+        // 8. Every object releases any allocated memory at destruction.
+        //
+        // 9. The allocator used by the original object is unchanged.
+        //
+        // 10. Any memory allocation is exception neutral.
+        //
+        // Plan:
+        // 1. Using the table-driven technique:
+        //
+        //   1. Specify a set of (unique) valid object values (one per row) in
+        //      terms of their individual attributes, including (a) first, the
+        //      default value, (b) boundary values corresponding to every range
+        //      of values that each individual attribute can independently
+        //      attain, and (c) values that should require allocation from each
+        //      individual attribute that can independently allocate memory.
+        //
+        //   2. Additionally, provide a (tri-valued) column, `MEM`, indicating
+        //      the expectation of memory allocation for all typical
+        //      implementations of individual attribute types: ('Y') "Yes",
+        //      ('N') "No", or ('?') "implementation-dependent".
+        //
+        // 2. For each row (representing a distinct object value, `V`) in the
+        //    table described in P-1:  (C-1..9)
+        //
+        //   1. Use the value constructor and a "scratch" allocator to create
+        //      two `const` `Obj`, `Z` and `ZZ`, each having the value `V`.
+        //
+        //   2. Execute an inner loop that creates an object by
+        //      move-constructing from a newly created object with value V,
+        //      but invokes the move constructor differently in each
+        //      iteration: (a) using the standard single-argument move
+        //      constructor, (b) using the extended move constructor with a
+        //      default-constructed allocator argument (to use the default
+        //      allocator), (c) using the extended move constructor with the
+        //      same allocator as the moved-from object, and (d) using the
+        //      extended move constructor with a different allocator than the
+        //      moved-from object.
+        //
+        // 3. For each of these iterations (P-2.2):
+        //
+        //   1. Create four `bslma::TestAllocator` objects, and install one as
+        //      the current default allocator (note that a ubiquitous test
+        //      allocator is already installed as the global allocator).
+        //
+        //   2. Dynamically allocate another object `F" using the `s1'
+        //      allocator having the same value V, using a distinct allocator
+        //      for the object's footprint.
+        //
+        //   3. Dynamically allocate an object `X` using the appropriate move
+        //      constructor to move from `F`, passing as a second argument
+        //      (a) nothing, (b) `allocator_type()`, (c) `&s1`, or (d)
+        //      `allocator_type(&s2)`.
+        //
+        //   4. Record the allocator expected to be used by the new object and
+        //      how much memory it used before the move constructor.
+        //
+        //   5. Verify that space for 2 objects is used in the footprint
+        //      allocator
+        //
+        //   6. Verify that the moved-to object has the expected value `V` by
+        //      comparing to `Z`.
+        //
+        //   7. If the allocators of `F` and `X` are different, verify that the
+        //      value of `F` is still `V`, and that the amount of memory
+        //      used in the allocator for `X` is the same as the amount of
+        //      that was used by `F`.
+        //
+        //   8. If the allocators of `F` and `X` are the same, verify that no
+        //      extra memory was used by the move constructor.
+        //
+        //   9. Verify that no memory was used by the move constructor as
+        //      temporary memory, and no unused allocators have had any memory
+        //      used.
+        //
+        //  10. Delete both dynamically allocated objects and verify that all
+        //      temporary allocators have had all memory returned to them.
+        //
+        // 3. Test again, using the data of P-1, but this time just for the
+        //    supplied allocator configuration (P-2.2c), and create the object
+        //    as an automatic variable in the presence of injected exceptions
+        //    (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).  Do
+        //    this by creating one object with one test allocator (`s1`) and
+        //    then using the move constructor with a separate test allocator
+        //    that is injecting exceptions (`s2`).
+        //    (C-10)
+        //
+        // Testing:
+        //   ManagedDatum(MovableRef<ManagedDatum> o);
+        //   ManagedDatum(MovableRef<ManagedDatum> o, const allocator_type& a);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "MOVE CONSTRUCTOR" << endl
+                          << "================" << endl;
+
+        // Creating data for testing.
+
+        bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+        bdlt::Date udt;
+        bdlt::Date udt1;
+
+        static struct {
+            int         d_line;
+            bdld::Datum d_datum;
+        } DATA[] = {
+            { L_, Datum::createNull()},
+            { L_, Datum::createInteger(0)},
+            { L_, Datum::createInteger(1)},
+            { L_, Datum::createBoolean(true)},
+            { L_, Datum::createBoolean(false)},
+            { L_, Datum::createError(0)},
+            { L_, Datum::createError(1, "some error", &scratch)},
+            { L_, Datum::createDate(bdlt::Date(2010, 1, 5))},
+            { L_, Datum::createDate(bdlt::Date(1, 1, 1))},
+            { L_, Datum::createTime(bdlt::Time(16, 45, 32, 12))},
+            { L_, Datum::createTime(bdlt::Time(1, 1, 1, 1))},
+            { L_,
+             Datum::createDatetime(bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
+                                   &scratch)},
+            { L_,
+             Datum::createDatetime(bdlt::Datetime(1, 1, 1, 1, 1, 1, 1),
+                                   &scratch)},
+            { L_,
+             Datum::createDatetimeInterval(
+                                    bdlt::DatetimeInterval(34, 16, 45, 32, 12),
+                                    &scratch)},
+            { L_,
+             Datum::createDatetimeInterval(
+                                         bdlt::DatetimeInterval(1, 1, 1, 1, 1),
+                                         &scratch)},
+            { L_, Datum::createInteger64(9223372036854775807LL, &scratch)},
+            { L_, Datum::createInteger64(1229782938247303441LL, &scratch)},
+            { L_, Datum::copyString(LONG_STRING, &scratch)},
+            { L_, Datum::copyString(ANOTHER_LONG_STRING, &scratch)},
+            { L_, Datum::copyString("abc", &scratch)},
+            { L_, Datum::copyString("Abc", &scratch)},
+            { L_, Datum::createDouble(1.0)},
+            { L_, Datum::createDouble(1.2345)},
+            { L_, Datum::createDouble(-1.2346)},
+            { L_, Datum::createUdt(&udt, UDT_TYPE)},
+            { L_, Datum::createUdt(&udt, 1)},
+            { L_, Datum::createUdt(&udt1, UDT_TYPE)},
+            { L_, createArray(&scratch)},
+            { L_, createEmptyArray()},
+            { L_, createMap(&scratch)},
+            { L_, createEmptyMap()}
+        };
+        const bsl::size_t NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+        if (verbose)
+            cout << "\n\tCreate objects with various allocator configurations."
+                 << endl;
+        {
+            bool anyObjectMemoryAllocatedFlag = false;  // We later check that
+                                                        // this test allocates
+                                                        // some object memory.
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                const int         LINE  = DATA[i].d_line;
+                const bdld::Datum DATUM = DATA[i].d_datum.clone(&scratch);
+
+                const Obj Z(DATUM, &scratch); // control object
+
+                if (veryVerbose) { T_ T_ P(Z) }
+
+                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
+                    const char CONFIG = cfg;  // how we specify the allocator
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator soa("source object",
+                                             veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    Obj        *sourcePtr = new (fa) Obj(Z, &soa);
+                    Obj&        mY = *sourcePtr;  // source object
+                    const Obj&   Y = mY;
+                    
+                    bsls::Types::Int64 sourceNumBytesUsed =
+                                                           soa.numBytesInUse();
+
+                    // Record if some object memory was allocated.
+
+                    if (sourceNumBytesUsed) {
+                        anyObjectMemoryAllocatedFlag = true;
+                    }
+
+                    Obj                  *targetPtr       = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        // normal move constructor
+                        objAllocatorPtr = &soa;
+                        targetPtr =
+                                 new (fa) Obj(bslmf::MovableRefUtil::move(mY));
+                      } break;
+                      case 'b': {
+                        // allocator move constructor, default allocator
+                        objAllocatorPtr = &da;
+                        targetPtr = new (fa) Obj(
+                                               bslmf::MovableRefUtil::move(mY),
+                                               Obj::allocator_type());
+                      } break;
+                      case 'c': {
+                        // allocator move constructor, same allocator
+                        objAllocatorPtr = &sa;
+                        targetPtr = new (fa) Obj(
+                                               bslmf::MovableRefUtil::move(mY),
+                                               objAllocatorPtr);
+                      } break;
+                      case 'd': {
+                        // allocator move constructor, different allocator
+                        objAllocatorPtr = &sa;
+                        Obj::allocator_type alloc(objAllocatorPtr);
+                        targetPtr = new (fa) Obj(
+                                               bslmf::MovableRefUtil::move(mY),
+                                               alloc);
+                      } break;
+                      default: {
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
+                      } break;
+                    }
+                    ASSERTV(LINE, CONFIG, 2 * sizeof(Obj), fa.numBytesInUse(),
+                            2 * sizeof(Obj) == fa.numBytesInUse());
+
+                    Obj&       mX = *targetPtr;
+                    const Obj&  X =  mX;
+
+                    if (veryVerbose) { T_ T_ P_(CONFIG) P(Y) P(X) }
+
+                    // Verify the value of the object.
+
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+
+                    ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
+                    ASSERTV(LINE, CONFIG, &oa == X.get_allocator());
+
+                    bsls::Types::Int64 objectNumBytesUsed = oa.numBytesInUse();
+
+                    ASSERTV(LINE, CONFIG, sourceNumBytesUsed,
+                            objectNumBytesUsed,
+                            sourceNumBytesUsed == objectNumBytesUsed);
+                    if (&oa != Y.get_allocator()) {
+                        // If the allocators are different, value is expected
+                        // to be copied.  Verify that the value of the source
+                        // object has not changed.
+
+                        ASSERTV(LINE, CONFIG,  Z, Y,  Z == Y);
+                        ASSERTV(LINE, CONFIG, sourceNumBytesUsed,
+                                soa.numBytesInUse(),
+                                sourceNumBytesUsed == soa.numBytesInUse());
+                    }
+                    else {
+                        // If the allocators are the same, verify that source
+                        // object has been brought to the default state and
+                        // contains empty `Datum` object.
+
+                        ASSERTV(LINE, CONFIG,  X,  bdld::ManagedDatum() == Y);
+                    }
+
+                    // Verify no allocation from the non-object allocators.
+
+                    if (&oa != &da) {
+                        ASSERTV(LINE, CONFIG, da.numBlocksTotal(),
+                                0 == da.numBlocksTotal());
+                    }
+
+                    if (&oa != &sa) {
+                        ASSERTV(LINE, CONFIG, sa.numBlocksTotal(),
+                                0 == sa.numBlocksTotal());
+                    }
+
+                    // Verify no temporary memory is allocated from the object
+                    // allocator.
+
+                    ASSERTV(LINE, CONFIG, oa.numBlocksTotal(),
+                            oa.numBlocksInUse(),
+                            oa.numBlocksTotal() == oa.numBlocksInUse());
+
+                    // Verify that source object destruction doesn't affect
+                    // target object.
+
+                    fa.deleteObject(sourcePtr);
+
+                    ASSERTV(LINE, CONFIG,  Z, X,  Z == X);
+
+                    ASSERTV(LINE, CONFIG, sourceNumBytesUsed,
+                            objAllocatorPtr->numBytesInUse(),
+                            sourceNumBytesUsed ==
+                                             objAllocatorPtr->numBytesInUse());
+
+                    // Destroy target object.
+
+                    fa.deleteObject(targetPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LINE, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, soa.numBlocksInUse(),
+                            0 == soa.numBlocksInUse());
+                    ASSERTV(LINE, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
+                }  // end foreach configuration
+
+            }  // end foreach row
+
+            // Double check that some object memory was allocated.
+
+            ASSERT(anyObjectMemoryAllocatedFlag);
+        }
+
+        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                const int         LINE  = DATA[i].d_line;
+                const bdld::Datum DATUM = DATA[i].d_datum.clone(&scratch);
+
+                const Obj Z(DATUM, &scratch); // control object
+
+                bslma::TestAllocator da("default",        veryVeryVeryVerbose);
+                bslma::TestAllocator soa("source object", veryVeryVeryVerbose);
+                bslma::TestAllocator sa("supplied",       veryVeryVeryVerbose);
+
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+                    Obj        mY(Z, &soa);  // source object
+                    Obj        mX(bslmf::MovableRefUtil::move(mY), &sa);
+                    const Obj&  X = mX;
+                    ASSERTV(LINE, Z, X, Z == X);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, da.numBlocksInUse(),
+                        0 == da.numBlocksInUse());
+                ASSERTV(LINE, soa.numBlocksInUse(),
+                        0 == soa.numBlocksInUse());
+                ASSERTV(LINE, sa.numBlocksInUse(),
+                        0 == sa.numBlocksInUse());
+            }
+        }
+
+        // Release the memory allocated in `DATA`.
+        for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+            Datum::destroy(DATA[i].d_datum, &scratch);
+        }
       } break;
       case 6: {
         //---------------------------------------------------------------------
@@ -1305,7 +2062,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(alloc);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(0 == "Bad allocator config");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config");
                   } break;
                 }
                 ASSERTV(CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -1384,7 +2141,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(W, alloc);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(0 == "Bad allocator config");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config");
                   } break;
                 }
                 ASSERTV(CONFIG, sizeof(Obj) == fa.numBytesInUse());

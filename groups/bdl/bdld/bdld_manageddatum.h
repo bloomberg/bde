@@ -51,6 +51,11 @@ BSLS_IDENT("$Id$ $CSID$")
 // which creates a completely independent copy, with independent lifetime, by
 // duplicating all data, even referenced data (except for UDTs).
 //
+// Additionally, move operations are supported (i.e. move constructor and move
+// assignment).  Depending on the match of the source and target allocators,
+// `ManagedDatum` performs either shallow (the allocators are the same) or deep
+// (the allocators are different) copying.
+//
 // Note that a default constructed `ManagedDatum`, or a `ManagedDatum` on which
 // `release` has been called, will have the null `Datum` value.
 //
@@ -236,30 +241,45 @@ class ManagedDatum {
 
     // CREATORS
 
-    /// Create a `ManagedDatum` object having the default (null) value, and
-    /// the specified `allocator` (e.g., the address of a `bslma::Allocator`
+    /// Create a `ManagedDatum` object having the default (null) value, and the
+    /// specified `allocator` (e.g., the address of a `bslma::Allocator`
     /// object) to supply memory.  Calling `isNull` on the resulting managed
     /// `Datum` object returns `true`.
     ManagedDatum();
     explicit ManagedDatum(const allocator_type& allocator);
 
-    /// Create a `ManagedDatum` object that assumes ownership of the
-    /// specified `datum`.  Optionally specify an `allocator` (e.g., the
-    /// address of a `bslma::Allocator` object) to supply memory; otherwise,
-    /// the default allocator is used.  The behavior is undefined unless
-    /// `datum` was allocated using the indicated allocator and is not
-    /// subsequently destroyed externally using `Datum::destroy`.
+    /// Create a `ManagedDatum` object that assumes ownership of the specified
+    /// `datum`.  Optionally specify an `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) to supply memory; otherwise, the default
+    /// allocator is used.  The behavior is undefined unless `datum` was
+    /// allocated using the indicated allocator and is not subsequently
+    /// destroyed externally using `Datum::destroy`.
     explicit ManagedDatum(const Datum&          datum,
                           const allocator_type& allocator = allocator_type());
 
-    /// Create a `ManagedDatum` object having the same value as the
-    /// specified `original` object.  Optionally specify an `allocator`
-    /// (e.g., the address of a `bslma::Allocator` object) used to supply
-    /// memory; otherwise, the default allocator is used.  This operation
-    /// performs a `clone` of the underlying `Datum`, see {Value Semantics}
-    /// for more detail.
+    /// Create a `ManagedDatum` object having the same value as the specified
+    /// `original` object.  Optionally specify an `allocator` (e.g., the
+    /// address of a `bslma::Allocator` object) used to supply memory;
+    /// otherwise, the default allocator is used.  This operation performs a
+    /// `clone` of the underlying `Datum`, see {Value Semantics} for more
+    /// detail.
     ManagedDatum(const ManagedDatum&   original,
                  const allocator_type& allocator = allocator_type());
+
+    /// Create a `ManagedDatum` object having the same value and allocator as
+    /// the specified `original` object.  The value of `original` becomes
+    /// unspecified but valid, and its allocator remains unchanged.
+    ManagedDatum(bslmf::MovableRef<ManagedDatum> original);
+
+    /// Create a `ManagedDatum` object having the same value as the specified
+    /// `original` object and the specified `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) used to supply memory.  The allocator of
+    ///  `original` remains unchanged.  If `original` and the newly created
+    ///  object have the same allocator then the value of `original` becomes
+    ///  unspecified but valid, and no exceptions will be thrown; otherwise
+    ///  `original` is unchanged and an exception may be thrown.
+    ManagedDatum(bslmf::MovableRef<ManagedDatum> original,
+                 const allocator_type&           allocator);
 
     /// Destroy this object and release all dynamically allocated memory
     /// managed by this object.
@@ -268,29 +288,35 @@ class ManagedDatum {
     // MANIPULATORS
 
     /// Assign to this object the value of the specified `rhs` object, and
-    /// return a non-`const` reference to this object.  This operation
-    /// performs a `clone` of the underlying `Datum`, see {Value Semantics}
-    /// for more detail.
+    /// return a non-`const` reference to this object.  This operation performs
+    /// a `clone` of the underlying `Datum`, see {Value Semantics} for more
+    /// detail.
     ManagedDatum& operator=(const ManagedDatum& rhs);
 
-    /// Take ownership of the specified `obj` and destroy the `Datum`
-    /// object previously managed by this object.  The behavior is undefined
-    /// unless `obj` was allocated using the same allocator used by this
-    /// object and is not subsequently destroyed externally using
-    /// `Datum::destroy`.
+    /// Assign to this object the value of the specified `rhs` object, and
+    /// return a non-`const` reference to this object.  Depending on the match
+    /// of the object's allocators, this operation performs either shallow (the
+    /// allocators are the same) or deep (the allocators are different)
+    /// copying.
+    ManagedDatum& operator=(bslmf::MovableRef<ManagedDatum> rhs);
+
+    /// Take ownership of the specified `obj` and destroy the `Datum` object
+    /// previously managed by this object.  The behavior is undefined unless
+    /// `obj` was allocated using the same allocator used by this object and is
+    /// not subsequently destroyed externally using `Datum::destroy`.
     void adopt(const Datum& obj);
 
-    /// Assign to this object the specified `value` by making a "deep copy"
-    /// of `value`, so that any dynamically allocated memory managed by
-    /// `value` is cloned and not shared with `value`.
+    /// Assign to this object the specified `value` by making a "deep copy" of
+    /// `value`, so that any dynamically allocated memory managed by `value` is
+    /// cloned and not shared with `value`.
     void clone(const Datum& value);
 
     /// Make the `Datum` object managed by this object null and release all
     /// dynamically allocated memory managed by this object.
     void makeNull();
 
-    /// Return, *by* *value*, the `Datum` object managed by this object and
-    /// set the managed object to null.  Ownership of the previously managed
+    /// Return, *by* *value*, the `Datum` object managed by this object and set
+    /// the managed object to null.  Ownership of the previously managed
     /// `Datum` object is transferred to the caller.
     Datum release();
 
@@ -302,8 +328,8 @@ class ManagedDatum {
 
     // ACCESSORS
 
-    /// Return an address providing non-modifiable access to the `Datum`
-    /// object managed by this object.
+    /// Return an address providing non-modifiable access to the `Datum` object
+    /// managed by this object.
     const Datum *operator->() const;
 
     /// Return a `const` reference to the `Datum` object managed by this
@@ -321,21 +347,20 @@ class ManagedDatum {
     /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *allocator() const;
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator in effect at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator in
+    /// effect at construction is used.
     allocator_type get_allocator() const;
 
     /// Format this object to the specified output `stream` at the (absolute
     /// value of) the optionally specified indentation `level` and return a
     /// reference to the modifiable `stream`.  If `level` is specified,
     /// optionally specify `spacesPerLevel`, the number of spaces per
-    /// indentation level for this and all of its nested objects.  If
-    /// `level` is negative, suppress indentation of the first line.  If
+    /// indentation level for this and all of its nested objects.  If `level`
+    /// is negative, suppress indentation of the first line.  If
     /// `spacesPerLevel` is negative, format the entire output on one line,
-    /// suppressing all but the initial indentation (as governed by
-    /// `level`).  If `stream` is not valid on entry, this operation has no
-    /// effect.
+    /// suppressing all but the initial indentation (as governed by `level`).
+    /// If `stream` is not valid on entry, this operation has no effect.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
@@ -343,26 +368,25 @@ class ManagedDatum {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` `ManagedDatum` objects
-/// have the same value, and `false` otherwise.  Two `ManagedDatum` objects
-/// have the same value if their corresponding managed `Datum` objects have
-/// the same value.  See the function-level documentation of the `Datum`
+/// Return `true` if the specified `lhs` and `rhs` `ManagedDatum` objects have
+/// the same value, and `false` otherwise.  Two `ManagedDatum` objects have the
+/// same value if their corresponding managed `Datum` objects have the same
+/// value.  See the function-level documentation of the `Datum`
 /// equality-comparison operators for details.
 bool operator==(const ManagedDatum& lhs, const ManagedDatum& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` `ManagedDatum` objects do
-/// not have the same value, and `false` otherwise.  Two `ManagedDatum`
-/// objects do not have the same value if their corresponding managed
-/// `Datum` objects do not have the same value.  See the function-level
-/// documentation of the `Datum` equality-comparison operators for details.
+/// not have the same value, and `false` otherwise.  Two `ManagedDatum` objects
+/// do not have the same value if their corresponding managed `Datum` objects
+/// do not have the same value.  See the function-level documentation of the
+/// `Datum` equality-comparison operators for details.
 bool operator!=(const ManagedDatum& lhs, const ManagedDatum& rhs);
 
-/// Write the specified `rhs` value to the specified output `stream` and
-/// return a reference to the modifiable `stream`.  This function has no
-/// effect if `stream` is not valid on entry.  Note that this method invokes
-/// `operator<<` defined for `Datum`.  See the function-level documentation
-/// of the `operator<<` defined for `Datum` for details of the format of the
-/// output.
+/// Write the specified `rhs` value to the specified output `stream` and return
+/// a reference to the modifiable `stream`.  This function has no effect if
+/// `stream` is not valid on entry.  Note that this method invokes `operator<<`
+/// defined for `Datum`.  See the function-level documentation of the
+/// `operator<<` defined for `Datum` for details of the format of the output.
 bsl::ostream& operator<<(bsl::ostream& stream, const ManagedDatum& rhs);
 
 // FREE FUNCTIONS
@@ -370,9 +394,9 @@ bsl::ostream& operator<<(bsl::ostream& stream, const ManagedDatum& rhs);
 /// Exchange the values of the specified `a` and `b` objects.  This function
 /// provides the no-throw exception-safety guarantee if the two objects were
 /// created with the same allocator and the basic guarantee otherwise.  Note
-/// that in case the allocators are different this function places a *clone*
-/// of `a` into `b`, and vice versa.  See {Value Semantics} on details of
-/// the cloning that may happen.
+/// that in case the allocators are different this function places a *clone* of
+/// `a` into `b`, and vice versa.  See {Value Semantics} on details of the
+/// cloning that may happen.
 void swap(ManagedDatum& a, ManagedDatum& b);
 
 // ============================================================================
@@ -414,6 +438,30 @@ ManagedDatum::ManagedDatum(const ManagedDatum&   original,
 }
 
 inline
+ManagedDatum::ManagedDatum(bslmf::MovableRef<ManagedDatum> original)
+: d_data(bslmf::MovableRefUtil::access(original).d_data)
+, d_allocator(bslmf::MovableRefUtil::access(original).d_allocator)
+{
+    bslmf::MovableRefUtil::access(original).d_data = Datum::createNull();
+}
+
+inline
+ManagedDatum::ManagedDatum(bslmf::MovableRef<ManagedDatum> original,
+                           const allocator_type&           allocator)
+: d_allocator(allocator)
+{
+    ManagedDatum& originalAsLvalue = bslmf::MovableRefUtil::access(original);
+
+    if (allocator == originalAsLvalue.allocator()) {
+        d_data = originalAsLvalue.d_data;
+        originalAsLvalue.d_data = Datum::createNull();
+    }
+    else {
+         d_data = originalAsLvalue.d_data.clone(d_allocator);
+    }
+}
+
+inline
 ManagedDatum::~ManagedDatum()
 {
     Datum::destroy(d_data, d_allocator);
@@ -425,6 +473,28 @@ ManagedDatum& ManagedDatum::operator=(const ManagedDatum& rhs)
 {
     ManagedDatum copy(rhs, d_allocator);
     swap(copy);
+    return *this;
+}
+
+inline
+ManagedDatum& ManagedDatum::operator=(bslmf::MovableRef<ManagedDatum> rhs)
+{
+    ManagedDatum& rhsAsLvalue = bslmf::MovableRefUtil::access(rhs);
+
+    if (&rhsAsLvalue == this) {
+        // self-assignment
+        return *this;                                                 // RETURN
+    }
+
+    if (d_allocator == rhsAsLvalue.allocator()) {
+        Datum::destroy(d_data, d_allocator);
+        d_data = rhsAsLvalue.d_data;
+        rhsAsLvalue.d_data = Datum::createNull();
+    }
+    else {
+        ManagedDatum copy(rhsAsLvalue, d_allocator);
+        swap(copy);
+    }
     return *this;
 }
 
