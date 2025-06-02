@@ -693,19 +693,21 @@ int main(int argc, char *argv[])
             ASSERT(datumStream.str() == managedDatumStream.str());
         }
       } break;
-      case 11: {        // --------------------------------------------------------------------
+      case 11: {
+        // --------------------------------------------------------------------
         // MOVE-ASSIGNMENT OPERATOR
         //   Ensure that we can move the value of any object of the class to
         //   any object of the class, such that the target object subsequently
-        //   has the source value, and there are no additional allocations if
-        //   only one allocator is being used, and the source object is
-        //   unchanged if allocators are different.
+        //   has the source value, and
+        //   - there are no additional allocations if both source and target
+        //     objects have the same allocator
+        //   - the source object is unchanged if allocators are different.
         //
         // Concerns:
         // 1. The move assignment operator can change the value of any
         //    modifiable target object to that of any source object.
         //
-        // 2. The allocator used by the target object is unchanged.
+        // 2. The allocators used by the source and target remain unchanged.
         //
         // 3. Any memory allocation is from the target object's allocator.
         //
@@ -726,8 +728,6 @@ int main(int argc, char *argv[])
         // 10. Assigning an object to itself behaves as expected
         //     (alias-safety).
         //
-        // 11. Every object releases any allocated memory at destruction.
-        //
         // Plan:
         // 1. Use the address of `operator=` to initialize a member-function
         //    pointer having the appropriate signature and return type for the
@@ -742,7 +742,7 @@ int main(int argc, char *argv[])
         //    those that should require memory allocation.
         //
         // 4. For each row `R1` (representing a distinct object value, `V`) in
-        //    the table described in P-3:  (C-1..3, 5-6,8-11)
+        //    the table described in P-3:  (C-1..3, 5-6,8-10)
         //
         //   1. Use the value constructor and a "scratch" allocator to create
         //      `const` `Obj` `Z`, having the value `V`.  This object is used
@@ -887,17 +887,17 @@ int main(int argc, char *argv[])
             { L_, Datum::createDate(bdlt::Date(1, 1, 1))},
             { L_, Datum::createTime(bdlt::Time(16, 45, 32, 12))},
             { L_, Datum::createTime(bdlt::Time(1, 1, 1, 1))},
-            {L_,
+            { L_,
              Datum::createDatetime(bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
                                    &scratch)},
-            {L_,
+            { L_,
              Datum::createDatetime(bdlt::Datetime(1, 1, 1, 1, 1, 1, 1),
                                    &scratch)},
-            {L_,
+            { L_,
              Datum::createDatetimeInterval(
                                     bdlt::DatetimeInterval(34, 16, 45, 32, 12),
                                     &scratch)},
-            {L_,
+            { L_,
              Datum::createDatetimeInterval(
                                          bdlt::DatetimeInterval(1, 1, 1, 1, 1),
                                          &scratch)},
@@ -969,7 +969,9 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, LINE2,
                             bdld::Datum::createNull() == Y.datum());
 
-                    anyObjectMemoryAllocatedFlag |= !!sa.numBlocksInUse();
+                    if (sa.numBlocksInUse()) {
+                        anyObjectMemoryAllocatedFlag = true;
+                    }
                 }
 
                 // Verify all memory is released on object destruction.
@@ -1014,7 +1016,9 @@ int main(int argc, char *argv[])
                                &soa == Y.get_allocator());
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
-                    anyObjectMemoryAllocatedFlag |= !!soa.numBlocksInUse();
+                    if (soa.numBlocksInUse()) {
+                        anyObjectMemoryAllocatedFlag = true;
+                    }
                 }
 
                 // Verify all memory is released on object destruction.
@@ -1610,17 +1614,17 @@ int main(int argc, char *argv[])
             { L_, Datum::createDate(bdlt::Date(1, 1, 1))},
             { L_, Datum::createTime(bdlt::Time(16, 45, 32, 12))},
             { L_, Datum::createTime(bdlt::Time(1, 1, 1, 1))},
-            {L_,
+            { L_,
              Datum::createDatetime(bdlt::Datetime(2010, 1, 5, 16, 45, 32, 12),
                                    &scratch)},
-            {L_,
+            { L_,
              Datum::createDatetime(bdlt::Datetime(1, 1, 1, 1, 1, 1, 1),
                                    &scratch)},
-            {L_,
+            { L_,
              Datum::createDatetimeInterval(
                                     bdlt::DatetimeInterval(34, 16, 45, 32, 12),
                                     &scratch)},
-            {L_,
+            { L_,
              Datum::createDatetimeInterval(
                                          bdlt::DatetimeInterval(1, 1, 1, 1, 1),
                                          &scratch)},
@@ -1669,19 +1673,21 @@ int main(int argc, char *argv[])
 
                     bslma::DefaultAllocatorGuard dag(&da);
 
-                    Obj       *sourcePtr = new (fa) Obj(Z, &soa);
-                    Obj&       mY = *sourcePtr;  // source object
-                    const Obj&  Y = mY;
+                    Obj        *sourcePtr = new (fa) Obj(Z, &soa);
+                    Obj&        mY = *sourcePtr;  // source object
+                    const Obj&   Y = mY;
                     
                     bsls::Types::Int64 sourceNumBytesUsed =
                                                            soa.numBytesInUse();
 
                     // Record if some object memory was allocated.
 
-                    anyObjectMemoryAllocatedFlag |= !!sourceNumBytesUsed;
+                    if (sourceNumBytesUsed) {
+                        anyObjectMemoryAllocatedFlag = true;
+                    }
 
-                    Obj                  *targetPtr                  = 0;
-                    bslma::TestAllocator *objAllocatorPtr            = 0;
+                    Obj                  *targetPtr       = 0;
+                    bslma::TestAllocator *objAllocatorPtr = 0;
 
                     switch (CONFIG) {
                       case 'a': {
@@ -1713,7 +1719,7 @@ int main(int argc, char *argv[])
                                                alloc);
                       } break;
                       default: {
-                        BSLS_ASSERT_OPT(0 == "Bad allocator config.");
+                        BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config.");
                       } break;
                     }
                     ASSERTV(LINE, CONFIG, 2 * sizeof(Obj), fa.numBytesInUse(),
@@ -2056,7 +2062,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(alloc);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(0 == "Bad allocator config");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config");
                   } break;
                 }
                 ASSERTV(CONFIG, sizeof(Obj) == fa.numBytesInUse());
@@ -2135,7 +2141,7 @@ int main(int argc, char *argv[])
                     objPtr = new (fa) Obj(W, alloc);
                   } break;
                   default: {
-                    BSLS_ASSERT_OPT(0 == "Bad allocator config");
+                    BSLS_ASSERT_INVOKE_NORETURN("Bad allocator config");
                   } break;
                 }
                 ASSERTV(CONFIG, sizeof(Obj) == fa.numBytesInUse());

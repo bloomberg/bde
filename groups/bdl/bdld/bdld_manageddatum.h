@@ -267,16 +267,17 @@ class ManagedDatum {
                  const allocator_type& allocator = allocator_type());
 
     /// Create a `ManagedDatum` object having the same value and allocator as
-    /// the specified `original` object.  This operation performs shallow
-    /// copying of the underlying data.
+    /// the specified `original` object.  The value of `original` becomes
+    /// unspecified but valid, and its allocator remains unchanged.
     ManagedDatum(bslmf::MovableRef<ManagedDatum> original);
 
     /// Create a `ManagedDatum` object having the same value as the specified
     /// `original` object and the specified `allocator` (e.g., the address of a
-    /// `bslma::Allocator` object) used to supply memory.  Depending on the
-    /// match of the source object's allocator and the `allocator`, this
-    /// operation performs either shallow (if the allocators are the same) or
-    /// deep (the allocators are different) copying.
+    /// `bslma::Allocator` object) used to supply memory.  The allocator of
+    ///  `original` remains unchanged.  If `original` and the newly created
+    ///  object have the same allocator then the value of `original` becomes
+    ///  unspecified but valid, and no exceptions will be thrown; otherwise
+    ///  `original` is unchanged and an exception may be thrown.
     ManagedDatum(bslmf::MovableRef<ManagedDatum> original,
                  const allocator_type&           allocator);
 
