@@ -260,13 +260,6 @@ int main(int argc, char *argv[])
 
             ASSERT_FAIL(Util::lowerBound(ARRAY.end(), ARRAY.begin(), 3));
             ASSERT_FAIL(Util::upperBound(ARRAY.end(), ARRAY.begin(), 3));
-
-            // Unsorted data.
-
-            mArray.push_back(1);
-
-            ASSERT_SAFE_FAIL(Util::lowerBound(ARRAY.begin(), ARRAY.end(), 3));
-            ASSERT_SAFE_FAIL(Util::upperBound(ARRAY.begin(), ARRAY.end(), 3));
         }
       } break;
       case 1: {

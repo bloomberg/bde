@@ -149,7 +149,7 @@ PackedIntArrayConstIterator<TYPE> PackedIntArrayUtil::lowerBound(
                                        TYPE                              value)
 {
     BSLS_ASSERT(first <= last);
-    BSLS_ASSERT_SAFE(isSorted(first, last));
+    //BSLS_ASSERT_SAFE(isSorted(first, last));  // expensive check
 
     typedef typename PackedIntArrayConstIterator<TYPE>::difference_type
                                                                difference_type;
@@ -179,7 +179,7 @@ PackedIntArrayConstIterator<TYPE> PackedIntArrayUtil::upperBound(
                                        TYPE                              value)
 {
     BSLS_ASSERT(first <= last);
-    BSLS_ASSERT_SAFE(isSorted(first, last));
+    //BSLS_ASSERT_SAFE(isSorted(first, last));  // expensive check
 
     typedef typename PackedIntArrayConstIterator<TYPE>::difference_type
                                                                difference_type;
