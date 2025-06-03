@@ -1186,6 +1186,9 @@ int main(int argc, char *argv[])
             Obj::accessElement(V, getter, 0); ASSERT(33 == value);
             Obj::accessElement(V, getter, 1); ASSERT(44 == value);
 
+            ASSERT(false == Obj::supportsReserve(V));
+            ASSERT(0     != Obj::reserve(&mV, 10));
+
             Obj::resize(&mV, 5);
             ASSERT(5 == Obj::size(V));
             Obj::accessElement(V, getter, 0); ASSERT(33 == value);
@@ -1225,6 +1228,14 @@ int main(int argc, char *argv[])
 
             Obj::accessElement(V, getter, 0); ASSERT(33 == value);
             Obj::accessElement(V, getter, 1); ASSERT(44 == value);
+
+            ASSERT(true == Obj::supportsReserve(V));
+
+            ASSERT(0    == Obj::reserve(&mV, 10));
+            ASSERT(10   <= V.capacity());
+
+            ASSERT(0    == Obj::reserve(&mV, 30));
+            ASSERT(30   <= V.capacity());
 
             Obj::resize(&mV, 5);
             ASSERT(5 == Obj::size(V));

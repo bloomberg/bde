@@ -23,6 +23,11 @@ BSLS_IDENT("$Id: $")
 // * access an element in an array using a parameterized accessor
 //   (`accessElement`).
 //
+// Also, if supported by the array type, reserve capacity for a number of
+// elements in an array (`reserve`) and whether reserve capacity is supported
+// (`supportsReserve`).  If not supported, the default implementations return
+// non-zero (failure) for `reserve` and `false` for `supportsReserve`.
+//
 // A type becomes part of the `bdlat` "array" framework by creating, in the
 // namespace where the type is defined, overloads of the following two (free)
 // functions and two (free) function templates.  Note that the placeholder
@@ -82,6 +87,20 @@ BSLS_IDENT("$Id: $")
 // * the `ElementType` meta-function contains a `typedef` `Type` that
 //   specifies the type of the element stored in the parameterized "array"
 //   type.
+//
+// The two optional methods for reserving capacity:
+// ``` 
+// /// If successful, make the capacity of the specified modifiable `array` at
+// /// least the specified `numElements` and return zero.  If unsuccessful or
+// /// unsupported, return a non-zero value.  This method has no effect, and
+// /// returns zero, if the current capacity meets or exceeds the required
+// /// capacity.  The behavior is undefined unless `0 <= numElements`.
+// int bdlat_arrayReserve(YOUR_TYPE *array, int numElements);
+//
+// /// Return `true` if `bdlat_arrayReserve` will attempt to reserve capacity
+// /// in the specified `array`, and `false` otherwise.
+// bool bdlat_arraySupportsReserve(const YOUR_TYPE& array);
+// ```
 //
 // Note that `bsl::vector<TYPE>` is already part of the `bdlat`
 // infrastructure for "array" types because this component also provides
@@ -713,6 +732,14 @@ namespace bdlat_ArrayFunctions {
                           MANIPULATOR&  manipulator,
                           int           index);
 
+    /// If successful, make the capacity of the specified modifiable `array` at
+    /// least the specified `numElements` and return zero.  If unsuccessful or
+    /// unsupported, return a non-zero value.  This method has no effect, and
+    /// returns zero, if the current capacity meets or exceeds the required
+    /// capacity.  The behavior is undefined unless `0 <= numElements`.
+    template <class TYPE>
+    int reserve(TYPE *array, int numElements);
+
     /// Set the size of the specified modifiable `array` to the specified
     /// `newSize`.  If `newSize > size(array)`, then `newSize - size(array)`
     /// elements with default values are appended to `array`.  If
@@ -742,6 +769,29 @@ namespace bdlat_ArrayFunctions {
     template <class TYPE>
     bsl::size_t size(const TYPE& array);
 
+    /// Return `true` if `reserve` will attempt to reserve capacity in the
+    /// specified `array`, and `false` otherwise.
+    template <class TYPE>
+    bool supportsReserve(const TYPE& array);
+
+}  // close namespace bdlat_ArrayFunctions
+
+                   // =====================================
+                   // default reserve capacity declarations
+                   // =====================================
+
+/// This namespace declaration adds the default implementations for reserve
+/// capacity methods.
+namespace bdlat_ArrayFunctions {
+
+    // MANIPULATORS
+    template <class TYPE>
+    int bdlat_arrayReserve(TYPE *array, int numElements);
+
+    // ACCESSORS
+    template <class TYPE>
+    bool bdlat_arraySupportsReserve(const TYPE& array);
+
 }  // close namespace bdlat_ArrayFunctions
 
                           // ========================
@@ -770,6 +820,9 @@ namespace bdlat_ArrayFunctions {
                                      int                       index);
 
     template <class TYPE, class ALLOC>
+    int bdlat_arrayReserve(bsl::vector<TYPE, ALLOC> *array, int numElements);
+
+    template <class TYPE, class ALLOC>
     void bdlat_arrayResize(bsl::vector<TYPE, ALLOC> *array, int newSize);
 
     // ACCESSORS
@@ -780,6 +833,9 @@ namespace bdlat_ArrayFunctions {
 
     template <class TYPE, class ALLOC>
     bsl::size_t bdlat_arraySize(const bsl::vector<TYPE, ALLOC>& array);
+
+    template <class TYPE, class ALLOC>
+    bool bdlat_arraySupportsReserve(const bsl::vector<TYPE, ALLOC>& array);
 
 }  // close namespace bdlat_ArrayFunctions
 
@@ -799,6 +855,13 @@ int bdlat_ArrayFunctions::manipulateElement(TYPE         *array,
                                             int           index)
 {
     return bdlat_arrayManipulateElement(array, manipulator, index);
+}
+
+template <class TYPE>
+inline
+int bdlat_ArrayFunctions::reserve(TYPE *array, int numElements)
+{
+    return bdlat_arrayReserve(array, numElements);
 }
 
 template <class TYPE>
@@ -825,6 +888,33 @@ bsl::size_t bdlat_ArrayFunctions::size(const TYPE& array)
     return bdlat_arraySize(array);
 }
 
+template <class TYPE>
+inline
+bool bdlat_ArrayFunctions::supportsReserve(const TYPE& array)
+{
+    return bdlat_arraySupportsReserve(array);
+}
+
+                   // ------------------------------------
+                   // default reserve capacity definitions
+                   // ------------------------------------
+
+// MANIPULATORS
+template <class TYPE>
+inline
+int bdlat_ArrayFunctions::bdlat_arrayReserve(TYPE *, int)
+{
+    return -1;
+}
+
+// ACCESSORS
+template <class TYPE>
+inline
+bool bdlat_ArrayFunctions::bdlat_arraySupportsReserve(const TYPE&)
+{
+    return false;
+}
+
                           // -----------------------
                           // bsl::vector definitions
                           // -----------------------
@@ -839,6 +929,16 @@ int bdlat_ArrayFunctions::bdlat_arrayManipulateElement(
 {
     TYPE& element = (*array)[index];
     return manipulator(&element);
+}
+
+template <class TYPE, class ALLOC>
+inline
+int bdlat_ArrayFunctions::bdlat_arrayReserve(
+                                         bsl::vector<TYPE, ALLOC> *array,
+                                         int                       numElements)
+{
+    array->reserve(numElements);
+    return 0;
 }
 
 template <class TYPE, class ALLOC>
@@ -866,6 +966,14 @@ bsl::size_t bdlat_ArrayFunctions::bdlat_arraySize(
                                          const bsl::vector<TYPE, ALLOC>& array)
 {
     return array.size();
+}
+
+template <class TYPE, class ALLOC>
+inline
+bool bdlat_ArrayFunctions::bdlat_arraySupportsReserve(
+                                               const bsl::vector<TYPE, ALLOC>&)
+{
+    return true;
 }
 
 }  // close enterprise namespace

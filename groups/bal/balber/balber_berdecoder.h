@@ -1164,12 +1164,10 @@ BerDecoder_Node::decodeArray(TYPE *variable)
 
     const int arrayLengthHint = d_decoder->d_arrayLengthHint;
     if (0 < arrayLengthHint) {
-        int i = static_cast<int>(bdlat_ArrayFunctions::size(*variable));
-        bdlat_ArrayFunctions::resize(variable,
-                                       arrayLengthHint <= maxSize
-                                     ? arrayLengthHint
-                                     : maxSize);
-        bdlat_ArrayFunctions::resize(variable, i);
+        bdlat_ArrayFunctions::reserve(variable,
+                                        arrayLengthHint <= maxSize
+                                      ? arrayLengthHint
+                                      : maxSize);
         d_decoder->d_arrayLengthHint = 0;
     }
 
