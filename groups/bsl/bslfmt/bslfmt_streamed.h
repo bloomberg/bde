@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a wrapper to format using the `ostream` insert operator
+//@PURPOSE: Provide a wrapper to format using an `ostream` `operator<<`
 //
 //@CLASSES:
 //  bsl::Streamed<t_TYPE>: narrow `char` streaming wrapper class template
@@ -14,118 +14,84 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides both a wrapper class template and (for
 // use with C++ standards that have no class template argument deduction) a
 // wrapper-creator function template to enable `bsl::format`ting values that
-// already offer an `ostream` insert `operator<<`.  (On platforms that have a
-// working `std::format` the wrapper enables that, too.)
+// already offer an `ostream` insert `operator<<`.  This wrapper is also
+// compatible with `std::format`, on platforms where it is provided.
+//```
+// bsl::format("Example: {}", bsl::streamed(ATypeWithoutAFormatter(42));
+//```
 //
-///The Format String
-///-----------------
-// The wrapper's formatter supports the same format string syntax as formatting
-// a string-like type: alignment, width, and truncation using the "precision"
-// value.  See Format String Options usage example.
+///Format Specification Strings
+///----------------------------
+// The format specification string for a `bsl::streamed` wrapped object matches
+// that for a string. Specifically, it supports:
+//   * alignment
+//   * width
+//   * precisions (which is used to truncate)
+//
+// For details see
+// [Standard format specification]
+// (http://www.en.cppreference.com/w/cpp/utility/format/spec.html)
+//
+///Format String Options
+///- - - - - - - - - - -
+//```
+// class Streamable {};
+//
+// std::ostream& operator<<(std::ostream& os, const Streamable&)
+// {
+//     return os << "012345";
+// }
+//```
+// The following table describes the affect of different format specifications:
+//
+// | Width | Alignment | Pad Char | Precision | Format Spec | Output Text  |
+// |-------|-----------|----------|-----------|-------------|--------------|
+// | N/A   | N/A       | N/A      | N/A       | "{}"        | "012345"     |
+// | N/A   | N/A       | N/A      | 3         | "{:.3}"     | "012"        |
+// | 8     | N/A       | N/A      | N/A       | "{:8}"      | "012345  "   |
+// | 8     | left      | N/A      | N/A       | "{:<8}"     | "012345  "   |
+// | 8     | center    | N/A      | N/A       | "{:^8}"     | " 012345 "   |
+// | 8     | right     | N/A      | N/A       | "{:>8}"     | "  012345"   |
+// | 8     | center    | equal    | N/A       | "{:=^8}"    | "=012345="   |
+// | 6     | center    | star     | 2         | "{:*^6.2}"  | "**01**"     |
 //
 ///Usage
 ///-----
 // In this section we show the intended use of this component.
 //
-///Example 1: Formatting a Streamable Object
-///- - - - - - - - - - - - - - - - - - - - -
+///Formatting a Streamable Object
+/// - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<`.  When writing portable code that
-// should work on compilers that do not support class template argument
-// deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.
+// `ostream` using the insert `operator<<`.
 //
-// First, for the sake of demonstration we create a type with an obscure and
-// long name that we neither want to remember nor ever to write down, and which
-// can be streamed out:
+// First, we define a type with a streaming operator but without a formatter
+// specialization:
 //```
-//  class ThisTypeHasLongAndObscureNameButStreamable {
-//  };
-//
-//  std::ostream& operator<<(
-//                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& )
+//  class NonFormattableType {};
+//  bsl::ostream& operator<<(bsl::ostream& os, const NonFormattableType& obj)
 //  {
 //      return os << "The printout";
 //  }
 //```
-// Then, we create an object of said type that we want to print out:
+// Then we create an instance of this type and use bsl::streamed to allow us to
+// format it:
 //```
 //  const ThisTypeHasLongAndObscureNameButStreamable obj;
 //```
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
 //```
-//  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+// const NonFormattableType obj;
+// bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
 // Finally, we verify the output is correct:
 //```
-//  assert(s == "The printout");
+// assert(s == "The printout");
 //```
-//
-///Example 2: Format String Options
-/// - - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<` for an environment that requires the
-// output to be padded, aligned, and/or truncation of the output.  In this
-// example we will introduce the effects of the various possible format string
-// specifications.
-//
-// First, for the sake of demonstration we create a type that prints a series
-// of digits to help demonstrate the effects of the various formattings:
-//```
-//  class Streamable {
-//  };
-//
-//  std::ostream& operator<<(std::ostream& os, const Streamable&)
-//  {
-//      return os << "12345678";
-//  }
-//```
-// Then, we create an object of said type that we will format:
-//
-//```
-//  const Streamable obj;
-//```
-// Next, we format the "value" using many different format strings, starting
-// with the default for completeness:
-//```
-//  bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
-//  assert(s == "12345678");
-//```
-// Then, we format with specifying just a width:
-//```
-//  s = bsl::format("{:10}", bslfmt::streamed(obj));
-//  assert(s == "12345678  ");
-//```
-// Next, we format with specifying a width, and alignments:
-//```
-//  s = bsl::format("{:<10}", bslfmt::streamed(obj));
-//  assert(s == "12345678  ");
-//
-//  s = bsl::format("{:^10}", bslfmt::streamed(obj));
-//  assert(s == " 12345678 ");
-//
-//  s = bsl::format("{:>10}", bslfmt::streamed(obj));
-//  assert(s == "  12345678");
-//```
-// Finally, we demonstrate the truncation using a "precision" value:
-//```
-//  s = bsl::format("{:.6}", bslfmt::streamed(obj));
-//  assert(s == "123456");
-//
-//  s = bsl::format("{:8.6}", bslfmt::streamed(obj));
-//  assert(s == "123456  ");
-//
-//  s = bsl::format("{:<8.6}", bslfmt::streamed(obj));
-//  assert(s == "123456  ");
-//
-//  s = bsl::format("{:^8.6}", bslfmt::streamed(obj));
-//  assert(s == " 123456 ");
-//
-//  s = bsl::format("{:>8.6}", bslfmt::streamed(obj));
-//  assert(s == "  123456");
-//```
+// Notice that, in this instance, we preferred using the `bsl::streamed` free
+// function to directly using the `Streamed` type because it supports simpler
+// syntax on platforms that do not support class template argument deduction
+// (introduced in C++17).
 
 #include <bslscm_version.h>
 
@@ -159,8 +125,8 @@ namespace bslfmt {
                       // Streamed_NoWarningConstructorTag
                       // ================================
 
-/// Just a tag type for the private constructor of `Streamed` that is used from
-/// the `streamed` wrapper-creator method.
+/// A *component private* tag type used to internally construct a `Streamed`
+/// object without a warning (about an already existing formatter).
 #ifdef BSL_FORMATTABLE_DEFINED
 struct Streamed_NoWarningConstructorTag {
 };
@@ -170,9 +136,12 @@ struct Streamed_NoWarningConstructorTag {
                                  // Streamed
                                  // ========
 
-/// A wrapper class to be used with streamable (`ostream::operator<<`) types
-/// that adds `bsl::format` capability to the type (and `std::format` when that
-/// is available).
+/// This class provides a wrapper to enable a streamable type to be used with
+/// `bsl::format` (and `std::format`) when no formatter specialization is
+/// provided (the type is not formattable).  Note that it is possible to use
+/// this wrapper with types that have a formatter; in such case if the compiler
+/// supports it we give a compilation warning directing the user to use the
+/// existing formatter instead of wrapping to use the streaming operator.
 template <class t_STREAMABLE>
 class Streamed {
   private:
@@ -183,22 +152,20 @@ class Streamed {
     // PRIVATE CREATORS
 
 #ifdef BSL_FORMATTABLE_DEFINED
-    /// Create a wrapper instance around the specified `object`.  The behavior
-    /// is undefined unless the lifetime of `object` is at least as long as
-    /// that of the wrapper created.  This constructor is the one used from the
+    /// Create a `Streamed` wrapping the specified `object`.  The behavior is
+    /// undefined unless the lifetime of `object` is at least as long as that
+    /// of the wrapper created.  This constructor is the one used from the
     /// `bslfmt::streamed` wrapper-creator function to avoid two warnings for
     /// types that are already formattable.
     Streamed(const t_STREAMABLE& object, Streamed_NoWarningConstructorTag);
 
     // FRIENDS
     template <class t_STREAMABLE2>
-    friend
-    Streamed<t_STREAMABLE2> streamed(const t_STREAMABLE2& object)
-    requires(!bsl::formattable<t_STREAMABLE2, char>);
+    friend Streamed<t_STREAMABLE2> streamed(const t_STREAMABLE2& object)
+        requires(!bsl::formattable<t_STREAMABLE2, char>);
     template <class t_STREAMABLE2>
-    friend
-    Streamed<t_STREAMABLE2> streamed(const t_STREAMABLE2& object)
-    requires(bsl::formattable<t_STREAMABLE2, char>);
+    friend Streamed<t_STREAMABLE2> streamed(const t_STREAMABLE2& object)
+        requires(bsl::formattable<t_STREAMABLE2, char>);
 #endif
 
   public:
@@ -207,16 +174,15 @@ class Streamed {
     /// Create a `Streamed` wrapper instance around the specified `object`.
     /// The behavior is undefined unless the lifetime of `object` is at least
     /// as long as that of the wrapper created.
+#ifdef BSL_FORMATTABLE_DEFINED
     Streamed(const t_STREAMABLE& object)
-#ifdef BSL_FORMATTABLE_DEFINED
-    requires(!bsl::formattable<t_STREAMABLE, char>)
-#endif  // BSLFMT_FORMATTABLE_DEFINED
-    ;
-#ifdef BSL_FORMATTABLE_DEFINED
+        requires(!bsl::formattable<t_STREAMABLE, char>);
     BSLFMT_STREAMED_INSTANCE_DEPRECATED_
     Streamed(const t_STREAMABLE& object)
-    requires(bsl::formattable<t_STREAMABLE, char>);
-#endif
+        requires(bsl::formattable<t_STREAMABLE, char>);
+#else   // BSL_FORMATTABLE_DEFINED
+    Streamed(const t_STREAMABLE& object);
+#endif  // else of BSL_FORMATTABLE_DEFINED
 
     // ACCESSORS
 
@@ -225,9 +191,10 @@ class Streamed {
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-// Certain versions of clang do not support CTAD with concepts present due to
-// CWG issue 2628 resolution not yet applied, therefore we need an explicit
-// deduction guide.
+// The following deduction guide is needed for versions of clang that do not
+// support CTAD with concepts present due to CWG issue 2628 resolution not yet
+// applied and therefore would give an ambiguity error indicating it does not
+// know which constructor to use for CTAD.
 template <class t_TYPE>
 Streamed(const t_TYPE& object) -> Streamed<t_TYPE>;
 #endif
@@ -274,34 +241,35 @@ struct Streamed_WrapperFormatter<Streamed<t_STREAMABLE> > {
                             t_FORMAT_CONTEXT&             formatContext) const;
 };
 
-// ============================================================================
-//                         FREESTANDING FUNCTIONS
-// ============================================================================
+// FREE FUNCTIONS
 
 #ifdef BSL_FORMATTABLE_DEFINED
+/// Create and return a `bslfmt::Streamed` (wrapper) object for the specified
+/// streamable `object`.  The behavior is undefined unless `t_STREAMABLE` has a
+/// standard and well-behaved `std::ostream` output operator.  This
+/// wrapper-creator free function to support compilation with no CTAD (Class
+/// Template Argument Deduction); see (#Usage).  Notice that for compilations
+/// that support the `bsl::formattable` trait we define two concept-driven
+/// overloads of this function, one of which will warn the user (compiler
+/// warning) if a `bsl::formatter` already exists for the type they try to
+/// streamed-wrap.
 template <class t_STREAMABLE>
 Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object)
-requires(!bsl::formattable<t_STREAMABLE, char>);
+    requires(!bsl::formattable<t_STREAMABLE, char>);
 
 template <class t_STREAMABLE>
-BSLFMT_STREAMED_INSTANCE_DEPRECATED_
-Streamed<t_STREAMABLE>
+BSLFMT_STREAMED_INSTANCE_DEPRECATED_ Streamed<t_STREAMABLE>
 streamed(const t_STREAMABLE& object)
-requires(bsl::formattable<t_STREAMABLE, char>);
-#else
+    requires(bsl::formattable<t_STREAMABLE, char>);
+#else   // BSL_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object);
-#endif
-
-}  // close package namespace
-}  // close enterprise namespace
+#endif  // else of BSL_FORMATTABLE_DEFINED
 
 // ============================================================================
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-namespace BloombergLP {
-namespace bslfmt {
                              // --------
                              // Streamed
                              // --------
@@ -326,24 +294,28 @@ const t_STREAMABLE& Streamed<t_STREAMABLE>::object() const
 }
 
 // CREATORS
+#ifdef BSL_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 Streamed<t_STREAMABLE>::Streamed(const t_STREAMABLE& object)
-#ifdef BSL_FORMATTABLE_DEFINED
-requires(!bsl::formattable<t_STREAMABLE, char>)
-#endif
+    requires(!bsl::formattable<t_STREAMABLE, char>)
 : d_object(object)
 {
 }
 
-#ifdef BSL_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 BSLFMT_STREAMED_INSTANCE_DEPRECATED_
 Streamed<t_STREAMABLE>::Streamed(const t_STREAMABLE& object)
-requires(bsl::formattable<t_STREAMABLE, char>)
+    requires(bsl::formattable<t_STREAMABLE, char>)
 : d_object(object)
 {
 }
-#endif
+#else   // BSL_FORMATTABLE_DEFINED
+template <class t_STREAMABLE>
+Streamed<t_STREAMABLE>::Streamed(const t_STREAMABLE& object)
+: d_object(object)
+{
+}
+#endif  // else of BSL_FORMATTABLE_DEFINED
 
                          // -------------------------
                          // Streamed_WrapperFormatter
@@ -375,10 +347,7 @@ Streamed_WrapperFormatter<Streamed<t_STREAMABLE> >::format(
 
 }  // close package namespace
 
-// ============================================================================
-//                         FREESTANDING FUNCTIONS
-// ============================================================================
-
+// FREE FUNCTIONS
 #ifdef BSL_FORMATTABLE_DEFINED
 template <class t_STREAMABLE>
 bslfmt::Streamed<t_STREAMABLE> bslfmt::streamed(const t_STREAMABLE& object)

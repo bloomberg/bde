@@ -6,7 +6,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concept to check the presence of a `bsl::formatter`
+//@PURPOSE: Provide a concept to check for the presence of a `bsl::formatter`
 //
 //@CLASSES:
 //  bsl::formattable<t_TYPE, t_CHAR>: `bsl::formatter` presence concept
@@ -24,6 +24,22 @@ BSLS_IDENT("$Id: $")
 // Because this component requires concept support it is not available portably
 // on all platforms, therefore any portable use of this concept should make use
 // of the appropriate preprocessor guards.
+//
+///When is a Type Formattable?
+///---------------------------
+// A type is formattable if it can be used as a formatted argument of the
+// `bsl::format` family of functions:
+//```
+// bsl::string fmtd = bsl::format("{}", MyType(42));
+//```
+// That in turn works if there is a matching `bsl::formatter` specialization
+// for that type, such as:
+//```
+// namespace bsl {
+// template <class t_CHAR>
+// class formatter<MyType, t_CHAR> ...
+// }
+//```
 //
 ///Usage
 ///-----
@@ -123,11 +139,16 @@ namespace bsl {
 namespace BloombergLP {
 namespace bslfmt {
 
-/// A dummy class that looks like an output iterator to use in the concept
-/// implementation instead of the unknown (unspecified) output iterator that is
-/// actually used by the standard implementation.  Note that we know the output
-/// iterator our implementation uses but that is a component-private type, so
-/// not really usable here either.
+                      // ===============================
+                      // Formattable_DummyOutputIterator
+                      // ===============================
+
+/// A dummy iterator class that provides the signatures of an output iterator,
+/// but whose implementation does nothing. This type serves as a stand in for
+/// the unknown output iterator (used by the standard) when defining the
+/// `formattable` trait. Note that the output iterator used by the
+/// `bsl::format` implementation is a component private type, so we do not use
+/// it here.
 template <class t_CHAR>
 class Formattable_DummyOutputIterator {
   public:
