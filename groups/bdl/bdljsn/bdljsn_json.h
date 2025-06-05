@@ -133,8 +133,7 @@ BSLS_IDENT("$Id: $")
 //
 // bdljsn::Json json;
 //
-// json.makeObject();
-// json["number"]  = 3.14;
+// json.makeObject(); json["number"]  = 3.14;
 // json["boolean"] = true;
 // json["string"]  = "text";
 // json["array"].makeArray();
@@ -183,6 +182,7 @@ BSLS_IDENT("$Id: $")
 // subObject.insert("boolean", false);
 // json.theObject().insert("object", bsl::move(subObject));
 // ```
+
 #include <bdlscm_version.h>
 
 #include <bdlb_variant.h>
@@ -214,6 +214,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 #include <bsls_util.h>
 
+#include <bsl_exception.h>
 #include <bsl_iterator.h>
 #include <bsl_unordered_map.h>
 #include <bsl_vector.h>
@@ -236,22 +237,21 @@ class JsonObject;
 /// implementation because our implementation permits the element type to be
 /// incomplete (when just spelling the type name).
 class JsonArray {
-
   private:
     // PRIVATE TYPES
     typedef bsl::vector<Json> Elements;
 
   public:
     // TYPES
-    typedef Elements::iterator        Iterator;
-    typedef Elements::const_iterator  ConstIterator;
+    typedef Elements::iterator       Iterator;
+    typedef Elements::const_iterator ConstIterator;
 
     typedef Elements::value_type      value_type;
     typedef Elements::reference       reference;
     typedef Elements::const_reference const_reference;
 
-    typedef Elements::iterator        iterator;
-    typedef Elements::const_iterator  const_iterator;
+    typedef Elements::iterator       iterator;
+    typedef Elements::const_iterator const_iterator;
 
     typedef Elements::difference_type difference_type;
     typedef Elements::size_type       size_type;
@@ -332,7 +332,7 @@ class JsonArray {
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
     /// specified, the currently installed default allocator is used.
     JsonArray(std::initializer_list<Json>  elements,
-    bslma::Allocator                      *basicAllocator = 0);     // IMPLICIT
+    bslma::Allocator                      *basicAllocator = 0);                          // IMPLICIT
 
 #endif
 
@@ -678,7 +678,6 @@ void swap(JsonArray& a, JsonArray& b);
 /// non-generic container, like hasher and comparator access, emplacement,
 /// nodes, capacity management, etc.
 class JsonObject {
-
   private:
     // PRIVATE TYPES
     typedef bsl::unordered_map<bsl::string,
@@ -689,17 +688,17 @@ class JsonObject {
 
   public:
     // TYPES
-    typedef Container::value_type      Member;
-    typedef Container::const_iterator  ConstIterator;
-    typedef Container::iterator        Iterator;
-    typedef bsl::pair<Iterator, bool>  IteratorAndStatus;
+    typedef Container::value_type     Member;
+    typedef Container::const_iterator ConstIterator;
+    typedef Container::iterator       Iterator;
+    typedef bsl::pair<Iterator, bool> IteratorAndStatus;
 
     typedef Container::value_type      value_type;
     typedef Container::reference       reference;
     typedef Container::const_reference const_reference;
 
-    typedef Container::iterator        iterator;
-    typedef Container::const_iterator  const_iterator;
+    typedef Container::iterator       iterator;
+    typedef Container::const_iterator const_iterator;
 
     typedef Container::difference_type difference_type;
     typedef Container::size_type       size_type;
@@ -784,7 +783,7 @@ class JsonObject {
     /// unless the keys of all `Member` objects in `members` are valid UTF-8
     /// (see `bdlde::Utf8Util::isValid`).
     JsonObject(std::initializer_list<Member>  members,
-    bslma::Allocator                         *basicAllocator = 0);  // IMPLICIT
+    bslma::Allocator                         *basicAllocator = 0);                          // IMPLICIT
 #endif
 
     // MANIPULATORS
@@ -902,9 +901,9 @@ class JsonObject {
     /// unless the keys of all `Member` objects inserted are valid UTF-8
     /// (see `bdlde::Utf8Util::isValid`).
     template <class INPUT_ITERATOR>
-    typename bsl::enable_if<!bsl::is_convertible<INPUT_ITERATOR,
-                                                 bsl::string_view>::value,
-                            void>::type
+    typename bsl::enable_if<
+        !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
+        void>::type
     insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -1052,7 +1051,6 @@ void swap(JsonObject& a, JsonObject& b);
 /// This type is designed to be a thin wrapper around a variant of the
 /// possible JSON types, using a BDE-style variant interface.
 class Json {
-
     // PRIVATE TYPES
     typedef bdlb::
         Variant<JsonObject, JsonArray, bsl::string, JsonNumber, bool, JsonNull>
@@ -1212,12 +1210,12 @@ class Json {
     template <class STRING_TYPE>
     explicit Json(
                BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string,
-               bslma::Allocator                    *basicAllocator = 0,
+               bslma::Allocator *basicAllocator = 0,
                typename bsl::enable_if<
                    bsl::is_same<STRING_TYPE, bsl::string>::value>::type * = 0);
 
-    // BDE_VERIFY pragma: +IND01 DEDUCE macro confuses bde_verify
-    // BDE_VERIFY pragma: +FD06 'string' and 'bsl::string' are too similar
+    // BDE_VERIFY pragma: +IND01 DEDUCE macro confuses bde_verify 
+    // BDE_VERIFY pragma: +FD06 'string' and 'bsl::string' are too similar 
     // BDE_VERIFY pragma: +FD07 'string' and 'bsl::string' are too similar
 
     // MANIPULATORS
@@ -1393,8 +1391,8 @@ class Json {
     /// `STRING_TYPE` is `bsl::string`.  The behavior is undefined unless
     /// `string` is valid UTF-8 (see `bdlde::Utf8Util::isValid`).
     template <class STRING_TYPE>
-    typename bsl::enable_if<bsl::is_same<STRING_TYPE,
-                                         bsl::string>::value>::type
+    typename bsl::enable_if<
+        bsl::is_same<STRING_TYPE, bsl::string>::value>::type
         makeString(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string);
 
     // BDE_VERIFY pragma: +FD06 'string' and 'bsl::string' are too similar
@@ -1431,6 +1429,53 @@ class Json {
     /// `JsonObject` held by this object.  The behavior is undefined unless
     /// `isObject()` returns true.
     JsonObject& theObject();
+
+    /// Return the result (having `RETURN_TYPE`) of invoking the specified
+    /// `visitor` (callable) object on this `Json` object.  `visitor` must be
+    /// callable as if it provides the following overloads of `operator()`:
+    /// ```
+    /// RETURN_TYPE operator()(JsonObject  *object );
+    /// RETURN_TYPE operator()(JsonArray   *array  );
+    /// RETURN_TYPE operator()(bsl::string *string );
+    /// RETURN_TYPE operator()(JsonNumber  *number );
+    /// RETURN_TYPE operator()(bool        *boolean);
+    /// RETURN_TYPE operator()(JsonNull    *null   );
+    /// ```
+    /// The overload corresponding to the current `type()` of this `Json`
+    /// object is invoked.  For C++03 `visitor` must be `const` qualified.  The
+    /// behavior is undefined unless all of these six overloads are defined.
+    /// The behavior is undefined if the `string` overload leaves this `Json`
+    /// object with a string that is not valid UTF-8.  Note that overloads that
+    /// are not applicable in a given application need not do anything other
+    /// than return.  Also note that if `visitor` is `const` qualified then
+    /// each of its `operator()` overloads must also be `const` qualified.
+    template <class RETURN_TYPE, class VISITOR>
+    RETURN_TYPE visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+    /// Return the result (having a deduced type) of invoking the specified
+    /// `visitor` (callable) object on this `Json` object.  `visitor` must be
+    /// callable as if it provides the following overloads of `operator()`, any
+    /// of which can have deduced return types:
+    /// ```
+    /// decltype(auto) operator()(JsonObject  *object );
+    /// decltype(auto) operator()(JsonArray   *array  );
+    /// decltype(auto) operator()(bsl::string *string );
+    /// decltype(auto) operator()(JsonNumber  *number );
+    /// decltype(auto) operator()(bool        *boolean);
+    /// decltype(auto) operator()(JsonNull    *null   );
+    /// ```
+    /// The overload corresponding to the current `type()` of this `Json`
+    /// object is invoked.  The behavior is undefined unless all of these six
+    /// overloads are defined *and* each has the same return type.  The
+    /// behavior is undefined if the `string` overload leaves this `Json`
+    /// object with a string that is not valid UTF-8.  Note that overloads that
+    /// are not applicable in a given application need not do anything other
+    /// than return.  Also note that if `visitor` is `const` qualified then
+    /// each of its `operator()` overloads must also be `const` qualified.
+    template <class VISITOR>
+    decltype(auto) visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor);
+#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
     /// Return a reference providing modifiable access to the value of type
@@ -1473,7 +1518,8 @@ class Json {
     /// `index < theArray().size()`.
     Json& operator[](bsl::size_t index);
 
-    // ACCESSORS
+    // ACCESSORS 
+
     // BDE_VERIFY pragma: -FABC01
 
     /// Load into the specified `result` the integer value of the value of type
@@ -1575,6 +1621,53 @@ class Json {
 
     /// Return the type of this `Json` value.
     JsonType::Enum type() const BSLS_KEYWORD_NOEXCEPT;
+
+    /// Return the result (having `RETURN_TYPE`) of invoking the specified
+    /// `visitor` (callable) object on this `Json` object.  `visitor` must be
+    /// callable as if it provides the following overloads of `operator()`:
+    /// ```
+    /// RETURN_TYPE operator()(const JsonObject&  object );
+    /// RETURN_TYPE operator()(const JsonArray&   array  );
+    /// RETURN_TYPE operator()(const bsl::string& string );
+    /// RETURN_TYPE operator()(const JsonNumber&  number );
+    /// RETURN_TYPE operator()(const bool&        boolean);
+    /// RETURN_TYPE operator()(const JsonNull&    null   );
+    /// ```
+    /// The overload corresponding to the current `type()` of this `Json`
+    /// object is invoked.  For C++03 `visitor` must be `const` qualified.  The
+    /// behavior is undefined unless all of these six overloads are defined.
+    /// Note that overloads that are not applicable in a given application need
+    /// not do anything other than return.  Also note that if `visitor` is
+    /// `const` qualified then each of its `operator()` overloads must also be
+    /// `const` qualified.
+    template <class RETURN_TYPE, class VISITOR>
+    RETURN_TYPE visit(
+                     BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor) const;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+    /// Return the result (having a deduced type) of invoking the specified
+    /// `visitor` (callable) object on this `Json` object.  `visitor` must be
+    /// callable as if it provides the following overloads of `operator()`, any
+    /// of which can have deduced return types:
+    /// ```
+    /// decltype(auto) operator()(const JsonObject&  object );
+    /// decltype(auto) operator()(const JsonArray&   array  );
+    /// decltype(auto) operator()(const bsl::string& string );
+    /// decltype(auto) operator()(const JsonNumber&  number );
+    /// decltype(auto) operator()(const bool&        boolean);
+    /// decltype(auto) operator()(const JsonNull&    null   );
+    /// ```
+    /// The overload corresponding to the current `type()` of this `Json`
+    /// object is invoked.  The behavior is undefined unless all of these six
+    /// overloads are defined *and* each has the same return type.  Note that
+    /// overloads that are not applicable in a given application need not do
+    /// anything other than return.  Also note that if `visitor` is `const`
+    /// qualified then each of its `operator()` overloads must also be `const`
+    /// qualified.
+    template <class VISITOR>
+    decltype(auto) visit(
+                     BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor) const;
+#endif
 
     /// Return a reference providing non-modifiable access to the `Json`
     /// object associated with the specified `key` in this `JsonObject`.
@@ -1684,6 +1777,64 @@ void hashAppend(HASHALG& hashAlg, const Json& object);
 /// O[1] complexity.  The behavior is undefined unless `a` was created with
 /// the same allocator as `b`.
 void swap(Json& a, Json& b);
+
+                           // =====================
+                           // struct Json_VisitUtil
+                           // =====================
+
+/// This component-private utility `struct` provides a namespace for a suite of
+/// operations used in the implementation of "visit" operations provided by
+/// classes in this component.
+struct Json_VisitUtil {
+    // CLASS METHODS
+
+    /// Invoke the specified `visitor` (callable object) with the specified
+    /// `argument` and return the computed value of (template parameter) the
+    /// `RETURN_TYPE`.  Note that in typical use, `argument` has the current
+    /// value and type of a `Json` object.
+    template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+    static RETURN_TYPE invokeVisitor(VISITOR         *visitor,
+                                     const ARGUMENT&  argument);
+    template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+    static RETURN_TYPE invokeVisitor(VISITOR&        visitor,
+                                     const ARGUMENT& argument);
+    template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+    static RETURN_TYPE invokeVisitor(const VISITOR&  visitor,
+                                     const ARGUMENT& argument);
+    template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+    static RETURN_TYPE invokeVisitor(BSLMF_MOVABLEREF_DEDUCE(VISITOR) visitor,
+                                     const ARGUMENT& argument);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+    template <class VISITOR, class ARGUMENT>
+    static decltype(auto) invokeVisitor(const VISITOR&  visitor,
+                                        const ARGUMENT& argument);
+    template <class VISITOR, class ARGUMENT>
+    static decltype(auto)
+        invokeVisitor(BSLMF_MOVABLEREF_DEDUCE(VISITOR) visitor,
+                      const ARGUMENT& argument);
+#endif
+};
+
+                      // ===============================
+                      // class Json_StringInvariantGuard
+                      // ===============================
+
+/// This is a component-private guard class.
+class Json_StringInvariantGuard {
+    // DATA
+    bsl::string *d_string_p;
+
+  public:
+    // CREATORS
+
+    /// Create an object that guards the invariant (valid UTF-8) of the JSON
+    /// string at the specified `string`.
+    explicit Json_StringInvariantGuard(bsl::string *string);
+
+    /// Validate the JSON string specified on construction using `BSLS_ASSERT`
+    /// and destroy this guard object.
+    ~Json_StringInvariantGuard() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
+};
 
 // ============================================================================
 //                            INLINE DEFINITIONS
@@ -2121,13 +2272,14 @@ Json& JsonObject::operator[](const bsl::string_view& key)
     }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-    return d_members.emplace(std::piecewise_construct,
-                             std::forward_as_tuple(key),
-                             std::forward_as_tuple())
-                .first->second;
+    return d_members
+        .emplace(std::piecewise_construct,
+                 std::forward_as_tuple(key),
+                 std::forward_as_tuple())
+        .first->second;
 #else
-    bslma::Allocator *alloc = allocator();
-    bsl::pair<bsl::string_view, Json> value(alloc);
+    bslma::Allocator                  *alloc = allocator();
+    bsl::pair<bsl::string_view, Json>  value(alloc);
     value.first = key;
     return d_members.emplace(bslmf::MovableRefUtil::move(value)).first->second;
 #endif
@@ -2459,8 +2611,8 @@ Json::Json(const bsl::string_view& string, bslma::Allocator *basicAllocator)
 
 template <class STRING_TYPE>
 inline
-Json::Json(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string,
-           bslma::Allocator                    *basicAllocator,
+Json::Json(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE)  string,
+           bslma::Allocator                     *basicAllocator,
            typename bsl::enable_if<
                bsl::is_same<STRING_TYPE, bsl::string>::value>::type *)
 : d_value(bslmf::MovableRefUtil::move(string), basicAllocator)
@@ -2730,6 +2882,85 @@ void Json::swap(Json& other)
     d_value.swap(other.d_value);
 }
 
+template <class RETURN_TYPE, class VISITOR>
+RETURN_TYPE Json::visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
+{
+    typedef Json_VisitUtil Util;
+
+    switch (type()) {
+      case JsonType::e_OBJECT: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, &theObject());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_ARRAY: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, &theArray());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_STRING: {
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        Json_StringInvariantGuard guard(&d_value.the<bsl::string>());
+#endif
+        return Util::invokeVisitor<RETURN_TYPE>(
+                                              visitor,
+                                              &d_value.the<bsl::string>());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_NUMBER: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, &theNumber());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_BOOLEAN: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, &theBoolean());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_NULL: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, &theNull());
+                                                                      // RETURN
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(false && "reachable");
+      } break;
+    }
+    BSLA_UNREACHABLE;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+template <class VISITOR>
+decltype(auto) Json::visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
+{
+    using Util = Json_VisitUtil;
+
+    switch (type()) {
+      case JsonType::e_OBJECT: {
+        return Util::invokeVisitor(visitor, &theObject());            // RETURN
+      } break;
+      case JsonType::e_ARRAY: {
+        return Util::invokeVisitor(visitor, &theArray());             // RETURN
+      } break;
+      case JsonType::e_STRING: {
+#ifdef BSLS_ASSERT_IS_ACTIVE
+        Json_StringInvariantGuard guard(&d_value.the<bsl::string>());
+#endif
+        return Util::invokeVisitor(visitor, &d_value.the<bsl::string>());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_NUMBER: {
+        return Util::invokeVisitor(visitor, &theNumber());            // RETURN
+      } break;
+      case JsonType::e_BOOLEAN: {
+        return Util::invokeVisitor(visitor, &theBoolean());           // RETURN
+      } break;
+      case JsonType::e_NULL: {
+        return Util::invokeVisitor(visitor, &theNull());              // RETURN
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(false && "reachable");
+      } break;
+    }
+    BSLA_UNREACHABLE;
+}
+#endif
+
 // ACCESSORS
 inline
 bool Json::isArray() const
@@ -2913,7 +3144,6 @@ int Json::asUint64(bsls::Types::Uint64 *result) const
     return theNumber().asUint64(result);
 }
 
-
 inline
 const JsonArray& Json::theArray() const
 {
@@ -2955,6 +3185,78 @@ JsonType::Enum Json::type() const BSLS_KEYWORD_NOEXCEPT
 {
     return static_cast<JsonType::Enum>(d_value.typeIndex() - 1);
 }
+
+template <class RETURN_TYPE, class VISITOR>
+RETURN_TYPE Json::visit(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor) const
+{
+    typedef Json_VisitUtil Util;
+
+    switch (type()) {
+      case JsonType::e_OBJECT: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, theObject());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_ARRAY: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, theArray());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_STRING: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, theString());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_NUMBER: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, theNumber());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_BOOLEAN: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, theBoolean());
+                                                                      // RETURN
+      } break;
+      case JsonType::e_NULL: {
+        return Util::invokeVisitor<RETURN_TYPE>(visitor, theNull());  // RETURN
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(false && "reachable");
+      } break;
+    }
+    BSLA_UNREACHABLE;
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+template <class VISITOR>
+decltype(auto) Json::visit(
+                      BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor) const
+{
+    using Util = Json_VisitUtil;
+
+    switch (type()) {
+      case JsonType::e_OBJECT: {
+        return Util::invokeVisitor(visitor, theObject());             // RETURN
+      } break;
+      case JsonType::e_ARRAY: {
+        return Util::invokeVisitor(visitor, theArray());              // RETURN
+      } break;
+      case JsonType::e_STRING: {
+        return Util::invokeVisitor(visitor, theString());             // RETURN
+      } break;
+      case JsonType::e_NUMBER: {
+        return Util::invokeVisitor(visitor, theNumber());             // RETURN
+      } break;
+      case JsonType::e_BOOLEAN: {
+        return Util::invokeVisitor(visitor, theBoolean());            // RETURN
+      } break;
+      case JsonType::e_NULL: {
+        return Util::invokeVisitor(visitor, theNull());               // RETURN
+      } break;
+      default: {
+        BSLS_ASSERT_OPT(false && "reachable");
+      } break;
+    }
+    BSLA_UNREACHABLE;
+}
+#endif
+
 inline
 const Json& Json::operator[](const bsl::string_view& key) const
 {
@@ -3120,6 +3422,92 @@ void bdljsn::swap(bdljsn::Json& a, bdljsn::Json& b)
     bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
 }
 
+namespace bdljsn {
+
+                           // ---------------------
+                           // struct Json_VisitUtil
+                           // ---------------------
+
+template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(VISITOR         *visitor,
+                                          const ARGUMENT&  argument)
+{
+    BSLS_ASSERT(visitor);
+    return (*visitor)(argument);
+}
+
+template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(VISITOR&        visitor,
+                                          const ARGUMENT& argument)
+{
+    return visitor(argument);
+}
+
+template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(const VISITOR&  visitor,
+                                          const ARGUMENT& argument)
+{
+    return visitor(argument);
+}
+
+template <class RETURN_TYPE, class VISITOR, class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(BSLMF_MOVABLEREF_DEDUCE(VISITOR)
+                                              visitor,
+                                          const ARGUMENT& argument)
+{
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    return (bsl::forward<VISITOR>(visitor))(argument);
+#else
+    return (bslmf::MovableRefUtil::access(visitor))(argument);
+#endif
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+template <class VISITOR, class ARGUMENT>
+decltype(auto) Json_VisitUtil::invokeVisitor(const VISITOR&  visitor,
+                                             const ARGUMENT& argument)
+{
+    return visitor(argument);
+}
+
+template <class VISITOR, class ARGUMENT>
+decltype(auto) Json_VisitUtil::invokeVisitor(BSLMF_MOVABLEREF_DEDUCE(VISITOR)
+                                                 visitor,
+                                             const ARGUMENT& argument)
+{
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    return (bsl::forward<VISITOR>(visitor))(argument);
+#else
+    return (bslmf::MovableRefUtil::access(visitor))(argument);
+#endif
+}
+#endif
+
+                      // -------------------------------
+                      // class Json_StringInvariantGuard
+                      // -------------------------------
+
+// CREATORS
+inline
+Json_StringInvariantGuard::Json_StringInvariantGuard(bsl::string *string)
+: d_string_p(string)
+{
+    BSLS_ASSERT(string);
+}
+
+inline
+Json_StringInvariantGuard::~Json_StringInvariantGuard()
+    BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+{
+    if (0 == bsl::uncaught_exceptions()) {
+        if (false == bdlde::Utf8Util::isValid(*d_string_p)) {
+            BSLS_ASSERT_INVOKE_NORETURN(
+                             "false == bdlde::Utf8Util::isValid(*d_string_p)");
+        }
+    }
+}
+
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BDLJSN_JSON

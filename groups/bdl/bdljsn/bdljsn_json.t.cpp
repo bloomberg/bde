@@ -19,6 +19,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_nameof.h>
 #include <bsls_review.h>
 
 #include <bsl_climits.h>
@@ -3819,6 +3820,1521 @@ class JsonValueEnumeration
         return allocated;
     }
 };
+
+// ============================================================================
+//                               HELPERS for 'visit'
+// ----------------------------------------------------------------------------
+
+                        // ============================
+                        // class TestJsonVisitorReturns
+                        // ============================
+
+template <class RETURN_TYPE>
+class TestJsonVisitorReturns {
+    bsl::vector<int> *d_output_p;
+    bool              d_isVerbose;
+
+  public:
+    // CREATORS
+    explicit TestJsonVisitorReturns(bsl::vector<int> *output    = 0,
+                                    bool              isVerbose = false);
+        // Create a 'TestJsonVistorReturns' object having all overloads
+        // required for the manipulator overloads of 'Json::visit'.  Optionally
+        // specify 'isVerbose' for the generation of trace statements to
+        // standard output.  Optionally specify 'output', a vector to which the
+        // returned value is pushed.  Note that 'output' is useful when the
+        // return type is 'void'.
+
+    // ACCESSORS
+    RETURN_TYPE operator()(JsonObject *object) const;
+    RETURN_TYPE operator()(JsonArray *array) const;
+    RETURN_TYPE operator()(bsl::string *string) const;
+    RETURN_TYPE operator()(JsonNumber *number) const;
+    RETURN_TYPE operator()(bool *boolean) const;
+    RETURN_TYPE operator()(JsonNull *null) const;
+        // Return 'RETURN_TYPE()'.  The specified
+        // 'object/array/string/number/boolean/null' is ignored.  Push the
+        // '-(type() + 1)' to 'output' if provided on construction.
+
+    RETURN_TYPE operator()(const JsonObject& object) const;
+    RETURN_TYPE operator()(const JsonArray& array) const;
+    RETURN_TYPE operator()(const bsl::string& string) const;
+    RETURN_TYPE operator()(const JsonNumber& number) const;
+    RETURN_TYPE operator()(const bool& boolean) const;
+    RETURN_TYPE operator()(const JsonNull& null) const;
+        // Return 'RETURN_TYPE()'.  The specified
+        // 'object/array/string/number/boolean/null' is ignored.  Push the
+        // 'type() + 1' to 'output' if provided on construction.
+};
+
+                        // ----------------------------
+                        // class TestJsonVisitorReturns
+                        // ----------------------------
+
+// CREATORS
+template <class RETURN_TYPE>
+TestJsonVisitorReturns<RETURN_TYPE>::TestJsonVisitorReturns(
+                                                   bsl::vector<int> *output,
+                                                   bool              isVerbose)
+: d_output_p(output)
+, d_isVerbose(isVerbose)
+{
+}
+
+// ACCESSOR
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                      JsonObject *object) const
+{
+    BSLS_ASSERT(object);
+
+    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
+
+    if (d_isVerbose) {
+        P_(object) Q(OBJECT : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                        JsonArray *array) const
+{
+    BSLS_ASSERT(array);
+
+    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
+
+    if (d_isVerbose) {
+        P_(array) Q(ARRAY : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                     bsl::string *string) const
+{
+    BSLS_ASSERT(string);
+
+    const int value = -(bdljsn::JsonType::e_STRING + 1);
+
+    if (d_isVerbose) {
+        P_(string) Q(STRING : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                      JsonNumber *number) const
+{
+    BSLS_ASSERT(number);
+
+    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
+
+    if (d_isVerbose) {
+        P_(number) Q(NUMBER : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                           bool *boolean) const
+{
+    BSLS_ASSERT(boolean);
+
+    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
+
+    if (d_isVerbose) {
+        P_(boolean) Q(BOOLEAN : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                          JsonNull *null) const
+{
+    BSLS_ASSERT(null);
+
+    const int value = -(bdljsn::JsonType::e_NULL + 1);
+
+    if (d_isVerbose) {
+        P_(null) Q(NULL : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                const JsonObject& object) const
+{
+    (void)object;
+
+    const int value = bdljsn::JsonType::e_OBJECT + 1;
+
+    if (d_isVerbose) {
+        Q(OBJECT : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                  const JsonArray& array) const
+{
+    (void)array;
+
+    const int value = bdljsn::JsonType::e_ARRAY + 1;
+
+    if (d_isVerbose) {
+        Q(ARRAY : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                               const bsl::string& string) const
+{
+    (void)string;
+
+    const int value = bdljsn::JsonType::e_STRING + 1;
+
+    if (d_isVerbose) {
+        Q(STRING : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                const JsonNumber& number) const
+{
+    (void)number;
+
+    const int value = bdljsn::JsonType::e_NUMBER + 1;
+
+    if (d_isVerbose) {
+        Q(NUMBER : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                     const bool& boolean) const
+{
+    (void)boolean;
+
+    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
+
+    if (d_isVerbose) {
+        Q(BOOLEAN : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorReturns<RETURN_TYPE>::operator()(
+                                                    const JsonNull& null) const
+{
+    (void)null;
+
+    const int value = bdljsn::JsonType::e_NULL + 1;
+
+    if (d_isVerbose) {
+        Q(NULL : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return RETURN_TYPE();
+}
+
+    //---------------------------------------------------------------------
+    // class TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>
+    //---------------------------------------------------------------------
+
+// ACCESSOR
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                      JsonObject *object) const
+{
+    BSLS_ASSERT(object);
+
+    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
+
+    if (d_isVerbose) {
+        P_(object) Q(OBJECT : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                        JsonArray *array) const
+{
+    BSLS_ASSERT(array);
+
+    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
+
+    if (d_isVerbose) {
+        P_(array) Q(ARRAY : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                     bsl::string *string) const
+{
+    BSLS_ASSERT(string);
+
+    const int value = -(bdljsn::JsonType::e_STRING + 1);
+
+    if (d_isVerbose) {
+        P_(string) Q(STRING : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                      JsonNumber *number) const
+{
+    BSLS_ASSERT(number);
+
+    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
+
+    if (d_isVerbose) {
+        P_(number) Q(NUMBER : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                           bool *boolean) const
+{
+    BSLS_ASSERT(boolean);
+
+    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
+
+    if (d_isVerbose) {
+        P_(boolean) Q(BOOLEAN : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                          JsonNull *null) const
+{
+    BSLS_ASSERT(null);
+
+    const int value = -(bdljsn::JsonType::e_NULL + 1);
+
+    if (d_isVerbose) {
+        P_(null) Q(NULL : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                const JsonObject& object) const
+{
+    (void)object;
+
+    const int value = bdljsn::JsonType::e_OBJECT + 1;
+
+    if (d_isVerbose) {
+        Q(OBJECT : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                  const JsonArray& array) const
+{
+    (void)array;
+
+    const int value = bdljsn::JsonType::e_ARRAY + 1;
+
+    if (d_isVerbose) {
+        Q(ARRAY : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                               const bsl::string& string) const
+{
+    (void)string;
+
+    const int value = bdljsn::JsonType::e_STRING + 1;
+
+    if (d_isVerbose) {
+        Q(STRING : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                const JsonNumber& number) const
+{
+    (void)number;
+
+    const int value = bdljsn::JsonType::e_NUMBER + 1;
+
+    if (d_isVerbose) {
+        Q(NUMBER : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                     const bool& boolean) const
+{
+    (void)boolean;
+
+    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
+
+    if (d_isVerbose) {
+        Q(BOOLEAN : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+template <>
+bsltf::NonDefaultConstructibleTestType
+TestJsonVisitorReturns<bsltf::NonDefaultConstructibleTestType>::operator()(
+                                                    const JsonNull& null) const
+{
+    (void)null;
+
+    const int value = bdljsn::JsonType::e_NULL + 1;
+
+    if (d_isVerbose) {
+        Q(NULL : Returns);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return bsltf::NonDefaultConstructibleTestType(0);
+}
+
+                       // ==============================
+                       // class TestJsonVisitorManipAvec
+                       // ==============================
+
+class TestJsonVisitorManipAvec {
+    // This class defines 'operator()' overloads for the *manipulator*
+    // overloads of the 'Json' 'visitor' method.  These 'operator()' overloads
+    // have the 'const'-qualification ("avec") that prevents modifying the
+    // 'visitor' argument.
+
+    bsl::vector<int> *d_output_p;
+    bool              d_isVerbose;
+
+  public:
+    // CREATORS
+    explicit TestJsonVisitorManipAvec(bsl::vector<int> *output    = 0,
+                                      bool              isVerbose = false);
+        // Create a 'TestJsonVistorManipAces' object having all overloads
+        // required for the manipulator overloads of 'Json::visit'.  Optionally
+        // specify 'isVerbose' for the generation of trace statements to
+        // standard output.  Optionally specify 'output', a vector to which the
+        // returned value is pushed.  Note that 'output' is useful when the
+        // return type is 'void'.
+
+    // ACCESSORS
+    int operator()(JsonObject *object) const;
+    int operator()(JsonArray *array) const;
+    int operator()(bsl::string *string) const;
+    int operator()(JsonNumber *number) const;
+    int operator()(bool *boolean) const;
+    int operator()(JsonNull *null) const;
+        // Return '-(type() + 1)'.  The specified
+        // 'object/array/string/number/boolean/null' is ignored.
+};
+
+                       // ------------------------------
+                       // class TestJsonVisitorManipAvec
+                       // ------------------------------
+
+// CREATORS
+TestJsonVisitorManipAvec::TestJsonVisitorManipAvec(bsl::vector<int> *output,
+                                                   bool              isVerbose)
+: d_output_p(output)
+, d_isVerbose(isVerbose)
+{
+}
+
+// ACCESSOR
+int TestJsonVisitorManipAvec::operator()(JsonObject *object) const
+{
+    BSLS_ASSERT(object);
+
+    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
+
+    if (d_isVerbose) {
+        P_(object) Q(OBJECT : ManipAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipAvec::operator()(JsonArray *array) const
+{
+    BSLS_ASSERT(array);
+
+    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
+
+    if (d_isVerbose) {
+        P_(array) Q(ARRAY : ManipAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipAvec::operator()(bsl::string *string) const
+{
+    BSLS_ASSERT(string);
+
+    const int value = -(bdljsn::JsonType::e_STRING + 1);
+
+    if (d_isVerbose) {
+        P_(string) Q(STRING : ManipAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipAvec::operator()(JsonNumber *number) const
+{
+    BSLS_ASSERT(number);
+
+    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
+
+    if (d_isVerbose) {
+        P_(number) Q(NUMER : ManipAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipAvec::operator()(bool *boolean) const
+{
+    BSLS_ASSERT(boolean);
+
+    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
+
+    if (d_isVerbose) {
+        P_(boolean) Q(BOOLEAN : ManipAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipAvec::operator()(JsonNull *null) const
+{
+    BSLS_ASSERT(null);
+
+    const int value = -(bdljsn::JsonType::e_NULL + 1);
+
+    if (d_isVerbose) {
+        P_(null) Q(NULL : ManipAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+                       // ==============================
+                       // class TestJsonVisitorAccesAvec
+                       // ==============================
+
+class TestJsonVisitorAccesAvec {
+    // This class defines 'operator()' overloads for the *accessor* overloads
+    // of the 'Json' 'visitor' method.  These 'operator()' overloads have the
+    // 'const'-qualification ("avec") that prevents modifying the 'visitor'
+    // argument.
+
+    bsl::vector<int> *d_output_p;
+    bool              d_isVerbose;
+
+  public:
+    // CREATORS
+    explicit TestJsonVisitorAccesAvec(bsl::vector<int> *output    = 0,
+                                      bool              isVerbose = false);
+        // Create a 'TestJsonVistorManipAvec' object having all overloads
+        // required for the accessor overloads of 'Json::visit'.  Optionally
+        // specify 'isVerbose' for the generation of trace statements to
+        // standard output.  Optionally specify 'output', a vector to which the
+        // returned value is pushed.  Note that 'output' is useful when the
+        // return type is 'void'.
+
+    // ACCESSORS
+    int operator()(const JsonObject& object) const;
+    int operator()(const JsonArray& array) const;
+    int operator()(const bsl::string& string) const;
+    int operator()(const JsonNumber& number) const;
+    int operator()(const bool& boolean) const;
+    int operator()(const JsonNull& null) const;
+        // Return 'type() + 1'.  The specified
+        // 'object/array/string/number/boolean/null' is ignored.
+};
+
+                       // ------------------------------
+                       // class TestJsonVisitorAccesAvec
+                       // ------------------------------
+
+// CREATORS
+TestJsonVisitorAccesAvec::TestJsonVisitorAccesAvec(bsl::vector<int> *output,
+                                                   bool              isVerbose)
+: d_output_p(output)
+, d_isVerbose(isVerbose)
+{
+}
+
+// ACCESSORS
+int TestJsonVisitorAccesAvec::operator()(const JsonObject& object) const
+{
+    (void)object;
+
+    const int value = bdljsn::JsonType::e_OBJECT + 1;
+
+    if (d_isVerbose) {
+        Q(OBJECT : AcessAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesAvec::operator()(const JsonArray& array) const
+{
+    (void)array;
+
+    const int value = bdljsn::JsonType::e_ARRAY + 1;
+
+    if (d_isVerbose) {
+        Q(ARRAY : AcessAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesAvec::operator()(const bsl::string& string) const
+{
+    (void)string;
+
+    const int value = bdljsn::JsonType::e_STRING + 1;
+
+    if (d_isVerbose) {
+        Q(STRING : AcessAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesAvec::operator()(const JsonNumber& number) const
+{
+    (void)number;
+
+    const int value = bdljsn::JsonType::e_NUMBER + 1;
+
+    if (d_isVerbose) {
+        Q(NUMBER : AcessAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesAvec::operator()(const bool& boolean) const
+{
+    (void)boolean;
+
+    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
+
+    if (d_isVerbose) {
+        Q(BOOLEAN : AcessAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesAvec::operator()(const JsonNull& null) const
+{
+    (void)null;
+
+    const int value = bdljsn::JsonType::e_NULL + 1;
+
+    if (d_isVerbose) {
+        Q(NULL : AcessAvec);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+                       // ==============================
+                       // class TestJsonVisitorManipSans
+                       // ==============================
+
+class TestJsonVisitorManipSans {
+    // This class defines 'operator()' overloads for the *manipulator*
+    // overloads of the 'Json' 'visitor' method.  These 'operator()' overloads
+    // lack 'const'-qualification ("sans") that prevents modifying the
+    // 'visitor' argument.
+
+    bsl::vector<int> *d_output_p;
+    bool              d_isVerbose;
+
+  public:
+    // CREATORS
+    explicit TestJsonVisitorManipSans(bsl::vector<int> *output    = 0,
+                                      bool              isVerbose = false);
+        // Create a 'TestJsonVistorManipSans' object having all overloads
+        // required for the manipulator overloads of 'Json::visit'.  Optionally
+        // specify 'isVerbose' for the generation of trace statements to
+        // standard output.  Optionally specify 'output', a vector to which the
+        // returned value is pushed.  Note that 'output' is useful when the
+        // return type is 'void'.
+
+    // ACCESSORS
+    int operator()(JsonObject *object);
+    int operator()(JsonArray *array);
+    int operator()(bsl::string *string);
+    int operator()(JsonNumber *number);
+    int operator()(bool *boolean);
+    int operator()(JsonNull *null);
+        // Return '-(type() + 1)'.  The specified
+        // 'object/array/string/number/boolean/null' is ignored.
+};
+
+                       // ------------------------------
+                       // class TestJsonVisitorManipSans
+                       // ------------------------------
+
+// CREATORS
+TestJsonVisitorManipSans::TestJsonVisitorManipSans(bsl::vector<int> *output,
+                                                   bool              isVerbose)
+: d_output_p(output)
+, d_isVerbose(isVerbose)
+{
+}
+
+// ACCESSOR
+int TestJsonVisitorManipSans::operator()(JsonObject *object)
+{
+    BSLS_ASSERT(object);
+
+    const int value = -(bdljsn::JsonType::e_OBJECT + 1);
+
+    if (d_isVerbose) {
+        P_(object) Q(OBJECT : ManipSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipSans::operator()(JsonArray *array)
+{
+    BSLS_ASSERT(array);
+
+    const int value = -(bdljsn::JsonType::e_ARRAY + 1);
+
+    if (d_isVerbose) {
+        P_(array) Q(ARRAY : ManipSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipSans::operator()(bsl::string *string)
+{
+    BSLS_ASSERT(string);
+
+    const int value = -(bdljsn::JsonType::e_STRING + 1);
+
+    if (d_isVerbose) {
+        P_(string) Q(STRING : ManipSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipSans::operator()(JsonNumber *number)
+{
+    BSLS_ASSERT(number);
+
+    const int value = -(bdljsn::JsonType::e_NUMBER + 1);
+
+    if (d_isVerbose) {
+        P_(number) Q(NUMER : ManipSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipSans::operator()(bool *boolean)
+{
+    BSLS_ASSERT(boolean);
+
+    const int value = -(bdljsn::JsonType::e_BOOLEAN + 1);
+
+    if (d_isVerbose) {
+        P_(boolean) Q(BOOLEAN : ManipSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorManipSans::operator()(JsonNull *null)
+{
+    BSLS_ASSERT(null);
+
+    const int value = -(bdljsn::JsonType::e_NULL + 1);
+
+    if (d_isVerbose) {
+        P_(null) Q(NULL : ManipSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+                       // ==============================
+                       // class TestJsonVisitorAccesSans
+                       // ==============================
+
+class TestJsonVisitorAccesSans {
+    // This class defines 'operator()' overloads for the *accessor* overloads
+    // of the 'Json' 'visitor' method.  These 'operator()' overloads lack
+    // 'const'-qualification ("sans") that prevents modifying the 'visitor'
+    // argument.
+
+    bsl::vector<int> *d_output_p;
+    bool              d_isVerbose;
+
+  public:
+    // CREATORS
+    explicit TestJsonVisitorAccesSans(bsl::vector<int> *output    = 0,
+                                      bool              isVerbose = false);
+        // Create a 'TestJsonVistorManipSans' object having all overloads
+        // required for the accessor overloads of 'Json::visit'.  Optionally
+        // specify 'isVerbose' for the generation of trace statements to
+        // standard output.  Optionally specify 'output', a vector to which the
+        // returned value is pushed.  Note that 'output' is useful when the
+        // return type is 'void'.
+
+    // ACCESSORS
+    int operator()(const JsonObject& object);
+    int operator()(const JsonArray& array);
+    int operator()(const bsl::string& string);
+    int operator()(const JsonNumber& number);
+    int operator()(const bool& boolean);
+    int operator()(const JsonNull& null);
+        // Return 'type() + 1'.  The specified
+        // 'object/array/string/number/boolean/null' is ignored.
+};
+
+                       // ------------------------------
+                       // class TestJsonVisitorAccesSans
+                       // ------------------------------
+
+// CREATORS
+TestJsonVisitorAccesSans::TestJsonVisitorAccesSans(bsl::vector<int> *output,
+                                                   bool              isVerbose)
+: d_output_p(output)
+, d_isVerbose(isVerbose)
+{
+}
+
+// ACCESSORS
+int TestJsonVisitorAccesSans::operator()(const JsonObject& object)
+{
+    (void)object;
+
+    const int value = bdljsn::JsonType::e_OBJECT + 1;
+
+    if (d_isVerbose) {
+        Q(OBJECT : AccesSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesSans::operator()(const JsonArray& array)
+{
+    (void)array;
+
+    const int value = bdljsn::JsonType::e_ARRAY + 1;
+
+    if (d_isVerbose) {
+        Q(ARRAY : AccesSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesSans::operator()(const bsl::string& string)
+{
+    (void)string;
+
+    const int value = bdljsn::JsonType::e_STRING + 1;
+
+    if (d_isVerbose) {
+        Q(STRING : AccesSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesSans::operator()(const JsonNumber& number)
+{
+    (void)number;
+
+    const int value = bdljsn::JsonType::e_NUMBER + 1;
+
+    if (d_isVerbose) {
+        Q(NUMBER : AccesSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesSans::operator()(const bool& boolean)
+{
+    (void)boolean;
+
+    const int value = bdljsn::JsonType::e_BOOLEAN + 1;
+
+    if (d_isVerbose) {
+        Q(BOOLEAN : AccesSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+int TestJsonVisitorAccesSans::operator()(const JsonNull& null)
+{
+    (void)null;
+
+    const int value = bdljsn::JsonType::e_NULL + 1;
+
+    if (d_isVerbose) {
+        Q(NULL : AccesSans);
+    }
+    if (d_output_p) {
+        d_output_p->push_back(value);
+    }
+
+    return value;
+}
+
+                         // =========================
+                         // class TestJsonVisitorNoop
+                         // =========================
+
+template <class RETURN_TYPE>
+class TestJsonVisitorNoop {
+  public:
+    // ACCESSORS
+    template <class VALUE_TYPE>
+    RETURN_TYPE operator()(VALUE_TYPE *argument) const;
+        // Return 'RETURN_TYPE()'.  The specified 'argument' is ignored.
+
+    template <class VALUE_TYPE>
+    RETURN_TYPE operator()(const VALUE_TYPE& argument) const;
+        // Return 'RETURN_TYPE()'.  The specified 'argument' is ignored.
+};
+
+                         // -------------------------
+                         // class TestJsonVisitorNoop
+                         // -------------------------
+
+template <class RETURN_TYPE>
+template <class VALUE_TYPE>
+RETURN_TYPE TestJsonVisitorNoop<RETURN_TYPE>::operator()(
+                                                    VALUE_TYPE *argument) const
+{
+    (void)argument;
+    return RETURN_TYPE();
+}
+
+template <class RETURN_TYPE>
+template <class VALUE_TYPE>
+RETURN_TYPE TestJsonVisitorNoop<RETURN_TYPE>::operator()(
+                                              const VALUE_TYPE& argument) const
+{
+    (void)argument;
+    return RETURN_TYPE();
+}
+
+                         // =========================
+                         // class TestJsonVisitorDoop
+                         // =========================
+
+template <class RETURN_TYPE>
+class TestJsonVisitorDoop : public TestJsonVisitorNoop<RETURN_TYPE> {
+  public:
+    // CREATORS
+    //! TestJsonVisitorDoop();
+        // Create a 'TestJsonVisitorDoop' object that defined all overloads
+        // required by both the accessor and manipulator overloads of
+        // 'Json::visit' where the two overloads:
+        //..
+        //  RETURN_TYPE operator()(JsonObject         *object ) const;
+        //  RETURN_TYPE operator()(const bsl::string&  string ) const;
+        //..
+        // have the same behavior as those of 'TestJsonVistor*' and all other
+        // overloads have the same behavior as those of 'TestJsonVisitorNoop'.
+
+    // ACCESSORS
+    using TestJsonVisitorNoop<RETURN_TYPE>::operator();
+
+    RETURN_TYPE operator()(JsonObject *object) const;
+        // Return 'RETURN_TYPE(-(type() + 1))'.  The specified 'object' is
+        // ignored.
+
+    RETURN_TYPE operator()(const bsl::string& string) const;
+        // Return 'RETURN_TYPE(type() + 1)'.  The specified 'string' is
+        // ignored.
+};
+
+                         // -------------------------
+                         // class TestJsonVisitorDoop
+                         // -------------------------
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorDoop<RETURN_TYPE>::operator()(
+                                                      JsonObject *object) const
+{
+    BSLS_ASSERT(object);
+    P_(object) Q(OBJECT);
+    return RETURN_TYPE(-1);
+}
+
+template <class RETURN_TYPE>
+RETURN_TYPE TestJsonVisitorDoop<RETURN_TYPE>::operator()(
+                                               const bsl::string& string) const
+{
+    Q(STRING : const);
+    (void)string;
+    return RETURN_TYPE(3);
+}
+
+                      // ================================
+                      // class TestJsonVisitorSetStringOK
+                      // ================================
+
+class TestJsonVisitorSetStringOK : public TestJsonVisitorNoop<void> {
+
+  public:
+    // ACCESSORS
+    using TestJsonVisitorNoop<void>::operator();
+
+    void operator()(bsl::string *string) const
+        // Test the specified 'string' to a valid UTF-8 sequence.
+    {
+        BSLS_ASSERT(string);
+
+        string->assign("Hello world!!!!!");
+    }
+};
+
+                      // ================================
+                      // class TestJsonVisitorSetStringNG
+                      // ================================
+
+class TestJsonVisitorSetStringNG : public TestJsonVisitorNoop<void> {
+
+  public:
+    // ACCESSORS
+    using TestJsonVisitorNoop<void>::operator();
+
+    void operator()(bsl::string *string) const
+        // Set the specified 'string' to an invalid UTF-8 sequence copied from
+        // 'bdlde_utf8util.t.cpp'.
+    {
+        BSLS_ASSERT(string);
+
+        string->assign("\xf0\x80\x80\x80");
+    }
+};
+
+                        // ===========================
+                        // class TestJsonVisitorSetGet
+                        // ===========================
+
+class TestJsonVisitorSetGet {
+  public:
+    // ACCESSORS
+    void operator()(JsonObject *object) const;
+    void operator()(JsonArray *array) const;
+    void operator()(bsl::string *string) const;
+    void operator()(JsonNumber *number) const;
+    void operator()(bool *boolean) const;
+    void operator()(JsonNull *null) const;
+        // Test whether or not the value of the specified
+        // 'object'/'array'/'string'/'number'/'boolean'/'null' is the default
+        // value for for the corresponding 'type()' of the 'Json' object and
+        // then set that value to the value obtained from
+        // 'JsonValueConstructorHelper'.
+
+    void operator()(const JsonObject& object) const;
+    void operator()(const JsonArray& array) const;
+    void operator()(const bsl::string& string) const;
+    void operator()(const JsonNumber& number) const;
+    void operator()(const bool& boolean) const;
+    void operator()(const JsonNull& null) const;
+        // Test whether or not the value of the specified
+        // 'object'/'array'/'string'/'number'/'boolean'/'null' has the same
+        // value as that obtained from 'JsonValueConstructorHelper' for the
+        // 'type()' of the 'Json' object.
+};
+
+                        // ---------------------------
+                        // class TestJsonVisitorSetGet
+                        // ---------------------------
+
+// ACCESSORS
+void TestJsonVisitorSetGet::operator()(JsonObject *object) const
+{
+    BSLS_ASSERT(object);
+    ASSERTV(*object, JsonObject() == *object);
+    *object = JsonValueConstructorHelper<JsonObject>::getValue();
+}
+
+void TestJsonVisitorSetGet::operator()(JsonArray *array) const
+{
+    BSLS_ASSERT(array);
+    ASSERTV(*array, JsonArray() == *array);
+    *array = JsonValueConstructorHelper<JsonArray>::getValue();
+}
+
+void TestJsonVisitorSetGet::operator()(bsl::string *string) const
+{
+    BSLS_ASSERT(string);
+    ASSERTV(*string, bsl::string() == *string);
+    *string = JsonValueConstructorHelper<bsl::string>::getValue();
+}
+
+void TestJsonVisitorSetGet::operator()(JsonNumber *number) const
+{
+    BSLS_ASSERT(number);
+    ASSERTV(*number, JsonNumber() == *number);
+    *number = JsonValueConstructorHelper<JsonNumber>::getValue();
+}
+
+void TestJsonVisitorSetGet::operator()(bool *boolean) const
+{
+    BSLS_ASSERT(boolean);
+    ASSERTV(*boolean, bool() == *boolean);
+    *boolean = JsonValueConstructorHelper<bool>::getValue();
+}
+
+void TestJsonVisitorSetGet::operator()(JsonNull *null) const
+{
+    BSLS_ASSERT(null);
+    ASSERTV(*null, JsonNull() == *null);
+    *null = JsonValueConstructorHelper<JsonNull>::getValue();
+}
+
+void TestJsonVisitorSetGet::operator()(const JsonObject& object) const
+{
+    ASSERTV(object,
+            JsonValueConstructorHelper<JsonObject>::getValue(),
+            object == JsonValueConstructorHelper<JsonObject>::getValue());
+}
+
+void TestJsonVisitorSetGet::operator()(const JsonArray& array) const
+{
+    ASSERTV(array,
+            JsonValueConstructorHelper<JsonArray>::getValue(),
+            array == JsonValueConstructorHelper<JsonArray>::getValue());
+}
+
+void TestJsonVisitorSetGet::operator()(const bsl::string& string) const
+{
+    ASSERTV(string,
+            JsonValueConstructorHelper<bsl::string>::getValue(),
+            string == JsonValueConstructorHelper<bsl::string>::getValue());
+}
+
+void TestJsonVisitorSetGet::operator()(const JsonNumber& number) const
+{
+    ASSERTV(number,
+            JsonValueConstructorHelper<JsonNumber>::getValue(),
+            number == JsonValueConstructorHelper<JsonNumber>::getValue());
+}
+
+void TestJsonVisitorSetGet::operator()(const bool& boolean) const
+{
+    ASSERTV(boolean,
+            JsonValueConstructorHelper<bool>::getValue(),
+            boolean == JsonValueConstructorHelper<bool>::getValue());
+}
+
+void TestJsonVisitorSetGet::operator()(const JsonNull& null) const
+{
+    ASSERTV(null,
+            JsonValueConstructorHelper<JsonNull>::getValue(),
+            null == JsonValueConstructorHelper<JsonNull>::getValue());
+}
+
+
+                            // ===================
+                            // struct TestTemplate
+                            // ===================
+
+template <class RETURN_TYPE>
+struct TestTemplate {
+    static void testCase43(bool isVerbose = false);
+        // Test 'visit' with a spectrum of 'return' types.  Optionally specify
+        // 'isVerbose' to generate trace statements to standard output.
+};
+
+                            // -------------------
+                            // struct TestTemplate
+                            // -------------------
+
+template <class RETURN_TYPE>
+void TestTemplate<RETURN_TYPE>::testCase43(bool isVerbose)
+{
+    if (isVerbose) {
+        P(bsls::NameOf<RETURN_TYPE>());
+    }
+
+    bsl::vector<int>        expected;
+    const bsl::vector<int>& Expected = expected;
+
+    expected.push_back(-1);
+    expected.push_back(-2);
+    expected.push_back(-3);
+    expected.push_back(-4);
+    expected.push_back(-5);
+    expected.push_back(-6);
+    expected.push_back(1);
+    expected.push_back(2);
+    expected.push_back(3);
+    expected.push_back(4);
+    expected.push_back(5);
+    expected.push_back(6);
+
+    ASSERTV(Expected.size(), 12 == Expected.size());
+
+#define TEST(RETURN_TYPE, VISITOR)                                            \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        mX.makeObject();                                                      \
+        mX.visit<RETURN_TYPE>(VISITOR);                                       \
+        mX.makeArray();                                                       \
+        mX.visit<RETURN_TYPE>(VISITOR);                                       \
+        mX.makeString("");                                                    \
+        mX.visit<RETURN_TYPE>(VISITOR);                                       \
+        mX.makeNumber();                                                      \
+        mX.visit<RETURN_TYPE>(VISITOR);                                       \
+        mX.makeBoolean();                                                     \
+        mX.visit<RETURN_TYPE>(VISITOR);                                       \
+        mX.makeNull();                                                        \
+        mX.visit<RETURN_TYPE>(VISITOR);                                       \
+                                                                              \
+        mX.makeObject();                                                      \
+        X.visit<RETURN_TYPE>(VISITOR);                                        \
+        mX.makeArray();                                                       \
+        X.visit<RETURN_TYPE>(VISITOR);                                        \
+        mX.makeString("");                                                    \
+        X.visit<RETURN_TYPE>(VISITOR);                                        \
+        mX.makeNumber();                                                      \
+        X.visit<RETURN_TYPE>(VISITOR);                                        \
+        mX.makeBoolean();                                                     \
+        X.visit<RETURN_TYPE>(VISITOR);                                        \
+        mX.makeNull();                                                        \
+        X.visit<RETURN_TYPE>(VISITOR);                                        \
+    }
+
+    bsl::vector<int>                    output;
+    TestJsonVisitorReturns<RETURN_TYPE> tjvReturns(&output);
+
+    TEST(RETURN_TYPE, tjvReturns)  // TEST
+
+    ASSERTV(output.size(), 12 == output.size());
+    ASSERTV(Expected == output);
+
+    if (isVerbose) {
+        for (int i = 0; i < 12; ++i) {
+            P_(i) P_(Expected[i]);
+            P(output[i])
+        }
+    }
+
+    output.resize(0);
+    ASSERTV(output.size(), 0 == output.size());
+
+    TEST(RETURN_TYPE, bslmf::MovableRefUtil::move(tjvReturns));  // TEST
+
+    ASSERTV(output.size(), 12 == output.size());
+    ASSERTV(Expected == output);
+
+    if (isVerbose) {
+        for (int i = 0; i < 12; ++i) {
+            P_(i) P_(Expected[i]);
+            P(output[i])
+        }
+    }
+
+    output.resize(0);
+    ASSERTV(output.size(), 0 == output.size());
+#undef TEST
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#define TEST(VISITOR)                                                         \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        mX.makeObject();                                                      \
+        mX.visit(VISITOR);                                                    \
+        mX.makeArray();                                                       \
+        mX.visit(VISITOR);                                                    \
+        mX.makeString("");                                                    \
+        mX.visit(VISITOR);                                                    \
+        mX.makeNumber();                                                      \
+        mX.visit(VISITOR);                                                    \
+        mX.makeBoolean();                                                     \
+        mX.visit(VISITOR);                                                    \
+        mX.makeNull();                                                        \
+        mX.visit(VISITOR);                                                    \
+                                                                              \
+        mX.makeObject();                                                      \
+        X.visit(VISITOR);                                                     \
+        mX.makeArray();                                                       \
+        X.visit(VISITOR);                                                     \
+        mX.makeString("");                                                    \
+        X.visit(VISITOR);                                                     \
+        mX.makeNumber();                                                      \
+        X.visit(VISITOR);                                                     \
+        mX.makeBoolean();                                                     \
+        X.visit(VISITOR);                                                     \
+        mX.makeNull();                                                        \
+        X.visit(VISITOR);                                                     \
+    }
+
+    TestJsonVisitorReturns<RETURN_TYPE> tjvReturnsDeduced(&output);
+
+    TEST(tjvReturnsDeduced)  // TEST
+
+    ASSERTV(output.size(), 12 == output.size());
+    ASSERTV(Expected == output);
+
+    if (isVerbose) {
+        for (int i = 0; i < 12; ++i) {
+            P_(i) P_(Expected[i]);
+            P(output[i])
+        }
+    }
+
+    output.resize(0);
+    ASSERTV(output.size(), 0 == output.size());
+
+    TEST(bslmf::MovableRefUtil::move(tjvReturnsDeduced));  // TEST
+
+    ASSERTV(output.size(), 12 == output.size());
+    ASSERTV(Expected == output);
+
+    if (isVerbose) {
+        for (int i = 0; i < 12; ++i) {
+            P_(i) P_(Expected[i]);
+            P(output[i])
+        }
+    }
+
+    output.resize(0);
+    ASSERTV(output.size(), 0 == output.size());
+#undef TEST
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+}
+
 // ============================================================================
 //                               MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -3850,6 +5366,620 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
+      case 43: {
+        // --------------------------------------------------------------------
+        // TEST: 'visit'
+        //
+        // Concerns:
+        //: 1 Each 'visit' overload dispatches to the intended 'operator()'
+        //:   overload of the supplied 'visitor'.
+        //:
+        //: 2 The accessor overloads of 'visit' allow the 'visitor' to access
+        //:   the 'Json' value.  The manipulator overloads of 'visit' allow the
+        //:   'visitor' to access *and* change the value of the 'Json' object.
+        //:
+        //:   o Caveat: When 'isNull()' the value cannot be changed because the
+        //:     null value is a singleton.
+        //:
+        //: 3 The return type of the 'visitor' can be 'void', can be any
+        //:   primitive type, and can even be "exotic" types having "odd"
+        //:   behaviors.
+        //:
+        //: 4 Each 'visit' overload behaves identically whether the 'visitor'
+        //:   is supplied as an lvalue or an rvalue.
+        //:
+        //: 5 Each 'visit' overload behaves identically whether the return type
+        //:   of the is specified explicitly or, for C++14 or later, that
+        //:   return type is deduced.
+        //:
+        //: 6 The supplied visitor object can have overloads for both the
+        //:   accessor and manipulator overloads of 'visit' without interfering
+        //:   with each other.
+        //:
+        //: 7 The 'visitor' can be passed as a 'const' reference -- assuming
+        //:   its overloads are also 'const' qualified -- or, for C++11 or
+        //:   later, by address or by a non-'const' reference.
+        //:
+        //: 8 QoI: The expected behavior is observed when a
+        //:   manipulator-compliant 'visitor' is passed to an accessor 'visit'
+        //:   overload: All calls are dispatched to the 'operator()' that
+        //:   accepts a 'bool' (since all pointers can be converted to a
+        //:   'bool').
+        //:
+        //: 9 QoI: Asserted precondition violations are detected when enabled.
+        //:
+        //:   o The 'visitor' overload having the signature
+        //:     'operator()(bsl::string *string)' must preserve the UTF-8
+        //:     correctness of the JSON string.
+        //
+        // Plan:
+        //: 1 Each test will be exercised in the following variations:
+        //
+        //:   1 Once in which the 'visitor' is passed as an lvalue and again
+        //:     with the visitor passed as an rvalue.
+        //:
+        //:   2 Similarly, each test is repeated with a the return type
+        //:     explicitly specified and (for C++14 and later) with that type
+        //:     deduced.
+        //:
+        //: 2 Define four test classes:
+        //:   o  'TestJsonVisitorManipAvec'
+        //:   o  'TestJsonVisitorManipSans'
+        //:   o  'TestJsonVisitorAccesAvec'
+        //:   o  'TestJsonVisitorAccesSans'
+        //:
+        //:   o Each test class return a distinctive value for each overload
+        //:     and confirm that the intended overload was called for the
+        //:     current 'type()' of the 'Json' object.
+        //
+        //:   o The two test classes with 'Manip' in their name have overloads
+        //:     that accept pointers to the 'Json' value whereas the the two
+        //:     test classes with 'Acces' in their name have overloads that
+        //:     accept 'const'-references to those values.
+        //:
+        //:   o The two test classes with 'Avec' in their name have overloads
+        //:     that are 'const' qualified whereas the two test classes that
+        //:     have 'Sans' in their name have overloads that are not
+        //:     'const' qualified.
+        //:
+        //: 3 'BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE' is used to exercise
+        //:   each 'visit' overload with a while assortment of 'return' types
+        //:   -- including 'void'.  Since 'void' disallows the use of a return
+        //:   value to confirm correct dispatch, 'TestJsonVisitorReturns<RT>'
+        //:   uses an output vector instead.  Also, that test visitor has
+        //:   overloads for both the manipulator and visitor overloads of
+        //:   'visit' thereby showing that the implementation always calls the
+        //:   correct visitor overload.
+        //:
+        //: 4 Use the 'TestJsonVisitorSetGet' class to confirm that for each
+        //:   'Json' object type:
+        //:
+        //:   1 The manipulator 'visit' sees the expected value (the default)
+        //:     and can change that value (to a value obtained from the
+        //:     'JsonValueConstructorHelper'.
+        //:
+        //:   2 The accessor 'visit' overload sees that changed value.
+        //:
+        //: 5 Confirm that 'TestJsonVisitorNoop', a helper class needed
+        //:   for the negative test, works as expected.
+        //:
+        //: 6 QoI: Precondition violations are detected when enabled.
+        //:
+        //:   1 Use helper classes 'TestJsonVisitorSetStringOK' and
+        //:     'TestJsonVisitorSetStringNG' in concert wit the
+        //:     'BSLS_ASSERTTEST_*' macros.
+        //
+        // Testing:
+        //   template RT             visit<RT>(FORWARD_REF visitor);
+        //   template RT             visit<RT>(FORWARD_REF visitor) const;
+        //   template decltype(auto) visit    (FORWARD_REF visitor);
+        //   template decltype(auto) visit    (FORWARD_REF visitor) const;
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl << "TEST: 'visit'" << endl << "=============" << endl;
+
+        if (veryVerbose)
+            cout
+                << "Test dispatch to correct overload per 'const'-ness combos."
+                << endl;
+        {
+#define TEST(RT, vMANIP, vACCES)                                              \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        RT ret;                                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit<RT>(vMANIP);                                           \
+        ASSERTV(ret, -1 == ret);                                              \
+        mX.makeArray();                                                       \
+        ret = mX.visit<RT>(vMANIP);                                           \
+        ASSERTV(ret, -2 == ret);                                              \
+        mX.makeString("");                                                    \
+        ret = mX.visit<RT>(vMANIP);                                           \
+        ASSERTV(ret, -3 == ret);                                              \
+        mX.makeNumber();                                                      \
+        ret = mX.visit<RT>(vMANIP);                                           \
+        ASSERTV(ret, -4 == ret);                                              \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit<RT>(vMANIP);                                           \
+        ASSERTV(ret, -5 == ret);                                              \
+        mX.makeNull();                                                        \
+        ret = mX.visit<RT>(vMANIP);                                           \
+        ASSERTV(ret, -6 == ret);                                              \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = X.visit<RT>(vACCES);                                            \
+        ASSERTV(ret, 1 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = X.visit<RT>(vACCES);                                            \
+        ASSERTV(ret, 2 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = X.visit<RT>(vACCES);                                            \
+        ASSERTV(ret, 3 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = X.visit<RT>(vACCES);                                            \
+        ASSERTV(ret, 4 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = X.visit<RT>(vACCES);                                            \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = X.visit<RT>(vACCES);                                            \
+        ASSERTV(ret, 6 == ret);                                               \
+    }
+            TestJsonVisitorManipAvec tjvManipAvec;
+            TestJsonVisitorAccesAvec tjvAccesAvec;
+
+            TEST(int, tjvManipAvec, tjvAccesAvec);
+            TEST(int,
+                 bslmf::MovableRefUtil::move(tjvManipAvec),
+                 bslmf::MovableRefUtil::move(tjvAccesAvec));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+            TestJsonVisitorManipSans tjvManipSans;
+            TestJsonVisitorAccesSans tjvAccesSans;
+
+            TEST(int, tjvManipSans, tjvAccesSans);
+            TEST(int,
+                 bslmf::MovableRefUtil::move(tjvManipSans),
+                 bslmf::MovableRefUtil::move(tjvAccesSans));
+
+            TEST(int, tjvManipSans, tjvAccesSans);
+            TEST(int,
+                 bslmf::MovableRefUtil::move(&tjvManipSans),
+                 bslmf::MovableRefUtil::move(&tjvAccesSans));
+#endif
+#undef TEST
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#define TEST(RT, vMANIP, vACCES)                                              \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        RT ret;                                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit(vMANIP);                                               \
+        ASSERTV(ret, -1 == ret);                                              \
+        mX.makeArray();                                                       \
+        ret = mX.visit(vMANIP);                                               \
+        ASSERTV(ret, -2 == ret);                                              \
+        mX.makeString("");                                                    \
+        ret = mX.visit(vMANIP);                                               \
+        ASSERTV(ret, -3 == ret);                                              \
+        mX.makeNumber();                                                      \
+        ret = mX.visit(vMANIP);                                               \
+        ASSERTV(ret, -4 == ret);                                              \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit(vMANIP);                                               \
+        ASSERTV(ret, -5 == ret);                                              \
+        mX.makeNull();                                                        \
+        ret = mX.visit(vMANIP);                                               \
+        ASSERTV(ret, -6 == ret);                                              \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = X.visit(vACCES);                                                \
+        ASSERTV(ret, 1 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = X.visit(vACCES);                                                \
+        ASSERTV(ret, 2 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = X.visit(vACCES);                                                \
+        ASSERTV(ret, 3 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = X.visit(vACCES);                                                \
+        ASSERTV(ret, 4 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = X.visit(vACCES);                                                \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = X.visit(vACCES);                                                \
+        ASSERTV(ret, 6 == ret);                                               \
+    }
+            TestJsonVisitorManipAvec tjvManipAvecDeduce;
+            TestJsonVisitorAccesAvec tjvAccesAvecDeduce;
+
+            TEST(int, tjvManipAvecDeduce, tjvAccesAvecDeduce);
+            TEST(int,
+                 bslmf::MovableRefUtil::move(tjvManipAvecDeduce),
+                 bslmf::MovableRefUtil::move(tjvAccesAvecDeduce));
+#undef TEST
+#endif
+        }
+
+        if (veryVerbose)
+            cout << "Test assorted 'return' types." << endl;
+        {
+            BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(
+                                    TestTemplate,
+                                    testCase43,
+                                    void,  // Be sure 'void' is tested.
+                                    BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+        }
+
+        if (veryVerbose)
+            cout << "Test setting and getting values" << endl;
+        {
+#define TEST(VISITOR)                                                         \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        mX.makeObject();                                                      \
+        mX.visit<void>(VISITOR);                                              \
+        X.visit<void>(VISITOR);                                               \
+        mX.makeArray();                                                       \
+        mX.visit<void>(VISITOR);                                              \
+        X.visit<void>(VISITOR);                                               \
+        mX.makeString("");                                                    \
+        mX.visit<void>(VISITOR);                                              \
+        X.visit<void>(VISITOR);                                               \
+        mX.makeNumber();                                                      \
+        mX.visit<void>(VISITOR);                                              \
+        X.visit<void>(VISITOR);                                               \
+        mX.makeBoolean();                                                     \
+        mX.visit<void>(VISITOR);                                              \
+        X.visit<void>(VISITOR);                                               \
+        mX.makeNull();                                                        \
+        mX.visit<void>(VISITOR);                                              \
+        X.visit<void>(VISITOR);                                               \
+    }
+            TestJsonVisitorSetGet tjvSetGet;
+
+            TEST(tjvSetGet);
+            TEST(bslmf::MovableRefUtil::move(tjvSetGet));
+#undef TEST
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#define TEST(VISITOR)                                                         \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        mX.makeObject();                                                      \
+        mX.visit(VISITOR);                                                    \
+        X.visit(VISITOR);                                                     \
+        mX.makeArray();                                                       \
+        mX.visit(VISITOR);                                                    \
+        X.visit(VISITOR);                                                     \
+        mX.makeString("");                                                    \
+        mX.visit(VISITOR);                                                    \
+        X.visit(VISITOR);                                                     \
+        mX.makeNumber();                                                      \
+        mX.visit(VISITOR);                                                    \
+        X.visit(VISITOR);                                                     \
+        mX.makeBoolean();                                                     \
+        mX.visit(VISITOR);                                                    \
+        X.visit(VISITOR);                                                     \
+        mX.makeNull();                                                        \
+        mX.visit(VISITOR);                                                    \
+        X.visit(VISITOR);                                                     \
+    }
+
+            TestJsonVisitorSetGet tjvSetGetDeduce;
+            TEST(tjvSetGetDeduce);
+            TEST(bslmf::MovableRefUtil::move(tjvSetGetDeduce));
+
+#undef TEST
+#endif
+        }
+
+        if (veryVerbose)
+            cout << "Test mismatch scenario." << endl;
+        {
+            // The "mismatch" scenario -- using a visitor intended for a
+            // 'const' object on a non-'const' object is deemed undefined
+            // behavior but well understood and is here tested.  Failure here
+            // would be indicative of a significant implementation change.
+
+#define TEST_MISMATCH(RT, vACCES)                                             \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+                                                                              \
+        int ret;                                                              \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit<RT>(vACCES);                                           \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = mX.visit<RT>(vACCES);                                           \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = mX.visit<RT>(vACCES);                                           \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = mX.visit<RT>(vACCES);                                           \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit<RT>(vACCES);                                           \
+        ASSERTV(ret, 5 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = mX.visit<RT>(vACCES);                                           \
+        ASSERTV(ret, 5 == ret);                                               \
+    }
+            TestJsonVisitorAccesAvec tjvAccesAvec;
+
+            TEST_MISMATCH(int, tjvAccesAvec);
+            TEST_MISMATCH(int, bslmf::MovableRefUtil::move(tjvAccesAvec));
+        }
+
+        if (veryVerbose)
+            cout << "Test '*Noop' helper class" << endl;
+        {
+#define TEST(RT, VISITOR)                                                     \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        RT ret;                                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+    }
+            TestJsonVisitorNoop<double> tjvNoop;
+            TEST(double, tjvNoop);
+            TEST(double, bslmf::MovableRefUtil::move(tjvNoop));
+
+#undef TEST
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#define TEST(RT, VISITOR)                                                     \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        RT ret;                                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+    }
+            TestJsonVisitorNoop<double> tjvNoopDeduce;
+            TEST(double, tjvNoopDeduce);
+            TEST(double, bslmf::MovableRefUtil::move(tjvNoopDeduce));
+
+#undef TEST
+#endif
+        }
+
+        if (veryVerbose)
+            cout << "Test '*Doop' helper class" << endl;
+        {
+#define TEST(RT, VISITOR)                                                     \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        RT ret;                                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, -1 == ret);                                              \
+        /* ^^ */                                                              \
+        mX.makeArray();                                                       \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = mX.visit<RT>(VISITOR);                                          \
+        ASSERTV(ret, 0 == ret);                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 3 == ret);                                               \
+        /* ^ */                                                               \
+        mX.makeNumber();                                                      \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = X.visit<RT>(VISITOR);                                           \
+        ASSERTV(ret, 0 == ret);                                               \
+    }
+            TestJsonVisitorDoop<short> tjvDoop;
+
+            TEST(short, tjvDoop);
+            TEST(short, bslmf::MovableRefUtil::move(tjvDoop));
+#undef TEST
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+#define TEST(RT, VISITOR)                                                     \
+    {                                                                         \
+        typedef bdljsn::Json Obj;                                             \
+        Obj                  mX;                                              \
+        const Obj&           X = mX;                                          \
+                                                                              \
+        RT ret;                                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, -1 == ret);                                              \
+        /* ^^ */                                                              \
+        mX.makeArray();                                                       \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNumber();                                                      \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = mX.visit(VISITOR);                                              \
+        ASSERTV(ret, 0 == ret);                                               \
+                                                                              \
+        mX.makeObject();                                                      \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeArray();                                                       \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeString("");                                                    \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 3 == ret);                                               \
+        /* ^ */                                                               \
+        mX.makeNumber();                                                      \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeBoolean();                                                     \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+        mX.makeNull();                                                        \
+        ret = X.visit(VISITOR);                                               \
+        ASSERTV(ret, 0 == ret);                                               \
+    }
+            TestJsonVisitorDoop<short> tjvDoopDeduce;
+
+            TEST(short, tjvDoopDeduce);
+            TEST(short, bslmf::MovableRefUtil::move(tjvDoopDeduce));
+#undef TEST
+#endif
+        }
+
+        if (veryVerbose)
+            cout << "Negative Testing." << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            typedef bdljsn::Json Obj;
+            Obj                  obj;
+
+            obj.makeString("");
+
+            TestJsonVisitorSetStringOK tjvSetStringOK;
+            TestJsonVisitorSetStringNG tjvSetStringNG;
+
+            ASSERT_PASS(obj.visit<void>(tjvSetStringOK));
+            ASSERT_FAIL(obj.visit<void>(tjvSetStringNG));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+            TestJsonVisitorSetStringOK tjvSetStringOKdeduce;
+            TestJsonVisitorSetStringNG tjvSetStringNGdeduce;
+
+            ASSERT_PASS(obj.visit(tjvSetStringOKdeduce));
+            ASSERT_FAIL(obj.visit(tjvSetStringNGdeduce));
+#endif
+        }
+      } break;
       case 42: {
         // --------------------------------------------------------------------
         // DRQS 171793948
