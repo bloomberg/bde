@@ -139,9 +139,9 @@ namespace bsl {
 namespace BloombergLP {
 namespace bslfmt {
 
-                      // ===============================
-                      // Formattable_DummyOutputIterator
-                      // ===============================
+                   // =====================================
+                   // class Formattable_DummyOutputIterator
+                   // =====================================
 
 /// A dummy iterator class that provides the signatures of an output iterator,
 /// but whose implementation does nothing. This type serves as a stand in for
@@ -167,6 +167,10 @@ static_assert(
 static_assert(
       std::output_iterator<Formattable_DummyOutputIterator<wchar_t>, wchar_t>);
 
+                          // ========================
+                          // concept Formattable_With
+                          // ========================
+
 /// This concept, `bslfmt::Formattable_With`, is an implementation detail of
 /// the `bsl::formattable` concept and it is not to be used directly.
 ///
@@ -191,6 +195,10 @@ concept Formattable_With =
 
 }  // close package namespace
 }  // close enterprise namespace
+
+                            // ===================
+                            // concept Formattable
+                            // ===================
 
 /// The `bsl::formattable` concept answers the question if the specified
 /// `t_TYPE` has a formatter specialization enabled for the specified `t_CHAR`

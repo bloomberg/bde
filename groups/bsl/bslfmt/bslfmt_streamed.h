@@ -9,7 +9,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a wrapper to format using an `ostream` `operator<<`
 //
 //@CLASSES:
-//  bslfmt::Streamed: provides streaming-based `char` formatter support
+//  bslfmt::Streamed: formattable wrapper that uses `ostream` `operator<<`
+//  bslfmt::StreamedEnableFormatterTrait: trait to enable `bsl::formatter`
 //
 //@DESCRIPTION: This component provides both a wrapper class template and a
 // function template for creating a wrapper that enables `bsl::format`ing
