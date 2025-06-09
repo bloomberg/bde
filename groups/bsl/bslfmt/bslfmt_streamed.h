@@ -9,16 +9,21 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a wrapper to format using an `ostream` `operator<<`
 //
 //@CLASSES:
-//  bsl::Streamed<t_TYPE>: narrow `char` streaming wrapper class template
+//  bslfmt::Streamed: provides streaming-based `char` formatter support
 //
-//@DESCRIPTION: This component provides both a wrapper class template and (for
-// use with C++ standards that have no class template argument deduction) a
-// wrapper-creator function template to enable `bsl::format`ting values that
-// already offer an `ostream` insert `operator<<`.  This wrapper is also
-// compatible with `std::format`, on platforms where it is provided.
+//@DESCRIPTION: This component provides both a wrapper class template and a
+// function template for creating a wrapper that enables `bsl::format`ing
+// values that offer an `ostream` insert `operator<<`.  This wrapper is also
+// compatible with `std::format` on platforms where it is provided.
+//
 //```
-// bsl::format("Example: {}", bsl::streamed(ATypeWithoutAFormatter(42));
+// bsl::format("Example: {}", bslfmt::streamed(ATypeWithoutAFormatter(42));
 //```
+//
+// Using the `bslfmt::streamed` free function may be preferred to using the
+// `bslfmt::Streamed` type directly because the `bslfmt::streamed`
+// free-function supports simpler syntax on platforms that do not support class
+// template argument deduction (CTAD, introduced in C++17).
 //
 ///Format Specification Strings
 ///----------------------------
@@ -34,6 +39,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Format String Options
 ///- - - - - - - - - - -
+// Imagine we have a simple type that outputs "12345" when output to a stream:
 //```
 // class Streamable {};
 //
@@ -52,8 +58,8 @@ BSLS_IDENT("$Id: $")
 // | 8     | left      | N/A      | N/A       | "{:<8}"     | "012345  "   |
 // | 8     | center    | N/A      | N/A       | "{:^8}"     | " 012345 "   |
 // | 8     | right     | N/A      | N/A       | "{:>8}"     | "  012345"   |
-// | 8     | center    | equal    | N/A       | "{:=^8}"    | "=012345="   |
-// | 6     | center    | star     | 2         | "{:*^6.2}"  | "**01**"     |
+// | 8     | center    | =        | N/A       | "{:=^8}"    | "=012345="   |
+// | 6     | center    | *        | 2         | "{:*^6.2}"  | "**01**"     |
 //
 ///Usage
 ///-----
@@ -88,10 +94,6 @@ BSLS_IDENT("$Id: $")
 //```
 // assert(s == "The printout");
 //```
-// Notice that, in this instance, we preferred using the `bsl::streamed` free
-// function to directly using the `Streamed` type because it supports simpler
-// syntax on platforms that do not support class template argument deduction
-// (introduced in C++17).
 
 #include <bslscm_version.h>
 
@@ -139,9 +141,9 @@ struct Streamed_NoWarningConstructorTag {
 /// This class provides a wrapper to enable a streamable type to be used with
 /// `bsl::format` (and `std::format`) when no formatter specialization is
 /// provided (the type is not formattable).  Note that it is possible to use
-/// this wrapper with types that have a formatter; in such case if the compiler
-/// supports it we give a compilation warning directing the user to use the
-/// existing formatter instead of wrapping to use the streaming operator.
+/// this wrapper with types that have a formatter, if the compiler supports it
+/// we give a compilation warning directing the user to use the existing
+/// formatter instead of wrapping to use the streaming operator.
 template <class t_STREAMABLE>
 class Streamed {
   private:
@@ -190,14 +192,16 @@ class Streamed {
     const t_STREAMABLE& object() const;
 };
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-// The following deduction guide is needed for versions of clang that do not
-// support CTAD with concepts present due to CWG issue 2628 resolution not yet
-// applied and therefore would give an ambiguity error indicating it does not
-// know which constructor to use for CTAD.
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CTAD) &&                            \
+    defined(__apple_build_version__) && BSLS_PLATFORM_CMP_VERSION < 180000
+// The following deduction guide is needed for Apple versions of clang that do
+// not support CTAD with concepts present due to CWG issue 2628 resolution not
+// yet applied and therefore would give an ambiguity error indicating it does
+// not know which constructor to use for CTAD.
 template <class t_TYPE>
 Streamed(const t_TYPE& object) -> Streamed<t_TYPE>;
-#endif
+#endif  // CTAD is supported and on older Apple clang
+
                       // ================================
                       // struct Streamed_WrapperFormatter
                       // ================================

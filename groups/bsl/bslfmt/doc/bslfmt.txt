@@ -14,7 +14,9 @@ bslfmt.txt
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
- 10. bslfmt_streamed
+ 11. bslfmt_streamed
+
+ 10. bslfmt_formattable
 
   9. bslfmt_format
 
@@ -62,6 +64,9 @@ bslfmt.txt
 :
 : 'bslfmt_format':
 :      Provide a standard compliant `format` implementation.
+:
+: 'bslfmt_formattable':
+:      Provide a concept to check for the presence of a `bsl::formatter`.
 :
 : 'bslfmt_format_arg':                                                !PRIVATE!
 :      Provide a proxy for an argument for use by bsl::format

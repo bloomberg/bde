@@ -6,13 +6,13 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a concept to check for the presence of a `bsl::formatter`
+//@PURPOSE: Provide a concept to check for the presence of a `bsl::formatter`.
 //
 //@CLASSES:
 //  bsl::formattable<t_TYPE, t_CHAR>: `bsl::formatter` presence concept
 //
 //@MACROS:
-//  BSL_FORMATTABLE_DEFINED: `bsl::formatter` is provided
+//  BSL_FORMATTABLE_DEFINED: `bsl::formatter` is available
 //
 //@DESCRIPTION: This component conditionally provides `bsl::formattable`, a
 // concept that determines if a type has a formatter enabled for a given
@@ -21,9 +21,9 @@ BSLS_IDENT("$Id: $")
 // `BSL_FORMATTABLE_DEFINED` may be used to determine if the concept is present
 // or not.
 //
-// Because this component requires concept support it is not available portably
-// on all platforms, therefore any portable use of this concept should make use
-// of the appropriate preprocessor guards.
+// Because this component requires concepts support it is not available
+// portably on all platforms, therefore any portable use of this concept should
+// make use of the appropriate preprocessor guards.
 //
 ///When is a Type Formattable?
 ///---------------------------
