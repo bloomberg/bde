@@ -35,7 +35,7 @@ using namespace BloombergLP;
 // It should meet the requirements specified in [format.string.std].
 //
 //-----------------------------------------------------------------------------
-// CLASS 'bsl::formtter'
+// CLASS 'bsl::formatter'
 //
 // CREATORS
 // [ 3] formatter();
@@ -53,7 +53,7 @@ using namespace BloombergLP;
 // [ 8] swap(formatter &, formatter&);
 //
 // OUTPUT
-// [ 5] parsing failures
+// [ 7] parsing failures
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -146,93 +146,91 @@ void aSsErT(bool condition, const char *message, int line)
 #define TEST_STD_STRING_VIEW bsl::basic_string_view
 #endif
 
-#define TEST_PARSE_FAIL(type, fmtStr, useOracle)                               \
-    {                                                                          \
-        bsl::string errorMsg;                                                  \
-        bool rv;                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFailure<const type *>(&errorMsg, useOracle, fmtStr); \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-    }
+#define TEST_PARSE_FAIL(type, fmtStr, useOracle)                              \
+    do {                                                                      \
+        bsl::string errorMsg;                                                 \
+        bool rv;                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFailure<const type *>(&errorMsg, useOracle, fmtStr);\
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+    } while (false)
 
-
-
-#define TEST_PARSE_SUCCESS_F(type, fmtStr, useOracle)                          \
-    {                                                                          \
-        bsl::string errorMsg;                                                  \
-        bool rv;                                                               \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<const type *>(&errorMsg,                      \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<type *>(&errorMsg,                            \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-                                                                               \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<type[10]>(&errorMsg,                          \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<bsl::basic_string<type> >(&errorMsg,          \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<std::basic_string<type> > (&errorMsg,         \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<bsl::basic_string_view<type> >(&errorMsg,     \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-                                                                               \
-        rv = bslfmt::FormatterTestUtil<type>::                                 \
-                 testParseFormat<TEST_STD_STRING_VIEW<type> >(                 \
-                                 &errorMsg,                                    \
-                                  useOracle,                                   \
-                                  fmtStr);                                     \
-        if (!rv) {                                                             \
-            bsl::basic_string<type> formatStr(fmtStr);                         \
-            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                  \
-        }                                                                      \
-    }
+#define TEST_PARSE_SUCCESS_F(type, fmtStr, useOracle)                         \
+    do {                                                                      \
+        bsl::string errorMsg;                                                 \
+        bool rv;                                                              \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<const type *>(&errorMsg,                     \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<type *>(&errorMsg,                           \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<type[10]>(&errorMsg,                         \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<bsl::basic_string<type> >(&errorMsg,         \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<std::basic_string<type> > (&errorMsg,        \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<bsl::basic_string_view<type> >(&errorMsg,    \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+                                                                              \
+        rv = bslfmt::FormatterTestUtil<type>::                                \
+                 testParseFormat<TEST_STD_STRING_VIEW<type> >(                \
+                                 &errorMsg,                                   \
+                                  useOracle,                                  \
+                                  fmtStr);                                    \
+        if (!rv) {                                                            \
+            bsl::basic_string<type> formatStr(fmtStr);                        \
+            ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
+        }                                                                     \
+    } while (false)
 
 #define TEST_PARSE_SUCCESS_VF(type, fmtStr, useOracle)                        \
-    {                                                                         \
+    do {                                                                      \
         bsl::string errorMsg;                                                 \
         bool        rv;                                                       \
                                                                               \
@@ -302,7 +300,7 @@ void aSsErT(bool condition, const char *message, int line)
             bsl::basic_string<type> formatStr(fmtStr);                        \
             ASSERTV(errorMsg.c_str(), formatStr.c_str(), rv);                 \
         }                                                                     \
-    }
+    } while (false)
 
 // ============================================================================
 //                     GLOBAL CONSTANTS FOR TESTING
@@ -361,12 +359,9 @@ BSLA_MAYBE_UNUSED static const int k_ARG_NESTED_NON_ID = 1;
 BSLA_MAYBE_UNUSED static const int k_ARG_NESTED_ARG_ID = 2;
 BSLA_MAYBE_UNUSED static const int k_ARG_COUNT         = 2;
 
-
-
 // ============================================================================
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
-
 
 int getFillWidth(int fillChar)
 {
@@ -412,10 +407,6 @@ int getContentWidth(int contentChar)
 // ============================================================================
 //                     GLOBAL HELPER CLASSES FOR TESTING
 // ----------------------------------------------------------------------------
-
-
-
-
 
 template <class t_CHAR>
 struct ResultCalculator {
@@ -996,11 +987,9 @@ int main(int argc, char **argv)
                 }
             }
         }
-
-
       } break;
       case 11: {
-        // -----------------------------------------------
+        // --------------------------------------------------------------------
         // TESTING parse(PARSE_CONTEXT&);
         //
         // Concerns:
@@ -1018,7 +1007,8 @@ int main(int argc, char **argv)
         //
         // Testing:
         //   parse(PARSE_CONTEXT&);
-        // -----------------------------------------------
+        // --------------------------------------------------------------------
+
         if (verbose)
             printf("\nTESTING parse(PARSE_CONTEXT&);"
                    "\n==============================\n");
@@ -1170,7 +1160,7 @@ int main(int argc, char **argv)
         BSLS_KEYWORD_CONSTEXPR_CPP20 bool oracle_uni = true;
 #endif
 
-        // A selection of vaid format strings (unicode)
+        // A selection of valid format strings (unicode)
         TPS(char,     "{:\xF0\x9F\x98\x80<}"         , oracle_uni);
         TPS(wchar_t, L"{:\U0001F600<}"               , oracle_uni);
         TPS(char,     "{:\xF0\x9F\x98\x80<.0}"       , oracle_uni);
@@ -1221,7 +1211,6 @@ int main(int argc, char **argv)
         TPS(wchar_t, L"{0:\U0001F600^{1}.{1}}"       , oracle_uni);
 
         #undef TPS
-
       } break;
       case 10: {
         // -----------------------------------------------
@@ -1239,10 +1228,10 @@ int main(int argc, char **argv)
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        //: 1 We can swap two 'bsl::formatter' types for all the string
+        //: 1 We can assign 'bsl::formatter' types for all the string
         //:   specializations.
         //:
-        //: 2 We can swap two 'std::formatter' types for those partial
+        //: 2 We can assign 'std::formatter' types for those partial
         //:   specializations we expect to be aliased into the 'std' namespace.
         //
         // Plan:
@@ -1258,133 +1247,133 @@ int main(int argc, char **argv)
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTESTING SWAP"
-                   "\n============\n");
+            printf("\nTESTING ASSIGNMENT OPERATOR"
+                   "\n===========================\n");
 
         typedef char    C;
         typedef wchar_t W;
 
         if (verbose)
-            printf("\nValidating bslfmt swap\n");
+            printf("\nValidating bslfmt copy assignment\n");
 
         {
-            bsl::formatter<const C *, C> dummy_c;
-            bsl::formatter<const W *, W> dummy_w;
-            bsl::formatter<const C *, C> dummy2_c;
-            bsl::formatter<const W *, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<const C *, C> dummy_c;
+            const bsl::formatter<const W *, W> dummy_w;
+            bsl::formatter<const C *, C>       dummy2_c;
+            bsl::formatter<const W *, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            bsl::formatter<C *, C> dummy_c;
-            bsl::formatter<W *, W> dummy_w;
-            bsl::formatter<C *, C> dummy2_c;
-            bsl::formatter<W *, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<C *, C> dummy_c;
+            const bsl::formatter<W *, W> dummy_w;
+            bsl::formatter<C *, C>       dummy2_c;
+            bsl::formatter<W *, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            bsl::formatter<C[10], C> dummy_c;
-            bsl::formatter<W[10], W> dummy_w;
-            bsl::formatter<C[10], C> dummy2_c;
-            bsl::formatter<W[10], W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<C[10], C> dummy_c;
+            const bsl::formatter<W[10], W> dummy_w;
+            bsl::formatter<C[10], C>       dummy2_c;
+            bsl::formatter<W[10], W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            bsl::formatter<bsl::basic_string<C>, C> dummy_c;
-            bsl::formatter<bsl::basic_string<W>, W> dummy_w;
-            bsl::formatter<bsl::basic_string<C>, C> dummy2_c;
-            bsl::formatter<bsl::basic_string<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<bsl::basic_string<C>, C> dummy_c;
+            const bsl::formatter<bsl::basic_string<W>, W> dummy_w;
+            bsl::formatter<bsl::basic_string<C>, C>       dummy2_c;
+            bsl::formatter<bsl::basic_string<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            bsl::formatter<std::basic_string<C>, C> dummy_c;
-            bsl::formatter<std::basic_string<W>, W> dummy_w;
-            bsl::formatter<std::basic_string<C>, C> dummy2_c;
-            bsl::formatter<std::basic_string<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<std::basic_string<C>, C> dummy_c;
+            const bsl::formatter<std::basic_string<W>, W> dummy_w;
+            bsl::formatter<std::basic_string<C>, C>       dummy2_c;
+            bsl::formatter<std::basic_string<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            bsl::formatter<bsl::basic_string_view<C>, C> dummy_c;
-            bsl::formatter<bsl::basic_string_view<W>, W> dummy_w;
-            bsl::formatter<bsl::basic_string_view<C>, C> dummy2_c;
-            bsl::formatter<bsl::basic_string_view<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<bsl::basic_string_view<C>, C> dummy_c;
+            const bsl::formatter<bsl::basic_string_view<W>, W> dummy_w;
+            bsl::formatter<bsl::basic_string_view<C>, C>       dummy2_c;
+            bsl::formatter<bsl::basic_string_view<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
-            bsl::formatter<std::basic_string_view<C>, C> dummy_c;
-            bsl::formatter<std::basic_string_view<W>, W> dummy_w;
-            bsl::formatter<std::basic_string_view<C>, C> dummy2_c;
-            bsl::formatter<std::basic_string_view<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const bsl::formatter<std::basic_string_view<C>, C> dummy_c;
+            const bsl::formatter<std::basic_string_view<W>, W> dummy_w;
+            bsl::formatter<std::basic_string_view<C>, C>       dummy2_c;
+            bsl::formatter<std::basic_string_view<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         if (verbose)
-            printf("\nValidating std swap\n");
+            printf("\nValidating std copy assignment\n");
 
         {
-            std::formatter<const C *, C> dummy_c;
-            std::formatter<const W *, W> dummy_w;
-            std::formatter<const C *, C> dummy2_c;
-            std::formatter<const W *, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<const C *, C> dummy_c;
+            const std::formatter<const W *, W> dummy_w;
+            std::formatter<const C *, C>       dummy2_c;
+            std::formatter<const W *, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            std::formatter<C *, C> dummy_c;
-            std::formatter<W *, W> dummy_w;
-            std::formatter<C *, C> dummy2_c;
-            std::formatter<W *, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<C *, C> dummy_c;
+            const std::formatter<W *, W> dummy_w;
+            std::formatter<C *, C>       dummy2_c;
+            std::formatter<W *, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            std::formatter<C[10], C> dummy_c;
-            std::formatter<W[10], W> dummy_w;
-            std::formatter<C[10], C> dummy2_c;
-            std::formatter<W[10], W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<C[10], C> dummy_c;
+            const std::formatter<W[10], W> dummy_w;
+            std::formatter<C[10], C>       dummy2_c;
+            std::formatter<W[10], W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            std::formatter<bsl::basic_string<C>, C> dummy_c;
-            std::formatter<bsl::basic_string<W>, W> dummy_w;
-            std::formatter<bsl::basic_string<C>, C> dummy2_c;
-            std::formatter<bsl::basic_string<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<bsl::basic_string<C>, C> dummy_c;
+            const std::formatter<bsl::basic_string<W>, W> dummy_w;
+            std::formatter<bsl::basic_string<C>, C>       dummy2_c;
+            std::formatter<bsl::basic_string<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            std::formatter<std::basic_string<C>, C> dummy_c;
-            std::formatter<std::basic_string<W>, W> dummy_w;
-            std::formatter<std::basic_string<C>, C> dummy2_c;
-            std::formatter<std::basic_string<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<std::basic_string<C>, C> dummy_c;
+            const std::formatter<std::basic_string<W>, W> dummy_w;
+            std::formatter<std::basic_string<C>, C>       dummy2_c;
+            std::formatter<std::basic_string<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            std::formatter<bsl::basic_string_view<C>, C> dummy_c;
-            std::formatter<bsl::basic_string_view<W>, W> dummy_w;
-            std::formatter<bsl::basic_string_view<C>, C> dummy2_c;
-            std::formatter<bsl::basic_string_view<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<bsl::basic_string_view<C>, C> dummy_c;
+            const std::formatter<bsl::basic_string_view<W>, W> dummy_w;
+            std::formatter<bsl::basic_string_view<C>, C>       dummy2_c;
+            std::formatter<bsl::basic_string_view<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
         {
-            std::formatter<std::basic_string_view<C>, C> dummy_c;
-            std::formatter<std::basic_string_view<W>, W> dummy_w;
-            std::formatter<std::basic_string_view<C>, C> dummy2_c;
-            std::formatter<std::basic_string_view<W>, W> dummy2_w;
-            bsl::swap(dummy_c, dummy2_c);
-            bsl::swap(dummy_w, dummy2_w);
+            const std::formatter<std::basic_string_view<C>, C> dummy_c;
+            const std::formatter<std::basic_string_view<W>, W> dummy_w;
+            std::formatter<std::basic_string_view<C>, C>       dummy2_c;
+            std::formatter<std::basic_string_view<W>, W>       dummy2_w;
+            dummy2_c = dummy_c;
+            dummy2_w = dummy_w;
         }
 #endif
       } break;
@@ -1407,7 +1396,7 @@ int main(int argc, char **argv)
         //:   specializations that we promote to 'std' and swap them. (C-2)
         //
         // Testing:
-        //   formatter(const formatter &);
+        //   swap(formatter &, formatter&);
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -1574,59 +1563,59 @@ int main(int argc, char **argv)
             printf("\nValidating bslfmt copy construction\n");
 
         {
-            bsl::formatter<const C *, C> dummy_c;
-            bsl::formatter<const W *, W> dummy_w;
-            bsl::formatter<const C *, C> copy_c(dummy_c);
-            bsl::formatter<const W *, W> copy_w(dummy_w);
+            const bsl::formatter<const C *, C> dummy_c;
+            const bsl::formatter<const W *, W> dummy_w;
+            bsl::formatter<const C *, C>       copy_c(dummy_c);
+            bsl::formatter<const W *, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            bsl::formatter<C *, C> dummy_c;
-            bsl::formatter<W *, W> dummy_w;
-            bsl::formatter<C *, C> copy_c(dummy_c);
-            bsl::formatter<W *, W> copy_w(dummy_w);
+            const bsl::formatter<C *, C> dummy_c;
+            const bsl::formatter<W *, W> dummy_w;
+            bsl::formatter<C *, C>       copy_c(dummy_c);
+            bsl::formatter<W *, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            bsl::formatter<C[10], C> dummy_c;
-            bsl::formatter<W[10], W> dummy_w;
-            bsl::formatter<C[10], C> copy_c(dummy_c);
-            bsl::formatter<W[10], W> copy_w(dummy_w);
+            const bsl::formatter<C[10], C> dummy_c;
+            const bsl::formatter<W[10], W> dummy_w;
+            bsl::formatter<C[10], C>       copy_c(dummy_c);
+            bsl::formatter<W[10], W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            bsl::formatter<bsl::basic_string<C>, C> dummy_c;
-            bsl::formatter<bsl::basic_string<W>, W> dummy_w;
-            bsl::formatter<bsl::basic_string<C>, C> copy_c(dummy_c);
-            bsl::formatter<bsl::basic_string<W>, W> copy_w(dummy_w);
+            const bsl::formatter<bsl::basic_string<C>, C> dummy_c;
+            const bsl::formatter<bsl::basic_string<W>, W> dummy_w;
+            bsl::formatter<bsl::basic_string<C>, C>       copy_c(dummy_c);
+            bsl::formatter<bsl::basic_string<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            bsl::formatter<std::basic_string<C>, C> dummy_c;
-            bsl::formatter<std::basic_string<W>, W> dummy_w;
-            bsl::formatter<std::basic_string<C>, C> copy_c(dummy_c);
-            bsl::formatter<std::basic_string<W>, W> copy_w(dummy_w);
+            const bsl::formatter<std::basic_string<C>, C> dummy_c;
+            const bsl::formatter<std::basic_string<W>, W> dummy_w;
+            bsl::formatter<std::basic_string<C>, C>       copy_c(dummy_c);
+            bsl::formatter<std::basic_string<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            bsl::formatter<bsl::basic_string_view<C>, C> dummy_c;
-            bsl::formatter<bsl::basic_string_view<W>, W> dummy_w;
-            bsl::formatter<bsl::basic_string_view<C>, C> copy_c(dummy_c);
-            bsl::formatter<bsl::basic_string_view<W>, W> copy_w(dummy_w);
+            const bsl::formatter<bsl::basic_string_view<C>, C> dummy_c;
+            const bsl::formatter<bsl::basic_string_view<W>, W> dummy_w;
+            bsl::formatter<bsl::basic_string_view<C>, C>       copy_c(dummy_c);
+            bsl::formatter<bsl::basic_string_view<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
-            bsl::formatter<std::basic_string_view<C>, C> dummy_c;
-            bsl::formatter<std::basic_string_view<W>, W> dummy_w;
-            bsl::formatter<std::basic_string_view<C>, C> copy_c(dummy_c);
-            bsl::formatter<std::basic_string_view<W>, W> copy_w(dummy_w);
+            const bsl::formatter<std::basic_string_view<C>, C> dummy_c;
+            const bsl::formatter<std::basic_string_view<W>, W> dummy_w;
+            bsl::formatter<std::basic_string_view<C>, C>       copy_c(dummy_c);
+            bsl::formatter<std::basic_string_view<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
@@ -1637,58 +1626,58 @@ int main(int argc, char **argv)
             printf("\nValidating std copy construction\n");
 
         {
-            std::formatter<const C *, C> dummy_c;
-            std::formatter<const W *, W> dummy_w;
-            std::formatter<const C *, C> copy_c(dummy_c);
-            std::formatter<const W *, W> copy_w(dummy_w);
+            const std::formatter<const C *, C> dummy_c;
+            const std::formatter<const W *, W> dummy_w;
+            std::formatter<const C *, C>       copy_c(dummy_c);
+            std::formatter<const W *, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            std::formatter<C *, C> dummy_c;
-            std::formatter<W *, W> dummy_w;
-            std::formatter<C *, C> copy_c(dummy_c);
-            std::formatter<W *, W> copy_w(dummy_w);
+            const std::formatter<C *, C> dummy_c;
+            const std::formatter<W *, W> dummy_w;
+            std::formatter<C *, C>       copy_c(dummy_c);
+            std::formatter<W *, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            std::formatter<C[10], C> dummy_c;
-            std::formatter<W[10], W> dummy_w;
-            std::formatter<C[10], C> copy_c(dummy_c);
-            std::formatter<W[10], W> copy_w(dummy_w);
+            const std::formatter<C[10], C> dummy_c;
+            const std::formatter<W[10], W> dummy_w;
+            std::formatter<C[10], C>       copy_c(dummy_c);
+            std::formatter<W[10], W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            std::formatter<bsl::basic_string<C>, C> dummy_c;
-            std::formatter<bsl::basic_string<W>, W> dummy_w;
-            std::formatter<bsl::basic_string<C>, C> copy_c(dummy_c);
-            std::formatter<bsl::basic_string<W>, W> copy_w(dummy_w);
+            const std::formatter<bsl::basic_string<C>, C> dummy_c;
+            const std::formatter<bsl::basic_string<W>, W> dummy_w;
+            std::formatter<bsl::basic_string<C>, C>       copy_c(dummy_c);
+            std::formatter<bsl::basic_string<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            std::formatter<std::basic_string<C>, C> dummy_c;
-            std::formatter<std::basic_string<W>, W> dummy_w;
-            std::formatter<std::basic_string<C>, C> copy_c(dummy_c);
-            std::formatter<std::basic_string<W>, W> copy_w(dummy_w);
+            const std::formatter<std::basic_string<C>, C> dummy_c;
+            const std::formatter<std::basic_string<W>, W> dummy_w;
+            std::formatter<std::basic_string<C>, C>       copy_c(dummy_c);
+            std::formatter<std::basic_string<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            std::formatter<bsl::basic_string_view<C>, C> dummy_c;
-            std::formatter<bsl::basic_string_view<W>, W> dummy_w;
-            std::formatter<bsl::basic_string_view<C>, C> copy_c(dummy_c);
-            std::formatter<bsl::basic_string_view<W>, W> copy_w(dummy_w);
+            const std::formatter<bsl::basic_string_view<C>, C> dummy_c;
+            const std::formatter<bsl::basic_string_view<W>, W> dummy_w;
+            std::formatter<bsl::basic_string_view<C>, C>       copy_c(dummy_c);
+            std::formatter<bsl::basic_string_view<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
         {
-            std::formatter<std::basic_string_view<C>, C> dummy_c;
-            std::formatter<std::basic_string_view<W>, W> dummy_w;
-            std::formatter<std::basic_string_view<C>, C> copy_c(dummy_c);
-            std::formatter<std::basic_string_view<W>, W> copy_w(dummy_w);
+            const std::formatter<std::basic_string_view<C>, C> dummy_c;
+            const std::formatter<std::basic_string_view<W>, W> dummy_w;
+            std::formatter<std::basic_string_view<C>, C>       copy_c(dummy_c);
+            std::formatter<std::basic_string_view<W>, W>       copy_w(dummy_w);
             (void)copy_c;
             (void)copy_w;
         }
@@ -1848,7 +1837,6 @@ int main(int argc, char **argv)
             (void)dummy_w;
         }
 #endif
-
       } break;
       case 2: {
         // --------------------------------------------

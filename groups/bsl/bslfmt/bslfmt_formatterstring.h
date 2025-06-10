@@ -124,13 +124,13 @@ class FormatterString_GraphemeCluster {
     ///
     /// For UTF-16, behavior is undefined if `bytes` is not a valid pointer to
     /// an array of `numBytes/2` `wchar_t` types in contiguous memory.
-    /// Behaviour is undefined if `2 != sizeof(wchar_t)`.  Endianness is
+    /// Behavior is undefined if `2 != sizeof(wchar_t)`.  Endianness is
     /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
     /// are not supported.
     ///
     /// For UTF-32, behavior is undefined if `bytes` is not a valid pointer to
     /// an array of `numBytes/4` `wchar_t` types in contiguous memory.
-    /// Behaviour is undefined if `4 != sizeof(wchar_t)`.  Endianness is
+    /// Behavior is undefined if `4 != sizeof(wchar_t)`.  Endianness is
     /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
     /// are not supported.
     void extract(UnicodeCodePoint::UtfEncoding  encoding,

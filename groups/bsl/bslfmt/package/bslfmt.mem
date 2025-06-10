@@ -10,6 +10,7 @@ bslfmt_format_imp_cpp03
 bslfmt_format_string
 bslfmt_formatparsecontext
 bslfmt_formatspecificationparser
+bslfmt_formattable
 bslfmt_formatterbase
 bslfmt_formatterbool
 bslfmt_formattercharacter
@@ -25,5 +26,6 @@ bslfmt_formatterunicodedata
 bslfmt_mockformatcontext
 bslfmt_mockparsecontext
 bslfmt_standardformatspecification
+bslfmt_streamed
 bslfmt_testspecificationgenerator
 bslfmt_unicodecodepoint
