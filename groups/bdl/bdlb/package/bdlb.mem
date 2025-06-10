@@ -54,3 +54,4 @@ bdlb_transparentless
 bdlb_transparentstringhash
 bdlb_variant
 bdlb_variant_cpp03
+bdlb_variantprinter

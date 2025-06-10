@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-///Example 1: Printing `bsl::optional` to a stream
+///Example 1: Printing `bsl::optional` to a Stream
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to use `bdlb::OptionalPrinterUtil` to
 // print `bsl::optional` to a stream:

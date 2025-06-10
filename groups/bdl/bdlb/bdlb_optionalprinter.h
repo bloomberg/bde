@@ -18,7 +18,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Printing `bsl::optional` to a stream
+///Example 1: Printing `bsl::optional` to a Stream
 ///- - - - - - - - - - - - - - - - - - - - - - - -
 // In this example, we demonstrate how to use `bdlb::OptionalPrinterUtil` to
 // print `bsl::optional` to a stream:
