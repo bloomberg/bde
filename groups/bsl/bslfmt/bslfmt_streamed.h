@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // specialization:
 //```
 //  class NonFormattableType {};
-//  bsl::ostream& operator<<(bsl::ostream& os, const NonFormattableType& obj)
+//  std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
 //  {
 //      return os << "The printout";
 //  }
@@ -83,12 +83,11 @@ BSLS_IDENT("$Id: $")
 // Then we create an instance of this type and use bsl::streamed to allow us to
 // format it:
 //```
-//  const ThisTypeHasLongAndObscureNameButStreamable obj;
+//  const NonFormattableType obj;
 //```
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
 //```
-// const NonFormattableType obj;
 // bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
 // Finally, we verify the output is correct:

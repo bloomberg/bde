@@ -186,6 +186,18 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
     return os << obj.d_content;
 }
 
+                              // ================
+                              // class Streamable
+                              // ================
+
+class Streamable {
+};
+
+std::ostream& operator<<(std::ostream& os, const Streamable&)
+{
+    return os << "12345678";
+}
+
                       // ================================
                       // OutputIteratorStreamBufferTester
                       // ================================
@@ -396,50 +408,33 @@ void calculateResult(bsl::string                     *formatString,
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-///Example 1: Formatting a Streamable Object Using the Function
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Formatting a Streamable Object
+/// - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<`.  When writing portable code that
-// should work on compilers that do not support class template argument
-// deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.  When writing code
-// that is aimed at modern compilers support CTAD (class template argument
-// deduction) the wrapper (`bslfmt::Streamed`) can also be used directly,
-// without specifying the type formatted.
+// `ostream` using the insert `operator<<`.
 //
-// First, for the sake of demonstration we create a type with an obscure and
-// long name that we neither want to remember nor ever to write down, and which
-// can be streamed out:
+// First, we define a type with a streaming operator but without a formatter
+// specialization:
 //```
-    class ThisTypeHasLongAndObscureNameButStreamable {
-    };
-
-    std::ostream& operator<<(
-                         std::ostream&                                     os,
-                         const ThisTypeHasLongAndObscureNameButStreamable& )
+    class NonFormattableType {};
+    std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
     {
         return os << "The printout";
     }
 //```
-
-///Example 3: Format String Options
-/// - - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<` for an environment that requires the
-// output to be padded, aligned, and/or truncation of the output.  In this
-// example we will introduce the effects of the various possible format string
-// specifications.
-//
-// First, for the sake of demonstration we create a type that prints a series
-// of digits to help demonstrate the effects of the various formattings:
+// Then we create an instance of this type and use bsl::streamed to allow us to
+// format it:
 //```
-    class Streamable {
-    };
-
-    std::ostream& operator<<(std::ostream& os, const Streamable&)
-    {
-        return os << "12345678";
-    }
+//  const NonFormattableType obj;
+//```
+// Next, we format the "value" using `bsl::format` with the wrapper-creator
+// function:
+//```
+// bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+//```
+// Finally, we verify the output is correct:
+//```
+// assert(s == "The printout");
 //```
 
 //=============================================================================
@@ -474,112 +469,34 @@ int main(int argc, char **argv)
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
 
-        {
-///Example 1: Formatting a Streamable Object Using the Function
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+///Formatting a Streamable Object
+/// - - - - - - - - - - - - - - -
 // Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<`.  When writing portable code that
-// should work on compilers that do not support class template argument
-// deduction we would use the wrapper-creator function `bslfmt::streamed` to
-// avoid having to know and write the type of the object.  When writing code
-// that is aimed at modern compilers support CTAD (class template argument
-// deduction) the wrapper (`bslfmt::Streamed`) can also be used directly,
-// without specifying the type formatted.
+// `ostream` using the insert `operator<<`.
 //
-// First, for the sake of demonstration we create a type with an obscure and
-// long name that we neither want to remember nor ever to write down, and which
-// can be streamed out:
+// First, we define a type with a streaming operator but without a formatter
+// specialization:
 //```
-//  class ThisTypeHasLongAndObscureNameButStreamable {
-//  };
-//
-//  std::ostream& operator<<(
-//                       std::ostream&                                     os,
-//                       const ThisTypeHasLongAndObscureNameButStreamable& )
+//  class NonFormattableType {};
+//  std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
 //  {
 //      return os << "The printout";
 //  }
 //```
-// Then, we create an object of said type that we want to print out:
+// Then we create an instance of this type and use bsl::streamed to allow us to
+// format it:
 //```
-    const ThisTypeHasLongAndObscureNameButStreamable obj;
+    const NonFormattableType obj;
 //```
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
 //```
-    bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+   bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
 //```
 // Finally, we verify the output is correct:
 //```
-    ASSERT(s == "The printout");
+   ASSERT(s == "The printout");
 //```
-        }
-
-        {
-///Example 2: Format String Options
-/// - - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<` for an environment that requires the
-// output to be padded, aligned, and/or truncation of the output.  In this
-// example we will introduce the effects of the various possible format string
-// specifications.
-//
-// First, for the sake of demonstration we create a type that prints a series
-// of digits to help demonstrate the effects of the various formattings:
-//```
-//  class Streamable {
-//  };
-//
-//  std::ostream& operator<<(std::ostream& os, const Streamable&)
-//  {
-//      return os << "12345678";
-//  }
-//```
-// Then, we create an object of said type that we will format:
-//```
-    const Streamable obj;
-//```
-// Next, we format the "value" using many different format strings, starting
-// with the default for completeness:
-//```
-    bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
-    ASSERT(s == "12345678");
-//```
-// Then, we format with specifying just a width:
-//```
-    s = bsl::format("{:10}", bslfmt::streamed(obj));
-    ASSERT(s == "12345678  ");
-//```
-//
-// Next, we format with specifying a width, and alignments:
-//```
-    s = bsl::format("{:<10}", bslfmt::streamed(obj));
-    ASSERT(s == "12345678  ");
-
-    s = bsl::format("{:^10}", bslfmt::streamed(obj));
-    ASSERT(s == " 12345678 ");
-
-    s = bsl::format("{:>10}", bslfmt::streamed(obj));
-    ASSERT(s == "  12345678");
-//```
-// Finally, we demonstrate the truncation using a "precision" value:
-//```
-    s = bsl::format("{:.6}", bslfmt::streamed(obj));
-    ASSERT(s == "123456");
-
-    s = bsl::format("{:8.6}", bslfmt::streamed(obj));
-    ASSERT(s == "123456  ");
-
-    s = bsl::format("{:<8.6}", bslfmt::streamed(obj));
-    ASSERT(s == "123456  ");
-
-    s = bsl::format("{:^8.6}", bslfmt::streamed(obj));
-    ASSERT(s == " 123456 ");
-
-    s = bsl::format("{:>8.6}", bslfmt::streamed(obj));
-    ASSERT(s == "  123456");
-//```
-        }
       } break;
       case 8: {
         // --------------------------------------------------------------------

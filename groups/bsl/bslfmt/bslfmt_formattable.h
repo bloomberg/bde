@@ -146,7 +146,7 @@ namespace bslfmt {
 /// A dummy iterator class that provides the signatures of an output iterator,
 /// but whose implementation does nothing. This type serves as a stand in for
 /// the unknown output iterator (used by the standard) when defining the
-/// `formattable` trait. Note that the output iterator used by the
+/// `formattable` trait.  Note that the output iterator used by the
 /// `bsl::format` implementation is a component private type, so we do not use
 /// it here.
 template <class t_CHAR>
@@ -162,6 +162,9 @@ class Formattable_DummyOutputIterator {
     t_CHAR& operator*() const;
 };
 
+
+// The following `static_assert`s verify the dummy output iterator conforms to
+// some of the requirements of an output iterator.
 static_assert(
             std::output_iterator<Formattable_DummyOutputIterator<char>, char>);
 static_assert(
