@@ -122,6 +122,28 @@ BSLS_IDENT("$Id: $")
 // Note that the line continuation backslash has been replaced with `/` to
 // silence "multiline comment" warnings.
 //
+///Meaning of Platform Specific Macros
+///-----------------------------------
+// In this section we discuss the meaning of predefined platforms specific
+// macros where documentation lacks or hard to find.
+//
+///Darwin
+/// - - -
+// Darwin has two compiler-relevant macros but much code often uses only one:
+// `__APPLE_CC__` for both purposes.  This clarification is placed here so that
+// we don't make the same mistake.
+//
+// * `__APPLE_CC__`: when defined it indicates that the *platform* to which we
+//   compile is Darwin.  It does *not* mean that the compiler is made by Apple,
+//   it is defined in 3rd party GCC or LLVM builds as well.  It identifies the
+//   target operating system.  (Note that the value of this macro does not seem
+//   to ever be larger than 6000.)
+//
+// * `__apple_build_version__`: when defined it indicates that the
+//   (clang/clang++) compiler compiling the code is the one built by Apple.  It
+//   will not be defined on 3rd party LLVM builds (such as those by brew.sh, or
+//   MacPorts, or built-from-source).
+//
 ///Macro Summary
 ///-------------
 // The following are the macros provided by this component.  Note that they are
@@ -1446,9 +1468,9 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
   #endif  // too old standard date fixed up
 
-  #if (__cplusplus >= 201103L ||                                             \
-       (defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__APPLE_CC__)))       \
-      && __has_include(<type_traits>)
+  #if (__cplusplus >= 201103L || (defined(__GXX_EXPERIMENTAL_CXX0X__) &&  \
+                                      defined(__apple_build_version__))) &&   \
+          __has_include(<type_traits>)
     #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER                       1
   #endif  // at least C++11 support and has the header
 

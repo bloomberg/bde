@@ -2006,6 +2006,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    fputs("\n  __apple_build_version__: ", stdout);
+#ifdef __apple_build_version__
+    puts(STRINGIFY(__apple_build_version__));
+#else
+    puts("UNDEFINED");
+#endif
+
     fputs("\n  __GXX_EXPERIMENTAL_CXX0X__: ", stdout);
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
     puts(STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__));
@@ -2415,7 +2422,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CMP_CLANG
         const unsigned long clangVersion = BSLS_PLATFORM_CMP_CLANG;
         const char *whichClang =
-  #ifndef __APPLE_CC__
+  #ifndef __apple_build_version__
             "LLVM";
   #else
             "Apple";

@@ -1657,6 +1657,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  __apple_build_version__: ");
+#ifdef __apple_build_version__
+    printf("%s\n", STRINGIFY(__apple_build_version__));
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n  __GLIBCPP__: ");
 #ifdef __GLIBCPP__
     printf("%s\n", STRINGIFY(__GLIBCPP__));

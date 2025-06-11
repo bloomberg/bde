@@ -1645,9 +1645,10 @@ BSLS_IDENT("$Id$ $CSID$")
 // expression, and so it is preferable to discard the expression where
 // possible.
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
-# if !defined(BSLS_PLATFORM_CMP_CLANG)                             \
-  || !defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >= 120000 \
-  ||  defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >  130000
+#if !defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
+    !defined(__apple_build_version__) && BSLS_PLATFORM_CMP_VERSION >=         \
+                                             120000 ||                        \
+    defined(__apple_build_version__) && BSLS_PLATFORM_CMP_VERSION > 130000
 #  define BSLSTL_SHAREDPTR_SFINAE_DISCARD(EXPRESSION) \
      static_cast<void>(EXPRESSION)
 # else
