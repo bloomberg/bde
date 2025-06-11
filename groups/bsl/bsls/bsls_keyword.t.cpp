@@ -120,6 +120,10 @@ namespace
     void throws4() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)       {}
     void throws5() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)       {}
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -387,7 +391,9 @@ void useMoreComplexConstexprFunc()
     ASSERT(42 == result);
 }
 // ```
-
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop  // -Woverloaded-virtual
+#endif
 }  // close unnamed namespace
 
 // ============================================================================

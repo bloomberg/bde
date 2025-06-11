@@ -6,11 +6,19 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_platform.h>
 
 #include <functional>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+# if BSLS_PLATFORM_CMP_VERSION >= 130000 && \
+     BSLS_PLATFORM_CMP_VERSION <  140000
+#  pragma GCC diagnostic ignored "-Wdangling-reference"
+# endif
+#endif
 
 // ============================================================================
 //                              TEST PLAN

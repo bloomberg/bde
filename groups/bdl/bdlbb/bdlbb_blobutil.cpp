@@ -205,9 +205,19 @@ void BlobUtil::append(Blob *dest, const char *source, int offset, int length)
 
         BSLS_ASSERT(0 <= numBytesToCopy);
 
+        // GCC bug 108770: the `BSLS_ASSERT` above makes GCC warn about the
+        // path where the assertion fails but execution continues.
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wstringop-overflow"
+# pragma GCC diagnostic ignored "-Wrestrict"
+#endif
         bsl::memcpy(buffer.data() + writePosition,
                     source + offset + numBytesCopied,
                     numBytesToCopy);
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop
+#endif
 
         numBytesCopied += numBytesToCopy;
         numBytesLeft -= numBytesToCopy;

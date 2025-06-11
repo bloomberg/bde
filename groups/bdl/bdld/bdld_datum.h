@@ -3272,7 +3272,16 @@ Datum::DataType Datum::typeFromExtendedInternalType() const
     BSLS_ASSERT_OPT(static_cast<int>(type) <
                     static_cast<int>(k_NUM_EXTENDED_INTERNAL_TYPES));
 
+    // GCC bug 108770: the `BSLS_ASSERT_OPT` above makes GCC warn about the
+    // path where the assertion fails but execution continues.
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     return convert[type];
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop
+#endif
 }
 
 inline

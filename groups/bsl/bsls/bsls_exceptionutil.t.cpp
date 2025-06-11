@@ -877,7 +877,9 @@ int main(int argc, char *argv[])
             printf("Verify non-aborting test\n");
         }
         {
-            bool executedTest = false;
+            // GCC warns if this variable isn't volatile (even though we can
+            // never actually `longjmp` into this block).
+            volatile bool executedTest = false;
             BEGIN_ABORT_TEST {
                 executedTest = true;
             }

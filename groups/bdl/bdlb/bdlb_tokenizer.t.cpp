@@ -34,6 +34,10 @@ using namespace bsl;
 #endif
 #endif
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic ignored "-Wunused-result"
+#endif
+
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -673,8 +677,7 @@ int main(int argc, char **argv)
             ObjIt itw = testData.begin();
             ++itw; ++itw; ++itw;
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-            ASSERT_SAFE_FAIL("foo" == *itw);  // can cause ignored return value
-                                              // warning in newer compilers
+            ASSERT_SAFE_FAIL("foo" == *itw);
             ASSERT_SAFE_FAIL(false == (*itw).empty());
 #endif
         }
