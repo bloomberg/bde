@@ -124,8 +124,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Meaning of Platform Specific Macros
 ///-----------------------------------
-// In this section we discuss the meaning of predefined platforms specific
-// macros where documentation lacks or hard to find.
+// In this section we discuss the meaning of predefined platforms-specific
+// macros where documentation is lacking or hard to find.
 //
 ///Darwin
 /// - - -
@@ -1468,9 +1468,10 @@ BSLS_IDENT("$Id: $")
     #define BSLS_COMPILERFEATURES_CPLUSPLUS 201103L
   #endif  // too old standard date fixed up
 
-  #if (__cplusplus >= 201103L || (defined(__GXX_EXPERIMENTAL_CXX0X__) &&  \
-                                      defined(__apple_build_version__))) &&   \
-          __has_include(<type_traits>)
+  #if (__cplusplus >= 201103L ||                                              \
+      (defined(__GXX_EXPERIMENTAL_CXX0X__) &&                                 \
+       defined(__apple_build_version__)))                                     \
+      && __has_include(<type_traits>)
     #define BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER                       1
   #endif  // at least C++11 support and has the header
 
