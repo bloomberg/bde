@@ -1860,7 +1860,16 @@ BSLS_IDENT("$Id: $")
 
     #define BSLS_LIBRARYFEATURES_HAS_C99_FP_CLASSIFY                          1
 
-    #if defined(__APPLE_CC__) && (__APPLE_CC__ >= 6000)
+    #if defined(__apple_build_version__) && (__APPLE_CC__ >= 6000)
+        // `__APPLE_CC__` is always defined when `__apple_build_version__` is.
+        //
+        // `__apple_build_version__` means that the (clang/clang++) compiler is
+        // the one provided by Apple (and not brew.sh, MacPorts, or
+        // built-from-source)
+        //
+        // `__APPLE_CC__` means that the target OS is Darwin-based, and it is
+        // predefined in all compilers targeting Darwin.  Note that its value
+        // never appears to be larger than 6000 for a very long time.
 
         #define BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS                1
             // libc++ provides this C++11 feature as a C++98 extension.

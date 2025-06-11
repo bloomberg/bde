@@ -1577,6 +1577,12 @@ static void printFlags()
     D_MACRO(__APPLE_CC__);
 #endif
 
+#if defined(__apple_build_version__)
+    P_MACRO(__apple_build_version__);
+#else
+    D_MACRO(__apple_build_version__);
+#endif
+
 #if defined(__CHAR_UNSIGNED__)
     P_MACRO(__CHAR_UNSIGNED__);
 #else

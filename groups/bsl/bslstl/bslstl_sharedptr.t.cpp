@@ -697,9 +697,10 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)
-# if !defined(BSLS_PLATFORM_CMP_CLANG)                             \
-  || !defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >= 120000 \
-  ||  defined(__APPLE_CC__) && BSLS_PLATFORM_CMP_VERSION >  130000
+#if !defined(BSLS_PLATFORM_CMP_CLANG) ||                                      \
+    !defined(__apple_build_version__) && BSLS_PLATFORM_CMP_VERSION >=         \
+                                             120000 ||                        \
+    defined(__apple_build_version__) && BSLS_PLATFORM_CMP_VERSION > 130000
     // There are some compilers that, while they support expression SFINAE, do
     // not check for substitution failures in discarded-value expressions (as
     // in, for example, a `static_cast<void>(expression)`).  As a result, for
