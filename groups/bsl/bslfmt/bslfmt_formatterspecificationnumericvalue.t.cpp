@@ -465,7 +465,7 @@ struct MockArgsCreator_Impl<t_CONTEXT, char> {
         static IntType typedValue;
         typedValue = static_cast<IntType>(value);
         return std::basic_format_args(
-                   std::make_format_args<MockArgsContext, IntType>(typedValue))
+                            std::make_format_args<MockArgsContext>(typedValue))
             .get(0);
 #else
         static IntType typedValue;
@@ -479,7 +479,7 @@ struct MockArgsCreator_Impl<t_CONTEXT, char> {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         static BadType typedValue;
         return std::basic_format_args(
-                   std::make_format_args<MockArgsContext, BadType>(typedValue))
+                            std::make_format_args<MockArgsContext>(typedValue))
             .get(0);
 #else
         static BadType typedValue;
@@ -503,7 +503,7 @@ struct MockArgsCreator_Impl<t_CONTEXT, wchar_t> {
         static IntType typedValue;
         typedValue = static_cast<IntType>(value);
         return std::basic_format_args(
-                   std::make_format_args<MockArgsContext, IntType>(typedValue))
+                            std::make_format_args<MockArgsContext>(typedValue))
             .get(0);
 #else
         static IntType typedValue;
@@ -517,8 +517,7 @@ struct MockArgsCreator_Impl<t_CONTEXT, wchar_t> {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         static BadType typedValue;
         return std::basic_format_args(
-                   std::make_format_args<MockArgsContext, BadType>(
-                                  typedValue))
+                            std::make_format_args<MockArgsContext>(typedValue))
             .get(0);
 #else
         static BadType typedValue;
