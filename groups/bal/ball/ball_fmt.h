@@ -16,7 +16,7 @@ BSLS_IDENT("$Id: $")
 //  BALL_FMT_ERROR: format a log record with the `e_ERROR` level
 //  BALL_FMT_FATAL: format a log record with the `e_FATAL` level
 //
-//@SEE_ALSO: ball_log, bslfmt_format
+//@SEE_ALSO: ball_log, bslfmt_format, bslfmt_streamed
 //
 //@DESCRIPTION: This component provides preprocessor macros that facilitate
 // logging using standard `format` format strings.  This component provides
@@ -137,6 +137,52 @@ BSLS_IDENT("$Id: $")
 // not produce any side effects, because its execution depends on the current
 // logging configuration.  The special macro `BALL_FMT` provides the means to
 // write to the log record from within the block.
+//
+///Example 2: Logging Types with `ostream` insert `operator<<`
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example shows how to use the `bslfmt::streamed` facility with
+// types that have no support for `bsl::format`ing, but have support for
+// writing to an `ostream` to facilitate formatted logging.
+//
+// Suppose we have a type that (we do not own, and) is some sort of identifier
+// that is capable of "printing" itself to an `ostream`:
+//```
+// namespace abc {
+// class Identifier {
+//   private:
+//     // DATA
+//     unsigned d_value;
+//
+//   public:
+//     // CREATORS
+//     Identifier(unsigned value) : d_value(value) {}
+//
+//     // ACCESSORS
+//     unsigned value() const { return d_value; }
+// };
+//
+// bsl::ostream& operator<<(bsl::ostream& os, const Identifier& obj)
+// {
+//     return os << obj.value();
+// }
+//
+// }  // close namespace abc
+//```
+// First, we initialize the log category within the context of this function.
+// The logging macros such as `BALL_FMT_ERROR` will not compile unless a
+// category has been specified in the current lexical scope:
+// ```
+// BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
+// ```
+// Then, we record a message containing identifiers using `bslfmt::streamed`:
+// ```
+// const abc::Identifier id(12345);
+// BALL_FMT_FATAL("Item {:>010} does not exist.", bslfmt::streamed(id));
+// // Logs: `Item 0000012345 does not exist.`
+// ```
+// Note that the wrapper created by `bslfmt::streamed` uses the `ostream`
+// insert `operator<<` of `abc::Identifier` to get the characters to print and
+// uses the syntax of string formatting for the format specification.
 
 #include <balscm_version.h>
 
@@ -179,7 +225,7 @@ BSLS_IDENT("$Id: $")
     BALL_LOG_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_FATAL)           \
     BALL_FMT(__VA_ARGS__)
 
-#endif
+#endif  // INCLUDED_BALL_FMT
 
 // ----------------------------------------------------------------------------
 // Copyright 2025 Bloomberg Finance L.P.
