@@ -865,7 +865,8 @@ class EventScheduler {
     /// specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
     /// used.
-    explicit EventScheduler(bslma::Allocator *basicAllocator = 0);
+    EventScheduler();
+    explicit EventScheduler(bslma::Allocator *basicAllocator);
 
     /// Create an event scheduler using the default dispatcher functor (see
     /// {The Dispatcher Thread and the Dispatcher Functor} in the

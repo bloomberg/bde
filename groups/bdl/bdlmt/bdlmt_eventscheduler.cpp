@@ -446,6 +446,31 @@ EventScheduler::scheduleRecurringEventRaw(
 }
 
 // CREATORS
+EventScheduler::EventScheduler()
+: d_currentTimeFunctor(
+            bsl::allocator_arg_t(),
+            bslma::Default::defaultAllocator(),
+            createDefaultCurrentTimeFunctor(bsls::SystemClockType::e_REALTIME))
+, d_eventQueue()
+, d_recurringQueue()
+, d_dispatcherFunctor(bsl::allocator_arg_t(),
+                      bslma::Default::defaultAllocator(),
+                      &defaultDispatcherFunction)
+, d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
+, d_running(false)
+, d_dispatcherAwaited(false)
+, d_currentRecurringEvent(0)
+, d_currentEvent(0)
+, d_waitCount(0)
+, d_clockType(bsls::SystemClockType::e_REALTIME)
+, d_eventSchedulerName()
+{
+    initialize(
+            0,
+            bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_OBJECT_ID_SELECTION);
+}
+
 EventScheduler::EventScheduler(bslma::Allocator *basicAllocator)
 : d_currentTimeFunctor(bsl::allocator_arg_t(), basicAllocator,
                        createDefaultCurrentTimeFunctor(
