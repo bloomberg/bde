@@ -1396,7 +1396,7 @@ class StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard {
     // DATA
 
     // points to the first of a contiguous array of locks to be managed
-    StripedUnorderedContainerImpl_LockElement * const d_firstLock_p;
+    StripedUnorderedContainerImpl_LockElement * const d_firstLock_p;  // held, not owned
 
     // the number of locks currently owned, offset of next expected lock
     unsigned                                          d_numLocked;
@@ -1419,9 +1419,9 @@ class StripedUnorderedContainerImpl_ArrayOfLocksWriteGuard {
 
     /// Lock the specified `*lock_p` and add it to the collection of locks to
     /// be unlocked upon destruction of this object.  The behavior is undefined
-    /// unless 'lock_p' is adjacent to the previously locked lock, or the same
-    /// lock profided to the constructor in the case of no previously locks
-    /// locked.
+    /// unless 'lock_p' is adjacent to the previously locked lock, or is the
+    /// same lock provided to the constructor if this is the first call
+    /// to `lock` on this object.
     void lock(StripedUnorderedContainerImpl_LockElement *lock_p);
 };
 
@@ -2952,7 +2952,9 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
     // Main loop on stripes: lock a stripe and process all buckets in it
     int count = 0;
     for (bsl::size_t i = 0; i < d_numStripes; ++i) {
-        d_locks_p[i].lockW();
+        LockElement& lockElement = d_locks_p[i];
+        lockElement.lockW();
+        LEWGuard guard(&lockElement);
         // Loop on the buckets of the current stripe.  This is simple, as the
         // stripe is the last bits in a bucket index.  We start with the
         // current stripe as the first bucket, and add 'd_numStripes' for the
@@ -2967,12 +2969,10 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visit(
                 ++count;
                 bool ret = visitor(&(curNode->value()), curNode->key());
                 if (!ret) {
-                    d_locks_p[i].unlockW();
                     return -count;                                    // RETURN
                 }
             }
         }
-        d_locks_p[i].unlockW();
     }
     return count;
 }
@@ -3160,7 +3160,9 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
     // Main loop on stripes: lock a stripe and process all buckets in it
     int count = 0;
     for (bsl::size_t i = 0; i < d_numStripes; ++i) {
-        d_locks_p[i].lockR();
+        LockElement& lockElement = d_locks_p[i];
+        lockElement.lockR();
+        LERGuard guard(&lockElement);
         // Loop on the buckets of the current stripe.  This is simple, as the
         // stripe is the last bits in a bucket index.  We start with the
         // current stripe as the first bucket, and add 'd_numStripes' for the
@@ -3175,12 +3177,10 @@ int StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>::visitReadOnly(
                 ++count;
                 bool ret = visitor(curNode->value(), curNode->key());
                 if (!ret) {
-                    d_locks_p[i].unlockR();
                     return -count;                                    // RETURN
                 }
             }
         }
-        d_locks_p[i].unlockR();
     }
     return count;
 }

@@ -50,6 +50,7 @@
 #include <bsl_cstdlib.h>    // `atoi`
 #include <bsl_cmath.h>      // `sqrt`
 #include <bsl_cstdio.h>     // `sprintf`
+#include <bsl_stdexcept.h>  // `runtime_error`
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>     // `allocate_shared`
@@ -1350,6 +1351,23 @@ class TestDriver {
                                                 VALUE,
                                                 PairStdAllocator> > TestValues;
 
+    /// Functor for testCase24 - a visitor that throws an exception after
+    /// visiting `throwAfter` elements.
+    struct TestCase24ThrowingVisitor
+    {
+        int  d_count;
+        int  d_throwAfter;  // Trigger exception after this many calls.
+        TestCase24ThrowingVisitor(int throwAfter);
+
+        bool operator()(VALUE*, const KEY&);
+    };
+
+    /// Functor for testCase24 - a visitor that does nothing
+    struct TestCase24NoOpVisitor
+    {
+        bool operator()(const VALUE&, const KEY&);
+    };
+
     /// Functor for testCase23 - eraseIfValuePredicate.
     struct TestCase23ValuePredicate {
 
@@ -1527,10 +1545,40 @@ class TestDriver {
     static void testCase18();
     static void testCase19();
     static void testCase20();
-
-    /// Code for test cases 1 to 23.
     static void testCase23();
+
+    /// Code for test cases 1 to 24.
+    static void testCase24();
 };
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase24ThrowingVisitor::
+    TestCase24ThrowingVisitor(int throwAfter)
+: d_count(0)
+, d_throwAfter(throwAfter)
+{
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase24ThrowingVisitor::operator()(
+                                                                     VALUE*,
+                                                                     const KEY&)
+{
+    ++d_count;
+    if (d_count > d_throwAfter)
+    {
+        throw bsl::runtime_error("Visitor exception");
+    }
+    return true; // continue visiting if no exception.
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase24NoOpVisitor::operator()(
+                                                                 const VALUE&,
+                                                                 const KEY&)
+{
+    return true;
+}
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase23ValuePredicate::
@@ -7733,6 +7781,94 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase23()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase24()
+{
+    if (verbose)
+    {
+        cout << "\nTEST EXCEPTION SAFETY FOR VISITOR FUNCTIONS (No Deadlock)" << endl;
+    }
+
+    bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&da);
+    bslma::TestAllocator         oa("object",   veryVeryVeryVerbose);
+    bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&da);
+
+    const KEY keyOne = bsltf::TemplateTestFacility::create<KEY>(1);
+    const KEY keyTwo = bsltf::TemplateTestFacility::create<KEY>(2);
+    const KEY keyThree = bsltf::TemplateTestFacility::create<KEY>(3);
+    const KEY keyFour = bsltf::TemplateTestFacility::create<KEY>(4);
+
+    const VALUE valueOne = bsltf::TemplateTestFacility::create<VALUE>(1);
+    const VALUE valueTwo = bsltf::TemplateTestFacility::create<VALUE>(2);
+    const VALUE valueThree = bsltf::TemplateTestFacility::create<VALUE>(3);
+    const VALUE valueFour = bsltf::TemplateTestFacility::create<VALUE>(4);
+
+    // Create a container instance.
+    Obj container(128, 8, &oa);
+
+    const bsl::size_t NUM_ENTRIES = 3;
+
+    // Insert several elements.
+    container.insertUnique(keyOne, valueOne);
+    container.insertUnique(keyTwo, valueTwo);
+    container.insertUnique(keyThree, valueThree);
+
+    ASSERTV(container.size(), container.size() == NUM_ENTRIES);
+
+    // 1. Call visit() with a throwing visitor function.
+    {
+        TestCase24ThrowingVisitor throwingVisitorImpl(2);  // Throw after 2 iterations.
+        typename Obj::VisitorFunction visitor(throwingVisitorImpl);
+
+        dam.reset(); // `bsl::function` constructor allocates from the default
+                        // allocator.
+
+        bool exceptionCaught = false;
+        try
+        {
+            container.visit(visitor);
+        }
+        catch (const bsl::runtime_error& ex)
+        {
+            exceptionCaught = true;
+            if (verbose)
+            {
+                cout << "Caught expected exception: " << ex.what() << endl;
+            }
+        }
+        ASSERTV(exceptionCaught);
+    }
+
+    // After the exception, verify that the container remains operational.
+    // 2. Call visitReadOnly to count elements.
+    {
+        TestCase24NoOpVisitor noOpVisitorImpl;
+        typename Obj::ReadOnlyVisitorFunction visitor(noOpVisitorImpl);
+
+        dam.reset(); // `bsl::function` constructor allocates from the default
+                        // allocator.
+
+        int rc = container.visitReadOnly(visitor);
+        ASSERTV(rc, rc == static_cast<int>(container.size()));
+    }
+
+    // 3. Insert another element.
+    {
+        container.insertUnique(keyFour, valueFour);
+        ASSERTV(container.size(), container.size() == NUM_ENTRIES + 1);
+    }
+
+    if (verbose)
+    {
+         cout << "Container remains fully operational after the visitor exception."
+              << endl;
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
 void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase7()
 {
     // ------------------------------------------------------------------------
@@ -9710,6 +9846,10 @@ int main(int argc, char *argv[])
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
+      case 24: {
+        RUN_EACH_TYPE(TestDriver, testCase24, TEST_TYPES_REGULAR);
+        break;
+      }
       case 23: {
         RUN_EACH_TYPE(TestDriver, testCase23, TEST_TYPES_REGULAR);
         break;
