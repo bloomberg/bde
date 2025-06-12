@@ -1190,9 +1190,9 @@ for (BloombergLP::ball::Log_Stream ball_log_lOg_StReAm(                       \
 
 #define BALL_LOG_END ""
 
-                 // ====================================
-                 // Implementation Details: Do *NOT* Use
-                 // ====================================
+                    // ====================================
+                    // Implementation Details: Do *NOT* Use
+                    // ====================================
 
 // BALL_LOGCB_STREAM_CONST_IMP requires its first argument to be a compile-time
 // constant.

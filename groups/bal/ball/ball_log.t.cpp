@@ -3390,7 +3390,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             const Point point;
             validatePoint(point);
         }
-
       } break;
       case 36: {
         // --------------------------------------------------------------------
@@ -7484,7 +7483,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         ball::LoggerManager::shutDownSingleton();
-
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -7644,7 +7642,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             dup2(fd, 2);
             if (veryVerbose)
                 bsl::cout << "STDERR redirected to " << filename << bsl::endl;
-#endif
+#endif  // BSLS_PLATFORM_OS_UNIX
 
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7673,7 +7671,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             // Only FATAL, ERROR, and WARN messages are published in this test.
             ASSERTV(numLines, 3 == numLines);
-#endif
+#endif  // BSLS_PLATFORM_OS_UNIX
         }
 
         if (verbose)
@@ -7748,7 +7746,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << "has been destroyed."
                       << bsl::endl;
         {
-
 #ifdef BSLS_PLATFORM_OS_UNIX
             TempDirectoryGuard tempDirGuard("ball_");
 
@@ -7793,7 +7790,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(3 == numLines);
 #endif
         }
-
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -8795,7 +8791,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(ptr4  < ptr3);
         ASSERT(ptr3  < ptr2);
         ASSERT(ptr2  < ptr1);
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -9048,7 +9043,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                  macrosTest(true, *TO, TO->numPublishedRecords());
             }
         }
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -9064,9 +9058,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   OSTREAM MACROS (WITHOUT CALLBACK)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "TESTING OSTREAM MACROS" << bsl::endl
-                               << "======================" << bsl::endl;
+        if (verbose) bsl::cout << "\nTESTING OSTREAM MACROS"
+                               << "\n======================\n";
 
         const char *MESSAGE = "message:1:2:3";
         const char  SEP     = ':';
@@ -9129,7 +9122,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
             ASSERT(u::isRecordOkay(observer, CAT, TRACE, FILE, LINE, MESSAGE));
-
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -9155,7 +9147,6 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                         << SEP << ARGS[1]
                                         << SEP << ARGS[2];
             ASSERT(u::isRecordOkay(observer, CAT, DEBUG, FILE, LINE, MESSAGE));
-
         }
 
         BloombergLP::ball::Administration::addCategory(
@@ -9362,16 +9353,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   warning: format string is not a string literal (potentially
         //    insecure) [-Wformat-security]
 
-        #define FORMAT_SPEC_0_ARGS "message"
-        #define FORMAT_SPEC_1_ARGS "message:%d"
-        #define FORMAT_SPEC_2_ARGS "message:%d:%d"
-        #define FORMAT_SPEC_3_ARGS "message:%d:%d:%d"
-        #define FORMAT_SPEC_4_ARGS "message:%d:%d:%d:%d"
-        #define FORMAT_SPEC_5_ARGS "message:%d:%d:%d:%d:%d"
-        #define FORMAT_SPEC_6_ARGS "message:%d:%d:%d:%d:%d:%d"
-        #define FORMAT_SPEC_7_ARGS "message:%d:%d:%d:%d:%d:%d:%d"
-        #define FORMAT_SPEC_8_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d"
-        #define FORMAT_SPEC_9_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d:%d"
+#define FORMAT_SPEC_0_ARGS "message"
+#define FORMAT_SPEC_1_ARGS "message:%d"
+#define FORMAT_SPEC_2_ARGS "message:%d:%d"
+#define FORMAT_SPEC_3_ARGS "message:%d:%d:%d"
+#define FORMAT_SPEC_4_ARGS "message:%d:%d:%d:%d"
+#define FORMAT_SPEC_5_ARGS "message:%d:%d:%d:%d:%d"
+#define FORMAT_SPEC_6_ARGS "message:%d:%d:%d:%d:%d:%d"
+#define FORMAT_SPEC_7_ARGS "message:%d:%d:%d:%d:%d:%d:%d"
+#define FORMAT_SPEC_8_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d"
+#define FORMAT_SPEC_9_ARGS "message:%d:%d:%d:%d:%d:%d:%d:%d:%d"
 
         const char *MSG[] = {
             "message",
@@ -11588,17 +11579,16 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(1 == unbracketedLoggingFlag);
         }
 
-        #undef FORMAT_SPEC_0_ARGS
-        #undef FORMAT_SPEC_1_ARGS
-        #undef FORMAT_SPEC_2_ARGS
-        #undef FORMAT_SPEC_3_ARGS
-        #undef FORMAT_SPEC_4_ARGS
-        #undef FORMAT_SPEC_5_ARGS
-        #undef FORMAT_SPEC_6_ARGS
-        #undef FORMAT_SPEC_7_ARGS
-        #undef FORMAT_SPEC_8_ARGS
-        #undef FORMAT_SPEC_9_ARGS
-
+#undef FORMAT_SPEC_0_ARGS
+#undef FORMAT_SPEC_1_ARGS
+#undef FORMAT_SPEC_2_ARGS
+#undef FORMAT_SPEC_3_ARGS
+#undef FORMAT_SPEC_4_ARGS
+#undef FORMAT_SPEC_5_ARGS
+#undef FORMAT_SPEC_6_ARGS
+#undef FORMAT_SPEC_7_ARGS
+#undef FORMAT_SPEC_8_ARGS
+#undef FORMAT_SPEC_9_ARGS
       } break;
       case 2: {
         // --------------------------------------------------------------------
