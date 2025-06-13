@@ -45,10 +45,10 @@ makeUniqueName(char *buffer, const char *prefix, bsls::Types::UintPtr suffix)
     // Create a sufficiently unique name for a semaphore object.  Note that the
     // name of the semaphore shouldn't exceed SEM_NAME_LEN characters (31).
 {
-    snprintf(buffer, SEM_NAME_LEN, "%s%04x_%04x",
+    snprintf(buffer, SEM_NAME_LEN, "%s%04x_%08zx",
                                    prefix,
-                                   (getpid() & 0xffff),
-                                   static_cast<unsigned>(suffix & 0xffff));
+                                   (getpid() & 0xffffU),
+                                   (suffix ^ (suffix >> 32)) & 0xffffffffU);
 }
 
 }  // close unnamed namespace
