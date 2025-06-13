@@ -42,7 +42,8 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 // Solaris
 #if !(defined(BSLS_PLATFORM_OS_SOLARIS)   \
         && defined(BSLS_PLATFORM_CMP_GNU) \
-        && defined(BSLS_PLATFORM_CPU_32_BIT))
+        && defined(BSLS_PLATFORM_CPU_32_BIT) \
+        && BSLS_PLATFORM_CMP_VERSION < 120000)
 
 #if defined(BSLS_PLATFORM_OS_UNIX)
 #include <unistd.h>
@@ -234,7 +235,7 @@ int PerformanceMonitor_LinuxProcStatistics::parseProcStatString(
     // guaranteed not to contain parens, and the rest of which are integral.
     // All of these fields are at least 1 char wide (in practice most of them
     // are just 0), plus spaces is a minimum width of those fields of 44.  More
-    // fields may be appeneded to the 'stat' file in future versions of Linux,
+    // fields may be appended to the 'stat' file in future versions of Linux,
     // and they may be '%s' or '%c' fields containing parens, so we want to be
     // sure not to search over them.
 
@@ -1829,7 +1830,8 @@ void PerformanceMonitor::resetStatistics()
 
 #endif  // !(defined(BSLS_PLATFORM_OS_SOLARIS)
         //     && defined(BSLS_PLATFORM_CMP_GNU)
-        //     && defined(BSLS_PLATFORM_CPU_32_BIT))
+        //     && defined(BSLS_PLATFORM_CPU_32_BIT)
+        //     && BSLS_PLATFORM_CMP_VERSION < 120000)
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

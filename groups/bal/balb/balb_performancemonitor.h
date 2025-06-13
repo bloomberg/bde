@@ -67,11 +67,12 @@ BSLS_IDENT("$Id: $")
 // current process is running.  This error condition will be indicated by a
 // non-zero return value from `registerPid`.
 //
-///Unsupported Platform/Compiler mode - Solaris/g++/32-bits
+///Unsupported Platform/Compiler mode - Solaris/g++ <= 11/32-bits
 ///--------------------------------------------------------
 // Note that this component is not supported when building in 32-bit mode
-// with the g++ compiler on Solaris, due to Solaris's `procfs.h` header not
-// supporting that compiler in 32-bit mode. (DRQS 170291732)
+// with the g++ compiler version 11 or below on Solaris, due to Solaris's
+// `procfs.h` header not supporting that compiler in 32-bit mode.
+// (DRQS 170291732)
 //
 ///Iterator Invalidation
 ///---------------------

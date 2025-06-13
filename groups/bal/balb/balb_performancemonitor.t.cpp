@@ -55,7 +55,8 @@
 // Solaris
 #if (defined(BSLS_PLATFORM_OS_SOLARIS)   \
        && defined(BSLS_PLATFORM_CMP_GNU) \
-       && defined(BSLS_PLATFORM_CPU_32_BIT))
+       && defined(BSLS_PLATFORM_CPU_32_BIT) \
+       && BSLS_PLATFORM_CMP_VERSION < 120000)
 int main()
 {
     return -1;
@@ -2092,7 +2093,8 @@ int main(int argc, char *argv[])
 
 #endif  // !(defined(BSLS_PLATFORM_OS_SOLARIS)
         //     && defined(BSLS_PLATFORM_CMP_GNU)
-        //     && defined(BSLS_PLATFORM_CPU_32_BIT))
+        //     && defined(BSLS_PLATFORM_CPU_32_BIT)
+        //     && BSLS_PLATFORM_CMP_VERSION < 120000)
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.
