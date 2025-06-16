@@ -15,6 +15,7 @@ BSLS_IDENT("$Id: $")
 //  bsl::formatter<std::basic_string, t_CHAR>: for `std::basic_string`
 //  bsl::formatter<bsl::basic_string, t_CHAR>: for `bsl::basic_string`
 //  bsl::formatter<bsl::basic_string_view, t_CHAR>: `bsl::basic_string_view`
+//  bsl::formatter<bslstl:::StringRef, t_CHAR>: for `bslstl:::StringRef`
 //
 //@CANONICAL_HEADER: bsl_format.h
 //
@@ -71,6 +72,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 
 #include <bslstl_string.h>
+#include <bslstl_stringref.h>
 #include <bslstl_stringview.h>
 
 #include <limits>     // for 'std::numeric_limits'
@@ -443,6 +445,37 @@ struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
 };
 
 #endif
+
+                // ===========================================
+                // struct formatter<bslstl::StringRef, t_CHAR>
+                // ===========================================
+
+/// This component-private class provides the partial specialization of the
+/// `bsl::formatter` type.  It implements formatting for `bslstl::StringRef`
+/// and `bslstl::StringRefWide` types.
+template <class t_CHAR>
+struct formatter<BloombergLP::bslstl::StringRefImp<t_CHAR>, t_CHAR>
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
+  public:
+    // TRAITS
+
+    // This formatter specialization must be promoted to the `std` namespace so
+    // DO NOT DEFINE the trait.
+    // BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20.
+
+    // ACCESSORS
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `fc` parameter.  Return an end iterator
+    /// of the output range.  Throw an exception of type `bsl::format_error` in
+    /// the event of failure.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                           BloombergLP::bslstl::StringRefImp<t_CHAR> value,
+                           t_FORMAT_CONTEXT&                         fc) const;
+};
 
 }  // close namespace bsl
 
@@ -821,6 +854,23 @@ formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>::format(
 }
 
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+
+              // ----------------------------------------------
+              // struct formatter<bslstl::StringRefImp, t_CHAR>
+              // ----------------------------------------------
+
+// ACCESSORS
+template <class t_CHAR>
+template <class t_FORMAT_CONTEXT>
+typename t_FORMAT_CONTEXT::iterator
+formatter<BloombergLP::bslstl::StringRefImp<t_CHAR>, t_CHAR>::format(
+                            BloombergLP::bslstl::StringRefImp<t_CHAR> value,
+                            t_FORMAT_CONTEXT&                         fc) const
+{
+    bsl::basic_string_view<t_CHAR> sv(value.data(), value.length());
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(sv,
+                                                                        fc);
+}
 
 }  // close namespace bsl
 
