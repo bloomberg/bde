@@ -319,6 +319,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlm_metricsregistry.h>
 
+#include <bsla_deprecated.h>
+
 #include <bslma_allocator.h>
 
 #include <bslmf_movableref.h>
@@ -350,14 +352,6 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
-
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-
-extern "C" typedef void (*bcep_FixedThreadPoolJobFunc)(void *);
-        // This type declares the prototype for functions that are suitable to
-        // be specified 'bdlmt::FixedThreadPool::enqueueJob'.
-
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 namespace bdlmt {
 
@@ -392,10 +386,10 @@ class FixedThreadPool {
       , e_SUSPEND
       , e_DRAIN
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BCEP_STOP    = e_STOP
-      , BCEP_RUN     = e_RUN
-      , BCEP_SUSPEND = e_SUSPEND
-      , BCEP_DRAIN   = e_DRAIN
+      , BCEP_STOP    BSLA_DEPRECATED = e_STOP
+      , BCEP_RUN     BSLA_DEPRECATED = e_RUN
+      , BCEP_SUSPEND BSLA_DEPRECATED = e_SUSPEND
+      , BCEP_DRAIN   BSLA_DEPRECATED = e_DRAIN
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
