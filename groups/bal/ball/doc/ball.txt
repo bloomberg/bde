@@ -192,7 +192,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'ball' package currently has 51 components having 17 levels of physical
+ The 'ball' package currently has 52 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -203,6 +203,7 @@
       ball_logfilecleanerutil
 
   15. ball_fileobserver2
+      ball_fmt
       ball_logthrottle
 
   14. ball_log
@@ -318,6 +319,9 @@
 :
 : 'ball_fixedsizerecordbuffer':
 :      Provide a thread-safe fixed-size buffer of record handles.
+:
+: 'ball_fmt':
+:      Provide macros to facilitate `bsl::format` logging.
 :
 : 'ball_log':
 :      Provide macros and utility functions to facilitate logging.

@@ -13,7 +13,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'balber' package currently has 7 components having 4 levels of physical
+ The 'balber' package currently has 8 components having 4 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -22,7 +22,8 @@
 
   3. balber_berencoder
 
-  2. balber_beruniversaltagnumber
+  2. balber_berencoderoptionsutil
+     balber_beruniversaltagnumber
      balber_berutil
 
   1. balber_berconstants
@@ -46,6 +47,9 @@
 :
 : 'balber_berencoderoptions':
 :      Provide value-semantic attribute classes
+:
+: 'balber_berencoderoptionsutil':
+:      Provide a utility for configuring `balber::BerEncoderOptions`.
 :
 : 'balber_beruniversaltagnumber':
 :      Enumerate the set of BER universal tag numbers.

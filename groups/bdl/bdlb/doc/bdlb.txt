@@ -10,7 +10,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlb' package currently has 56 components having 5 levels of physical
+ The 'bdlb' package currently has 57 components having 5 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -30,6 +30,7 @@
      bdlb_optionalprinter
      bdlb_printadapter
      bdlb_variant
+     bdlb_variantprinter
 
   3. bdlb_bitmaskutil
      bdlb_caselessstringviewhash
@@ -246,3 +247,6 @@
 :
 : 'bdlb_variant_cpp03':                                               !PRIVATE!
 :      Provide C++03 implementation for bdlb_variant.h
+:
+: 'bdlb_variantprinter':
+:      Provide a suite of helper classes for printing `bsl::variant`.
