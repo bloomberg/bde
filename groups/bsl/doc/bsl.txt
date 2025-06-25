@@ -142,6 +142,11 @@
  BDE documentation.  Note that the components in this package consist entirely
  of comments, no code.
 
+/'bslfmt'
+/ - - - -
+ The {'bslfmt'} package provides implementation mechanisms for 'bsl::format',
+ which is a C++03 compatible implementation of C++20's '<format>'.
+
 /'bslh'
 / - - -
  The {'bslh'} package provides standard hashing algorithms and components
