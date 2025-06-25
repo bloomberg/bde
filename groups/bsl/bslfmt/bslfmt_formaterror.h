@@ -53,6 +53,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_string.h>
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+  #include <format>
+#endif
+
 #include <stdexcept>
 
 namespace BloombergLP {
