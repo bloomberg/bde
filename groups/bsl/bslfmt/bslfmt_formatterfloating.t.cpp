@@ -1264,7 +1264,9 @@ int main(int argc, char **argv)
             ROW(" 1E-37 ", "{:^7.0G}", 1.234E-37f),
 
             // general .0 ALTERNATE
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
             ROW("1.e-37",   "{:#.0g}",   1.234e-37f),
+#endif  // not gcc-13
 #define u_MSVC_LAST_BAD_VER 194334810
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
@@ -1273,9 +1275,11 @@ int main(int argc, char **argv)
             ROW("1.e-37 ",  "{:<#7.0g}", 1.234e-37f),
             ROW("1.e-37  ", "{:<#8.0g}", 1.234e-37f),
             ROW(" 1.e-37 ", "{:^#8.0g}", 1.234e-37f),
-#endif
+#endif  // MSVC lib is fixed in this version
             // uppercase general .0 ALTERNATE
-            ROW("1.E-37",   "{:#.0G}",   1.234e-37f),
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+            ROW("1.E-37", "{:#.0G}", 1.234e-37f),
+#endif  // not gcc-13
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.E-37",   "{:#6.0G}",  1.234e-37f),
@@ -1283,7 +1287,7 @@ int main(int argc, char **argv)
             ROW("1.E-37 ",  "{:<#7.0G}", 1.234e-37f),
             ROW("1.E-37  ", "{:<#8.0G}", 1.234e-37f),
             ROW(" 1.E-37 ", "{:^#8.0G}", 1.234e-37f),
-#endif
+#endif  // MSVC lib is fixed in this version
 
             // general .1
             ROW("1e-37",   "{:.1g}",   1.234e-37f),
@@ -2029,15 +2033,17 @@ int main(int argc, char **argv)
             ROW("1e-37  ", "{:<7.0g}", 1.234e-37),
             ROW(" 1e-37 ", "{:^7.0g}", 1.234e-37),
             // uppercase general .0
-            ROW("1E-37",   "{:.0G}",   1.234E-37),
-            ROW("1E-37",   "{:5.0G}",  1.234E-37),
+            ROW("1E-37", "{:.0G}", 1.234E-37),
+            ROW("1E-37", "{:5.0G}", 1.234E-37),
             ROW(" 1E-37",  "{:6.0G}",  1.234E-37),
             ROW("1E-37 ",  "{:<6.0G}", 1.234E-37),
             ROW("1E-37  ", "{:<7.0G}", 1.234E-37),
             ROW(" 1E-37 ", "{:^7.0G}", 1.234E-37),
 
             // general .0 ALTERNATE
-            ROW("1.e-37",   "{:#.0g}",   1.234e-37),
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+            ROW("1.e-37", "{:#.0g}", 1.234e-37),
+#endif  // not gcc-13
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.e-37",   "{:#6.0g}",  1.234e-37),
@@ -2045,9 +2051,11 @@ int main(int argc, char **argv)
             ROW("1.e-37 ",  "{:<#7.0g}", 1.234e-37),
             ROW("1.e-37  ", "{:<#8.0g}", 1.234e-37),
             ROW(" 1.e-37 ", "{:^#8.0g}", 1.234e-37),
-#endif
+#endif  // MSVC lib is fixed in this version
             // uppercase general .0 ALTERNATE
-            ROW("1.E-37",   "{:#.0G}",   1.234e-37),
+#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+            ROW("1.E-37", "{:#.0G}", 1.234e-37),
+#endif  // not gcc-13
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
     // MSVC as Oracle has a bug with width when precision is 0
             ROW("1.E-37",   "{:#6.0G}",  1.234e-37),
@@ -2055,7 +2063,7 @@ int main(int argc, char **argv)
             ROW("1.E-37 ",  "{:<#7.0G}", 1.234e-37),
             ROW("1.E-37  ", "{:<#8.0G}", 1.234e-37),
             ROW(" 1.E-37 ", "{:^#8.0G}", 1.234e-37),
-#endif
+#endif  // MSVC lib is fixed in this version
 
             // general .1
             ROW("1e-37",   "{:.1g}",   1.234e-37),
