@@ -1015,10 +1015,16 @@ struct FilesystemUtil {
     /// `bsl::string`, `std::string`, `std::pmr::string` (if supported),
     /// `bsl::string_view`, or `bslstl::StringRef`.
     ///
-    /// IBM-SPECIFIC WARNING: This function is not thread-safe.  The AIX
-    /// implementation of the system `glob` function can temporarily change
-    /// the working directory of the entire program, causing attempts in
-    /// other threads to open files with relative path names to fail.
+    /// WINDOWS-SPECIFIC WARNING: When `recursiveFlag` is `true`, it is
+    /// possible for this function to descend into a directory symbolic link,
+    /// resulting in the removal of files or directories that are outside the
+    /// subtree of `path`.  This situation occurs only if a directory is
+    /// replaced by a symbolic link during the traversal.  Note that when
+    /// Developer Mode is not enabled, symbolic links can be created only by
+    /// users with administrative privileges.  If Developer Mode is on, using
+    /// this function for recursive deletion can result in a vulnerability
+    /// similar to
+    /// [CVE-2022-21658](https://nvd.nist.gov/vuln/detail/cve-2022-21658).
     static int remove(const char *path, bool recursiveFlag = false);
     template <class STRING_TYPE>
     static int remove(const STRING_TYPE& path, bool recursiveFlag = false);
