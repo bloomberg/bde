@@ -501,6 +501,13 @@ static void printFlags()
     printf("UNDEFINED\n");
 #endif
 
+    printf("\n  BSLS_KEYWORD_THREAD_LOCAL: ");
+#ifdef BSLS_KEYWORD_THREAD_LOCAL
+    printf("%s\n", STRINGIFY(BSLS_KEYWORD_THREAD_LOCAL) );
+#else
+    printf("UNDEFINED\n");
+#endif
+
     printf("\n\n  printFlags: bsls_keyword Referenced Macros\n");
 
     printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ");

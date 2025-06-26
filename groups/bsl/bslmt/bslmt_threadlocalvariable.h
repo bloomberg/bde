@@ -161,14 +161,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bsls_compilerfeatures.h>
-
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-    #include <bsls_platform.h>
-
-    #include <bslmf_assert.h>
-    #include <bslmf_ispointer.h>
-#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bsls_keyword.h>
 
                             // =================
                             // Macro Definitions
@@ -182,13 +175,7 @@ BSLS_IDENT("$Id: $")
 /// compile time error.  The behavior is undefined unless `INITIAL_VALUE` is
 /// a *compile* *time* constant value.
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
-static BSLMT_THREAD_LOCAL_KEYWORD BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-#define BSLMT_THREAD_LOCAL_KEYWORD thread_local
-#else
-#define BSLMT_THREAD_LOCAL_KEYWORD __thread
-#endif
+static BSLS_KEYWORD_THREAD_LOCAL BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
 
 #endif
 
