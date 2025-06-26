@@ -562,7 +562,12 @@ int main(int argc, char **argv)
             printf("\tTesting generator with oracle.\n");
         {
             CharObj generator;
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 130300
+            // gcc does not support locale-based formatting till 13.3
+            generator.setup("VF^+#0{}f");
+#else
             generator.setup("VF^+#0{}Lf");
+#endif
 
             const bsl::string& spec    = generator.formatSpec();
             int                counter = 0;
@@ -571,28 +576,9 @@ int main(int argc, char **argv)
             int                arg2    = 3;
             do {
                 try {
-                    if (generator.isNestedWidthPresent()) {
-                        if (generator.isNestedPrecisionPresent()) {
-                            (void)std::vformat(
+                    (void)std::vformat(
                                       spec.c_str(),
                                       std::make_format_args(arg0, arg1, arg2));
-                        }
-                        else {
-                            (void)std::vformat(
-                                      spec.c_str(),
-                                      std::make_format_args(arg0, arg1, arg2));
-                        }
-                    }
-                    else if (generator.isNestedPrecisionPresent()) {
-                        (void)std::vformat(
-                                      spec.c_str(),
-                                      std::make_format_args(arg0, arg1, arg2));
-                    }
-                    else {
-                        (void)std::vformat(
-                                      spec.c_str(),
-                                      std::make_format_args(arg0, arg1, arg2));
-                    }
 
                     // Verify that we do not miss states that are considered
                     // valid by the standard implementation.
@@ -602,7 +588,7 @@ int main(int argc, char **argv)
                             generator.isStateValidForParse(),
                             generator.isStateValidForFormat(),
                             generator.isStateValidForParse() &&
-                                generator.isStateValidForFormat());
+                            generator.isStateValidForFormat());
                 }
                 catch (std::format_error& err) {
 
@@ -615,7 +601,7 @@ int main(int argc, char **argv)
                             generator.isStateValidForParse(),
                             generator.isStateValidForFormat(),
                             !generator.isStateValidForParse() ||
-                                !generator.isStateValidForFormat());
+                            !generator.isStateValidForFormat());
                 }
                 ++counter;
             } while (generator.next());
@@ -628,7 +614,12 @@ int main(int argc, char **argv)
         // wchar_t
         {
             WcharObj  generator;
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 130300
+            // gcc does not support locale-based formatting till 13.3
+            generator.setup("VF^+#0{}f");
+#else
             generator.setup("VF^+#0{}Lf");
+#endif
 
             const bsl::wstring& spec    = generator.formatSpec();
             int                 counter = 0;
@@ -637,38 +628,19 @@ int main(int argc, char **argv)
             int                 arg2    = 3;
             do {
                 try {
-                    if (generator.isNestedWidthPresent()) {
-                        if (generator.isNestedPrecisionPresent()) {
-                            (void)std::vformat(
+                    (void)std::vformat(
                                      spec.c_str(),
                                      std::make_wformat_args(arg0, arg1, arg2));
-                        }
-                        else {
-                            (void)std::vformat(
-                                     spec.c_str(),
-                                     std::make_wformat_args(arg0, arg1, arg2));
-                        }
-                    }
-                    else if (generator.isNestedPrecisionPresent()) {
-                        (void)std::vformat(
-                                     spec.c_str(),
-                                     std::make_wformat_args(arg0, arg1, arg2));
-                    }
-                    else {
-                        (void)std::vformat(
-                                     spec.c_str(),
-                                     std::make_wformat_args(arg0, arg1, arg2));
-                    }
 
-                     // Verify that we do not miss states that are considered
-                     // valid by the standard implementation.
+                    // Verify that we do not miss states that are considered
+                    // valid by the standard implementation.
 
-                     ASSERTV(counter,
-                             spec.c_str(),
-                             generator.isStateValidForParse(),
-                             generator.isStateValidForFormat(),
-                             generator.isStateValidForParse() &&
-                                 generator.isStateValidForFormat());
+                    ASSERTV(counter,
+                            spec.c_str(),
+                            generator.isStateValidForParse(),
+                            generator.isStateValidForFormat(),
+                            generator.isStateValidForParse() &&
+                            generator.isStateValidForFormat());
                 }
                 catch (std::format_error& err) {
                     // Verify that if the standard implementation considers
@@ -681,7 +653,7 @@ int main(int argc, char **argv)
                             generator.isStateValidForParse(),
                             generator.isStateValidForFormat(),
                             !generator.isStateValidForParse() ||
-                                !generator.isStateValidForFormat());
+                            !generator.isStateValidForFormat());
                 }
                 ++counter;
             } while (generator.next());
