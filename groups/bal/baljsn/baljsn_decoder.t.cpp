@@ -65,6 +65,7 @@
 #include <s_baltst_generatetesttaggedvalue.h>
 #include <s_baltst_myenumerationwithfallback.h>
 #include <s_baltst_myintenumeration.h>
+#include <s_baltst_mysequencewitharray.h>
 #include <s_baltst_mysequencewithchoice.h>
 #include <s_baltst_mysequencewithnillable.h>
 #include <s_baltst_testchoice.h>
@@ -143,7 +144,8 @@ namespace test = BloombergLP::s_baltst;
 // [15] ARRAY HAVING NULLABLE COMPLEX ELEMENTS             {DRQS 167908706<GO>}
 // [16] `DecoderOptions` CAN BE CONFIGURED FOR STRICT CONFORMANCE
 // [17] MAXDEPTH IS RESPECTED
-// [18] USAGE EXAMPLE
+// [18] `allowMissingRequiredAttributes` OPTION
+// [19] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -3397,7 +3399,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3502,6 +3504,56 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 // ```
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING `allowMissingRequiredAttributes` OPTION
+        //
+        // Concerns:
+        // 1. The `allowMissingRequiredAttributes` configuration option set to
+        //    false makes the decoder fail unless all non-optional attributes
+        //    are presented in the input message.
+        //
+        // Plan:
+        // 1. The `s_baltst::MySequenceWithArray` sequence has 2 non-optional
+        //    attributes (`attribute1` and `attribute2`).  Create a JSON that
+        //    contains `attribute1`, but lacks `attribute2`.
+        //
+        // 2. Try to decode this JSON using default options.  Verify that
+        //    decoding was successful.
+        //
+        // 3. Set the `allowMissingRequiredAttributes` option to false and try
+        //    to decode the same again.  Verify that decoding failed.
+        //
+        // Testing:
+        //   `allowMissingRequiredAttributes` OPTION
+        // --------------------------------------------------------------------
+        if (verbose) cout <<
+                   "\nTESTING `allowMissingRequiredAttributes` OPTION" <<
+                   "\n===============================================" << endl;
+
+        static const char JSON[] = "{ \"attribute1\": 1 }";
+                                     // attribute2 is missing!
+
+        baljsn::DecoderOptions options;
+        baljsn::Decoder        decoder;
+
+        {
+            bsl::istringstream ss(JSON);
+            test::MySequenceWithArray seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == true);
+            ASSERT(decoder.decode(ss, &seq, options) == 0);
+        }
+
+        options.setAllowMissingRequiredAttributes(false);
+        {
+            bsl::istringstream ss(JSON);
+            test::MySequenceWithArray seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == false);
+            ASSERT(decoder.decode(ss, &seq, options) != 0);
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------

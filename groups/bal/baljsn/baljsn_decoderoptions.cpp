@@ -49,6 +49,8 @@ const bool DecoderOptions::DEFAULT_INITIALIZER_ALLOW_FORM_FEED_AS_WHITESPACE = t
 
 const bool DecoderOptions::DEFAULT_INITIALIZER_ALLOW_UNESCAPED_CONTROL_CHARACTERS = true;
 
+const bool DecoderOptions::DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES = true;
+
 const bdlat_AttributeInfo DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_MAX_DEPTH,
@@ -91,6 +93,13 @@ const bdlat_AttributeInfo DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("AllowUnescapedControlCharacters") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES,
+        "AllowMissingRequiredAttributes",
+        sizeof("AllowMissingRequiredAttributes") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
@@ -129,6 +138,8 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE];
       case ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS];
+      case ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES];
       default:
         return 0;
     }
@@ -143,6 +154,7 @@ DecoderOptions::DecoderOptions()
 , d_allowConsecutiveSeparators(DEFAULT_INITIALIZER_ALLOW_CONSECUTIVE_SEPARATORS)
 , d_allowFormFeedAsWhitespace(DEFAULT_INITIALIZER_ALLOW_FORM_FEED_AS_WHITESPACE)
 , d_allowUnescapedControlCharacters(DEFAULT_INITIALIZER_ALLOW_UNESCAPED_CONTROL_CHARACTERS)
+, d_allowMissingRequiredAttributes(DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES)
 {
 }
 
@@ -153,6 +165,7 @@ DecoderOptions::DecoderOptions(const DecoderOptions& original)
 , d_allowConsecutiveSeparators(original.d_allowConsecutiveSeparators)
 , d_allowFormFeedAsWhitespace(original.d_allowFormFeedAsWhitespace)
 , d_allowUnescapedControlCharacters(original.d_allowUnescapedControlCharacters)
+, d_allowMissingRequiredAttributes(original.d_allowMissingRequiredAttributes)
 {
 }
 
@@ -173,6 +186,8 @@ DecoderOptions::operator=(const DecoderOptions& rhs)
         d_allowFormFeedAsWhitespace = rhs.d_allowFormFeedAsWhitespace;
         d_allowUnescapedControlCharacters =
                                          rhs.d_allowUnescapedControlCharacters;
+        d_allowMissingRequiredAttributes =
+                                          rhs.d_allowMissingRequiredAttributes;
     }
 
     return *this;
@@ -194,6 +209,8 @@ DecoderOptions::operator=(DecoderOptions&& rhs)
                                      bsl::move(rhs.d_allowFormFeedAsWhitespace);
         d_allowUnescapedControlCharacters =
                                bsl::move(rhs.d_allowUnescapedControlCharacters);
+        d_allowMissingRequiredAttributes =
+                               bsl::move(rhs.d_allowMissingRequiredAttributes);
     }
     return *this;
 }
@@ -207,6 +224,7 @@ void DecoderOptions::reset()
     d_allowConsecutiveSeparators = DEFAULT_INITIALIZER_ALLOW_CONSECUTIVE_SEPARATORS;
     d_allowFormFeedAsWhitespace = DEFAULT_INITIALIZER_ALLOW_FORM_FEED_AS_WHITESPACE;
     d_allowUnescapedControlCharacters = DEFAULT_INITIALIZER_ALLOW_UNESCAPED_CONTROL_CHARACTERS;
+    d_allowMissingRequiredAttributes = DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES;
 }
 
 // ACCESSORS
@@ -223,6 +241,7 @@ bsl::ostream& DecoderOptions::print(bsl::ostream& stream,
     printer.printAttribute("allowConsecutiveSeparators", this->allowConsecutiveSeparators());
     printer.printAttribute("allowFormFeedAsWhitespace", this->allowFormFeedAsWhitespace());
     printer.printAttribute("allowUnescapedControlCharacters", this->allowUnescapedControlCharacters());
+    printer.printAttribute("allowMissingRequiredAttributes", this->allowMissingRequiredAttributes());
     printer.end();
     return stream;
 }

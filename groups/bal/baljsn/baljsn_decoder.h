@@ -188,6 +188,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
+#include <bsl_unordered_set.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -216,6 +217,8 @@ class Decoder {
     bool                d_skipUnknownElements;  // skip unknown elements flag
     int                 d_numUnknownElementsSkipped;  // number of unknown
                                                       // elements skipped
+    bool                d_allowMissingRequiredAttributes; // allow missing
+                                                          // non-optional attrs
 
     // FRIENDS
     friend struct Decoder_DecodeImpProxy;
@@ -412,6 +415,21 @@ struct Decoder_DecodeImpProxy {
     int operator()(TYPE *object, ANY_CATEGORY category);
 };
 
+                       // ===================================
+                       // struct Decoder_RequiredAttrsVisitor
+                       // ===================================
+
+/// This class provides a functor that finds and remembers all non-optional
+/// sequence attributes.
+struct Decoder_RequiredAttrsVisitor {
+    // PUBLIC DATA
+    bsl::unordered_set<bsl::string> *d_requiredAttributes_p;
+
+    // MANIPULATORS
+    template <class TYPE, class INFO>
+    int operator()(TYPE *value, const INFO& info);
+};
+
 // ============================================================================
 //                            INLINE DEFINITIONS
 // ============================================================================
@@ -488,6 +506,14 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
             return -1;                                                // RETURN
         }
 
+        bdlma::LocalSequentialAllocator<512> localAllocator;
+        bsl::unordered_set<bsl::string> requiredAttributes(&localAllocator);
+        if (!d_allowMissingRequiredAttributes) {
+            // Collect a list of the non-optional attributes
+            Decoder_RequiredAttrsVisitor visitor = {&requiredAttributes};
+            bdlat_SequenceFunctions::manipulateAttributes(value, visitor);
+        }
+
         while (Tokenizer::e_ELEMENT_NAME == d_tokenizer.tokenType()) {
 
             bslstl::StringRef elementName;
@@ -522,6 +548,10 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
                                 << d_elementName << "' \n";
                     return -1;                                        // RETURN
                 }
+
+                if (!requiredAttributes.empty()) {
+                    requiredAttributes.erase(elementName);
+                }
             }
             else {
                 if (d_skipUnknownElements) {
@@ -552,6 +582,15 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
         if (Tokenizer::e_END_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode sequence, "
                         << "missing terminator '}' or seperator ','\n";
+            return -1;                                                // RETURN
+        }
+
+        if (!requiredAttributes.empty()) {
+            // There are non-optional attributes that are not presented
+            // in the decoded message (sequence).
+            d_logStream << "Could not decode sequence, "
+                        << "missing required attribute \""
+                        << *requiredAttributes.begin() << "\"\n";
             return -1;                                                // RETURN
         }
 
@@ -954,6 +993,8 @@ Decoder::Decoder(bslma::Allocator *basicAllocator)
 , d_maxDepth(0)
 , d_skipUnknownElements(false)
 , d_numUnknownElementsSkipped(0)
+, d_allowMissingRequiredAttributes(
+         DecoderOptions::DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES)
 {
 }
 
@@ -972,6 +1013,9 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     d_maxDepth                  = options.maxDepth();
     d_skipUnknownElements       = options.skipUnknownElements();
     d_numUnknownElementsSkipped = 0;
+
+    d_allowMissingRequiredAttributes =
+                                      options.allowMissingRequiredAttributes();
 
     bdlat_TypeCategory::Value category =
                                 bdlat_TypeCategoryFunctions::select(*value);
@@ -1123,6 +1167,28 @@ int Decoder_DecodeImpProxy::operator()(TYPE         *object,
                                        ANY_CATEGORY  category)
 {
     return d_decoder_p->decodeImp(object, d_mode, category);
+}
+
+                       // -----------------------------------
+                       // struct Decoder_RequiredAttrsVisitor
+                       // -----------------------------------
+
+// MANIPULATORS
+template <class TYPE, class INFO>
+inline
+int Decoder_RequiredAttrsVisitor::operator()(TYPE *value, const INFO& info) {
+    switch(bdlat_TypeCategoryFunctions::select(*value))
+    {
+      case bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY:
+      // The following categories can have default values:
+      case bdlat_TypeCategory::e_SIMPLE_CATEGORY:
+      case bdlat_TypeCategory::e_ENUMERATION_CATEGORY:
+      case bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY:
+        break; // skip
+      default:
+        d_requiredAttributes_p->emplace(info.name(), info.nameLength());
+    }
+    return 0;
 }
 
 }  // close package namespace

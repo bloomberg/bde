@@ -27,6 +27,7 @@ BSLS_IDENT("$Id: $")
 // allowConsecutiveSeparators       bool  true     none
 // allowFormFeedAsWhitespace        bool  true     none
 // allowUnescapedControlCharacters  bool  true     none
+// allowMissingRequiredAttributes   bool  true     none
 // ```
 // * `maxDepth`: maximum depth of the decoded data
 // * `skipUnknownElements`: flag specifying if unknown elements are skipped
@@ -38,11 +39,12 @@ BSLS_IDENT("$Id: $")
 // * `allowFormFeedAsWhitespace`: flag specifying if the form-feed character,
 //   '\f', is treaded as whitespace in addition to ` `, '\t', '\n', '\r', and
 //   '\v'.
-//
 // * `allowUnescapedControlCharacters`: flag specifying if unescaped (raw)
 //   control characters (e.g., '\n', '\n') are allowed in JSON strings.
 //   Otherwise, control characters are represented by multi-character
 //   sequences (e.g., '\\t' or '\u000A').
+// * `allowMissingRequiredAttributes`: flag specifying if non-optional sequence
+//   attributes are allowed to be omitted in the input message.
 //
 ///Implementation Note
 ///- - - - - - - - - -
@@ -131,6 +133,9 @@ class DecoderOptions {
     // conformining JSON.
     bool  d_allowUnescapedControlCharacters;
 
+    // Option to allow missing non-optional attributes.
+    bool d_allowMissingRequiredAttributes;
+
     // PRIVATE ACCESSORS
     template <typename t_HASH_ALGORITHM>
     void hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const;
@@ -146,10 +151,11 @@ class DecoderOptions {
       , ATTRIBUTE_ID_ALLOW_CONSECUTIVE_SEPARATORS       = 3
       , ATTRIBUTE_ID_ALLOW_FORM_FEED_AS_WHITESPACE      = 4
       , ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS = 5
+      , ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES  = 6
     };
 
     enum {
-        NUM_ATTRIBUTES = 6
+        NUM_ATTRIBUTES = 7
     };
 
     enum {
@@ -159,6 +165,7 @@ class DecoderOptions {
       , ATTRIBUTE_INDEX_ALLOW_CONSECUTIVE_SEPARATORS       = 3
       , ATTRIBUTE_INDEX_ALLOW_FORM_FEED_AS_WHITESPACE      = 4
       , ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS = 5
+      , ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES  = 6
     };
 
     // CONSTANTS
@@ -175,6 +182,8 @@ class DecoderOptions {
     static const bool DEFAULT_INITIALIZER_ALLOW_FORM_FEED_AS_WHITESPACE;
 
     static const bool DEFAULT_INITIALIZER_ALLOW_UNESCAPED_CONTROL_CHARACTERS;
+
+    static const bool DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -281,6 +290,10 @@ class DecoderOptions {
     /// the specified `value`.
     void setAllowUnescapedControlCharacters(bool value);
 
+    /// Set "AllowMissingRequiredAttributes" attribute of this object to the
+    /// specified `value`.
+    void setAllowMissingRequiredAttributes(bool value);
+
     // ACCESSORS
 
     /// Format this object to the specified output `stream` at the
@@ -349,6 +362,10 @@ class DecoderOptions {
     /// of this object.
     bool allowUnescapedControlCharacters() const;
 
+    /// Return the value of the "AllowMissingRequiredAttributes" attribute of
+    /// this object.
+    bool allowMissingRequiredAttributes() const;
+
     // HIDDEN FRIENDS
 
     /// Return `true` if the specified `lhs` and `rhs` attribute objects
@@ -413,6 +430,7 @@ void DecoderOptions::hashAppendImpl(t_HASH_ALGORITHM& hashAlgorithm) const
     hashAppend(hashAlgorithm, this->allowConsecutiveSeparators());
     hashAppend(hashAlgorithm, this->allowFormFeedAsWhitespace());
     hashAppend(hashAlgorithm, this->allowUnescapedControlCharacters());
+    hashAppend(hashAlgorithm, this->allowMissingRequiredAttributes());
 }
 
 inline
@@ -423,7 +441,8 @@ bool DecoderOptions::isEqualTo(const DecoderOptions& rhs) const
            this->validateInputIsUtf8() == rhs.validateInputIsUtf8() &&
            this->allowConsecutiveSeparators() == rhs.allowConsecutiveSeparators() &&
            this->allowFormFeedAsWhitespace() == rhs.allowFormFeedAsWhitespace() &&
-           this->allowUnescapedControlCharacters() == rhs.allowUnescapedControlCharacters();
+           this->allowUnescapedControlCharacters() == rhs.allowUnescapedControlCharacters() &&
+           this->allowMissingRequiredAttributes() == rhs.allowMissingRequiredAttributes();
 }
 
 // CLASS METHODS
@@ -463,6 +482,11 @@ int DecoderOptions::manipulateAttributes(t_MANIPULATOR& manipulator)
         return ret;
     }
 
+    ret = manipulator(&d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
+    if (ret) {
+        return ret;
+    }
+
     return 0;
 }
 
@@ -489,6 +513,9 @@ int DecoderOptions::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
       }
       case ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS: {
         return manipulator(&d_allowUnescapedControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS]);
+      }
+      case ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES: {
+        return manipulator(&d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
       }
       default:
         return NOT_FOUND;
@@ -550,6 +577,12 @@ void DecoderOptions::setAllowUnescapedControlCharacters(bool value)
     d_allowUnescapedControlCharacters = value;
 }
 
+inline
+void DecoderOptions::setAllowMissingRequiredAttributes(bool value)
+{
+    d_allowMissingRequiredAttributes = value;
+}
+
 // ACCESSORS
 template <typename t_ACCESSOR>
 int DecoderOptions::accessAttributes(t_ACCESSOR& accessor) const
@@ -586,6 +619,11 @@ int DecoderOptions::accessAttributes(t_ACCESSOR& accessor) const
         return ret;
     }
 
+    ret = accessor(d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
+    if (ret) {
+        return ret;
+    }
+
     return 0;
 }
 
@@ -612,6 +650,9 @@ int DecoderOptions::accessAttribute(t_ACCESSOR& accessor, int id) const
       }
       case ATTRIBUTE_ID_ALLOW_UNESCAPED_CONTROL_CHARACTERS: {
         return accessor(d_allowUnescapedControlCharacters, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_UNESCAPED_CONTROL_CHARACTERS]);
+      }
+      case ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES: {
+        return accessor(d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
       }
       default:
         return NOT_FOUND;
@@ -669,6 +710,12 @@ inline
 bool DecoderOptions::allowUnescapedControlCharacters() const
 {
     return d_allowUnescapedControlCharacters;
+}
+
+inline
+bool DecoderOptions::allowMissingRequiredAttributes() const
+{
+    return d_allowMissingRequiredAttributes;
 }
 
 }  // close package namespace
