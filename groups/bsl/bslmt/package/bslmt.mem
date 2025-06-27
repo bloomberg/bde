@@ -42,6 +42,7 @@ bslmt_threadutilimpl_pthread
 bslmt_threadutilimpl_win32
 bslmt_throughputbenchmark
 bslmt_throughputbenchmarkresult
+bslmt_timedcompletionguard
 bslmt_timedsemaphore
 bslmt_timedsemaphoreimpl_posixadv
 bslmt_timedsemaphoreimpl_pthread

@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmt' package currently has 50 components having 17 levels of physical
+ The 'bslmt' package currently has 51 components having 17 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -34,6 +34,7 @@
 
   15. bslmt_barrier
       bslmt_fastpostsemaphore
+      bslmt_timedcompletionguard
 
   14. bslmt_condition
 
@@ -223,6 +224,9 @@
 :
 : 'bslmt_throughputbenchmarkresult':
 :      Provide result repository for throughput performance test harness.
+:
+: 'bslmt_timedcompletionguard':
+:      Provide guard to verify work completion within a set duration.
 :
 : 'bslmt_timedsemaphore':
 :      Provide a timed semaphore class.
