@@ -639,7 +639,7 @@ int main(int argc, char *argv[])
                     P_(LINE) P_(L) P_(SPL) P_(IVAL) P_(DVAL) P_(PSVAL);
                 }
 
-                ASSERT(!!IVAL + !!DVAL + !!SVAL <= 1);
+                ASSERT((0 != IVAL) + (0 != DVAL) + (0 != SVAL) <= 1);
                 if (0 != IVAL) {
                     mV = IVAL;
                 }
