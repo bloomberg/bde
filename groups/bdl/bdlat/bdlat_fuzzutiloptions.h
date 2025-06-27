@@ -30,6 +30,7 @@ class FuzzUtilOptions {
     // DATA
     unsigned d_maxArrayLength;
     unsigned d_maxStringLength;
+    bool     d_printableAsciiCharsOnly;
 
   public:
     // TYPES
@@ -37,6 +38,7 @@ class FuzzUtilOptions {
     /// Default values
     static const unsigned k_MAX_ARRAY_LENGTH_DEFAULT  = 8;
     static const unsigned k_MAX_STRING_LENGTH_DEFAULT = 32;
+    static const bool     k_PRINTABLE_ASCII_CHARS_ONLY_DEFAULT = true;
 
     // CREATORS
 
@@ -53,6 +55,9 @@ class FuzzUtilOptions {
     /// reference to `*this`.
     FuzzUtilOptions& setMaxStringLength(unsigned value);
 
+    /// Set whether to generate only printable ASCII characters for strings.
+    FuzzUtilOptions& setPrintableAsciiCharsOnly(bool value);
+
     // ACCESSORS
 
     /// Return the maximum array length.
@@ -60,20 +65,24 @@ class FuzzUtilOptions {
 
     /// Return the maximum string length.
     unsigned maxStringLength() const;
+
+    /// Return whether to generate only printable ASCII characters for strings.
+    bool printableAsciiCharsOnly() const;
 };
 
 // FREE OPERATORS
 
 /// Return `true` if the specified `lhs` and `rhs` objects have the same value,
 /// and `false` otherwise.  Two `FuzzUtilOptions` objects have the same value
-/// if all of the corresponding values of their `maxArrayLength`, and
-/// `maxStringLength` attributes are the same.
+/// if all of the corresponding values of their `maxArrayLength`,
+/// `maxStringLength`, and `printableAsciiCharsOnly` attributes are the same.
 bool operator==(const FuzzUtilOptions& lhs, const FuzzUtilOptions& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` objects do not have the same
 /// value, and `false` otherwise.  Two `FuzzUtilOptions` objects do not have
 /// the same value if any of the corresponding values of their
-/// `maxArrayLength`, and `maxStringLength` attributes are not the same.
+/// `maxArrayLength`, `maxStringLength`, and `printableAsciiCharsOnly`
+/// attributes are not the same.
 bool operator!=(const FuzzUtilOptions& lhs, const FuzzUtilOptions& rhs);
 
 // ============================================================================
@@ -99,6 +108,13 @@ FuzzUtilOptions& FuzzUtilOptions::setMaxStringLength(unsigned value)
     return *this;
 }
 
+inline
+FuzzUtilOptions& FuzzUtilOptions::setPrintableAsciiCharsOnly(bool value)
+{
+    d_printableAsciiCharsOnly = value;
+    return *this;
+}
+
 // ACCESSORS
 inline
 unsigned FuzzUtilOptions::maxArrayLength() const
@@ -112,6 +128,12 @@ unsigned FuzzUtilOptions::maxStringLength() const
     return d_maxStringLength;
 }
 
+inline
+bool FuzzUtilOptions::printableAsciiCharsOnly() const
+{
+    return d_printableAsciiCharsOnly;
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -119,7 +141,8 @@ inline
 bool bdlat::operator==(const FuzzUtilOptions& lhs, const FuzzUtilOptions& rhs)
 {
     return lhs.maxArrayLength() == rhs.maxArrayLength()
-        && lhs.maxStringLength() == rhs.maxStringLength();
+        && lhs.maxStringLength() == rhs.maxStringLength()
+        && lhs.printableAsciiCharsOnly() == rhs.printableAsciiCharsOnly();
 }
 
 inline

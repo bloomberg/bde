@@ -15,6 +15,7 @@ namespace bdlat {
 FuzzUtilOptions::FuzzUtilOptions()
 : d_maxArrayLength(k_MAX_ARRAY_LENGTH_DEFAULT)
 , d_maxStringLength(k_MAX_STRING_LENGTH_DEFAULT)
+, d_printableAsciiCharsOnly(k_PRINTABLE_ASCII_CHARS_ONLY_DEFAULT)
 {
 }
 

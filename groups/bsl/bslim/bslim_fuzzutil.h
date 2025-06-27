@@ -29,23 +29,23 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the `TradingInterfaceUnderTest` `struct`:
 // ```
+// /// This utility class provides sample functionality to demonstrate how fuzz
+// /// data might be used.
 // struct TradingInterfaceUnderTest {
-//     // This utility class provides sample functionality to demonstrate how
-//     // fuzz data might be used.
-//
 //     // CLASS METHODS
+//
+//     /// Return a value containing the number of earnings announcements in
+//     /// the specified `year` and `month`.  The behavior is undefined unless
+//     /// `1950 < year < 2030` and `month` is in `[1 .. 12]`.  Note that the
+//     /// values here are arbitrary, and in the real-world this data would be
+//     /// obtained from a database or an API.
 //     static int numEarningsAnnouncements(int year, int month)
-//         // Return a value containing the number of earnings announcements
-//         // in the specified 'year' and 'month'.  The behavior is undefined
-//         // unless '1950 < year < 2030' and 'month' is in '[1 .. 12]'.  Note
-//         // that the values here are arbitrary, and in the real-world this
-//         // data would be obtained from a database or an API.
 //     {
 //         BSLS_ASSERT(1950 <  year  && year  < 2030);
 //         BSLS_ASSERT(   1 <= month && month <=  12);
 //
 //         if (2020 < year && 6 < month) {
-//             return 11;                                            // RETURN
+//             return 11;                                             // RETURN
 //         }
 //         return 6;
 //     }
@@ -87,13 +87,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_types.h>           // 'bsls::Types::Uint64'
+#include <bsls_types.h>           // `bsls::Types::Uint64`
 
-#include <bsl_cmath.h>            // 'bsl::isfinite'
-#include <bsl_cstdint.h>          // 'bsl::uint8_t'
-#include <bsl_limits.h>           // 'bsl::numeric_limits'
+#include <bsl_cmath.h>            // `bsl::isfinite`
+#include <bsl_cstdint.h>          // `bsl::uint8_t`
+#include <bsl_limits.h>           // `bsl::numeric_limits`
 #include <bsl_string.h>
-#include <bsl_type_traits.h>      // 'bsl::is_same'
+#include <bsl_type_traits.h>      // `bsl::is_same`
 #include <bsl_vector.h>
 
 #include <string>
@@ -159,6 +159,41 @@ struct FuzzUtil {
     bsl::enable_if<bsl::is_floating_point<TYPE>::value, TYPE>::type
     consumeNumberInRange(FuzzDataView *fuzzDataView, TYPE min, TYPE max);
 
+    /// Load into the specified `output` a string consisting of printable ASCII
+    /// characters of length from 0 to the specified `maxLength`.  If the
+    /// specified `fuzzDataView` has fewer bytes than `maxLength`, load at most
+    /// `fuzzDataView->length()` bytes into `output`.  If the buffer in
+    /// `fuzzDataView` contains two successive backslash characters, then in
+    /// `output` they will be converted to a single backslash (`\\`) character;
+    /// if a single backslash character is encountered, the consumption of
+    /// bytes is terminated.  Note that because double backslashes are mapped
+    /// to single backslashes, more than `maxLength` bytes may be consumed from
+    /// the buffer to produce the `output`.  Also note that the generated
+    /// string is also a valid UTF-8 string.
+    static void consumeRandomLengthAsciiString(bsl::string      *output,
+                                               FuzzDataView     *fuzzDataView,
+                                               bsl::size_t       maxLength);
+    static void consumeRandomLengthAsciiString(std::string      *output,
+                                               FuzzDataView     *fuzzDataView,
+                                               bsl::size_t       maxLength);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    static void consumeRandomLengthAsciiString(std::pmr::string *output,
+                                               FuzzDataView     *fuzzDataView,
+                                               bsl::size_t       maxLength);
+#endif
+
+    /// Load into the specified `output` a sequence of characters of length
+    /// from 0 to the specified `maxLength`.  If the specified `fuzzDataView`
+    /// has fewer bytes than `maxLength`, load at most `fuzzDataView->length()`
+    /// bytes into `output`.  If the buffer in `fuzzDataView` contains two
+    /// successive backslash characters, then in `output` they will be
+    /// converted to a single backslash (`\\`) character; if a single backslash
+    /// character is encountered, the consumption of bytes is terminated.  Note
+    /// that because double backslashes are mapped to single backslashes, more
+    /// than `maxLength` bytes may be consumed from the buffer to produce the
+    /// `output`.  Also note that the purpose of this function is to enable the
+    /// creation of a non-zero-terminated `string_view`, which is not possible
+    /// with the `string` counterpart.
     static void consumeRandomLengthChars(bsl::vector<char> *output,
                                          FuzzDataView      *fuzzDataView,
                                          bsl::size_t        maxLength);
@@ -170,19 +205,17 @@ struct FuzzUtil {
                                          FuzzDataView           *fuzzDataView,
                                          bsl::size_t             maxLength);
 #endif
-    // Load into the specified 'output' a sequence of characters of length from
-    // 0 to the specified 'maxLength'.  If the specified 'fuzzDataView' has
-    // fewer bytes than 'maxLength', load at most 'fuzzDataView->length()'
-    // bytes into 'output'.  If the buffer in 'fuzzDataView' contains two
-    // successive backslash characters, then in 'output' they will be converted
-    // to a single backslash ('\\') character; if a single backslash character
-    // is encountered, the consumption of bytes is terminated.  Note that
-    // because double backslashes are mapped to single backslashes, more than
-    // 'maxLength' bytes may be consumed from the buffer to produce the
-    // 'output'.  Also note that the purpose of this function is to enable the
-    // creation of a non-zero-terminated 'string_view', which is not possible
-    // with the 'string' counterpart.
 
+    /// Load into the specified `output` a string of length from 0 to the
+    /// specified `maxLength`.  If the specified `fuzzDataView` has fewer bytes
+    /// than `maxLength`, load at most `fuzzDataView->length()` bytes into
+    /// `output`.  If the buffer in `fuzzDataView` contains two successive
+    /// backslash characters, then in `output` they will be converted to a
+    /// single backslash (`\\`) character; if a single backslash character is
+    /// encountered, the consumption of bytes is terminated.  Note that because
+    /// double backslashes are mapped to single backslashes, more than
+    /// `maxLength` bytes may be consumed from the buffer to produce the
+    /// `output`.
     static void consumeRandomLengthString(bsl::string      *output,
                                           FuzzDataView     *fuzzDataView,
                                           bsl::size_t       maxLength);
@@ -194,16 +227,6 @@ struct FuzzUtil {
                                           FuzzDataView     *fuzzDataView,
                                           bsl::size_t       maxLength);
 #endif
-        // Load into the specified 'output' a string of length from 0 to the
-        // specified 'maxLength'.  If the specified 'fuzzDataView' has fewer
-        // bytes than 'maxLength', load at most 'fuzzDataView->length()' bytes
-        // into 'output'.  If the buffer in 'fuzzDataView' contains two
-        // successive backslash characters, then in 'output' they will be
-        // converted to a single backslash ('\\') character; if a single
-        // backslash character is encountered, the consumption of bytes is
-        // terminated.  Note that because double backslashes are mapped to
-        // single backslashes, more than 'maxLength' bytes may be consumed
-        // from the buffer to produce the 'output'.
 };
 
 // ============================================================================

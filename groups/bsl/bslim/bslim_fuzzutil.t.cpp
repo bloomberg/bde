@@ -47,6 +47,9 @@ using bsl::flush;
 // [ 3] TYPE consumeNumberInRange<INTEGRAL>(FDV *, min, max);
 // [ 6] TYPE consumeNumber<FLOATING_POINT>(FDV *);
 // [ 7] TYPE consumeNumberInRange<FLOATING_POINT>(FDV *, min, max);
+// [10] void consumeRandomLengthAsciiString(bsl::string*,FDV*,maxLen);
+// [10] void consumeRandomLengthAsciiString(std::string*,FDV*,maxLen);
+// [10] void consumeRandomLengthAsciiString(std::pmr::string*,FDV*,mxLen);
 // [ 8] void consumeRandomLengthString(bsl::string*,FDV*,maxLen);
 // [ 8] void consumeRandomLengthString(std::string*,FDV*,maxLen);
 // [ 8] void consumeRandomLengthString(std::pmr::string*,FDV*,maxLen);
@@ -54,7 +57,7 @@ using bsl::flush;
 // [ 9] void consumeRandomLengthChars(std::vector<char>*,FDV*,maxLen);
 // [ 9] void consumeRandomLengthChars(pmr::vector<char>*,FDV*,maxLen);
 // ----------------------------------------------------------------------------
-// [10] USAGE EXAMPLE
+// [11] USAGE EXAMPLE
 // [ 1] BREATHING TEST
 // [ 2] void gg(vector<uint8_t> *buf, string_view& spec);
 // [ 2] int ggg(vector<uint8_t> *buf, string_view& spec, bool vF = true);
@@ -142,6 +145,13 @@ void generateBytes(bsl::uint8_t *buffer,
     ASSERT(buffer);
     ASSERT(numBytes <= bufLen);
     bsl::generate_n(buffer, numBytes, bsl::rand);
+}
+
+/// Return `true` if the specified `c` is a printable ASCII character.
+inline
+bool isPrintableAscii(char c)
+{
+    return '\x20' <= c && c < '\x7F';
 }
 
 /// This `struct` holds a single input for testing `consumeNumberInRange`
@@ -365,7 +375,7 @@ int main(int argc, char *argv[])
 
     switch (test) {
       case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -395,29 +405,27 @@ int main(int argc, char *argv[])
 //
 // First, we define the `TradingInterfaceUnderTest` `struct`:
 // ```
-
-    /// This utility class provides sample functionality to demonstrate how
-    /// fuzz data might be used.
-    struct TradingInterfaceUnderTest {
-
+   /// This utility class provides sample functionality to demonstrate how fuzz
+   /// data might be used.
+   struct TradingInterfaceUnderTest {
         // CLASS METHODS
 
-        /// Return a value containing the number of earnings announcements
-        /// in the specified `year` and `month`.  The behavior is undefined
-        /// unless `1950 < year < 2030` and `month` is in `[1 .. 12]`.  Note
-        /// that the values here are arbitrary, and in the real-world this
-        /// data would be obtained from a database or an API.
-        static int numEarningsAnnouncements(int year, int month)
-        {
-            BSLS_ASSERT(1950 <  year  && year  < 2030);
-            BSLS_ASSERT(   1 <= month && month <=  12);
+       /// Return a value containing the number of earnings announcements in
+       /// the specified `year` and `month`.  The behavior is undefined unless
+       /// `1950 < year < 2030` and `month` is in `[1 .. 12]`.  Note that the
+       /// values here are arbitrary, and in the real-world this data would be
+       /// obtained from a database or an API.
+       static int numEarningsAnnouncements(int year, int month)
+       {
+           BSLS_ASSERT(1950 <  year  && year  < 2030);
+           BSLS_ASSERT(   1 <= month && month <=  12);
 
-            if (2020 < year && 6 < month) {
-                return 11;                                            // RETURN
-            }
-            return 6;
-        }
-    };
+           if (2020 < year && 6 < month) {
+               return 11;                                             // RETURN
+           }
+           return 6;
+       }
+   };
 // ```
 // Then, we need a block of raw bytes.  This would normally come from a fuzz
 // harness (e.g., the `LLVMFuzzerTestOneInput` entry point function from
@@ -446,6 +454,85 @@ int main(int argc, char *argv[])
         TradingInterfaceUnderTest::numEarningsAnnouncements(year, month);
     (void) numEarnings;
 // ```
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // METHOD `consumeRandomLengthString`
+        //
+        // Concerns:
+        // 1. The function produces only printable ASCII characters.
+        //
+        // Plan:
+        // 1. Generate input that contains all posiible byte values - [0, 255].
+        //    The `\` char is duplicated.
+        //
+        // 2. Call the function with the generated input data.  Request 256
+        //    chars.
+        //
+        // 3. Verify that exactly 256 bytes has been generated.
+        //
+        // 4. Verify that all the generated chars are printable ASCII chars,
+        //    i.e. they codes are in the range [0x20, 0x7F).
+        //
+        // Testing:
+        //   void consumeRandomLengthAsciiString(bsl::string*,FDV*,maxLen);
+        //   void consumeRandomLengthAsciiString(std::string*,FDV*,maxLen);
+        //   void consumeRandomLengthAsciiString(std::pmr::string*,FDV*,mxLen);
+        // --------------------------------------------------------------------
+        if (verbose) cout <<
+                           "\nMETHOD `consumeRandomLengthAsciiString`"
+                           "\n=======================================" << endl;
+
+            bsl::uint8_t fuzzData[257];
+            int pos = 0;
+            // Generate input bytes
+            for (int i = 0; i < 256; i++) {
+                bsl::uint8_t ch = static_cast<bsl::uint8_t>(i);
+                fuzzData[pos++] = ch;
+                if (static_cast<char>(ch) == '\\') {
+                    fuzzData[pos++] = ch;  // duplicate `\`
+                }
+            }
+            ASSERT(pos == 257);
+
+            {
+                bsl::string result;
+                result.reserve(256);
+
+                bslim::FuzzDataView fdv(fuzzData, pos);
+                Util::consumeRandomLengthAsciiString(&result, &fdv, 256);
+                ASSERT(result.length() == 256);
+
+                for (unsigned i = 0; i < result.length(); i++) {
+                    ASSERT(isPrintableAscii(result[i]));
+                }
+            }
+            {
+                std::string result;
+                result.reserve(256);
+
+                bslim::FuzzDataView fdv(fuzzData, pos);
+                Util::consumeRandomLengthAsciiString(&result, &fdv, 256);
+                ASSERT(result.length() == 256);
+
+                for (unsigned i = 0; i < result.length(); i++) {
+                    ASSERT(isPrintableAscii(result[i]));
+                }
+            }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            {
+                std::pmr::string result;
+                result.reserve(256);
+
+                bslim::FuzzDataView fdv(fuzzData, pos);
+                Util::consumeRandomLengthAsciiString(&result, &fdv, 256);
+                ASSERT(result.length() == 256);
+
+                for (unsigned i = 0; i < result.length(); i++) {
+                    ASSERT(isPrintableAscii(result[i]));
+                }
+            }
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------

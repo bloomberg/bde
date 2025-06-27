@@ -130,15 +130,20 @@ int main(int argc, char *argv[])
 
         ASSERT(X.maxArrayLength() == Obj::k_MAX_ARRAY_LENGTH_DEFAULT);
         ASSERT(X.maxStringLength() == Obj::k_MAX_STRING_LENGTH_DEFAULT);
+        ASSERT(X.printableAsciiCharsOnly() ==
+                                    Obj::k_PRINTABLE_ASCII_CHARS_ONLY_DEFAULT);
 
         const unsigned newArrayLength  = 12345,
-                       newStringLength = 67890;
+                       newStringLength = 67890,
+                       newPrintableAsciiCharsOnly = false;
 
         mX.setMaxArrayLength(newArrayLength)
-          .setMaxStringLength(newStringLength);
+          .setMaxStringLength(newStringLength)
+          .setPrintableAsciiCharsOnly(newPrintableAsciiCharsOnly);
 
         ASSERT(X.maxArrayLength() == newArrayLength);
         ASSERT(X.maxStringLength() == newStringLength);
+        ASSERT(X.printableAsciiCharsOnly() == newPrintableAsciiCharsOnly);
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND.\n";

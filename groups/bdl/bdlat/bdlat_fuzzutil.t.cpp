@@ -781,365 +781,392 @@ int main(int argc, char *argv[])
             FUZZ_DATA_REMAINDER += 4;
         }
 
-        MyMessage msg;
-        {
-            bslim::FuzzDataView fuzzData(FUZZ_DATA, sizeof FUZZ_DATA);
-            bdlat::FuzzUtil::consumeMessage(&msg, &fuzzData);
-            ASSERTV(fuzzData.length(),
-                    fuzzData.length() == FUZZ_DATA_REMAINDER);
-        }
+        bdlat::FuzzUtilOptions options;
 
-        // "Iterate" over the fields again
-        bslim::FuzzDataView fuzzData(FUZZ_DATA, sizeof FUZZ_DATA);
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
+        // `printableAsciiCharsOnly` values loop
+        for (int i = 0; i <= 1; i++) {
 
-            int value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field0);
+            options.setPrintableAsciiCharsOnly(static_cast<bool>(i));
 
-            int value2 = bslim::FuzzUtil::consumeNumber<int>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            unsigned int value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field1);
-
-            unsigned int value2 =
-                   bslim::FuzzUtil::consumeNumber<unsigned int>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            char value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field2);
-
-            char value2 = bslim::FuzzUtil::consumeNumber<char>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            signed char value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field3);
-
-            signed char value2 =
-                    bslim::FuzzUtil::consumeNumber<signed char>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            unsigned char value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field4);
-
-            unsigned char value2 =
-                  bslim::FuzzUtil::consumeNumber<unsigned char>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            short value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field5);
-
-            short value2 =
-                          bslim::FuzzUtil::consumeNumber<short>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            unsigned short value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field6);
-
-            unsigned short value2 =
-                 bslim::FuzzUtil::consumeNumber<unsigned short>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            long value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field7);
-
-            long value2 = bslim::FuzzUtil::consumeNumber<long>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            unsigned long value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field8);
-
-            unsigned long value2 =
-                  bslim::FuzzUtil::consumeNumber<unsigned long>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            long long value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field9);
-
-            long long value2 =
-                      bslim::FuzzUtil::consumeNumber<long long>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            unsigned long long value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field10);
-
-            unsigned long long value2 =
-             bslim::FuzzUtil::consumeNumber<unsigned long long>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bool value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field11);
-
-            bool value2 = bslim::FuzzUtil::consumeBool(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            float value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field12);
-
-            float value2 =
-                          bslim::FuzzUtil::consumeNumber<float>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            double value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field13);
-
-            double value2 =
-                         bslim::FuzzUtil::consumeNumber<double>(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdldfp::Decimal64 value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field14);
-
-
-            bdldfp::Decimal64 value2(
-                        bslim::FuzzUtil::consumeNumber<double>(&fuzzDataCopy));
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bsl::string value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field15);
-
-            bsl::string value2;
-            bslim::FuzzUtil::consumeRandomLengthString(
-                          &value2,
-                          &fuzzDataCopy,
-                          bdlat::FuzzUtilOptions::k_MAX_STRING_LENGTH_DEFAULT);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bsl::vector<char> value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field16);
-
-            bsl::vector<char> value2;
-            bslim::FuzzUtil::consumeRandomLengthChars(
-                          &value2,
-                          &fuzzDataCopy,
-                          bdlat::FuzzUtilOptions::k_MAX_STRING_LENGTH_DEFAULT);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlt::Date value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field17);
-
-            bdlt::Date value2 = bdlt::FuzzUtil::consumeDate(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlt::DateTz value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field18);
-
-            bdlt::DateTz value2 = bdlt::FuzzUtil::consumeDateTz(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlt::Datetime value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field19);
-
-            bdlt::Datetime value2 =
-                                bdlt::FuzzUtil::consumeDatetime(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlt::DatetimeTz value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field20);
-
-            bdlt::DatetimeTz value2 =
-                              bdlt::FuzzUtil::consumeDatetimeTz(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlt::Time value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field21);
-
-            bdlt::Time value2 = bdlt::FuzzUtil::consumeTime(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlt::TimeTz value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field22);
-
-            bdlt::TimeTz value2 = bdlt::FuzzUtil::consumeTimeTz(&fuzzDataCopy);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bsl::vector<int> value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field23);
-
-            bsl::vector<int> value2;
-            unsigned size = bslim::FuzzUtil::consumeNumberInRange<unsigned>(
-                           &fuzzDataCopy,
-                           0U,
-                           bdlat::FuzzUtilOptions::k_MAX_ARRAY_LENGTH_DEFAULT);
-            value2.resize(size);
-            for(unsigned i = 0; i < size; i++) {
-                value2[i] = bslim::FuzzUtil::consumeNumber<int>(&fuzzDataCopy);
+            MyMessage msg;
+            {
+                bslim::FuzzDataView fuzzData(FUZZ_DATA, sizeof FUZZ_DATA);
+                bdlat::FuzzUtil::consumeMessage(&msg, &fuzzData, options);
+                ASSERTV(fuzzData.length(),
+                        fuzzData.length() == FUZZ_DATA_REMAINDER);
             }
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
 
-            MyChoice value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field24);
+            // "Iterate" over the fields again
+            bslim::FuzzDataView fuzzData(FUZZ_DATA, sizeof FUZZ_DATA);
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
 
-            MyChoice value2;
-            int selectionIndex = bslim::FuzzUtil::consumeNumberInRange<int>(
+                int value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field0);
+
+                int value2 =
+                            bslim::FuzzUtil::consumeNumber<int>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                unsigned int value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field1);
+
+                unsigned int value2 =
+                   bslim::FuzzUtil::consumeNumber<unsigned int>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                char value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field2);
+
+                char value2 =
+                           bslim::FuzzUtil::consumeNumber<char>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                signed char value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field3);
+
+                signed char value2 =
+                    bslim::FuzzUtil::consumeNumber<signed char>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                unsigned char value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field4);
+
+                unsigned char value2 =
+                  bslim::FuzzUtil::consumeNumber<unsigned char>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                short value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field5);
+
+                short value2 =
+                          bslim::FuzzUtil::consumeNumber<short>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                unsigned short value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field6);
+
+                unsigned short value2 =
+                 bslim::FuzzUtil::consumeNumber<unsigned short>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                long value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field7);
+
+                long value2 =
+                           bslim::FuzzUtil::consumeNumber<long>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                unsigned long value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field8);
+
+                unsigned long value2 =
+                  bslim::FuzzUtil::consumeNumber<unsigned long>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                long long value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field9);
+
+                long long value2 =
+                      bslim::FuzzUtil::consumeNumber<long long>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                unsigned long long value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field10);
+
+                unsigned long long value2 =
+                    bslim::FuzzUtil::consumeNumber<unsigned long long>(
+                                                                &fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bool value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field11);
+
+                bool value2 = bslim::FuzzUtil::consumeBool(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                float value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field12);
+
+                float value2 =
+                          bslim::FuzzUtil::consumeNumber<float>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                double value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field13);
+
+                double value2 =
+                         bslim::FuzzUtil::consumeNumber<double>(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdldfp::Decimal64 value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field14);
+
+
+                bdldfp::Decimal64 value2(
+                        bslim::FuzzUtil::consumeNumber<double>(&fuzzDataCopy));
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bsl::string value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field15);
+
+                bsl::string value2;
+                if (options.printableAsciiCharsOnly()) {
+                    bslim::FuzzUtil::consumeRandomLengthAsciiString(
+                                                    &value2,
+                                                    &fuzzDataCopy,
+                                                    options.maxStringLength());
+                }
+                else {
+                    bslim::FuzzUtil::consumeRandomLengthString(
+                                                    &value2,
+                                                    &fuzzDataCopy,
+                                                    options.maxStringLength());
+                }
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bsl::vector<char> value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field16);
+
+                bsl::vector<char> value2;
+                bslim::FuzzUtil::consumeRandomLengthChars(
+                                                    &value2,
+                                                    &fuzzDataCopy,
+                                                    options.maxStringLength());
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlt::Date value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field17);
+
+                bdlt::Date value2 = bdlt::FuzzUtil::consumeDate(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlt::DateTz value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field18);
+
+                bdlt::DateTz value2 =
+                                  bdlt::FuzzUtil::consumeDateTz(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlt::Datetime value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field19);
+
+                bdlt::Datetime value2 =
+                                bdlt::FuzzUtil::consumeDatetime(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlt::DatetimeTz value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field20);
+
+                bdlt::DatetimeTz value2 =
+                              bdlt::FuzzUtil::consumeDatetimeTz(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlt::Time value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field21);
+
+                bdlt::Time value2 = bdlt::FuzzUtil::consumeTime(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlt::TimeTz value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field22);
+
+                bdlt::TimeTz value2 =
+                                  bdlt::FuzzUtil::consumeTimeTz(&fuzzDataCopy);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bsl::vector<int> value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field23);
+
+                bsl::vector<int> value2;
+                unsigned size= bslim::FuzzUtil::consumeNumberInRange<unsigned>(
+                                                     &fuzzDataCopy,
+                                                     0U,
+                                                     options.maxArrayLength());
+                value2.resize(size);
+                for(unsigned i = 0; i < size; i++) {
+                    value2[i] =
+                            bslim::FuzzUtil::consumeNumber<int>(&fuzzDataCopy);
+                }
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                MyChoice value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field24);
+
+                MyChoice value2;
+                int selectionIndex= bslim::FuzzUtil::consumeNumberInRange<int>(
                                                  &fuzzDataCopy,
                                                  0,
                                                  MyChoice::NUM_SELECTIONS - 1);
-            int selectionId =
+                int selectionId =
                            MyChoice::SELECTION_INFO_ARRAY[selectionIndex].id();
-            ASSERT(value2.makeSelection(selectionId) == 0);
-            bdlat::FuzzUtil_Manipulator manipulator = {&fuzzDataCopy, 0};
-            value2.manipulateSelection(manipulator);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
+                ASSERT(value2.makeSelection(selectionId) == 0);
+                bdlat::FuzzUtil_Manipulator manipulator =
+                                                     {&fuzzDataCopy, &options};
+                value2.manipulateSelection(manipulator);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
 
-            MyEnum::Value value = MyEnum::EnumFallbackValue;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field25);
+                MyEnum::Value value = MyEnum::EnumFallbackValue;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field25);
 
-            MyEnum::Value value2 = MyEnum::EnumFallbackValue;
-            int index = bslim::FuzzUtil::consumeNumberInRange<int>(
+                MyEnum::Value value2 = MyEnum::EnumFallbackValue;
+                int index = bslim::FuzzUtil::consumeNumberInRange<int>(
                                                   &fuzzDataCopy,
                                                   0,
                                                   MyEnum::NUM_ENUMERATORS - 1);
-            int intValue = MyEnum::ENUMERATOR_INFO_ARRAY[index].value();
-            ASSERT(MyEnum::fromInt(&value2, intValue) == 0);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            bdlb::NullableValue<int> value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field26);
-
-            bdlb::NullableValue<int> value2;
-            bool addValue = bslim::FuzzUtil::consumeBool(&fuzzDataCopy);
-            if (addValue) {
-                bdlat_NullableValueFunctions::makeValue(&value2);
-                bdlat::FuzzUtil_Manipulator manipulator = {&fuzzDataCopy, 0};
-                bdlat_NullableValueFunctions::manipulateValue(&value2,
-                                                              manipulator);
+                int intValue = MyEnum::ENUMERATOR_INFO_ARRAY[index].value();
+                ASSERT(MyEnum::fromInt(&value2, intValue) == 0);
+                ASSERT(value2 == value);
             }
-            ASSERT(value2 == value);
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                bdlb::NullableValue<int> value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field26);
+
+                bdlb::NullableValue<int> value2;
+                bool addValue = bslim::FuzzUtil::consumeBool(&fuzzDataCopy);
+                if (addValue) {
+                    bdlat_NullableValueFunctions::makeValue(&value2);
+                    bdlat::FuzzUtil_Manipulator manipulator =
+                                                     {&fuzzDataCopy, &options};
+                    bdlat_NullableValueFunctions::manipulateValue(&value2,
+                                                                  manipulator);
+                }
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                MyCustomString value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field27);
+
+                MyCustomString value2;
+                MyCustomString::BaseType base;
+                bdlat::FuzzUtil::consumeMessage(&base, &fuzzDataCopy, options);
+                bdlat_CustomizedTypeFunctions::convertFromBaseType(&value2,
+                                                                   base);
+                ASSERT(value2 == value);
+            }
+            {
+                bslim::FuzzDataView fuzzDataCopy = fuzzData;
+
+                MyDynamicType value;
+                bdlat::FuzzUtil::consumeMessage(&value, &fuzzData, options);
+                ASSERT(value == msg.d_field28);
+
+                MyDynamicType value2;
+                bdlat::FuzzUtil_ManipulatorWithCategory manipulator =
+                                                     {&fuzzDataCopy, &options};
+                bdlat_TypeCategoryUtil::manipulateByCategory(&value2,
+                                                             manipulator);
+                ASSERT(value2 == value);
+            }
+            ASSERTV(fuzzData.length(), fuzzData.length() == FUZZ_DATA_REMAINDER);
         }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            MyCustomString value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field27);
-
-            MyCustomString value2;
-            MyCustomString::BaseType base;
-            bdlat::FuzzUtil::consumeMessage(&base, &fuzzDataCopy);
-            bdlat_CustomizedTypeFunctions::convertFromBaseType(&value2, base);
-            ASSERT(value2 == value);
-        }
-        {
-            bslim::FuzzDataView fuzzDataCopy = fuzzData;
-
-            MyDynamicType value;
-            bdlat::FuzzUtil::consumeMessage(&value, &fuzzData);
-            ASSERT(value == msg.d_field28);
-
-            MyDynamicType value2;
-            bdlat::FuzzUtil_ManipulatorWithCategory manipulator =
-                                                            {&fuzzDataCopy, 0};
-            bdlat_TypeCategoryUtil::manipulateByCategory(&value2, manipulator);
-            ASSERT(value2 == value);
-        }
-        ASSERTV(fuzzData.length(), fuzzData.length() == FUZZ_DATA_REMAINDER);
       } break;
       case 1: {
         // --------------------------------------------------------------------

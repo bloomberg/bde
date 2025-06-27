@@ -10,6 +10,55 @@ namespace bslim {
 namespace {
 // LOCAL METHODS
 
+/// Load into the specified `output` a sequence of printable ASCII characters
+/// of length from 0 to the specified `maxLength`.  If the specified
+/// `fuzzDataView` has fewer bytes than `maxLength`, load at most
+/// `fuzzDataView->length()` bytes into `output`.  If the buffer in
+/// `fuzzDataView` contains two successive backslash characters, then in
+/// `output` they will be converted to a single backslash ('\\') character; if
+/// the buffer contains a single backslash character, the construction is
+/// terminated, and the following byte, if one is present, will be consumed.
+/// Note that more than `maxLength` bytes may be consumed from the buffer to
+/// produce the `output`.
+template <class CONTAINER>
+void consumeRandomLengthAsciiCharSequence(CONTAINER    *output,
+                                          FuzzDataView *fuzzDataView,
+                                          bsl::size_t   maxLength)
+{
+    bsl::size_t length = bsl::min(maxLength, fuzzDataView->length());
+
+    output->resize(length);
+
+    typename CONTAINER::iterator outIt = output->begin();
+
+    const bsl::uint8_t *end = fuzzDataView->begin() + length;
+    const bsl::uint8_t *it  = fuzzDataView->begin();
+
+    const bsl::uint8_t slash = static_cast<bsl::uint8_t>('\\');
+
+    for (; it < end; ++it) {
+        if (*it == slash) {
+            if (fuzzDataView->end() != end) {
+                ++end;
+            }
+            if (++it == end) {
+                break;
+            }
+            if (*it != slash) {
+                ++it;
+                break;
+            }
+        }
+        char ch = *it & 0x7FU;
+        if (ch < '\x20' || ch == '\x7F') {
+            ch = '.';  // replace control char
+        }
+        *outIt++ = static_cast<char>(ch);
+    }
+    output->resize(outIt - output->begin());
+    fuzzDataView->removePrefix(it - fuzzDataView->begin());
+}
+
 /// Load into the specified `output` a sequence of characters of length from
 /// 0 to the specified `maxLength`.  If the specified `fuzzDataView` has
 /// fewer bytes than `maxLength`, load at most `fuzzDataView->length()`
@@ -60,6 +109,29 @@ void consumeRandomLengthCharSequence(CONTAINER    *output,
                         // ---------------
                         // struct FuzzUtil
                         // ---------------
+
+void FuzzUtil::consumeRandomLengthAsciiString(bsl::string  *output,
+                                              FuzzDataView *fuzzDataView,
+                                              bsl::size_t   maxLength)
+{
+    consumeRandomLengthAsciiCharSequence(output, fuzzDataView, maxLength);
+}
+
+void FuzzUtil::consumeRandomLengthAsciiString(std::string  *output,
+                                              FuzzDataView *fuzzDataView,
+                                              bsl::size_t   maxLength)
+{
+    consumeRandomLengthAsciiCharSequence(output, fuzzDataView, maxLength);
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+void FuzzUtil::consumeRandomLengthAsciiString(std::pmr::string *output,
+                                              FuzzDataView     *fuzzDataView,
+                                              bsl::size_t       maxLength)
+{
+    consumeRandomLengthAsciiCharSequence(output, fuzzDataView, maxLength);
+}
+#endif
 
 void FuzzUtil::consumeRandomLengthChars(bsl::vector<char> *output,
                                         FuzzDataView      *fuzzDataView,

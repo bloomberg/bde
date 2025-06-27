@@ -499,7 +499,17 @@ void FuzzUtil::consumeSimple(bsl::string           *chars,
 {
     unsigned maxLen = options ? options->maxStringLength()
                               : FuzzUtilOptions::k_MAX_STRING_LENGTH_DEFAULT;
-    bslim::FuzzUtil::consumeRandomLengthString(chars, fuzzData, maxLen);
+    bool asciiOnly = options
+                       ? options->printableAsciiCharsOnly()
+                       : FuzzUtilOptions::k_PRINTABLE_ASCII_CHARS_ONLY_DEFAULT;
+    if (asciiOnly) {
+        bslim::FuzzUtil::consumeRandomLengthAsciiString(chars,
+                                                        fuzzData,
+                                                        maxLen);
+    }
+    else {
+        bslim::FuzzUtil::consumeRandomLengthString(chars, fuzzData, maxLen);
+    }
 }
 
 inline
