@@ -1,19 +1,13 @@
-// bslstl_streamed.t.cpp                                              -*-C++-*-
-#define BB_DEPRECATE_ENABLE_ALL_DEPRECATIONS_FOR_TESTING                      1
+// bslstl_enablestreamedformatter.t.cpp                               -*-C++-*-
+//
+#include <bslfmt_enablestreamedformatter.h>
 
-#include <bslfmt_streamed.h>
-
-#include <bslfmt_format.h>
 #include <bslfmt_formattertestutil.h>
 
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
-
-#include <limits.h>
 #include <stdio.h>
-
-#include <iostream>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #include <format>
@@ -27,30 +21,31 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// Tested are the wrapper class template `bslfmt::Streamed<t_STREAMED>` as well
-// as the wrapper-creator function template (mainly for C++03 compatibility)
-// `bslfmt::streamed`.  Since this class just delegates to `StreamedFormatter`
-// (which is already tested) we just do enough sanity check here to verify that
-// the forwarding is there.
+// Tested is the `bslfmt::EnableStreamedFormatter` nested-compatible boolean
+// type trait and its effect of enabling a streaming-based formatter for the
+// "flagged" type to make it possible for it to be formatted with `bsl::format`
+// and `std::format` if that is available.
+//
+// Since the trait's effect is implemented in terms of the (tested)
+// `bslfmt::StreamedFormatter` we do only minimal verification here.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] formatter();
-// [ 2] ~formatter();
-// [ 3] formatter(const formatter &);
-// [ 1] Streamed(const T&);
+// [ 3] formatter();
+// [ 4] ~formatter();
+// [ 4] formatter(const formatter &);
 //
 // MANIPULATORS
-// [ 4] operator=(const formatter &);
-// [ 5] formatter<Streamed<T> >::parse(PARSE_CONTEXT&);
+// [ 5] operator=(const formatter &);
+// [ 6] formatter::parse(PARSE_CONTEXT&);
 //
 // ACCESSORS
-// [ 6] formatter<Streamed<T> >::format(VALUE, FORMAT_CONTEXT&);
+// [ 7] formatter::format(TYPE, FORMAT_CONTEXT&);
 //
-// FREE FUNCTIONS
-// [ 1] streamed(const T&);
+// TRAIT
+// [ 2] bslfmt::EnableStreamedFormatter
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 7] USAGE EXAMPLE
+// [ 8] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -124,9 +119,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define TEST_PARSE_FAIL(type, fmtStr)                                         \
     do {                                                                      \
         bsl::string errorMsg;                                                 \
-        bool        rv;                                                       \
-        rv = bslfmt::FormatterTestUtil<char>::testParseFailure<               \
-            bslfmt::Streamed<type> >(&errorMsg, false, fmtStr);               \
+        const bool  rv =                                                      \
+                     bslfmt::FormatterTestUtil<char>::testParseFailure<type>( \
+                         &errorMsg,                                           \
+                         false,                                               \
+                         fmtStr);                                             \
         if (!rv) {                                                            \
             ASSERTV(errorMsg.c_str(), fmtStr, rv);                            \
         }                                                                     \
@@ -135,10 +132,10 @@ void aSsErT(bool condition, const char *message, int line)
 #define TEST_PARSE_SUCCESS_F(type, fmtStr)                                    \
     do {                                                                      \
         bsl::string errorMsg;                                                 \
-        bool        rv;                                                       \
-                                                                              \
-        rv = bslfmt::FormatterTestUtil<char>::testParseFormat<                \
-            bslfmt::Streamed<type> >(&errorMsg, false, fmtStr);               \
+        const bool  rv =                                                      \
+            bslfmt::FormatterTestUtil<char>::testParseFormat<type>(&errorMsg, \
+                                                                   false,     \
+                                                                   fmtStr);   \
         if (!rv) {                                                            \
             ASSERTV(errorMsg.c_str(), fmtStr, rv);                            \
         }                                                                     \
@@ -147,10 +144,11 @@ void aSsErT(bool condition, const char *message, int line)
 #define TEST_PARSE_SUCCESS_VF(type, fmtStr)                                   \
     do {                                                                      \
         bsl::string errorMsg;                                                 \
-        bool        rv;                                                       \
-                                                                              \
-        rv = bslfmt::FormatterTestUtil<char>::testParseVFormat<               \
-            bslfmt::Streamed<type> >(&errorMsg, false, fmtStr);               \
+        const bool  rv =                                                      \
+                     bslfmt::FormatterTestUtil<char>::testParseVFormat<type>( \
+                         &errorMsg,                                           \
+                         false,                                               \
+                         fmtStr);                                             \
         if (!rv) {                                                            \
             ASSERTV(errorMsg.c_str(), fmtStr, rv);                            \
         }                                                                     \
@@ -185,29 +183,33 @@ std::ostream& operator<<(std::ostream& os, const CanStream& obj)
     return os << obj.d_content;
 }
 
-                              // ================
-                              // class Streamable
-                              // ================
+                     // =================================
+                     // struct CanStreamFormattingEnabled
+                     // =================================
 
-class Streamable {
+struct CanStreamFormattingEnabled : CanStream {
+    // CREATORS
+    explicit CanStreamFormattingEnabled(const char *content)
+    : CanStream(content)
+    {
+    }
+
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(CanStreamFormattingEnabled,
+                                   bslfmt::EnableStreamedFormatter);
 };
-
-std::ostream& operator<<(std::ostream& os, const Streamable&)
-{
-    return os << "12345678";
-}
 
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
-///Formatting a Streamable Object
-/// - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<`.
+///Enabling Formatting of a Streamable Type
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we own a simple type that supports `ostream` insert `operator<<` and
+// want to quickly add `bsl::format`ing capability to it, based on streaming.
 //
-// First, we define a type with a streaming operator but without a formatter
-// specialization:
+// First, we introduce a type with a streaming operator but without a formatter
+// that enables `bsl::format` use:
 //```
     class NonFormattableType {};
 
@@ -215,20 +217,34 @@ std::ostream& operator<<(std::ostream& os, const Streamable&)
     {
         return os << "The printout";
     }
+
+    // The following would not compile:
+    //
+    // const NonFormattableType noFormatObj;
+    // bsl::string s = bsl::format("{}", noFormatObj);
 //```
-// Then we create an instance of this type and use bsl::streamed to allow us to
-// format it:
+// Then, we enable formatting using the trait (notice the type name changed):
 //```
-//  const NonFormattableType obj;
+    class NowFormattableType {
+      public:
+        // TRAITS
+        BSLMF_NESTED_TRAIT_DECLARATION(NowFormattableType,
+                                       bslfmt::EnableStreamedFormatter);
+    };
+
+    std::ostream& operator<<(std::ostream& os, const NowFormattableType&)
+    {
+        return os << "The printout";
+    }
 //```
-// Next, we format the "value" using `bsl::format` with the wrapper-creator
-// function:
+// Next, we create an instance of this type and use `bsl::format` to format it:
 //```
-// bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+//  const NowFormattableType obj;
+//  bsl::string s = bsl::format("{}", obj);
 //```
 // Finally, we verify the output is correct:
 //```
-// assert(s == "The printout");
+//  assert(s == "The printout");
 //```
 
 //=============================================================================
@@ -244,7 +260,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -264,13 +280,13 @@ int main(int argc, char **argv)
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
 
-///Formatting a Streamable Object
-/// - - - - - - - - - - - - - - -
-// Suppose we want to format an object that already supports streaming into an
-// `ostream` using the insert `operator<<`.
+///Enabling Formatting of a Streamable Type
+/// - - - - - - - - - - - - - - - - - - - -
+// Suppose we own a simple type that supports `ostream` insert `operator<<` and
+// want to quickly add `bsl::format`ing capability to it, based on streaming.
 //
-// First, we define a type with a streaming operator but without a formatter
-// specialization:
+// First, we introduce a type with a streaming operator but without a formatter
+// that enables `bsl::format` use:
 //```
 //  class NonFormattableType {};
 //
@@ -278,48 +294,63 @@ int main(int argc, char **argv)
 //  {
 //      return os << "The printout";
 //  }
+//
+//  // The following would not compile:
+//  //
+//  // const NonFormattableType noFormatObj;
+//  // bsl::string s = bsl::format("{}", noFormatObj);
 //```
-// Then we create an instance of this type and use bsl::streamed to allow us to
-// format it:
+// Then, we enable formatting using the trait (notice the type name changed):
 //```
-    const NonFormattableType obj;
+//  class NowFormattableType {
+//    public:
+//      // TRAITS
+//      BSLMF_NESTED_TRAIT_DECLARATION(NowFormattableType,
+//                                     bslfmt::EnableStreamedFormatter);
+//  };
+//
+//  std::ostream& operator<<(std::ostream& os, const NowFormattableType&)
+//  {
+//      return os << "The printout";
+//  }
 //```
-// Next, we format the "value" using `bsl::format` with the wrapper-creator
-// function:
+// Next, we create an instance of this type and use `bsl::format` to format it:
 //```
-   bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
+    const NowFormattableType obj;
+    bsl::string s = bsl::format("{}", obj);
 //```
 // Finally, we verify the output is correct:
 //```
-   ASSERT(s == "The printout");
+    ASSERT(s == "The printout");
 //```
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // TESTING format(VALUE, FORMAT_CONTEXT&)
         //
         // Concerns:
-        // 1. `format` is properly forwarded to the implementation.
+        // 1. Trait enables `StreamedFormatter`-based formatters.
         //
         // Plan:
-        // 1. Spot check that formatting works.  (C-1)
+        // 1. This test is done in the breathing test.
         //
         // Testing:
-        //   formatter<Streamed<T> >::format(VALUE, FORMAT_CONTEXT&);
+        //   formatter::format(VALUE, FORMAT_CONTEXT&);
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nTESTING format(VALUE, FORMAT_CONTEXT&)"
                           "\n======================================");
-        if (veryVerbose)
-            puts("\nThis has been tested exhaustively in the breathing test.");
 
+        if (veryVerbose)
+            puts("This verification is covered by the breathing test.\n");
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING parse(PARSE_CONTEXT&)
         //
         // Concerns:
         // 1. Invalid format specs will generate a parse error
+        //
         // 2. Valid format specs will not generate a parse error
         //
         // Plan:
@@ -331,7 +362,7 @@ int main(int argc, char **argv)
         //    parse.  (C-2)
         //
         // Testing:
-        //   formatter<Streamed<T> >::parse(PARSE_CONTEXT&);
+        //   formatter::parse(PARSE_CONTEXT&);
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nTESTING parse(PARSE_CONTEXT&)"
@@ -339,10 +370,10 @@ int main(int argc, char **argv)
 
         // Bad fill character
         // Note can only test '{' as '}' closes the parse string.
-        TEST_PARSE_FAIL(Streamable, "{:{<5.5s}");
+        TEST_PARSE_FAIL(CanStreamFormattingEnabled, "{:{<5.5s}");
 
         // A selection of valid format strings (non-Unicode)
-        TEST_PARSE_SUCCESS_F(Streamable, "{0:*^{1}.{1}}"         );
+        TEST_PARSE_SUCCESS_F(CanStreamFormattingEnabled, "{0:*^{1}.{1}}");
 
 #if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
   #define TPS TEST_PARSE_SUCCESS_VF
@@ -351,26 +382,26 @@ int main(int argc, char **argv)
 #endif
 
         // A selection of valid format strings (Unicode)
-        TPS(Streamable, "{0:\xF0\x9F\x98\x80^{1}.{1}}" );
-        #undef TPS
+        TPS(CanStreamFormattingEnabled, "{0:\xF0\x9F\x98\x80^{1}.{1}}");
+#undef TPS
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING ASSIGNMENT OPERATOR
         //
         // Concerns:
-        // 1. We can assign 'bsl::formatter' types for `Streamed` wrapper
-        //    specializations.
+        // 1. We can copy assign 'bsl::formatter' types for trait-enabled
+        //    formatters.
         //
-        // 2. We can assign 'std::formatter' types for `Streamed` wrapper
-        //    specializations.
+        // 2. We can copy assign 'std::formatter' types for trait-enabled
+        //    formatters.
         //
         // Plan:
-        // 1. Construct two 'bsl::formatter's for `Streamed` wrapper
-        //    specializations, and assign one to the other. (C-1)
+        // 1. Construct two 'bsl::formatter's for `CanStreamFormattingEnabled`
+        //    specializations, and assign one to the other.  (C-1)
         //
-        // 2. Construct two 'std::formatter's for `Streamed` wrapper
-        //    specializations, and assign one to the other. (C-2)
+        // 2. Construct two 'std::formatter's for `CanStreamFormattingEnabled`
+        //    specializations, and assign one to the other.  (C-2)
         //
         // Testing:
         //   operator=(const formatter &);
@@ -380,36 +411,36 @@ int main(int argc, char **argv)
                           "\n===========================");
 
         {
-            const bsl::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
-            bsl::formatter<bslfmt::Streamed<Streamable>, char>       dummy2_c;
+            const bsl::formatter<CanStreamFormattingEnabled, char> dummy_c;
+            bsl::formatter<CanStreamFormattingEnabled, char>       dummy2_c;
             dummy2_c = dummy_c;
         }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         {
-            const std::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
-            std::formatter<bslfmt::Streamed<Streamable>, char>       dummy2_c;
+            const std::formatter<CanStreamFormattingEnabled, char> dummy_c;
+            std::formatter<CanStreamFormattingEnabled, char>       dummy2_c;
             dummy2_c = dummy_c;
         }
 #endif
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING COPY CONSTRUCTOR
         //
         // Concerns:
-        // 1. We can copy construct 'bsl::formatter' types of `Streamed`
-        //    wrapper instances.
+        // 1. We can copy construct 'bsl::formatter' types of trait-enabled
+        //    instances.
         //
-        // 2. We can copy construct 'std::formatter' types of `Streamed`
-        //    wrapper instances.
+        // 2. We can copy construct 'std::formatter' types of trait-enabled
+        //    instances.
         //
         // Plan:
-        // 1. Construct a 'bsl::formatter' for a wrapper instance and copy it.
-        //    (C-1)
+        // 1. Construct a 'bsl::formatter' for `CanStreamFormattingEnabled`
+        //    and copy it.  (C-1)
         //
-        // 2. Construct a 'std::formatter' for a wrapper instance and copy it.
-        //    (C-2)
+        // 2. Construct a 'std::formatter' for `CanStreamFormattingEnabled`
+        //    and copy it.  (C-2)
         //
         // Testing:
         //   formatter(const formatter &);
@@ -419,57 +450,89 @@ int main(int argc, char **argv)
                           "\n========================");
 
         {
-            const bsl::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
-            bsl::formatter<bslfmt::Streamed<Streamable>, char> copy_c(dummy_c);
+            const bsl::formatter<CanStreamFormattingEnabled, char> dummy_c;
+            bsl::formatter<CanStreamFormattingEnabled, char> copy_c(dummy_c);
             (void)copy_c;
         }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         {
-            const std::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
-            std::formatter<bslfmt::Streamed<Streamable>, char> copy_c(dummy_c);
+            const std::formatter<CanStreamFormattingEnabled, char> dummy_c;
+            std::formatter<CanStreamFormattingEnabled, char> copy_c(dummy_c);
             (void)copy_c;
         }
 #endif
       } break;
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // TESTING (PRIMITIVE) GENERATORS
         //   The only generator for 'formatter' is the default constructor.
         //
         // Concerns:
-        // 1. `bsl::formatter` types for `Streamed` types are default
+        // 1. `bsl::formatter` types for trait-enabled types are default
         //    constructible.
         //
-        // 2. `std::formatter` types for `Streamed` types are default
+        // 2. `std::formatter` types for trait-enabled types are default
         //    constructible.
         //
         // Plan:
-        // 1. Default construct a 'bsl::formatter' for a `Streamed` wrapper type
-        //    instance.  (C-1)
+        // 1. Default construct a 'bsl::formatter' for
+        //    `CanStreamFormattingEnabled` instance.  (C-1)
         //
-        // 2. Default construct a 'std::formatter' for a `Streamed` wrapper type
-        //    instance.  (C-1)
+        // 2. Default construct a 'std::formatter' for
+        //    `CanStreamFormattingEnabled` instance.  (C-2)
         //
         // Testing:
         //   formatter();
-        //   ~formatter();
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nTESTING (PRIMITIVE) GENERATORS"
                           "\n==============================");
 
         {
-            bsl::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
+            bsl::formatter<CanStreamFormattingEnabled, char> dummy_c;
             (void)dummy_c;
         }
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
         {
-            std::formatter<bslfmt::Streamed<Streamable>, char> dummy_c;
+            std::formatter<CanStreamFormattingEnabled, char> dummy_c;
             (void)dummy_c;
         }
 #endif
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // TESTING TRAITS INDUCED FORMATTING
+        //
+        // Concerns:
+        // 1. `bslfmt::StreamedEnableFormatterTrait::value` is `false` for
+        //     types for which the trait is not set, while it is `true` for
+        //     those types that have the trait explicitly set.
+        //
+        // 2. Types with the trait set can be formatted.
+        //
+        // Plan:
+        // 1. Verify that `CanStream` has `false` trait value and
+        //    `CanStreamFormattingEnabled` has `true` trait value.  (C-1)
+        //
+        // 2. Verify that `CanStreamFormattingEnabled` can be formatted.  (C-2)
+        //
+        // Testing:
+        //   bslfmt::EnableStreamedFormatter
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nTESTING TRAITS INDUCED FORMATTING"
+                          "\n=================================");
+
+        ASSERT(!bslfmt::EnableStreamedFormatter<CanStream>::value);
+        ASSERT(
+            bslfmt::EnableStreamedFormatter<CanStreamFormattingEnabled>::value
+        );
+
+        const bsl::string s = bsl::format("{}",
+                                          CanStreamFormattingEnabled("works"));
+        ASSERTV(s.c_str(), "works" == s);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -479,48 +542,26 @@ int main(int argc, char **argv)
         // 1. That basic functionality appears to work as advertised before
         //    before beginning testing in earnest.
         //
-        // 2. That warning is generated for wrapped-types that already have a
-        //    formatter for `char` (and the type itself) enabled on compilers
-        //    that support concepts.
-        //
-        // 3. Demonstrate the use of the wrapper class template with class
-        //    template argument deduction (CTAD) when it is available.
-        //
         // Plan:
         // 1. Test formatting wrapped objects.  (C-1)
         //
-        // 2. Attempt to format an `int` (if warning demonstration is
-        //    requested) and observe if a warning is generated for that line of
-        //    the test driver.  (C-2)
-        //
-        // 3. If CTAD is available use the `Streamed` class without specifying
-        //    the wrapped type.
-        //
         // Testing:
         //   BREATHING TEST
-        //   Streamed(const T&);
-        //   streamed(const T&);
         // --------------------------------------------------------------------
 
         if (verbose) puts("\nBREATHING TEST"
                           "\n==============");
 
-        CanStream        mX("0123456789");
-        const CanStream& X = mX;
+        CanStreamFormattingEnabled        mX("0123456789");
+        const CanStreamFormattingEnabled& X = mX;
 
 #define TEST_LINE_BSL(fmt, res)                                               \
-    result = bsl::format(fmt, bslfmt::Streamed<CanStream>(X));                \
-    ASSERTV(result.c_str(), result == res);                                   \
-                                                                              \
-    result = bsl::format(fmt, bslfmt::streamed(X));                           \
+    result = bsl::format(fmt, X);                                             \
     ASSERTV(result.c_str(), result == res)
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #define TEST_LINE_STD(fmt, res)                                             \
-    stdResult = std::format(fmt, bslfmt::Streamed<CanStream>(X));             \
-    ASSERTV(stdResult.c_str(), stdResult == res);                             \
-                                                                              \
-    stdResult = std::format(fmt, bslfmt::streamed(X));                        \
+    stdResult = std::format(fmt, X);                                          \
     ASSERTV(stdResult.c_str(), stdResult == res)
 #else
   #define TEST_LINE_STD(fmt, res)
@@ -533,29 +574,11 @@ int main(int argc, char **argv)
         bsl::string result;
         std::string stdResult;
 
-        TEST_LINE("{:12}",     "0123456789  ");
-        TEST_LINE("{:>10.8}",  "  01234567"  );
-        TEST_LINE("{:<10.12}", "0123456789"  );
-        TEST_LINE("{:*^12}",   "*0123456789*");
-        TEST_LINE("{:*^10.7}", "*0123456**"  );
-
-#ifdef BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
-        {
-            // Note that warnings for these two lines will appear only on
-            // compilers that support concepts.
-            bsl::string s = bsl::format("{}", bslfmt::streamed(12));
-            s             = bsl::format("{}", bslfmt::Streamed<int>(12));
-        }
-#endif  // BSLFMT_STREAMED_DEMONSTRATE_FORMATTER_EXISTS_WARNING
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-        {
-            // Note that warnings for these two lines will appear only on
-            // compilers that support concepts.
-            const bsl::string s = bsl::format("{:.10}", bslfmt::Streamed(X));
-            ASSERTV(s.c_str(), "0123456789" == s);
-        }
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
+        TEST_LINE("{:^12}",    " 0123456789 ");
+        TEST_LINE("{:<10.8}",  "01234567  "  );
+        TEST_LINE("{:10.12}",  "0123456789"  );
+        TEST_LINE("{:*>12}",   "**0123456789");
+        TEST_LINE("{:*>10.7}", "***0123456"  );
       } break;
       default: {
         printf("WARNING: CASE `%d' NOT FOUND.\n", test);

@@ -1,3 +1,4 @@
+bslfmt_enablestreamedformatter
 bslfmt_format
 bslfmt_format_arg
 bslfmt_format_arg_cpp03
@@ -27,5 +28,6 @@ bslfmt_mockformatcontext
 bslfmt_mockparsecontext
 bslfmt_standardformatspecification
 bslfmt_streamed
+bslfmt_streamedformatter
 bslfmt_testspecificationgenerator
 bslfmt_unicodecodepoint

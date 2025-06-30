@@ -150,4 +150,133 @@ bslfmt.txt
 :      Provide a generator for test format specifications
 :
 : 'bslfmt_unicodecodepoint':
-:      Provide a unicode code point representation
+:      Provide a Unicode code point representation
+
+/Streaming-based Formatting
+/--------------------------
+ This package contains two components that facilitate adoption of `bsl::format`
+ for user-defined types that provide an `ostream` insert `operator<<`.
+
+/Design Choices
+/ - - - - - - -
+ This package has two different ways to support formatting types that have an
+ `ostream` insert `operator<<` defined but don't have `bsl::format`ing enabled.
+ Choosing between the two solutions is a design decision and here we present
+ the circumstances and consequences of using either solution.
+
+ The choices are wrapping or enabling stream-based formatting using a trait.
+ Either option provides the same (limited) functionality: the type is converted
+ to a string using `ostream` insert `operator<<` and that string is then
+ formatted as if the string had been passed directly to `bsl::format` (see the
+ table below).
+
+/Wrapper
+/- - - -
+ The wrapper should be the first design choice as it does not lock in a design
+ decision (unlike creating a formatter).
+
+ The wrapper has a simple, (as) short (as possible) syntax:
+```
+  bsl::string bsl::format("{:-^12}", bslfmt::streamed(streamableType));
+```
+
+ The above code uses the `ostream` insert `operator<<` of `StreamableType` to
+ "convert" the object to string and formats the string according to the format
+ specification.
+
+ **Consequences**:
+   * The wrapper has to be used at every place where such an object is
+     formatted.
+
+   * The formatting support is simplistic.
+
+ May be Useful in the Following Circumstances:
+   * You do not own the type so you cannot create a `formatter` for it without
+     creating a possible collision with a formatter introduced by the owner.
+
+   * Your type really needs its own `formatter` but you need time to design and
+     implement that.  You do not want to lock yourself into forever supporting
+     the string-based simplistic formatting abilities in your future formatter
+     so you rather wrap the type where you need to `format` (e.g., log) it.
+
+ There may be many reasons why a type should have its own formatter.  One is
+ that it is not string-like but number-like.  Or it is complex where you may
+ want to show only parts of it, or in different format etc.  The type may also
+ be an identifier so that truncating it (which the string format supports) is a
+ mistake.
+
+ As the previous (non-exhaustive) list shows you probably want to use the
+ wrapper in **most** cases, because using the trait-enabled formatter may lock
+ you into supporting the string-based format string syntax.
+
+/Trait-enabled Formatter
+/- - - - - - - - - - - -
+ If the stream-capable type you are formatting is **your** type (so you can
+ safely define a formatter) you may opt for enabling string-like formatting.
+
+ Note that the **consequence** is that may be locked into supporting
+ string-like formatting for that type.  That means when you design your own
+ format-specification syntax has to be able tell the difference between the
+ string-like formatting specification and your new formatting specification.
+
+ Enabling the formatting is as simple as:
+```
+  public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(NowFormattableType,
+                                   bslfmt::EnableStreamedFormatter);
+```
+
+ **Consequences**
+   * You may be locked into supporting the string-like format specification and
+     whatever the resulting streamed output looks like.
+
+   * You get the simplistic, string-based formatting.
+
+
+ May be Useful in the Following Circumstances:
+   * You do not care to implement a formatter for the type, and it is unlikely
+     to ever require a different or more complicated format specification.
+
+   * You own the type.
+
+ In other words, if you declare the trait for your type, users of your type
+ will start formatting your type with string options, and those users will
+ become broken later if you write your own formatter that either does not
+ support all string-formatting options, or repurposes any subset of the string
+ format specification with a different meaning.
+
+/Format Specification Strings for Streamed Types
+/- - - - - - - - - - - - - - - - - - - - - - - -
+ The format specification string for a `bsl::streamed` wrapped object matches
+ that for a string. Specifically, it supports:
+   * alignment
+   * width
+   * precision (which is used to truncate)
+
+ For details see
+ [Standard format specification]
+ (http://www.en.cppreference.com/w/cpp/utility/format/spec.html)
+
+ Imagine we have a simple type that outputs "12345" when output to a stream:
+```
+ class Streamable {};
+
+ std::ostream& operator<<(std::ostream& os, const Streamable&)
+ {
+     return os << "012345";
+ }
+```
+ The following table describes the effect of different format specifications:
+
+ | Width | Alignment | Pad Char | Precision | Format Spec | Output Text  |
+ |-------|-----------|----------|-----------|-------------|--------------|
+ | N/A   | N/A       | N/A      | N/A       | "{}"        | "012345"     |
+ | N/A   | N/A       | N/A      | 3         | "{:.3}"     | "012"        |
+ | 8     | N/A       | N/A      | N/A       | "{:8}"      | "012345  "   |
+ | 8     | left      | N/A      | N/A       | "{:<8}"     | "012345  "   |
+ | 8     | center    | N/A      | N/A       | "{:^8}"     | " 012345 "   |
+ | 8     | right     | N/A      | N/A       | "{:>8}"     | "  012345"   |
+ | 8     | center    | =        | N/A       | "{:=^8}"    | "=012345="   |
+ | 6     | center    | *        | 2         | "{:*^6.2}"  | "**01**"     |
+

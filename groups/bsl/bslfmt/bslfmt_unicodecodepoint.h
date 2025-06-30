@@ -6,10 +6,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a unicode code point representation
+//@PURPOSE: Provide a Unicode code point representation
 //
 //@CLASSES:
-//  bslfmt::UnicodeCodePoint: unicode code point representation
+//  bslfmt::UnicodeCodePoint: Unicode code point representation
 //
 //@DESCRIPTION: This component provides a single, simply constrained
 // (value-semantic) attribute class, `bslfmt::UnicodeCodePoint`, that is used
@@ -60,7 +60,7 @@ class UnicodeCodePoint {
     /// decode is valid, a count of the source bytes used and the decoded
     /// Unicode code point value.  Behavior is undefined if `bytes` is not a
     /// valid pointer to an array of `numBytes/2` `wchar_t` types in contiguous
-    /// memory.  Behaviour is undefined if `16 != sizeof(wchar_t)`.  Endianness
+    /// memory.  Behavior is undefined if `16 != sizeof(wchar_t)`.  Endianness
     /// is assumed to be the same as for the `wchar_t` type and Byte Order
     /// Markers are not supported.
     void extractUtf16(const void *bytes, size_t maxBytes);
@@ -71,7 +71,7 @@ class UnicodeCodePoint {
     /// decode is valid, a count of the source bytes used and the decoded
     /// Unicode code point value.  Behavior is undefined if `bytes` is not a
     /// valid pointer to an array of `numBytes/2` `wchar_t` types in contiguous
-    /// memory.  Behaviour is undefined if `32 != sizeof(wchar_t)`.  Endianness
+    /// memory.  Behavior is undefined if `32 != sizeof(wchar_t)`.  Endianness
     /// is assumed to be the same as for the `wchar_t` type and Byte Order
     /// Markers are not supported.
     void extractUtf32(const void *bytes, size_t maxBytes);
@@ -96,13 +96,13 @@ class UnicodeCodePoint {
     ///
     /// For UTF-16, behavior is undefined if `bytes` is not a valid pointer to
     /// an array of `numBytes/2` `wchar_t` types in contiguous memory.
-    /// Behaviour is undefined if `2 != sizeof(wchar_t)`.  Endianness is
+    /// Behavior is undefined if `2 != sizeof(wchar_t)`.  Endianness is
     /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
     /// are not supported.
     ///
     /// For UTF-32, behavior is undefined if `bytes` is not a valid pointer to
     /// an array of `numBytes/4` `wchar_t` types in contiguous memory.
-    /// Behaviour is undefined if `4 != sizeof(wchar_t)`.  Endianness is
+    /// Behavior is undefined if `4 != sizeof(wchar_t)`.  Endianness is
     /// assumed to be the same as for the `wchar_t` type and Byte Order Markers
     /// are not supported.
     void extract(UtfEncoding encoding, const void *bytes, size_t maxBytes);
