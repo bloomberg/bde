@@ -71,9 +71,9 @@ BSLS_IDENT("$Id: $")
 //
 ///Macros for Formatted Logging Inside Code Blocks
 ///- - - - - - - - - - - - - - - - - - - - - - - -
-/// `ball_log` provides several kinds of macros to create potentially executed
-/// code blocks from which more complicated logging can be performed.  As a
-//  reminder the most commonly used such block macros are:
+// `ball_log` provides several kinds of macros to create potentially executed
+// code blocks from which more complicated logging can be performed.  As a
+// reminder the most commonly used such block macros are:
 // ```
 // BALL_LOG_TRACE_BLOCK { ... }
 // BALL_LOG_DEBUG_BLOCK { ... }
