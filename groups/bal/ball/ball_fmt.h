@@ -63,11 +63,11 @@ BSLS_IDENT("$Id: $")
 // BALL_FMT_WARN( format-string-literal, ARG1, ARG2, ...);
 // BALL_FMT_ERROR(format-string-literal, ARG1, ARG2, ...);
 // BALL_FMT_FATAL(format-string-literal, ARG1, ARG2, ...);
-// // where `ARG1`, `ARG2`, ... represents any sequence of values for which a
-// // `bsl::format` formatter is defined.  The resulting formatted message
-// // string is logged with the severity indicated by the name of the macro
-// // (e.g., `BALL_FMT_TRACE` logs with severity `ball::Severity::e_TRACE`).
 //```
+// where `ARG1`, `ARG2`, ... represents any sequence of values for which a
+// `bsl::format` formatter is defined.  The resulting formatted message string
+// is logged with the severity indicated by the name of the macro (e.g.,
+// `BALL_FMT_TRACE` logs with severity `ball::Severity::e_TRACE`).
 //
 ///Macros for Formatted Logging Inside Code Blocks
 ///- - - - - - - - - - - - - - - - - - - - - - - -
