@@ -57,12 +57,12 @@ BSLS_IDENT("$Id: $")
 // The following `BALL_FMT_*` macros, are the simplest mechanisms to format
 // (using a standard `format` specification) a single message to a log:
 //```
-// BALL_FMT_TRACE(format-string-literal, ARG1, ARG2, ...);
-// BALL_FMT_DEBUG(format-string-literal, ARG1, ARG2, ...);
-// BALL_FMT_INFO( format-string-literal, ARG1, ARG2, ...);
-// BALL_FMT_WARN( format-string-literal, ARG1, ARG2, ...);
-// BALL_FMT_ERROR(format-string-literal, ARG1, ARG2, ...);
-// BALL_FMT_FATAL(format-string-literal, ARG1, ARG2, ...);
+// BALL_FMT_TRACE(format_string_literal, ARG1, ARG2, ...);
+// BALL_FMT_DEBUG(format_string_literal, ARG1, ARG2, ...);
+// BALL_FMT_INFO( format_string_literal, ARG1, ARG2, ...);
+// BALL_FMT_WARN( format_string_literal, ARG1, ARG2, ...);
+// BALL_FMT_ERROR(format_string_literal, ARG1, ARG2, ...);
+// BALL_FMT_FATAL(format_string_literal, ARG1, ARG2, ...);
 //```
 // where `ARG1`, `ARG2`, ... represents any sequence of values for which a
 // `bsl::format` formatter is defined.  The resulting formatted message string
