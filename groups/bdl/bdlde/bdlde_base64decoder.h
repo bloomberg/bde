@@ -458,8 +458,8 @@ class Base64Decoder {
     /// ```
     /// Base64Decoder(Base64DecoderOptions::custom(
     ///                                    unrecognizedNonWhitespaceIsErrorFlag
-    ///                                    ? e_IGNORE_NONE
-    ///                                    : e_IGNORE_WHITESPACE,
+    ///                                    ? e_IGNORE_WHITESPACE,
+    ///                                    : e_IGNORE_UNRECOGNIZED,
     ///                                    alphabet,
     ///                                    true));
     /// ```
@@ -593,7 +593,7 @@ class Base64Decoder {
                             // class Base64Decoder
                             // -------------------
 
-// PRIVATE CLASS METHODs
+// PRIVATE CLASS METHODS
 inline
 int Base64Decoder::residualBits(int  bytesOutputSoFar) const
 {

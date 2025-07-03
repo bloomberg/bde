@@ -240,6 +240,7 @@ using bsl::ptrdiff_t;
 // [11] STRESS TEST: The decoder properly decodes all encoded output.
 // [13] TABLE PLUS RANDOM TESTING, UNPADDED MODE, INJECTED GARBAGE
 // [14] 0 == U_ENABLE_DEPRECATIONS
+// [15] Constructors.
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -2453,6 +2454,111 @@ void testCase##NUMBER(bool verbose,                                           \
                       bool veryVerbose,                                       \
                       bool veryVeryVerbose,                                   \
                       bool veryVeryVeryVerbose)
+
+DEFINE_TEST_CASE(15)
+{
+    // ------------------------------------------------------------------------
+    // Comparing options c'tors with deprecated boolean c'tor.
+    //
+    // Concern:
+    // 1.  Ensure that doc for deprecated boolean c'tor is accurate.
+    //
+    // Testing:
+    //   Constructors
+    // ------------------------------------------------------------------------
+
+    (void)veryVeryVeryVerbose;
+    (void)veryVeryVerbose;
+    (void)veryVerbose;
+    (void)verbose;
+
+    bslma::TestAllocator ta;
+    Obj *pmX = 0;
+
+    for (char c = 'a'; c <= 'b'; ++c) {
+        pmX = 'a' == c ? new (ta) Obj(false, Obj::e_BASIC)
+                       : new (ta) Obj(Options::custom(
+                                                 Ignore::e_IGNORE_UNRECOGNIZED,
+                                                 Obj::e_BASIC,
+                                                 true));
+        Obj& obj = *pmX;
+        ASSERT(1 == obj.isAcceptable());
+        ASSERT(0 == obj.isDone());
+        ASSERT(0 == obj.isError());
+        ASSERT(1 == obj.isInitialState());
+        ASSERT(0 == obj.isMaximal());
+        ASSERT(0 == obj.isUnrecognizedAnError());
+        ASSERT(Ignore::e_IGNORE_UNRECOGNIZED == obj.options().ignoreMode());
+        ASSERT(0 == obj.outputLength());
+        ASSERT(Obj::e_BASIC == obj.alphabet());
+        ASSERT(1 == obj.isPadded());
+        ta.deleteObject(pmX);
+        pmX = 0;
+    }
+
+    for (char c = 'a'; c <= 'b'; ++c) {
+        pmX = 'a' == c ? new (ta) Obj(true, Obj::e_BASIC)
+                       : new (ta) Obj(Options::custom(
+                                                 Ignore::e_IGNORE_WHITESPACE,
+                                                 Obj::e_BASIC,
+                                                 true));
+        Obj& obj = *pmX;
+        ASSERT(1 == obj.isAcceptable());
+        ASSERT(0 == obj.isDone());
+        ASSERT(0 == obj.isError());
+        ASSERT(1 == obj.isInitialState());
+        ASSERT(0 == obj.isMaximal());
+        ASSERT(1 == obj.isUnrecognizedAnError());
+        ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
+        ASSERT(0 == obj.outputLength());
+        ASSERT(Obj::e_BASIC == obj.alphabet());
+        ASSERT(1 == obj.isPadded());
+        ta.deleteObject(pmX);
+        pmX = 0;
+    }
+
+    for (char c = 'a'; c <= 'b'; ++c) {
+        pmX = 'a' == c ? new (ta) Obj(false, Obj::e_URL)
+                       : new (ta) Obj(Options::custom(
+                                                 Ignore::e_IGNORE_UNRECOGNIZED,
+                                                 Obj::e_URL,
+                                                 true));
+        Obj& obj = *pmX;
+        ASSERT(1 == obj.isAcceptable());
+        ASSERT(0 == obj.isDone());
+        ASSERT(0 == obj.isError());
+        ASSERT(1 == obj.isInitialState());
+        ASSERT(0 == obj.isMaximal());
+        ASSERT(0 == obj.isUnrecognizedAnError());
+        ASSERT(Ignore::e_IGNORE_UNRECOGNIZED == obj.options().ignoreMode());
+        ASSERT(0 == obj.outputLength());
+        ASSERT(Obj::e_URL == obj.alphabet());
+        ASSERT(1 == obj.isPadded());
+        ta.deleteObject(pmX);
+        pmX = 0;
+    }
+
+    for (char c = 'a'; c <= 'b'; ++c) {
+        pmX = 'a' == c ? new (ta) Obj(true, Obj::e_URL)
+                       : new (ta) Obj(Options::custom(
+                                                 Ignore::e_IGNORE_WHITESPACE,
+                                                 Obj::e_URL,
+                                                 true));
+        Obj& obj = *pmX;
+        ASSERT(1 == obj.isAcceptable());
+        ASSERT(0 == obj.isDone());
+        ASSERT(0 == obj.isError());
+        ASSERT(1 == obj.isInitialState());
+        ASSERT(0 == obj.isMaximal());
+        ASSERT(1 == obj.isUnrecognizedAnError());
+        ASSERT(Ignore::e_IGNORE_WHITESPACE == obj.options().ignoreMode());
+        ASSERT(0 == obj.outputLength());
+        ASSERT(Obj::e_URL == obj.alphabet());
+        ASSERT(1 == obj.isPadded());
+        ta.deleteObject(pmX);
+        pmX = 0;
+    }
+}
 
 DEFINE_TEST_CASE(14)
 {
@@ -8088,6 +8194,7 @@ int main(int argc, char *argv[])
   case NUMBER: testCase##NUMBER(verbose, veryVerbose, veryVeryVerbose,        \
                                                     veryVeryVeryVerbose); break
 
+        CASE(15);
         CASE(14);
         CASE(13);
         CASE(12);
