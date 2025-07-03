@@ -306,17 +306,33 @@ namespace bsls {
 
 /// This struct provides a namespace for the function to obtain return
 /// addresses from the stack.
-struct StackAddressUtil {
+class StackAddressUtil {
+
+#if defined(__SANITIZE_ADDRESS__) || defined(__SANITIZE_THREAD__)
+    enum { k_SANITIZER_ADJUST = 1 };
+#elif defined(__has_feature)
+# if  __has_feature(address_sanitizer) || __has_feature(thread_sanitizer)     \
+   || __has_feature(memory_sanitizer)
+    enum { k_SANITIZER_ADJUST = 1 };
+# else
+    enum { k_SANITIZER_ADJUST = 0 };
+# endif
+#else
+    enum { k_SANITIZER_ADJUST = 0 };
+#endif
+
+  public:
 
     // On some platforms, 'getStackAddresses' finds a frame representing
-    // 'getStackAddresses' itself.  This frame is usually unwanted.
-    // 'k_IGNORE_FRAMES' instructs the caller as to whether the first frame is
-    // such an unwanted frame.
+    // 'getStackAddresses' itself and possibly another frame representing
+    // another function it calls.  These frames are usually unwanted.
+    // 'k_IGNORE_FRAMES' instructs the caller as to whether the first N frames
+    // are such unwanted frames.
 
 #if   defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_DARWIN)
-    enum { k_IGNORE_FRAMES = 1 };
+    enum { k_IGNORE_FRAMES = 1 + k_SANITIZER_ADJUST };
 #else
-    enum { k_IGNORE_FRAMES = 0 };
+    enum { k_IGNORE_FRAMES = 0 + k_SANITIZER_ADJUST };
 #endif
 
     // CLASS METHODS

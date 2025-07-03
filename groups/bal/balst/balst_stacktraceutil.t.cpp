@@ -1514,7 +1514,13 @@ int case_3_Top(bool demangle)
                                                   demangle);
     LOOP_ASSERT(rc, 0 == rc);
     if (0 == rc) {
-        testStackTrace(st);
+        // Check out all frames except the ignored frames.
+
+        ST st2;
+        for (int ii = Address::k_IGNORE_FRAMES; ii < st.length(); ++ii) {
+            st2.append(st[ii]);
+        }
+        testStackTrace(st2);
 
         bslma::TestAllocator ta;
         bsl::vector<const char *> matches(&ta);
