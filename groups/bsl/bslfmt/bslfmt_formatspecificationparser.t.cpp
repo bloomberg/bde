@@ -773,14 +773,14 @@ void TestDriver<t_CHAR>::testCase4(bool verbose, bool veryVerbose)
             { L_,  Enums::e_SECTIONS_PRECISION,       "}"         },
             { L_,  Enums::e_SECTIONS_LOCALE_FLAG,     "L"         },
         };
-        const size_t NUM__DATA = sizeof DATA / sizeof *DATA;
+        const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
         int counter = 0;
-        for (size_t i = 1; i < NUM__DATA; ++i) {
+        for (size_t i = 1; i < NUM_DATA; ++i) {
             const int             SECT_LINE = DATA[i].d_line;
             const Enums::Sections SECTION   = DATA[i].d_section;
 
-            for (size_t j = 1; j < NUM__DATA; ++j) {
+            for (size_t j = 1; j < NUM_DATA; ++j) {
               const int   INST_LINE   = DATA[i].d_line;
               const char *INSTRUCTION = DATA[j].d_instruction_p;
 
@@ -1081,9 +1081,9 @@ int main(int argc, char **argv)
                { L_,  "{1}.{2}", VALUE,     1,      VALUE,    2     },
                { L_,  "{2}.{1}", VALUE,     2,      VALUE,    1     },
             };
-            const size_t NUM__DATA = sizeof DATA / sizeof *DATA;
+            const size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (size_t i = 0; i < NUM__DATA; ++i) {
+            for (size_t i = 0; i < NUM_DATA; ++i) {
                 const int       LINE  = DATA[i].d_line;
                 const char     *SPEC  = DATA[i].d_spec_p;
                 const Category  W_CAT = DATA[i].d_widthCategory;

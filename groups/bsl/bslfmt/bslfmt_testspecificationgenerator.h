@@ -1241,7 +1241,9 @@ void TestSpecificationGenerator<t_CHAR>::setup(const char *instruction)
 
             bsl::vector<FormatType> typeVector;
             typeVector.push_back(e_TYPE_STRING);
-            typeVector.push_back(e_TYPE_ESCAPED);
+
+            // String escaping is not supported
+            // typeVector.push_back(e_TYPE_ESCAPED);
 
             addOption(new (*d_allocator_p)
                           TestSpecificationGenerator_TypedOption<FormatType>(
