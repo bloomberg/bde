@@ -26,6 +26,7 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_testutil.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
 
@@ -37,6 +38,7 @@
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
@@ -45,6 +47,7 @@
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
 #include <bsl_deque.h>
+#include <bsl_format.h>
 #include <bsl_iostream.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
@@ -347,53 +350,6 @@ const bool                   expAssignMove      = false;
             } \
         } \
     }
-
-const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
-
-static bsls::AtomicInt s_continue;
-
-static char s_watchdogText[128];
-
-/// Assign the specified `value` to be displayed if the watchdog expires.
-void setWatchdogText(const char *value)
-{
-    memcpy(s_watchdogText, value, strlen(value) + 1);
-}
-
-/// Watchdog function used to determine when a timeout should occur.  This
-/// function returns without expiration if `0 == s_continue` before one
-/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
-/// program is aborted.
-extern "C" void *watchdog(void *arg)
-{
-    if (arg) {
-        setWatchdogText(static_cast<const char *>(arg));
-    }
-
-    const int MAX = 900;  // one iteration is a deci-second
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(k_DECISECOND);
-        ++count;
-
-        ASSERTV(s_watchdogText, count < MAX);
-
-        if (MAX == count && s_continue) {
-            // `abort` is preferred here but, on Windows, may result in a
-            // dialog box and the process not terminating.
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            abort();
-#else
-            exit(1);
-#endif
-        }
-    }
-
-    return 0;
-}
 
 //=============================================================================
 //                  SUPPORT CLASSES AND FUNCTIONS USED FOR TESTING
@@ -4233,14 +4189,6 @@ void highWaterMarkTest()
 
     const char *name = NameOf<ELEMENT>();
 
-    bslmt::ThreadUtil::Handle watchdogHandle;
-
-    s_continue = 1;
-
-    ASSERT(0 == bslmt::ThreadUtil::create(&watchdogHandle,
-                                          watchdog,
-                                          const_cast<char *>(name)));
-
     if (verbose) cout << "highWaterMarkTest<" << name << ">()\n";
 
     {
@@ -4300,10 +4248,6 @@ void highWaterMarkTest()
 
     ASSERTV(ta.numBlocksInUse(), 0 == ta.numBlocksInUse());
     ASSERTV(da.numBlocksInUse(), 0 == da.numBytesInUse());
-
-    s_continue = 0;
-
-    bslmt::ThreadUtil::join(watchdogHandle);
 }
 
 }  // close namespace TEST_CASE_11
@@ -5458,6 +5402,10 @@ int main(int argc, char *argv[])
 
     bslmt::Configuration::setDefaultThreadStackSize(
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
+
+    bslmt::TimedCompletionGuard completionGuard(&da);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 28: {
@@ -8037,14 +7985,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "TESTING PUSH FUNCTIONS WITH HIGH WATER MARK\n"
                              "===========================================\n";
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        ASSERT(0 == bslmt::ThreadUtil::create(&watchdogHandle,
-                                              watchdog,
-                                              const_cast<char *>("case 5")));
-
         static  const struct {
             int d_lineNum;
             int d_highWaterMark;
@@ -8062,7 +8002,9 @@ int main(int argc, char *argv[])
         const Element VA = 1.2;
         const Element VB = -5.7;
 
-        setWatchdogText("case 5: pushBack");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         if (verbose) cout << "\tWith `pushBack`" << endl;
         for (size_t i = 0; i< NUM_VALUES; ++i)
@@ -8112,7 +8054,9 @@ int main(int argc, char *argv[])
             ASSERTV(i, 0 == ta.numBytesInUse());
         }
 
-        setWatchdogText("case 5: push_front");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         if (verbose) cout << "\tWith `push_front`" << endl;
         for (unsigned i = 0; i< NUM_VALUES; ++i)
@@ -8163,10 +8107,6 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(0 == da.numAllocations());
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 4: {
         // --------------------------------------------------------------------
