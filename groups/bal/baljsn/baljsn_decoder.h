@@ -177,6 +177,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlma_localsequentialallocator.h>
 
+#include <bsla_fallthrough.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_isintegral.h>
 
@@ -424,6 +426,7 @@ struct Decoder_DecodeImpProxy {
 struct Decoder_RequiredAttrsVisitor {
     // PUBLIC DATA
     bsl::unordered_set<bsl::string> *d_requiredAttributes_p;
+    bool                             d_usesDefaultValueFlag;
 
     // MANIPULATORS
     template <class TYPE, class INFO>
@@ -510,7 +513,8 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
         bsl::unordered_set<bsl::string> requiredAttributes(&localAllocator);
         if (!d_allowMissingRequiredAttributes) {
             // Collect a list of the non-optional attributes
-            Decoder_RequiredAttrsVisitor visitor = {&requiredAttributes};
+            Decoder_RequiredAttrsVisitor visitor = {&requiredAttributes,
+                       ::BloombergLP::bdlat_UsesDefaultValueFlag<TYPE>::value};
             bdlat_SequenceFunctions::manipulateAttributes(value, visitor);
         }
 
@@ -1180,13 +1184,20 @@ int Decoder_RequiredAttrsVisitor::operator()(TYPE *value, const INFO& info) {
     switch(bdlat_TypeCategoryFunctions::select(*value))
     {
       case bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY:
+        break; // skip
       // The following categories can have default values:
       case bdlat_TypeCategory::e_SIMPLE_CATEGORY:
       case bdlat_TypeCategory::e_ENUMERATION_CATEGORY:
       case bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY:
-        break; // skip
+        if(!d_usesDefaultValueFlag) {
+            break; // skip
+        }
+        BSLA_FALLTHROUGH;
       default:
-        d_requiredAttributes_p->emplace(info.name(), info.nameLength());
+        if (!d_usesDefaultValueFlag ||
+            !(info.formattingMode() & bdlat_FormattingMode::e_DEFAULT_VALUE)) {
+            d_requiredAttributes_p->emplace(info.name(), info.nameLength());
+        }
     }
     return 0;
 }

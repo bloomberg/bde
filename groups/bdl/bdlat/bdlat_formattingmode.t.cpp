@@ -30,6 +30,8 @@ using namespace bsl;
 //  bdlat_FormattingMode::ATTRIBUTE
 //  bdlat_FormattingMode::SIMPLE_CONTENT
 //  bdlat_FormattingMode::NILLABLE
+//  bdlat_FormattingMode::LIST
+//  bdlat_FormattingMode::DEFAULT_VALUE
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
@@ -146,6 +148,7 @@ int main(int argc, char *argv[])
           e(bdlat_FormattingMode, SIMPLE_CONTENT),
           e(bdlat_FormattingMode, NILLABLE),
           e(bdlat_FormattingMode, LIST),
+          e(bdlat_FormattingMode, DEFAULT_VALUE),
           e(bdlat_FormattingMode, FLAGS_MASK),
 #endif
           { L_, "None", 0, 0 },
@@ -204,6 +207,7 @@ int main(int argc, char *argv[])
         //    bdlat_FormattingMode::e_SIMPLE_CONTENT
         //    bdlat_FormattingMode::e_NILLABLE
         //    bdlat_FormattingMode::e_LIST
+        //    bdlat_FormattingMode::e_DEFAULT_VALUE
         //    bdlat_FormattingMode::e_FLAGS_MASK
         // --------------------------------------------------------------------
 
@@ -259,7 +263,8 @@ int main(int argc, char *argv[])
             FM::e_ATTRIBUTE,
             FM::e_SIMPLE_CONTENT,
             FM::e_NILLABLE,
-            FM::e_LIST
+            FM::e_LIST,
+            FM::e_DEFAULT_VALUE
         };
 
         static const int NUM_FLAG_MODES =

@@ -67,6 +67,7 @@
 #include <s_baltst_myintenumeration.h>
 #include <s_baltst_mysequencewitharray.h>
 #include <s_baltst_mysequencewithchoice.h>
+#include <s_baltst_mysequencewithdefault.h>
 #include <s_baltst_mysequencewithnillable.h>
 #include <s_baltst_testchoice.h>
 #include <s_baltst_testcustomizedtype.h>
@@ -3514,16 +3515,24 @@ int main(int argc, char *argv[])
         //    false makes the decoder fail unless all non-optional attributes
         //    are presented in the input message.
         //
+        // 2. Sequence elements with a default value are optional.
+        //
         // Plan:
         // 1. The `s_baltst::MySequenceWithArray` sequence has 2 non-optional
         //    attributes (`attribute1` and `attribute2`).  Create a JSON that
         //    contains `attribute1`, but lacks `attribute2`.
         //
         // 2. Try to decode this JSON using default options.  Verify that
-        //    decoding was successful.
+        //    decoding was successful.  (C-1)
         //
         // 3. Set the `allowMissingRequiredAttributes` option to false and try
-        //    to decode the same again.  Verify that decoding failed.
+        //    to decode the same again.  Verify that decoding failed.  (C-1)
+        //
+        // 4. The `s_baltst::MySequenceWithDefault` sequence has 2 non-optional
+        //    attributes (`attribute1` and `attribute2`), but `attribute2` has
+        //    a default value.  Try to decode the same JSON with
+        //    `allowMissingRequiredAttributes == false`.  Verify that decoding
+        //    was successful.  (C-2)
         //
         // Testing:
         //   `allowMissingRequiredAttributes` OPTION
@@ -3553,6 +3562,13 @@ int main(int argc, char *argv[])
 
             ASSERT(options.allowMissingRequiredAttributes() == false);
             ASSERT(decoder.decode(ss, &seq, options) != 0);
+        }
+        {
+            bsl::istringstream ss(JSON);
+            test::MySequenceWithDefault seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == false);
+            ASSERT(decoder.decode(ss, &seq, options) == 0);
         }
       } break;
       case 17: {

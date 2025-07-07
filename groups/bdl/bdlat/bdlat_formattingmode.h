@@ -45,6 +45,8 @@ BSLS_IDENT("$Id: $")
 // e_NILLABLE              Use nillable formatting (for XSD `nillable`
 //                         option).
 // e_LIST                  Use the list format (this is used for arrays).
+// e_DEFAULT_VALUE         `default` attribute is specified for the
+//                         corresponding `<xs:element>`.
 // ```
 //
 ///Usage
@@ -78,7 +80,8 @@ struct bdlat_FormattingMode {
         e_SIMPLE_CONTENT = 0x00040000,  // use simple content formatting
         e_NILLABLE       = 0x00080000,  // use nillable formatting
         e_LIST           = 0x00100000,  // use list format (for arrays)
-        e_FLAGS_MASK     = 0x001F0000   // mask for formatting flags
+        e_DEFAULT_VALUE  = 0x00200000,  // has default value in XSD
+        e_FLAGS_MASK     = 0x003F0000   // mask for formatting flags
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , DEFAULT           = e_DEFAULT
@@ -105,6 +108,7 @@ struct bdlat_FormattingMode {
       , BDEAT_SIMPLE_CONTENT    = e_SIMPLE_CONTENT
       , BDEAT_NILLABLE          = e_NILLABLE
       , BDEAT_LIST              = e_LIST
+      , BDEAT_DEFAULT_VALUE     = e_DEFAULT_VALUE
       , BDEAT_FLAGS_MASK        = e_FLAGS_MASK
       , BDEAT_IS_UNTAGGED       = e_UNTAGGED
       , BDEAT_IS_ATTRIBUTE      = e_ATTRIBUTE

@@ -15,6 +15,8 @@ BSLS_IDENT("$Id: $")
 //                                       that have a "fallback" enumerator
 //  bdlat_BasicEnumerationWrapper<TYPE>: characteristics of enumeration type
 //  bdlat_IsBasicCustomizedType<TYPE>:   true for generated "customized" types
+//  bdlat_UsesDefaultValueFlag<TYPE>:    true for generated "sequence" types
+//                                       that use `e_DEFAULT_VALUE` fmt flag
 //
 //@MACROS:
 //  BDLAT_DECL_CHOICE_TRAITS(ClassName)
@@ -95,6 +97,13 @@ struct bdlat_HasFallbackEnumerator
 template <class TYPE>
 struct bdlat_IsBasicCustomizedType :
         bslmf::DetectNestedTrait<TYPE, bdlat_IsBasicCustomizedType>::type {
+};
+
+/// This trait is declared for "sequence" types that use the `e_DEFAULT_VALUE`
+/// formattig mode flag.
+template <class TYPE>
+struct bdlat_UsesDefaultValueFlag :
+             bslmf::DetectNestedTrait<TYPE, bdlat_UsesDefaultValueFlag>::type {
 };
 
 /// This template has no definition for most types.  However for types that
