@@ -38,10 +38,11 @@ using namespace bsl;
 // [ 3] tm convertToTm(const Datetime& datetime);
 // [ 3] void convertToTm(tm *result, const Datetime& datetime);
 // [ 3] int convertFromTm(Datetime *result, const tm& timeStruct);
+// [ 4] bsl::optional<Datetime> fromYmdHms(y,m,d,hh,mm,ss,ms,us);
 //-----------------------------------------------------------------------------
 // [ 1] BOOTSTRAP: `convertToTm`
 // [ 2] BOOTSTRAP: `convertFromTm`
-// [ 4] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -429,7 +430,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -453,6 +454,150 @@ int main(int argc, char *argv[])
         }
 
         exerciseTracker();
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING `fromYmdHms`
+        //
+        // Concerns:
+        // 1. The function returns constructed `Datetime` object if the
+        //    arguments comprise a valid datetime value, or an empty optinal
+        //    otherwise.
+        //
+        // 2. The `year`, `month`, `day`, `hour`, `minute`, `second`,
+        //    `millisecond`, and `microsecond` attributes of the successfully
+        //    constructed datetime object are equal to the arguments used for
+        //    the construction.
+        //
+        // Plan:
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    *candidate* year/month/day/hour/minute/second/millisecond/
+        //    microsecond datetime representations, and a flag value indicating
+        //    whether the year/month/day values represent a valid date object.
+        //
+        // 2. For each row `R` in the table of P-1:
+        //
+        //   1. Try to construct a datetime value using the `fromYmdHms`
+        //      function and the values from `R`.
+        //
+        //   2. Verify that the resulting optional object contains a value if
+        //      the flag value is `true`, or is empty otherwise (C-1).
+        //
+        //   3. Verify that the `year`, `month`, `day`, `hour`, `minute`,
+        //      `second`, `millisecond`, and `microsecond` attributes of the
+        //      successfully constructed datetime object are equal to the ones
+        //      specified in `R` (C-2).
+        //
+        // Testing:
+        //   bsl::optional<Datetime> fromYmdHms(y,m,d,hh,mm,ss,ms,us);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING `fromYmdHms`"
+                             "\n====================" << endl;
+
+        static const struct {
+            int  d_line;
+            int  d_year;
+            int  d_month;
+            int  d_day;
+            int  d_hour;
+            int  d_minute;
+            int  d_second;
+            int  d_msec;
+            int  d_usec;
+            bool d_valid;
+        } DATA[] = {
+            //LINE YEAR   MO   DAY   HR  MIN  SEC  MSEC  USEC  VALID
+            //---- ----   --   ---   --  ---  ---  ----  ----  -----
+
+            // valid arguments
+            { L_,     1,   1,   1,   24,   0,   0,    0,    0, true  },
+
+            { L_,     1,   1,   1,    0,   0,   0,    0,    0, true  },
+            { L_,     1,   1,   1,    0,   0,   0,    0,  999, true  },
+            { L_,     1,   1,   1,    0,   0,   0,  999,    0, true  },
+            { L_,     1,   1,   1,    0,   0,  59,    0,    0, true  },
+            { L_,     1,   1,   1,    0,  59,   0,    0,    0, true  },
+            { L_,     1,   1,   1,   23,   0,   0,    0,    0, true  },
+            { L_,     1,   1,  31,    0,   0,   0,    0,    0, true  },
+            { L_,     1,  12,   1,    0,   0,   0,    0,    0, true  },
+            { L_,  9999,   1,   1,    0,   0,   0,    0,    0, true  },
+            { L_,  9999,  12,  31,   23,  59,  59,  999,  999, true  },
+
+            { L_,  1400,  10,   2,    7,  31,   2,   22,  415, true  },
+            { L_,  2002,   8,  27,   14,   2,  48,  976,  120, true  },
+
+            { L_,     1,   1,   2,   24,   0,   0,    0,    0, true },
+
+            // invalid arguments
+            { L_,     1,   1,   1,    0,   0,   0,    0,   -1, false },
+            { L_,     1,   1,   1,    0,   0,   0,   -1,    0, false },
+            { L_,     1,   1,   1,    0,   0,  -1,    0,    0, false },
+            { L_,     1,   1,   1,    0,  -1,   0,    0,    0, false },
+            { L_,     1,   1,   1,   -1,   0,   0,    0,    0, false },
+            { L_,     1,   1,   0,    0,   0,   0,    0,    0, false },
+            { L_,     1,   0,   1,    0,   0,   0,    0,    0, false },
+            { L_,     0,   1,   1,    0,   0,   0,    0,    0, false },
+
+            { L_,     1,   1,   1,    0,   0,   0,    0, 1000, false },
+            { L_,     1,   1,   1,    0,   0,   0, 1000,    0, false },
+            { L_,     1,   1,   1,    0,   0,  60,    0,    0, false },
+            { L_,     1,   1,   1,    0,  60,   0,    0,    0, false },
+            { L_,     1,   1,   1,   25,   0,   0,    0,    0, false },
+            { L_,     1,   1,  32,    0,   0,   0,    0,    0, false },
+            { L_,     1,  13,   1,    0,   0,   0,    0,    0, false },
+            { L_, 10000,   1,   1,    0,   0,   0,    0,    0, false },
+
+            { L_,     1,   1,   1,   24,   0,   0,    0,    1, false },
+            { L_,     1,   1,   1,   24,   0,   0,    1,    0, false },
+            { L_,     1,   1,   1,   24,   0,   1,    0,    0, false },
+            { L_,     1,   1,   1,   24,   1,   0,    0,    0, false },
+
+            { L_,     0,   0,   0,   -1,  -1,  -1,   -1,   -1, false },
+
+            { L_,  1401,   2,  29,    7,  31,   2,   22,    0, false },
+            { L_,  2002,   2,  29,   14,   2,  48,  976,    0, false },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int  LINE   = DATA[i].d_line;
+            const int  YEAR   = DATA[i].d_year;
+            const int  MONTH  = DATA[i].d_month;
+            const int  DAY    = DATA[i].d_day;
+            const int  HOUR   = DATA[i].d_hour;
+            const int  MINUTE = DATA[i].d_minute;
+            const int  SECOND = DATA[i].d_second;
+            const int  MSEC   = DATA[i].d_msec;
+            const int  USEC   = DATA[i].d_usec;
+            const bool VALID  = DATA[i].d_valid;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P(VALID)
+                   P_(YEAR) P_(MONTH) P_(DAY)
+                   P_(HOUR) P_(MINUTE) P_(SECOND) P_(MSEC) P(USEC)
+            }
+
+            bsl::optional<bdlt::Datetime> result = Util::fromYmdHms(YEAR,
+                                                                    MONTH,
+                                                                    DAY,
+                                                                    HOUR,
+                                                                    MINUTE,
+                                                                    SECOND,
+                                                                    MSEC,
+                                                                    USEC);
+            LOOP_ASSERT(LINE, result.has_value() == VALID);
+            if (VALID) {
+                LOOP_ASSERT(LINE, result->year()        == YEAR);
+                LOOP_ASSERT(LINE, result->month()       == MONTH);
+                LOOP_ASSERT(LINE, result->day()         == DAY);
+                LOOP_ASSERT(LINE, result->hour()        == HOUR);
+                LOOP_ASSERT(LINE, result->minute()      == MINUTE);
+                LOOP_ASSERT(LINE, result->second()      == SECOND);
+                LOOP_ASSERT(LINE, result->millisecond() == MSEC);
+                LOOP_ASSERT(LINE, result->microsecond() == USEC);
+            }
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------

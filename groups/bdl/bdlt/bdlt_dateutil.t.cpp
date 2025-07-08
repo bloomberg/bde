@@ -39,6 +39,7 @@ using namespace bsl;
 // [ 2] Date convertFromYYYYMMDDRaw(int yyyymmddValue);
 // [ 4] int convertToYYYYMMDD(const Date& date);
 // [10] Date earliestDayOfWeekInMonth(year, month, dayOfWeek);
+// [18] bsl::optional<Date> fromYmd(int year, int month, int day);
 // [ 1] bool isValidYYYYMMDD(int yyyymmddValue);
 // [17] Date lastDayInMonth(year, month);
 // [10] Date lastDayOfWeekInMonth(year, month, dayOfWeek);
@@ -48,7 +49,7 @@ using namespace bsl;
 // [ 7] Date previousDayOfWeek(dayOfWeek, date);
 // [ 8] Date previousDayOfWeekInclusive(dayOfWeek, date);
 // ----------------------------------------------------------------------------
-// [18] USAGE EXAMPLE
+// [19] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -285,6 +286,189 @@ if (veryVerbose)
 // Notice that the dates have been adjusted to the end of the month.  If we had
 // used `addMonthsNoEom` instead of `addMonthsEom`, this adjustment would not
 // have occurred.
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING `fromYmd`
+        //
+        // Concerns:
+        // 1. The function returns constructed `Date` object if the arguments
+        //    comprise a valid date value, or an empty optinal otherwise.
+        //
+        // 2. The `year`, `month`, and `day` attributes of the successfully
+        //    constructed date object are equal to the arguments used for the
+        //    construction.
+        //
+        // Plan:
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    *candidate* year/month/day date representations, and a flag
+        //    value indicating whether the year/month/day values represent a
+        //    valid date object.
+        //
+        // 2. For each row `R` in the table of P-1:
+        //
+        //   1. Try to construct a date value using the `fromYmd` function and
+        //      the values from `R`.
+        //
+        //   2. Verify that the resulting optional object contains a value if
+        //      the flag value is `true`, or is empty otherwise (C-1).
+        //
+        //   3. Verify that the `year`, `month`, and `day` attributes of the
+        //      successfully constructed date object are equal to the ones
+        //      specified in `R` (C-2).
+        //
+        // Testing:
+        //   bsl::optional<Date> fromYmd(int year, int month, int day);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING `fromYmd`"
+                             "\n=================" << endl;
+
+        static const struct {
+            int  d_line;   // source line number
+            int  d_year;   // year under test
+            int  d_month;  // month under test
+            int  d_day;    // day under test
+            bool d_valid;  // is the date valid?
+        } DATA[] = {
+            //LINE     YEAR     MONTH      DAY      VALID
+            //----   -------   -------   -------    -----
+            { L_,    INT_MIN,        1,        1,   false },
+            { L_,         -1,        1,        1,   false },
+            { L_,          0,        1,        1,   false },
+
+            { L_,          1,  INT_MIN,        1,   false },
+            { L_,          1,       -1,        1,   false },
+            { L_,          1,        0,        1,   false },
+
+            { L_,          1,        1,  INT_MIN,   false },
+            { L_,          1,        1,       -1,   false },
+            { L_,          1,        1,        0,   false },
+
+            { L_,          1,        1,        1,   true  },
+            { L_,          1,        1,       31,   true  },
+            { L_,          1,        1,  INT_MAX,   false },
+            { L_,          1,        2,       28,   true  },
+            { L_,          1,        2,       29,   false },
+            { L_,          1,       12,       31,   true  },
+            { L_,          1,       12,       32,   false },
+            { L_,          1,       13,        1,   false },
+            { L_,          1,  INT_MAX,        1,   false },
+
+            { L_,          4,        2,       28,   true  },
+            { L_,          4,        2,       29,   true  },
+            { L_,          4,        2,       30,   false },
+
+            { L_,        100,        2,       28,   true  },
+
+            { L_,        400,        2,       28,   true  },
+            { L_,        400,        2,       29,   true  },
+            { L_,        400,        2,       30,   false },
+
+            { L_,       1000,        2,       28,   true  },
+
+            { L_,       2003,        1,       31,   true  },
+            { L_,       2003,        1,       32,   false },
+            { L_,       2003,        2,       28,   true  },
+            { L_,       2003,        2,       29,   false },
+            { L_,       2003,        3,       31,   true  },
+            { L_,       2003,        3,       32,   false },
+            { L_,       2003,        4,       30,   true  },
+            { L_,       2003,        4,       31,   false },
+            { L_,       2003,        5,       31,   true  },
+            { L_,       2003,        5,       32,   false },
+            { L_,       2003,        6,       30,   true  },
+            { L_,       2003,        6,       31,   false },
+            { L_,       2003,        7,       31,   true  },
+            { L_,       2003,        7,       32,   false },
+            { L_,       2003,        8,       31,   true  },
+            { L_,       2003,        8,       32,   false },
+            { L_,       2003,        9,       30,   true  },
+            { L_,       2003,        9,       31,   false },
+            { L_,       2003,       10,       31,   true  },
+            { L_,       2003,       10,       32,   false },
+            { L_,       2003,       11,       30,   true  },
+            { L_,       2003,       11,       31,   false },
+            { L_,       2003,       12,       31,   true  },
+            { L_,       2003,       12,       32,   false },
+
+            { L_,       2004,        1,       31,   true  },
+            { L_,       2004,        1,       32,   false },
+            { L_,       2004,        2,       29,   true  },
+            { L_,       2004,        2,       30,   false },
+            { L_,       2004,        3,       31,   true  },
+            { L_,       2004,        3,       32,   false },
+            { L_,       2004,        4,       30,   true  },
+            { L_,       2004,        4,       31,   false },
+            { L_,       2004,        5,       31,   true  },
+            { L_,       2004,        5,       32,   false },
+            { L_,       2004,        6,       30,   true  },
+            { L_,       2004,        6,       31,   false },
+            { L_,       2004,        7,       31,   true  },
+            { L_,       2004,        7,       32,   false },
+            { L_,       2004,        8,       31,   true  },
+            { L_,       2004,        8,       32,   false },
+            { L_,       2004,        9,       30,   true  },
+            { L_,       2004,        9,       31,   false },
+            { L_,       2004,       10,       31,   true  },
+            { L_,       2004,       10,       32,   false },
+            { L_,       2004,       11,       30,   true  },
+            { L_,       2004,       11,       31,   false },
+            { L_,       2004,       12,       31,   true  },
+            { L_,       2004,       12,       32,   false },
+
+            { L_,       9999,        0,        1,   false },
+            { L_,       9999,        1,        0,   false },
+            { L_,       9999,        1,        1,   true  },
+            { L_,       9999,        2,       28,   true  },
+            { L_,       9999,        2,       29,   false },
+            { L_,       9999,       12,       31,   true  },
+            { L_,       9999,       12,       32,   false },
+            { L_,       9999,       13,       30,   false },
+
+            { L_,      10000,        1,        1,   false },
+            { L_,    INT_MAX,        1,        1,   false },
+
+            { L_,       2016,        2,       29,   true  },
+            { L_,       2020,        2,       29,   true  },
+            { L_,       2024,        2,       29,   true  },
+            { L_,       2028,        2,       29,   true  },
+            { L_,       2032,        2,       29,   true  },
+            { L_,       2036,        2,       29,   true  },
+            { L_,       2040,        2,       29,   true  },
+            { L_,       2044,        2,       29,   true  },
+            { L_,       2048,        2,       29,   true  },
+            { L_,       2052,        2,       29,   true  },
+            { L_,       2056,        2,       29,   true  },
+            { L_,       2060,        2,       29,   true  },
+            { L_,       2064,        2,       29,   true  },
+            { L_,       2068,        2,       29,   true  },
+            { L_,       2072,        2,       29,   true  },
+            { L_,       2076,        2,       29,   true  },
+            { L_,       2080,        2,       29,   true  },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int  LINE  = DATA[ti].d_line;
+            const int  YEAR  = DATA[ti].d_year;
+            const int  MONTH = DATA[ti].d_month;
+            const int  DAY   = DATA[ti].d_day;
+            const bool VALID = DATA[ti].d_valid;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(YEAR) P_(MONTH) P_(DAY) P(VALID)
+            }
+
+            bsl::optional<bdlt::Date> result = Util::fromYmd(YEAR, MONTH, DAY);
+
+            LOOP_ASSERT(LINE, result.has_value() == VALID);
+            if (VALID) {
+                LOOP_ASSERT(LINE, result->year()  == YEAR);
+                LOOP_ASSERT(LINE, result->month() == MONTH);
+                LOOP_ASSERT(LINE, result->day()   == DAY);
+            }
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------

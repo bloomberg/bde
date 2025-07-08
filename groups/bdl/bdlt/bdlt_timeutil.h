@@ -108,6 +108,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
+#include <bsl_optional.h>
+
 namespace BloombergLP {
 namespace bdlt {
 
@@ -216,6 +218,16 @@ struct TimeUtil {
     ///                         + value.millisecond()
     /// ```
     static int convertToHHMMSSmmm(const Time& value);
+
+    /// Return an `optional` having a `Time` with the specified `hour`,
+    /// `minute`, `second`, and the optionally specified `millisecond` and
+    /// `microsecond`, if those form a valid `Time` (see `Time::isValid`);
+    /// otherwise return an `optional` without a value.
+    static bsl::optional<Time> fromHms(int hour,
+                                       int minute,
+                                       int second,
+                                       int millisecond = 0,
+                                       int microsecond = 0);
 
     /// Return `true` if the specified `timeValue` is a non-negative integer
     /// that represents a valid four-digit time value suitable for passing
@@ -341,6 +353,23 @@ int TimeUtil::convertToHHMMSSmmm(const Time& value)
          + value.minute() * k_HHMMSSMMM_MM_FACTOR
          + value.second() * k_HHMMSSMMM_SS_FACTOR
          + value.millisecond();
+}
+
+inline
+bsl::optional<Time> TimeUtil::fromHms(int hour,
+                                      int minute,
+                                      int second,
+                                      int millisecond,
+                                      int microsecond)
+{
+    return Time::isValid(hour, minute, second, millisecond, microsecond)
+        ? bsl::optional<Time>(bsl::in_place,
+                              hour,
+                              minute,
+                              second,
+                              millisecond,
+                              microsecond)
+        : bsl::nullopt;
 }
 
 }  // close package namespace

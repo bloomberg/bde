@@ -42,6 +42,9 @@ BSLS_IDENT("$Id: $")
 // 'addYearsNoEom'                 using either the end-of-month or the
 // 'addYears'                      non-end-of-month convention (see
 //                                 {End-of-Month Adjustment Conventions}).
+//
+// 'fromYmd'                     o Validate the input parameters and construct
+//                                 a `Date` object if they are valid.
 // ```
 //
 ///"YYYYMMDD" Format
@@ -149,6 +152,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_review.h>
+
+#include <bsl_optional.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -264,6 +269,11 @@ struct DateUtil {
     static Date earliestDayOfWeekInMonth(int             year,
                                          int             month,
                                          DayOfWeek::Enum dayOfWeek);
+
+    /// Return an `optional` having a `Date` with the specified `year`,
+    /// `month`, and `day`, if those form a valid `Date` (see `Date::isValid`);
+    /// otherwise return an `optional` without a value.
+    static bsl::optional<Date> fromYmd(int year, int month, int day);
 
     /// Return `true` if the specified `yyyymmddValue` represents a valid
     /// `Date` value in the "YYYYMMDD" format, and `false` otherwise.
@@ -420,6 +430,14 @@ Date DateUtil::earliestDayOfWeekInMonth(int             year,
     BSLS_ASSERT_SAFE(1 <= month);  BSLS_ASSERT_SAFE(month <= 12);
 
     return nextDayOfWeekInclusive(dayOfWeek, Date(year, month, 1));
+}
+
+inline
+bsl::optional<Date> DateUtil::fromYmd(int year, int month, int day)
+{
+    return Date::isValid(year, month, day)
+        ? bsl::optional<Date>(bsl::in_place, year, month, day)
+        : bsl::nullopt;
 }
 
 inline

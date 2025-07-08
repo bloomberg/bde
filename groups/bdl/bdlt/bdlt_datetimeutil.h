@@ -21,6 +21,14 @@ BSLS_IDENT("$Id: $")
 // ```
 //  int convertFromTm(bdlt::Datetime *result, const tm& timeStruct);
 //  bsl::tm convertToTm(const bdlt::Datetime& datetime);
+//  bsl::optional<Datetime> fromYmdHms(int year,
+//                                     int month,
+//                                     int day,
+//                                     int hour,
+//                                     int minute,
+//                                     int second,
+//                                     int millisecond = 0,
+//                                     int microsecond = 0);
 // ```
 //
 ///Usage
@@ -177,6 +185,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 
 #include <bsl_ctime.h>            // 'bsl::tm'
+#include <bsl_optional.h>
 
 namespace BloombergLP {
 namespace bdlt {
@@ -212,6 +221,20 @@ struct DatetimeUtil {
     /// 0:00:00.  Note that time zones are irrelevant for this conversion.
     static bsl::tm convertToTm(                 const Datetime& datetime);
     static void    convertToTm(bsl::tm *result, const Datetime& datetime);
+
+    /// Return an `optional` having a `Datetime` with the specified `year`,
+    /// `month`, `day`, `hour`, `minute`, `second`, and the optionally
+    /// specified `millisecond` and `microsecond`, if those form a valid
+    /// `Datetime` (see `Datetime::isValid`); otherwise return an `optional`
+    /// without a value.
+    static bsl::optional<Datetime> fromYmdHms(int year,
+                                              int month,
+                                              int day,
+                                              int hour,
+                                              int minute,
+                                              int second,
+                                              int millisecond = 0,
+                                              int microsecond = 0);
 };
 
 // ============================================================================
@@ -288,6 +311,36 @@ void DatetimeUtil::convertToTm(bsl::tm *result, const Datetime& datetime)
     BSLS_ASSERT(result);
 
     *result = convertToTm(datetime);
+}
+
+inline
+bsl::optional<Datetime> DatetimeUtil::fromYmdHms(int year,
+                                                 int month,
+                                                 int day,
+                                                 int hour,
+                                                 int minute,
+                                                 int second,
+                                                 int millisecond,
+                                                 int microsecond)
+{
+    return Datetime::isValid(year,
+                             month,
+                             day,
+                             hour,
+                             minute,
+                             second,
+                             millisecond,
+                             microsecond)
+        ? bsl::optional<Datetime>(bsl::in_place,
+                                  year,
+                                  month,
+                                  day,
+                                  hour,
+                                  minute,
+                                  second,
+                                  millisecond,
+                                  microsecond)
+        : bsl::nullopt;
 }
 
 }  // close package namespace

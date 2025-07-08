@@ -34,8 +34,9 @@ using bsl::flush;
 // [ 2] static bool isValidHHMMSS(int value);
 // [ 3] static bdlt::Time convertFromHHMMSSmmm(int value);
 // [ 3] static bool isValidHHMMSSmmm(int value);
+// [ 5] static bsl::optional<Time> fromHms(h, m, s, ms, us);
 //-----------------------------------------------------------------------------
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
         //   This will test the usage examples provided in the component header
@@ -219,6 +220,116 @@ if (veryVerbose) {
 // Note that the millisecond and/or second fields of `bdlt::Time` are ignored
 // depending on the conversion method that is called.
 
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING `fromHms`
+        //
+        // Concerns:
+        // 1. The function returns constructed `Time` object if the arguments
+        //    comprise a valid time value, or an empty optinal otherwise.
+        //
+        // 2. The `hour`, `minute`, `second`, `millisecond`, and `microsecond`
+        //    attributes of the successfully constructed time object are equal
+        ///   to the arguments used for the construction.
+        //
+        // Plan:
+        // 1. Using the table-driven technique, specify a set of distinct
+        //    *candidate* hour/minute/second/millisecond/microsecond time
+        //    representations, and a flag value indicating whether the values
+        //    represent a valid time object.
+        //
+        // 2. For each row `R` in the table of P-1:
+        //
+        //   1. Try to construct a time value using the `fromHms` function and
+        //      the values from `R`.
+        //
+        //   2. Verify that the resulting optional object contains a value if
+        //      the flag value is `true`, or is empty otherwise (C-1).
+        //
+        //   3. Verify that the `hour`, `minute`, `second`, `millisecond`, and
+        //      `microsecond` attributes of the successfully constructed time
+        //      object are equal to the ones specified in `R` (C-2).
+        //
+        // Testing:
+        //   static bsl::optional<Time> fromHms(h, m, s, ms, us);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING `fromHms`"
+                             "\n=================" << endl;
+
+        static const struct {
+            int  d_lineNum;      // source line number
+            int  d_hour;         // specification hour
+            int  d_minute;       // specification minute
+            int  d_second;       // specification second
+            int  d_millisecond;  // specification millisecond
+            int  d_microsecond;  // specification microsecond
+            bool d_valid;        // is the time valid?
+        } DATA[] = {
+            //LINE HOUR   MIN  SEC   MSEC   USEC   VALID
+            //---- ----   ---  ---   ----   ----   ------
+            { L_,     0,    0,   0,     0,     0,  true  },
+
+            { L_,     0,    0,   0,     0,    -1,  false },
+            { L_,     0,    0,   0,     0,   999,  true  },
+            { L_,     0,    0,   0,     0,  1000,  false },
+
+            { L_,     0,    0,   0,    -1,     0,  false },
+            { L_,     0,    0,   0,   999,     0,  true  },
+            { L_,     0,    0,   0,  1000,     0,  false },
+
+            { L_,     0,    0,  -1,     0,     0,  false },
+            { L_,     0,    0,  59,     0,     0,  true  },
+            { L_,     0,    0,  60,     0,     0,  false },
+
+            { L_,     0,   -1,   0,     0,     0,  false },
+            { L_,     0,   59,   0,     0,     0,  true  },
+            { L_,     0,   60,   0,     0,     0,  false },
+
+            { L_,    -1,    0,   0,     0,     0,  false },
+            { L_,    23,    0,   0,     0,     0,  true  },
+            { L_,    24,    0,   0,     0,     0,  true  },
+            { L_,    25,    0,   0,     0,     0,  false },
+
+            { L_,    24,    0,   0,     0,     1,  false },
+            { L_,    24,    0,   0,     1,     0,  false },
+            { L_,    24,    0,   1,     0,     0,  false },
+            { L_,    24,    1,   0,     0,     0,  false },
+
+            { L_,    23,   59,  59,   999,   999,  true  },
+        };
+        const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int  LINE         = DATA[i].d_lineNum;
+            const int  HOUR         = DATA[i].d_hour;
+            const int  MINUTE       = DATA[i].d_minute;
+            const int  SECOND       = DATA[i].d_second;
+            const int  MILLISECOND  = DATA[i].d_millisecond;
+            const int  MICROSECOND  = DATA[i].d_microsecond;
+            const bool VALID        = DATA[i].d_valid;
+
+            if (veryVerbose) {
+                T_ P_(LINE) P_(VALID)
+                   P_(HOUR) P_(MINUTE) P_(SECOND)
+                   P_(MILLISECOND) P(MICROSECOND)
+            }
+
+            bsl::optional<bdlt::Time> result = Util::fromHms(HOUR,
+                                                             MINUTE,
+                                                             SECOND,
+                                                             MILLISECOND,
+                                                             MICROSECOND);
+            LOOP_ASSERT(LINE, result.has_value() == VALID);
+            if (VALID) {
+                LOOP_ASSERT(LINE, result->hour()        == HOUR);
+                LOOP_ASSERT(LINE, result->minute()      == MINUTE);
+                LOOP_ASSERT(LINE, result->second()      == SECOND);
+                LOOP_ASSERT(LINE, result->millisecond() == MILLISECOND);
+                LOOP_ASSERT(LINE, result->microsecond() == MICROSECOND);
+            }
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
