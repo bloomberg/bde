@@ -10,7 +10,9 @@
 #include <bdlb_randomdevice.h>
 
 #include <bslim_testutil.h>
+
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_semaphore.h>
 
 #include <bslma_allocator.h>
@@ -42,6 +44,7 @@
 #include <bsls_atomic.h>
 #include <bsls_buildtarget.h>
 #include <bsls_nameof.h>
+#include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>     // `BloombergLP::bsls::Types::Int64`
 
@@ -50,12 +53,13 @@
 #include <bsl_cstdlib.h>    // `atoi`
 #include <bsl_cmath.h>      // `sqrt`
 #include <bsl_cstdio.h>     // `sprintf`
-#include <bsl_stdexcept.h>  // `runtime_error`
+#include <bsl_format.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>     // `allocate_shared`
 #include <bsl_ostream.h>    // `operator<<`
 #include <bsl_sstream.h>
+#include <bsl_stdexcept.h>  // `runtime_error`
 #include <bsl_string.h>
 #include <bsl_vector.h>
 #include <bsl_unordered_map.h>
@@ -9842,6 +9846,11 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
     bslma::TestAllocatorMonitor gam(&globalAllocator);
+
+    bslmt::TimedCompletionGuard completionGuard(&defaultAllocator);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
+
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:

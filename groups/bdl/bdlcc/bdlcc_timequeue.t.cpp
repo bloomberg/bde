@@ -26,19 +26,21 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
-
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_keyword.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_charconv.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_ctime.h>
+#include <bsl_format.h>
 #include <bsl_iomanip.h>
 #include <bsl_iostream.h>
 #include <bsl_set.h>
@@ -1557,6 +1559,10 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVerbose);
     bslma::TestAllocator defaultAlloc(veryVeryVerbose);
     bslma::DefaultAllocatorGuard defaultAllocGuard(&defaultAlloc);
+
+    bslmt::TimedCompletionGuard completionGuard(&defaultAlloc);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 17: {

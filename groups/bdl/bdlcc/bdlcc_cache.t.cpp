@@ -24,6 +24,8 @@
 #include <bslmf_issame.h>
 #include <bslmf_usesallocatorargt.h>
 
+#include <bslmt_timedcompletionguard.h>
+
 #include <bsltf_movestate.h>
 #include <bsltf_streamutil.h>
 #include <bsltf_templatetestfacility.h>
@@ -36,9 +38,11 @@
 #include <bsls_atomic.h>
 #include <bsls_review.h>
 #include <bsls_nameof.h>
+#include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>  // `CachePerformance`
 #include <bsls_types.h>     // `BloombergLP::bsls::Types::Int64`
 
+#include <bsl_format.h>
 #include <bsl_iostream.h>
 #include <bsl_vector.h>
 #include <bsl_string.h>
@@ -4291,6 +4295,10 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
     bslma::TestAllocatorMonitor gam(&globalAllocator);
+
+    bslmt::TimedCompletionGuard completionGuard(&defaultAllocator);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:

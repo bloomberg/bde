@@ -24,6 +24,7 @@
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_timedsemaphore.h>
 #include <bslmt_turnstile.h>
 
@@ -32,6 +33,7 @@
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_timeutil.h>
 #include <bsls_types.h>
 
@@ -44,6 +46,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
@@ -151,8 +154,6 @@ static int veryVeryVerbose;
 typedef void Element;
 typedef bdlcc::FixedQueue<Element*> Obj;
 
-const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
-
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS  FOR TESTING
 // ----------------------------------------------------------------------------
@@ -199,43 +200,6 @@ const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
 
 namespace {
 namespace u {
-
-static bsls::AtomicInt s_continue;
-static char            s_watchdogText[128];
-
-/// Assign the specified `value` to be displayed if the watchdog expires.
-void setWatchdogText(const char *value)
-{
-    memcpy(s_watchdogText, value, strlen(value) + 1);
-}
-
-/// Watchdog function used to determine when a timeout should occur.  This
-/// function returns without expiration if `0 == s_continue` before one
-/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
-/// program is aborted.
-extern "C" void *watchdog(void *arg)
-{
-    if (arg) {
-        setWatchdogText(static_cast<const char *>(arg));
-    }
-
-    const int MAX = 900;  // 90s; one iteration is a deci-second
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(k_DECISECOND);
-        ++count;
-
-        ASSERTV(s_watchdogText, count < MAX);
-
-        if (MAX == count && s_continue) {
-            abort();
-        }
-    }
-
-    return 0;
-}
 
 /// Return the current time, as a `TimeInterval`.
 bsls::TimeInterval now()
@@ -1400,6 +1364,10 @@ int main(int argc, char *argv[])
     bslmt::Configuration::setDefaultThreadStackSize(
                     bslmt::Configuration::recommendedDefaultThreadStackSize());
 
+    bslmt::TimedCompletionGuard completionGuard;
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 19: {
         // ---------------------------------------------------------
@@ -2011,12 +1979,6 @@ int main(int argc, char *argv[])
         // TESTING sequence constraints
         // ---------------------------------------------------------
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        ::u::s_continue = 1;
-        ::u::setWatchdogText("case 12: sequence constraint test");
-        bslmt::ThreadUtil::create(&watchdogHandle, ::u::watchdog, 0);
-
         if (verbose) cout << endl
                           << "sequence constraint test" << endl
                           << "========================" << endl;
@@ -2031,11 +1993,6 @@ int main(int argc, char *argv[])
             seqtst::runtest(k_NUM_ITERATIONS, numPushers, numPoppers);
         }
         }
-
-         ::u::s_continue = 0;
-
-         ::u::setWatchdogText("case 12: join watchdog");
-         bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 11: {
         // ---------------------------------------------------------
@@ -2439,12 +2396,6 @@ int main(int argc, char *argv[])
                           << "ABA \"empty\" value test" << endl
                           << "======================"   << endl;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        ::u::s_continue = 1;
-        ::u::setWatchdogText("ABA 'empty' test");
-        bslmt::ThreadUtil::create(&watchdogHandle, ::u::watchdog, 0);
-
         enum {
             k_NUM_PUSHER_THREADS = 30,
             k_NUM_VALUES = 6,
@@ -2500,11 +2451,6 @@ int main(int argc, char *argv[])
          }
          ASSERT(0 < ta.numAllocations());
          ASSERT(0 == ta.numBytesInUse());
-
-         ::u::s_continue = 0;
-
-         ::u::setWatchdogText("ABA 'empty' test: join watchdog");
-         bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 6: {
         // --------------------------------------------------------------------

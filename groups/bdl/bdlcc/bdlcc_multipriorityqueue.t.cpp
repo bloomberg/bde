@@ -14,16 +14,17 @@
 #include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_semaphore.h>
-#include <bslma_testallocator.h>
 #include <bslmt_mutex.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_atomic.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsltf_streamutil.h>
@@ -35,6 +36,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_string.h>
@@ -1329,6 +1331,10 @@ int main(int argc, char *argv[])
                                                   // multipriority queue
 
     bslma::DefaultAllocatorGuard guard(&taDefault);
+
+    bslmt::TimedCompletionGuard completionGuard(&taDefault);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0:
       case 16: {

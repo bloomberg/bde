@@ -28,6 +28,7 @@
 #include <bslmt_lockguard.h>
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadutil.h>
 
@@ -40,12 +41,14 @@
 #include <bsls_assert.h>
 #include <bsls_nameof.h>
 #include <bsls_review.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_queue.h>
@@ -2611,6 +2614,10 @@ int main(int argc, char *argv[])
 
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
+    bslmt::TimedCompletionGuard completionGuard;
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 16: {
