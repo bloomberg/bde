@@ -536,10 +536,12 @@ int Palette::manipulateAttribute(MANIPULATOR& manipulator, int id)
 
     switch (id) {
       case ATTRIBUTE_ID_COLOR: {
-        return manipulator(&d_color, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
+        return manipulator(&d_color,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
       } break;
       case ATTRIBUTE_ID_COLORS: {
-        return manipulator(&d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
+        return manipulator(&d_colors,
+                           ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
       } break;
       default:
         return NOT_FOUND;
@@ -604,7 +606,7 @@ int Palette::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(d_color, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLOR]);
       } break;
       case ATTRIBUTE_ID_COLORS: {
-        return accessor(d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
+      return accessor(d_colors, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_COLORS]);
       } break;
       default:
         return NOT_FOUND;
@@ -709,10 +711,10 @@ const bdlat_EnumeratorInfo Colors::ENUMERATOR_INFO_ARRAY[] = {
         ""
     },
     {
-        Colors::RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N,
-        "RED\b\r\t\f\n",
-        sizeof("RED\b\r\t\f\n") - 1,
-        ""
+       Colors::RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N,
+       "RED\b\r\t\f\n",
+       sizeof("RED\b\r\t\f\n") - 1,
+       ""
     },
     {
         Colors::WHITE_TICK_BLACK,
@@ -727,11 +729,11 @@ const bdlat_EnumeratorInfo Colors::ENUMERATOR_INFO_ARRAY[] = {
 int Colors::fromInt(Colors::Value *result, int number)
 {
     switch (number) {
-      case Colors::BLUE_QUOTE_YELLOW:
-      case Colors::GREY_BACKSLASH_BLUE:
-      case Colors::RED_SLASH_GREEN:
-      case Colors::RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N:
-      case Colors::WHITE_TICK_BLACK:
+  case Colors::BLUE_QUOTE_YELLOW:
+  case Colors::GREY_BACKSLASH_BLUE:
+  case Colors::RED_SLASH_GREEN:
+  case Colors::RED_BACKSLASH_B_BACKSLASH_R_BACKSLASH_T_BACKSLASH_F_BACKSLASH_N:
+  case Colors::WHITE_TICK_BLACK:
         *result = (Colors::Value)number;
         return 0;
       default:
@@ -7058,17 +7060,6 @@ int main(int argc, char *argv[])
                              "}"
                                ","
         },
-// TBD:
-//         {
-//             L_,
-//             "{"
-//               "\"fullname\""
-//                            ":"
-//                              "{"
-//                              "}"
-//                                ","
-//             "}"
-//         },
 
         // nested invalid array element
         {
@@ -7410,17 +7401,6 @@ int main(int argc, char *argv[])
                       ":"
             "}"
         },
-// TBD:
-//         {
-//             L_,
-//             "{"
-//               "\"ids\""
-//                       ":"
-//                         "["
-//                         "]"
-//                       ","
-//             "}"
-//         },
         {
             L_,
             "{"

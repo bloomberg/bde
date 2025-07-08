@@ -13,9 +13,9 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: baljsn_decoder, baljsn_printutil
 //
 //@DESCRIPTION: This component provides a `struct` of utility functions,
-// `baljsn::ParserUtil`, for decoding data in the JSON format into a `bdeat`
+// `baljsn::ParserUtil`, for decoding data in the JSON format into a `bdlat`
 // Simple type.  The primary method is `getValue`, which decodes into a
-// specified object and is overloaded for all `bdeat` Simple types.
+// specified object and is overloaded for all `bdlat` Simple types.
 //
 // Refer to the details of the JSON encoding format supported by this utility
 // in the package documentation file (doc/baljsn.txt).
@@ -28,11 +28,11 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------------------------
 // Suppose we want to de-serialize some JSON data into an object.
 //
-// First, we define a struct, `Employee`, to contain the data:
+// First, we define a `struct`, `Employee`, to contain the data:
 // ```
 // struct Employee {
 //     bsl::string d_name;
-//     bdlt::Date   d_date;
+//     bdlt::Date  d_date;
 //     int         d_age;
 // };
 // ```
@@ -59,13 +59,14 @@ BSLS_IDENT("$Id: $")
 // ```
 // Finally, we will verify that the values are as expected:
 // ```
-// assert("John Smith"            == employee.d_name);
+// assert("John Smith"             == employee.d_name);
 // assert(bdlt::Date(1985, 06, 24) == employee.d_date);
-// assert(21                      == employee.d_age);
+// assert(21                       == employee.d_age);
 // ```
 
 #include <balscm_version.h>
 
+#include <bdljsn_json.h>
 #include <bdljsn_stringutil.h>
 
 #include <bdlb_variant.h>
@@ -74,12 +75,14 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlt_iso8601util.h>
 
+#include <bsla_unreachable.h>
+
 #include <bsls_assert.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
 
 #include <bsl_limits.h>
-#include <bsl_cstring.h>
+#include <bsl_cstring.h>  // `bsl::strncmp`
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 #include <bsl_vector.h>
@@ -94,8 +97,8 @@ namespace baljsn {
                             // =================
 
 ///This class provides utility functions for decoding data in the JSON
-///format into a `bdeat` Simple type.  The primary method is `getValue`,
-///which decodes into a specified object and is overloaded for all `bdeat`
+///format into a `bdlat` Simple type.  The primary method is `getValue`,
+///which decodes into a specified object and is overloaded for all `bdlat`
 ///Simple types.
 struct ParserUtil {
 
@@ -187,6 +190,8 @@ struct ParserUtil {
     static int getUnquotedString(std::pmr::string        *value,
                                  const bsl::string_view&  data);
 #endif
+
+                  // Overloads for `const bsl::string_view&`
 
     /// Load into the specified `value` the characters read from the
     /// specified `data`.  Return 0 on success or a non-zero value on
@@ -378,10 +383,11 @@ int ParserUtil::getDateAndTimeValue(TYPE                    *value,
         return -1;                                                    // RETURN
     }
 
-    return bdlt::Iso8601Util::parse(
+    int rc = bdlt::Iso8601Util::parse(
            value,
            data.data() + 1,
            static_cast<int>(data.length() - k_STRING_LENGTH_WITH_QUOTES));
+    return rc;
 }
 
 inline
@@ -539,8 +545,8 @@ int ParserUtil::getValue(DatetimeOrDatetimeTz    *value,
 {
     return getDateAndTimeValue(value, data);
 }
-}  // close package namespace
 
+}  // close package namespace
 }  // close enterprise namespace
 
 #endif

@@ -1,7 +1,10 @@
-// baljsn_parserutil.t.cpp                                            -*-C++-*-
-#include <baljsn_parserutil.h>
+// baljsn_jsonparserutil.t.cpp                                        -*-C++-*-
+#include <baljsn_jsonparserutil.h>
 
+#include <baljsn_parserutil.h>
 #include <baljsn_printutil.h> // For round-trip testing
+
+#include <bslim_testutil.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -9,8 +12,30 @@
 #include <bdlt_datetz.h>
 #include <bdlt_timetz.h>
 
-#include <bdlb_float.h>
+#include <bsl_sstream.h>
+#include <bsl_cfloat.h>
+#include <bsl_climits.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_limits.h>
+#include <bsl_iostream.h>
+#include <bsl_iterator.h>
+
+#include <bsl_string.h>
+#include <bsl_cstring.h>
+
 #include <bdlb_printmethods.h>
+#include <bdlb_float.h>
+
+#include <bdljsn_error.h>
+#include <bdljsn_json.h>
+#include <bdljsn_jsonnumber.h>
+#include <bdljsn_jsonutil.h>
+#include <bdljsn_stringutil.h>
+
+#include <bdlsb_memoutstreambuf.h>
+#include <bdlsb_fixedmemoutstreambuf.h>
+#include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bdldfp_decimal.h>
 #include <bdldfp_decimalutil.h>
@@ -19,20 +44,7 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
-#include <bslim_testutil.h>
-
 #include <bsls_asserttest.h>
-
-#include <bsl_cfloat.h>
-#include <bsl_climits.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
-#include <bsl_cstring.h>
-#include <bsl_iostream.h>
-#include <bsl_iterator.h>
-#include <bsl_limits.h>
-#include <bsl_sstream.h>
-#include <bsl_string.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -45,47 +57,55 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements a utility for parsing `bdeat` compatible
-// simple types from a `bsl::string_view`.  The parsing is done via overloaded
-// `getValue` functions that are provided for fundamental types and `bdlt`
-// types.  Since the functions are independent and do not share any state we
+// The component under test implements a utility for extracting the value of
+// `bdljsn::Json` objects and loading those values into `bdlat`-compatible
+// types.  The extraction is done via overloaded `getValue` functions.  Since
+// the functions are independent and do not share any state we
 // will test them independently.
 //
-// We use standard table-based approach to testing where we put both input and
-// expected output in the same table row and verify that the actual result
-// matches the expected value.
+// The implementation of this utility largely, but not entirely, consists of
+// functions that delegate to analogous functions in `bdljsn::ParserUtil`,
+// which take their input via `bsl::string_view` arguments, not `bdljsn::Json`
+// objects.  Accordingly, the tests here replicate many of the (table-driven)
+// tests from `baljsn_parserutil.t.cpp`.  That test driver correctly tests
+// input that is known to be invalid so the error detecting requirements of
+// `getValue` are tested.  Those invalid inputs are retained here but are
+// skipped when their use would result in a `bdljsn::Json` object in violation
+// of the preconditions of that type (e.g., a `bdljsn::Json` object holding
+// a string with non-utf8 characters).
+//
+// The `getValue` methods of this component have preconditions on the
+// `type()` of its `bdljsn::Json` arguments. Accordingly, this test driver has
+// corresponding negative tests that are not found in
+// `baljsn_parserutil.t.cpp`.
 // ----------------------------------------------------------------------------
 // CLASS METHODS
-// [ 2] static int getValue(bool                 *v, bsl::string_view s);
-// [ 3] static int getValue(char                 *v, bsl::string_view s);
-// [ 3] static int getValue(signed char          *v, bsl::string_view s);
-// [ 4] static int getValue(unsigned char        *v, bsl::string_view s);
-// [ 5] static int getValue(short                *v, bsl::string_view s);
-// [ 6] static int getValue(unsigned short       *v, bsl::string_view s);
-// [ 7] static int getValue(int                  *v, bsl::string_view s);
-// [ 8] static int getValue(unsigned int         *v, bsl::string_view s);
-// [ 9] static int getValue(bsls::Types::Int64   *v, bsl::string_view s);
-// [10] static int getValue(bsls::Types::Uint64  *v, bsl::string_view s);
-// [11] static int getValue(float                *v, bsl::string_view s);
-// [12] static int getValue(double               *v, bsl::string_view s);
-// [13] static int getQuotedString(bsl::string   *v, bsl::string_view s);
-// [13] static int getUnquotedString(bsl::string *v, bsl::string_view s);
-// [13] static int getValue(bsl::string          *v, bsl::string_view s);
-// [13] static int getValue(std::string          *v, bsl::string_view s);
-// [13] static int getValue(std::pmr::string     *v, bsl::string_view s);
-// [14] static int getValue(bdlt::Time           *v, bsl::string_view s);
-// [15] static int getValue(bdlt::TimeTz         *v, bsl::string_view s);
-// [16] static int getValue(bdlt::Date           *v, bsl::string_view s);
-// [17] static int getValue(bdlt::DateTz         *v, bsl::string_view s);
-// [18] static int getValue(bdlt::Datetime       *v, bsl::string_view s);
-// [19] static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
-// [26] static int getValue(TimeOrTimeTz         *v, bsl::string_view s);
-// [27] static int getValue(DateOrDateTz         *v, bsl::string_view s);
-// [28] static int getValue(DatetimeOrDatetimeTz *v, bsl::string_view s);
-// [20] static int getValue(bsl::vector<char>    *v, bsl::string_view s);
-// [21] static int getValue(bdldfp::Decimal64    *v, bsl::string_view s);
-// [29] static bool stripQuotes(bsl::string_view *str);
-// [30] DRQS 174180775 - TEST STATIC CALL
+// [ 2] static int getValue(bool                 *v, const Json& j);
+// [ 3] static int getValue(char                 *v, const Json& j);
+// [ 3] static int getValue(signed char          *v, const Json& j);
+// [ 4] static int getValue(unsigned char        *v, const Json& j);
+// [ 5] static int getValue(short                *v, const Json& j);
+// [ 6] static int getValue(unsigned short       *v, const Json& j);
+// [ 7] static int getValue(int                  *v, const Json& j);
+// [ 8] static int getValue(unsigned int         *v, const Json& j);
+// [ 9] static int getValue(bsls::Types::Int64   *v, const Json& j);
+// [10] static int getValue(bsls::Types::Uint64  *v, const Json& j);
+// [11] static int getValue(float                *v, const Json& j);
+// [12] static int getValue(double               *v, const Json& j);
+// [24] static int getValue(bdldfp::Decimal64    *v, const Json& j);
+// [13] static int getValue(bsl::string          *v, const Json& j);
+// [13] static int getValue(std::string          *v, const Json& j);
+// [13] static int getValue(std::pmr::string     *v, const Json& j);
+// [16] static int getValue(bdlt::Date           *v, const Json& j);
+// [18] static int getValue(bdlt::Datetime       *v, const Json& j);
+// [19] static int getValue(bdlt::DatetimeTz     *v, const Json& j);
+// [17] static int getValue(bdlt::DateTz         *v, const Json& j);
+// [14] static int getValue(bdlt::Time           *v, const Json& j);
+// [15] static int getValue(bdlt::TimeTz         *v, const Json& j);
+// [27] static int getValue(DateOrDateTz         *v, const Json& j);
+// [26] static int getValue(TimeOrTimeTz         *v, const Json& j);
+// [28] static int getValue(DatetimeOrDatetimeTz *v, const Json& j);
+// [20] static int getValue(bsl::vector<char>    *v, const Json& j);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [22] BOOLEAN ROUND-TRIP
@@ -149,11 +169,18 @@ void aSsErT(bool condition, const char *message, int line)
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef baljsn::ParserUtil  Util;
-typedef baljsn::PrintUtil   Print;
+typedef baljsn::JsonParserUtil  JUtil;
+typedef baljsn::ParserUtil       Util;
+typedef baljsn::PrintUtil        Print;
+typedef bdldfp::DecimalUtil     DUtil;
+typedef bdljsn::StringUtil      SUtil;
 
-typedef bsls::Types::Int64  Int64;
-typedef bsls::Types::Uint64 Uint64;
+typedef bdljsn::Error            Error;
+typedef bdljsn::Json             Json;
+typedef bdljsn::JsonNumber       JsonNumber;
+
+typedef bsls::Types::Int64       Int64;
+typedef bsls::Types::Uint64      Uint64;
 
 // ============================================================================
 //                    DRQS 174180775 - TEST STATIC CALL
@@ -259,18 +286,20 @@ void roundTripTestNonNumericValues()
         bsl::ostringstream oss;
         ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
 
-        bsl::string result(oss.str());
-        Type decoded = -NAN_P;
-        ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-        if (VALUE != VALUE) { // A NaN
-            ASSERTV(LINE, VALUE, result, decoded, decoded != decoded);
+        bsl::string      result(oss.str());
+        bsl::string_view sv(result); Util::stripQuotes(&sv);
+        Json             json; json.makeString(sv);
+        Type             decoded = -NAN_P;
+        ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+        if (VALUE != VALUE) {  // i.e., `VALUE` is a `NaN`
+            ASSERTV(LINE, VALUE, json, decoded, decoded != decoded);
         }
         else {
-            ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+            ASSERTV(LINE, VALUE, json, decoded, VALUE == decoded);
         }
         // We also use `memcmp` to ensure that we really get back the
         // same binary IEEE-754.
-        ASSERTV(LINE, VALUE, result, decoded,
+        ASSERTV(LINE, VALUE, json, decoded,
                 0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
     }
@@ -339,24 +368,10 @@ void testIntegerTypeRoundTrip()
             continue;                                               // CONTINUE
         }
 
-        bsl::ostringstream oss;
-        ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
-
-        bsl::string result(oss.str());
-
+        Json json; json.makeNumber(JsonNumber(VALUE));
         TYPE decoded = 0;
-        ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-        ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-
-        // Verify that default options are the same as no options
-        const baljsn::EncoderOptions defaultOptions;
-
-        oss.str("");
-        ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &defaultOptions));
-
-        result = oss.str();
-        ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-        ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+        ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+        ASSERTV(LINE, VALUE, json, decoded, VALUE == decoded);
     }
 }
 
@@ -377,7 +392,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
-    switch (test) { // case 0:  // Zero is always the leading case.
+    switch (test) { case 0:  // Zero is always the leading case.
       case 31: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
@@ -403,9 +418,9 @@ int main(int argc, char *argv[])
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding into a Simple `struct` from JSON data
-///---------------------------------------------------------
-// Suppose we want to de-serialize some JSON data into an object.
+///Example 1: Decoding into a Simple `struct` from `bdljsn::Json` Objects
+///----------------------------------------------------------------------
+// Suppose we want extract some data from `bdljsn::Json` objects.
 //
 // First, we define a `struct`, `Employee`, to contain the data:
 // ```
@@ -419,22 +434,23 @@ int main(int argc, char *argv[])
 // ```
     Employee employee;
 // ```
-// Next, we specify the string values in JSON format used to represent the
-// object data.  Note that the birth date is specified in the ISO 8601 format:
+// Next, we create `bdljsn::Json` objects of different (dynameic) types
+// having the data of interest.  Note that the string data does *not* have
+// embedden double quote deliminters as required in JSON documents.  Also note
+// that the date information is represented in ISO 8601 format in a string.
 // ```
-    const char *name = "\"John Smith\"";
-    const char *date = "\"1985-06-24\"";
-    const char *age  = "21";
+    const char *nameStr = "John Smith";  // No double quotes *in* string.
+    const char *dateStr = "1985-06-24";  // No double quotes *in* string.
 
-    const bsl::string_view nameRef(name);
-    const bsl::string_view dateRef(date);
-    const bsl::string_view ageRef(age);
+    bdljsn::Json name; name.makeString(nameStr);
+    bdljsn::Json date; date.makeString(dateStr); // ISO 8601
+    bdljsn::Json age;  age .makeNumber(bdljsn::JsonNumber(21));
 // ```
-// Now, we use the created string refs to populate the employee object:
+// Now, we use `bdljsn::Json` objects to populate the `employee` object:
 // ```
-    ASSERT(0 == baljsn::ParserUtil::getValue(&employee.d_name, nameRef));
-    ASSERT(0 == baljsn::ParserUtil::getValue(&employee.d_date, dateRef));
-    ASSERT(0 == baljsn::ParserUtil::getValue(&employee.d_age, ageRef));
+    ASSERT(0 == baljsn::JsonParserUtil::getValue(&employee.d_name, name));
+    ASSERT(0 == baljsn::JsonParserUtil::getValue(&employee.d_date, date));
+    ASSERT(0 == baljsn::JsonParserUtil::getValue(&employee.d_age,  age ));
 // ```
 // Finally, we will verify that the values are as expected:
 // ```
@@ -461,44 +477,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nDRQS 174180775 - TEST STATIC CALL"
                           << "\n=================================" << endl;
 
-        Uint64 testedValuesMask = 0;
-#define CHECK_STATIC(n)                                  \
-            ASSERTV(u_static_test_result ## n,           \
-                    0 == u_static_test_result ## n);     \
-            ASSERTV(u_static_val ## n,                   \
-                    u_static_test_result ## n,           \
-                    n ## ull == u_static_val ## n);      \
-            --u_TestValueCount;                          \
-            testedValuesMask ^= n ## ull
-
-        CHECK_STATIC(1234567890);
-        CHECK_STATIC(0);
-        CHECK_STATIC(1);
-        CHECK_STATIC(95);
-        CHECK_STATIC(127);
-        CHECK_STATIC(128);
-        CHECK_STATIC(200);
-        CHECK_STATIC(255);
-        CHECK_STATIC(256);
-        CHECK_STATIC(32766);
-        CHECK_STATIC(32767);
-        CHECK_STATIC(65534);
-        CHECK_STATIC(65535);
-        CHECK_STATIC(8388607);
-        CHECK_STATIC(8388608);
-        CHECK_STATIC(2147483646);
-        CHECK_STATIC(2147483647);
-        CHECK_STATIC(4294967294);
-        CHECK_STATIC(4294967295);
-        CHECK_STATIC(9223372036854775806);
-        CHECK_STATIC(9223372036854775807);
-
-        ASSERTV(u_TestValueCount, 0 == u_TestValueCount);
-        ASSERTV(u_TestValueMask,
-                testedValuesMask,
-                u_TestValueMask ^ testedValuesMask,
-                u_TestValueMask == testedValuesMask);
-#undef CHECK_STATIC
+        if (veryVerbose) {
+            cout << "SKIPPED: N/A" << endl;
+        }
       } break;
       case 29: {
         // --------------------------------------------------------------------
@@ -524,59 +505,19 @@ int main(int argc, char *argv[])
         //      the `bsl::string_view` object, are as specified in the table.
         //
         // Testing:
-        //   static bool stripQuotes(bsl::string_view *str);
+        //   N/A
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING `stripQuotes`"
                           << "\n=====================" << endl;
 
-        static const struct {
-            int         d_line;
-            const char *d_input_p;
-            const char *d_output_p;
-            bool        d_expectedReturn;
-        } DATA[] = {
-           //line input         output    expected
-           //---- -----         ------    -------
-            { L_, "",           "",       false },
-            { L_, "\"",         "\"",     false },
-            { L_, "a",          "a",      false },
-            { L_, "\"\"",       "",       true  },
-            { L_, "\"a",        "\"a",    false },
-            { L_, "a\"",        "a\"",    false },
-            { L_, "aa",         "aa",     false },
-            { L_, "\"\"\"",     "\"",     true  },
-            { L_, "\"\"a",      "\"\"a",  false },
-            { L_, "\"a\"",      "a",      true  },
-            { L_, "\"aa",       "\"aa",   false },
-            { L_, "a\"\"",      "a\"\"",  false },
-            { L_, "a\"a",       "a\"a",   false },
-            { L_, "aa\"",       "aa\"",   false },
-            { L_, "aaa",        "aaa",    false },
-            { L_, "\"ab\"",     "ab",     true  },
-            { L_, "\"\"a\"\"",  "\"a\"",  true  },
-            { L_, "\"a\"\"b\"", "a\"\"b", true  },
-            { L_, "a\"\"b",     "a\"\"b", false }
-        };
-        const int NUM_DATA = sizeof DATA / sizeof DATA[0];
-
-        for (int i = 0; i < NUM_DATA; ++i) {
-            const int         LINE   = DATA[i].d_line;
-            string_view       INPUT  = DATA[i].d_input_p;
-            const string_view OUTPUT = DATA[i].d_output_p;
-            const bool        R      = DATA[i].d_expectedReturn;
-
-            if (veryVerbose) { P_(LINE) P(INPUT) }
-
-            const bool result = Util::stripQuotes(&INPUT);
-
-            LOOP3_ASSERT(LINE, R, result, R == result);
-            LOOP3_ASSERT(LINE, OUTPUT, INPUT, OUTPUT == INPUT);
+        if (veryVerbose) {
+            cout << "SKIPPED: N/A" << endl;
         }
       } break;
       case 28: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for `Util::DatetimeOrDatetimeTz`
+        // TESTING `getValue` for `bdlt::DatetimeOrDatetimeTz`
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -607,11 +548,11 @@ int main(int argc, char *argv[])
         //      otherwise.  (C-3)
         //
         // Testing:
-        //   static int getValue(DatetimeOrDatetimeTz *v, bsl::string_view s);
+        //   static int getValue(DatetimeOrDatetimeTz *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING `getValue` for `Util::DatetimeOrDatetimeTz`"
+            cout << "\nTESTING `getValue` for `bdlt::DatetimeOrDatetimeTz`"
                  << "\n==================================================="
                  << endl;
         {
@@ -1106,8 +1047,8 @@ int main(int argc, char *argv[])
                 const int         MILLISECOND   = DATA[i].d_milliSecs;
                 const int         MICROSECOND   = DATA[i].d_microSecs;
                 const int         OFFSET        = DATA[i].d_tzoffset;
-                const bool        IS_VALID      = DATA[i].d_isValid;
-                const bool        IS_DATETIMETZ = DATA[i].d_isDatetimeTz;
+            //  const bool        IS_VALID      = DATA[i].d_isValid;
+            //  const bool        IS_DATETIMETZ = DATA[i].d_isDatetimeTz;
 
                 const bdlt::Datetime   DEFAULT_DATETIME;
                 const bdlt::Datetime   EXP_DATETIME(YEAR,
@@ -1127,111 +1068,60 @@ int main(int argc, char *argv[])
                 const bsl::string_view unq_isb(isb.data() + 1,
                                                isb.size() - 2);
 
-                // Variant is left unset.
-
                 Util::DatetimeOrDatetimeTz value;
-                ASSERTV(LINE, value.isUnset());
 
                 int rc = Util::getValue(&value, isb);
 
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_DATETIMETZ) {
-                        ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
-                        ASSERTV(LINE,
-                                EXP_DATETIMETZ,
-                                value.the<bdlt::DatetimeTz>(),
-                                EXP_DATETIMETZ ==
-                                                value.the<bdlt::DatetimeTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Datetime>());
-                        ASSERTV(LINE,
-                                EXP_DATETIME,
-                                value.the<bdlt::Datetime>(),
-                                EXP_DATETIME == value.the<bdlt::Datetime>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.isUnset());
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
                 }
 
-                // `bdlt::Datetime` value is initially assigned.
-
-                value = DEFAULT_DATETIME;
-                ASSERTV(LINE, value.is<bdlt::Datetime>());
-                ASSERTV(LINE, DEFAULT_DATETIME == value.the<bdlt::Datetime>());
-
-                rc = Util::getValue(&value, isb);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_DATETIMETZ) {
-                        ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
-                        ASSERTV(LINE,
-                                EXP_DATETIMETZ,
-                                value.the<bdlt::DatetimeTz>(),
-                                EXP_DATETIMETZ ==
-                                                value.the<bdlt::DatetimeTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Datetime>());
-                        ASSERTV(LINE,
-                                EXP_DATETIME,
-                                value.the<bdlt::Datetime>(),
-                                EXP_DATETIME == value.the<bdlt::Datetime>());
-                    }
+                Util::DatetimeOrDatetimeTz valueFromJson;
+                int                        rcFromJson = JUtil::getValue(
+                                                                &valueFromJson,
+                                                                json);
+                ASSERTV(LINE, rc,      rcFromJson,
+                              rc    == rcFromJson);
+                if (0 == rc && 0 == rcFromJson) {
+                    ASSERTV(LINE, value,   valueFromJson,
+                                  value == valueFromJson);
                 }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.is<bdlt::Datetime>());
-                    ASSERTV(LINE,
-                            DEFAULT_DATETIME == value.the<bdlt::Datetime>());
-                }
-
-                // `bdlt::DatetimeTz` value is initially assigned.
-
-                value = DEFAULT_DATETIMETZ;
-                ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
-                ASSERTV(LINE,
-                        DEFAULT_DATETIMETZ == value.the<bdlt::DatetimeTz>());
-
-                rc = Util::getValue(&value, isb);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_DATETIMETZ) {
-                        ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
-                        ASSERTV(LINE,
-                                EXP_DATETIMETZ,
-                                value.the<bdlt::DatetimeTz>(),
-                                EXP_DATETIMETZ ==
-                                                value.the<bdlt::DatetimeTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Datetime>());
-                        ASSERTV(LINE,
-                                EXP_DATETIME,
-                                value.the<bdlt::Datetime>(),
-                                EXP_DATETIME == value.the<bdlt::Datetime>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.is<bdlt::DatetimeTz>());
-                    ASSERTV(LINE,
-                            DEFAULT_DATETIMETZ ==
-                                                value.the<bdlt::DatetimeTz>());
-                }
-
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json                       json;
+            Util::DatetimeOrDatetimeTz value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 27: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` FOR `Util::DateOrDateTz`
+        // TESTING `getValue` for `Util::DateOrDateTz`
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -1262,12 +1152,12 @@ int main(int argc, char *argv[])
         //      otherwise.  (C-3)
         //
         // Testing:
-        //   static int getValue(DateOrDateTz         *v, bsl::string_view s);
+        //   static int getValue(DateOrDateTz         *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose) cout
-                     << "\nTESTING `getValue` FOR `Utl::DateOrDateTz`"
-                     << "\n=========================================_" << endl;
+                    << "\nTESTING `getValue` FOR `Util::DateOrDateTz`"
+                    << "\n===========================================" << endl;
         {
             static const struct {
                 int         d_line;      // source line number
@@ -1390,8 +1280,8 @@ int main(int argc, char *argv[])
                 const int         MONTH       = DATA[i].d_month;
                 const int         DAY         = DATA[i].d_day;
                 const int         OFFSET      = DATA[i].d_offset;
-                const bool        IS_VALID    = DATA[i].d_isValid;
-                const bool        IS_DATETZ   = DATA[i].d_isDateTz;
+            //  const bool        IS_VALID    = DATA[i].d_isValid;
+            //  const bool        IS_DATETZ   = DATA[i].d_isDateTz;
 
                 const bdlt::Date   DEFAULT_DATE;
                 const bdlt::Date   EXP_DATE(YEAR, MONTH, DAY);
@@ -1404,86 +1294,56 @@ int main(int argc, char *argv[])
                 const bsl::string_view unq_isb(isb.data() + 1,
                                                isb.size() - 2);
 
-                // Variant is left unset.
-
                 Util::DateOrDateTz value;
-                ASSERTV(LINE, value.isUnset());
 
                 int rc = Util::getValue(&value, isb);
 
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_DATETZ) {
-                        ASSERTV(LINE, value.is<bdlt::DateTz>());
-                        ASSERTV(LINE, EXP_DATETZ, value.the<bdlt::DateTz>(),
-                                EXP_DATETZ == value.the<bdlt::DateTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Date>());
-                        ASSERTV(LINE, EXP_DATE, value.the<bdlt::Date>(),
-                                EXP_DATE == value.the<bdlt::Date>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.isUnset());
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
                 }
 
-                // `bdlt::Date` value is initially assigned.
-
-                value = DEFAULT_DATE;
-                ASSERTV(LINE, value.is<bdlt::Date>());
-                ASSERTV(LINE, DEFAULT_DATE == value.the<bdlt::Date>());
-
-                rc = Util::getValue(&value, isb);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_DATETZ) {
-                        ASSERTV(LINE, value.is<bdlt::DateTz>());
-                        ASSERTV(LINE, EXP_DATETZ, value.the<bdlt::DateTz>(),
-                                EXP_DATETZ == value.the<bdlt::DateTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Date>());
-                        ASSERTV(LINE, EXP_DATE, value.the<bdlt::Date>(),
-                                EXP_DATE == value.the<bdlt::Date>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.is<bdlt::Date>());
-                    ASSERTV(LINE, DEFAULT_DATE == value.the<bdlt::Date>());
-                }
-
-                // `bdlt::DateTz` value is initially assigned.
-
-                value = DEFAULT_DATETZ;
-                ASSERTV(LINE, value.is<bdlt::DateTz>());
-                ASSERTV(LINE, DEFAULT_DATETZ == value.the<bdlt::DateTz>());
-
-                rc = Util::getValue(&value, isb);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_DATETZ) {
-                        ASSERTV(LINE, value.is<bdlt::DateTz>());
-                        ASSERTV(LINE, EXP_DATETZ, value.the<bdlt::DateTz>(),
-                                EXP_DATETZ == value.the<bdlt::DateTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Date>());
-                        ASSERTV(LINE, EXP_DATE, value.the<bdlt::Date>(),
-                                EXP_DATE == value.the<bdlt::Date>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.is<bdlt::DateTz>());
-                    ASSERTV(LINE, DEFAULT_DATETZ == value.the<bdlt::DateTz>());
+                Util::DateOrDateTz valueFromJson;
+                int                rcFromJson = JUtil::getValue(&valueFromJson,
+                                                                json);
+                ASSERTV(LINE, rc,      rcFromJson,
+                              rc    == rcFromJson);
+                if (0 == rc && 0 == rcFromJson) {
+                    ASSERTV(LINE, value,   valueFromJson,
+                                  value == valueFromJson);
                 }
             }
         }
+
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json               json;
+            Util::DateOrDateTz value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
+
       } break;
       case 26: {
         // --------------------------------------------------------------------
@@ -1518,7 +1378,7 @@ int main(int argc, char *argv[])
         //      otherwise.  (C-3)
         //
         // Testing:
-        //   static int getValue(TimeOrTimeTz         *v, bsl::string_view s);
+        //   static int getValue(TimeOrTimeTz         *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -1751,8 +1611,8 @@ int main(int argc, char *argv[])
                 const int         MILLISECOND = DATA[i].d_milliSecs;
                 const int         MICROSECOND = DATA[i].d_uSecs;
                 const int         OFFSET      = DATA[i].d_offset;
-                const bool        IS_VALID    = DATA[i].d_isValid;
-                const bool        IS_TIMETZ   = DATA[i].d_isTimeTz;
+            //  const bool        IS_VALID    = DATA[i].d_isValid;
+            //  const bool        IS_TIMETZ   = DATA[i].d_isTimeTz;
 
                 const bdlt::Time   DEFAULT_TIME;
                 const bdlt::Time   EXP_TIME(HOUR,
@@ -1769,88 +1629,55 @@ int main(int argc, char *argv[])
                 const bsl::string_view unq_isb(isb.data() + 1,
                                                isb.size() - 2);
 
-                // Variant is left unset.
-
                 Util::TimeOrTimeTz value;
-                ASSERTV(LINE, value.isUnset());
 
                 int rc = Util::getValue(&value, isb);
 
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_TIMETZ) {
-                        ASSERTV(LINE, value.is<bdlt::TimeTz>());
-                        ASSERTV(LINE, EXP_TIMETZ, value.the<bdlt::TimeTz>(),
-                                EXP_TIMETZ == value.the<bdlt::TimeTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Time>());
-                        ASSERTV(LINE, EXP_TIME, value.the<bdlt::Time>(),
-                                EXP_TIME == value.the<bdlt::Time>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.isUnset());
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
                 }
 
-                // `bdlt::Time` value is initially assigned.
-
-                value = DEFAULT_TIME;
-                ASSERTV(LINE, value.is<bdlt::Time>());
-                ASSERTV(LINE, DEFAULT_TIME == value.the<bdlt::Time>());
-
-                rc = Util::getValue(&value, isb);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_TIMETZ) {
-                        ASSERTV(LINE, value.is<bdlt::TimeTz>());
-                        ASSERTV(LINE, EXP_TIMETZ, value.the<bdlt::TimeTz>(),
-                                EXP_TIMETZ == value.the<bdlt::TimeTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Time>());
-                        ASSERTV(LINE, EXP_TIME, value.the<bdlt::Time>(),
-                                EXP_TIME == value.the<bdlt::Time>());
-                    }
+                Util::TimeOrTimeTz valueFromJson;
+                int                rcFromJson = JUtil::getValue(&valueFromJson,
+                                                                json);
+                ASSERTV(LINE, rc,      rcFromJson,
+                              rc    == rcFromJson);
+                if (0 == rc && 0 == rcFromJson) {
+                    ASSERTV(LINE, value,   valueFromJson,
+                                  value == valueFromJson);
                 }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.is<bdlt::Time>());
-                    ASSERTV(LINE, DEFAULT_TIME == value.the<bdlt::Time>());
-                }
-
-                // `bdlt::TimeTz` value is initially assigned.
-
-                value = DEFAULT_TIMETZ;
-                ASSERTV(LINE, value.is<bdlt::TimeTz>());
-                ASSERTV(LINE, DEFAULT_TIMETZ == value.the<bdlt::TimeTz>());
-
-                rc = Util::getValue(&value, isb);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                    if (IS_TIMETZ) {
-                        ASSERTV(LINE, value.is<bdlt::TimeTz>());
-                        ASSERTV(LINE, EXP_TIMETZ, value.the<bdlt::TimeTz>(),
-                                EXP_TIMETZ == value.the<bdlt::TimeTz>());
-                    }
-                    else {
-                        ASSERTV(LINE, value.is<bdlt::Time>());
-                        ASSERTV(LINE, EXP_TIME, value.the<bdlt::Time>(),
-                                EXP_TIME == value.the<bdlt::Time>());
-                    }
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                    ASSERTV(LINE, value.is<bdlt::TimeTz>());
-                    ASSERTV(LINE, DEFAULT_TIMETZ == value.the<bdlt::TimeTz>());
-                }
-
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json               json;
+            Util::TimeOrTimeTz value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -1939,10 +1766,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, DATE, &options));
 
                 const bsl::string result(oss.str());
+                bsl::string_view  sv = result; Util::stripQuotes(&sv);
+                Json              json; json.makeString(sv);
 
                 bdlt::Date decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, DATE, result, decoded, DATE == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, DATE, json, decoded, DATE == decoded);
             }
 
             if (verbose) cout << "Round-trip `DateTz`" << endl;
@@ -1951,10 +1780,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, DATETZ, &options));
 
                 const bsl::string result(oss.str());
+                bsl::string_view  sv = result; Util::stripQuotes(&sv);
+                Json              json; json.makeString(sv);
 
                 bdlt::DateTz decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, DATETZ, result, decoded, DATETZ == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, DATETZ, json, decoded, DATETZ == decoded);
             }
 
             if (verbose) cout << "Round-trip `Time`" << endl;
@@ -1963,10 +1794,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, TIME, &options));
 
                 const bsl::string result(oss.str());
+                bsl::string_view  sv = result; Util::stripQuotes(&sv);
+                Json              json; json.makeString(sv);
 
                 bdlt::Time decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, TIME, result, decoded, TIME == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, TIME, json, decoded, TIME == decoded);
             }
 
             if (verbose) cout << "Round-trip `TimeTz`" << endl;
@@ -1975,10 +1808,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, TIMETZ, &options));
 
                 const bsl::string result(oss.str());
+                bsl::string_view  sv = result; Util::stripQuotes(&sv);
+                Json              json; json.makeString(sv);
 
                 bdlt::TimeTz decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, TIMETZ, result, decoded, TIMETZ == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, TIMETZ, json, decoded, TIMETZ == decoded);
             }
 
             if (verbose) cout << "Round-trip `Datetime`" << endl;
@@ -1987,10 +1822,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, DATETIME, &options));
 
                 const bsl::string result(oss.str());
+                bsl::string_view  sv = result; Util::stripQuotes(&sv);
+                Json              json; json.makeString(sv);
 
                 bdlt::Datetime decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, DATETIME, result, decoded, DATETIME == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, DATETIME, json, decoded, DATETIME == decoded);
             }
 
             if (verbose) cout << "Round-trip `DatetimeTz`" << endl;
@@ -2000,11 +1837,13 @@ int main(int argc, char *argv[])
                         0 == Print::printValue(oss, DATETIMETZ, &options));
 
                 const bsl::string result(oss.str());
+                bsl::string_view  sv = result; Util::stripQuotes(&sv);
+                Json              json; json.makeString(sv);
 
                 bdlt::DatetimeTz decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, DATETIMETZ, result, decoded,
-                        DATETIMETZ == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, DATETIMETZ, json, decoded,
+                              DATETIMETZ == decoded);
             }
         }
       } break;
@@ -2027,7 +1866,8 @@ int main(int argc, char *argv[])
         //      value is as expected.
         //
         // Testing:
-        //  NUMBERS ROUND-TRIP
+        //   NUMBERS ROUND-TRIP
+        //   static int getValue(bdldfp::Decimal64    *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nNUMBERS ROUND-TRIP"
@@ -2282,42 +2122,15 @@ int main(int argc, char *argv[])
                 const int    LINE  = DATA[ti].d_line;
                 const double VALUE = DATA[ti].d_value;
 
-                bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
-
-                bsl::string result(oss.str());
+                Json   json; json.makeNumber(JsonNumber(VALUE));
                 double decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, json, VALUE,   decoded,
+                                    VALUE == decoded);
                 // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
-                ASSERTV(LINE, VALUE, result, decoded,
-                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
-
-                // Verify that default-options-encoding round-trips as well
-                baljsn::EncoderOptions options;
-                oss.str("");
-                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
-
-                result = oss.str();
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use `memcmp` to ensure that we really get back the
-                // same binary IEEE-754.
-                ASSERTV(LINE, VALUE, result, decoded,
-                        0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
-
-                // Verify that `maxDoublePrecision == 0` round-trips as well
-                options.setMaxDoublePrecision(0);
-                oss.str("");
-                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
-
-                result = oss.str();
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                // We also use `memcmp` to ensure that we really get back the
-                // same binary IEEE-754.
-                ASSERTV(LINE, VALUE, result, decoded,
+                ASSERTV(LINE, VALUE, json, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
             }
         }
@@ -2385,29 +2198,13 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int    LINE     = DATA[ti].d_line;
                 const double VALUE    = DATA[ti].d_value;
-                const int    PREC     = DATA[ti].d_maxDoublePrecision;
-                const double EXPECTED = DATA[ti].d_expected;
+            //  const int    PREC     = DATA[ti].d_maxDoublePrecision;
+            //  const double EXPECTED = DATA[ti].d_expected;
 
-                baljsn::EncoderOptions options;
-                options.setMaxDoublePrecision(PREC);
-
-                bsl::ostringstream oss;
-                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
-
-                const bsl::string result(oss.str());
-                double decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                if (EXPECTED == ROUND_TRIPS) {
-                    ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
-                    // We also use `memcmp` to ensure that we really get back
-                    // the same binary IEEE-754.
-                    ASSERTV(LINE, VALUE, result, decoded,
-                            0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
-                }
-                else {
-                    ASSERTV(LINE, EXPECTED, result, decoded,
-                            EXPECTED == decoded);
-                }
+                Json    json; json.makeNumber(JsonNumber(VALUE));
+                double  decoded;
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, VALUE, json, decoded, VALUE == decoded);
             }
         }
 
@@ -2453,12 +2250,13 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
 
                 bsl::string result(oss.str());
+                Json        json; json.makeString(result);
                 bdldfp::Decimal64 decoded;
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, VALUE, json, decoded, VALUE == decoded);
                 // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
-                ASSERTV(LINE, VALUE, result, decoded,
+                ASSERTV(LINE, VALUE, json, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
                 // Verify that default options are the same as no options
@@ -2473,11 +2271,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
 
                 result = oss.str();
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                json.makeString(result);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, VALUE, json, decoded, VALUE == decoded);
                 // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
-                ASSERTV(LINE, VALUE, result, decoded,
+                ASSERTV(LINE, VALUE, json, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
 
                 // Verify that `setEncodeQuotedDecimal64` `true` quotes the
@@ -2488,11 +2287,12 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 == Print::printValue(oss, VALUE, &options));
 
                 result = oss.str();
-                ASSERTV(LINE, 0 == Util::getValue(&decoded, result));
-                ASSERTV(LINE, VALUE, result, decoded, VALUE == decoded);
+                json.makeString(result);
+                ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+                ASSERTV(LINE, VALUE, json, decoded, VALUE == decoded);
                 // We also use `memcmp` to ensure that we really get back the
                 // same binary IEEE-754.
-                ASSERTV(LINE, VALUE, result, decoded,
+                ASSERTV(LINE, VALUE, json, decoded,
                         0 == bsl::memcmp(&VALUE, &decoded, sizeof VALUE));
             }
 #undef DEC
@@ -2535,8 +2335,8 @@ int main(int argc, char *argv[])
         //   2. Encode the value and verify the results.
         //
         // Testing:
-        //  static int printValue(bsl::ostream& s, const char             *v);
-        //  static int printValue(bsl::ostream& s, const bsl::string&      v);
+        //   static int getValue(bsl::ostream& s, const char             *v);
+        //   static int getValue(bsl::ostream& s, const bsl::string&      v);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nSTRINGS ROUND-TRIP"
@@ -2617,16 +2417,49 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
 
             const bsl::string result(oss.str());
-            bsl::string decoded;
-            ASSERTV(0 == Util::getValue(&decoded, result));
-            ASSERTV(result, decoded, VALUE == decoded);
+            bsl::string_view  sv(result); Util::stripQuotes(&sv);
+            Json              json; json.makeString(sv);
+            bsl::string       decoded;
+
+            ASSERTV(LINE, 0 == JUtil::getValue(&decoded, json));
+            ASSERTV(LINE, json, sv, decoded, sv == decoded);
+
+            if (veryVerbose) {
+                P(VALUE);
+                P(result);
+                P(sv);
+                P(json);
+                P(json.theString());
+                P(decoded);
+            }
         }
 
-        // Make sure that "\"\\/\"" (`"\/"`) decodes to "/".
-        bsl::string decoded;
-        int rc = Util::getValue(&decoded, "\"\\/\"");
-        ASSERTV(rc, 0 == rc);
-        ASSERTV(decoded, "/" == decoded);
+        if (veryVerbose) cout << "Escaped slash." << endl;
+        {
+            // Make sure that         "\"\\/\"" (`"\/"`) decodes to "/".
+            const char *const VALUE = "\"\\/\"";
+            bsl::string       result;
+            ASSERTV(VALUE, 0 == SUtil::readString(&result, VALUE));
+            bsl::string_view sv(result); Util::stripQuotes(&sv);
+            Json             json;      json.makeString(sv);
+
+            if (veryVerbose) {
+                P(VALUE);
+                P(result);
+                P(sv);
+                P(json);
+                P(json.theString());
+            }
+
+            bsl::string decoded;
+            int rc = JUtil::getValue(&decoded, json);
+            ASSERTV(rc, 0 == rc);
+
+            ASSERTV(decoded, "/" == decoded);
+            if (veryVerbose) {
+                P(decoded);
+            }
+        }
       } break;
       case 22: {
         // --------------------------------------------------------------------
@@ -2645,65 +2478,13 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nBOOLEAN ROUND-TRIP"
                           << "\n==================" << endl;
 
-        if (verbose) cout << "Round-trip `true`" << endl;
-        {
-            bsl::ostringstream oss;
-            ASSERTV(0 == Print::printValue(oss, true));
-
-            {
-                const bsl::string result = oss.str();
-
-                bool decoded;
-                ASSERTV(0 == Util::getValue(&decoded, result));
-                ASSERTV(result, decoded, true == decoded);
-            }
-
-            // Verify that passing in options to encode round-trips as well
-            const baljsn::EncoderOptions defaultOptions;
-
-            oss.str("");
-            ASSERT(0 == Print::printValue(oss, true, &defaultOptions));
-
-            {
-                const bsl::string result = oss.str();
-
-                bool decoded;
-                ASSERTV(0 == Util::getValue(&decoded, result));
-                ASSERTV(result, decoded, true == decoded);
-            }
-        }
-
-        if (verbose) cout << "Encode `false`" << endl;
-        {
-            bsl::ostringstream oss;
-            ASSERTV(0 == Print::printValue(oss, false));
-
-            {
-                const bsl::string result = oss.str();
-
-                bool decoded;
-                ASSERTV(0 == Util::getValue(&decoded, result));
-                ASSERTV(result, decoded, false == decoded);
-            }
-
-            // Verify that passing in options to encode round-trips as well
-            const baljsn::EncoderOptions defaultOptions;
-
-            oss.str("");
-            ASSERT(0 == Print::printValue(oss, false, &defaultOptions));
-
-            {
-                const bsl::string result = oss.str();
-
-                bool decoded;
-                ASSERTV(0 == Util::getValue(&decoded, result));
-                ASSERTV(result, decoded, false == decoded);
-            }
+        if (veryVerbose) {
+            cout << "SKIP: Redundant with TC 2." << endl;
         }
       } break;
       case 21: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for Decimal64 values
+        // TESTING `getValue` FOR `Decimal64` VALUES
         //
         // Concerns:
         // 1. Values in the valid range are parsed correctly.  Note that we do
@@ -2733,11 +2514,12 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdldfp::Decimal64 *v, bsl::string_view s);
+        //   static int getValue(bdldfp::Decimal64    *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for Decimal64"
-                          << "\n================================" << endl;
+        if (verbose) cout
+                      << "\nTESTING `getValue` FOR `Decimal64` VALUES"
+                      << "\n=========================================" << endl;
         {
 #define DEC(X) BDLDFP_DECIMAL_DD(X)
 
@@ -2848,29 +2630,88 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
+                if (veryVerbose) {
+                    P_(LINE); P(IS_VALID);
+                    P(INPUT);
+                    P(EXP);
+                }
 
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
+                bsl::string_view isb(INPUT);
+                bsl::string_view unq_isb(isb); Util::stripQuotes(&unq_isb);
 
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
 
-                if (IS_VALID && bdldfp::DecimalUtil::isNan(EXP)) {
-                    LOOP_ASSERT(LINE, bdldfp::DecimalUtil::isNan(value));
-                }
-                else {
-                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
-                }
+                    const int rc = Util::getValue(&value, isb);
+                    ASSERTV(LINE, rc, 0 == rc);
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    Json      json;
+
+                    const int classification = DUtil::classify(value);
+                    switch (classification) {
+                      case FP_NAN: {
+                        json.makeString("nan");
+                      } break;
+                      case FP_INFINITE: {
+                               if (INF_P == value) {
+                            json.makeString("+inf");
+                        } else if (INF_N == value) {
+                            json.makeString("-inf");
+                        } else {
+                            ASSERTV(LINE, classification,
+                                    false && "not reached");
+                        }
+                      } break;
+                      default: {
+                        json.makeNumber(JsonNumber(value));
+                      } break;
+                    }
+
+                    Type      valueFromJson;
+                    const int rcFromJson = JUtil::getValue(&valueFromJson,
+                                                           json);
+
+                    if (bdldfp::DecimalUtil::isNan(value)) {
+
+                        ASSERTV(LINE, rc,         rcFromJson,
+                                      rc    ==    rcFromJson);
+                        ASSERTV(LINE,
+                                bdldfp::DecimalUtil::isNan(valueFromJson));
+                    } else {
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, rc,         rcFromJson,
+                                      rc    ==    rcFromJson);
+                        ASSERTV(LINE, value,   valueFromJson,
+                                      value == valueFromJson);
+                    }
+                }
             }
+        }
 #undef DEC
+
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json              json;
+            bdldfp::Decimal64 value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
         }
       } break;
       case 20: {
@@ -2902,7 +2743,7 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bsl::vector<char>    *v, bsl::string_view s);
+        //   static int getValue(bsl::vector<char>    *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING `getValue` for `vector<char>`"
@@ -2985,9 +2826,63 @@ int main(int argc, char *argv[])
 
                 ASSERT(0 == da.numBlocksTotal());
 
+                if (IS_VALID) {
+                    Json  json;
+                    Error error;
+                    int   rcRead = bdljsn::JsonUtil::read(&json, &error, isb);
+                    ASSERTV(rcRead, 0 == rcRead);
+
+                    if (veryVeryVerbose) {
+                        P(json.type());
+                        P(json);
+                    }
+
+                    bsl::vector<char> valueFromJson;
+                    int               rcFromJson = JUtil::getValue(
+                                                                &valueFromJson,
+                                                                json);
+                    ASSERTV(LINE,  rc,   rcFromJson,
+                                   rc == rcFromJson);
+
+                    if (0 == rc && 0 == rcFromJson) {
+                        bool result = EXP == value;
+                        if (!result) {
+                            cout << endl << "EXP: ";
+                            bdlb::PrintMethods::print(cout, EXP,   0, -1);
+                            cout << endl << "valueFromJson: ";
+                            bdlb::PrintMethods::print(cout, value, 0, -1);
+                            cout << endl;
+                        }
+                    }
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json              json;
+            bsl::vector<char> value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -3019,7 +2914,7 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::DatetimeTz     *v, bsl::string_view s);
+        //   static int getValue(bdlt::DatetimeTz     *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING `getValue` for `bdlt::DatetimeTz`"
@@ -3411,9 +3306,52 @@ int main(int argc, char *argv[])
                 }
                 LOOP3_ASSERT(LINE, EXP, value,   EXP == value);
 
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
+                }
+
+                Type valueFromJson;
+                int  rcFromJson = JUtil::getValue(&valueFromJson, json);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rcFromJson, 0 == rcFromJson);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rcFromJson, rcFromJson);
+                }
+                LOOP3_ASSERT(LINE, EXP,   valueFromJson,
+                                   EXP == valueFromJson);
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -3445,7 +3383,7 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::Datetime       *v, bsl::string_view s);
+        //   static int getValue(bdlt::Datetime       *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING `getValue` for `bdlt::Datetime`"
@@ -4022,13 +3960,56 @@ int main(int argc, char *argv[])
                 }
                 LOOP3_ASSERT(LINE, EXP, value,   EXP == value);
 
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
+                }
+
+                Type valueFromJson;
+                int  rcFromJson = JUtil::getValue(&valueFromJson, json);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rcFromJson, 0 == rcFromJson);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rcFromJson, rcFromJson);
+                }
+                LOOP3_ASSERT(LINE, EXP,   valueFromJson,
+                                   EXP == valueFromJson);
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 17: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for bdlt::DateTz values
+        // TESTING `getValue` FOR `bdlt::DateTz` values
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -4056,11 +4037,11 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::DateTz         *v, bsl::string_view s);
+        //   static int getValue(bdlt::DateTz         *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for `bdlt::DateTz`"
-                          << "\n====================================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` FOR `bdlt::DateTz`"
+                          << "\n=====================================" << endl;
 
         typedef bdlt::DateTz Type;
 
@@ -4283,13 +4264,56 @@ int main(int argc, char *argv[])
                 }
                 LOOP3_ASSERT(LINE, EXP, value,   EXP == value);
 
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
+                }
+
+                Type  valueFromJson;
+                int   rcFromJson = JUtil::getValue(&valueFromJson, json);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rcFromJson, 0 == rcFromJson);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rcFromJson, rcFromJson);
+                }
+                LOOP3_ASSERT(LINE, EXP,   valueFromJson,
+                                   EXP == valueFromJson);
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for bdlt::Date values
+        // TESTING `getValue` FOR `bdlt::Date` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -4317,11 +4341,11 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::Date           *v, bsl::string_view s);
+        //   static int getValue(bdlt::Date           *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for `bdlt::Date` types"
-                          << "\n========================================"
+        if (verbose) cout << "\nTESTING `getValue` FOR `bdlt::Date` VALUES"
+                          << "\n=========================================="
                           << endl;
 
         typedef bdlt::Date Type;
@@ -4456,14 +4480,56 @@ int main(int argc, char *argv[])
                 }
                 LOOP3_ASSERT(LINE, EXP, value,   EXP == value);
 
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
+                }
+
+                Type valueFromJson;
+                int  rcFromJson = JUtil::getValue(&valueFromJson, json);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rcFromJson, 0 == rcFromJson);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rcFromJson, rcFromJson);
+                }
+                LOOP3_ASSERT(LINE, EXP,   valueFromJson,
+                                   EXP == valueFromJson);
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
-// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
       case 15: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for bdlt::TimeTz values
+        // TESTING `getValue` FOR `bdlt::TimeTz` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -4491,11 +4557,12 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::TimeTz         *v, bsl::string_view s);
+        //   static int getValue(bdlt::TimeTz         *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for `bdlt::TimeTz`"
-                          << "\n====================================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` FOR `bdlt::TimeTz` VALUES"
+                          << "\n============================================"
+                          << endl;
 
         typedef bdlt::TimeTz Type;
 
@@ -4608,13 +4675,56 @@ int main(int argc, char *argv[])
                 }
                 LOOP3_ASSERT(LINE, EXP, value,   EXP == value);
 
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
+                }
+
+                Type valueFromJson;
+                int  rcFromJson = JUtil::getValue(&valueFromJson, json);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rcFromJson, 0 == rcFromJson);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rcFromJson, rcFromJson);
+                }
+                LOOP3_ASSERT(LINE, EXP,   valueFromJson,
+                                   EXP == valueFromJson);
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 14: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for bdlt::Time values
+        // TESTING `getValue` FOR `bdlt::Time` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -4642,11 +4752,12 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bdlt::Time           *v, bsl::string_view s);
+        //   static int getValue(bdlt::Time           *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for `bdlt::Time`"
-                          << "\n==================================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` FOR `bdlt::Time` VALUES"
+                          << "\n=========================================="
+                          << endl;
 
         typedef bdlt::Time Type;
 
@@ -4814,14 +4925,56 @@ int main(int argc, char *argv[])
                 }
                 LOOP3_ASSERT(LINE, EXP, value,   EXP == value);
 
+                Json json; json.makeString(unq_isb);
+
+                if (veryVeryVerbose) {
+                    P(unq_isb);
+                    P(json.type());
+                    P(json);
+                }
+
+                bdlt::Time valueFromJson;
+                int        rcFromJson = JUtil::getValue(&valueFromJson, json);
+                if (IS_VALID) {
+                    LOOP2_ASSERT(LINE, rcFromJson, 0 == rcFromJson);
+                }
+                else {
+                    LOOP2_ASSERT(LINE, rcFromJson, rcFromJson);
+                }
+                LOOP3_ASSERT(LINE, EXP,   valueFromJson,
+                                   EXP == valueFromJson);
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 13: {
         // --------------------------------------------------------------------
-        // TESTING `getQuotedString`, `getUnquotedString`, and `getValue` for
-        // string values
+        // TESTING `getValue` FOR STRING VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -4865,18 +5018,14 @@ int main(int argc, char *argv[])
         //    code for testing `getUnquotedString`.
         //
         // Testing:
-        //   static int getQuotedString(bsl::string *, bsl::string_view);
-        //   static int getUnquotedString(bsl::string *, bsl::string_view);
-        //   static int getValue(bsl::string          *v, bsl::string_view s);
-        //   static int getValue(std::string          *v, bsl::string_view s);
-        //   static int getValue(std::pmr::string     *v, bsl::string_view s);
+        //   static int getValue(bsl::string          *v, const Json& j);
+        //   static int getValue(std::string          *v, const Json& j);
+        //   static int getValue(std::pmr::string     *v, const Json& j);
         // --------------------------------------------------------------------
 
         if (verbose)
-            cout << "\nTESTING `getQuotedString`, `getUnquotedString`, and "
-                    "`getValue` for string values"
-                    "\n===================================================="
-                    "============================" << endl;
+            cout << "\nTESTING `getValue` FOR STRING VALUES"
+                 << "\n====================================" << endl;
 
         enum StringType { e_BSL,
                           e_STD,
@@ -5055,153 +5204,137 @@ int main(int argc, char *argv[])
                                             : data.d_expLen;
                 const bool         IS_VALID = data.d_isValid;
 
-                const bsl::string_view isb(IN_P,  IN_LEN);
+                const bsl::string_view isb    (IN_P,     IN_LEN);
                 const bsl::string_view unq_isb(IN_P + 1, IN_LEN - 2);
                 const bsl::string_view EXP(EXP_P, EXP_LEN);
 
-                if (veryVeryVerbose) {
-                    P(LINE);
+                if (!IS_VALID) {
+                    continue;
+                }
+
+                if (veryVerbose) {
+                    P(di);
                     P(ST);
+                    P(LINE);
                     P(isb);
                     P(unq_isb);
-                    P(EXP);
+                    P(IS_VALID);
+                    P(IN_P);
+                    P(EXP_P);
+                    P(EXP_LEN);
                 }
 
-                bsl::string_view value, value2, value3;
-                int              rc,    rc2,    rc3;
-                switch (ST) {
-                  case e_BSL: {
-                    static bsl::string s, s2, s3, s4;
-                    s = s2 = s3 = s4 = ERROR_VALUE;
-
-                    rc  = Util::getValue(&s, isb);
-                    value = s;
-                    rc2 = Util::getQuotedString(&s2, isb);
-                    value2 = s2;
-                    rc3 = Util::getUnquotedString(&s3, unq_isb);
-                    value3 = s3;
-
-                  } break;
-                  case e_STD: {
-                    static std::string s, s2, s3, s4;
-                    s = s2 = s3 = s4 = ERROR_VALUE;
-
-                    rc  = Util::getValue(&s, isb);
-                    value = s;
-                    rc2 = Util::getQuotedString(&s2, isb);
-                    value2 = s2;
-                    rc3 = Util::getUnquotedString(&s3, unq_isb);
-                    value3 = s3;
-
-                  } break;
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-                  case e_PMR: {
-                    static std::pmr::string s, s2, s3, s4;
-                    s = s2 = s3 = s4 = ERROR_VALUE;
-
-                    rc  = Util::getValue(&s, isb);
-                    value = s;
-                    rc2 = Util::getQuotedString(&s2, isb);
-                    value2 = s2;
-                    rc3 = Util::getUnquotedString(&s3, unq_isb);
-                    value3 = s3;
-
-                  } break;
-#endif
-                  default: {
-                    BSLS_ASSERT_INVOKE_NORETURN("invalid ST");
-                  }
-                }
-
-                ASSERTV(rc, rc2, rc == rc2);
-                ASSERTV(value, value2, value == value2);
-                ASSERTV(value, value3, value == value3);
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc,  0 == rc);
-                    ASSERTV(LINE, rc3, 0 == rc3);
-                }
-                else {
-                    ASSERTV(LINE, rc, 0 != rc);
-                }
-
-                ASSERTV(LINE, EXP, value, EXP == value);
-            }
-
-            static const Data DATA2[] = {
-                //line   input   len    exp   expLen     isValid
-                //----   -----   ---    ---   ------     -------
-                {  L_,   "",     -1,    "",       -1,    true   },
-                {  L_,   "a",    -1,    "a",       1,    true   },
-                {  L_,   "ab",   -1,    "ab",      2,    true   },
-            };
-
-            const int NUM_DATA2 = sizeof DATA2 / sizeof DATA2[0];
-
-            for (int ti = 0; ti < k_NUM_STRING_TYPES * NUM_DATA2; ++ti) {
-                const int          di       = ti % NUM_DATA2;
-                const int          si       = ti / NUM_DATA2;
-                const StringType   ST       = static_cast<StringType>(si);
-                const Data&        data     = DATA2[di];
-                const int          LINE     = data.d_line;
-                const char        *IN_P     = data.d_input_p;
-                const bsl::size_t  IN_LEN   = data.d_inputLen < 0
-                                            ? bsl::strlen(IN_P)
-                                            : data.d_inputLen;
-                const char        *EXP_P    = data.d_exp_p;
-                const bsl::size_t  EXP_LEN  = data.d_expLen < 0
-                                            ? bsl::strlen(EXP_P)
-                                            : data.d_expLen;
-                const bool         IS_VALID = data.d_isValid;
-
-                const bsl::string_view isb(IN_P,  IN_LEN);
-                const bsl::string_view EXP(EXP_P, EXP_LEN);
-
-                bsl::string_view value;
                 int rc;
 
                 switch (ST) {
                   case e_BSL: {
-                    static bsl::string s;
-                    s = ERROR_VALUE;
+                        typedef bsl::string StringType;
 
-                    rc = Util::getUnquotedString(&s, isb);
-                    value = s;
+                        bsl::string      result;
+                        ASSERTV(LINE, 0 == Util::getValue(&result, isb));
+                        bsl::string_view sv(result); Util::stripQuotes(&sv);
+                        bdljsn::Json     json; json.makeString(sv);
+                        StringType       decode;
+                        rc = JUtil::getValue(&decode, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   decode,
+                                      EXP == decode);
                   } break;
                   case e_STD: {
-                    static std::string s;
-                    s = ERROR_VALUE;
+                        typedef std::string StringType;
 
-                    rc = Util::getUnquotedString(&s, isb);
-                    value = s;
+                        bsl::string      result;
+                        ASSERTV(LINE, 0 == Util::getValue(&result, isb));
+                        bsl::string_view sv(result); Util::stripQuotes(&sv);
+                        bdljsn::Json     json; json.makeString(sv);
+                        StringType       decode;
+                        rc = JUtil::getValue(&decode, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   decode,
+                                      EXP == decode);
                   } break;
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
                   case e_PMR: {
-                    static std::pmr::string s;
-                    s = ERROR_VALUE;
+                        typedef std::pmr::string StringType;
 
-                    rc = Util::getUnquotedString(&s, isb);
-                    value = s;
+                        bsl::string      result;
+                        ASSERTV(LINE, 0 == Util::getValue(&result, isb));
+                        bsl::string_view sv(result); Util::stripQuotes(&sv);
+                        bdljsn::Json     json; json.makeString(sv);
+                        StringType       decode;
+                        rc = JUtil::getValue(&decode, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   decode,
+                                      EXP == decode);
                   } break;
 #endif
                   default: {
-                    BSLS_ASSERT_INVOKE_NORETURN("invalid ST");
+                    ASSERT(false && "reachable");
                   }
-                }
-
-                if (IS_VALID) {
-                    ASSERTV(LINE, rc, 0 == rc);
-                }
-                else {
-                    ASSERTV(LINE, rc, rc);
-                }
-                ASSERTV(LINE, EXP, value, EXP == value);
+                };
             }
+        }
+
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            bsl::string      bslString;
+            std::string      stdString;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            std::pmr::string pmrString;
+#endif
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&bslString, json)));
+            ASSERT_FAIL((JUtil::getValue(&stdString, json)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            ASSERT_FAIL((JUtil::getValue(&pmrString, json)));
+#endif
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&bslString, json)));
+            ASSERT_FAIL((JUtil::getValue(&stdString, json)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            ASSERT_FAIL((JUtil::getValue(&pmrString, json)));
+#endif
+
+            json.makeString("");
+            ASSERT_PASS((JUtil::getValue(&bslString, json)));           // PASS
+            ASSERT_PASS((JUtil::getValue(&stdString, json)));           // PASS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            ASSERT_PASS((JUtil::getValue(&pmrString, json)));           // PASS
+#endif
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&bslString, json)));
+            ASSERT_FAIL((JUtil::getValue(&stdString, json)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            ASSERT_FAIL((JUtil::getValue(&pmrString, json)));
+#endif
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&bslString, json)));
+            ASSERT_FAIL((JUtil::getValue(&stdString, json)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            ASSERT_FAIL((JUtil::getValue(&pmrString, json)));
+#endif
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&bslString, json)));
+            ASSERT_FAIL((JUtil::getValue(&stdString, json)));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+            ASSERT_FAIL((JUtil::getValue(&pmrString, json)));
+#endif
         }
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for double values
+        // TESTING `getValue` FOR `double` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -5229,16 +5362,16 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(double               *v, bsl::string_view s);
+        //   static int getValue(double               *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for double"
-                          << "\n=============================" << endl;
+        if (verbose) cout
+                         << "\nTESTING `getValue` FOR `double` VALUES"
+                         << "\n======================================" << endl;
 
         typedef double Type;
 
         {
-
             const Type ERROR_VALUE = 99.99;
 
             static const struct {
@@ -5419,35 +5552,74 @@ int main(int argc, char *argv[])
                     P(IS_VALID);
                 }
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
+                    Json json;
 
-                if (bdlb::Float::isNan(EXP)) {
-                    LOOP_ASSERT(LINE, bdlb::Float::isNan(value));
-                }
-                else {
-                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
-                }
+                    switch (bdlb::Float::classify(EXP)) {
+                      case bdlb::Float::k_INFINITE: {
+                        if (bdlb::Float::signBit(EXP)) {
+                            json.makeString("-inf");
+                        } else {
+                            json.makeString("+inf");
+                        }
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                        int rc = JUtil::getValue(&value, json);
 
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   value,
+                                      EXP == value);
+                      } break;
+                      case bdlb::Float::k_NAN: {
+                        json.makeString("nan");
+
+                        int rc = JUtil::getValue(&value, json);
+
+                        ASSERTV(LINE, rc,    0 == rc);
+                        ASSERTV(LINE, value, bdlb::Float::isNan(value));
+                      } break;
+                      default: {
+                        json.makeNumber(JsonNumber(EXP));
+
+                        int rc = JUtil::getValue(&value, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   value,
+                                      EXP == value);
+                      } break;
+                    }
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");  // Allowed for INF/-INF/NAN
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for float values
+        // TESTING `getValue` FOR `float` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -5475,11 +5647,11 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(float                *v, bsl::string_view s);
+        //   static int getValue(float                *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for float"
-                          << "\n============================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` FOR `float` VALUES"
+                          << "\n=====================================" << endl;
 
         typedef float Type;
 
@@ -5657,35 +5829,74 @@ int main(int argc, char *argv[])
                     P(IS_VALID);
                 }
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
+                    Json json;
 
-                if (bdlb::Float::isNan(EXP)) {
-                    LOOP_ASSERT(LINE, bdlb::Float::isNan(value));
-                }
-                else {
-                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
-                }
+                    switch (bdlb::Float::classify(EXP)) {
+                      case bdlb::Float::k_INFINITE: {
+                        if (bdlb::Float::signBit(EXP)) {
+                            json.makeString("-inf");
+                        } else {
+                            json.makeString("+inf");
+                        }
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                        int rc = JUtil::getValue(&value, json);
 
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   value,
+                                LINE, EXP == value);
+                      } break;
+                      case bdlb::Float::k_NAN: {
+                        json.makeString("nan");
+
+                        int rc = JUtil::getValue(&value, json);
+
+                        ASSERTV(LINE, rc,    0 == rc);
+                        ASSERTV(LINE, value, bdlb::Float::isNan(value));
+                      } break;
+                      default: {
+                        json.makeNumber(JsonNumber(EXP));
+
+                        int rc = JUtil::getValue(&value, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, EXP,   value,
+                                      EXP == value);
+                      } break;
+                    }
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");  // Allowed for INF/-INF/NAN
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for Uint64 values
+        // TESTING `getValue` FOR `Uint64` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -5713,16 +5924,16 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bsls::Types::Uint64  *v, bsl::string_view s);
+        //   static int getValue(bsls::Types::Uint64  *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for Uint64"
-                          << "\n=============================" << endl;
+        if (verbose) cout
+                         << "\nTESTING `getValue` FOR `Uint64` VALUES"
+                         << "\n======================================" << endl;
 
         typedef Uint64 Type;
 
         {
-
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
@@ -5944,22 +6155,15 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP4_ASSERT(LINE, INPUT, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
 
             for (Type i = 0; i <= 255; ++i) {
@@ -5967,18 +6171,49 @@ int main(int argc, char *argv[])
                 const bsl::string_view isb(&c, 1);
                 bool                   is_valid = '0' <= c && c <= '9';
                 Type                   value    = ERROR_VALUE;
-                const int              rc       = Util::getValue(&value, isb);
+            //  const int              rc       = Util::getValue(&value, isb);
 
-                ASSERTV(rc, i, is_valid, is_valid == (0 == rc));
-                ASSERTV(value, is_valid, !is_valid || value == i - '0');
+                if (is_valid) {
+                    Json json; json.makeNumber(JsonNumber(i - '0'));
 
+                    int rc = JUtil::getValue(&value, json);
+
+                    ASSERTV(rc, 0 == rc);
+                    ASSERTV(i - '0',   value,
+                            i - '0' == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for Int64 values
+        // TESTING `getValue` FOR `Int64` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -6006,16 +6241,15 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(bsls::Types::Int64   *v, bsl::string_view s);
+        //   static int getValue(bsls::Types::Int64   *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for Int64"
-                          << "\n============================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` FOR `Int64` VALUES"
+                          << "\n=====================================" << endl;
 
         typedef Int64 Type;
 
         {
-
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
@@ -6311,29 +6545,47 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for unsigned int values
+        // TESTING `getValue` for `unsigned int` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -6361,16 +6613,16 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(unsigned int         *v, bsl::string_view s);
+        //   static int getValue(unsigned int         *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for unsigned int"
-                          << "\n===================================" << endl;
+        if (verbose) cout
+                   << "\nTESTING `getValue` FOR `unsigned int` VALUES"
+                   << "\n============================================" << endl;
 
         typedef unsigned int Type;
 
         {
-
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
@@ -6560,29 +6812,47 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for int values
+        // TESTING `getValue` for `int` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -6610,16 +6880,15 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(int                  *v, bsl::string_view s);
+        //   static int getValue(int                  *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for int"
-                          << "\n==========================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` for `int` VALUES"
+                          << "\n===================================" << endl;
 
         typedef int Type;
 
         {
-
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
@@ -6860,29 +7129,47 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for unsigned short values
+        // TESTING `getValue` FOR `unsigned short` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -6910,11 +7197,11 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(unsigned short      *v, bsl::string_view s);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for unsigned short"
-                          << "\n=====================================" << endl;
+        if (verbose) cout
+                 << "\nTESTING `getValue` FOR `unsigned short` VALUES"
+                 << "\n==============================================" << endl;
 
         typedef unsigned short Type;
 
@@ -7111,29 +7398,47 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for short values
+        // TESTING `getValue` FOR `short` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -7161,11 +7466,11 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(short               *v, bsl::string_view s);
+        //   static int getValue(short                *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for short"
-                          << "\n============================" << endl;
+        if (verbose) cout << "\nTESTING `getValue` FOR `short` VALUES"
+                          << "\n=====================================" << endl;
 
         typedef short Type;
 
@@ -7401,29 +7706,47 @@ int main(int argc, char *argv[])
                 const int    IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for unsigned char values
+        // TESTING `getValue` FOR `unsigned char` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -7451,16 +7774,16 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(unsigned char        *v, bsl::string_view s);
+        //   static int getValue(unsigned char        *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for unsigned char"
-                          << "\n====================================" << endl;
+        if (verbose) cout
+                  << "\nTESTING `getValue` FOR `unsigned char` VALUES"
+                  << "\n=============================================" << endl;
 
         typedef unsigned char Type;
 
         {
-
             const Type ERROR_VALUE = 99;
             const Type MAX         = bsl::numeric_limits<Type>::max();
             const Type MIN         = bsl::numeric_limits<Type>::min();
@@ -7624,29 +7947,47 @@ int main(int argc, char *argv[])
                 const bool   IS_VALID = DATA[i].d_isValid;
                       Type   value    = ERROR_VALUE;
 
-                const bsl::string_view isb(INPUT);
-
-                bslma::TestAllocator         da("default", veryVeryVerbose);
-                bslma::DefaultAllocatorGuard dag(&da);
-
-                const int rc = Util::getValue(&value, isb);
                 if (IS_VALID) {
-                    LOOP2_ASSERT(LINE, rc, 0 == rc);
-                }
-                else {
-                    LOOP2_ASSERT(LINE, rc, rc);
-                }
-                LOOP3_ASSERT(LINE, EXP, value, EXP == value);
+                    Json json; json.makeNumber(JsonNumber(EXP));
 
-                ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+                    int rc = JUtil::getValue(&value, json);
 
+                    ASSERTV(LINE, rc, 0 == rc);
+                    ASSERTV(LINE, EXP,   value,
+                                  EXP == value);
+                }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            Type value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for signed char values
+        // TESTING `getValue` FOR `char` AND `signed char` VALUES
         //
         // Concerns:
         // 1. Values in the valid range, including the maximum and minimum
@@ -7674,12 +8015,16 @@ int main(int argc, char *argv[])
         //      otherwise.
         //
         // Testing:
-        //   static int getValue(char                 *v, bsl::string_view s);
-        //   static int getValue(signed char          *v, bsl::string_view s);
+        //   static int getValue(char                 *v, const Json& j);
+        //   static int getValue(signed char          *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for signed char"
-                          << "\n==================================" << endl;
+        typedef        char  Type;
+        typedef signed char Stype;
+
+        if (verbose) cout
+         << "\nTESTING `getValue` FOR `char` AND `signed char` VALUES"
+         << "\n======================================================" << endl;
 
         {
             const signed char ERROR_VALUE = 'X';
@@ -7855,38 +8200,68 @@ int main(int argc, char *argv[])
 
                 // char values
                 {
-                    const bsl::string_view isb(INPUT);
-                    const int rc = Util::getValue(&c, isb);
                     if (IS_VALID) {
-                        LOOP2_ASSERT(LINE, rc, 0 == rc);
-                    }
-                    else {
-                        LOOP2_ASSERT(LINE, rc, rc);
-                    }
-                    LOOP3_ASSERT(LINE, C, c, C == c);
+                        Json json; json.makeNumber(JsonNumber(C));
 
+                        int rc = JUtil::getValue(&c, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, C,   c,
+                                      C == c);
+                    }
                 }
 
                 // signed char values
                 {
-                    const bsl::string_view isb(INPUT);
-                    const int rc = Util::getValue(&sc, isb);
                     if (IS_VALID) {
-                        LOOP2_ASSERT(LINE, rc, 0 == rc);
-                    }
-                    else {
-                        LOOP2_ASSERT(LINE, rc, rc);
-                    }
-                    LOOP3_ASSERT(LINE, SC, sc, SC == sc);
+                        Json json; json.makeNumber(JsonNumber(SC));
 
+                        int rc = JUtil::getValue(&sc, json);
+
+                        ASSERTV(LINE, rc, 0 == rc);
+                        ASSERTV(LINE, SC,   sc,
+                                      SC == sc);
+                    }
                 }
             }
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json   json;
+            Type   value;
+            Stype svalue;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue( &value, json)));
+            ASSERT_FAIL((JUtil::getValue(&svalue, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue( &value, json)));
+            ASSERT_FAIL((JUtil::getValue(&svalue, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue( &value, json)));
+            ASSERT_FAIL((JUtil::getValue(&svalue, json)));
+
+            json.makeNumber();
+            ASSERT_PASS((JUtil::getValue( &value, json)));              // PASS
+            ASSERT_PASS((JUtil::getValue(&svalue, json)));              // PASS
+
+            json.makeBoolean();
+            ASSERT_FAIL((JUtil::getValue( &value, json)));
+            ASSERT_FAIL((JUtil::getValue(&svalue, json)));
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue( &value, json)));
+            ASSERT_FAIL((JUtil::getValue(&svalue, json)));
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // TESTING `getValue` for bool values
+        // TESTING `getValue` FOR `bool` VALUES
         //
         // Concerns:
         // 1. "true" is decoded into `true` and "false" is decoded into
@@ -7904,76 +8279,50 @@ int main(int argc, char *argv[])
         //    value is non-zero.
         //
         // Testing:
-        //   static int getValue(bool                *v, bsl::string_view s);
+        //   static int getValue(bool                 *v, const Json& j);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "\nTESTING `getValue` for bool"
-                          << "\n===========================" << endl;
-
-        typedef bool Type;
-
+        if (verbose) cout << "\nTESTING `getValue` FOR `bool` VALUES"
+                          << "\n====================================" << endl;
         {
+            Json jsonTrue;  jsonTrue .makeBoolean(true);
+            Json jsonFalse; jsonFalse.makeBoolean(false);
 
-            const Type EV = false;
+            bool valueFromJsonTrue;
+            bool valueFromJsonFalse;
 
-            static const struct {
-                int         d_line;    // line number
-                const char *d_input_p; // input on the stream
-                Type        d_exp;     // exp char value
-                bool        d_isValid; // isValid flag
-            } DATA[] = {
-                //line    input        exp      isValid
-                //----    -----        ---      -------
+            ASSERT(0 == JUtil::getValue(&valueFromJsonTrue,  jsonTrue ));
+            ASSERT(0 == JUtil::getValue(&valueFromJsonFalse, jsonFalse));
 
-                {   L_,    "",          EV,      false    },
-
-                {   L_,    "T",         EV,      false    },
-                {   L_,    "F",         EV,      false    },
-
-                {   L_,    "tru",       EV,      false    },
-                {   L_,    "fals",      EV,      false    },
-
-                {   L_,    "true",      true,    true     },
-                {   L_,    "false",     false,   true     },
-
-                {   L_,    "True",      EV,      false    },
-                {   L_,    "False",     EV,      false    },
-
-                {   L_,    "TRUE",      EV,      false    },
-                {   L_,    "FALSE",     EV,      false    },
-
-                {   L_,    "truee",     EV,      false    },
-                {   L_,    "falsee",    EV,      false    },
-
-                {   L_,    "truefalse", EV,      false    },
-                {   L_,    "falsetrue", EV,      false    },
-            };
-            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
-
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int            LINE     = DATA[i].d_line;
-                const string         INPUT    = DATA[i].d_input_p;
-                const bool           EXP      = DATA[i].d_exp;
-                const bool           IS_VALID = DATA[i].d_isValid;
-                      bool           value    = EV;
-
-                if (veryVerbose) { P(LINE) P(INPUT) P(EXP) }
-
-                {
-                    const bsl::string_view isb(INPUT);
-                    const int rc = Util::getValue(&value, isb);
-                    if (IS_VALID) {
-                        LOOP2_ASSERT(LINE, rc, 0 == rc);
-                    }
-                    else {
-                        LOOP2_ASSERT(LINE, rc, rc);
-                    }
-                    LOOP3_ASSERT(LINE, EXP, value, EXP == value);
-
-                }
-            }
+            ASSERT(true  == valueFromJsonTrue );
+            ASSERT(false == valueFromJsonFalse);
         }
 
+        if (veryVerbose) cout << "Negative tests" << endl;
+        {
+            bsls::AssertTestHandlerGuard hg;
+
+            Json json;
+            bool value;
+
+            json.makeObject();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeArray();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeString("");
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeNumber();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+
+            json.makeBoolean();
+            ASSERT_PASS((JUtil::getValue(&value, json)));               // PASS
+
+            json.makeNull();
+            ASSERT_FAIL((JUtil::getValue(&value, json)));
+        }
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -8032,19 +8381,21 @@ int main(int argc, char *argv[])
         for (int ti = 0; ti < NUM_DATA; ++ ti) {
             const int         LINE   = DATA[ti].d_line;
             const char *const STRING = DATA[ti].d_string;
-            const bool        FLAG   = DATA[ti].d_validFlag;
-            const double      EXP    = DATA[ti].d_result;
+        //  const bool        FLAG   = DATA[ti].d_validFlag;
+        //  const double      EXP    = DATA[ti].d_result;
 
             const bsl::string_view iss(STRING);
 
-            double result;
+            double    result;
             const int rc = Util::getValue(&result, iss);
-            if (FLAG) {
-                ASSERTV(LINE, rc,               0 == rc);
-                ASSERTV(LINE, result, EXP, result == EXP);
-            }
-            else {
-                ASSERTV(LINE, rc, rc);
+
+            if (0 == rc) {
+                Json json; json.makeNumber(JsonNumber(result));
+
+                double resultFromJson;
+                ASSERTV(LINE, 0      == JUtil::getValue(&resultFromJson,
+                                                        json));
+                ASSERTV(LINE, result == resultFromJson);
             }
         }
       } break;

@@ -323,8 +323,8 @@ class Formatter {
     int openMember(const bsl::string_view& name);
 
     /// Print onto the stream supplied at construction the value corresponding
-    /// to a null element.
-    void putNullValue();
+    /// to a null element.  Return 0 on success and a non-zero value otherwise.
+    int putNullValue();
 
     /// Print onto the stream supplied at construction the specified `value`.
     /// Optionally specify `options` according which `value` should be encoded.
@@ -376,12 +376,13 @@ bool Formatter::isArrayElement() const
 
 // MANIPULATORS
 inline
-void Formatter::putNullValue()
+int Formatter::putNullValue()
 {
     if (d_usePrettyStyle && isArrayElement()) {
         indent();
     }
     d_outputStream << "null";
+    return 0;
 }
 
 template <class TYPE>

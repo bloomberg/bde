@@ -101,7 +101,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, EncodingStyle::Value rhs);
 
 BDLAT_DECL_ENUMERATION_TRAITS(baljsn::EncodingStyle)
 
-
 // ============================================================================
 //                         INLINE FUNCTION DEFINITIONS
 // ============================================================================

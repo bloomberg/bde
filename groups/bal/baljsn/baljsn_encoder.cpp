@@ -4,82 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(baljsn_encoder_cpp,"$Id$ $CSID$")
 
-#include <bdlde_base64encoder.h>
+#include <baljsn_encoder_testtypes.h>  // for testing only
 
 namespace BloombergLP {
 namespace baljsn {
-
-                        // -----------------------------
-                        // struct Encoder_EncodeImplUtil
-                        // -----------------------------
-
-// CLASS METHODS
-int Encoder_EncodeImplUtil::encodeCharArray(
-                                      Formatter                *formatter,
-                                      const bsl::vector<char>& value,
-                                      const EncoderOptions&    encoderOptions)
-{
-    bsl::string base64String;
-    bdlde::Base64Encoder encoder(0);
-    base64String.resize(
-       bdlde::Base64Encoder::encodedLength(static_cast<int>(value.size()), 0));
-
-    // Ensure length is a multiple of 4.
-
-    BSLS_ASSERT(0 == (base64String.length() & 0x03));
-
-    int numOut;
-    int numIn;
-    int rc = encoder.convert(base64String.begin(),
-                             &numOut,
-                             &numIn,
-                             value.begin(),
-                             value.end());
-
-    if (rc < 0) {
-        return rc;                                                    // RETURN
-    }
-
-    rc = encoder.endConvert(base64String.begin() + numOut);
-    if (rc < 0) {
-        return rc;                                                    // RETURN
-    }
-
-    return encodeSimpleValue(formatter,
-                  base64String,
-                  encoderOptions);
-}
-
-                               // Member Encoding
-
-int Encoder_EncodeImplUtil::encodeMember(
-                                     bool                      *memberIsEmpty,
-                                     Formatter                 *formatter,
-                                     bsl::ostream              *logStream,
-                                     const bsl::string_view&    memberName,
-                                     const bsl::vector<char>&   member,
-                                     FormattingMode             formattingMode,
-                                     const EncoderOptions&      options,
-                                     bool                       isFirstMember,
-                                     bdlat_TypeCategory::Array)
-{
-    int rc = ThisUtil::encodeMemberPrefix(
-        formatter, logStream, memberName, formattingMode, isFirstMember);
-    if (0 != rc) {
-        return rc;                                                    // RETURN
-    }
-
-    rc = ThisUtil::encodeCharArray(formatter, member, options);
-    if (0 != rc) {
-        (*logStream) << "Unable to encode value of element "
-                     << "named: '" << memberName << "'."
-                     << bsl::endl;
-        return rc;                                                    // RETURN
-    }
-
-    *memberIsEmpty = false;
-    return 0;
-}
 
 // The 'Encoder_Formatter' 'class' has been replaced by the 'baljsn::Formatter'
 // 'class' in the 'baljsn_formatter' component.  Clients should use that
@@ -214,7 +142,6 @@ void Encoder_Formatter::closeDocument()
 }
 
 }  // close package namespace
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

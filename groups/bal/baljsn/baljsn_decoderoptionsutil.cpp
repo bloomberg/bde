@@ -31,7 +31,7 @@ void DecoderOptionsUtil::setMode(DecoderOptions *options, Mode mode)
         options->setAllowUnescapedControlCharacters(false);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 == "reachable");
+        BSLS_ASSERT_OPT(false && "reachable");
       } break;
     }
 }

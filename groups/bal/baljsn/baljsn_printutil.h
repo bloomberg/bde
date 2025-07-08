@@ -93,6 +93,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_numericformatterutil.h>
 
+#include <bsla_fallthrough.h>
+
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -150,6 +152,17 @@ struct PrintUtil {
     static int printDateAndTime(bsl::ostream&         stream,
                                 const TYPE&           value,
                                 const EncoderOptions *options);
+
+    /// Return the string representation of special floating point values if
+    /// the specified `classification` is:
+    /// * `bdlb::Float::k_POSITIVE_INFINITY`
+    /// * `bdlb::Float::k_NEGATIVE_INFINITY`
+    /// * `bdlb::Float::k_QNAN`
+    /// * `bdlb::Float::k_SNAN`
+    /// and 0 otherwise.  This representation does *not* include the delimiting
+    /// double quotes of JSON strings.
+    static const char *floatingPointSpecialAsString(
+                               bdlb::Float::FineClassification classification);
 
     /// Encode the specified floating point `value` into JSON and output the
     /// result to the specified `stream`.  Use the optionally-specified
@@ -292,32 +305,35 @@ int PrintUtil::printDateAndTime(bsl::ostream&         stream,
     return printValue(stream, buffer);
 }
 
+inline
+const char *PrintUtil::floatingPointSpecialAsString(
+                                bdlb::Float::FineClassification classification)
+{
+    const char *specialAsString =
+                  bdlb::Float::k_POSITIVE_INFINITY == classification ? "+inf" :
+                  bdlb::Float::k_NEGATIVE_INFINITY == classification ? "-inf" :
+                  bdlb::Float::k_QNAN              == classification ?  "nan" :
+                  bdlb::Float::k_SNAN              == classification ?  "nan" :
+                  /* default */                                         0     ;
+    return specialAsString;
+}
+
 template <class TYPE>
 int PrintUtil::printFloatingPoint(bsl::ostream&                 stream,
                                   TYPE                          value,
                                   const baljsn::EncoderOptions *options)
 {
-    switch (bdlb::Float::classifyFine(value)) {
-      case bdlb::Float::k_POSITIVE_INFINITY: {
-        if (options && options->encodeInfAndNaNAsStrings()) {
-            stream << "\"+inf\"";
-        }
-        else {
-            return -1;                                                // RETURN
-        }
-      } break;
-      case bdlb::Float::k_NEGATIVE_INFINITY: {
-        if (options && options->encodeInfAndNaNAsStrings()) {
-            stream << "\"-inf\"";
-        }
-        else {
-            return -1;                                                // RETURN
-        }
-      } break;
-      case bdlb::Float::k_QNAN:                                 // FALL-THROUGH
+    bdlb::Float::FineClassification classification =
+                                              bdlb::Float::classifyFine(value);
+    switch (classification) {
+      case bdlb::Float::k_POSITIVE_INFINITY:                  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_NEGATIVE_INFINITY:                  BSLA_FALLTHROUGH;
+      case bdlb::Float::k_QNAN:                               BSLA_FALLTHROUGH;
       case bdlb::Float::k_SNAN: {
         if (options && options->encodeInfAndNaNAsStrings()) {
-            stream << "\"nan\"";
+            stream << '"'
+                   << floatingPointSpecialAsString(classification)
+                   << '"';
         }
         else {
             return -1;                                                // RETURN

@@ -913,7 +913,6 @@ int main(int argc, char *argv[])
                 Obj mX;  const Obj& X = mX;
                 ASSERTV(X.tokenType(), Obj::e_BEGIN == X.tokenType());
 
-
                 mX.reset(iss.rdbuf());
                 mX.setAllowNonUtf8StringLiterals(!CHECK_UTF8);
 

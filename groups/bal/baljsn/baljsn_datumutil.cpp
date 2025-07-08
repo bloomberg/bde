@@ -55,10 +55,10 @@ int decodeValue(bdld::ManagedDatum *result,
 /// values are encountered.  Optionally specify the `name` to be used for
 /// this value.  Return 0 on success, and a negative value if `datum` cannot
 /// be encoded', which should stop further encoding.
-int encodeValue(baljsn::SimpleFormatter    *formatter,
-                const bdld::Datum&          datum,
-                int                        *strictTypesCheckStatus,
-                bsl::string_view           *name = 0);
+int encodeValue(baljsn::SimpleFormatter *formatter,
+                const bdld::Datum&       datum,
+                int                     *strictTypesCheckStatus,
+                bsl::string_view        *name = 0);
 
 /// Decode into the specified `*result` the JSON object in the specified
 /// `*tokenizer`, updating the specified `*errorStream` if any errors are
