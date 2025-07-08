@@ -1346,11 +1346,14 @@ int main(int argc, char **argv)
         TEST_PARSE_SUCCESS_F(char,     "{0:*^{1}.{1}}"         , true);
         TEST_PARSE_SUCCESS_F(wchar_t, L"{0:*^{1}.{1}}"         , true);
 
-        #define TPS(type, fmtStr, useOracle)                                  \
-            do {                                                              \
-                TEST_PARSE_SUCCESS_F(type, fmtStr, useOracle);                \
-                TEST_PARSE_SUCCESS_VF(type, fmtStr, useOracle);               \
-            } while (false)
+// `std::format` is not fully constexpr in gcc 13 — parsing format strings
+// containing unicode symbols in a constexpr context triggers a call to a
+// non-constexpr function.
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE <= 13
+        #define TPS TEST_PARSE_SUCCESS_VF
+#else
+        #define TPS TEST_PARSE_SUCCESS_F
+#endif
 
          // We need a shortened version of the name to fit in the table.
          const int k_UNICODE_IS_SUPPORTED = k_ORACLE_SUPPORTS_UNICODE;
@@ -1404,7 +1407,6 @@ int main(int argc, char **argv)
         TPS(wchar_t, L"{0:\U0001F600>{1}.{1}}"       , k_UNICODE_IS_SUPPORTED);
         TPS(char,     "{0:\xF0\x9F\x98\x80^{1}.{1}}" , k_UNICODE_IS_SUPPORTED);
         TPS(wchar_t, L"{0:\U0001F600^{1}.{1}}"       , k_UNICODE_IS_SUPPORTED);
-
         #undef TPS
       } break;
       case 2: {
