@@ -17,48 +17,49 @@ BSLS_IDENT("$Id: $")
 // format into a `bdlat` Simple type.  The primary method is `getValue` which
 // is is overloaded for all `bdlat` Simple types.
 //
-///Usage  TBD: Update for `bdlt::Json`
+///Usage
 ///-----
 // This section illustrates intended use of this component.
 //
-///Example 1: Decoding into a Simple `struct` from JSON data
-///---------------------------------------------------------
-// Suppose we want to de-serialize some JSON data into an object.
+///Example 1: Decoding into a Simple `struct` from `bdljsn::Json` Objects
+///----------------------------------------------------------------------
+// Suppose we want extract some data from `bdljsn::Json` objects.
 //
 // First, we define a `struct`, `Employee`, to contain the data:
 // ```
-// struct Employee {
-//     bsl::string d_name;
-//     bdlt::Date  d_date;
-//     int         d_age;
-// };
+//  struct Employee {
+//      bsl::string d_name;
+//      bdlt::Date  d_date;
+//      int         d_age;
+//  };
 // ```
 // Then, we create an `Employee` object:
 // ```
-// Employee employee;
+//  Employee employee;
 // ```
-// Next, we specify the string values in JSON format used to represent the
-// object data.  Note that the birth date is specified in the ISO 8601 format:
+// Next, we create `bdljsn::Json` objects of different (dynameic) types
+// having the data of interest.  Note that the string data does *not* have
+// embedden double quote deliminters as required in JSON documents.  Also note
+// that the date information is represented in ISO 8601 format in a string.
 // ```
-// const char *name = "\"John Smith\"";
-// const char *date = "\"1985-06-24\"";
-// const char *age  = "21";
+//  const char *nameStr = "John Smith";  // No double quotes *in* string.
+//  const char *dateStr = "1985-06-24";  // No double quotes *in* string.
 //
-// const bsl::string_view nameRef(name);
-// const bsl::string_view dateRef(date);
-// const bsl::string_view ageRef(age);
+//  bdljsn::Json name; name.makeString(nameStr);
+//  bdljsn::Json date; date.makeString(dateStr); // ISO 8601
+//  bdljsn::Json age;  age .makeNumber(bdljsn::JsonNumber(21));
 // ```
-// Now, we use the created string refs to populate the employee object:
+// Now, we use `bdljsn::Json` objects to populate the `employee` object:
 // ```
-// assert(0 == baljsn::ParserUtil::getValue(&employee.d_name, nameRef));
-// assert(0 == baljsn::ParserUtil::getValue(&employee.d_date, dateRef));
-// assert(0 == baljsn::ParserUtil::getValue(&employee.d_age,   ageRef));
+//  assert(0 == baljsn::JsonParserUtil::getValue(&employee.d_name, name));
+//  assert(0 == baljsn::JsonParserUtil::getValue(&employee.d_date, date));
+//  assert(0 == baljsn::JsonParserUtil::getValue(&employee.d_age,  age ));
 // ```
 // Finally, we will verify that the values are as expected:
 // ```
-// assert("John Smith"             == employee.d_name);
-// assert(bdlt::Date(1985, 06, 24) == employee.d_date);
-// assert(21                       == employee.d_age);
+//  assert("John Smith"             == employee.d_name);
+//  assert(bdlt::Date(1985, 06, 24) == employee.d_date);
+//  assert(21                       == employee.d_age);
 // ```
 
 #include <balscm_version.h>
