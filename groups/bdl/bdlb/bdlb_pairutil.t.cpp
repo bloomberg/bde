@@ -7,14 +7,28 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <bsls_nameof.h>
+#endif
 
 #include <bsltf_templatetestfacility.h>
 
 #include <bsl_cstdlib.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <bsl_deque.h>
+#include <bsl_forward_list.h>
+#endif
 #include <bsl_iostream.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <bsl_list.h>
+#endif
 #include <bsl_map.h>
 #include <bsl_string.h>
 #include <bsl_type_traits.h>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <bsl_unordered_map.h>
+#include <bsl_vector.h>
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -24,18 +38,30 @@ using namespace bsl;
 //-----------------------------------------------------------------------------
 //                                  Overview
 //                                  --------
-// This component is a utility that provides a single static function template,
-// `tie`.  The primary concern is to ensure that this function template
-// satisfies its contract.
+// This component is a utility that provides tools for working with
+// `bsl::pair`, in particular `tie` function template, which constructs such
+// pair and `stdPairRefAdaptor`, which creates `std::pair` from a `bsl` one,
+// storing references to the values of the original.  The primary concern is to
+// ensure that these functions satisfy their contracts and return objects of
+// the expected types and having the expected values.
+//
+// Another function of the utility, `adaptForRanges`, does not work directly
+// with pairs, but uses the `stdPairRefAdaptor` that allows you to get a
+// tuple-like `std::pair`, to create a lazy view. We want to make sure that the
+// result of this function can be embedded into chains of range adaptors.
 //
 // Note that as long as `tie` always returns the correct type, there are no
 // allocator issues involved, because reference types are not allocator-aware.
 //-----------------------------------------------------------------------------
+// CLASS DATA
+// [ 3] bdlb::PairUtil::stdPairRefAdaptor;
+
 // CLASS METHODS
-// [ 2] template<T1, T2> bsl::pair<T1&, T2&> tie(T1&, T2&)
+// [ 2] template<T1, T2> bsl::pair<T1&, T2&> tie(T1&, T2&);
+// [ 4] bsl::ranges::view auto adaptForRanges(t_CONTAINER&& c);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
+// [ 5] USAGE EXAMPLES
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -249,6 +275,426 @@ void run()
 }  // close namespace bdlb_pairutil_test_case_2
 
 // ============================================================================
+//                           CLASSES FOR TESTING
+// ----------------------------------------------------------------------------
+
+namespace {
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
+                              // =============
+                              // struct Record
+                              // =============
+
+/// This struct is simple value-semantic type used for testing perposes.
+struct Record {
+    // DATA
+    int         d_identifier = 0;   // id
+    bsl::string d_name       = "";  // name
+
+    // ACCESSORS
+    /// Return this object's identifier.
+    int identifier() const
+    {
+        return d_identifier;
+    }
+
+    /// Return this object's name attribute.
+    const bsl::string& name() const
+    {
+        return d_name;
+    }
+};
+
+/// Convert objects of the (template parameter) `t_PAIR` and `const t_PAIR`
+/// types using `stdPairRefAdaptor` and verify that the resulting objects are
+/// of types (template parameters) `t_EXPECTED_REF` and `t_EXPECTED_CONST_REF`
+/// respectively.
+template <class t_PAIR, class t_EXPECTED_REF, class t_EXPECTED_CONST_REF>
+void testAdaptorForOneType(int line)
+{
+    using Util  = bdlb::PairUtil;
+    using Key   = bsl::remove_reference_t<typename t_PAIR::first_type>;
+    using Value = bsl::remove_reference_t<typename t_PAIR::second_type>;
+
+    Key   key(1);
+    Value value(2);
+
+    // lvalue
+    {
+        t_PAIR lvaluePair(key, value);
+        auto   result = Util::stdPairRefAdaptor(lvaluePair);
+
+        using ResultType = decltype(result);
+
+        ASSERTV(line, bsls::NameOf<ResultType>().name(),
+                bsls::NameOf<t_EXPECTED_REF>().name(),
+                (bsl::is_same_v<t_EXPECTED_REF, ResultType>));
+        ASSERTV(&lvaluePair.first  == &result.first);
+        ASSERTV(&lvaluePair.second == &result.second);
+    }
+
+    // const lvalue
+    {
+        const t_PAIR constLvaluePair(key, value);
+        auto         result = Util::stdPairRefAdaptor(constLvaluePair);
+
+        using ResultType = decltype(result);
+
+        ASSERTV(line, bsls::NameOf<ResultType>().name(),
+                bsls::NameOf<t_EXPECTED_CONST_REF>().name(),
+                (bsl::is_same_v<t_EXPECTED_CONST_REF, ResultType>));
+        ASSERTV(&constLvaluePair.first  == &result.first);
+        ASSERTV(&constLvaluePair.second == &result.second);
+    }
+}
+
+/// Test `stdPairRefAdaptor` functionality.
+template <class t_KEY, class t_VALUE>
+void testAdaptor()
+{
+    // value types
+    using BslPairKV     = bsl::pair<       t_KEY ,       t_VALUE  >;
+    using BslPairCKV    = bsl::pair< const t_KEY ,       t_VALUE  >;
+    using BslPairKCV    = bsl::pair<       t_KEY , const t_VALUE  >;
+    using BslPairCKCV   = bsl::pair< const t_KEY , const t_VALUE  >;
+
+    // cross products
+    using BslPairKVR    = bsl::pair<       t_KEY ,       t_VALUE& >;
+    using BslPairCKRV   = bsl::pair< const t_KEY&,       t_VALUE  >;
+    using BslPairKCVR   = bsl::pair<       t_KEY , const t_VALUE& >;
+    using BslPairCKRCV  = bsl::pair< const t_KEY&, const t_VALUE  >;
+
+    // reference types
+    using BslPairKRVR   = bsl::pair<       t_KEY&,       t_VALUE& >;
+    using BslPairCKRVR  = bsl::pair< const t_KEY&,       t_VALUE& >;
+    using BslPairKRCVR  = bsl::pair<       t_KEY&, const t_VALUE& >;
+    using BslPairCKRCVR = bsl::pair< const t_KEY&, const t_VALUE& >;
+
+    // expected result types
+    using StdPairKRVR   = std::pair<       t_KEY&,       t_VALUE& >;
+    using StdPairCKRVR  = std::pair< const t_KEY&,       t_VALUE& >;
+    using StdPairKRCVR  = std::pair<       t_KEY&, const t_VALUE& >;
+    using StdPairCKRCVR = std::pair< const t_KEY&, const t_VALUE& >;
+
+    // tests
+    //                     INPUT TYPE     EXP FOR REFS     EXP FOR CONST REFS
+    //                     ------------   --------------   --------------------
+    testAdaptorForOneType< BslPairKV   ,  StdPairKRVR  ,   StdPairCKRCVR >(L_);
+    testAdaptorForOneType< BslPairCKV  ,  StdPairCKRVR ,   StdPairCKRCVR >(L_);
+    testAdaptorForOneType< BslPairKCV  ,  StdPairKRCVR ,   StdPairCKRCVR >(L_);
+    testAdaptorForOneType< BslPairCKCV ,  StdPairCKRCVR,   StdPairCKRCVR >(L_);
+
+    testAdaptorForOneType< BslPairKVR  ,  StdPairKRVR  ,   StdPairCKRVR  >(L_);
+    testAdaptorForOneType< BslPairCKRV ,  StdPairCKRVR ,   StdPairCKRCVR >(L_);
+    testAdaptorForOneType< BslPairKCVR ,  StdPairKRCVR ,   StdPairCKRCVR >(L_);
+    testAdaptorForOneType< BslPairCKRCV,  StdPairCKRCVR,   StdPairCKRCVR >(L_);
+
+    testAdaptorForOneType< BslPairKRVR  , StdPairKRVR  ,   StdPairKRVR   >(L_);
+    testAdaptorForOneType< BslPairCKRVR , StdPairCKRVR ,   StdPairCKRVR  >(L_);
+    testAdaptorForOneType< BslPairKRCVR , StdPairKRCVR ,   StdPairKRCVR  >(L_);
+    testAdaptorForOneType< BslPairCKRCVR, StdPairCKRCVR,   StdPairCKRCVR >(L_);
+
+}
+
+/// Test the ability to create chains of range adaptors using the pipeline
+// operator for the `bsl` (template parameter) `t_CONTAINER`.
+template <class t_CONTAINER>
+void testAdaptForRanges()
+{
+    if (verbose) bsl::cout << bsl::endl
+                           << "\tCONTAINER: "
+                           << (bsls::NameOf<t_CONTAINER>().name())
+                           << bsl::endl;
+
+    using Util  = bdlb::PairUtil;
+    using Pair  = t_CONTAINER::value_type;
+    using Key   = bsl::remove_cv<typename Pair::first_type>::type;
+    using Value = bsl::remove_cv<typename Pair::second_type>::type;
+
+    const Key   MIN_KEY   = 0;     // minimum key value used to fill containers
+    const Value MIN_VALUE = 1000;  // minimum value used to fill containers
+
+    const size_t NUM_ELEMENTS = 10;
+    const Key    MAX_KEY      = MIN_KEY   + NUM_ELEMENTS - 1;
+    const Value  MAX_VALUE    = MIN_VALUE + NUM_ELEMENTS - 1;
+
+    // Filling container
+    bsl::vector<Pair> pairs;
+    for (size_t i = 0; i < NUM_ELEMENTS; ++i) {
+        pairs.emplace_back(
+                        static_cast<Key  >(MIN_KEY   + static_cast<Key  >(i)),
+                        static_cast<Value>(MIN_VALUE + static_cast<Value>(i)));
+    }
+
+    t_CONTAINER       container(pairs.begin(), pairs.end());
+    const t_CONTAINER copy(container);
+
+    // Testing result type
+
+    auto adaptationResult = Util::adaptForRanges(container);
+    using ResultType = decltype(adaptationResult);
+
+    // Checking that result type is a view
+    ASSERT(bsl::ranges::view<ResultType>);
+
+    // Checking value type of the result type
+    using ExpectedValueType =
+                      decltype(Util::stdPairRefAdaptor(std::declval<Pair&>()));
+    using ActualValueType   = bsl::ranges::range_value_t<ResultType>;
+
+    ASSERTV(bsls::NameOf<ExpectedValueType>().name(),
+            bsls::NameOf<ActualValueType>().name(),
+            (bsl::is_same_v<ExpectedValueType, ActualValueType>));
+
+    // Checking range category
+    using ExpectedIterConcept = typename bsl::iterator_traits<
+        typename t_CONTAINER::iterator>::iterator_category;
+
+    using ActualIterConcept =
+                typename bsl::ranges::iterator_t<ResultType>::iterator_concept;
+
+    ASSERTV(
+          bsls::NameOf<t_CONTAINER>().name(),
+          bsls::NameOf<ExpectedIterConcept>().name(),
+          bsls::NameOf<ActualIterConcept>().name(),
+          (bsl::is_same_v<ExpectedIterConcept, ActualIterConcept>));
+
+    // Filter
+    const auto isEven = [](Value value) -> bool
+    {
+        return 0 == value % 2;
+    };
+
+    // Transformer
+    const auto doubleValue = [](Value value)
+    {
+        return value * 2;
+    };
+
+    // ------------------------------------------------------------------------
+    // `bsl::views::values` test
+    // ------------------------------------------------------------------------
+
+    size_t counter = 0;
+    for (auto value : container
+                    | bsl::views::transform(Util::stdPairRefAdaptor)
+                    | bsl::views::values
+                    | bsl::views::filter(isEven)) {
+        ASSERTV(value, MIN_VALUE <= value );
+        ASSERTV(value, MAX_VALUE >= value );
+        ASSERTV(value, isEven(value));
+        ++counter;
+    }
+    size_t expectedCounterValue = isEven(NUM_ELEMENTS) ? NUM_ELEMENTS / 2
+                                                       : NUM_ELEMENTS / 2 + 1;
+    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+            expectedCounterValue == counter);
+
+    counter = 0;
+
+    for (auto value : Util::adaptForRanges(container)
+                    | bsl::views::values
+                    | bsl::views::filter(isEven)) {
+        ASSERTV(value, MIN_VALUE <= value );
+        ASSERTV(value, MAX_VALUE >= value );
+        ASSERTV(value, isEven(value));
+        ++counter;
+    }
+
+    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+            expectedCounterValue == counter);
+
+    counter = 0;
+
+    // ------------------------------------------------------------------------
+
+    for (auto value : container
+                    | bsl::views::transform(Util::stdPairRefAdaptor)
+                    | bsl::views::values
+                    | bsl::views::transform(doubleValue)) {
+        ASSERTV(value, MIN_VALUE * 2 <= value );
+        ASSERTV(value, MAX_VALUE * 2 >= value );
+        ASSERTV(value, isEven(value));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+
+    counter = 0;
+
+    for (auto value : Util::adaptForRanges(container)
+                    | bsl::views::values
+                    | bsl::views::transform(doubleValue)) {
+        ASSERTV(value, MIN_VALUE * 2 <= value );
+        ASSERTV(value, MAX_VALUE * 2 >= value );
+        ASSERTV(value, isEven(value));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+
+    counter = 0;
+
+    // ------------------------------------------------------------------------
+
+    for (auto value : container
+                    | bsl::views::transform(Util::stdPairRefAdaptor)
+                    | bsl::views::values
+                    | bsl::views::filter(isEven)
+                    | bsl::views::transform(doubleValue)
+                    | bsl::views::take(2)) {
+        ASSERTV(value, MIN_VALUE * 2 <= value );
+        ASSERTV(value, MAX_VALUE * 2 >= value );
+        ASSERTV(value, isEven(value));
+        ++counter;
+    }
+    ASSERTV(counter, 2 == counter);
+
+    counter = 0;
+
+    for (auto value : Util::adaptForRanges(container)
+                    | bsl::views::values
+                    | bsl::views::filter(isEven)
+                    | bsl::views::transform(doubleValue)
+                    | bsl::views::take(2)) {
+        ASSERTV(value, MIN_VALUE * 2 <= value );
+        ASSERTV(value, MAX_VALUE * 2 >= value );
+        ASSERTV(value, isEven(value));
+        ++counter;
+    }
+    ASSERTV(counter, 2 == counter);
+
+    counter = 0;
+
+    // ------------------------------------------------------------------------
+    // `bsl::views::keys` test
+    // ------------------------------------------------------------------------
+
+    for (auto key : container | bsl::views::transform(Util::stdPairRefAdaptor)
+                              | bsl::views::keys
+                              | bsl::views::filter(isEven)) {
+        ASSERTV(key, MIN_KEY <= key );
+        ASSERTV(key, MAX_KEY >= key );
+        ASSERTV(key, isEven(key));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+            expectedCounterValue == counter);
+
+    counter = 0;
+
+    for (auto key : Util::adaptForRanges(container)
+                  | bsl::views::keys
+                  | bsl::views::filter(isEven)) {
+        ASSERTV(key, MIN_KEY <= key );
+        ASSERTV(key, MAX_KEY >= key );
+        ASSERTV(key, isEven(key));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+            expectedCounterValue == counter);
+
+    counter = 0;
+
+    // ------------------------------------------------------------------------
+
+    for (auto key : container | bsl::views::transform(Util::stdPairRefAdaptor)
+                              | bsl::views::keys
+                              | bsl::views::transform(doubleValue)) {
+        ASSERTV(key, MIN_KEY * 2 <= key );
+        ASSERTV(key, MAX_KEY * 2 >= key );
+        ASSERTV(key, isEven(key));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+
+    counter = 0;
+
+    for (auto key : Util::adaptForRanges(container)
+                  | bsl::views::keys
+                  | bsl::views::transform(doubleValue)) {
+        ASSERTV(key, MIN_KEY * 2 <= key );
+        ASSERTV(key, MAX_KEY * 2 >= key );
+        ASSERTV(key, isEven(key));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+
+    counter = 0;
+
+    // ------------------------------------------------------------------------
+
+    for (auto key : container | bsl::views::transform(Util::stdPairRefAdaptor)
+                              | bsl::views::keys
+                              | bsl::views::filter(isEven)
+                              | bsl::views::transform(doubleValue)
+                              | bsl::views::drop(2)) {
+        ASSERTV(key, MIN_KEY * 2 <= key );
+        ASSERTV(key, MAX_KEY * 2 >= key );
+        ASSERTV(key, isEven(key));
+        ++counter;
+    }
+    expectedCounterValue = isEven(NUM_ELEMENTS) ? NUM_ELEMENTS / 2 - 2
+                                                : NUM_ELEMENTS / 2 - 1;
+    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+            expectedCounterValue == counter);
+
+    counter = 0;
+
+    for (auto key : Util::adaptForRanges(container)
+                  | bsl::views::keys
+                  | bsl::views::filter(isEven)
+                  | bsl::views::transform(doubleValue)
+                  | bsl::views::drop(2)) {
+        ASSERTV(key, MIN_KEY * 2 <= key );
+        ASSERTV(key, MAX_KEY * 2 >= key );
+        ASSERTV(key, isEven(key));
+        ++counter;
+    }
+    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+            expectedCounterValue == counter);
+
+    // ------------------------------------------------------------------------
+
+    ASSERTV(copy == container);
+
+    // ------------------------------------------------------------------------
+    // Testing ability to modify container using adaptors
+    // ------------------------------------------------------------------------
+
+    bsl::ranges::fill(container
+                               | bsl::views::transform(Util::stdPairRefAdaptor)
+                               | bsl::views::values
+                               | bsl::views::filter(isEven),
+                      0);
+
+    for (auto pair : container) {
+        if (pair.first % 2 != 0) {
+            ASSERTV(pair.first, pair.second, 0 != pair.second);
+        }
+        else {
+            ASSERTV(pair.first, pair.second, 0 == pair.second);
+        }
+    }
+
+    bsl::ranges::fill(Util::adaptForRanges(container)
+                                                  | bsl::views::values
+                                                  | bsl::views::filter(isEven),
+                      1);
+
+    for (auto pair : container) {
+        if (pair.first % 2 != 0) {
+            ASSERTV(pair.first, pair.second, 1 != pair.second);
+        }
+        else {
+            ASSERTV(pair.first, pair.second, 1 == pair.second);
+        }
+    }
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
+}  // close unnamed namespace
+
+// ============================================================================
 //                               USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -258,6 +704,8 @@ namespace {
 ///-----
 // This section illustrates intended use of this component.
 //
+///Example 1: Basic Usage of `tie` Function
+/// - - - - - - - - - - - - - - - - - - - -
 // Suppose we need to implement a function that takes a `bsl::map` and stores
 // into out-parameters the key and value corresponding to the first entry in
 // the map.  Using `bsl::map`s container interface, we can obtain a reference
@@ -283,7 +731,7 @@ bool getFirst(int                              *key,
 }
 
 /// Run the usage example defined in the component header.
-void usageExample()
+void usageExample1()
 {
     bsl::map<int, bsl::string> map;
     map[30782530] = "bbi10";
@@ -296,6 +744,52 @@ void usageExample()
     ASSERT(30782530 == uuid);
     ASSERT("bbi10"  == username);
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+void usageExample2() {
+///Example 2: Adapting `bsl` Container For Ranges
+/// - - - - - - - - - - - - - - - - - - - - - - -
+// Let's assume that we have a `bsl::map` storing employee indexes and their
+// names, and we want to get a list of employee names:
+// ```
+    bsl::map<int, bsl::string_view> employees{{1, "John Dow"},
+                                              {2, "Jane Dow"},
+                                              {3, "James Dow"}};
+// ```
+// However, if we were to try and access the names using `bsl::views::values`
+// we would see a compilation error:
+//
+// auto names = employees | bsl::views::values;  // does not compile
+// auto namesIt = names.begin();
+// ASSERT("John Dow" == *namesIt);
+//
+// This fails to because `bsl::pair`, unlike the `std::pair`, does not model
+// the `tuple-like` concept, which is a requirement of the
+// `bsl::views::values`.  This problem can be resolved using the
+// `bdlb::PairUtil::adaptForRanges` function on the container:
+// ```
+    auto names = bdlb::PairUtil::adaptForRanges(employees)
+                                                          | bsl::views::values;
+    auto namesIt = names.begin();
+    ASSERT("John Dow" == *namesIt);
+// ```
+// And of course this function allows you to create chains of adaptors using a
+// pipeline operator:
+// ```
+    const auto startsWithJa = [](bsl::string_view name) -> bool
+    {
+        return name.starts_with("Ja");
+    };
+
+    auto jaNames = bdlb::PairUtil::adaptForRanges(employees)
+                                            | bsl::views::values
+                                            | bsl::views::filter(startsWithJa);
+    ASSERT(bsl::ranges::equal(jaNames,
+                              bsl::vector<bsl::string_view>{"Jane Dow",
+                                                            "James Dow"}));
+// ```
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 }  // close unnamed namespace
 
 //=============================================================================
@@ -311,27 +805,139 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << '\n';
 
     switch (test) { case 0:
-      case 3: {
+      case 5: {
         // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //   This will test the usage example provided in the component header
+        // TESTING USAGE EXAMPLES
+        //   This will test the usage examples provided in the component header
         //   file.
         //
         // Concerns:
-        // 1. The usage example provided in the component header file must
+        // 1. The usage examples provided in the component header file must
         //    compile, link, and run on all platforms as shown.
         //
         // Plan:
-        // 1. Copy the usage example from the component header, change `assert`
-        //    to `ASSERT`, and run the function `usageExample`.  (C-1)
+        // 1. Copy the usage examples from the component header, change
+        //    `assert` to `ASSERT`, and run the code.  (C-1)
         //
         // Testing:
-        //   USAGE EXAMPLE
+        //   USAGE EXAMPLES
         // --------------------------------------------------------------------
 
-        if (verbose) cout << "TESTING USAGE EXAMPLE" "\n"
-                          << "=====================" "\n";
-        usageExample();
+        if (verbose) cout << "TESTING USAGE EXAMPLES" "\n"
+                          << "======================" "\n";
+        usageExample1();
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        usageExample2();
+#endif
+      } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // TESTING `adaptForRanges`
+        //
+        // Concerns:
+        // 1. The `adaptForRanges` function returns a transform view of the
+        //    passed container which can be integrated into a chain of other
+        //    range adaptors.
+        //
+        // Plan:
+        // 1. Specify a set of `bsl` containers for testing.  Create and
+        //    populate an object of each type.  Use `adaptForRanges` function
+        //    to construct a chain of range adaptors and verify the results.
+        //    (C-1)
+        //
+        // Testing:
+        //   bsl::ranges::view auto adaptForRanges(t_CONTAINER&& c);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING `adaptForRanges`\n"
+                          << "========================\n";
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        using UInt  = unsigned int;
+        using UChar = unsigned char;
+        using LLI   = long long int;
+
+        if (verbose)
+            cout << "\tTesting the construction of a chain of adaptors"
+                 << endl;
+        {
+            testAdaptForRanges<bsl::list        <bsl::pair<int,   int > > >();
+            testAdaptForRanges<bsl::list        <bsl::pair<char,  UInt> > >();
+            testAdaptForRanges<bsl::list        <bsl::pair<UChar, LLI > > >();
+
+            testAdaptForRanges<bsl::deque       <bsl::pair<int,   int > > >();
+            testAdaptForRanges<bsl::deque       <bsl::pair<char,  UInt> > >();
+            testAdaptForRanges<bsl::deque       <bsl::pair<UChar, LLI > > >();
+
+            testAdaptForRanges<bsl::forward_list<bsl::pair<int,   int > > >();
+            testAdaptForRanges<bsl::forward_list<bsl::pair<char,  UInt> > >();
+            testAdaptForRanges<bsl::forward_list<bsl::pair<UChar, LLI > > >();
+
+            testAdaptForRanges<bsl::map                   <int,   int >   >();
+            testAdaptForRanges<bsl::map                   <char,  UInt>   >();
+            testAdaptForRanges<bsl::map                   <UChar, LLI >   >();
+
+            testAdaptForRanges<bsl::multimap              <int,   int >   >();
+            testAdaptForRanges<bsl::multimap              <char,  UInt>   >();
+            testAdaptForRanges<bsl::multimap              <UChar, LLI >   >();
+
+            testAdaptForRanges<bsl::unordered_map         <int,   int >   >();
+            testAdaptForRanges<bsl::unordered_map         <char,  UInt>   >();
+            testAdaptForRanges<bsl::unordered_map         <UChar, LLI >   >();
+
+            testAdaptForRanges<bsl::unordered_multimap    <int,   int >   >();
+            testAdaptForRanges<bsl::unordered_multimap    <char,  UInt>   >();
+            testAdaptForRanges<bsl::unordered_multimap    <UChar, LLI >   >();
+
+            testAdaptForRanges<bsl::vector      <bsl::pair<int,   int > > >();
+            testAdaptForRanges<bsl::vector      <bsl::pair<char,  UInt> > >();
+            testAdaptForRanges<bsl::vector      <bsl::pair<UChar, LLI > > >();
+        }
+#else
+        if (verbose) cout << "\t`bsl::ranges` are not supported" << endl;
+#endif
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // TESTING ADAPTOR FOR PAIRS
+        //
+        // Concerns:
+        // 1. The function call operator of `stdPairRefAdaptor` returns
+        //    `std::pair` containing references to the fields of the passed
+        //    `bsl::pair`.
+        //
+        // 2. For all mixed-type combinations, each element in the result pair
+        //    is a reference to the corresponding element of the input pair,
+        //    with const-ness and reference type preserved:
+        //    * value           yields a mutable reference
+        //    * const value     yields a const reference
+        //    * reference       yields the same kind of reference
+        //    * const reference yields a const reference
+        //
+        // Plan:
+        // 1. Using table-based approach specify a set of `bsl::pair` types to
+        //    be passed to the function call operator of the
+        //    `stdPairRefAdaptor`.  Invoke it for an object of every type and
+        //    verify the type of the returned object and its value.  (C-1..2)
+        //
+        // Testing:
+        //   bdlb::PairUtil::stdPairRefAdaptor;
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING ADAPTOR FOR PAIRS\n"
+                          << "=========================\n";
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        using UInt  = unsigned int;
+        using UChar = unsigned char;
+        using LLI   = long long int;
+
+        testAdaptor<int, UInt>();
+        testAdaptor<UInt, UChar>();
+        testAdaptor<UChar, LLI>();
+#else
+        if (verbose) cout << "\t`bsl::ranges` are not supported" << endl;
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -371,7 +977,7 @@ int main(int argc, char *argv[])
         //    specializations.  (C-5)
         //
         // Testing:
-        //   template<T1, T2> bsl::pair<T1&, T2&> tie(T1&, T2&)
+        //   template<T1, T2> bsl::pair<T1&, T2&> tie(T1&, T2&);
         // --------------------------------------------------------------------
 
         if (verbose) cout
@@ -419,6 +1025,99 @@ int main(int argc, char *argv[])
         const int y2 = 4;
 
         ASSERT(bdlb::PairUtil::tie(x1, y1) < bdlb::PairUtil::tie(x2, y2));
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        bsl::map<int, Record> intToRecordBslMap = { {1, {11, "111"}},
+                                                    {2, {22, "222"}},
+                                                    {3, {33, "333"}}
+                                                  };
+        int                   counter = 0;
+
+        // filter
+        const auto isValidRecord = [](const auto& record)
+        {
+            return (22 == record.d_identifier);
+        };
+
+        // Doesn't compile with bare 'bsl::map'.
+        // auto bslFilteredView = intToRecordBslMap
+        //                                 | bsl::views::values
+        //                                 | bsl::views::filter(isValidRecord);
+
+        auto bslPairToStlPair =
+            [](const auto& pair) -> std::pair<const int&, const Record&> {
+                return { pair.first, pair.second };
+            };
+
+        auto bslFilteredByLambdaView = intToRecordBslMap
+                                      | bsl::views::transform(bslPairToStlPair)
+                                      | bsl::views::values
+                                      | bsl::views::filter(isValidRecord);
+
+        ASSERT(!bslFilteredByLambdaView.empty());
+        for (const auto& record : bslFilteredByLambdaView) {
+            ASSERTV(record.identifier(),   22    == record.identifier());
+            ASSERTV(record.name().c_str(), "222" == record.name());
+            ++counter;
+        }
+
+        ASSERTV(counter, 1 == counter);
+        counter = 0;
+
+        using Util = bdlb::PairUtil;
+
+        auto bslFilteredByAdaptorView = intToRecordBslMap
+                               | bsl::views::transform(Util::stdPairRefAdaptor)
+                               | bsl::views::values
+                               | bsl::views::filter(isValidRecord);
+
+        ASSERT(!bslFilteredByAdaptorView.empty());
+        for (const auto& record : bslFilteredByAdaptorView) {
+            ASSERTV(record.identifier(),   22    == record.identifier());
+            ASSERTV(record.name().c_str(), "222" == record.name());
+            ++counter;
+        }
+
+        ASSERTV(counter, 1 == counter);
+        counter = 0;
+
+        auto bslFilteredByFunctionView =
+                                      Util::adaptForRanges(intToRecordBslMap)
+                                          | bsl::views::values
+                                          |  bsl::views::filter(isValidRecord);
+
+        ASSERT(!bslFilteredByFunctionView.empty());
+        for (const auto& record : bslFilteredByFunctionView) {
+            ASSERTV(record.identifier(),   22    == record.identifier());
+            ASSERTV(record.name().c_str(), "222" == record.name());
+            ++counter;
+        }
+
+        ASSERTV(counter, 1 == counter);
+        counter = 0;
+
+        // filter
+        const auto isEven = [](int value) -> bool
+        {
+            return 0 == value % 2;
+        };
+
+        bsl::map< int, int> intToIntBslMap = { {1, 11}, {2, 22}, {3, 33} };
+
+        for (auto value : intToIntBslMap | bsl::views::transform(
+                    [](const auto& pair) -> std::pair<const int&, const int&> {
+                        return { pair.first, pair.second };
+                    })
+                                         | bsl::views::values
+                                         | bsl::views::filter(isEven)) {
+            ASSERTV(value, 22 == value);
+            ++counter;
+        }
+
+        ASSERTV(counter, 1 == counter);
+        counter = 0;
+#endif
+
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." "\n";
