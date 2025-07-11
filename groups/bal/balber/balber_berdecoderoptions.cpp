@@ -31,8 +31,6 @@ const bool balber::BerDecoderOptions::DEFAULT_SKIP_UNKNOWN_ELEMENTS = true;
 const int  balber::BerDecoderOptions::DEFAULT_TRACE_LEVEL           = 0;
 const int  balber::BerDecoderOptions::DEFAULT_MAX_SEQUENCE_SIZE = 1073741824;
 const bool balber::BerDecoderOptions::DEFAULT_DEFAULT_EMPTY_STRINGS = true;
-const bool balber::BerDecoderOptions::
-                  DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES = true;
 
 const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
@@ -70,13 +68,6 @@ const bdlat_AttributeInfo balber::BerDecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         "Option to decode empty strings as their default values",
                                            // annotation
         bdlat_FormattingMode::e_TEXT       // formatting mode
-    },
-    {
-        e_ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES,
-        "AllowMissingRequiredAttributes",                    // name
-        sizeof("AllowMissingRequiredAttributes") - 1,        // name length
-        "Option to allow missing non-optional attributes.",  // annotation
-        bdlat_FormattingMode::e_TEXT                         // formatting mode
     }
 };
 
@@ -186,42 +177,6 @@ const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(
                                       e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS];
             }
         } break;
-        case 30: {
-            if (bdlb::CharType::toUpper(name[0])=='A'
-             && bdlb::CharType::toUpper(name[1])=='L'
-             && bdlb::CharType::toUpper(name[2])=='L'
-             && bdlb::CharType::toUpper(name[3])=='O'
-             && bdlb::CharType::toUpper(name[4])=='W'
-             && bdlb::CharType::toUpper(name[5])=='M'
-             && bdlb::CharType::toUpper(name[6])=='I'
-             && bdlb::CharType::toUpper(name[7])=='S'
-             && bdlb::CharType::toUpper(name[8])=='S'
-             && bdlb::CharType::toUpper(name[9])=='I'
-             && bdlb::CharType::toUpper(name[10])=='N'
-             && bdlb::CharType::toUpper(name[11])=='G'
-             && bdlb::CharType::toUpper(name[12])=='R'
-             && bdlb::CharType::toUpper(name[13])=='E'
-             && bdlb::CharType::toUpper(name[14])=='Q'
-             && bdlb::CharType::toUpper(name[15])=='U'
-             && bdlb::CharType::toUpper(name[16])=='I'
-             && bdlb::CharType::toUpper(name[17])=='R'
-             && bdlb::CharType::toUpper(name[18])=='E'
-             && bdlb::CharType::toUpper(name[19])=='D'
-             && bdlb::CharType::toUpper(name[20])=='A'
-             && bdlb::CharType::toUpper(name[21])=='T'
-             && bdlb::CharType::toUpper(name[22])=='T'
-             && bdlb::CharType::toUpper(name[23])=='R'
-             && bdlb::CharType::toUpper(name[24])=='I'
-             && bdlb::CharType::toUpper(name[25])=='B'
-             && bdlb::CharType::toUpper(name[26])=='U'
-             && bdlb::CharType::toUpper(name[27])=='T'
-             && bdlb::CharType::toUpper(name[28])=='E'
-             && bdlb::CharType::toUpper(name[29])=='S')
-            {
-                return &ATTRIBUTE_INFO_ARRAY[
-                          e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES];
-            }
-        } break;
     }
     return 0;
 }
@@ -239,9 +194,6 @@ const bdlat_AttributeInfo *BerDecoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE];
       case e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS:
         return &ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS];
-      case e_ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES:
-        return &ATTRIBUTE_INFO_ARRAY[
-                          e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES];
       default:
         return 0;
     }
@@ -302,13 +254,6 @@ bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
                                   -levelPlus1,
                                   spacesPerLevel);
 
-        bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
-        stream << "AllowMissingRequiredAttributes = ";
-        bdlb::PrintMethods::print(stream,
-                                  d_allowMissingRequiredAttributes,
-                                  -levelPlus1,
-                                  spacesPerLevel);
-
         bdlb::Print::indent(stream, level, spacesPerLevel);
         stream << "]\n";
     }
@@ -349,13 +294,6 @@ bsl::ostream& BerDecoderOptions::print(bsl::ostream& stream,
         stream << "DefaultEmptyStrings = ";
         bdlb::PrintMethods::print(stream,
                                   d_defaultEmptyStrings,
-                                  -levelPlus1,
-                                  spacesPerLevel);
-
-        stream << ' ';
-        stream << "AllowMissingRequiredAttributes = ";
-        bdlb::PrintMethods::print(stream,
-                                  d_allowMissingRequiredAttributes,
                                   -levelPlus1,
                                   spacesPerLevel);
 

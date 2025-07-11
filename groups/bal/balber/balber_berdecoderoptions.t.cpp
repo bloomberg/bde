@@ -31,7 +31,6 @@ using namespace bsl;
 //  - `setMaxSequenceSize`
 //  - `setSkipUnknownElements`
 //  - `setDefaultEmptyStrings`
-//  - `setAllowMissingRequiredAttributes`
 //
 // BasicAccessors:
 //  - `maxDepth`
@@ -39,7 +38,6 @@ using namespace bsl;
 //  - `maxSequenceSize`
 //  - `skipUnknownElements`
 //  - `defaultEmptyStrings`
-//  - `allowMissingRequiredAttributes`
 //
 // This attribute class also provides `bdlat`-support.
 //
@@ -61,7 +59,6 @@ using namespace bsl;
 // [ 1] void setMaxSequenceSize(int maxSequenceSize);
 // [ 1] void setSkipUnknownElements(bool skipUnknownElements);
 // [ 1] void setDefaultEmptyStrings(bool defaultEmptyStrings);
-// [ 1] void setAllowMissingRequiredAttributes(bool value);
 //
 // ACCESSORS
 // [ 1] const int& maxDepth() const;
@@ -69,7 +66,6 @@ using namespace bsl;
 // [ 1] const int& traceLevel() const;
 // [ 1] const int& maxSequenceSize() const;
 // [ 1] const bool& defaultEmptyStrings() const;
-// [ 1] bool allowMissingRequiredAttributes() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: The "DefaultEmptyStrings" attribute is "AttributeInfo"-aware
@@ -1042,7 +1038,6 @@ int main(int argc, char *argv[])
     typedef int  T3;  // `maxSequenceSize`
     typedef bool T4;  // `skipUnknownElements`
     typedef bool T5;  // `defaultEmptyStrings`
-    typedef bool T6;  // `allowMissingRequiredAttributes`
 
     // Attribute 1 Values: `maxDepth`
     // In Versions: 1, 2
@@ -1074,12 +1069,6 @@ int main(int argc, char *argv[])
     static const char ATTR5[] = "DefaultEmptyStrings";
     static const T5   D5      = true;  // default value
     static const T5   A5      = false;
-
-    // Attribute 6 Values: `allowMissingRequiredAttributes`
-    // In Versions: 2
-
-    static const T6 D6 = true;  // default value
-    static const T6 A6 = false;
 
     // Boolean Aliases
 
@@ -1412,7 +1401,6 @@ int main(int argc, char *argv[])
         ASSERT_EQ(D3, W.maxSequenceSize());
         ASSERT_EQ(D4, W.skipUnknownElements());
         ASSERT_EQ(D5, W.defaultEmptyStrings());
-        ASSERT_EQ(D6, W.allowMissingRequiredAttributes());
 
         ASSERT_EQ(T, W == W);
         ASSERT_EQ(F, W != W);
@@ -1430,7 +1418,6 @@ int main(int argc, char *argv[])
         ASSERT_EQ(D3, X.maxSequenceSize());
         ASSERT_EQ(D4, X.skipUnknownElements());
         ASSERT_EQ(D5, X.defaultEmptyStrings());
-        ASSERT_EQ(D6, X.allowMissingRequiredAttributes());
 
         ASSERT_EQ(T, X == X);
         ASSERT_EQ(T, X == W);
@@ -1450,14 +1437,12 @@ int main(int argc, char *argv[])
         mX.setMaxSequenceSize(A3);
         mX.setSkipUnknownElements(A4);
         mX.setDefaultEmptyStrings(A5);
-        mX.setAllowMissingRequiredAttributes(A6);
 
         ASSERT_EQ(A1, X.maxDepth());
         ASSERT_EQ(A2, X.traceLevel());
         ASSERT_EQ(A3, X.maxSequenceSize());
         ASSERT_EQ(A4, X.skipUnknownElements());
         ASSERT_EQ(A5, X.defaultEmptyStrings());
-        ASSERT_EQ(A6, X.allowMissingRequiredAttributes());
 
         ASSERT_EQ(T, X == X);
         ASSERT_EQ(F, X == W);
@@ -1481,14 +1466,12 @@ int main(int argc, char *argv[])
         mY.setMaxSequenceSize(A3);
         mY.setSkipUnknownElements(A4);
         mY.setDefaultEmptyStrings(A5);
-        mY.setAllowMissingRequiredAttributes(A6);
 
         ASSERT_EQ(A1, Y.maxDepth());
         ASSERT_EQ(A2, Y.traceLevel());
         ASSERT_EQ(A3, Y.maxSequenceSize());
         ASSERT_EQ(A4, Y.skipUnknownElements());
         ASSERT_EQ(A5, Y.defaultEmptyStrings());
-        ASSERT_EQ(A6, Y.allowMissingRequiredAttributes());
 
         ASSERT_EQ(F, Y == W);
         ASSERT_EQ(T, Y == X);
@@ -1511,7 +1494,6 @@ int main(int argc, char *argv[])
         ASSERT_EQ(A3, Z.maxSequenceSize());
         ASSERT_EQ(A4, Z.skipUnknownElements());
         ASSERT_EQ(A5, Z.defaultEmptyStrings());
-        ASSERT_EQ(A6, Z.allowMissingRequiredAttributes());
 
         ASSERT_EQ(F, Z == W);
         ASSERT_EQ(T, Z == X);
@@ -1533,14 +1515,12 @@ int main(int argc, char *argv[])
         mZ.setMaxSequenceSize(D3);
         mZ.setSkipUnknownElements(D4);
         mZ.setDefaultEmptyStrings(D5);
-        mZ.setAllowMissingRequiredAttributes(D6);
 
         ASSERT_EQ(D1, Z.maxDepth());
         ASSERT_EQ(D2, Z.traceLevel());
         ASSERT_EQ(D3, Z.maxSequenceSize());
         ASSERT_EQ(D4, Z.skipUnknownElements());
         ASSERT_EQ(D5, Z.defaultEmptyStrings());
-        ASSERT_EQ(D6, Z.allowMissingRequiredAttributes());
 
         ASSERT_EQ(T, Z == W);
         ASSERT_EQ(F, Z == X);
@@ -1564,7 +1544,6 @@ int main(int argc, char *argv[])
         ASSERT_EQ(A3, W.maxSequenceSize());
         ASSERT_EQ(A4, W.skipUnknownElements());
         ASSERT_EQ(A5, W.defaultEmptyStrings());
-        ASSERT_EQ(A6, W.allowMissingRequiredAttributes());
 
         ASSERT_EQ(T, W == W);
         ASSERT_EQ(T, W == X);
@@ -1588,7 +1567,6 @@ int main(int argc, char *argv[])
         ASSERT_EQ(D3, W.maxSequenceSize());
         ASSERT_EQ(D4, W.skipUnknownElements());
         ASSERT_EQ(D5, W.defaultEmptyStrings());
-        ASSERT_EQ(D6, W.allowMissingRequiredAttributes());
 
         ASSERT_EQ(T, W == W);
         ASSERT_EQ(F, W == X);
@@ -1612,7 +1590,6 @@ int main(int argc, char *argv[])
         ASSERT_EQ(A3, X.maxSequenceSize());
         ASSERT_EQ(A4, X.skipUnknownElements());
         ASSERT_EQ(A5, X.defaultEmptyStrings());
-        ASSERT_EQ(A6, X.allowMissingRequiredAttributes());
 
         ASSERT_EQ(F, X == W);
         ASSERT_EQ(T, X == X);
