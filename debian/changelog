@@ -1,5 +1,77 @@
-bsl-internal (4.25.0.0) unstable; urgency=low
+bsl-internal (4.27.0.0) unstable; urgency=low
 
+  * 7ec116330 Bumped version to 4.27.0.0
+  * 4cc0c6d62 Incorporate pcre2 10.45 (#5406)
+  * 6c3bb3914 Revert "Please support checking required elements in balber_berdecoder (DRQS 179898238)" (#5476)
+  * 6d25699f4 TupleLikeView wrapper has been added. DRQS 178168607 (#5407)
+  * 11a37b6e5 drqs-178578683: 'baljsn_jsonparserutil': Update usage example. (#5472)
+  * f1051aa68 Non-optional attributes checking (#5471)
+  * 1c569e2c1 drqs-178578683: 'baljsn_jsonparserutil': Update usage example. (#5469)
+  * 1eed6b0dd Baljsn decoder convert drqs 178578683 (#5290)
+  * 10a5a7c18 Provide Safe API for Creating Date/Time Objects in BDE Libraries (DRQS 178918467) (#5431)
+  * dbe5b911e Matrix build error for 'stringformatter' test driver has been fixed (DRQS 179765369) (#5468)
+  * f357bed6a Fix TSAN issue in case 10 and 11 of bdlmt_timereventscheduler.t.cpp (#5416)
+  * c225ad97b incorporate bdlcc:TimedCompletionGuard (#5467)
+  * df424d976 bdlat_FormattingMode::e_DEFAULT_VALUE added (#5466)
+  * 7b4969580 convert watchdog to TimedCompletionGuard (#5465)
+  * 321c03942 [bsl::format] String formatter has been brought to the gold quality.  DRQS 178235270 (#5446)
+  * 4e53939f3 bsls_stackaddressutil: adjust k_IGNORE_FRAMES to reflect sanitizers (#5454)
+  * e64229aca bdlde_base64decoder: doc tweak, some testing to verify doc tweak (#5457)
+  * 3ddebcb4e Fix syntax highlight of example code. (#5464)
+  * 401c77c43 Nicer ball_fmt doc formatting. (#5463)
+  * 3a783c15d Fix ball_fmt doc format error. (#5462)
+  * a54cc7c6a Further ball_fmt doc typos fixed. (#5461)
+  * 780790ec3 ball_fmt component doc typo fix. (#5460)
+  * cb5f53355 Streamable Formatter by Trait. (#5434)
+  * 519b882ad Missing 'required' bas request elements have default values (DRQS 136088126) (#5409)
+  * 8e899368e Drqs 179613547/bslmt timedcompletionguard (#5448)
+  * d966fb92c bdlb_variantprinter.t.cpp: silence compiler warning (#5456)
+  * fec8255dd Make bdlat::FuzzUtil UTF-8-compatible (DRQS 179621553) (#5443)
+  * cd8c34fc3 Matrix build error for 'TestSpecificationGenerator' has been fixed (#5453)
+  * d8da7d24a Add BSLS_KEYWORD_THREAD_LOCAL (DRQS 179571631) (#5447)
+  * 3ce7e64de Add missing header to format_error. (#5449)
+  * 0221219ff Document TOCTTOU issue with bdls::FilesystemUtil::remove in Windows (DRQS 178329788) (#5440)
+  * 816a8ae39 Add bslfmt to bsl.txt package overview. (#5452)
+  * 3990dd7f1 COmment out tests borked in gcc-13 lib. (#5451)
+  * 4579bf73b Bumped version to 4.26.0.0
+  * bf689c99d Merge pull request #5415 from dsokolov7/review/bde-bsl-format-stringref-formatter-drqs-178168607
+  * 32f4cbdc3 Fix[bslmt_semaphoreimpl_darwin]: collisions when creating semaphores (#5441)
+  * c4f00dc26 Enable balb_performancemonitor impl for Sun/g++ 12+/32-bit (#5427)
+  * 40bcffa69 Merge pull request #5253 from afeher/drqs-178575585-ball_log_fmt
+  * be043ba97 Make default ctor non-explicit (#5438)
+  * 9ae3f4c9d Fix for unreleased locks in `visit` and `visitReadOnly` methods of `StripedUnorderedMapImpl` (#5430)
+  * 7571237f6 Merge pull request #5437 from afeher/drqs-179567018-use-correct-macros-on-darwin
+  * 44d1a4f43 Use __apple_build_version__ to identify Apple clang.
+  * dbd52e127 Fix gcc-13 compilation error. (#5436)
+  * 409baf79b suppress warnings take 2 (DRQS 179534943) (#5435)
+  * 3e0f70730 Merge pull request #5395 from afeher/drqs-179206043-bslfmt_streamed-via-string
+  * fbb4a4169 bdlb_variantprinter: create component (#4951)
+  * 2d82e4d49 Add `visit` to `bdljsn::Json` (#5429)
+  * 5f6cc2af2 Drqs 179421106/bdlat reserve used in berdecoder (#5425)
+  * 6c8f9a982 Merge pull request #5418 from dsokolov7/review/bde-bdld-manageddatum-move-operations-drqs-178627406
+  * 91c216c30 Expensive asserts removed (#5423)
+  * be0dd46f6 Merge pull request #5402 from bchapman/balst_resolverimpl_elf-handle-absent-proc-drqs-179317873
+  * a931ed0b3 Drqs 179420135/balber berencoderoptionsutil 2 (#5422)
+  * 8ddb01aaa Report an error on invalid XML input. (#5414)
+  * 03dc47476 Allow including `bsl_` headers for C++11 features in C++03 (DRQS 178648238) (#5399)
+  * 47cb1a65c Wip/ber decoding array (#5250)
+  * 8e5d67817 Fix performance regression from introduction of mutex on hot-path of Category::thresholdLevels() - {DRQS 177653766} (#5143)
+  * 8a157eb82 Fix typo in baljsn_encoderoptions docs (#5420)
+  * 7ff1c1d38 fix bsl::optional constexpr test for darwin (#5419)
+  * dc7ac51d2 partial constexpr support for bsl::optional (DRQS 178168607) (#5412)
+  * 7a7922ab9 Fix concurrent access race on d_next_p in bdlcc::ObjectPool::getObject, detected by TSAN (#5372)
+  * 4438f61ba Make bsls_ident strings const (#5266)
+  * d769fdc79 Fix the docs for make_shared (#5410)
+  * a2bfa9a9b drqs-178891000: `balb_controlmanager`: Support default message handler. (#5391)
+  * 2fad0ee88 Fix TSAN race in test case 9 of ball_asyncfileobserver.t.cpp using latch (#5376)
+  * 23a946a03 Fix TSAN reported race in bslmt::Latch (#5398)
+  * 715ececbb Merge pull request #5401 from afeher/drqs-179317700-fix-bslfmt_format.t
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 11 Jul 2025 15:42:39 +0000
+
+bsl-internal (4.25.0.0) git; urgency=low
+
+  * 2239573ad Changelog for version 4.25.0.0
   * 8048e56c2 Bumped version to 4.25.0.0
   * 57a5a2ce3 Merge pull request #5364 from bchapman/balst_resolverimpl_elf-proc-pid-image-drqs-179086565
   * 3de3aa513 [bsl::format] Website examples have been added to the 'bslfmt_format.t' DRQS 179253404 (#5397)
@@ -62,7 +134,7 @@ bsl-internal (4.25.0.0) unstable; urgency=low
   * c1a3450f7 Revert "reduce nb issues" (#5327)
   * 2bdf295c0 reduce nb issues (#5326)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 18 May 2025 18:36:57 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Sun, 18 May 2025 18:40:14 +0000
 
 bsl-internal (4.24.0.0) git; urgency=low
 
