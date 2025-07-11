@@ -4,33 +4,35 @@ message(VERBOSE "Processing target \"${target}\"")
 add_library(
     ${target}
     STATIC
-        pcre2_auto_possess.c
-        pcre2_chartables.c
-        pcre2_compile.c
-        pcre2_config.c
-        pcre2_context.c
-        pcre2_convert.c
-        pcre2_dfa_match.c
-        pcre2_error.c
-        pcre2_extuni.c
-        pcre2_find_bracket.c
-        pcre2_jit_compile.c
-        pcre2_maketables.c
-        pcre2_match.c
-        pcre2_match_data.c
-        pcre2_newline.c
-        pcre2_ord2utf.c
-        pcre2_pattern_info.c
-        pcre2_serialize.c
-        pcre2_script_run.c
-        pcre2_string_utils.c
-        pcre2_study.c
-        pcre2_substitute.c
-        pcre2_substring.c
-        pcre2_tables.c
-        pcre2_ucd.c
-        pcre2_valid_utf.c
-        pcre2_xclass.c
+        src/pcre2_auto_possess.c
+        src/pcre2_chartables.c
+        src/pcre2_chkdint.c
+        src/pcre2_compile.c
+        src/pcre2_compile_class.c
+        src/pcre2_config.c
+        src/pcre2_context.c
+        src/pcre2_convert.c
+        src/pcre2_dfa_match.c
+        src/pcre2_error.c
+        src/pcre2_extuni.c
+        src/pcre2_find_bracket.c
+        src/pcre2_jit_compile.c
+        src/pcre2_maketables.c
+        src/pcre2_match.c
+        src/pcre2_match_data.c
+        src/pcre2_newline.c
+        src/pcre2_ord2utf.c
+        src/pcre2_pattern_info.c
+        src/pcre2_script_run.c
+        src/pcre2_serialize.c
+        src/pcre2_string_utils.c
+        src/pcre2_study.c
+        src/pcre2_substitute.c
+        src/pcre2_substring.c
+        src/pcre2_tables.c
+        src/pcre2_ucd.c
+        src/pcre2_valid_utf.c
+        src/pcre2_xclass.c
 )
 
 target_compile_definitions(
@@ -38,19 +40,12 @@ target_compile_definitions(
     PRIVATE
         PCRE2_CODE_UNIT_WIDTH=8
         HAVE_CONFIG_H
-        SUPPORT_UNICODE
+        PCRE2_STATIC
+        SLJIT_CONFIG_AUTO
         $<$<C_COMPILER_ID:GNU>:USE_REAL_MALLOC>
 )
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT CMAKE_SYSTEM_NAME STREQUAL "SunOS")
-    # 64 bits
-    target_compile_definitions(
-        ${target}
-        PRIVATE
-            SUPPORT_JIT
-    )
-elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-    # 32 bits
+if (NOT CMAKE_SYSTEM_NAME STREQUAL "SunOS")
     target_compile_definitions(
         ${target}
         PRIVATE
@@ -61,15 +56,31 @@ endif()
 target_include_directories(
     ${target}
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-        $<INSTALL_INTERFACE:include>)
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_include_directories(
+    ${target}
+    PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/deps/sljit/sljit_src>
+)
 
 set(${target}_INCLUDE_FILES
-    pcre2.h
-    pcre2_internal.h
-    pcre2_intmodedep.h
-    pcre2_ucp.h
+    src/pcre2.h
+    src/pcre2_internal.h
+    src/pcre2_intmodedep.h
+    src/pcre2_ucp.h
 )
+
+if(MSVC)
+    target_compile_definitions(
+        ${target}
+        PRIVATE
+            _CRT_SECURE_NO_DEPRECATE
+            _CRT_SECURE_NO_WARNINGS
+    )
+endif()
 
 bbs_add_target_thread_flags(${target} PRIVATE)
 

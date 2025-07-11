@@ -1,0 +1,378 @@
+name: Dev
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master, "release/**" ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+
+  canary:
+    # Tests with: Debug & assertions; link-size=4; libedit
+    name: GCC -O0
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install libedit-dev
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Configure
+        run: ./configure CC='gcc -fsanitize=undefined,address -fsanitize-undefined-trap-on-error' CFLAGS='-O0 -Wall -Wextra -Werror -Wno-error=unused-but-set-parameter' --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-debug --enable-pcre2test-libedit --with-link-size=4
+
+      - name: Build
+        run: make -j3
+
+      - name: Test (main test script)
+        run: ./RunTest
+
+      - name: Test (JIT test program)
+        run: ./pcre2_jit_test
+
+      - name: Test (pcre2grep test script)
+        run: ./RunGrepTest
+
+      - name: Test (pcre2posix program)
+        run: ./pcre2posix_test -v
+
+  dragon:
+    # Tests with: clang AB/UB; link-size=3
+    name: Clang
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        opt: ["-O0", "-O2"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Configure
+        run: ./configure CC='clang -fsanitize=undefined,address,integer -fno-sanitize-recover=undefined,integer -fno-sanitize=unsigned-integer-overflow,unsigned-shift-base,function' CFLAGS='${{ matrix.opt }} -Wall -Wextra -Werror -Wno-error=unused-but-set-parameter -Wno-error=deprecated-declarations -Wno-error=incompatible-library-redeclaration -Wno-error=incompatible-pointer-types-discards-qualifiers' --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-debug --with-link-size=3
+
+      - name: Build
+        run: make -j3
+
+      - name: Test (main test script)
+        run: |
+          ulimit -S -s 49152 # Raise stack limit; ASAN with -O0 is very stack-hungry
+          ./RunTest
+
+      - name: Test (JIT test program)
+        run: ./pcre2_jit_test
+
+      - name: Test (pcre2grep test script)
+        run: ./RunGrepTest
+
+      - name: Test (pcre2posix program)
+        run: ./pcre2posix_test -v
+
+  greatawk:
+    # Tests with: GCC, -O3, oldest supported Ubuntu (in non-extended support)
+    name: GCC -O3
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: cmake -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DPCRE2_DEBUG=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DCMAKE_BUILD_TYPE=Release -B build
+
+      - name: Build
+        run: cd build && make -j3
+
+      - name: Test
+        run: cd build && ctest -j3 --output-on-failure
+
+      - name: Install
+        run: |
+          cd build
+          cmake --install . --prefix install-dir
+          ../maint/RunManifestTest install-dir ../maint/manifest-cmakeinstall-linux
+
+  dodo:
+    # Tests with: Autconf on oldest supported Ubuntu (in non-extended support)
+    name: GCC -Os, old Autotools
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Configure
+        run: ./configure CFLAGS='-Os -Wall -Wextra -Werror -Wno-error=unused-but-set-parameter' --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-debug
+
+      - name: Build
+        run: make -j3
+
+      - name: Test
+        run: make check
+
+      - name: Install
+        run: |
+          make install "DESTDIR=`pwd`/install-dir"
+          maint/RunManifestTest install-dir maint/manifest-makeinstall-linux
+
+  wasp:
+    # Tests with: French locale; oldest supported CMake; no JIT; -Os; libreadline
+    name: GCC -Os, CMake+ninja, no JIT
+    runs-on: ubuntu-latest
+    env:
+      CMAKE_VER: "3.15.7"
+    steps:
+      - name: Setup
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install language-pack-fr ninja-build libreadline-dev
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Cache CMake
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          key: cmake-${{ env.CMAKE_VER }}-Linux-x86_64
+          path: cmake-${{ env.CMAKE_VER }}-Linux-x86_64.tar.gz
+
+      - name: Install CMake
+        run: |
+          [ -f cmake-${CMAKE_VER}-Linux-x86_64.tar.gz ] || curl -L -S -O "https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+          tar -xz -f cmake-${CMAKE_VER}-Linux-x86_64.tar.gz
+          realpath "cmake-${CMAKE_VER}-Linux-x86_64/bin" >> "$GITHUB_PATH"
+
+      - name: Configure
+        run: |
+          cmake --version | grep "version ${CMAKE_VER}" || (echo "CMake version mismatch" && exit 1)
+          CC='clang' CFLAGS='-fsanitize=undefined,address,integer -fno-sanitize-recover=undefined,integer -fno-sanitize=unsigned-shift-base,function -pedantic -Wall -Wextra -Wpedantic -Wdeclaration-after-statement -Wshadow -Wno-overlength-strings -Werror -Wno-error=incompatible-pointer-types-discards-qualifiers' cmake -G Ninja -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DPCRE2_DEBUG=ON -DPCRE2_SUPPORT_LIBREADLINE=ON -DCMAKE_BUILD_TYPE=MinSizeRel -B build
+
+      - name: Build
+        run: ninja -C build
+
+      - name: Test
+        run: cd build && ctest -j3 --output-on-failure
+
+      - name: Install
+        run: |
+          cd build
+          cmake --install . --prefix install-dir
+          ../maint/RunManifestTest install-dir ../maint/manifest-cmakeinstall-linux
+
+  bat:
+    # Tests with: MSVC 32-bit, and a variety of CMake options
+    name: Windows (Win32)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: cmake -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2GREP_SUPPORT_CALLOUT_FORK=OFF -DPCRE2_DEBUG=ON -DPCRE2_NEWLINE=ANYCRLF -DPCRE2_STATIC_PIC=ON -DPCRE2_STATIC_RUNTIME=ON -DPCRE2_SUPPORT_BSR_ANYCRLF=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -B build -A Win32
+
+      - name: Build
+        run: cmake --build build --config RelWithDebInfo
+
+      - name: Test
+        run: cd build && ctest -C RelWithDebInfo -j3 --output-on-failure
+
+  pterodactyl:
+    # Tests with: MSVC 64-bit, Debug, shared libraries
+    name: Windows (x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: cmake -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2_DEBUG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -B build -A x64
+
+      - name: Build
+        run: cmake --build build --config Debug
+
+      - name: Test
+        run: cd build && ctest -C Debug -j3 --output-on-failure
+
+  bigbird:
+    # Job to execute ManyConfigTests
+    name: manyconfig
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install -y valgrind
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Run
+        run: |
+          ./autogen.sh
+          ./maint/ManyConfigTests
+
+  camel:
+    # Job to execute RunPerlTest
+    name: perl
+    runs-on: ubuntu-latest
+    container: perl:devel
+    steps:
+      - name: Setup
+        run: |
+          apt-get -qq update
+          apt-get -qq install cmake ninja-build
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: yes
+
+      - name: Configure
+        run: cmake -G Ninja -B build -DPCRE2_BUILD_PCRE2_8=OFF -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2_NEVER_BACKSLASH_C=ON -DPCRE2_DEBUG=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        run: ninja -C build
+
+      - name: Test
+        run: |
+          cd build
+          ctest -j3 --output-on-failure
+          cd ..
+          perl -v
+          maint/RunPerlTest
+
+  chaffinch:
+    # Job to verify that the CMake "unity" build (single-file / jumbo build) passes.
+    # If this fails, it's usually because two different files define some file-static
+    # functions or macros which collide.
+    name: CMake unity build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: cmake -DCMAKE_UNITY_BUILD=ON -DCMAKE_UNITY_BUILD_BATCH_SIZE=0 -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2_DEBUG=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DCMAKE_BUILD_TYPE=Release -B build
+
+      - name: Build
+        run: cd build && make -j3
+
+      - name: Test
+        run: cd build && ctest -j3 --output-on-failure
+
+  zebrilus:
+    # Tests with: Zig compiler
+    name: Zig
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Setup
+        run: |
+          sudo snap install zig --classic --beta
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Build
+        run: zig build
+
+      - name: Test
+        run: |
+          # Zig does something weird with the stack - it uses more space than the
+          # equivalent plain C program.
+          ulimit -S -s 16384
+          srcdir=`pwd` pcre2test=`pwd`/zig-out/bin/pcre2test ./RunTest
+
+  bazel:
+    # Tests with: Bazel build system
+    name: Bazel
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Build
+        run: bazelisk build //... --enable_runfiles --incompatible_strict_action_env
+
+      - name: Test
+        run: bazelisk test //... --enable_runfiles --incompatible_strict_action_env --test_output=all
+
+  heron:
+    # Job to verify that the tasks performed by PrepareRelease have been done. It is
+    # the committer's responsibility (currently) to run PrepareRelease themselves when
+    # making a PR, so that everything is kept in-sync.
+    name: Check autogenerated file freshness
+    runs-on: ubuntu-24.04 # TODO: Update to ubuntu-latest when that switches to 24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: false
+          fetch-depth: 0
+          fetch-tags: false
+
+      - name: PrepareRelease
+        run: maint/PrepareRelease
+
+      - name: 'Rebuild *.h.generic'
+        run: |
+          ./autogen.sh && ./configure
+          rm -f src/*.generic
+          make src/config.h.generic src/pcre2.h.generic
+
+          # Workaround for incorrect filesystem permissions on /usr/share/aclocal, which
+          # causes the m4 macros to be copied with incorrect permissions.
+          chmod u=rw,go=r m4/*.m4
+
+      - name: Working directory clean
+        run:  |
+          if [ -n "`git status --porcelain`" ] ; then
+            (
+              echo "Dirty working tree! Affected files:"
+              git status --porcelain || true
+              echo ""
+              echo "Diff:"
+              git diff || true
+            ) >&2
+            exit 1
+          fi

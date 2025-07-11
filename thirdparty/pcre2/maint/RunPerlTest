@@ -1,0 +1,90 @@
+#! /bin/sh
+
+# Script to run the Perl-compatible PCRE2 tests through Perl. For testing
+# with different versions of Perl, if the first argument is "-perl" then the
+# second is taken as the Perl command to use, and both are then removed.
+#
+# The argument can be the number of the specific Perl compatible test to run
+# (ex: "1", "4", "26" or "27"), otherwise it runs all tests and returns at
+# exit, the test number with an incorrect output or the test number plus 32
+# if it failed to run completely. It returns with 0 on success.
+
+# This script should be run with the main PCRE2 directory current.
+
+if [ "$1" = "-perl" ]; then
+  PERL="$2"
+  ARGS="$1 $PERL"
+  shift 2
+else
+  PERL=perl
+  ARGS=""
+fi
+
+RC=0
+
+if [ -z "$1" ] || [ "$1" = "1" ]; then
+echo "-----------------------------------------------------------------"
+echo "Perl test: main functionality (PCRE2 test 1)"
+if ./perltest.sh $ARGS testdata/testinput1 testtry; then
+  tail -n +2 testtry > testtry2
+  diff -u testdata/testoutput1 testtry2 || RC=1
+  /bin/rm -rf testtry2
+else
+  RC=33
+fi
+echo ""
+fi
+
+if [ -z "$1" ] || [ "$1" = "4" ]; then
+echo "-----------------------------------------------------------------"
+echo "Perl test: UTF-8 and Unicode property features (PCRE2 test 4)"
+if ./perltest.sh $ARGS -utf8 testdata/testinput4 testtry; then
+  tail -n +2 testtry > testtry2
+  diff -u testdata/testoutput4 testtry2 || RC=4
+  /bin/rm -rf testtry2
+else
+  RC=36
+fi
+echo ""
+fi
+
+P=$($PERL -MUnicode::UCD -e 'print Unicode::UCD::UnicodeVersion, "\n"')
+
+if [ -z "$1" ] || [ "$1" = "26" ]; then
+echo "-----------------------------------------------------------------"
+echo "Perl test: Unicode property tests (PCRE2 test 26)"
+U=$(head -5 testdata/testinput26 | $PERL -ne 'print "$1\n" if /tests for version ([\d.]+)$/')
+if [ "$U" != "$P" ]; then
+  echo "SKIPPED: Perl uses Unicode $P but version $U was expected"
+else
+  if ./perltest.sh $ARGS testdata/testinput26 testtry; then
+    tail -n +2 testtry > testtry2
+    diff -u testdata/testoutput26 testtry2 || RC=26
+    /bin/rm -rf testtry2
+  else
+    RC=58
+  fi
+  echo ""
+  fi
+fi
+
+if [ -z "$1" ] || [ "$1" = "27" ]; then
+echo "-----------------------------------------------------------------"
+echo "Perl test: Unicode property tests (PCRE2 test 27)"
+U=$(head -5 testdata/testinput27 | $PERL -ne 'print "$1\n" if /tests for version ([\d.]+)$/')
+if [ "$U" != "$P" ]; then
+  echo "SKIPPED: Perl uses Unicode $P but version $U was expected"
+else
+  if ./perltest.sh $ARGS testdata/testinput27 testtry; then
+    tail -n +2 testtry > testtry2
+    diff -u testdata/testoutput27 testtry2 || RC=27
+    /bin/rm -rf testtry2
+  else
+    RC=59
+  fi
+  echo ""
+  fi
+fi
+
+exit $RC
+# End

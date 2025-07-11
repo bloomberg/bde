@@ -1,0 +1,71 @@
+name: Clang Static Analyzer
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master, "release/**" ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  Analyze:
+    runs-on: ubuntu-latest
+
+    permissions:
+      # Needed to upload the results to code-scanning dashboard.
+      security-events: write
+      contents: read
+
+    env:
+      # The @microsoft/sarif-multitool tool actually uses DotnetCore, which in
+      # turn aborts when it finds that GitHub's CI machine doesn't have ICU.
+      # Just turn off localisation. A future version of the ubuntu-24.04 or
+      # ubuntu-latest runners might not need this workaround.
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
+
+    steps:
+      - name: Setup
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install ninja-build clang-tools
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: |
+          mkdir build
+          cd build
+          scan-build cmake -G Ninja -DPCRE2_SUPPORT_JIT=ON -DCMAKE_BUILD_TYPE=Debug ..
+
+      - name: Build
+        run: |
+          # Inefficiently run clang scan twice; once to generate HTML, and secondly
+          # to generate SARIF files. Ideally we would have some way to scan once and
+          # generate one of those outputs from the other, but I don't know a good way
+          # to do that.
+          cd build
+          scan-build -o clang-report/ ninja
+
+          ninja clean
+          scan-build -o clang-sarif -sarif ninja
+          # Work around issue in GitHub's SARIF ingestion - merge all SARIF files into one
+          npx -y @microsoft/sarif-multitool merge clang-sarif/*/*.sarif --output-file=clang.sarif
+
+      # Upload the browsable HTML report as an artifact.
+      - name: Upload report
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: "Clang Static Analyzer report"
+          path: './build/clang-report'
+
+      # Upload the results to GitHub's code scanning dashboard.
+      - name: "Upload to code-scanning"
+        uses: github/codeql-action/upload-sarif@aa578102511db1f4524ed59b8cc2bae4f6e88195 # v3.27.6
+        with:
+          sarif_file: build/clang.sarif
+          category: clang-analyzer

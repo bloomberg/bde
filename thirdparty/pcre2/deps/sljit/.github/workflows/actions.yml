@@ -1,0 +1,279 @@
+name: Actions
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-test-on-x86:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install Packages
+      run: |
+        sudo apt update
+        sudo apt install -y gcc-multilib g++-multilib make
+    - name: Build x86
+      env:
+        CFLAGS: -m32
+        CXXFLAGS: -m32
+      run: |
+        make all
+    - name: Run Tests
+      run: |
+        ./bin/sljit_test -v
+
+  build-test-on-x64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install Packages
+      run: |
+        sudo apt update
+        sudo apt install -y gcc g++ make
+    - name: Build x64
+      run: |
+        make all
+    - name: Run Tests
+      run: |
+        ./bin/sljit_test -v
+
+  build-test-on-armt2:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Build in armt2 container
+      uses: uraimo/run-on-arch-action@v2.8.1
+      with:
+        arch: armv7
+        distro: ubuntu_latest
+
+        # Install deps into the container. With the token, the container will be cached
+        # The image is cached publically like a package
+        githubToken: ${{ github.token }}
+
+        install: |
+          apt-get update
+          apt-get install -y gcc g++ make
+        run: |
+          make all
+          ./bin/sljit_test -v
+
+  build-test-on-arm32:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Build in arm32 container
+      uses: uraimo/run-on-arch-action@v2.8.1
+      with:
+        arch: armv7
+        distro: ubuntu_latest
+
+        # Install deps into the container. With the token, the container will be cached
+        # The image is cached publically like a package
+        githubToken: ${{ github.token }}
+        env: |
+          CFLAGS: -marm
+          CXXFLAGS: -marm
+        install: |
+          apt-get update
+          apt-get install -y gcc g++ make
+        run: |
+          make all
+          ./bin/sljit_test -v
+
+  build-test-on-aarch64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Build in arm64 container
+      uses: uraimo/run-on-arch-action@v2.8.1
+
+      with:
+        arch: aarch64
+        distro: ubuntu22.04
+
+        # Install deps into the container. With the token, the container will be cached
+        # The image is cached publically like a package
+        githubToken: ${{ github.token }}
+
+        install: |
+          apt-get update
+          apt-get install -y gcc g++ make
+        run: |
+          make all
+          ./bin/sljit_test -v
+
+  build-test-on-riscv32:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install compiler
+      run: |
+          sudo apt update
+          sudo apt install -y make wget ninja-build
+          wget https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--bleeding-edge-2024.02-1.tar.bz2
+          tar -xvf riscv32-ilp32d--glibc--bleeding-edge-2024.02-1.tar.bz2
+    - name: Install qemu
+      run: |
+          wget https://download.qemu.org/qemu-9.0.2.tar.xz
+          tar -xvf qemu-9.0.2.tar.xz
+          cd qemu-9.0.2
+          ./configure --target-list="riscv32-linux-user"
+          make -j4
+    - name: Build and test in riscv32
+      env:
+        CROSS_COMPILER: ./riscv32-ilp32d--glibc--bleeding-edge-2024.02-1/bin/riscv32-buildroot-linux-gnu-gcc-13.2.0.br_real
+        CFLAGS: -march=rv32g
+        EXTRA_LDFLAGS: -static
+      run: |
+        make all
+        ./qemu-9.0.2/build/qemu-riscv32 ./bin/sljit_test -v
+
+  build-test-on-riscv32-extensions:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install compiler
+      run: |
+          sudo apt update
+          sudo apt install -y make wget ninja-build
+          wget https://toolchains.bootlin.com/downloads/releases/toolchains/riscv32-ilp32d/tarballs/riscv32-ilp32d--glibc--bleeding-edge-2024.02-1.tar.bz2
+          tar -xvf riscv32-ilp32d--glibc--bleeding-edge-2024.02-1.tar.bz2
+    - name: Install qemu
+      run: |
+          wget https://download.qemu.org/qemu-9.0.2.tar.xz
+          tar -xvf qemu-9.0.2.tar.xz
+          cd qemu-9.0.2
+          ./configure --target-list="riscv32-linux-user"
+          make -j4
+    - name: Build and test
+      env:
+        CROSS_COMPILER: ./riscv32-ilp32d--glibc--bleeding-edge-2024.02-1/bin/riscv32-buildroot-linux-gnu-gcc-13.2.0.br_real
+        CFLAGS: -march=rv32gv_zba_zbb
+        EXTRA_LDFLAGS: -static
+      run: |
+        make all
+        ./qemu-9.0.2/build/qemu-riscv32 ./bin/sljit_test -v
+  build-test-on-riscv64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install compiler
+      run: |
+          sudo apt update
+          sudo apt install -y make wget ninja-build
+          wget https://toolchains.bootlin.com/downloads/releases/toolchains/riscv64-lp64d/tarballs/riscv64-lp64d--glibc--stable-2024.02-1.tar.bz2
+          tar -xvf riscv64-lp64d--glibc--stable-2024.02-1.tar.bz2
+    - name: Install qemu
+      run: |
+          wget https://download.qemu.org/qemu-9.0.2.tar.xz
+          tar -xvf qemu-9.0.2.tar.xz
+          cd qemu-9.0.2
+          ./configure --target-list="riscv64-linux-user"
+          make -j4
+    - name: Build and test
+      env:
+        CROSS_COMPILER: ./riscv64-lp64d--glibc--stable-2024.02-1/bin/riscv64-buildroot-linux-gnu-gcc-12.3.0.br_real
+        CFLAGS: -march=rv64g
+        EXTRA_LDFLAGS: -static
+      run: |
+        make all
+        ./qemu-9.0.2/build/qemu-riscv64 ./bin/sljit_test -v
+
+  build-test-on-riscv64-extensions:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install compiler
+      run: |
+          sudo apt update
+          sudo apt install -y make wget ninja-build
+          wget https://toolchains.bootlin.com/downloads/releases/toolchains/riscv64-lp64d/tarballs/riscv64-lp64d--glibc--stable-2024.02-1.tar.bz2
+          tar -xvf riscv64-lp64d--glibc--stable-2024.02-1.tar.bz2
+    - name: Install qemu
+      run: |
+          wget https://download.qemu.org/qemu-9.0.2.tar.xz
+          tar -xvf qemu-9.0.2.tar.xz
+          cd qemu-9.0.2
+          ./configure --target-list="riscv64-linux-user"
+          make -j4
+    - name: Build and test
+      env:
+        CROSS_COMPILER: ./riscv64-lp64d--glibc--stable-2024.02-1/bin/riscv64-buildroot-linux-gnu-gcc-12.3.0.br_real
+        CFLAGS: -march=rv64gv_zba_zbb
+        EXTRA_LDFLAGS: -static
+      run: |
+        make all
+        ./qemu-9.0.2/build/qemu-riscv64 ./bin/sljit_test -v
+
+  build-test-on-loongarch64:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Install compiler
+      run: |
+          sudo apt update
+          sudo apt install -y make wget ninja-build
+          wget https://github.com/loongson/build-tools/releases/download/2024.11.01/x86_64-cross-tools-loongarch64-binutils_2.43.1-gcc_14.2.0-glibc_2.40.tar.xz
+          tar -xvf x86_64-cross-tools-loongarch64-binutils_2.43.1-gcc_14.2.0-glibc_2.40.tar.xz
+    - name: Install qemu
+      run: |
+          wget https://download.qemu.org/qemu-9.0.2.tar.xz
+          tar -xvf qemu-9.0.2.tar.xz
+          cd qemu-9.0.2
+          ./configure --target-list="loongarch64-linux-user"
+          make -j4
+    - name: Build and test
+      env:
+        CROSS_COMPILER: ./cross-tools/bin/loongarch64-unknown-linux-gnu-gcc-14.2.0
+        CFLAGS: -march=la464
+        EXTRA_LDFLAGS: -static
+      run: |
+        make all
+        ./qemu-9.0.2/build/qemu-loongarch64 ./bin/sljit_test -v
+
+  build-test-on-s390x:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Build in s390x container
+      uses: uraimo/run-on-arch-action@v2.8.1
+      with:
+        arch: s390x
+        distro: ubuntu_latest
+
+        # Install deps into the container. With the token, the container will be cached
+        # The image is cached publically like a package
+        githubToken: ${{ github.token }}
+
+        install: |
+          apt-get update
+          apt-get install -y gcc g++ make
+        run: |
+          make all
+          ./bin/sljit_test -v

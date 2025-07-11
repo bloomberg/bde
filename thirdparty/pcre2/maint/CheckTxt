@@ -1,0 +1,64 @@
+#! /usr/bin/perl
+
+# This is a script for checking whether a file contains any carriage return
+# characters, and whether it is valid UTF-8.
+
+use Encode;
+
+# This subroutine does the work for one file.
+
+$yield = 0;
+$ascii = 0; # bool
+$crlf = 0; # bool
+
+sub checktxt {
+my($file) = $_[0];
+open(IN, "<:raw", "$file") || die "Can't open $file for input";
+$bin = do { local $/ = undef; <IN> };
+close(IN);
+my $data;
+eval
+  {
+  $data = Encode::decode("UTF-8", $bin, Encode::FB_CROAK);
+  1; # return true
+  }
+or do
+  {
+  printf "Bad UTF-8 in $file\n";
+  $yield = 1;
+  return;
+  };
+if (!$crlf && index($data, "\r") != -1)
+  {
+  printf "CR in $file\n";
+  $yield = 1;
+  }
+if ($ascii && $data =~ /[^\x01-\x7e]/)
+  {
+  printf "Non-ASCII in $file\n";
+  $yield = 1;
+  }
+}
+
+# This is the main program
+
+$, = "";   # Output field separator
+for ($i = 0; $i < @ARGV; $i++)
+  {
+  if ($ARGV[$i] eq "-ascii")
+    {
+    $ascii = 1;
+    }
+  elsif ($ARGV[$i] eq "-crlf")
+    {
+    $crlf = 1;
+    }
+  else
+    {
+    checktxt($ARGV[$i]);
+    }
+  }
+
+exit $yield;
+
+# End

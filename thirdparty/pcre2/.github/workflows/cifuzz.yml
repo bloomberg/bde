@@ -1,0 +1,31 @@
+name: CIFuzz
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  Fuzzing:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Fuzzers
+      id: build
+      uses: google/oss-fuzz/infra/cifuzz/actions/build_fuzzers@3d38acd485bc848e33396e7523b9a4f2aff9027e # master
+      with:
+        oss-fuzz-project-name: 'pcre2'
+        dry-run: false
+    - name: Run Fuzzers
+      uses: google/oss-fuzz/infra/cifuzz/actions/run_fuzzers@3d38acd485bc848e33396e7523b9a4f2aff9027e # master
+      with:
+        oss-fuzz-project-name: 'pcre2'
+        fuzz-seconds: 300
+        dry-run: false
+    - name: Upload Crash
+      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      if: failure() && steps.build.outcome == 'success'
+      with:
+        name: artifacts
+        path: ./out/artifacts

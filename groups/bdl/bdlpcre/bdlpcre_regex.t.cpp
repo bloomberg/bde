@@ -2201,9 +2201,7 @@ int main(int argc, char *argv[])
                           << "TESTING `isJitAvailable` METHOD" << endl
                           << "===============================" << endl;
 
-#if defined(BSLS_PLATFORM_CPU_SPARC_V9)
-        ASSERT(false == Obj::isJitAvailable());
-#elif defined(BSLS_PLATFORM_CPU_ARM) && defined(BSLS_PLATFORM_CPU_64_BIT)
+#if defined(BSLS_PLATFORM_CPU_SPARC)
         ASSERT(false == Obj::isJitAvailable());
 #else
         ASSERT(true == Obj::isJitAvailable());

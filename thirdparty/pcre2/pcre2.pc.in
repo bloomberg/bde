@@ -7,7 +7,7 @@ includedir=@includedir@
 
 Name: libpcre2
 Description: PCRE2 - Perl compatible regular expressions C library (2nd API) with 8 bit character support
-Version: 10.20
+Version: 10.45
 Libs: -L${libdir} @libs@
-Libs.private:
+Libs.private: 
 Cflags: -I${includedir} @cflags@

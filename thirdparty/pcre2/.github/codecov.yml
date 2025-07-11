@@ -1,0 +1,49 @@
+codecov:
+  strict_yaml_branch: default
+  require_ci_to_pass: false
+  notify:
+    wait_for_ci: false
+    notify_error: true
+
+coverage:
+  range: 75..90
+  round: nearest
+  precision: 2
+
+  status:
+    project: false
+
+    patch:
+      default:
+        target: 100%
+        threshold: 5%
+
+github_checks:
+  annotations: false
+
+comment: false
+  # layout: "condensed_header, condensed_files, condensed_footer"
+  # hide_project_coverage: true
+  # require_head: true
+  # require_base: true
+  # require_changes: "coverage_drop OR uncovered_patch"
+
+component_management:
+  individual_components:
+    - component_id: library
+      name: "Core library"
+      paths:
+        - '!src/(pcre2test|pcre2grep|pcre2_jit_test|pcre2posix_test|pcre2_printint)\.c'
+      statuses:
+        - type: project
+          target: auto
+          threshold: 0.5%
+
+    - component_id: test_binaries
+      name: "Test binaries"
+      paths:
+        - 'src/(pcre2test|pcre2grep|pcre2_jit_test|pcre2posix_test|pcre2_printint)\.c'
+      statuses:
+        - type: project
+          target: auto
+          threshold: 2%

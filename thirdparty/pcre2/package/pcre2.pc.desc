@@ -1,3 +1,0 @@
-set(uor_description "PCRE2 - Perl compatible regular expressions C library \(2nd API\) with 8bit character support.")
-
-set(uor_version "10.39")

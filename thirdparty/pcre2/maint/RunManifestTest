@@ -1,0 +1,47 @@
+#! /bin/sh
+
+# Script to test a directory listing. We use this to verify that the list of
+# files installed by "make install" or "cmake --install" matches what we expect.
+
+LANG=C # Ensure stable ordering of `sort` output
+export LANG
+
+if [ "$1" = "" -o "$2" = "" ] ; then
+    echo "Usage: $0 <dir> <manifest name>" >&2
+  exit 1
+fi
+
+input_dir="$1"
+expected_manifest="$2"
+
+base=`basename $expected_manifest`
+
+sed=sed
+grep=grep
+# Helpers for Solaris
+if [ -f /usr/bin/gsed ] ; then
+  sed=/usr/bin/gsed
+fi
+if [ -f /usr/bin/ggrep ] ; then
+  grep=/usr/bin/ggrep
+fi
+
+find "$input_dir" -print | \
+  sort | \
+  xargs -n1 -- ls -l -d -n | \
+  $sed -E -e 's/ {2,}/ /g' | \
+  cut -d' ' -f '1,9-' \
+  > "$base"
+
+if ! diff -u "$expected_manifest" "$base"; then
+  echo "Installed files differ from expected" >&2
+
+  echo "===Actual===" >&2
+  cat "$base" >&2
+  echo "===End===" >&2
+
+  exit 1
+fi
+
+echo "Installed files match expected"
+rm -f "$base"

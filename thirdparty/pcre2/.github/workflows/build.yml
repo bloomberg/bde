@@ -1,0 +1,347 @@
+name: Build
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master, "release/**" ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install zlib1g-dev libbz2-dev
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Configure
+        run: ./configure --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-pcre2grep-libz --enable-pcre2grep-libbz2
+
+      - name: Build
+        run: make -j3 CPPFLAGS='-Wall -Wextra -Werror'
+
+      - name: Test (main test script)
+        run: ./RunTest
+
+      - name: Test (JIT test program)
+        run: ./pcre2_jit_test
+
+      - name: Test (pcre2grep test script)
+        run: ./RunGrepTest
+
+      - name: Test (pcre2posix program)
+        run: ./pcre2posix_test -v
+
+      - name: Install
+        run: |
+          make install "DESTDIR=`pwd`/install-dir"
+          maint/RunManifestTest install-dir maint/manifest-makeinstall-linux
+
+  alpine:
+    name: alpine
+    runs-on: ubuntu-latest
+    container: alpine
+    steps:
+      - name: Setup
+        run: apk add --no-cache automake autoconf gcc libtool make musl-dev git zlib zlib-dev bzip2 bzip2-dev #musl-locales
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Configure
+        run: ./configure --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-pcre2grep-libz --enable-pcre2grep-libbz2
+
+      - name: Build
+        run: make -j3 CPPFLAGS='-Wall -Wextra -Werror'
+
+      - name: Test (main test script)
+        run: ./RunTest
+
+      - name: Test (JIT test program)
+        run: ./pcre2_jit_test
+
+      - name: Test (pcre2grep test script)
+        run: ./RunGrepTest
+
+      - name: Test (pcre2posix program)
+        run: ./pcre2posix_test -v
+
+      - name: Install
+        run: |
+          make install "DESTDIR=`pwd`/install-dir"
+          maint/RunManifestTest install-dir maint/manifest-makeinstall-linux
+
+  macos:
+    name: macOS universal
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: cmake -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2_SUPPORT_LIBZ=ON -DPCRE2_SUPPORT_LIBBZ2=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_OSX_ARCHITECTURES='arm64;x86_64' -DCMAKE_C_FLAGS='-Wall -Wextra' -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -DCMAKE_BUILD_TYPE=Release -B build
+
+      - name: Build
+        run: cd build && make -j3
+
+      - name: Test
+        run: cd build && ctest -j3 --output-on-failure
+
+      - name: Install
+        run: |
+          cd build
+          cmake --install . --prefix install-dir
+          ../maint/RunManifestTest install-dir ../maint/manifest-cmakeinstall-macos
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ["Win32", "x64"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: cmake -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=ON -DCMAKE_COMPILE_WARNING_AS_ERROR=ON -B build -A ${{ matrix.arch }}
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Test
+        run: cd build && ctest -C Release -j3 --output-on-failure
+
+      - name: Install
+        run: |
+          cd build
+          cmake --install . --config Release --prefix install-dir
+          ../maint/RunManifestTest.ps1 install-dir ../maint/manifest-cmakeinstall-windows
+
+  freebsd:
+    name: FreeBSD
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Build & test
+        uses: vmactions/freebsd-vm@debf37ca7b7fa40e19c542ef7ba30d6054a706a4 # v1.1.5
+        with:
+          usesh: true
+          run: |
+            set -e
+            ./configure --enable-jit --enable-pcre2-16 --enable-pcre2-32
+            make -j3 CPPFLAGS='-Wall -Wextra -Werror'
+            make check
+
+            make install "DESTDIR=`pwd`/install-dir"
+            maint/RunManifestTest install-dir maint/manifest-makeinstall-freebsd
+
+  solaris:
+    name: Solaris
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Transfer Oracle Studio certificates
+        env:
+          PKG_ORACLE_COM_CERTIFICATE_PEM: ${{ secrets.PKG_ORACLE_COM_CERTIFICATE_PEM }}
+          PKG_ORACLE_COM_KEY_PEM: ${{ secrets.PKG_ORACLE_COM_KEY_PEM }}
+        run: |
+          printenv PKG_ORACLE_COM_CERTIFICATE_PEM > pkg.oracle.com.certificate.pem
+          printenv PKG_ORACLE_COM_KEY_PEM > pkg.oracle.com.key.pem
+
+      - name: Prepare
+        run: ./autogen.sh
+
+      - name: Build & test
+        uses: vmactions/solaris-vm@a89b9438868c70db27e41625f0a5de6ff5e90809 # v1.1.0
+        with:
+          usesh: true
+          # Seriously! Solaris is the only OS to actually ship without a C
+          # compiler, and not even to provide a simple download to get one!
+          # You have to actually register with Oracle to get an X.509
+          # certificate before you can even download their compiler. Whatever.
+          prepare: |
+            cp "$GITHUB_WORKSPACE/pkg.oracle.com.key.pem" /root/pkg.oracle.com.key.pem
+            cp "$GITHUB_WORKSPACE/pkg.oracle.com.certificate.pem" /root/pkg.oracle.com.certificate.pem
+            sudo pkg set-publisher \
+              -k /root/pkg.oracle.com.key.pem \
+              -c /root/pkg.oracle.com.certificate.pem \
+              -G "*" -g https://pkg.oracle.com/solarisstudio/release solarisstudio
+            pkg install developer/build/make system/header
+            pkg install --accept developerstudio-126/cc
+
+          run: |
+            set -e
+            PATH=/opt/developerstudio12.6/bin:"$PATH"
+            export PATH
+            CC=cc
+            export CC
+
+            ./configure --enable-jit --enable-pcre2-16 --enable-pcre2-32
+            make CPPFLAGS='-Wall -Wextra -Werror'
+            make check
+
+            make install "DESTDIR=`pwd`/install-dir"
+            maint/RunManifestTest install-dir maint/manifest-makeinstall-linux
+
+  distcheck:
+    name: Build & verify distribution
+    runs-on: ubuntu-24.04 # TODO: Update to ubuntu-latest when that switches to 24.04
+    permissions:
+      id-token: write # Needed to make calls to the Sigstore service
+      attestations: write # Needed to write the attestation to GitHub's database
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Prepare
+        run: |
+          ./autogen.sh
+
+          # Workaround for incorrect filesystem permissions on /usr/share/aclocal, which
+          # causes the m4 macros to be copied with incorrect permissions.
+          chmod u=rw,go=r m4/*.m4
+
+      - name: Configure
+        run: ./configure
+
+      - name: Distcheck
+        run: make distcheck -j3
+
+      - name: Manifest
+        run: |
+          mkdir tarball-dir
+          tar -C tarball-dir -xzf pcre2-*.tar.gz
+          # Budge the directory, so we don't back the version number into the
+          # `manifest-tarball` file:
+          mv tarball-dir/pcre2-* tarball-dir/pcre2-SNAPSHOT
+          maint/RunManifestTest tarball-dir maint/manifest-tarball
+
+      - name: Upload to GitHub artifacts
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: "Distribution release"
+          path: |
+            pcre2-*.tar.bz2
+            pcre2-*.tar.gz
+            pcre2-*.zip
+          if-no-files-found: error
+
+      - name: Attest
+        uses: actions/attest-build-provenance@7668571508540a607bdfd90a87a560489fe372eb # v2.1.0
+        if: |
+          github.event_name != 'pull_request' &&
+          (startsWith(github.ref, 'refs/heads/release/') ||
+           startsWith(github.ref, 'refs/tags/pcre2-'))
+        with:
+          subject-path: 'pcre2-*.tar.bz2, pcre2-*.tar.gz, pcre2-*.zip'
+
+  coverage:
+    name: Code coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install zlib1g-dev libbz2-dev libedit-dev
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: true
+
+      - name: Configure
+        run: CC="clang -fprofile-instr-generate -fcoverage-mapping" cmake -DCMAKE_BUILD_TYPE=Debug -DPCRE2_DEBUG=OFF -DPCRE2_SUPPORT_JIT=ON -DPCRE2_BUILD_PCRE2_16=ON -DPCRE2_BUILD_PCRE2_32=ON -DPCRE2_SUPPORT_LIBZ=ON -DPCRE2_SUPPORT_LIBBZ2=ON -DPCRE2_SUPPORT_LIBEDIT=ON -DPCRE2_SUPPORT_LIBREADLINE=OFF -B build
+
+      - name: Build
+        run: cd build && make -j3
+
+      - name: Test
+        run: cd build && LLVM_PROFILE_FILE="coverage-%m.profraw" ctest -j1 --output-on-failure
+
+      - name: Report
+        run: |
+          LLVM_VER=`clang --version | head -n1 | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | cut -d. -f1`
+          echo "Using LLVM version $LLVM_VER"
+
+          # Merge the profiles gathered
+          cd build
+          llvm-profdata-$LLVM_VER merge -sparse coverage-*.profraw -o coverage.profdata
+
+          # Output HTML, for archiving and browsing later
+          llvm-cov-$LLVM_VER show \
+            -format=html -output-dir=coverage-report -show-line-counts-or-regions -show-branches=percent \
+            -instr-profile=coverage.profdata \
+            ./pcre2test -object ./pcre2grep -object ./pcre2posix_test -object ./pcre2_jit_test \
+            ../src/ ./
+
+          # Output LCOV-compatible output, for downstream tools
+          llvm-cov-$LLVM_VER export \
+            -format=lcov \
+            -instr-profile=coverage.profdata \
+            ./pcre2test -object ./pcre2grep -object ./pcre2posix_test -object ./pcre2_jit_test \
+            ../src/ ./ \
+            > ./coverage-lcov.info
+
+          # Output text summary to build log
+          echo '```' > "$GITHUB_STEP_SUMMARY"
+          llvm-cov-$LLVM_VER report \
+            -instr-profile=coverage.profdata \
+            ./pcre2test -object ./pcre2grep -object ./pcre2posix_test -object ./pcre2_jit_test \
+            ../src/ ./ \
+            >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report to GitHub artifacts
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: "Coverage report"
+          path: './build/coverage-report'
+          if-no-files-found: error
+
+      - name: Upload report to Codecov
+        uses: codecov/codecov-action@7f8b4b4bde536c465e797be725718b88c5d95e0e # v5.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          disable_search: true
+          files: ./build/coverage-lcov.info

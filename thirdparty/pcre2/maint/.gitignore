@@ -1,0 +1,9 @@
+ucptest
+utf8
+
+pcre2_ucp.h
+pcre2_ucptables.c
+pcre2_ucd.c
+
+testinput
+testoutput
