@@ -16,6 +16,7 @@
 #include <bslmt_qlock.h>
 #include <bslmt_testutil.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
@@ -27,6 +28,7 @@
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>            // atoi()
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
 #include <bsl_string.h>
@@ -168,53 +170,6 @@ static const bool k_threadNameCanBeEmpty = false;
 #endif
 
 }  // close unnamed namespace
-
-const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
-
-static bsls::AtomicInt s_continue;
-
-static char s_watchdogText[128];
-
-/// Assign the specified `value` to be displayed if the watchdog expires.
-void setWatchdogText(const char *value)
-{
-    memcpy(s_watchdogText, value, strlen(value) + 1);
-}
-
-/// Watchdog function used to determine when a timeout should occur.  This
-/// function returns without expiration if `0 == s_continue` before one
-/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
-/// program is aborted.
-extern "C" void *watchdog(void *arg)
-{
-    if (arg) {
-        setWatchdogText(static_cast<const char *>(arg));
-    }
-
-    const int MAX = 900;  // one iteration is a deci-second
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(k_DECISECOND);
-        ++count;
-
-        ASSERTV(s_watchdogText, count < MAX);
-
-        if (MAX == count && s_continue) {
-            // `abort` is preferred here but, on Windows, may result in a
-            // dialog box and the process not terminating.
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            abort();
-#else
-            exit(1);
-#endif
-        }
-    }
-
-    return 0;
-}
 
 #define STARTTHREADS(x) \
     if (0 != x.startThreads()) { \
@@ -758,6 +713,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
+    bslmt::TimedCompletionGuard completionGuard(&taDefault);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 13: {
         // --------------------------------------------------------------------
@@ -891,15 +850,6 @@ int main(int argc, char *argv[])
             ATTRIB_JOINABLE
         };
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        ASSERT(0 == bslmt::ThreadUtil::create(
-                              &watchdogHandle,
-                              watchdog,
-                              const_cast<char *>("case 11: ignore detached")));
-
         bslmt::Barrier barrier(NUM_THREADS + 1);
         bsls::AtomicInt jobsCompleted;
 
@@ -949,10 +899,6 @@ int main(int argc, char *argv[])
                 cout << "Pass " << attrState << " completed\n";
             }
         }
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 10: {
         // --------------------------------------------------------------------
@@ -1110,14 +1056,9 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        ASSERT(0 == bslmt::ThreadUtil::create(
-                               &watchdogHandle,
-                               watchdog,
-                               const_cast<char *>("removeJobs 1")));
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         bdlmt::MultipriorityThreadPool pool(1, 1, &ta);
 
@@ -1139,7 +1080,9 @@ int main(int argc, char *argv[])
                                                                      " jobs\n";
         }
 
-        setWatchdogText("removeJobs 2");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         ASSERT(0 == resultsVecIdx);
         ASSERT(0 == pool.numPendingJobs());
@@ -1153,7 +1096,9 @@ int main(int argc, char *argv[])
         pool.suspendProcessing();
         pool.removeJobs();
 
-        setWatchdogText("shutdown 1");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         pool.enqueueJob(&pushInt, (void *) 0, 0);
         pool.enqueueJob(&pushInt, (void *) 0, 0);
@@ -1169,7 +1114,9 @@ int main(int argc, char *argv[])
             cout << "After shutdown(): " << pool.numPendingJobs() << " jobs\n";
         }
 
-        setWatchdogText("shutdown 2");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         ASSERT(0 == resultsVecIdx);
         ASSERT(0 == pool.numPendingJobs());
@@ -1184,10 +1131,6 @@ int main(int argc, char *argv[])
         ASSERT(0 == pool.numPendingJobs());
 
         pool.shutdown();
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1928,15 +1871,6 @@ int main(int argc, char *argv[])
 
         using namespace MULTIPRIORITYTHREADPOOL_CASE_2;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        ASSERT(0 == bslmt::ThreadUtil::create(
-                               &watchdogHandle,
-                               watchdog,
-                               const_cast<char *>("basic operation")));
-
         static bsl::uintptr_t incBy[] =
                                      {473, 9384, 273, 132, 182, 191, 282, 934};
         enum { k_INC_BY_LENGTH = sizeof incBy / sizeof incBy[0] };
@@ -1977,10 +1911,6 @@ int main(int argc, char *argv[])
 
             pool.stopThreads();
         }  // for j
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       }  break;
       case 1: {
         // --------------------------------------------------------------------

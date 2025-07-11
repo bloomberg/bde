@@ -27,6 +27,7 @@
 #include <bslmf_movableref.h>
 
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
@@ -40,6 +41,7 @@
 #include <bsl_cstddef.h>
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -3683,6 +3685,10 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard _defaultAllocatorGuard(&_da);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+
+    bslmt::TimedCompletionGuard completionGuard(&_da);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     // Prevent against compiler warning:
     // ```

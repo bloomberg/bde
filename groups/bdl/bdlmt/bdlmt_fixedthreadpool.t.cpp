@@ -19,6 +19,7 @@
 #include <bslmt_threadutil.h>
 #include <bslmt_throughputbenchmark.h>
 #include <bslmt_throughputbenchmarkresult.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -35,6 +36,7 @@
 #include <bsl_cstdio.h>             // For FILE in usage example
 #include <bsl_cstdlib.h>            // for atoi
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -538,51 +540,6 @@ static double getCurrentCpuTime()
            (double)ru.ru_stime.tv_sec +
            (double)ru.ru_stime.tv_usec/1000000.0;
 #endif
-}
-
-static bsls::AtomicInt s_continue;
-
-static char s_watchdogText[128];
-
-/// Assign the specified `value` to be displayed if the watchdog expires.
-void setWatchdogText(const char *value)
-{
-    memcpy(s_watchdogText, value, strlen(value) + 1);
-}
-
-/// Watchdog function used to determine when a timeout should occur.  This
-/// function returns without expiration if `0 == s_continue` before one
-/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
-/// program is aborted.
-extern "C" void *watchdog(void *arg)
-{
-    if (arg) {
-        setWatchdogText(static_cast<const char *>(arg));
-    }
-
-    const int MAX = 900;  // one iteration is a deci-second
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(k_DECISECOND);
-        ++count;
-
-        ASSERTV(s_watchdogText, count < MAX);
-
-        if (MAX == count && s_continue) {
-            // `abort` is preferred here but, on Windows, may result in a
-            // dialog box and the process not terminating.
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            abort();
-#else
-            exit(1);
-#endif
-        }
-    }
-
-    return 0;
 }
 
 static bdlmt::FixedThreadPool *s_performanceTestPool_p;
@@ -1152,6 +1109,10 @@ int main(int argc, char *argv[])
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
+    bslmt::TimedCompletionGuard completionGuard(&taDefault);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
+
     switch (test) { case 0:  // case 0 is always the first case
       case 20: {
         // --------------------------------------------------------------------
@@ -1378,14 +1339,6 @@ int main(int argc, char *argv[])
               << endl;
         }
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        bslmt::ThreadUtil::create(&watchdogHandle,
-                                  watchdog,
-                                  const_cast<char *>("`drain`"));
-
         Obj mX(4, 4);  const Obj& X = mX;
 
         mX.start();
@@ -1410,10 +1363,6 @@ int main(int argc, char *argv[])
 
             now = bsls::SystemTime::nowMonotonicClock();
         }
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -1453,13 +1402,10 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing `drain`." << endl;
         {
-            bslmt::ThreadUtil::Handle watchdogHandle;
-
-            s_continue = 1;
-
-            bslmt::ThreadUtil::create(&watchdogHandle,
-                                      watchdog,
-                                      const_cast<char *>("`drain`"));
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
 
             Obj mX(4, 4);  const Obj& X = mX;
 
@@ -1471,14 +1417,15 @@ int main(int argc, char *argv[])
 
             ASSERT(1 == mX.numPendingJobs());
             ASSERT(X.isEnabled());
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
 
         if (verbose) cout << "Testing `shutdown`." << endl;
         {
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
             Obj mX(4, 4);  const Obj& X = mX;
 
             mX.enable();
@@ -1493,6 +1440,11 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Testing `stop`." << endl;
         {
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
             Obj mX(4, 4);  const Obj& X = mX;
 
             mX.enable();
@@ -1542,22 +1494,9 @@ int main(int argc, char *argv[])
         const int k_NUM_THREADS = 1000000;
         const int k_CAPACITY    =      32;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        bslmt::ThreadUtil::create(
-                               &watchdogHandle,
-                               watchdog,
-                               const_cast<char *>("`start` failure behavior"));
-
         bdlmt::FixedThreadPool mX(k_NUM_THREADS, k_CAPACITY);
 
         ASSERT(0 != mX.start());
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
 #endif
       } break;
       case 15: {
@@ -1682,14 +1621,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Check for race condition in shutdown().\n"
                           << "=======================================" << endl;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        bslmt::ThreadUtil::create(&watchdogHandle,
-                                  watchdog,
-                                  const_cast<char *>("race in `shutdown`"));
-
         using namespace FIXEDTHREADPOOL_CASE_11;
 
         memset(threadPools, 0, sizeof(threadPools));
@@ -1809,10 +1740,6 @@ int main(int argc, char *argv[])
             delete threadPools[i];
             threadPools[i] = 0;
         }
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 12: {
         // --------------------------------------------------------------------

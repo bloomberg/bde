@@ -13,11 +13,14 @@
 #include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
 #include <bslmt_threadgroup.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_atomic.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_streambuf.h>
@@ -460,6 +463,10 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = (argc > 5);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0:
       case 6: {

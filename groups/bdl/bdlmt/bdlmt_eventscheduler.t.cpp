@@ -30,6 +30,7 @@
 #include <bslmt_semaphore.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_timedsemaphore.h>
 
 #include <bsls_asserttest.h>
@@ -39,6 +40,7 @@
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -50,6 +52,7 @@
 #include <bsl_cmath.h>
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_list.h>
@@ -1172,40 +1175,6 @@ void testThreadName(Obj&               x,
                                          &barrier));
     barrier.wait();
     x.stop();
-}
-
-static bsls::AtomicInt s_continue;
-
-static char s_watchdogText[128];
-
-/// Assign the specified `value` to be displayed if the watchdog expires.
-void setWatchdogText(const char *value)
-{
-    memcpy(s_watchdogText, value, strlen(value) + 1);
-}
-
-/// Watchdog function used to determine when a timeout should occur.  This
-/// function returns without expiration if `0 == s_continue` before one
-/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
-/// program is aborted.
-extern "C" void *watchdog(void *)
-{
-    const int MAX = 900;  // one iteration is a deci-second
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(DECI_SEC_IN_MICRO_SEC);
-        ++count;
-
-        ASSERTV(s_watchdogText, count < MAX);
-
-        if (MAX == count && s_continue) {
-            abort();
-        }
-    }
-
-    return 0;
 }
 
 /// When called, signal the specified latch `done` that we have arrived.
@@ -2953,6 +2922,10 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
+    bslmt::TimedCompletionGuard completionGuard(&da);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
+
     switch (test) { case 0:  // Zero is always the leading case.
       case 34: {
         // --------------------------------------------------------------------
@@ -3878,22 +3851,11 @@ int main(int argc, char *argv[])
         // Start the dispatcher thread.
         scheduler.start();
 
-        // Set the watchdog.
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-        setWatchdogText("`advanceTime` with 100ns");
-        bslmt::ThreadUtil::create(&watchdogHandle, watchdog, 0);
-
         // Advance the time by 100 nanoseconds 10 times (1ms total).
         for (int i = 0; i < 10; ++i) {
             ASSERT(0 == s_case25CallbackInvocationCount);
             timeSource.advanceTime(bsls::TimeInterval(0, 100));
         }
-
-        // Shutdown watchdog.
-        s_continue = 0;
-        bslmt::ThreadUtil::join(watchdogHandle);
 
         // Assert the callback was invoked exactly once.
         ASSERT(1 == s_case25CallbackInvocationCount);

@@ -17,6 +17,7 @@
 #include <bslmt_testutil.h>
 #include <bslmt_threadattributes.h>  // for test only
 #include <bslmt_threadutil.h>        // for test only
+#include <bslmt_timedcompletionguard.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -35,6 +36,7 @@
 #include <bsl_cstdio.h>           // For FILE in usage example
 #include <bsl_cstdlib.h>          // for atoi
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_map.h>
@@ -162,8 +164,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 typedef bdlmt::ThreadPool  Obj;
 typedef bsls::TimeInterval TimeInterval;
-
-const int k_DECISECOND = 100000;  // microseconds in 0.1 seconds
 
 // ============================================================================
 //                          GLOBAL VARIABLES FOR TESTING
@@ -481,51 +481,6 @@ static double getCurrentCpuTime()
            (double)ru.ru_stime.tv_sec +
            (double)ru.ru_stime.tv_usec/1000000.0;
 #endif
-}
-
-static bsls::AtomicInt s_continue;
-
-static char s_watchdogText[128];
-
-/// Assign the specified `value` to be displayed if the watchdog expires.
-void setWatchdogText(const char *value)
-{
-    memcpy(s_watchdogText, value, strlen(value) + 1);
-}
-
-/// Watchdog function used to determine when a timeout should occur.  This
-/// function returns without expiration if `0 == s_continue` before one
-/// second elapses.  Upon expiration, `s_watchdogText` is displayed and the
-/// program is aborted.
-extern "C" void *watchdog(void *arg)
-{
-    if (arg) {
-        setWatchdogText(static_cast<const char *>(arg));
-    }
-
-    const int MAX = 900;  // one iteration is a deci-second
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(k_DECISECOND);
-        ++count;
-
-        ASSERTV(s_watchdogText, count < MAX);
-
-        if (MAX == count && s_continue) {
-            // `abort` is preferred here but, on Windows, may result in a
-            // dialog box and the process not terminating.
-
-#ifndef BSLS_PLATFORM_OS_WINDOWS
-            abort();
-#else
-            exit(1);
-#endif
-        }
-    }
-
-    return 0;
 }
 
 // ============================================================================
@@ -1330,6 +1285,10 @@ int main(int argc, char *argv[])
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0: // 0 is always the first test case
       case 17: {
@@ -2579,16 +2538,8 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Testing: `drain`, `stop`, and `shutdown`\n"
                           << "=======================================" << endl;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
         if (veryVerbose) cout << "\tTesting: `drain`\n"
                               << "\t----------------" << endl;
-
-        s_continue = 1;
-
-        bslmt::ThreadUtil::create(&watchdogHandle,
-                                  watchdog,
-                                  const_cast<char *>("`drain`"));
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
@@ -2648,7 +2599,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\n\tTesting: `stop`"
                               << "\n\t--------------" << endl;
 
-        setWatchdogText("`stop`");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
@@ -2679,28 +2632,56 @@ int main(int argc, char *argv[])
             ASSERTV(i, MAX == X.maxThreads());
             ASSERTV(i, IDLE== X.maxIdleTimeInterval());
 
-            setWatchdogText("`stop`: before `STARTPOOL`");
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
             STARTPOOL(x);
             ASSERT(1 == x.enabled());
-            setWatchdogText("`stop`: before `mutex.lock`");
+
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
             mutex.lock();
             ASSERT(x.numWaitingThreads() == MIN);
             for (int j=0; j < MAX; j++) {
                 args.d_startSig = 0;
                 args.d_stopSig = 0;
-                setWatchdogText("`stop`: before `enqueueJob`");
+
+                ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
                 x.enqueueJob(TestJobFunction1, &args);
                 while ( !args.d_startSig ) {
-                    setWatchdogText("`stop`: before `startCond.wait`");
+                    ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
                     startCond.wait(&mutex);
                 }
             }
             args.d_stopSig++;
             mutex.unlock();
             stopCond.broadcast();
-            setWatchdogText("`stop`: before `stop`");
+
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
             x.stop();
-            setWatchdogText("`stop`: after `stop`");
+
+            ASSERT(0 == completionGuard.updateText(bsl::format(
+                                                            "case {}, line {}",
+                                                            test,
+                                                            __LINE__)));
+
             ASSERT(0 == x.enabled());
             ASSERT(MAX == args.d_count);
             ASSERT(0 == x.numActiveThreads());
@@ -2715,7 +2696,9 @@ int main(int argc, char *argv[])
                               << "\n\t------------------"
                               << endl;
 
-        setWatchdogText("`shutdown`");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
@@ -2777,11 +2760,6 @@ int main(int argc, char *argv[])
                 T_ P_(x.numActiveThreads()); P(x.numWaitingThreads());
             }
         }
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -3135,15 +3113,6 @@ int main(int argc, char *argv[])
         if (verbose) cout << "HELPER FUNCTION TEST" << endl
                           << "====================" << endl;
 
-        bslmt::ThreadUtil::Handle watchdogHandle;
-
-        s_continue = 1;
-
-        ASSERT(0 == bslmt::ThreadUtil::create(
-                                    &watchdogHandle,
-                                    watchdog,
-                                    const_cast<char *>("`TestJobFunction1`")));
-
         {
             const int NITERATIONS=50;
 
@@ -3188,7 +3157,9 @@ int main(int argc, char *argv[])
             ASSERT(NITERATIONS == args.d_count);
         }
 
-        setWatchdogText("`TestJobFunction2`");
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
 
         if (veryVerbose) cout << "\tTesting: `TestJobFunction2`\n"
                               << "\t===========================" << endl;
@@ -3230,10 +3201,6 @@ int main(int argc, char *argv[])
             }
             ASSERT(NITERATIONS == args.d_count);
         }
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case -1: {
         // --------------------------------------------------------------------

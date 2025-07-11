@@ -11,6 +11,7 @@
 #include <bslmt_mutex.h>
 #include <bslmt_threadgroup.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -19,22 +20,23 @@
 #include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
-#include <bslmt_mutex.h>
 
 #include <bsla_maybeunused.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
+#include <bsls_bsltestutil.h>
 #include <bsls_stopwatch.h>
 #include <bsls_systemtime.h>
-#include <bsls_bsltestutil.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_c_ctype.h>      // `isdigit`
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>      // `atoi`
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 #include <bsl_vector.h>
@@ -918,6 +920,10 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    bslmt::TimedCompletionGuard completionGuard(&defaultAllocator);
+    ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0),
+                                      bsl::format("case {}", test)));
 
     switch (test) { case 0:
       case 16: {
