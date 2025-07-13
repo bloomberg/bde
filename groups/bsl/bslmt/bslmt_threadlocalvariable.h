@@ -177,6 +177,14 @@ BSLS_IDENT("$Id: $")
 #define BSLMT_THREAD_LOCAL_VARIABLE(BASIC_TYPE, VARIABLE_NAME, INITIAL_VALUE) \
 static BSLS_KEYWORD_THREAD_LOCAL BASIC_TYPE VARIABLE_NAME = INITIAL_VALUE;
 
+/// @DEPRECATED: Use `BSLS_KEYWORD_THREAD_LOCAL` instead.
+#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
+#define BSLMT_THREAD_LOCAL_KEYWORD thread_local
+#else
+#define BSLMT_THREAD_LOCAL_KEYWORD __thread
+#endif
+
+
 #endif
 
 // ----------------------------------------------------------------------------
