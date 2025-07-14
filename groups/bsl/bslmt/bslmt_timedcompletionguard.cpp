@@ -18,7 +18,7 @@ namespace bslmt {
 const bsls::TimeInterval TimedCompletionGuard::k_DISABLED =
                                                           bsls::TimeInterval();
 const bsls::TimeInterval TimedCompletionGuard::k_WAITING  =
-                                              bsls::TimeInterval(LLONG_MAX, 0);
+                                          bsls::TimeInterval(LLONG_MAX / 2, 0);
 
 // PRIVATE CLASS METHODS
 
