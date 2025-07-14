@@ -397,7 +397,8 @@ class Latch {
     /// other use has undefined behavior.  `absTime` is an *absolute* time
     /// represented as an interval from some epoch as determined by the
     /// clock specified at construction (see {Supported Clock-Types} in the
-    /// component-level documentation).
+    /// component-level documentation).  Note that a return value of 0 does not
+    /// guarantee this object is safe to destroy.
     int timedWait(const bsls::TimeInterval& absTime);
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -408,13 +409,15 @@ class Latch {
     /// unrecoverable.  After an error, the latch may be destroyed, but any
     /// other use has undefined behavior.  `absTime` is an *absolute* time
     /// represented as an interval from some epoch, which is determined by
-    /// the clock associated with the time point.
+    /// the clock associated with the time point.  Note that a return value of
+    /// 0 does not guarantee this object is safe to destroy.
     template <class CLOCK, class DURATION>
     int timedWait(const bsl::chrono::time_point<CLOCK, DURATION>& absTime);
 #endif
 
     /// Block until the number of events that this latch is waiting for
-    /// reaches 0.
+    /// reaches 0.  Note that completion of this method does not guarantee this
+    /// object is safe to destroy.
     void wait();
 
     // ACCESSORS
@@ -435,7 +438,8 @@ class Latch {
     /// of `true` indicates a permanent state change (the latch has released
     /// and will never be un-released), but a return value of `false` is
     /// ephemeral and cannot typically be acted upon without additional
-    /// external state information.
+    /// external state information.  Also note that a return value of `true`
+    /// does not guarantee this object is safe to destroy.
     bool tryWait() const;
 };
 
