@@ -109,7 +109,7 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < bsl::ssize(DecoderOptions::ATTRIBUTE_INFO_ARRAY); ++i) {
         const bdlat_AttributeInfo& attributeInfo =
                     DecoderOptions::ATTRIBUTE_INFO_ARRAY[i];
 
