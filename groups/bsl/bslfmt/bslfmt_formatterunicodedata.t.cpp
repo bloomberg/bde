@@ -14,7 +14,10 @@ using namespace bslfmt;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// TBD
+// The component under test is a set of structures containing data received
+// from an external source.  Unfortunately, we cannot verify the correctness of
+// this data, so we can only verify the discoverability of these structures for
+// other `bslfmt` components.
 // ----------------------------------------------------------------------------
 //
 // ----------------------------------------------------------------------------
@@ -146,15 +149,15 @@ int main(int argc, char **argv)
                 0x1100 == UnicodeData::s_doubleFieldWidthRanges[0].d_start);
 
         ASSERTV(UnicodeData::s_graphemeBreakCategoryRangeCount,
-                1371 == UnicodeData::s_graphemeBreakCategoryRangeCount);
+                1376 == UnicodeData::s_graphemeBreakCategoryRangeCount);
         ASSERTV(UnicodeData::s_extendedPictographicRangeCount,
                 78   == UnicodeData::s_extendedPictographicRangeCount);
         ASSERTV(UnicodeData::s_printableRangeCount,
-                712  == UnicodeData::s_printableRangeCount);
+                736  == UnicodeData::s_printableRangeCount);
         ASSERTV(UnicodeData::s_graphemeExtendRangeCount,
-                363  == UnicodeData::s_graphemeExtendRangeCount);
+                375  == UnicodeData::s_graphemeExtendRangeCount);
         ASSERTV(UnicodeData::s_doubleFieldWidthRangeCount,
-                100  == UnicodeData::s_doubleFieldWidthRangeCount);
+                103  == UnicodeData::s_doubleFieldWidthRangeCount);
 
       } break;
       default: {

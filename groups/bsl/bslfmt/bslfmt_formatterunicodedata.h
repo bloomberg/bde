@@ -1,15 +1,14 @@
 // bslfmt_formatterunicodedata.h                                      -*-C++-*-
-
 #ifndef INCLUDED_BSLFMT_FORMATTERUNICODEDATA
 #define INCLUDED_BSLFMT_FORMATTERUNICODEDATA
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Private unicode data tables for use by `bsl::format`
+//@PURPOSE: Private unicode data tables for use by `bsl::format`.
 //
 //@CLASSES:
-//  FormatterUnicodeData: namespace struct for generated unicode data tables
+//  bslfmt::FormatterUnicodeData: namespace for generated unicode data tables
 //
 //@DESCRIPTION: This component is a namespace struct to provide access to
 // script-generated tables of unicode character data as required by
@@ -53,7 +52,7 @@ struct FormatterUnicodeData {
         e_ZERO_WIDTH_JOINER  = 13
     };
 
-    /// This nested 'struct' provides a container for storing a pair of
+    /// This nested `struct` provides a container for storing a pair of
     /// codepoints that allows to specify a certain range within a list of
     /// codepoints.
     struct BooleanRange {
@@ -63,7 +62,7 @@ struct FormatterUnicodeData {
         unsigned long int d_end;     // last codepoint in range
     };
 
-    /// This nested 'struct' provides a container for storing a pair of
+    /// This nested `struct` provides a container for storing a pair of
     /// codepoints that allows to specify a certain range within a list of
     /// codepoints and assign it a category.
     struct GraphemeBreakCategoryRange {
@@ -82,10 +81,10 @@ struct FormatterUnicodeData {
         // all unicode code points with the `Extended_Pictographic` property
 
     static const BooleanRange               s_printableRanges[];
-        // all unicode code points representing printable characters.
+        // all unicode code points representing printable characters
 
     static const BooleanRange               s_graphemeExtendRanges[];
-        // all unicode code points with derived `Grapheme_Extend` property.
+        // all unicode code points with derived `Grapheme_Extend` property
 
     static const BooleanRange               s_doubleFieldWidthRanges[];
         // all unicode code points that are double-width per the C++ standard
