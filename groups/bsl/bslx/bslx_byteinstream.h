@@ -1400,11 +1400,12 @@ ByteInStream& ByteInStream::getString(bsl::string& variable)
 
     int length;
     getLength(length);
-
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!isValid())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+
         return *this;                                                 // RETURN
     }
+    BSLS_ASSERT(0 <= length);
 
     // 'length' could be corrupt or invalid, so we limit the initial 'resize'
     // to something that can accommodate the preponderance of strings that will
