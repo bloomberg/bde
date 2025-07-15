@@ -65,7 +65,7 @@ BSLS_IDENT("$Id: $")
 ///JSON Object Members
 ///- - - - - - - - - -
 // Recall that JSON Objects consist of sequences of name/value pairs called
-// "members". 'e_ELEMENT_NAME` is returned when the tokenizer is positioned to
+// "members". `e_ELEMENT_NAME` is returned when the tokenizer is positioned to
 // the name portion of a member and `e_ELEMENT_VALUE` is returned when
 // the tokenizer is advanced to the associated scalar value.  The appropriate
 // `value` overload is used to get the actual member name (a
@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // First, create `JsonDoc`, an ASCII string an representation of the above JSON
 // document (having required escape sequences and quoting) -- elided.
-// ```
+// 
 // Then, create `json`, the programmatic representation of the JSON document.
 // ```
 //  bdljsn::Json json;
@@ -130,7 +130,7 @@ BSLS_IDENT("$Id: $")
 //
 //  int level = 0; // indentation level
 // ```
-// Then, create `tokenizer`, a baljsn::JsonTokenizer`, that will generate
+// Then, create `tokenizer`, a `baljsn::JsonTokenizer`, that will generate
 // a sequence of tokens (and sometimes values as well) for the previously
 // initialized `json` object.  
 // ```
