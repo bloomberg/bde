@@ -45,21 +45,21 @@ BSLS_IDENT("$Id: $")
 // A `bdljsn::Json` object of array type is assembled using the following
 // series of manipulator calls.
 //
-// # `openArray` starts an array (the "current" array).
+// * `openArray` starts an array (the "current" array).
 //
-// # `putValue`/`putNullValue` calls each adds to the current array an
+// * `putValue`/`putNullValue` calls each adds to the current array an
 //    element having the appropriate scalar type.
 //
-// # `openObject` adds an array element that is a name/value pair (an Json
+// * `openObject` adds an array element that is a name/value pair (an Json
 //    object).
 //
-// # `openArray` starts a new array within the current array.  Subsequent
+// * `openArray` starts a new array within the current array.  Subsequent
 //   operations assemble this new array until `closeArray` is called.
 //
-// # Repeat the addition of new elements to the current array by calls
+// * Repeat the addition of new elements to the current array by calls
 //   to `putValue`/`putNullValue`/`openObject`/`openArray` as appropriate.
 //
-// # `closeArray` indicates that there are no more elements to be added
+// * `closeArray` indicates that there are no more elements to be added
 //   to the current array.
 //
 ///Assembling an Object
@@ -68,25 +68,25 @@ BSLS_IDENT("$Id: $")
 // using the following series of manipulator calls in the order shown
 // below.
 //
-// # `openObject` starts a new object (the "current" object).
+// * `openObject` starts a new object (the "current" object).
 //
-// # `openMember` starts a new member of the object and provides the name
+// * `openMember` starts a new member of the object and provides the name
 //   portion of the name/value pair.
 //
-// # `putValue`/`putNullValue` sets the provided value as the "value" portion
+// * `putValue`/`putNullValue` sets the provided value as the "value" portion
 //   of the name/value pair.
 //
-// # `openArray` starts an array as the value portion of the name/value pair.
+// * `openArray` starts an array as the value portion of the name/value pair.
 //
-// # `openObject` starts a new object as the value portion of the
+// * `openObject` starts a new object as the value portion of the
 //   name/value pair.  Subsequent calls define this object until `closeMember`
 //   is called.
 //
-// # `closeMember` indicates that the member has been completed.
+// * `closeMember` indicates that the member has been completed.
 //
-// # Repeat the addition of new members as appropriate.
+// * Repeat the addition of new members as appropriate.
 //
-// # `closeObject` indicates that there are no more members to be added to the
+// * `closeObject` indicates that there are no more members to be added to the
 //   current object.
 //
 ///Usage
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 //  `json1` in a breadth-first order:
 //
 //  1. First we enter the top-level members by name, `"name"`,
-//     `"homeAddress`", and `"age"`.
+//     `"homeAddress"`, and `"age"`.
 //  2. Then we assign values to each of those members.  In the case of
 //     `"homeAddress"`, we use a separately assembled object.
 //
