@@ -1,4 +1,4 @@
-// baljsn_encodeimpltutil.h                                           -*-C++-*-
+// baljsn_encodeimplutil.h                                            -*-C++-*-
 #ifndef INCLUDED_BALJSN_ENCODEIMPLUTIL
 #define INCLUDED_BALJSN_ENCODEIMPLUTIL
 
@@ -13,7 +13,7 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: baljsn_encoder, baljsn_formatter, baljsn_jsonformatter
 //
 //@DESCRIPTION: This component provides a utility `struct` template,
-//`baljsn::EmcodeImplUtil` that provides functions that determine the value of
+// `baljsn::EmcodeImplUtil` that provides functions that determine the value of
 // `bdlat`-compatible value-semantic objects and represents those values in a
 // JSON format.  The exact form of that representation is determined by
 // template parameter`FORMATTER`.  In particular, the `struct` contains a
