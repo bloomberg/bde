@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // The conversion to a `bdljsn::Json` object produces the same result as
 // encoding the `bdlat` object to a JSON document using `baljsn::Encoder` and
 // then using `bdj::JsonUtil::read` to construct a `bdljsn::Json` object
-// from that JSON documents -- however, using baljsn::convert` avoids the
+// from that JSON documents -- however, using `baljsn::convert` avoids the
 // creation of that intermediate document.  Conversely, a `bdljsn::Json`
 // object could be printed as a JSON document (see `bldjsn::JsonUtil::write`)
 // that is decoded into a `bdlat` object (see `baljsn::Decode`) -- but
