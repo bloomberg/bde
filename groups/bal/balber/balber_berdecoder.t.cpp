@@ -18,6 +18,7 @@
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
 #include <s_baltst_mysequencewitharray.h>
+#include <s_baltst_mysequencewithdefault.h>
 #include <s_baltst_mysequencewithnillable.h>
 #include <s_baltst_mysequencewithnullable.h>
 #include <s_baltst_mysequencewiththreearrays.h>
@@ -118,7 +119,8 @@ namespace test = BloombergLP::s_baltst;
 // [23] FUZZ TEST BUG (DRQS 175594554)
 // [24] FUZZ TEST BUG (DRQS 175741365)
 // [25] MAXDEPTH IS RESPECTED
-// [26] USAGE EXAMPLE
+// [26] `allowMissingRequiredAttributes` OPTION
+// [27] USAGE EXAMPLE
 //
 // [-1] PERFORMANCE TEST
 
@@ -2365,7 +2367,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2388,6 +2390,73 @@ int main(int argc, char *argv[])
         usageExample();
 
         if (verbose) cout << "\nEnd of test.\n";
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // TESTING `allowMissingRequiredAttributes` OPTION
+        //
+        // Concerns:
+        // 1. The `allowMissingRequiredAttributes` configuration option set to
+        //    false makes the decoder fail unless all non-optional attributes
+        //    are presented in the input message.
+        //
+        // 2. Sequence elements with a default value are optional.
+        //
+        // Plan:
+        // 1. The `s_baltst::MySequenceWithArray` sequence has 2 non-optional
+        //    attributes (`attribute1` and `attribute2`).  Create a BER-encoded
+        //    message that contains `attribute1`, but lacks `attribute2`.
+        //
+        // 2. Try to decode this message using default options.  Verify that
+        //    decoding was successful.  (C-1)
+        //
+        // 3. Set the `allowMissingRequiredAttributes` option to false and try
+        //    to decode the same again.  Verify that decoding failed.  (C-1)
+        //
+        // 4. The `s_baltst::MySequenceWithDefault` sequence has 2 non-optional
+        //    attributes (`attribute1` and `attribute2`), but `attribute2` has
+        //    a default value.  Try to decode the same message with
+        //    `allowMissingRequiredAttributes == false`.  Verify that decoding
+        //    was successful.  (C-2)
+        //
+        // Testing:
+        //   `allowMissingRequiredAttributes` OPTION
+        // --------------------------------------------------------------------
+        if (verbose) cout <<
+                   "\nTESTING `allowMissingRequiredAttributes` OPTION" <<
+                   "\n===============================================" << endl;
+
+        static const char BER[] = "\x30\x80"
+                                  "\x80\x01\x01"  // [0] attribute1 = 1
+                                                  // [1] attribute2 is missing!
+                                  "\x00"; // + '\0' terminator
+
+        balber::BerDecoderOptions options;
+        balber::BerDecoder        decoder(&options);
+
+        {
+            bdlsb::FixedMemInStreamBuf streamBuf(BER, sizeof BER);
+            test::MySequenceWithArray  seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == true);
+            ASSERT(decoder.decode(&streamBuf, &seq) == 0);
+        }
+
+        options.setAllowMissingRequiredAttributes(false);
+        {
+            bdlsb::FixedMemInStreamBuf streamBuf(BER, sizeof BER);
+            test::MySequenceWithArray  seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == false);
+            ASSERT(decoder.decode(&streamBuf, &seq) != 0);
+        }
+        {
+            bdlsb::FixedMemInStreamBuf  streamBuf(BER, sizeof BER);
+            test::MySequenceWithDefault seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == false);
+            ASSERT(decoder.decode(&streamBuf, &seq) == 0);
+        }
       } break;
       case 25: {
         // --------------------------------------------------------------------

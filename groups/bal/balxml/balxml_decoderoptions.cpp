@@ -41,6 +41,8 @@ const bool DecoderOptions::DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8 = false;
 
 const bool DecoderOptions::DEFAULT_INITIALIZER_VALIDATE_ROOT_TAG = false;
 
+const bool DecoderOptions::DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES = true;
+
 const bdlat_AttributeInfo DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
     {
         ATTRIBUTE_ID_MAX_DEPTH,
@@ -76,6 +78,13 @@ const bdlat_AttributeInfo DecoderOptions::ATTRIBUTE_INFO_ARRAY[] = {
         sizeof("ValidateRootTag") - 1,
         "",
         bdlat_FormattingMode::e_TEXT
+    },
+    {
+        ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES,
+        "AllowMissingRequiredAttributes",
+        sizeof("AllowMissingRequiredAttributes") - 1,
+        "",
+        bdlat_FormattingMode::e_TEXT
     }
 };
 
@@ -85,7 +94,7 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(
         const char *name,
         int         nameLength)
 {
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < bsl::ssize(ATTRIBUTE_INFO_ARRAY); ++i) {
         const bdlat_AttributeInfo& attributeInfo =
                     DecoderOptions::ATTRIBUTE_INFO_ARRAY[i];
 
@@ -112,6 +121,8 @@ const bdlat_AttributeInfo *DecoderOptions::lookupAttributeInfo(int id)
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8];
       case ATTRIBUTE_ID_VALIDATE_ROOT_TAG:
         return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG];
+      case ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES:
+        return &ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES];
       default:
         return 0;
     }
@@ -125,6 +136,7 @@ DecoderOptions::DecoderOptions()
 , d_skipUnknownElements(DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS)
 , d_validateInputIsUtf8(DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8)
 , d_validateRootTag(DEFAULT_INITIALIZER_VALIDATE_ROOT_TAG)
+, d_allowMissingRequiredAttributes(DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES)
 {
 }
 
@@ -134,6 +146,7 @@ DecoderOptions::DecoderOptions(const DecoderOptions& original)
 , d_skipUnknownElements(original.d_skipUnknownElements)
 , d_validateInputIsUtf8(original.d_validateInputIsUtf8)
 , d_validateRootTag(original.d_validateRootTag)
+, d_allowMissingRequiredAttributes(original.d_allowMissingRequiredAttributes)
 {
 }
 
@@ -152,6 +165,7 @@ DecoderOptions::operator=(const DecoderOptions& rhs)
         d_skipUnknownElements = rhs.d_skipUnknownElements;
         d_validateInputIsUtf8 = rhs.d_validateInputIsUtf8;
         d_validateRootTag = rhs.d_validateRootTag;
+        d_allowMissingRequiredAttributes = rhs.d_allowMissingRequiredAttributes;
     }
 
     return *this;
@@ -168,6 +182,7 @@ DecoderOptions::operator=(DecoderOptions&& rhs)
         d_skipUnknownElements = bsl::move(rhs.d_skipUnknownElements);
         d_validateInputIsUtf8 = bsl::move(rhs.d_validateInputIsUtf8);
         d_validateRootTag = bsl::move(rhs.d_validateRootTag);
+        d_allowMissingRequiredAttributes = bsl::move(rhs.d_allowMissingRequiredAttributes);
     }
 
     return *this;
@@ -181,6 +196,7 @@ void DecoderOptions::reset()
     d_skipUnknownElements = DEFAULT_INITIALIZER_SKIP_UNKNOWN_ELEMENTS;
     d_validateInputIsUtf8 = DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8;
     d_validateRootTag = DEFAULT_INITIALIZER_VALIDATE_ROOT_TAG;
+    d_allowMissingRequiredAttributes = DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES;
 }
 
 // ACCESSORS
@@ -196,6 +212,7 @@ bsl::ostream& DecoderOptions::print(bsl::ostream& stream,
     printer.printAttribute("skipUnknownElements", this->skipUnknownElements());
     printer.printAttribute("validateInputIsUtf8", this->validateInputIsUtf8());
     printer.printAttribute("validateRootTag", this->validateRootTag());
+    printer.printAttribute("allowMissingRequiredAttributes", this->allowMissingRequiredAttributes());
     printer.end();
     return stream;
 }

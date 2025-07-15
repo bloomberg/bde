@@ -39,9 +39,11 @@
 #include <s_baltst_myenumeration.h>
 #include <s_baltst_mysequence.h>
 #include <s_baltst_mysequencewithanonymouschoice.h>
+#include <s_baltst_mysequencewitharray.h>
 #include <s_baltst_mysequencewithattributes.h>
 #include <s_baltst_mysequencewithcustomizedbase64binary.h>
 #include <s_baltst_mysequencewithcustomizedhexbinary.h>
+#include <s_baltst_mysequencewithdefault.h>
 #include <s_baltst_mysequencewithnillables.h>
 #include <s_baltst_mysequencewithnullables.h>
 #include <s_baltst_mysimplecontent.h>
@@ -207,6 +209,7 @@ namespace Test = s_baltst;
 // [24] DECODING CUSTOMIZED HEX AND BASE64 BINARY DATA
 // [25] MAXDEPTH IS RESPECTED
 // [26] REPRODUCE SCENARIO FROM DRQS 175214775
+// [27] `allowMissingRequiredAttributes` OPTION
 // [-1] TESTING VALID & INVALID UTF-8: e_STRING
 // [-1] TESTING VALID & INVALID UTF-8: e_STREAMBUF
 // [-1] TESTING VALID & INVALID UTF-8: e_ISTREAM
@@ -4443,6 +4446,80 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 27: {
+        // --------------------------------------------------------------------
+        // TESTING `allowMissingRequiredAttributes` OPTION
+        //
+        // Concerns:
+        // 1. The `allowMissingRequiredAttributes` configuration option set to
+        //    false makes the decoder fail unless all non-optional attributes
+        //    are presented in the input message.
+        //
+        // 2. Sequence elements with a default value are optional.
+        //
+        // Plan:
+        // 1. The `s_baltst::MySequenceWithArray` sequence has 2 non-optional
+        //    attributes (`attribute1` and `attribute2`).  Create a XML that
+        //    contains `attribute1`, but lacks `attribute2`.
+        //
+        // 2. Try to decode this XML using default options.  Verify that
+        //    decoding was successful.  (C-1)
+        //
+        // 3. Set the `allowMissingRequiredAttributes` option to false and try
+        //    to decode the same again.  Verify that decoding failed.  (C-1)
+        //
+        // 4. The `s_baltst::MySequenceWithDefault` sequence has 2 non-optional
+        //    attributes (`attribute1` and `attribute2`), but `attribute2` has
+        //    a default value.  Try to decode the same XML with
+        //    `allowMissingRequiredAttributes == false`.  Verify that decoding
+        //    was successful.  (C-2)
+        //
+        // Testing:
+        //   `allowMissingRequiredAttributes` OPTION
+        // --------------------------------------------------------------------
+        if (verbose) cout <<
+                   "\nTESTING `allowMissingRequiredAttributes` OPTION" <<
+                   "\n===============================================" << endl;
+
+        static const char XML[] = "<root>"
+                                    "<attribute1>1</attribute1>"
+                                    // attribute2 is missing!
+                                  "</root>";
+
+        balxml::MiniReader     reader;
+        balxml::ErrorInfo      errInfo;
+        balxml::DecoderOptions options;
+
+        balxml::Decoder decoder(&options,
+                                &reader,
+                                &errInfo,
+                                &bsl::cerr,
+                                &bsl::cerr);
+
+        {
+            bdlsb::FixedMemInStreamBuf isb(XML, strlen(XML));
+            Test::MySequenceWithArray seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == true);
+            ASSERT(decoder.decode(&isb, &seq) == 0);
+        }
+
+        options.setAllowMissingRequiredAttributes(false);
+        {
+            bdlsb::FixedMemInStreamBuf isb(XML, strlen(XML));
+            Test::MySequenceWithArray seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == false);
+            ASSERT(decoder.decode(&isb, &seq) != 0);
+        }
+        {
+            bdlsb::FixedMemInStreamBuf isb(XML, strlen(XML));
+            Test::MySequenceWithDefault seq;
+
+            ASSERT(options.allowMissingRequiredAttributes() == false);
+            ASSERT(decoder.decode(&isb, &seq) == 0);
+        }
+      } break;
       case 26: {
         // --------------------------------------------------------------------
         // REPRODUCE SCENARIO FROM DRQS 175214775

@@ -44,11 +44,13 @@ class BerDecoderOptions {
     bool  d_skipUnknownElements; // if 'true', skip unknown elements
     bool  d_defaultEmptyStrings; // if 'true', decode empty strings as their
                                  // default values, if any
+    bool  d_allowMissingRequiredAttributes;
+                                 // allow missing non-optional attributes
 
   public:
     // TYPES
     enum {
-        k_NUM_ATTRIBUTES = 5  // the number of attributes in this class
+        k_NUM_ATTRIBUTES = 6  // the number of attributes in this class
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , NUM_ATTRIBUTES = k_NUM_ATTRIBUTES
@@ -66,6 +68,8 @@ class BerDecoderOptions {
             // index for "MaxSequenceSize" attribute
       , e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS = 4
             // index for "DefaultEmptyStrings" attribute
+      , e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES = 5
+            // index for "AllowMissingRequiredAttributes" attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_INDEX_MAX_DEPTH             =
@@ -78,6 +82,8 @@ class BerDecoderOptions {
                                         e_ATTRIBUTE_INDEX_MAX_SEQUENCE_SIZE
       , ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS =
                                         e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS
+      , ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES =
+                            e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -92,6 +98,8 @@ class BerDecoderOptions {
             // id for 'MaxSequenceSize' attribute
       , e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS = 4
             // id for 'DefaultEmptyStrnigs" attribute
+      , e_ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES = 5
+            // id for "AllowMissingRequiredAttributes" attribute
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , ATTRIBUTE_ID_MAX_DEPTH             = e_ATTRIBUTE_ID_MAX_DEPTH
@@ -101,6 +109,8 @@ class BerDecoderOptions {
       , ATTRIBUTE_ID_MAX_SEQUENCE_SIZE     = e_ATTRIBUTE_ID_MAX_SEQUENCE_SIZE
       , ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS =
                                            e_ATTRIBUTE_ID_DEFAULT_EMPTY_STRINGS
+      , ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES =
+                               e_ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
     };
 
@@ -124,6 +134,9 @@ class BerDecoderOptions {
 
     /// default value of `DefaultEmptyStrings` attribute
     static const bool DEFAULT_DEFAULT_EMPTY_STRINGS;
+
+    /// default value of `AllowMissingRequiredAttributes` attribute
+    static const bool DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES;
 
     /// attribute information for each attribute
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
@@ -247,6 +260,10 @@ class BerDecoderOptions {
     /// specified `value`.
     void setDefaultEmptyStrings(bool value);
 
+    /// Set "AllowMissingRequiredAttributes" attribute of this object to the
+    /// specified `value`.
+    void setAllowMissingRequiredAttributes(bool value);
+
     // ACCESSORS
 
     /// Format this object to the specified output `stream` at the
@@ -322,6 +339,10 @@ class BerDecoderOptions {
     /// Return a reference to the non-modifiable "DefaultEmptyStrings"
     /// attribute of this object.
     const bool& defaultEmptyStrings() const;
+
+    /// Return the value of the "AllowMissingRequiredAttributes" attribute of
+    /// this object.
+    const bool& allowMissingRequiredAttributes() const;
 };
 
 // FREE OPERATORS
@@ -388,6 +409,8 @@ BerDecoderOptions::BerDecoderOptions()
 , d_maxSequenceSize(DEFAULT_MAX_SEQUENCE_SIZE)
 , d_skipUnknownElements(DEFAULT_SKIP_UNKNOWN_ELEMENTS)
 , d_defaultEmptyStrings(DEFAULT_DEFAULT_EMPTY_STRINGS)
+, d_allowMissingRequiredAttributes(
+                         DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES)
 {
 }
 
@@ -407,6 +430,10 @@ STREAM& BerDecoderOptions::bdexStreamIn(STREAM& stream, int version)
                                                   d_maxSequenceSize, 1);
             bslx::InStreamFunctions::bdexStreamIn(stream,
                                                   d_defaultEmptyStrings, 1);
+            bslx::InStreamFunctions::bdexStreamIn(
+                                              stream,
+                                              d_allowMissingRequiredAttributes,
+                                              1);
           } break;
           default: {
             stream.invalidate();
@@ -424,6 +451,8 @@ void BerDecoderOptions::reset()
     d_maxSequenceSize     = DEFAULT_MAX_SEQUENCE_SIZE;
     d_skipUnknownElements = DEFAULT_SKIP_UNKNOWN_ELEMENTS;
     d_defaultEmptyStrings = DEFAULT_DEFAULT_EMPTY_STRINGS;
+    d_allowMissingRequiredAttributes =
+                         DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES;
 }
 
 template <class MANIPULATOR>
@@ -465,6 +494,13 @@ int BerDecoderOptions::manipulateAttributes(MANIPULATOR& manipulator)
         return ret;                                                   // RETURN
     }
 
+    ret = manipulator(&d_allowMissingRequiredAttributes,
+                      ATTRIBUTE_INFO_ARRAY[
+                         e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -502,6 +538,13 @@ int BerDecoderOptions::manipulateAttribute(MANIPULATOR& manipulator, int id)
         return manipulator(
                &d_defaultEmptyStrings,
                ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES: {
+        return manipulator(
+                   &d_allowMissingRequiredAttributes,
+                   ATTRIBUTE_INFO_ARRAY[
+                         e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
                                                                       // RETURN
       } break;
       default:
@@ -554,6 +597,12 @@ inline
 void BerDecoderOptions::setDefaultEmptyStrings(bool value)
 {
     d_defaultEmptyStrings = value;
+}
+
+inline
+void BerDecoderOptions::setAllowMissingRequiredAttributes(bool value)
+{
+    d_allowMissingRequiredAttributes = value;
 }
 
 // ACCESSORS
@@ -617,6 +666,13 @@ int BerDecoderOptions::accessAttributes(ACCESSOR& accessor) const
         return ret;                                                   // RETURN
     }
 
+    ret = accessor(d_allowMissingRequiredAttributes,
+                   ATTRIBUTE_INFO_ARRAY[
+                         e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
+    if (ret) {
+        return ret;                                                   // RETURN
+    }
+
     return ret;
 }
 
@@ -653,6 +709,12 @@ int BerDecoderOptions::accessAttribute(ACCESSOR& accessor, int id) const
         return accessor(
                 d_defaultEmptyStrings,
                 ATTRIBUTE_INFO_ARRAY[e_ATTRIBUTE_INDEX_DEFAULT_EMPTY_STRINGS]);
+                                                                      // RETURN
+      } break;
+      case e_ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES: {
+        return accessor(d_allowMissingRequiredAttributes,
+                        ATTRIBUTE_INFO_ARRAY[
+                         e_ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
                                                                       // RETURN
       } break;
       default:
@@ -707,6 +769,12 @@ const bool& BerDecoderOptions::defaultEmptyStrings() const
     return d_defaultEmptyStrings;
 }
 
+inline
+const bool& BerDecoderOptions::allowMissingRequiredAttributes() const
+{
+    return d_allowMissingRequiredAttributes;
+}
+
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -718,7 +786,9 @@ bool balber::operator==(const BerDecoderOptions& lhs,
          && lhs.skipUnknownElements() == rhs.skipUnknownElements()
          && lhs.traceLevel()          == rhs.traceLevel()
          && lhs.maxSequenceSize()     == rhs.maxSequenceSize()
-         && lhs.defaultEmptyStrings() == rhs.defaultEmptyStrings();
+         && lhs.defaultEmptyStrings() == rhs.defaultEmptyStrings()
+         && lhs.allowMissingRequiredAttributes() ==
+                                          rhs.allowMissingRequiredAttributes();
 }
 
 inline
@@ -729,7 +799,9 @@ bool balber::operator!=(const BerDecoderOptions& lhs,
          || lhs.skipUnknownElements() != rhs.skipUnknownElements()
          || lhs.traceLevel()          != rhs.traceLevel()
          || lhs.maxSequenceSize()     != rhs.maxSequenceSize()
-         || lhs.defaultEmptyStrings() != rhs.defaultEmptyStrings();
+         || lhs.defaultEmptyStrings() != rhs.defaultEmptyStrings()
+         || lhs.allowMissingRequiredAttributes() !=
+                                          rhs.allowMissingRequiredAttributes();
 }
 
 inline

@@ -99,7 +99,11 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_variant.h>
 
+#include <bdlma_localsequentialallocator.h>
+
 #include <bdlsb_memoutstreambuf.h>
+
+#include <bsla_fallthrough.h>
 
 #include <bslma_allocator.h>
 
@@ -109,9 +113,11 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_istream.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+#include <bsl_unordered_set.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -523,6 +529,36 @@ class BerDecoder_UniversalElementVisitor {
     // MANIPULATORS
     template <typename TYPE>
     int operator()(TYPE *variable);
+};
+
+                       // ======================================
+                       // struct BerDecoder_RequiredAttrsVisitor
+                       // ======================================
+
+/// This class provides a functor that finds and remembers all non-optional
+/// sequence attributes.
+struct BerDecoder_RequiredAttrsVisitor {
+    // PUBLIC DATA
+    bsl::unordered_set<int> *d_requiredAttributes_p;
+    bool                     d_usesDefaultValueFlag;
+
+    // MANIPULATORS
+    template <class TYPE, class INFO>
+    int operator()(TYPE *value, const INFO& info);
+};
+
+                       // ============================
+                       // struct BerDecoder_NameGetter
+                       // ============================
+
+/// This class provides a functor that returns attribute name by its ID.
+struct BerDecoder_NameGetter {
+    // PUBLIC DATA
+    bsl::string d_name;
+
+    // MANIPULATORS
+    template <class TYPE, class INFO>
+    int operator()(TYPE *value, const INFO& info);
 };
 
                           // =======================
@@ -1046,6 +1082,15 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
                       "Expected CONSTRUCTED tag type for sequence");  // RETURN
     }
 
+    bdlma::LocalSequentialAllocator<512> localAllocator;
+    bsl::unordered_set<int> requiredAttributes(&localAllocator);
+    if (!d_decoder->decoderOptions()->allowMissingRequiredAttributes()) {
+        // Collect a list of the non-optional attributes
+        BerDecoder_RequiredAttrsVisitor visitor = {&requiredAttributes,
+                       ::BloombergLP::bdlat_UsesDefaultValueFlag<TYPE>::value};
+        bdlat_SequenceFunctions::manipulateAttributes(variable, visitor);
+    }
+
     while (this->hasMore()) {
 
         BerDecoder_Node innerNode(d_decoder);
@@ -1069,6 +1114,9 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
                                                         variable,
                                                         visitor,
                                                         innerNode.tagNumber());
+            if (!requiredAttributes.empty()) {
+                requiredAttributes.erase(innerNode.tagNumber());
+            }
         }
         else if (BerConstants::k_ARRAY_LENGTH_HINT_TAG_NUMBER ==
                                                        innerNode.tagNumber()) {
@@ -1089,6 +1137,19 @@ BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::Sequence)
         if (rc != BerDecoder::e_BER_SUCCESS) {
             return rc;  // error message is already logged            // RETURN
         }
+    }
+
+    if (!requiredAttributes.empty()) {
+        // There are non-optional attributes that are not presented in the
+        // decoded message (sequence).
+        int minId = *bsl::min_element(requiredAttributes.begin(),
+                                      requiredAttributes.end());
+        BerDecoder_NameGetter visitor;
+        bdlat_SequenceFunctions::manipulateAttribute(variable, visitor, minId);
+        d_decoder->logStream() <<
+            "Could not decode sequence, missing required attribute \"" <<
+            visitor.d_name << "\"\n";
+        return BerDecoder::e_BER_ERROR;                               // RETURN
     }
 
     return BerDecoder::e_BER_SUCCESS;
@@ -1261,6 +1322,49 @@ int BerDecoder_UniversalElementVisitor::operator()(TYPE *variable)
     rc = d_node.readTagTrailer();
 
     return rc;
+}
+
+                       // --------------------------------------
+                       // struct BerDecoder_RequiredAttrsVisitor
+                       // --------------------------------------
+
+// MANIPULATORS
+template <class TYPE, class INFO>
+inline
+int BerDecoder_RequiredAttrsVisitor::operator()(TYPE *value, const INFO& info)
+{
+    switch(bdlat_TypeCategoryFunctions::select(*value))
+    {
+      case bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY:
+        break; // skip
+      // The following categories can have default values:
+      case bdlat_TypeCategory::e_SIMPLE_CATEGORY:
+      case bdlat_TypeCategory::e_ENUMERATION_CATEGORY:
+      case bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY:
+        if(!d_usesDefaultValueFlag) {
+            break; // skip
+        }
+        BSLA_FALLTHROUGH;
+      default:
+        if (!d_usesDefaultValueFlag ||
+            !(info.formattingMode() & bdlat_FormattingMode::e_DEFAULT_VALUE)) {
+            d_requiredAttributes_p->emplace(info.id());
+        }
+    }
+    return 0;
+}
+
+                       // ----------------------------
+                       // struct BerDecoder_NameGetter
+                       // ----------------------------
+
+// MANIPULATORS
+template <class TYPE, class INFO>
+inline
+int BerDecoder_NameGetter::operator()(TYPE *, const INFO& info)
+{
+    d_name = info.name();
+    return 0;
 }
 
 }  // close package namespace

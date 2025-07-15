@@ -443,6 +443,18 @@ void TestUtil::loadDecoderOptions(ComplexTypeElement *decoderOptions)
         SchemaUtil::append(&sequence, validateRootTag);
     }
 
+    {
+        Element validateRootTag;
+        validateRootTag.name()                =
+                                              "AllowMissingRequiredAttributes";
+        validateRootTag.type()                = "xs:boolean";
+        validateRootTag.minOccurs()           = "0";
+        validateRootTag.maxOccurs()           = "1";
+        validateRootTag.defaultValue()        = "true";
+        validateRootTag.allowsDirectManipulation() = "0";
+        SchemaUtil::append(&sequence, validateRootTag);
+    }
+
     SchemaUtil::append(decoderOptions, sequence);
 }
 
