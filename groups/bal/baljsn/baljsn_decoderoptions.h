@@ -37,10 +37,10 @@ BSLS_IDENT("$Id: $")
 //   separators -- e.g., `"a" :: 1`, `[ 1,, 2 ]` -- are accepted and treated
 //   as if one separator had been input.
 // * `allowFormFeedAsWhitespace`: flag specifying if the form-feed character,
-//   '\f', is treaded as whitespace in addition to ` `, '\t', '\n', '\r', and
-//   '\v'.
+//   '\\f', is treaded as whitespace in addition to ' ', '\\t', '\\n', '\\r',
+//   and '\\v'.
 // * `allowUnescapedControlCharacters`: flag specifying if unescaped (raw)
-//   control characters (e.g., '\n', '\n') are allowed in JSON strings.
+//   control characters (e.g., '\\n', '\\t') are allowed in JSON strings.
 //   Otherwise, control characters are represented by multi-character
 //   sequences (e.g., '\\t' or '\u000A').
 // * `allowMissingRequiredAttributes`: flag specifying if non-optional sequence
@@ -123,13 +123,13 @@ class DecoderOptions {
     // `false` for strictly conformining JSON.
     bool  d_allowConsecutiveSeparators;
 
-    // Option to allow '\f' (form feed) as whitespace in addition to ` `,
-    // '\n', '\t', '\r', and '\v'.  Set to `false` for strictly
+    // Option to allow '\\f' (form feed) as whitespace in addition to ' ',
+    // '\\n', '\\t', '\\r', and '\\v'.  Set to `false` for strictly
     // conformining JSON.
     bool  d_allowFormFeedAsWhitespace;
 
     // Option to allow characters in the range `[0x00 ..  0x1F]`  (e.g.,
-    // '\0', '\t', '\n') in JSON strings.  Set to `false` for strictly
+    // '\\0', '\\t', '\\n') in JSON strings.  Set to `false` for strictly
     // conformining JSON.
     bool  d_allowUnescapedControlCharacters;
 
