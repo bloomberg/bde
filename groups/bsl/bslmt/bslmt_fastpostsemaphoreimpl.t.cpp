@@ -332,11 +332,6 @@ class ExhaustiveTest {
                                                // `s_schedule` at
                                                // `s_scheduleNextIndex`
 
-    static bool                 s_doWait;      // whether `wait` should block
-                                               // threads; `false` during
-                                               // initialization of the
-                                               // `ExhaustiveObj`
-
     static bool                 s_verbose;     // verbosity of test
 
     // CLASS METHODS
@@ -527,7 +522,6 @@ bsl::size_t          ExhaustiveTest::s_scheduleSize;
 bsl::size_t          ExhaustiveTest::s_scheduleIndex;
 bsl::size_t          ExhaustiveTest::s_scheduleNextIndex;
 bsl::size_t          ExhaustiveTest::s_scheduleNextId;
-bool                 ExhaustiveTest::s_doWait = true;
 bool                 ExhaustiveTest::s_verbose = false;
 
 // PRIVATE CLASS METHODS
@@ -552,8 +546,6 @@ void ExhaustiveTest::testHelper()
     s_scheduleNextId    = 0;
 
     do {
-        s_doWait = false;
-
         ExhaustiveObj mX;
 
         s_obj_p = &mX;
@@ -569,8 +561,6 @@ void ExhaustiveTest::testHelper()
             s_data[i].d_done = false;
             s_data[i].d_wait = 0;
         }
-
-        s_doWait = true;
 
         next();
     } while (s_scheduleNextIndex || s_scheduleNextId);
@@ -769,10 +759,8 @@ void ExhaustiveTest::unwaitAll(ExhaustiveWaitable *waitable)
 void ExhaustiveTest::wait()
 {
     bsls::Types::Uint64 id = bslmt::ThreadUtil::selfIdAsUint64();
-    if (s_doWait || id != s_doneId) {
-        while (id != s_scheduledId.loadAcquire()) {
-            bslmt::ThreadUtil::yield();
-        }
+    while (id != s_scheduledId.loadAcquire()) {
+        bslmt::ThreadUtil::yield();
     }
 }
 
