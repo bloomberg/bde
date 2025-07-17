@@ -183,6 +183,7 @@ BSLS_IDENT("$Id: $")
 #include <baljsn_printutil.h>
 
 #include <bdljsn_json.h>
+#include <bdljsn_jsonnumber.h>
 
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -207,12 +208,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 
 #include <bsl_cstddef.h>    // `bsl::size_t`
+#include <bsl_limits.h>     // `bsl::numeric_limits`
 #include <bsl_ostream.h>
+#include <bsl_sstream.h>    // `bsl::ostringstream`
 #include <bsl_stack.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 #include <bsl_utility.h>    // `bsl::pair`
-#include <bsl_sstream.h>    // `bsl::ostringstream`
 
 namespace BloombergLP {
 namespace baljsn {
@@ -679,6 +681,37 @@ int JsonFormatter_Util::valueAsJson(bdljsn::Json         *json,
     return setFloatingPointToJson(json, value, options);
 }
 
+template <>
+inline
+int JsonFormatter_Util::valueAsJson(bdljsn::Json             *json,
+                                    const bdldfp::Decimal64&  value,
+                                    BSLA_MAYBE_UNUSED
+                                    const EncoderOptions     *options)
+{
+
+    BSLS_ASSERT_SAFE(json);
+
+    typedef bdldfp::Decimal64 DEC64;
+
+    static const DEC64 INF_POS = bsl::numeric_limits<DEC64>::infinity();
+    static const DEC64 INF_NEG = -INF_POS;
+
+    switch (bdldfp::DecimalUtil::classify(value)) {
+      case FP_NAN: {
+        json->makeString("nan");
+      } break;
+      case FP_INFINITE: {
+               if (INF_POS == value) { json->makeString("+inf");
+        } else if (INF_NEG == value) { json->makeString("-inf");
+        } else {                       BSLS_ASSERT_OPT(false && "reachable");
+        }
+      } break;
+      default: {
+        json->makeNumber(bdljsn::JsonNumber(value));
+      } break;
+    }
+    return 0;
+}
                         // -------------------
                         // class JsonFormatter
                         // -------------------

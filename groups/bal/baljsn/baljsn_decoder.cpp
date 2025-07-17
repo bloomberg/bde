@@ -1,7 +1,12 @@
 // baljsn_decoder.cpp                                                 -*-C++-*-
 #include <baljsn_decoder.h>
 
+#include <baljsn_encoder.h>         // for testing only
+#include <baljsn_encoderoptions.h>  // for testing only
+#include <baljsn_printutil.h>       // for testing only
+
 #include <bsls_ident.h>
+
 BSLS_IDENT_RCSID(baljsn_decoder_cpp,"$Id$ $CSID$")
 
 #include <bdlde_utf8util.h>
@@ -80,7 +85,7 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
             }
 
             switch (d_tokenizer.tokenType()) {
-              case Tokenizer::e_ELEMENT_NAME: BSLA_FALLTHROUGH;
+              case Tokenizer::e_ELEMENT_NAME:                 BSLA_FALLTHROUGH;
               case Tokenizer::e_ELEMENT_VALUE: {
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);
@@ -132,7 +137,7 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
             }
 
             switch (d_tokenizer.tokenType()) {
-              case Tokenizer::e_ELEMENT_NAME: BSLA_FALLTHROUGH;
+              case Tokenizer::e_ELEMENT_NAME:                 BSLA_FALLTHROUGH;
               case Tokenizer::e_ELEMENT_VALUE: {
                 bslstl::StringRef tmp;
                 rc = d_tokenizer.value(&tmp);

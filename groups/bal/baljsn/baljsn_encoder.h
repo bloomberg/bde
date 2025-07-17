@@ -209,7 +209,7 @@ class Encoder {
     /// Encode the specified `value`, of (template parameter) `TYPE`, in the
     /// JSON format using the specified `options` and output it onto the
     /// specified `streamBuf`.  Specifying a nullptr `options` is equivalent
-    /// to passing a default-constructed DecoderOptions in `options`.
+    /// to passing a default-constructed EncoderOptions in `options`.
     /// `TYPE` shall be a `bdlat`-compatible sequence, choice, or array
     /// type, or a `bdlat`-compatible dynamic type referring to one of those
     /// types.  Return 0 on success, and a non-zero value otherwise.
@@ -225,7 +225,7 @@ class Encoder {
     /// Encode the specified `value`, of (template parameter) `TYPE`, in the
     /// JSON format using the specified `options` and output it onto the
     /// specified `stream`.  Specifying a nullptr `options` is equivalent to
-    /// passing a default-constructed DecoderOptions in `options`.  `TYPE`
+    /// passing a default-constructed EncoderOptions in `options`.  `TYPE`
     /// shall be a `bdlat`-compatible choice, or array type, or a
     /// `bdlat`-compatible dynamic type referring to one of those types.
     /// Return 0 on success, and a non-zero value otherwise.

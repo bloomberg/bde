@@ -2,6 +2,9 @@
 #include <baljsn_decoder.h>
 
 #include <baljsn_decoderoptions.h>
+#include <baljsn_encoder.h>
+#include <baljsn_encoderoptions.h>
+#include <baljsn_printutil.h>
 
 // These header are for testing only and the hierarchy level of `baljsn` was
 // increase because of them.  They should be remove when possible.
@@ -19,6 +22,7 @@
 
 #include <s_baltst_address.h>
 #include <s_baltst_employee.h>
+#include <s_baltst_mysequencewithprecisiondecimalattribute.h> // TC19 Decimal64
 #include <s_baltst_sqrt.h>
 #include <s_baltst_sqrtf.h>
 
@@ -35,13 +39,15 @@
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>  // for printing vector
 
+#include <bdldfp_decimal.h>
+#include <bdldfp_decimalutil.h>
+
 #include <bdlde_utf8util.h>
 
 #include <bdlt_datetimetz.h>
 
 #include <bdlsb_fixedmeminstreambuf.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
-
 
 #include <bdlpcre_regex.h>
 
@@ -146,7 +152,8 @@ namespace test = BloombergLP::s_baltst;
 // [16] `DecoderOptions` CAN BE CONFIGURED FOR STRICT CONFORMANCE
 // [17] MAXDEPTH IS RESPECTED
 // [18] `allowMissingRequiredAttributes` OPTION
-// [19] USAGE EXAMPLE
+// [19] TESTING `Decimal64`
+// [20] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -211,9 +218,6 @@ namespace s_baltst {
                         // ============================
                         // class template RoundTripData
                         // ============================
-
-
-
 
                                 // ============
                                 // class Colors
@@ -285,7 +289,6 @@ bsl::ostream& operator<<(bsl::ostream& stream, Colors::Value rhs);
 // TRAITS
 
 BDLAT_DECL_ENUMERATION_TRAITS(test::Colors)
-
 
 namespace s_baltst {
 
@@ -504,8 +507,6 @@ bsl::ostream& Colors::print(bsl::ostream&      stream,
     return stream << toString(value);
 }
 
-
-
                                // -------------
                                // class Palette
                                // -------------
@@ -654,13 +655,12 @@ bsl::ostream& test::operator<<(
     return test::Colors::print(stream, rhs);
 }
 
-
 inline
 bool test::operator==(
         const test::Palette& lhs,
         const test::Palette& rhs)
 {
-    return  lhs.color() == rhs.color()
+    return  lhs.color()  == rhs.color()
          && lhs.colors() == rhs.colors();
 }
 
@@ -669,7 +669,7 @@ bool test::operator!=(
         const test::Palette& lhs,
         const test::Palette& rhs)
 {
-    return  lhs.color() != rhs.color()
+    return  lhs.color()  != rhs.color()
          || lhs.colors() != rhs.colors();
 }
 
@@ -784,7 +784,6 @@ const char *Colors::toString(Colors::Value value)
     BSLS_ASSERT(0 == "invalid enumerator");
     return 0;
 }
-
 
                                // -------------
                                // class Palette
@@ -3161,7 +3160,6 @@ class Replace {
         BSLS_ASSERT(0 == rc);
         BSLS_ASSERT(0 == prepareErrorOffset);
 
-
         bsl::string result;
         int         errorOffset = 0;
 
@@ -3179,7 +3177,6 @@ class Replace {
         return result;
     }
 };
-
 
                   // =======================================
                   // class AssertDecodedValueIsEqualFunction
@@ -3308,7 +3305,6 @@ class AssertDecodedArrayOfValuesIsEqualFunction {
 //                               TEST MACHINERY
 // ----------------------------------------------------------------------------
 
-
 template <class TESTED_TYPE> struct SelectEncodeableType;
 
 template <> struct SelectEncodeableType<float> {
@@ -3318,7 +3314,6 @@ template <> struct SelectEncodeableType<float> {
 template <> struct SelectEncodeableType<double> {
     typedef s_baltst::Sqrt Type;
 };
-
 
 template <class FLOAT_TYPE>
 void roundTripTestNonNumericValues()
@@ -3402,7 +3397,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 19: {
+      case 20: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -3507,6 +3502,414 @@ int main(int argc, char *argv[])
     ASSERT("New York"      == employee.homeAddress().state());
     ASSERT(21              == employee.age());
 // ```
+      } break;
+      case 19: {
+        // --------------------------------------------------------------------
+        // TESTING `Decimal64`
+        //   The decoder can load values from a JSON document into a field of a
+        //   `bdlat`-compatible object having type `bdldfp::Decimal64`.
+        //
+        // Concerns:
+        // 1. The loaded values can be any valid `bdldfp::Decimal64` value,
+        //    including all limit values of that type.
+        //
+        // 2. The loaded values can be any acceptable representation of
+        //    positive infinity, negative infinity, and not-a-number.
+        //
+        // 3. Valid input can be either quoted (i.e., a JSON string) or not
+        //    (i.e., a JSON number).
+        //
+        // 4. The decoder returns zero for successful conversions and a
+        //    non-zero value for invalid input.
+        //
+        // 5. A non-zero return value implies that an immediate call to the
+        //    `loggedMessages()` method returns a non-empty string.
+        //
+        // Plan:
+        // 1. This test case uses a series of table-driven tests where the
+        //    tables are replicated from the `baljsn_parserutil.t.cpp` test
+        //    cases of the `bdldfp::Decimal64` overload of
+        //    `ParserUtil::getValue`, a function that converts text to a
+        //    numeric value.
+        //
+        // 2. Each of the table input values are used to synthesize a JSON
+        //    document representing
+        //    `s_baltst::MySequenceWithPrecisionDecimalAttribute`.  The single
+        //    attribute of that class holds a `bdldfp::Decimal64` value.
+        //
+        //    * Depending on the table, the input value is either used directly
+        //      or converted to a textual representation using lower-level
+        //      components.
+        //
+        //    * Note that two table entries were considered invalid in their
+        //      original table but classified as valid below.  Those entries
+        //      had trailing characters that cause failure if one tries to
+        //      convert them Decimal64 but when used in a JSON document, they
+        //      cause no error -- the normal decoder tokenization avoids them.
+        //
+        // 3. Each synthesized JSON document is passed to the `decode` method.
+        //    The return value, the result of `loggedMessages`, and the
+        //    value of `attribute1()` of the target `bdlat` class are tested
+        //    for their expected values.
+        //
+        // Testing:
+        //   TESTING `Decimal64`
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nTESTING `Decimal64`" <<
+                             "\n===================" << endl;
+
+        typedef s_baltst::MySequenceWithPrecisionDecimalAttribute SeqDec64;
+        typedef baljsn::PrintUtil                                 Print;
+        typedef baljsn::DecoderOptions                            DOptions;
+        typedef baljsn::EncoderOptions                            EOptions;
+        typedef bdldfp::Decimal64                                 Decimal64;
+        typedef bdldfp::DecimalUtil                               DecUtil;
+
+        if (verbose) cout << endl << "Regular values and limits" << endl;
+        {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+
+            typedef bsl::numeric_limits<Decimal64> Limits;
+
+            const struct {
+                int       d_line;
+                Decimal64 d_value;
+            } DATA[] = {
+                //LINE  VALUE
+                //----  -----------------------------
+                {L_,    DEC( 0.0),                    },
+                {L_,    DEC(-0.0),                    },
+                {L_,    DEC( 1.13),                   },
+                {L_,    DEC(-9.876543210987654e307)   },
+                {L_,    DEC(-9.8765432109876548e307)  },
+                {L_,    DEC(-9.87654321098765482e307) },
+
+                // Boundary values
+                { L_,    Limits::min()        },
+                { L_,    Limits::denorm_min() },
+                { L_,    Limits::max()        },
+                { L_,   -Limits::min()        },
+                { L_,   -Limits::denorm_min() },
+                { L_,   -Limits::max()        },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE  = DATA[ti].d_line;
+                const Decimal64 VALUE = DATA[ti].d_value;
+
+                if (veryVerbose) {
+                    P_(LINE); P(VALUE);
+                }
+
+                bsl::ostringstream oss;
+                ASSERTV(LINE, 0 == Print::printValue(oss, VALUE));
+
+                bsl::string result(oss.str());
+
+                if (veryVeryVerbose) {
+                    P(result);
+                }
+
+                bsl::string jsonDoc;
+                jsonDoc.append("{");
+                jsonDoc.append("\"attribute1\"");
+                jsonDoc.append(":");
+                jsonDoc.append(result);
+                jsonDoc.append("}");
+
+                if (veryVeryVerbose) {
+                    P(jsonDoc);
+                }
+
+                bsl::istringstream iss(jsonDoc);
+
+                Obj      decoder;
+                SeqDec64 seqDec64;
+                DOptions dOptions;
+
+                int rc = decoder.decode(iss, &seqDec64, &dOptions);     // TEST
+                ASSERTV(LINE,          rc,
+                              0     == rc);
+                ASSERTV(LINE,          decoder.loggedMessages(),
+                              ""    == decoder.loggedMessages());
+                ASSERTV(LINE, VALUE,   seqDec64.attribute1(),
+                              VALUE == seqDec64.attribute1());
+
+                if (veryVeryVerbose) {
+                    P(seqDec64);
+                }
+            }
+#undef DEC
+        }
+
+        if (verbose) cout << endl << "+Inf, -Inf, and NaN" << endl;
+        {
+            typedef  bsl::numeric_limits<Decimal64> Limits;
+
+            const Decimal64 NAN_P = Limits::quiet_NaN();
+            // Negative NaN does not print for any floating point type, so we
+            // don't test it for round-trip (on purpose).
+            //const Type NAN_N = -NAN_P;
+            const Decimal64 INF_P = Limits::infinity();
+            const Decimal64 INF_N = -INF_P;
+
+            const struct {
+                int       d_line;
+                Decimal64 d_value;
+            } DATA[] = {
+                // LINE   VALUE |
+                // ----   ------
+                {  L_,    NAN_P },
+                // Negative NaN does not print for any floating point type,
+                // so we don't test it for round-trip (on purpose).
+              //{  L_,    NAN_N },
+                {  L_,    INF_P },
+                {  L_,    INF_N },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int       LINE  = DATA[ti].d_line;
+                const Decimal64 VALUE = DATA[ti].d_value;
+
+                if (veryVerbose) {
+                    P_(LINE); P(VALUE);
+                }
+
+                bsl::ostringstream oss;
+                EOptions           eOptions;
+                eOptions.setEncodeInfAndNaNAsStrings(true);
+                int                rc = Print::printValue(oss,
+                                                          VALUE,
+                                                          &eOptions);
+                ASSERTV(LINE, rc, 0 == rc);
+
+                bsl::string result(oss.str());
+
+                if (veryVeryVerbose) {
+                    P(result);
+                }
+
+                bsl::string jsonDoc;
+                jsonDoc.append("{ ");
+                jsonDoc.append("\"attribute1\"");
+                jsonDoc.append(":");
+                jsonDoc.append(result);
+                jsonDoc.append("}");
+
+                if (veryVeryVerbose) {
+                    P(jsonDoc);
+                }
+
+                bsl::istringstream iss(jsonDoc);
+
+                Obj      decoder;
+                SeqDec64 seqDec64;
+                DOptions dOptions;
+
+                rc = decoder.decode(iss, &seqDec64, &dOptions);         // TEST
+                ASSERTV(LINE,          rc,
+                              0     == rc);
+                ASSERTV(LINE,          decoder.loggedMessages(),
+                              ""    == decoder.loggedMessages());
+
+                if (DecUtil::isNan(VALUE)) {
+                    ASSERTV(LINE,                seqDec64.attribute1().value(),
+                                  DecUtil::isNan(seqDec64.attribute1().value())
+                           );
+                } else {
+                    ASSERTV(LINE, VALUE,   seqDec64.attribute1(),
+                                  VALUE == seqDec64.attribute1());
+                }
+
+                if (veryVeryVerbose) {
+                    P(seqDec64);
+                }
+            }
+        }
+
+        if (verbose) cout << endl << "Quoted input and invalid input" << endl;
+        {
+#define DEC(X) BDLDFP_DECIMAL_DD(X)
+
+            typedef Decimal64 Type;
+
+            const Type NAN_P = bsl::numeric_limits<Type>::quiet_NaN();
+            const Type NAN_N = -NAN_P;
+            const Type INF_P = bsl::numeric_limits<Type>::infinity();
+            const Type INF_N = -INF_P;
+
+            const Type ERROR_VALUE = BDLDFP_DECIMAL_DD(999.0);
+
+            static const struct {
+                int         d_line;    // line number
+                const char *d_input_p; // input on the stream
+                Type        d_exp;     // exp unsigned value
+                bool        d_isValid; // isValid flag
+            } DATA[] = {
+     //---------v
+
+     // line  input                       exp                         isValid
+     // ----  -----                       ---                         -------
+     {  L_,    "0",                       DEC(0.0),                    true  },
+     {  L_,   "-0",                       DEC(0.0),                    true  },
+     {  L_,    "0.0",                     DEC(0.0),                    true  },
+     {  L_,   "-0.0",                     DEC(0.0),                    true  },
+     {  L_,    "1",                       DEC(1.0),                    true  },
+     {  L_,   "-1",                       DEC(-1.0),                   true  },
+     {  L_,    "1.2",                     DEC(1.2),                    true  },
+     {  L_,    "1.23",                    DEC(1.23),                   true  },
+     {  L_,    "1.234",                   DEC(1.234),                  true  },
+     {  L_,   "12.34",                    DEC(12.34),                  true  },
+     {  L_,  "123.4",                     DEC(123.4),                  true  },
+     {  L_,   "-1.2",                     DEC(-1.2),                   true  },
+     {  L_,   "-1.23",                    DEC(-1.23),                  true  },
+     {  L_,   "-1.234",                   DEC(-1.234),                 true  },
+     {  L_,  "-12.34",                    DEC(-12.34),                 true  },
+     {  L_, "-123.4",                     DEC(-123.4),                 true  },
+     {  L_,   "+1.2",                     DEC(1.2),                    true  },
+     {  L_,   "+1.23",                    DEC(1.23),                   true  },
+     {  L_,   "+1.234",                   DEC(1.234),                  true  },
+     {  L_,  "+12.34",                    DEC(12.34),                  true  },
+     {  L_, "+123.4",                     DEC(123.4),                  true  },
+     {  L_,   "-9.876543210987654e307",   DEC(-9.876543210987654e307), true  },
+     {  L_, "\"-0.1\"",                   DEC(-0.1),                   true  },
+     {  L_,  "\"0\"",                     DEC(0.0),                    true  },
+     {  L_, "\"-0\"",                     DEC(0.0),                    true  },
+     {  L_,  "\"0.0\"",                   DEC(0.0),                    true  },
+     {  L_, "\"-0.0\"",                   DEC(0.0),                    true  },
+     {  L_,  "\"1\"",                     DEC(1.0),                    true  },
+     {  L_, "\"-1\"",                     DEC(-1.0),                   true  },
+     {  L_,  "\"1.2\"",                   DEC(1.2),                    true  },
+     {  L_,  "\"1.23\"",                  DEC(1.23),                   true  },
+     {  L_,  "\"1.234\"",                 DEC(1.234),                  true  },
+     {  L_, "\"12.34\"",                  DEC(12.34),                  true  },
+     {  L_, "\"123.4\"",                  DEC(123.4),                  true  },
+     {  L_, "\"-1.2\"",                   DEC(-1.2),                   true  },
+     {  L_, "\"-1.23\"",                  DEC(-1.23),                  true  },
+     {  L_, "\"-1.234\"",                 DEC(-1.234),                 true  },
+     {  L_, "\"-12.34\"",                 DEC(-12.34),                 true  },
+     {  L_, "\"-123.4\"",                 DEC(-123.4),                 true  },
+     {  L_, "\"+1.2\"",                   DEC(1.2),                    true  },
+     {  L_, "\"+1.23\"",                  DEC(1.23),                   true  },
+     {  L_, "\"+1.234\"",                 DEC(1.234),                  true  },
+     {  L_, "\"+12.34\"",                 DEC(12.34),                  true  },
+     {  L_, "\"+123.4\"",                 DEC(123.4),                  true  },
+     {  L_, "\"-9.876543210987654e307\"", DEC(-9.876543210987654e307), true  },
+     {  L_,   "-0.1",                     DEC(-0.1),                   true  },
+     {  L_,  "\"NaN\"",                   NAN_P,                       true  },
+     {  L_,  "\"nan\"",                   NAN_P,                       true  },
+     {  L_,  "\"NAN\"",                   NAN_P,                       true  },
+     {  L_, "\"+NaN\"",                   NAN_P,                       true  },
+     {  L_, "\"+nan\"",                   NAN_P,                       true  },
+     {  L_, "\"+NAN\"",                   NAN_P,                       true  },
+     {  L_, "\"-NaN\"",                   NAN_N,                       true  },
+     {  L_, "\"-nan\"",                   NAN_N,                       true  },
+     {  L_, "\"-NAN\"",                   NAN_N,                       true  },
+     {  L_,  "\"INF\"",                   INF_P,                       true  },
+     {  L_,  "\"inf\"",                   INF_P,                       true  },
+     {  L_,  "\"infinity\"",              INF_P,                       true  },
+     {  L_, "\"+INF\"",                   INF_P,                       true  },
+     {  L_, "\"+inf\"",                   INF_P,                       true  },
+     {  L_, "\"+infinity\"",              INF_P,                       true  },
+     {  L_, "\"-INF\"",                   INF_N,                       true  },
+     {  L_, "\"-inf\"",                   INF_N,                       true  },
+     {  L_, "\"-infinity\"",              INF_N,                       true  },
+     {  L_,         "-",                  ERROR_VALUE,                 false },
+     {  L_,       "E-1",                  ERROR_VALUE,                 false },
+     {  L_,  "Z34.56e1",                  ERROR_VALUE,                 false },
+     {  L_,  "3Z4.56e1",                  ERROR_VALUE,                 false },
+#if 0
+     {  L_,      "1.1}",                  ERROR_VALUE,                 false },
+     {  L_,     "1.1\n",                  ERROR_VALUE,                 false },
+#else
+     {  L_,      "1.1}",                  DEC(1.1),                    true  },
+     {  L_,     "1.1\n",                  DEC(1.1),                    true  },
+#endif // 0
+     {  L_,   "1.10xFF",                  ERROR_VALUE,                 false },
+     {  L_,  "DEADBEEF",                  ERROR_VALUE,                 false },
+     {  L_,      "JUNK",                  ERROR_VALUE,                 false },
+     {  L_,     "\"0\"",                  DEC(0.0),                    true  },
+     {  L_,       "0\"",                  ERROR_VALUE,                 false },
+     {  L_,       "\"0",                  ERROR_VALUE,                 false },
+     {  L_,        "\"",                  ERROR_VALUE,                 false },
+     {  L_,      "\"\"",                  ERROR_VALUE,                 false },
+     {  L_,     "\"X\"",                  ERROR_VALUE,                 false },
+     {  L_,  "\" NaN\"",                  ERROR_VALUE,                 false },
+
+     //---------v
+            };
+            const int NUM_DATA = sizeof DATA / sizeof DATA[0];
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int         LINE     = DATA[i].d_line;
+                const bsl::string INPUT    = DATA[i].d_input_p;
+                const Type        EXP      = DATA[i].d_exp;
+                const bool        IS_VALID = DATA[i].d_isValid;
+
+                if (veryVerbose) {
+                    P_(LINE); P(IS_VALID);
+                    P(INPUT);
+                    P(EXP);
+                }
+
+                bsl::string jsonDoc;
+                jsonDoc.append("{");
+                jsonDoc.append("\"attribute1\"");
+                jsonDoc.append(":");
+                jsonDoc.append(INPUT);
+                jsonDoc.append("}");
+
+                if (veryVeryVerbose) {
+                    P(jsonDoc);
+                }
+
+                bsl::istringstream iss(jsonDoc);
+
+                Obj      decoder;
+                SeqDec64 seqDec64;
+                DOptions dOptions;
+
+                int rc = decoder.decode(iss, &seqDec64, &dOptions);     // TEST
+
+                if (IS_VALID) {
+                    ASSERTV(      rc, IS_VALID,
+                            0  == rc);
+                    ASSERTV(      decoder.loggedMessages(), IS_VALID,
+                            "" == decoder.loggedMessages());
+
+                    if (veryVeryVerbose) {
+                        P(seqDec64);
+                    }
+
+                    if (DecUtil::isNan(EXP)) {
+                        ASSERTV(LINE,                seqDec64.attribute1()
+                                                                      .value(),
+                                      DecUtil::isNan(seqDec64.attribute1()
+                                                                      .value())
+                               );
+                    } else {
+                        ASSERTV(LINE, EXP,   seqDec64.attribute1(),
+                                      EXP == seqDec64.attribute1());
+                    }
+
+                }
+                else {
+                    ASSERTV(      rc, IS_VALID,
+                            0  != rc);
+                    ASSERTV(      decoder.loggedMessages(), IS_VALID,
+                            "" != decoder.loggedMessages());
+
+                    if (veryVeryVerbose) {
+                        P(seqDec64);
+                    }
+                }
+            }
+#undef DEC
+        }
+
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -5536,7 +5939,6 @@ int main(int argc, char *argv[])
         //    or non-nested `bsl::vector` value.
         // --------------------------------------------------------------------
 
-
         if (verbose)
             cout << endl
                  << "TESTING DECODING VECTORS OF VECTORS" << endl
@@ -5755,7 +6157,6 @@ int main(int argc, char *argv[])
         TEST(L_, STR([[]])            , T, a_(a_(sp(at1,ip)))               );
         TEST(L_, STR([[],[]])         , T, a_(a_(sp(at1,ip)),a_(sp(at1,ip))));
 #endif
-
 
         const u::AssertDecodedArrayOfValuesIsEqualFunction TEST2;
 
