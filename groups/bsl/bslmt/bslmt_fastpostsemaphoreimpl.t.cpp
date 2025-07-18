@@ -5,6 +5,7 @@
 #include <bslmt_condition.h>
 #include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bslim_testutil.h>
 
@@ -974,31 +975,6 @@ const int k_DECISECOND = 100 * 1000;  // number of microseconds in 0.1 seconds
         } \
     }
 
-static bsls::AtomicInt s_continue;
-
-/// Return when `0 == s_continue`, or if `0 == s_continue` does not occur
-/// within 1 second, log the specified `arg`, which is a C-style string, and
-/// `abort`.
-extern "C" void *watchdog(void *arg)
-{
-    const char *text = static_cast<const char *>(arg);
-
-    const int MAX = 900;
-
-    int count = 0;
-
-    while (s_continue) {
-        bslmt::ThreadUtil::microSleep(k_DECISECOND);
-        ++count;
-
-        ASSERTV(text, count < MAX);
-
-        if (MAX == count && s_continue) abort();
-    }
-
-    return 0;
-}
-
 /// Invoke `timedWait` with a 15 second timeout on the specified `arg` and
 /// verify the result value is `e_DISABLED`.  The behavior is undefined
 /// unless `arg` is a pointer to a valid instance of `Obj`.
@@ -1088,6 +1064,14 @@ int main(int argc, char *argv[])
     }
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
@@ -1514,14 +1498,6 @@ int main(int argc, char *argv[])
         }
 
         {
-            s_continue = 1;
-
-            bslmt::ThreadUtil::Handle watchdogHandle;
-            bslmt::ThreadUtil::create(
-                                   &watchdogHandle,
-                                   watchdog,
-                                   const_cast<char *>("`take` and `takeAll`"));
-
             {
                 // verify `take`
 
@@ -1640,10 +1616,6 @@ int main(int argc, char *argv[])
                 bslmt::ThreadUtil::join(handle1);
                 bslmt::ThreadUtil::join(handle2);
             }
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
       } break;
       case 7: {
@@ -1672,13 +1644,6 @@ int main(int argc, char *argv[])
         }
 
         {
-            s_continue = 1;
-
-            bslmt::ThreadUtil::Handle watchdogHandle;
-            bslmt::ThreadUtil::create(&watchdogHandle,
-                                      watchdog,
-                                      const_cast<char *>("`getValue`"));
-
             Obj mX(3);  const Obj& X = mX;
 
             ASSERT(3 == X.getValue());
@@ -1737,10 +1702,6 @@ int main(int argc, char *argv[])
 
             bslmt::ThreadUtil::join(handle1);
             bslmt::ThreadUtil::join(handle2);
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
       } break;
       case 6: {
@@ -1804,13 +1765,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "\nDirect test of count adjustments." << endl;
         {
-            s_continue = 1;
-
-            bslmt::ThreadUtil::Handle watchdogHandle;
-            bslmt::ThreadUtil::create(&watchdogHandle,
-                                      watchdog,
-                                      const_cast<char *>("count"));
-
             for (int initialCount = -5; initialCount < 10; ++initialCount) {
                 {
                     Obj mX(initialCount);
@@ -1859,24 +1813,12 @@ int main(int argc, char *argv[])
                     ASSERT(Obj::e_WOULD_BLOCK == mX.tryWait());
                 }
             }
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
 
         if (verbose) {
             cout << "\nVerify `post` releases blocked threads." << endl;
         }
         {
-            s_continue = 1;
-
-            bslmt::ThreadUtil::Handle watchdogHandle;
-            bslmt::ThreadUtil::create(
-                                &watchdogHandle,
-                                watchdog,
-                                const_cast<char *>("`post` releases blocked"));
-
             {
                 const int k_NUM_THREAD = 6;
 
@@ -2015,10 +1957,6 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::join(handle[i]);
                 }
             }
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
 
         if (verbose) cout << "\nDirect test of `timedWait` concerns." << endl;
@@ -2043,14 +1981,6 @@ int main(int argc, char *argv[])
             cout << "\nVerify `disable` releases blocked threads." << endl;
         }
         {
-            s_continue = 1;
-
-            bslmt::ThreadUtil::Handle watchdogHandle;
-            bslmt::ThreadUtil::create(
-                             &watchdogHandle,
-                             watchdog,
-                             const_cast<char *>("`disable` releases blocked"));
-
             {
                 const int k_NUM_THREAD = 6;
 
@@ -2093,10 +2023,6 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::join(handle[i]);
                 }
             }
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
 
         if (verbose) cout << "\nVerify guaranteed outcomes." << endl;
@@ -2619,13 +2545,6 @@ cout << endl
             const int k_NUM_THREAD = 5;
             const int k_MAX_LENGTH = 5;
 
-            s_continue = 1;
-
-            bslmt::ThreadUtil::Handle watchdogHandle;
-            bslmt::ThreadUtil::create(&watchdogHandle,
-                                      watchdog,
-                                      const_cast<char *>("enable/disable"));
-
             for (int length = 1; length <= k_MAX_LENGTH; ++length) {
                 Obj mX;  const Obj& X = mX;
 
@@ -2648,10 +2567,6 @@ cout << endl
                     bslmt::ThreadUtil::join(handle[i]);
                 }
             }
-
-            s_continue = 0;
-
-            bslmt::ThreadUtil::join(watchdogHandle);
         }
         {
             // verify `disable` and `enable` do not affect semaphore count
@@ -2698,13 +2613,6 @@ cout << endl
                           << "TESTING `tryWait`" << endl
                           << "=================" << endl;
 
-        s_continue = 1;
-
-        bslmt::ThreadUtil::Handle watchdogHandle;
-        bslmt::ThreadUtil::create(&watchdogHandle,
-                                  watchdog,
-                                  const_cast<char *>("`tryWait`"));
-
         for (int initialCount = 0; initialCount < 10; ++initialCount) {
             Obj mX(initialCount);
 
@@ -2721,10 +2629,6 @@ cout << endl
 
             ASSERT(Obj::e_DISABLED == mX.tryWait());
         }
-
-        s_continue = 0;
-
-        bslmt::ThreadUtil::join(watchdogHandle);
       } break;
       case 2: {
         // --------------------------------------------------------------------
