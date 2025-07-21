@@ -46,6 +46,55 @@ void createMultiQueueThreadPool_Queue(
 
 namespace bdlmt {
 
+                     // =====================================
+                     // class MultiQueueThreadPool_ClearGuard
+                     // =====================================
+
+template <class TYPE>
+class MultiQueueThreadPool_ClearGuard {
+
+    // DATA
+    TYPE *d_object_p;  // managed object
+
+    // NOT IMPLEMENTED
+    MultiQueueThreadPool_ClearGuard();
+    MultiQueueThreadPool_ClearGuard(
+                                 const MultiQueueThreadPool_ClearGuard&);
+    MultiQueueThreadPool_ClearGuard& operator=(
+                                 const MultiQueueThreadPool_ClearGuard&);
+
+  public:
+    // CREATORS
+
+    /// Create a `clear` proctor that manages the specified `object`.  The
+    /// behavior is undefiend unless `0 != object`.
+    MultiQueueThreadPool_ClearGuard(TYPE *object);
+
+    /// Destroy this object and invoke the managed object's `clear` method.
+    ~MultiQueueThreadPool_ClearGuard();
+};
+
+               // -------------------------------------------
+               // class MultiQueueThreadPool_ClearGuard
+               // -------------------------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+MultiQueueThreadPool_ClearGuard<TYPE>::
+                                  MultiQueueThreadPool_ClearGuard(TYPE *object)
+: d_object_p(object)
+{
+    BSLS_ASSERT_SAFE(0 != object);
+}
+
+template <class TYPE>
+inline
+MultiQueueThreadPool_ClearGuard<TYPE>::~MultiQueueThreadPool_ClearGuard()
+{
+    d_object_p->clear();
+}
+
                      // --------------------------------
                      // class MultiQueueThreadPool_Queue
                      // --------------------------------
@@ -86,6 +135,7 @@ MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
 , d_list(basicAllocator)
 , d_enqueueState(e_ENQUEUING_ENABLED)
 , d_runState(e_NOT_SCHEDULED)
+, d_batch(basicAllocator)
 , d_batchSize(1)
 , d_lock()
 , d_pauseCondition()
@@ -95,6 +145,7 @@ MultiQueueThreadPool_Queue::MultiQueueThreadPool_Queue(
                                      this))
 , d_processor(bslmt::ThreadUtil::invalidHandle())
 {
+    d_batch.reserve(d_batchSize);
 }
 
 MultiQueueThreadPool_Queue::~MultiQueueThreadPool_Queue()
@@ -109,6 +160,7 @@ void MultiQueueThreadPool_Queue::setBatchSize(int batchSize)
     bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
     d_batchSize = batchSize;
+    d_batch.reserve(d_batchSize);
 }
 
 int MultiQueueThreadPool_Queue::enable()
@@ -169,8 +221,6 @@ void MultiQueueThreadPool_Queue::drainWaitWhilePausing()
 
 void MultiQueueThreadPool_Queue::executeFront()
 {
-    bsl::vector<Job> functors;
-
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_lock);
 
@@ -198,10 +248,8 @@ void MultiQueueThreadPool_Queue::executeFront()
             count = 1;
         }
 
-        functors.reserve(count);
-
         for (bsl::size_t i = 0; i < count; ++i) {
-            functors.emplace_back(bslmf::MovableRefUtil::move(d_list.front()));
+            d_batch.emplace_back(bslmf::MovableRefUtil::move(d_list.front()));
             d_list.pop_front();
         }
 
@@ -211,13 +259,17 @@ void MultiQueueThreadPool_Queue::executeFront()
     // Note that the appropriate 'd_runState' is a bit ambiguous at this point.
     // Since there is nothing scheduled in the thread pool, the state should
     // arguably be 'e_NOT_SCHEDULED'.  However, allowing work to be scheduled
-    // during the execution of the 'functors' would be a bug.  Instead of
-    // creating a new state to reflect this situation while the 'functors' are
+    // during the execution of the 'd_batch' would be a bug.  Instead of
+    // creating a new state to reflect this situation while the 'd_batch' are
     // executing, we leave 'd_runState' as 'e_SCHEDULED'.
 
-    for (bsl::size_t i = 0; i < functors.size(); ++i) {
-        functors[i]();
-        functors[i] = Job();
+    {
+        MultiQueueThreadPool_ClearGuard<bsl::vector<Job> > guard(&d_batch);
+
+        for (bsl::size_t i = 0; i < d_batch.size(); ++i) {
+            d_batch[i]();
+            d_batch[i] = Job();
+        }
     }
 
     // Note that 'pause' might be called while executing the functors since no

@@ -417,6 +417,8 @@ class MultiQueueThreadPool_Queue {
 
     RunState                   d_runState;       // maintains run state
 
+    bsl::vector<Job>           d_batch;          // batch of jobs
+
     int                        d_batchSize;      // execution batch size
 
     mutable bslmt::Mutex       d_lock;           // protect queue and
