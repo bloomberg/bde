@@ -1448,6 +1448,13 @@ int main(int argc, char *argv[])
         //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION
         // --------------------------------------------------------------------
 
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
+
         if (verbose) {
             cout << endl
                  << "CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION"

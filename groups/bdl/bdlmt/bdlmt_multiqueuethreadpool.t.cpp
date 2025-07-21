@@ -1930,13 +1930,14 @@ int main(int argc, char *argv[]) {
 
         const int NUM_JOBS = 100;
 
+        Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
+
+        STARTPOOL(mX);
+
         for (int batchSize = 1; batchSize <= 101; batchSize += 10) {
             Case36Journal journal;
 
             {
-                Obj mX(bslmt::ThreadAttributes(), 1, 1, 30);
-
-                STARTPOOL(mX);
                 const int queueId = mX.createQueue();
                 mX.setBatchSize(queueId, batchSize);
                 mX.pauseQueue(queueId);
@@ -1948,9 +1949,8 @@ int main(int argc, char *argv[]) {
 
                 mX.resumeQueue(queueId);
                 mX.drain();
+                mX.deleteQueue(queueId);
             }
-
-            // With mX destroyed, all jobs must also be destroyed.
 
             // Copy the journal entries into a collection we can inspect.
             typedef Case36Journal::Container Result;
@@ -2122,7 +2122,10 @@ int main(int argc, char *argv[]) {
                  << "=================================================\n";
         }
 
-        for (int i = 0; i < 1000; ++i) {
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
+        for (int i = 0; i < 500; ++i) {
             bslmt::ThreadAttributes defaultAttrs;
             bdlmt::ThreadPool underlyingPool(defaultAttrs, 2, 2, 0);
             underlyingPool.start();
@@ -2223,11 +2226,12 @@ int main(int argc, char *argv[]) {
                     count[i] = 0;
                 }
 
-                for (int i = 0; i < 100; ++i) {
-                    Obj        mX(bslmt::ThreadAttributes(), 1, 1, 30);
-                    const Obj& X = mX;
+                Obj        mX(bslmt::ThreadAttributes(), 1, 1, 30);
+                const Obj& X = mX;
 
-                    STARTPOOL(mX);
+                STARTPOOL(mX);
+
+                for (int i = 0; i < 100; ++i) {
                     int queueId = mX.createQueue();
 
                     mX.setBatchSize(queueId, batchSize);
@@ -2252,12 +2256,16 @@ int main(int argc, char *argv[]) {
                     int enqueuedJobs;
                     int deletedJobs;
 
-                    X.numProcessed(&doneJobs, &enqueuedJobs, &deletedJobs);
+                    mX.numProcessedReset(&doneJobs,
+                                         &enqueuedJobs,
+                                         &deletedJobs);
 
                     ASSERT(k_ENQUEUE == enqueuedJobs);
                     ASSERT(k_ENQUEUE == doneJobs + deletedJobs);
 
                     ++count[doneJobs];
+
+                    mX.deleteQueue(queueId);
                 }
 
                 ASSERTV(batchSize, count[batchSize], 30 <= count[batchSize]);
@@ -2793,6 +2801,9 @@ int main(int argc, char *argv[]) {
             << "===========================================================\n";
         }
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         Obj mX(bslmt::ThreadAttributes(), 4, 4, 30);
 
         STARTPOOL(mX);
@@ -2812,7 +2823,7 @@ int main(int argc, char *argv[]) {
 
         ASSERT(0 == bslmt::ThreadUtil::join(drainThreadHandle));
 
-        bslmt::ThreadUtil::microSleep(100000);
+        mX.drain();
 
         ASSERT(0 == s_case27Count);
       }  break;
@@ -3039,15 +3050,15 @@ int main(int argc, char *argv[]) {
                  << "================================" << endl;
         }
 
+        bslmt::ThreadAttributes attr;
+        bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
+
+        STARTPOOL(pool);
+
         for (int i = 0; i < 1000; ++i) {
             if (veryVerbose && i % 100 == 0) {
                 cout << "ITERATION " << i << endl;
             }
-            bslmt::ThreadAttributes attr;
-            bdlmt::MultiQueueThreadPool pool(attr, 1, 40, 10000);
-
-            STARTPOOL(pool);
-
             const int queueId = pool.createQueue();
             BSLS_ASSERT_OPT(queueId);
 

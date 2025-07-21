@@ -2541,6 +2541,10 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "\tTesting: `drain`\n"
                               << "\t----------------" << endl;
 
+        ASSERT(0 == completionGuard.updateText(bsl::format("case {}, line {}",
+                                                           test,
+                                                           __LINE__)));
+
         for (int i = 0; i < NUM_VALUES; ++i) {
             const int          MIN  = VALUES[i].d_minThreads;
             const int          MAX  = VALUES[i].d_maxThreads;
