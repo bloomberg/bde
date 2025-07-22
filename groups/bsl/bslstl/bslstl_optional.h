@@ -3163,7 +3163,14 @@ template <class t_TYPE>
 inline
 bool Optional_DataImp<t_TYPE>::hasValue() const BSLS_KEYWORD_NOEXCEPT
 {
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     return d_hasValue;
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop
+#endif
 }
 
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
