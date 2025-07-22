@@ -750,6 +750,11 @@ int JsonConverter::decodeImp(TYPE                               *value,
     } else {
         rc = JsonParserUtil::getValue(&valueBaseType, *dataValue);
     }
+    if (rc) {
+        d_logStream << "Could not decode Enum Customized, "
+                    << "value not allowed \"" << dataValue << "\"\n";
+        return -1;                                                    // RETURN
+    }
 
     rc = bdlat_CustomizedTypeFunctions::convertFromBaseType(value,
                                                             valueBaseType);
