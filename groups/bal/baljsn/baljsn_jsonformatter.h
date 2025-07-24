@@ -269,7 +269,7 @@ bsl::ostream& operator<<(bsl::ostream&             stream,
 
 struct JsonFormatter_Util {
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     template <class TYPE>
     static int expectedReturnPutValue(const TYPE&           value,
                                       const EncoderOptions *options);
@@ -430,7 +430,7 @@ class JsonFormatter {
                         // class JsonFormatter_Util
                         // ------------------------
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
 template <class TYPE>
 int JsonFormatter_Util::expectedReturnPutValue(BSLA_MAYBE_UNUSED
                                                const TYPE&           value,
@@ -491,7 +491,7 @@ int JsonFormatter_Util::expectedReturnPutValue(const bsl::string&    value,
 {
     return bdlde::Utf8Util::isValid(value.data(), value.length()) ? 0 : -1;
 }
-#endif // BDE_BUILD_TARGET_SAFE
+#endif // BSLS_ASSERT_SAFE_IS_ACTIVE
 
 template <class TYPE>
 int JsonFormatter_Util::setFloatingPointToJson(bdljsn::Json         *json,
@@ -740,7 +740,7 @@ int JsonFormatter::putValue(const TYPE& value, const EncoderOptions *options)
     bdljsn::Json& top   = *d_stack.top().first;
     State::Enum   state =  d_stack.top().second;
 
-#ifdef BDE_BUILD_TARGET_SAFE
+#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
     const int expRc = JsonFormatter_Util::expectedReturnPutValue(value,
                                                                  options);
 #endif
