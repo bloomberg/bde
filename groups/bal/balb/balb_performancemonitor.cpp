@@ -127,20 +127,6 @@ bool nearlyEqual(double lhs, double rhs)
     return bsl::fabs(lhs - rhs) < bsl::numeric_limits<double>::epsilon();
 }
 
-#if defined(BSLS_PLATFORM_OS_UNIX)
-/// Return an integer identifying the current process
-int currentProcessPid()
-{
-    return static_cast<int>(getpid());
-}
-#elif defined(BSLS_PLATFORM_OS_WINDOWS)
-int currentProcessPid()
-    // Return an integer identifying the current process
-{
-    return static_cast<int>(GetCurrentProcessId());
-}
-#endif
-
 }  // close unnamed namespace
 
 namespace balb {
@@ -1743,7 +1729,7 @@ PerformanceMonitor::~PerformanceMonitor()
 int PerformanceMonitor::registerPid(int pid, const bsl::string& description)
 {
     if (pid == 0) {
-        pid = currentProcessPid();
+        pid = bdls::ProcessUtil::getProcessId();
     }
 
     StatisticsPtr stats;
@@ -1765,7 +1751,7 @@ int PerformanceMonitor::registerPid(int pid, const bsl::string& description)
 int PerformanceMonitor::unregisterPid(int pid)
 {
     if (pid == 0) {
-        pid = currentProcessPid();
+        pid = bdls::ProcessUtil::getProcessId();
     }
 
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_mapGuard);

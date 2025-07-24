@@ -140,7 +140,7 @@ BSLS_IDENT("$Id: $")
 // for (int i = 0; i < 6; ++i) {
 //     bslmt::ThreadUtil::microSleep(0, 5);
 //
-//     balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
+//     balb::PerformanceMonitor::ConstIterator    it    = perfmon.find(0);
 //     const balb::PerformanceMonitor::Statistics stats = *it;
 //
 //     assert(pid == stats.pid());
@@ -169,6 +169,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #include <bdlmt_timereventscheduler.h>
+#include <bdls_processutil.h>
 #include <bdlt_datetime.h>
 
 #include <bslma_allocator.h>
@@ -545,10 +546,10 @@ class PerformanceMonitor {
     /// to automatically collect performance statistics every specified
     /// `interval` (specified in seconds).  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  Note that a
-    /// non-positive `interval` value indicates that performance statistics
-    /// should *not* be automatically collected--in this case the user is
-    /// responsible for manually calling the `collect` function.
+    /// the currently installed default allocator is used.  A non-positive
+    /// `interval` value indicates that performance statistics should *not* be
+    /// automatically collected--in this case the user is responsible for
+    /// manually calling the `collect` function.
     PerformanceMonitor(bdlmt::TimerEventScheduler *scheduler,
                        double                      interval,
                        bslma::Allocator           *basicAllocator = 0);
@@ -558,29 +559,28 @@ class PerformanceMonitor {
 
     // MANIPULATORS
 
-    /// Register the specified process `pid` having the specified
-    /// user-defined `description` with this performance monitor.  After
-    /// registration, performance statistics will be collected for the
-    /// `pid` upon invocation of the `collect` function.  Note that a `pid`
-    /// value of zero is interpreted as the `pid` of the current process.
-    /// Return 0 on success or a non-zero value otherwise.
+    /// Register the specified process `pid` having the specified user-defined
+    /// `description` with this performance monitor.  After registration,
+    /// performance statistics will be collected for the `pid` upon invocation
+    /// of the `collect` function.  A `pid` value of zero is translated to the
+    /// current process id.  Return 0 on success or a non-zero value otherwise.
     int registerPid(int pid, const bsl::string& description);
 
     /// Unregister the specified process `pid` from the performance monitor.
-    /// After unregistration, to statistics for the `pid` will be no longer
-    /// be available unless the `pid` is re-registered with the performance
-    /// monitor through calling `registerPid`.  Note that a `pid` value of
-    /// zero is interpreted as the `pid` of the current process.  Return
-    /// 0 on success or a non-zero value otherwise.
+    /// After unregistration, to statistics for the `pid` will be no longer be
+    /// available unless the `pid` is re-registered with the performance
+    /// monitor through calling `registerPid`.  A `pid` value of zero is
+    /// translated to the current process id.  Return 0 on success or a
+    /// non-zero value otherwise.
     int unregisterPid(int pid);
 
-    /// Set the specified time `interval`, in seconds, after which
-    /// statistics for each registered pid are automatically collected.  The
-    /// behavior is undefined unless a scheduler was supplied at the
-    /// construction of this performance monitor.  Note that a non-positive
-    /// `interval` value indicates that performance statistics should not be
-    /// automatically collected--in this case the user is responsible for
-    /// manually calling the `collect` function.
+    /// Set the specified time `interval`, in seconds, after which statistics
+    /// for each registered pid are automatically collected.  The behavior is
+    /// undefined unless a scheduler was supplied at the construction of this
+    /// performance monitor.  A non-positive `interval` value indicates that
+    /// performance statistics should not be automatically collected--in this
+    /// case the user is responsible for manually calling the `collect`
+    /// function.
     void setCollectionInterval(double interval);
 
     /// Collect performance statistics for each registered pid.
@@ -602,8 +602,9 @@ class PerformanceMonitor {
 
     /// Return the iterator pointing to the set of collected performance
     /// statistics for the specified `pid` if `pid` has been registered with
-    /// this performance monitor through the `registerPid` function,
-    /// otherwise return `end()`.
+    /// this performance monitor through the `registerPid` function, otherwise
+    /// return `end()`.  A `pid` value of zero is translated to the current
+    /// process id.
     ConstIterator find(int pid) const;
 
     /// Return the number of processes registered for statistics collection.
@@ -858,6 +859,10 @@ inline
 PerformanceMonitor::ConstIterator
 PerformanceMonitor::find(int pid) const
 {
+    if (0 == pid) {
+        pid = bdls::ProcessUtil::getProcessId();
+    }
+
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_mapGuard);
     return ConstIterator(d_pidMap.find(pid), &d_mapGuard);
 }

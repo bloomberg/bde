@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 6; ++i) {
         bslmt::ThreadUtil::microSleep(0, 5);
 
-        balb::PerformanceMonitor::ConstIterator    it    = perfmon.begin();
+        balb::PerformanceMonitor::ConstIterator    it    = perfmon.find(0);
         const balb::PerformanceMonitor::Statistics stats = *it;
 
         ASSERT(pid == stats.pid());
@@ -1074,6 +1074,9 @@ int main(int argc, char *argv[])
         const int NUM_PROCESSES = 5;
         Pids      pids;
 
+        const int SELF_PID = bdls::ProcessUtil::getProcessId();
+        pids.insert(SELF_PID);
+
         // Spawn as a child processes several copies of this test driver,
         // running test case -3, which simply sleeps for half a minute and
         // exits.
@@ -1131,6 +1134,10 @@ int main(int argc, char *argv[])
             ++shift;
             ++pidsIt;
         }
+
+        ASSERT(X.end() != X.find(SELF_PID));
+        ASSERT(X.end() != X.find(0));
+        ASSERT(X.find(0) == X.find(SELF_PID));
 
         ASSERT(X.end() == X.find(-1));
       } break;
