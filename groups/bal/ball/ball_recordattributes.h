@@ -203,6 +203,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_ostream.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -282,17 +283,16 @@ class RecordAttributes {
     /// `processID`, `threadID`, `fileName`, `lineNumber`, `category`,
     /// `severity` and `message` values, respectively.  Optionally specify a
     /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.  The behavior is
-    /// undefined if any `const char *` argument is null.
-    RecordAttributes(const bdlt::Datetime&  timestamp,
-                     int                    processID,
-                     bsls::Types::Uint64    threadID,
-                     const char            *fileName,
-                     int                    lineNumber,
-                     const char            *category,
-                     int                    severity,
-                     const char            *message,
-                     bslma::Allocator      *basicAllocator = 0);
+    /// the currently installed default allocator is used.
+    RecordAttributes(const bdlt::Datetime&    timestamp,
+                     int                      processID,
+                     bsls::Types::Uint64      threadID,
+                     const bsl::string_view&  fileName,
+                     int                      lineNumber,
+                     const bsl::string_view&  category,
+                     int                      severity,
+                     const bsl::string_view&  message,
+                     bslma::Allocator        *basicAllocator = 0);
 
     /// Create a record attributes object having the value of the specified
     /// `original` record attributes object.  Optionally specify a
@@ -325,21 +325,21 @@ class RecordAttributes {
     bsl::ostream& messageStream();
 
     /// Set the category attribute of this record attributes object to the
-    /// specified (non-null) `category`.
-    void setCategory(const char *category);
+    /// specified `category`.
+    void setCategory(const bsl::string_view& category);
 
     /// Set the filename attribute of this record attributes object to the
-    /// specified (non-null) `fileName`.
-    void setFileName(const char *fileName);
+    /// specified `fileName`.
+    void setFileName(const bsl::string_view& fileName);
 
     /// Set the line number attribute of this record attributes object to
     /// the specified `lineNumber`.
     void setLineNumber(int lineNumber);
 
     /// Set the message attribute of this record attributes object to the
-    /// specified (non-null) `message`.  Resets the objects returned by the
+    /// specified `message`.  Resets the objects returned by the
     /// `messageStreamBuf` and `messageStream` methods.
-    void setMessage(const char *message);
+    void setMessage(const bsl::string_view& message);
 
     /// Set the processID attribute of this record attributes object to the
     /// specified `processID`.
@@ -497,13 +497,13 @@ bsl::ostream& RecordAttributes::messageStream()
 }
 
 inline
-void RecordAttributes::setCategory(const char *category)
+void RecordAttributes::setCategory(const bsl::string_view& category)
 {
     d_category = category;
 }
 
 inline
-void RecordAttributes::setFileName(const char *fileName)
+void RecordAttributes::setFileName(const bsl::string_view& fileName)
 {
     d_fileName = fileName;
 }

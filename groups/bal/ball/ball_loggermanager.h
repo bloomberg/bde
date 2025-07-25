@@ -1033,7 +1033,8 @@ class Logger {
     /// Return a shared pointer to a modifiable record having the specified
     /// `fileName` and `lineNumber` attributes, and retrieved from the
     /// shared object pool managed by this logger.
-    bsl::shared_ptr<Record> getRecordPtr(const char *fileName, int lineNumber);
+    bsl::shared_ptr<Record> getRecordPtr(const bsl::string_view& fileName,
+                                         int                     lineNumber);
 
     /// Log the specified `record` after setting its category field to the
     /// specified `category`, severity field to the specified `severity`,
@@ -1080,7 +1081,7 @@ class Logger {
     /// object pool managed by this logger.  Note that the returned `Record`
     /// must subsequently be supplied to a call to the 3-argument
     /// `logMessage` method on this logger.
-    Record *getRecord(const char *fileName, int lineNumber);
+    Record *getRecord(const bsl::string_view& fileName, int lineNumber);
 
     /// Log a record containing the specified `message` text, `fileName`,
     /// `lineNumber`, `severity`, and the name of the specified `category`.
@@ -1100,11 +1101,11 @@ class Logger {
     /// `severity` is less severe than all of the threshold levels of
     /// `category`.  The behavior is undefined unless `severity` is in the
     /// range `[1 .. 255]`.
-    void logMessage(const Category&  category,
-                    int              severity,
-                    const char      *fileName,
-                    int              lineNumber,
-                    const char      *message);
+    void logMessage(const Category&         category,
+                    int                     severity,
+                    const bsl::string_view& fileName,
+                    int                     lineNumber,
+                    const bsl::string_view& message);
 
     /// Log the specified `*record` after setting its category attribute to
     /// the name of the specified `category` and severity attribute to the
@@ -1434,7 +1435,7 @@ class LoggerManager {
     /// by the currently installed default allocator.  Note that the
     /// returned `Record` must subsequently be supplied to a call to the
     /// `LoggerManager::logMessage` method.
-    static Record *getRecord(const char *fileName, int lineNumber);
+    static Record *getRecord(const bsl::string_view& fileName, int lineNumber);
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     /// Initialize the logger manager singleton having the specified

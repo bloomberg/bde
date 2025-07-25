@@ -55,9 +55,9 @@ int Log::format(char *buffer, bsl::size_t numBytes, const char *format, ...)
     return (signed)numBytes <= status ? -1 : status;
 }
 
-Record *Log::getRecord(const Category *category,
-                       const char     *fileName,
-                       int             lineNumber)
+Record *Log::getRecord(const Category          *category,
+                       const bsl::string_view&  fileName,
+                       int                      lineNumber)
 {
     if (category) {
         return LoggerManager::singleton().getLogger().getRecord(fileName,
@@ -69,15 +69,13 @@ Record *Log::getRecord(const Category *category,
     }
 }
 
-void Log::logMessage(const Category *category,
-                     int             severity,
-                     const char     *fileName,
-                     int             lineNumber,
-                     const char     *message)
+void Log::logMessage(const Category          *category,
+                     int                      severity,
+                     const bsl::string_view&  fileName,
+                     int                      lineNumber,
+                     const bsl::string_view&  message)
 {
     BSLS_ASSERT(1 <= severity);  BSLS_ASSERT(severity <= 255);
-    BSLS_ASSERT(fileName);
-    BSLS_ASSERT(message);
 
     if (category) {
         LoggerManager::singleton().getLogger().logMessage(*category,
@@ -215,10 +213,10 @@ bool Log::isCategoryEnabled(const CategoryHolder *categoryHolder, int severity)
                      // ----------------
 
 // CREATORS
-Log_Stream::Log_Stream(const Category *category,
-                       const char     *fileName,
-                       int             lineNumber,
-                       int             severity)
+Log_Stream::Log_Stream(const Category          *category,
+                       const bsl::string_view&  fileName,
+                       int                      lineNumber,
+                       int                      severity)
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)
@@ -235,10 +233,10 @@ Log_Stream::~Log_Stream() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
                      // -------------------
 
 // CREATORS
-Log_Formatter::Log_Formatter(const Category *category,
-                             const char     *fileName,
-                             int             lineNumber,
-                             int             severity)
+Log_Formatter::Log_Formatter(const Category          *category,
+                             const bsl::string_view&  fileName,
+                             int                      lineNumber,
+                             int                      severity)
 : d_category_p(category)
 , d_record_p(Log::getRecord(category, fileName, lineNumber))
 , d_severity(severity)

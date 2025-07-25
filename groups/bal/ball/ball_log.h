@@ -1443,9 +1443,9 @@ struct Log {
     /// `category` is non-null.  Note that the returned `Record` must
     /// subsequently be supplied to a call to the 3-argument `logMessage`
     /// method.
-    static Record *getRecord(const Category *category,
-                             const char     *fileName,
-                             int             lineNumber);
+    static Record *getRecord(const Category          *category,
+                             const bsl::string_view&  fileName,
+                             int                      lineNumber);
 
     /// Log a record containing the specified `message` text, `fileName`,
     /// `lineNumber`, `severity`, and the name of the specified `category`.
@@ -1466,11 +1466,11 @@ struct Log {
     /// behavior is undefined unless `severity` is in the range `[1 .. 255]`
     /// and the logger manager singleton is initialized when `category` is
     /// non-null.
-    static void logMessage(const Category *category,
-                           int             severity,
-                           const char     *fileName,
-                           int             lineNumber,
-                           const char     *message);
+    static void logMessage(const Category          *category,
+                           int                      severity,
+                           const bsl::string_view&  fileName,
+                           int                      lineNumber,
+                           const bsl::string_view&  message);
 
     /// Log the specified `record` after setting its category attribute to
     /// the specified `category` and its severity attribute to the specified
@@ -1639,10 +1639,10 @@ class Log_Stream {
     /// `severity`, (2) a record that is created from the specified
     /// `fileName` and `lineNumber`, and (3) an `bsl::ostream` to which the
     /// log message is put.
-    Log_Stream(const Category *category,
-               const char     *fileName,
-               int             lineNumber,
-               int             severity);
+    Log_Stream(const Category          *category,
+               const bsl::string_view&  fileName,
+               int                      lineNumber,
+               int                      severity);
 
     /// Log the record held by this logging stream to the held category (as
     /// returned by `category`) at the held severity (as returned by
@@ -1722,10 +1722,10 @@ class Log_Formatter {
     /// and `severity`, (2) a record that is created from the specified
     /// `fileName` and `lineNumber`, and (3) a buffer into which the log
     /// message is formatted.
-    Log_Formatter(const Category *category,
-                  const char     *fileName,
-                  int             lineNumber,
-                  int             severity);
+    Log_Formatter(const Category          *category,
+                  const bsl::string_view&  fileName,
+                  int                      lineNumber,
+                  int                      severity);
 
     /// Log the record held by this logging formatter to the held category
     /// (as returned by `category`) at the held severity (as returned by

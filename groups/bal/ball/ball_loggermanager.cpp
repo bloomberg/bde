@@ -434,8 +434,9 @@ Logger::~Logger()
 }
 
 // PRIVATE MANIPULATORS
-bsl::shared_ptr<Record> Logger::getRecordPtr(const char *fileName,
-                                             int         lineNumber)
+bsl::shared_ptr<Record> Logger::getRecordPtr(
+                                            const bsl::string_view& fileName,
+                                            int                     lineNumber)
 {
     bsl::shared_ptr<Record> record = d_recordPool.getObject();
 
@@ -602,7 +603,7 @@ void Logger::publish(const bsl::shared_ptr<Record>& record,
 }
 
 // MANIPULATORS
-Record *Logger::getRecord(const char *fileName, int lineNumber)
+Record *Logger::getRecord(const bsl::string_view& fileName, int lineNumber)
 {
    // The shared pointer returned by 'getRecordPtr' is reconstituted in the
    // 3-argument 'logMessage' method.
@@ -611,15 +612,12 @@ Record *Logger::getRecord(const char *fileName, int lineNumber)
     return RecordSharedPtrUtil::disassembleSharedPtr(&record);
 }
 
-void Logger::logMessage(const Category&  category,
-                        int              severity,
-                        const char      *fileName,
-                        int              lineNumber,
-                        const char      *message)
+void Logger::logMessage(const Category&         category,
+                        int                     severity,
+                        const bsl::string_view& fileName,
+                        int                     lineNumber,
+                        const bsl::string_view& message)
 {
-    BSLS_ASSERT(fileName);
-    BSLS_ASSERT(message);
-
     ThresholdAggregate thresholds;
     if (!isCategoryEnabled(&thresholds, category, severity)) {
         return;                                                       // RETURN
@@ -859,7 +857,8 @@ LoggerManager::createLoggerManager(
                   allocator);
 }
 
-Record *LoggerManager::getRecord(const char *fileName, int lineNumber)
+Record *LoggerManager::getRecord(const bsl::string_view& fileName,
+                                 int                     lineNumber)
 {
     // This static method is called to obtain a record when the logger manager
     // singleton is not available (either has not been initialized or has been

@@ -35,12 +35,12 @@ BSLMF_ASSERT((bsl::is_same<RuleSet::MaskType, unsigned int>::value));
 /// threshold level values does not need to be repeated here.  They are
 /// validated in `CategoryManager::addCategory`, prior to creating an
 /// instance of this class.
-Category::Category(const char       *categoryName,
-                   int               recordLevel,
-                   int               passLevel,
-                   int               triggerLevel,
-                   int               triggerAllLevel,
-                   bslma::Allocator *basicAllocator)
+Category::Category(const bsl::string_view&  categoryName,
+                   int                      recordLevel,
+                   int                      passLevel,
+                   int                      triggerLevel,
+                   int                      triggerAllLevel,
+                   bslma::Allocator        *basicAllocator)
 : d_thresholdLevels(ThresholdAggregateUtil::pack(
     ThresholdAggregate(recordLevel, passLevel, triggerLevel, triggerAllLevel)))
 , d_threshold(ThresholdAggregate::maxLevel(recordLevel,
@@ -53,7 +53,6 @@ Category::Category(const char       *categoryName,
 , d_ruleThreshold(0)
 , d_mutex()
 {
-    BSLS_ASSERT(categoryName);
 }
 
 // PRIVATE MANIPULATORS

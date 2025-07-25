@@ -114,6 +114,8 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bsl_string_view.h>
+
 namespace BloombergLP {
 namespace ball {
 
@@ -209,14 +211,13 @@ class Category {
     /// specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
     /// used.  The behavior is undefined unless each of the specified
-    /// threshold levels is in the range `[0 .. 255]`, and `categoryName` is
-    /// null-terminated.
-    Category(const char       *categoryName,
-             int               recordLevel,
-             int               passLevel,
-             int               triggerLevel,
-             int               triggerAllLevel,
-             bslma::Allocator *basicAllocator = 0);
+    /// threshold levels is in the range `[0 .. 255]`.
+    Category(const bsl::string_view&  categoryName,
+             int                      recordLevel,
+             int                      passLevel,
+             int                      triggerLevel,
+             int                      triggerAllLevel,
+             bslma::Allocator        *basicAllocator = 0);
 
     /// Destroy this object.
     //! ~Category() = default;

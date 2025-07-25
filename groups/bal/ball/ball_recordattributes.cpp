@@ -34,15 +34,15 @@ RecordAttributes::RecordAttributes(bslma::Allocator *basicAllocator)
 {
 }
 
-RecordAttributes::RecordAttributes(const bdlt::Datetime&  timestamp,
-                                   int                    processID,
-                                   bsls::Types::Uint64    threadID,
-                                   const char            *fileName,
-                                   int                    lineNumber,
-                                   const char            *category,
-                                   int                    severity,
-                                   const char            *message,
-                                   bslma::Allocator      *basicAllocator)
+RecordAttributes::RecordAttributes(const bdlt::Datetime&    timestamp,
+                                   int                      processID,
+                                   bsls::Types::Uint64      threadID,
+                                   const bsl::string_view&  fileName,
+                                   int                      lineNumber,
+                                   const bsl::string_view&  category,
+                                   int                      severity,
+                                   const bsl::string_view&  message,
+                                   bslma::Allocator        *basicAllocator)
 : d_timestamp(timestamp)
 , d_processID(processID)
 , d_threadID(threadID)
@@ -74,13 +74,10 @@ RecordAttributes::RecordAttributes(const RecordAttributes&  original,
 }
 
 // MANIPULATORS
-void RecordAttributes::setMessage(const char *message)
+void RecordAttributes::setMessage(const bsl::string_view& message)
 {
     d_messageStreamBuf.pubseekpos(0);
-    while (*message) {
-        d_messageStreamBuf.sputc(*message);
-        ++message;
-    }
+    d_messageStreamBuf.sputn(message.data(), message.length());
     resetMessageStreamState();
 }
 
