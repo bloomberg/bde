@@ -1722,7 +1722,7 @@ int main(int argc, char *argv[])
             mX.disableFileLogging();
         }
 
-        if (veryVerbose) cout << "\tTest a delayed rotateOnTimeInterval"
+        if (veryVerbose) cout << "Test a delayed rotateOnTimeInterval"
                               << "(DRQS 87930585)"
                               << bsl::endl;
         {
@@ -1757,6 +1757,38 @@ int main(int argc, char *argv[])
             // Verify the callback has not been invoked.
 
             ASSERT(0 == cb.numInvocations());
+
+            mX.disableFileLogging();
+        }
+        if (veryVerbose) cout << "Test sub-second rotations (DRQS 179493032)"
+                              << bsl::endl;
+        {
+            // Test if there is a delay between `enableFileLogging` and
+            // `rotateOnTimeInterval`.
+            bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+
+            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bsl::string              fileName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&fileName, "testLog");
+
+            Obj mX(&ta);
+
+            RotCb cb(&ta);
+            mX.setOnFileRotationCallback(cb);
+
+            ASSERT(0 == mX.enableFileLogging(fileName.c_str()));
+
+            mX.rotateOnTimeInterval(bdlt::DatetimeInterval(0, 0, 0, 1));
+
+            // Force 2 sequential rotations. Second rotation should return
+            // an error code (-4) as it will very likely happen within the same
+            // second as the first rotation.
+            mX.forceRotation();
+            ASSERTV(cb.numInvocations(), 1 == cb.numInvocations());
+            ASSERTV(cb.status(), 0 == cb.status());
+            mX.forceRotation();
+            ASSERTV(cb.numInvocations(), 2 == cb.numInvocations());
+            ASSERTV(cb.status(), 0 > cb.status());
 
             mX.disableFileLogging();
         }

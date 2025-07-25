@@ -38,6 +38,7 @@ BSLS_IDENT_RCSID(ball_fileobserver2_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>
+#include <bsl_format.h>
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
 #include <bsl_memory.h>
@@ -68,11 +69,10 @@ namespace {
 
 enum {
     // status code for the call back function.
-
+    // Can be ORed together if multiple errors occur.
     k_ROTATE_SUCCESS                  =  0,
-    k_ROTATE_RENAME_ERROR             = -1,
-    k_ROTATE_NEW_LOG_ERROR            = -2,
-    k_ROTATE_RENAME_AND_NEW_LOG_ERROR = -3
+    k_ROTATE_RENAME_ERROR             =  1,
+    k_ROTATE_NEW_LOG_ERROR            =  2
 };
 
 enum {
@@ -108,6 +108,14 @@ enum {
                           + k_DELIMETER_LENGTH,   // ' '
     k_ERROR_BUFFER_SIZE   = k_MAX_PATH_LENGTH + 256
 };
+
+#define LOG_PLATFORM_MESSAGE(severity, formatStr, ...) \
+    {\
+        char message[k_ERROR_BUFFER_SIZE]; \
+        snprintf(message, sizeof(message), formatStr, __VA_ARGS__); \
+        bsls::Log::platformDefaultMessageHandler( \
+            severity, __FILE__, __LINE__, message); \
+    }
 
 /// Return the system-specific error code.
 static int getErrorCode(void)
@@ -263,18 +271,11 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
                                                   FileUtil::e_KEEP);
 
     if (fd == FileUtil::k_INVALID_FD) {
-        char errorBuffer[k_ERROR_BUFFER_SIZE];
-
-        snprintf(errorBuffer,
-                 sizeof errorBuffer,
-                 "Cannot open log file %s: %s. "
-                 "File logging will be disabled!",
-                 filename,
-                 bsl::strerror(getErrorCode()));
-        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_ERROR,
-                                                 __FILE__,
-                                                 __LINE__,
-                                                 errorBuffer);
+        LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_ERROR,
+                             "Cannot open log file %s: %s. "
+                             "File logging will be disabled!",
+                             filename,
+                             bsl::strerror(getErrorCode()));
         return -1;                                                    // RETURN
     }
 
@@ -283,18 +284,12 @@ static int openLogFile(bsl::ostream *stream, const char *filename)
     BSLS_ASSERT(streamBuf);
 
     if (0 != streamBuf->reset(fd, true, true, true)) {
-        char errorBuffer[k_ERROR_BUFFER_SIZE];
+        LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_WARN,
+                             "Cannot close previous log file %s: %s. "
+                             "File logging will be disabled!",
+                             filename,
+                             bsl::strerror(getErrorCode()));
 
-        snprintf(errorBuffer,
-                 sizeof errorBuffer,
-                 "Cannot close previous log file %s: %s. "
-                 "File logging will be disabled!",
-                 filename,
-                 bsl::strerror(getErrorCode()));
-        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
-                                                 __FILE__,
-                                                 __LINE__,
-                                                 errorBuffer);
         return -1;                                                    // RETURN
     }
 
@@ -458,93 +453,91 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     int returnStatus = k_ROTATE_SUCCESS;
 
+    // Close current log file.
     if (0 != d_logStreamBuf.clear()) {
-        char errorBuffer[k_ERROR_BUFFER_SIZE];
-
-        snprintf(errorBuffer,
-                 sizeof errorBuffer,
-                 "Unable to close old log file: %s.",
-                 d_logFileName.c_str());
-        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
-                                                 __FILE__,
-                                                 __LINE__,
-                                                 errorBuffer);
-        returnStatus = k_ROTATE_RENAME_ERROR;
+        LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_WARN,
+                             "Unable to close old log file: %s.",
+                             d_logFileName.c_str());
+        returnStatus |= k_ROTATE_RENAME_ERROR;
     }
 
     *rotatedLogFileName = d_logFileName;
 
     const bdlt::Datetime oldLogFileTimestamp = d_logFileTimestampUtc;
 
+    // Get the new log file name based on current time.
     getLogFileName(&d_logFileName,
                    &d_logFileTimestampUtc,
                    d_logFilePattern.c_str(),
                    d_publishInLocalTime);
 
-    if (bdls::FilesystemUtil::exists(d_logFileName.c_str())
-        && !d_suppressUniqueFileName)
-    {
-        bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
+    // If the `d_suppressUniqueFileName` is `false`, the new log file must have
+    // a unique name. Let's check the file existence and rename it if needed.
+    if (!d_suppressUniqueFileName) {
+        // Note that the new name can be the same as the old name if the log
+        // file pattern does not contain any time-related specifiers, or if the
+        // current time is the same as the time when the log file was opened.
+        // In this case, we try to rename the log file by appending an
+        // additional timestamp suffix to the old log file name.
+        if (bdls::FilesystemUtil::exists(d_logFileName)) {
+            bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
 
-        if (d_publishInLocalTime) {
-            timeStampSuffix +=
-                bdlt::LocalTimeOffset::localTimeOffset(oldLogFileTimestamp);
-        }
+            if (d_publishInLocalTime) {
+                timeStampSuffix += bdlt::LocalTimeOffset::localTimeOffset(
+                                                          oldLogFileTimestamp);
+            }
 
-        bsl::string newFileName(d_logFileName);
-        newFileName += '.';
-        newFileName += getTimestampSuffix(timeStampSuffix);
+            bsl::string filenameWithTimestamp = bsl::format(
+                                          "{}.{}",
+                                          d_logFileName,
+                                          getTimestampSuffix(timeStampSuffix));
 
-        // Rotation is attempted with a sub-second delay (the file with an old
-        // timestamp already exists).  Ignore.
-        if (! bdls::FilesystemUtil::exists(newFileName.c_str())) {
-            if (0 == bsl::rename(d_logFileName.c_str(), newFileName.c_str())) {
-                *rotatedLogFileName = newFileName;
+            // If file with an appended timestamp still does exist, we skip the
+            // rotation.
+            if (bdls::FilesystemUtil::exists(filenameWithTimestamp)) {
+                // We should not log the warning to the console as this
+                // scenario assumes that someone tries to rotate the log file
+                // with a sub-second delays.
+                returnStatus |= k_ROTATE_RENAME_ERROR;
             }
             else {
-                char errorBuffer[k_ERROR_BUFFER_SIZE];
+                if (0 == bsl::rename(d_logFileName.c_str(),
+                                     filenameWithTimestamp.c_str())) {
+                    *rotatedLogFileName = filenameWithTimestamp;
+                }
+                else {
+                    LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_WARN,
+                                         "Cannot rename %s to %s: %s.",
+                                         d_logFileName.c_str(),
+                                         filenameWithTimestamp.c_str(),
+                                         bsl::strerror(getErrorCode()));
 
-                snprintf(errorBuffer,
-                         sizeof errorBuffer,
-                         "Cannot rename %s to %s: %s.",
-                         d_logFileName.c_str(),
-                         newFileName.c_str(),
-                         bsl::strerror(getErrorCode()));
-                bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_WARN,
-                                                         __FILE__,
-                                                         __LINE__,
-                                                         errorBuffer);
-                returnStatus = k_ROTATE_RENAME_ERROR;
+                    returnStatus |= k_ROTATE_RENAME_ERROR;
+                }
             }
         }
     }
 
     if (0 < d_rotationInterval.totalSeconds()) {
         d_nextRotationTimeUtc = computeNextRotationTime(
-                                                  d_rotationReferenceTime,
-                                                  d_publishInLocalTime,
-                                                  d_rotationInterval,
-                                                  d_logFileTimestampUtc);
+                                                       d_rotationReferenceTime,
+                                                       d_publishInLocalTime,
+                                                       d_rotationInterval,
+                                                       d_logFileTimestampUtc);
     }
 
+    // Open the new log file (under some conditions the new log file may be the
+    // same as the old one).
     if (0 != openLogFile(&d_logOutStream, d_logFileName.c_str())) {
-        char errorBuffer[k_ERROR_BUFFER_SIZE];
+        LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_WARN,
+                             "Cannot open new log file: %s. "
+                             "File logging will be disabled!",
+                             d_logFileName.c_str());
 
-        snprintf(errorBuffer,
-                 sizeof errorBuffer,
-                 "Cannot open new log file: %s. "
-                 "File logging will be disabled!",
-                 d_logFileName.c_str());
-        bsls::Log::platformDefaultMessageHandler(bsls::LogSeverity::e_ERROR,
-                                                 __FILE__,
-                                                 __LINE__,
-                                                 errorBuffer);
-        return k_ROTATE_SUCCESS != returnStatus
-               ? k_ROTATE_RENAME_AND_NEW_LOG_ERROR
-               : k_ROTATE_NEW_LOG_ERROR;                              // RETURN
+        returnStatus |= k_ROTATE_NEW_LOG_ERROR;
     }
 
-    return returnStatus;
+    return -returnStatus;
 }
 
 int FileObserver2::rotateIfNecessary(bsl::string           *rotatedLogFileName,
@@ -751,18 +744,10 @@ void FileObserver2::publish(const Record& record, const Context&)
             d_logFileFunctor(d_logOutStream, record);
 
             if (!d_logOutStream) {
-                char errorBuffer[k_ERROR_BUFFER_SIZE];
-
-                snprintf(errorBuffer,
-                         sizeof errorBuffer,
-                         "Error on file stream for %s: %s.",
-                         d_logFileName.c_str(),
-                         bsl::strerror(getErrorCode()));
-                bsls::Log::platformDefaultMessageHandler(
-                                                    bsls::LogSeverity::e_ERROR,
-                                                    __FILE__,
-                                                    __LINE__,
-                                                    errorBuffer);
+                LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_ERROR,
+                                     "Error on file stream for %s: %s.",
+                                     d_logFileName.c_str(),
+                                     bsl::strerror(getErrorCode()));
 
                 d_logStreamBuf.clear();
             }
