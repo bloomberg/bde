@@ -29,6 +29,7 @@
 #include <bslmt_turnstile.h>
 
 #include <bsls_atomic.h>
+#include <bsls_atomicoperations.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -543,7 +544,7 @@ struct StressData {
     unsigned                           *checksums;
     int                                 maxCount;
     int                                 thread;
-    bool                               *stopProd;
+    bsls::AtomicBool                   *stopProd;
 };
 
 extern "C" void *stressConsumer1(void* arg) {
@@ -569,8 +570,12 @@ extern "C" void *stressConsumer2(void* arg) {
 }
 
 int stressrand() {
-    static unsigned v = 0;
-    return v = (v*1664525 + 1013904223)&0xFFFFFFFF;
+  static bsls::AtomicOperations::AtomicTypes::Uint v;
+  bsls::AtomicOperations::setUint(
+      &v,
+      (bsls::AtomicOperations::getUint(&v) * 1664525 + 1013904223) & 0xFFFFFFFF);
+
+  return bsls::AtomicOperations::getUint(&v);
 }
 
 extern "C" void *stressProducer1(void* arg) {
@@ -2592,7 +2597,7 @@ int main(int argc, char *argv[])
         memset(producerData, 0, sizeof(StressData)*numProducers);
         memset(consumerData, 0, sizeof(StressData)*numConsumers);
         bdlcc::FixedQueue<StressNode> queue(queueSize);
-        bool stopProducers = false;
+        bsls::AtomicBool stopProducers;
         for (int i=0; i<numProducers; i++) {
             producerData[i].counts = new int[1];
             producerData[i].checksums = new unsigned[1];
@@ -2614,7 +2619,6 @@ int main(int argc, char *argv[])
                 consumerData[i].checksums[j] = 0;
             }
             consumerData[i].queue = &queue;
-            producerData[i].maxCount = maxCount;
             consumerData[i].thread = i;
             bslmt::ThreadUtil::create(&consumerData[i].handle,
                     ((i%2) ? stressConsumer2 : stressConsumer1),
