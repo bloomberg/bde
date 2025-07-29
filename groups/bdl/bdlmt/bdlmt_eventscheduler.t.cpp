@@ -1741,7 +1741,7 @@ enum {
 };
 
 const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
-bool  testTimingFailure = false;
+bsls::AtomicBool testTimingFailure(false);
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 bslma::TestAllocator ta(veryVeryVerbose);
@@ -1766,13 +1766,14 @@ void *workerThread11(void *arg)
                                                        &testObj[id]));
               pX->cancelAllEvents();
               bsls::TimeInterval elapsed = u::now() - now;
-              if (!testTimingFailure) {
-                  // This logic is such that if testTimingFailure is false,
-                  // then we can *guarantee* that no job should have been able
-                  // to execute.  The logic always errs in the favor of doubt,
-                  // but the common case is that elapsed will always be < T4.
 
-                  testTimingFailure = (elapsed >= T6);
+              // This logic is such that if testTimingFailure is false,
+              // then we can *guarantee* that no job should have been able
+              // to execute.  The logic always errs in the favor of doubt,
+              // but the common case is that elapsed will always be < T4.
+
+              if (elapsed >= T6) {
+                  testTimingFailure.storeRelaxed(true);
               }
           }
       }
@@ -1787,13 +1788,14 @@ void *workerThread11(void *arg)
                   bdlf::MemFnUtil::memFn(&TestClass1::callback, &testObj[id]));
               pX->cancelAllEvents();
               bsls::TimeInterval elapsed = u::now() - now;
-              if (!testTimingFailure) {
-                  // This logic is such that if testTimingFailure is false,
-                  // then we can *guarantee* that no job should have been able
-                  // to execute.  The logic always errs in the favor of doubt,
-                  // but the common case is that elapsed will always be < T4.
 
-                  testTimingFailure = (elapsed >= T6);
+              // This logic is such that if testTimingFailure is false,
+              // then we can *guarantee* that no job should have been able
+              // to execute.  The logic always errs in the favor of doubt,
+              // but the common case is that elapsed will always be < T4.
+
+              if (elapsed >= T6) {
+                  testTimingFailure.storeRelaxed(true);
               }
           }
       }
@@ -1819,7 +1821,7 @@ enum {
 };
 
 const bsls::TimeInterval T6(6 * DECI_SEC); // decrease chance of timing failure
-bool  testTimingFailure = false;
+bsls::AtomicBool testTimingFailure(false);
 
 bslmt::Barrier barrier(k_NUM_THREADS);
 bslma::TestAllocator ta(veryVeryVerbose);
@@ -1854,14 +1856,16 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded event: "; P_(id); P_(i);
                   printMutex.unlock();
               }
-              if (0 != pX->cancelEvent(h) && !testTimingFailure) {
+              if (0 != pX->cancelEvent(h) && !testTimingFailure.loadRelaxed()) {
                   // We tried and the `cancelEvent` failed, but we do not want
                   // to generate an error unless we can *guarantee* that the
                   // `cancelEvent` should have succeeded.
 
                   bsls::TimeInterval elapsed = u::now() - now;
                   LOOP2_ASSERTT(id, i, elapsed < T6);
-                  testTimingFailure = (elapsed >= T6);
+                  if (elapsed >= T6) {
+                      testTimingFailure.storeRelaxed(true);
+                  }
               }
           }
       }
@@ -1886,14 +1890,16 @@ void *workerThread10(void *arg)
                   cout << "\t\tAdded clock: "; P_(id); P_(i);
                   printMutex.unlock();
               }
-              if (0 != pX->cancelEvent(h) && !testTimingFailure) {
+              if (0 != pX->cancelEvent(h) && !testTimingFailure.loadRelaxed()) {
                   // We tried and the `cancelRecurringEvent` failed, but we do
                   // not want to generate an error unless we can *guarantee*
                   // that the `cancelRecurringEvent` should have succeeded.
 
                   bsls::TimeInterval elapsed = u::now() - now;
                   LOOP2_ASSERTT(id, i, elapsed < T6);
-                  testTimingFailure = (elapsed >= T6);
+                  if (elapsed >= T6) {
+                      testTimingFailure.storeRelaxed(true);
+                  }
               }
           }
       }
@@ -5553,7 +5559,7 @@ int main(int argc, char *argv[])
         executeInParallel(k_NUM_THREADS, workerThread11);
         microSleep(T10, 0);
 
-        if (!testTimingFailure) {
+        if (!testTimingFailure.loadRelaxed()) {
             for (int i = 0; i< k_NUM_THREADS; ++i) {
                 ASSERT( 0 == testObj[i].numExecuted() );
             }
@@ -5621,7 +5627,7 @@ int main(int argc, char *argv[])
         executeInParallel(k_NUM_THREADS, workerThread10);
         microSleep(T10, 0);
 
-        if (!testTimingFailure) {
+        if (!testTimingFailure.loadRelaxed()) {
             for (int i = 0; i < k_NUM_THREADS; ++i) {
                 LOOP2_ASSERT(i, testObj[i].numExecuted(),
                              0 == testObj[i].numExecuted() );
