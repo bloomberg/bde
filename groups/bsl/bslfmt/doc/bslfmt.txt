@@ -9,14 +9,16 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 31 components having 11 levels of physical
+ The 'bslfmt' package currently has 33 components having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  11. bslfmt_streamed
+  11. bslfmt_enablestreamedformatter
+      bslfmt_streamed
 
   10. bslfmt_formattable
+      bslfmt_streamedformatter
 
    9. bslfmt_format
 
@@ -59,6 +61,9 @@ bslfmt.txt
 
 /Component Synopsis
 /------------------
+: 'bslfmt_enablestreamedformatter':
+:      Provide a trait to enable stream based formatting of a type.
+:
 : 'bslfmt_format':
 :      Provide a standard compliant `format` implementation.
 :
@@ -132,7 +137,7 @@ bslfmt.txt
 :      Provide utilities for testing custom formatters
 :
 : 'bslfmt_formatterunicodedata':
-:      Private unicode data tables for use by `bsl::format`
+:      Private unicode data tables for use by `bsl::format`.
 :
 : 'bslfmt_mockformatcontext':
 :      Provide mock context to test formatter specializations
@@ -145,6 +150,9 @@ bslfmt.txt
 :
 : 'bslfmt_streamed':
 :      Provide a wrapper to format using an `ostream` `operator<<`
+:
+: 'bslfmt_streamedformatter':
+:      Provide a formatter that uses the `ostream` insert `operator<<`.
 :
 : 'bslfmt_testspecificationgenerator':
 :      Provide a generator for test format specifications

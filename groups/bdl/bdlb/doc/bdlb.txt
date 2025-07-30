@@ -186,7 +186,7 @@
 :      Provide a suite of helper classes for printing `bsl::optional`.
 :
 : 'bdlb_pairutil':
-:      Provide a function that creates a pair of references.
+:      Provide support functions for `bsl::pair`.
 :
 : 'bdlb_pcgrandomgenerator':
 :      Provide a class to generate random numbers using the PCG algorithm.

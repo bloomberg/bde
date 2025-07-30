@@ -12,29 +12,37 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'baljsn' package currently has 15 components having 5 levels of physical
+ The 'baljsn' package currently has 20 components having 8 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
+  8. baljsn_jsonconverter
+
+  7. baljsn_decoder
+
+  6. baljsn_encoder
+
   5. baljsn_datumutil
-     baljsn_encoder
+     baljsn_encodeimplutil
+     baljsn_jsonformatter
+     baljsn_jsonparserutil
 
   4. baljsn_formatter
+     baljsn_parserutil
      baljsn_simpleformatter
 
   3. baljsn_printutil
 
   2. baljsn_datumdecoderoptions
      baljsn_datumencoderoptions
-     baljsn_decoder
      baljsn_decoderoptionsutil
      baljsn_encoderoptions
+     baljsn_jsontokenizer
 
   1. baljsn_decoderoptions
      baljsn_encoder_testtypes                                         !PRIVATE!
      baljsn_encodingstyle
-     baljsn_parserutil
      baljsn_tokenizer
 ..
 
@@ -58,6 +66,9 @@
 : 'baljsn_decoderoptionsutil':
 :      Provide a utility for configuring `baljsn::DecoderOptions`.
 :
+: 'baljsn_encodeimplutil':
+:      Provide a utility to encode `bdlat`-compatible types as JSON.
+:
 : 'baljsn_encoder':
 :      Provide a JSON encoder for `bdlat`-compatible types.
 :
@@ -72,6 +83,18 @@
 :
 : 'baljsn_formatter':
 :      Provide a formatter for encoding data in the JSON format.
+:
+: 'baljsn_jsonconverter':
+:      Provide conversions between JSON and `bdlat`-compatible types.
+:
+: 'baljsn_jsonformatter':
+:      Provide a formatter for converting `bdlat` object to `Json` analog.
+:
+: 'baljsn_jsonparserutil':
+:      Provide a utility to get simple types from `bdl::json` objects
+:
+: 'baljsn_jsontokenizer':
+:      Provide a tokenizer for viewing parts of a `bdljsn::Json` object.
 :
 : 'baljsn_parserutil':
 :      Provide a utility for decoding JSON data into simple types.
