@@ -228,11 +228,15 @@ struct ArgTypingVisitor : ArgType {
         d_argType = e_UNSIGNED_LONG_LONG;
     }
 
-#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) && \
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) &&       \
     __GLIBCXX__ >= 20230426 && defined(__SIZEOF_INT128__)
     // the 128-bit int overloads are required prior to version 15, due to
     // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108053
   #define u_NEED_INT128
+#endif
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && defined(__GLIBCXX__) &&       \
+    __GLIBCXX__ >= 20230426 && defined(__SIZEOF_FLOAT128__)
+  #define u_NEED_FLOAT128
 #endif
 #if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) &&                              \
     defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
@@ -253,6 +257,13 @@ struct ArgTypingVisitor : ArgType {
         ASSERT(0 == "`operator()(unsigned __int128)` must not be called!");
     }
 #endif  // On GNU C++ lib and it uses __int128
+#ifdef u_NEED_FLOAT128
+    void operator()(__float128) {
+        // We will not use `__float128` so we do not need to set anything here.
+        // But for paranoia we do `ASSERT` if we get here somehow.
+        ASSERT(0 == "`operator()(__float128)` must not be called!");
+    }
+#endif  // On GNU C++ lib and it uses __float128
     void operator()(float) {
         d_argType = e_FLOAT;
     }
