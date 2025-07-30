@@ -1,5 +1,32 @@
-bsl-internal (4.27.0.0) unstable; urgency=low
+bsl-internal (4.28.0.0) unstable; urgency=low
 
+  * ad4d509a4 Bumped version to 4.28.0.0
+  * 9c8d02380 bdlmt_eventscheduler.t: Fix TSan race in cases 10 and 11 (#5496)
+  * bdae8ba07 bdlcc_fixedqueue.t: Fix TSan errors in case 4 (#5500)
+  * 5573662bf Return error code on skipped rotation. (#5490)
+  * 7a707047c ball: Use `bsl::string_view` for categoryName/fileName/message (where possible) (#5442)
+  * a3646d2d4 balb::PerformanceMonitor: Allow find(0) (#5487)
+  * fa0a40068 drqs-180031222: `baljsn_jsonformatter`: Test `BSLS_ASSERT_SAFE_IS_ACTIVE`. (#5492)
+  * ea8f419c8 drqs-180018042: `baljsn_jsonconverter`: Fix ignored return value. (#5491)
+  * dbbcfcb54 silence false positive warning in bsl::optional (DRQS 179562883) (#5485)
+  * cccd0d93f move batch vector to queue data member (#5486)
+  * e20061fc3 reduced likelihood of TCG timeouts (#5489)
+  * eba9f6e03 protoype use of TimedCompletionGuard in bslmt (#5484)
+  * 8e2242375 drqs-179795620: `baljsn_(encoder|decoder|converter)`: Decimal64 test/… (#5483)
+  * bef8498ce Fix data race introduced by wait variable in fastpostsemaphore test (#5424)
+  * eb6e1e0a2 Please support checking for required elements in balxml_decoder (DRQS 179898047) (#5479)
+  * 55003b3a6 bslx_byteinstream.h: check '0 <= length' after reading it (#5458)
+  * 98827cfe0 update doc (#5480)
+  * 325e53d7a 'bslfmt_formatterunicodedata' has ben brought to the gold quality (DRQS 179970566) (#5470)
+  * 06b3191f0 Round-trip error serializing baljsn::DecoderOptions. (DRQS 179972492) (#5481)
+  * 20cc33354 timedWait does some stuff, need to reduce the k_WAITING value (#5478)
+  * 598d68adb use timed completion guard (#5477)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 30 Jul 2025 12:11:31 -0400
+
+bsl-internal (4.27.0.0) git; urgency=low
+
+  * 42d75cc77 Changelog for version 4.27.0.0
   * 7ec116330 Bumped version to 4.27.0.0
   * 4cc0c6d62 Incorporate pcre2 10.45 (#5406)
   * 6c3bb3914 Revert "Please support checking required elements in balber_berdecoder (DRQS 179898238)" (#5476)
@@ -67,7 +94,7 @@ bsl-internal (4.27.0.0) unstable; urgency=low
   * 23a946a03 Fix TSAN reported race in bslmt::Latch (#5398)
   * 715ececbb Merge pull request #5401 from afeher/drqs-179317700-fix-bslfmt_format.t
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 11 Jul 2025 15:42:39 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 11 Jul 2025 15:49:45 +0000
 
 bsl-internal (4.25.0.0) git; urgency=low
 
@@ -1756,10 +1783,25 @@ bsl-internal (3.99.6.0) git; urgency=low
   * 15ba57c29 fix MSVC warning about 'unary minus operator applied to unsigned type' - ENG2BASINF-3036 (#3697)
   * 437bc777e add allocator-aware default constructors to striped unordered map and multimap (#3689)
   * 54330a5b1 Gcc11 warnings drqs 169251019 (#3694)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:39:17 -0400
+
+bsl-internal (3.99.5.0.2.testpromotion) git; urgency=low
+
   * 00e3d98e1 Changelog for version 3.99.5.0.2.testpromotion
   * 30f4d1d74 drqs-169243159: 'bslstl_stringbuf.h': 'static_cast' to quell warnings. (#3691)
   * dcd6d7fb5 Throughputbenchmark drqs 169191413.1 (#3690)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 9 May 2022 07:03:35 -0400
+
+bsl-internal (3.99.5.0.1.testpromotion) git; urgency=low
+
   * d9222f118 Changelog for version 3.99.5.0.1.testpromotion
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:44:07 -0400
+
+bsl-internal (3.99.5.0.1.test-promotion) git; urgency=low
+
   * 830198c70 Changelog for version 3.99.5.0.1.test-promotion
   * 0fcaad2c9 Bumped version to 3.99.6.0
   * 1e0c98bc2 Apple m1 fixes 169105973 (#3666)
@@ -1775,7 +1817,7 @@ bsl-internal (3.99.6.0) git; urgency=low
   * f1815b6cb drqs-168968405: 'bdlcc_deque': GCC11: TC10 reorg due to '-m32' segfau… (#3660)
   * b3a7f52cb baljsn: Support arrays of arrays (#3630)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 13 May 2022 14:39:17 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 4 May 2022 16:36:13 -0400
 
 bsl-internal (3.99.3.0) git; urgency=low
 
