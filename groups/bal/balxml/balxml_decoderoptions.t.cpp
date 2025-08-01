@@ -39,7 +39,6 @@ using namespace bsl;
 //  - `setSkipUnknownElements`
 //  - `setValidateInputIsUtf8`
 //  - `setValidateRootTag`
-//  - `setAllowMissingRequiredAttributes`
 //
 // Basic Accessors:
 //  - `maxDepth`
@@ -47,7 +46,6 @@ using namespace bsl;
 //  - `skipUnknownElements`
 //  - `validateInputIsUtf8`
 //  - `validateRootTag`
-//  - `allowMissingRequiredAttributes`
 //
 // Certain standard value-semantic-type test cases are omitted:
 //  - [ 8] -- `swap` is not implemented for this class.
@@ -76,7 +74,6 @@ using namespace bsl;
 // [ 3] setSkipUnknownElements(bool value);
 // [ 3] setValidateInputIsUtf8(bool value);
 // [ 3] setValidateRootTag(bool value);
-// [ 3] setAllowMissingRequiredAttributes(bool value);
 //
 // ACCESSORS
 // [ 4] int  maxDepth() const;
@@ -84,7 +81,6 @@ using namespace bsl;
 // [ 4] bool skipUnknownElements() const;
 // [ 4] bool validateInputIsUtf8() const;
 // [ 4] bool validateRootTag() const;
-// [ 4] bool allowMissingRequiredAttributes() const;
 //
 // [ 5] ostream& print(ostream& s, int level = 0, int sPL = 4) const;
 //
@@ -183,121 +179,120 @@ struct DefaultDataRow {
     bool        d_skipUnknownElements;
     bool        d_validateInputIsUtf8;
     bool        d_validateRootTag;
-    bool        d_allowMissingRequiredAttributes;
 };
 
 static
 const DefaultDataRow DEFAULT_DATA[] =
 {
-    //LINE DEPTH     MODE    SKIP   UTF8  ROOT  MRA
-    //---- -------   ----    ----   ----  ----  ---
+    //LINE DEPTH     MODE    SKIP   UTF8   ROOT
+    //---- -------   ----    ----   ----   ----
 
     { L_,      512,
-          Mode::e_DEFAULT,  true, false, false, true  } // default first
+          Mode::e_DEFAULT,  true, false, false } // default first
 
     // DEPTH: INT_MIN
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT, false, false, false, false }
+          Mode::e_DEFAULT, false, false, false }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT, false, false,  true, true  }
+          Mode::e_DEFAULT, false, false,  true }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT, false,  true, false, false }
+          Mode::e_DEFAULT, false,  true, false }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT, false,  true,  true, false }
+          Mode::e_DEFAULT, false,  true,  true }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT,  true, false, false, false }
+          Mode::e_DEFAULT,  true, false, false }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT,  true, false,  true, false }
+          Mode::e_DEFAULT,  true, false,  true }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT,  true,  true, false, false }
+          Mode::e_DEFAULT,  true,  true, false }
 ,   { L_,  INT_MIN,
-          Mode::e_DEFAULT,  true,  true,  true, true  }
+          Mode::e_DEFAULT,  true,  true,  true }
 
 ,   { L_,  INT_MIN,
-                  INT_MIN, false, false, false, false }
+                  INT_MIN, false, false, false }
 ,   { L_,  INT_MIN,
-                  INT_MIN, false, false,  true, true  }
+                  INT_MIN, false, false,  true }
 ,   { L_,  INT_MIN,
-                  INT_MIN, false,  true, false, false }
+                  INT_MIN, false,  true, false }
 ,   { L_,  INT_MIN,
-                  INT_MIN, false,  true,  true, false }
+                  INT_MIN, false,  true,  true }
 ,   { L_,  INT_MIN,
-                  INT_MIN,  true, false, false, false }
+                  INT_MIN,  true, false, false }
 ,   { L_,  INT_MIN,
-                  INT_MIN,  true, false,  true, false }
+                  INT_MIN,  true, false,  true }
 ,   { L_,  INT_MIN,
-                  INT_MIN,  true,  true, false, false }
+                  INT_MIN,  true,  true, false }
 ,   { L_,  INT_MIN,
-                  INT_MIN,  true,  true,  true, true  }
+                  INT_MIN,  true,  true,  true }
 
 ,   { L_,  INT_MIN,
-                  INT_MAX, false, false, false, false }
+                  INT_MAX, false, false, false }
 ,   { L_,  INT_MIN,
-                  INT_MAX, false, false,  true, true  }
+                  INT_MAX, false, false,  true }
 ,   { L_,  INT_MIN,
-                  INT_MAX, false,  true, false, false }
+                  INT_MAX, false,  true, false }
 ,   { L_,  INT_MIN,
-                  INT_MAX, false,  true,  true, false }
+                  INT_MAX, false,  true,  true }
 ,   { L_,  INT_MIN,
-                  INT_MAX,  true, false, false, false }
+                  INT_MAX,  true, false, false }
 ,   { L_,  INT_MIN,
-                  INT_MAX,  true, false,  true, false }
+                  INT_MAX,  true, false,  true }
 ,   { L_,  INT_MIN,
-                  INT_MAX,  true,  true, false, false }
+                  INT_MAX,  true,  true, false }
 ,   { L_,  INT_MIN,
-                  INT_MAX,  true,  true,  true, true  }
+                  INT_MAX,  true,  true,  true }
 
     // DEPTH: INT_MAX
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT, false, false, false, false }
+          Mode::e_DEFAULT, false, false, false }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT, false, false,  true, true  }
+          Mode::e_DEFAULT, false, false,  true }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT, false,  true, false, false }
+          Mode::e_DEFAULT, false,  true, false }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT, false,  true,  true, false }
+          Mode::e_DEFAULT, false,  true,  true }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT,  true, false, false, false }
+          Mode::e_DEFAULT,  true, false, false }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT,  true, false,  true, false }
+          Mode::e_DEFAULT,  true, false,  true }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT,  true,  true, false, false }
+          Mode::e_DEFAULT,  true,  true, false }
 ,   { L_,  INT_MAX,
-          Mode::e_DEFAULT,  true,  true,  true, true  }
+          Mode::e_DEFAULT,  true,  true,  true }
 
 ,   { L_,  INT_MAX,
-                  INT_MIN, false, false, false, false }
+                  INT_MIN, false, false, false }
 ,   { L_,  INT_MAX,
-                  INT_MIN, false, false,  true, true  }
+                  INT_MIN, false, false,  true }
 ,   { L_,  INT_MAX,
-                  INT_MIN, false,  true, false, false }
+                  INT_MIN, false,  true, false }
 ,   { L_,  INT_MAX,
-                  INT_MIN, false,  true,  true, false }
+                  INT_MIN, false,  true,  true }
 ,   { L_,  INT_MAX,
-                  INT_MIN,  true, false, false, false }
+                  INT_MIN,  true, false, false }
 ,   { L_,  INT_MAX,
-                  INT_MIN,  true, false,  true, false }
+                  INT_MIN,  true, false,  true }
 ,   { L_,  INT_MAX,
-                  INT_MIN,  true,  true, false, false }
+                  INT_MIN,  true,  true, false }
 ,   { L_,  INT_MAX,
-                  INT_MIN,  true,  true,  true, true  }
+                  INT_MIN,  true,  true,  true }
 
 ,   { L_,  INT_MAX,
-                  INT_MAX, false, false, false, false }
+                  INT_MAX, false, false, false }
 ,   { L_,  INT_MAX,
-                  INT_MAX, false, false,  true, true  }
+                  INT_MAX, false, false,  true }
 ,   { L_,  INT_MAX,
-                  INT_MAX, false,  true, false, false }
+                  INT_MAX, false,  true, false }
 ,   { L_,  INT_MAX,
-                  INT_MAX, false,  true,  true, false }
+                  INT_MAX, false,  true,  true }
 ,   { L_,  INT_MAX,
-                  INT_MAX,  true, false, false, false }
+                  INT_MAX,  true, false, false }
 ,   { L_,  INT_MAX,
-                  INT_MAX,  true, false,  true, false }
+                  INT_MAX,  true, false,  true }
 ,   { L_,  INT_MAX,
-                  INT_MAX,  true,  true, false, false }
+                  INT_MAX,  true,  true, false }
 ,   { L_,  INT_MAX,
-                  INT_MAX,  true,  true,  true, true  }
+                  INT_MAX,  true,  true,  true }
 
 };
 const int DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
@@ -507,7 +502,6 @@ int main(int argc, char *argv[])
             const bool  SKIP1  = DATA[ti].d_skipUnknownElements;
             const bool  UTF81  = DATA[ti].d_validateInputIsUtf8;
             const bool  ROOT1  = DATA[ti].d_validateRootTag;
-            const bool  MRA1   = DATA[ti].d_allowMissingRequiredAttributes;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxDepth(DEPTH1);
@@ -515,7 +509,6 @@ int main(int argc, char *argv[])
             mZ.setSkipUnknownElements(SKIP1);
             mZ.setValidateInputIsUtf8(UTF81);
             mZ.setValidateRootTag(ROOT1);
-            mZ.setAllowMissingRequiredAttributes(MRA1);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxDepth(DEPTH1);
@@ -523,7 +516,6 @@ int main(int argc, char *argv[])
             mZZ.setSkipUnknownElements(SKIP1);
             mZZ.setValidateInputIsUtf8(UTF81);
             mZZ.setValidateRootTag(ROOT1);
-            mZZ.setAllowMissingRequiredAttributes(MRA1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -546,7 +538,6 @@ int main(int argc, char *argv[])
                 const bool  SKIP2  = DATA[tj].d_skipUnknownElements;
                 const bool  UTF82  = DATA[tj].d_validateInputIsUtf8;
                 const bool  ROOT2  = DATA[tj].d_validateRootTag;
-                const bool  MRA2   = DATA[tj].d_allowMissingRequiredAttributes;
 
                 Obj mX;  const Obj& X = mX;
                 mX.setMaxDepth(DEPTH2);
@@ -554,7 +545,6 @@ int main(int argc, char *argv[])
                 mX.setSkipUnknownElements(SKIP2);
                 mX.setValidateInputIsUtf8(UTF82);
                 mX.setValidateRootTag(ROOT2);
-                mX.setAllowMissingRequiredAttributes(MRA2);
 
                 if (veryVerbose) { T_ P_(LINE2) P(X) }
 
@@ -572,19 +562,13 @@ int main(int argc, char *argv[])
             {
                 Obj mX;
                 mX.setMaxDepth(DEPTH1);
-                mX.setFormattingMode(MODE1);
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
-                mX.setValidateRootTag(ROOT1);
-                mX.setAllowMissingRequiredAttributes(MRA1);
 
                 Obj mZZ;  const Obj& ZZ = mZZ;
                 mZZ.setMaxDepth(DEPTH1);
-                mZZ.setFormattingMode(MODE1);
                 mZZ.setSkipUnknownElements(SKIP1);
                 mZZ.setValidateInputIsUtf8(UTF81);
-                mZZ.setValidateRootTag(ROOT1);
-                mZZ.setAllowMissingRequiredAttributes(MRA1);
 
                 const Obj& Z = mX;
 
@@ -676,7 +660,6 @@ int main(int argc, char *argv[])
             const bool  SKIP  = DATA[ti].d_skipUnknownElements;
             const bool  UTF8  = DATA[ti].d_validateInputIsUtf8;
             const bool  ROOT  = DATA[ti].d_validateRootTag;
-            const bool  MRA   = DATA[ti].d_allowMissingRequiredAttributes;
 
             Obj mZ;  const Obj& Z = mZ;
             mZ.setMaxDepth(DEPTH);
@@ -684,7 +667,6 @@ int main(int argc, char *argv[])
             mZ.setSkipUnknownElements(SKIP);
             mZ.setValidateInputIsUtf8(UTF8);
             mZ.setValidateRootTag(ROOT);
-            mZ.setAllowMissingRequiredAttributes(MRA);
 
             Obj mZZ;  const Obj& ZZ = mZZ;
             mZZ.setMaxDepth(DEPTH);
@@ -692,7 +674,6 @@ int main(int argc, char *argv[])
             mZZ.setSkipUnknownElements(SKIP);
             mZZ.setValidateInputIsUtf8(UTF8);
             mZZ.setValidateRootTag(ROOT);
-            mZZ.setAllowMissingRequiredAttributes(MRA);
 
             if (veryVerbose) { T_ P_(Z) P(ZZ) }
 
@@ -798,7 +779,6 @@ int main(int argc, char *argv[])
         typedef bool  T3;        // `skipUnknownElements`
         typedef bool  T4;        // `validateInputIsUtf8`
         typedef bool  T5;        // `validateRootTag`
-        typedef bool  T6;        // `allowMissingRequiredAttributes`
 
                       // ------------------------------
                       // Attribute 1 Values: `maxDepth`
@@ -833,14 +813,7 @@ int main(int argc, char *argv[])
                    // -------------------------------------
 
         const T5 A5 = false;                 // baseline
-        const T5 B5 = true;
-
-                   // ----------------------------------------------------
-                   // Attribute 6 Values: `allowMissingRequiredAttributes`
-                   // ----------------------------------------------------
-
-        const T6 A6 = true;                  // baseline
-        const T6 B6 = false;
+        const T5 B5 = true; 
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;
@@ -852,7 +825,6 @@ int main(int argc, char *argv[])
             bool  d_skipUnknownElements;
             bool  d_validateInputIsUtf8;
             bool  d_validateRootTag;
-            bool  d_allowMissingRequiredAttributes;
         } DATA[] = {
 
         // The first row of the table below represents an object value
@@ -860,17 +832,16 @@ int main(int argc, char *argv[])
         // row differs (slightly) from the first in exactly one attribute value
         // (Bi).
 
-            //LINE DEPTH     MODE   SKIP   UTF8   ROOT  MRA
-            //---- -------   ----   ----   ----   ----  ---
+            //LINE DEPTH     MODE   SKIP   UTF8   ROOT
+            //---- -------   ----   ----   ----   ----
 
-            { L_,      A1,   A2,    A3,     A4,    A5,   A6 }, // baseline
+            { L_,      A1,   A2,    A3,     A4,     A5 }, // baseline
 
-            { L_,      B1,   A2,    A3,     A4,    A5,   A6 },
-            { L_,      A1,   B2,    A3,     A4,    A5,   A6 },
-            { L_,      A1,   A2,    B3,     A4,    A5,   A6 },
-            { L_,      A1,   A2,    A3,     B4,    A5,   A6 },
-            { L_,      A1,   A2,    A3,     A4,    B5,   A6 },
-            { L_,      A1,   A2,    A3,     A4,    A5,   B6 },
+            { L_,      B1,   A2,    A3,     A4,     A5 },
+            { L_,      A1,   B2,    A3,     A4,     A5 },
+            { L_,      A1,   A2,    B3,     A4,     A5 },
+            { L_,      A1,   A2,    A3,     B4,     A5 },
+            { L_,      A1,   A2,    A3,     A4,     B5 },
 
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -884,15 +855,13 @@ int main(int argc, char *argv[])
             const bool  SKIP1  = DATA[ti].d_skipUnknownElements;
             const bool  UTF81  = DATA[ti].d_validateInputIsUtf8;
             const bool  ROOT1  = DATA[ti].d_validateRootTag;
-            const bool  MRA1   = DATA[ti].d_allowMissingRequiredAttributes;
 
             if (veryVerbose) {
                 T_ P_(LINE1) P_(DEPTH1)
                              P_(MODE1)
                              P_(SKIP1)
                              P_(UTF81)
-                             P_(ROOT1)
-                             P(MRA1)
+                             P(ROOT1)
             }
 
             // Ensure an object compares correctly with itself (alias test).
@@ -904,7 +873,6 @@ int main(int argc, char *argv[])
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
                 mX.setValidateRootTag(ROOT1);
-                mX.setAllowMissingRequiredAttributes(MRA1);
 
                 LOOP2_ASSERT(LINE1, X,   X == X);
                 LOOP2_ASSERT(LINE1, X, !(X != X));
@@ -917,7 +885,6 @@ int main(int argc, char *argv[])
                 const bool  SKIP2  = DATA[tj].d_skipUnknownElements;
                 const bool  UTF82  = DATA[tj].d_validateInputIsUtf8;
                 const bool  ROOT2  = DATA[tj].d_validateRootTag;
-                const bool  MRA2   = DATA[tj].d_allowMissingRequiredAttributes;
 
                 const bool EXP = ti == tj;  // expected for equality comparison
 
@@ -926,8 +893,7 @@ int main(int argc, char *argv[])
                                     P_(MODE2)
                                     P_(SKIP2)
                                     P_(UTF82)
-                                    P_(ROOT2)
-                                    P(MRA2)
+                                    P(ROOT2)
                 }
 
                 Obj mX;  const Obj& X = mX;
@@ -938,14 +904,12 @@ int main(int argc, char *argv[])
                 mX.setSkipUnknownElements(SKIP1);
                 mX.setValidateInputIsUtf8(UTF81);
                 mX.setValidateRootTag(ROOT1);
-                mX.setAllowMissingRequiredAttributes(MRA1);
 
                 mY.setMaxDepth(DEPTH2);
                 mY.setFormattingMode(MODE2);
                 mY.setSkipUnknownElements(SKIP2);
                 mY.setValidateInputIsUtf8(UTF82);
                 mY.setValidateRootTag(ROOT2);
-                mY.setAllowMissingRequiredAttributes(MRA2);
 
                 if (veryVerbose) { T_ T_ T_ P_(EXP) P_(X) P(Y) }
 
@@ -1027,7 +991,6 @@ int main(int argc, char *argv[])
             bool        d_skipUnknownElements;
             bool        d_validateInputIsUtf8;
             bool        d_validateRootTag;
-            bool        d_allowMissingRequiredAttributes;
 
             const char *d_expected_p;
         } DATA[] = {
@@ -1042,39 +1005,36 @@ int main(int argc, char *argv[])
         // P-2.1.1: { A } x { 0 } x { 0, 1, -1 } --> 3 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  MD  F  S  U  R MRA EXP
-        //---- - ---  --- -  -  -  - --- ---
+        //LINE L SPL  MD  F  S  U  R  EXP
+        //---- - ---  --- -  -  -  -  ---
 
-        { L_,  0,  0, 89, D, 0, 1, 1,  1,
+        { L_,  0,  0, 89, D, 0, 1, 1,
                                  "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "formattingMode = 1"                        NL
                                  "skipUnknownElements = false"               NL
                                  "validateInputIsUtf8 = true"                NL
                                  "validateRootTag = true"                    NL
-                                 "allowMissingRequiredAttributes = true"     NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  0,  1, 89, D, 0, 1, 1,  1,
+        { L_,  0,  1, 89, D, 0, 1, 1,
                                  "["                                         NL
                                  " maxDepth = 89"                            NL
                                  " formattingMode = 1"                       NL
                                  " skipUnknownElements = false"              NL
                                  " validateInputIsUtf8 = true"               NL
                                  " validateRootTag = true"                   NL
-                                 " allowMissingRequiredAttributes = true"    NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  0, -1, 89, H, 1, 0, 0,  0,
+        { L_,  0, -1, 89, H, 1, 0, 0,
                                  "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "formattingMode = 2"                        SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = false"               SP
                                  "validateRootTag = false"                   SP
-                                 "allowMissingRequiredAttributes = false"    SP
                                  "]"
                                                                              },
 
@@ -1082,72 +1042,66 @@ int main(int argc, char *argv[])
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2 } --> 6 expected outputs
         // ------------------------------------------------------------------
 
-        //LINE L SPL  MD  F  S  U  R MRA EXP
-        //---- - ---  --- -  -  -  - --- ---
+        //LINE L SPL  MD  F  S  U  R  EXP
+        //---- - ---  --- -  -  -  -  ---
 
-        { L_,  3,  0, 89, D, 1, 1, 1,  1,
+        { L_,  3,  0, 89, D, 1, 1, 1,
                                  "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "formattingMode = 1"                        NL
                                  "skipUnknownElements = true"                NL
                                  "validateInputIsUtf8 = true"                NL
                                  "validateRootTag = true"                    NL
-                                 "allowMissingRequiredAttributes = true"     NL
                                  "]"                                         NL
                                                                              },
 
-        { L_,  3,  2, 89, D, 0, 0, 0,  0,
+        { L_,  3,  2, 89, D, 0, 0, 0,
                          "      ["                                           NL
                          "        maxDepth = 89"                             NL
                          "        formattingMode = 1"                        NL
                          "        skipUnknownElements = false"               NL
                          "        validateInputIsUtf8 = false"               NL
                          "        validateRootTag = false"                   NL
-                         "        allowMissingRequiredAttributes = false"    NL
                          "      ]"                                           NL
                                                                              },
 
-        { L_,  3, -2, 89, H, 1, 0, 0,  0,
+        { L_,  3, -2, 89, H, 1, 0, 0,
                                  "      ["                                   SP
                                  "maxDepth = 89"                             SP
                                  "formattingMode = 2"                        SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = false"               SP
                                  "validateRootTag = false"                   SP
-                                 "allowMissingRequiredAttributes = false"    SP
                                  "]"
                                                                              },
 
-        { L_, -3,  0, 89, D, 0, 1, 1,  1,
+        { L_, -3,  0, 89, D, 0, 1, 1,
                                  "["                                         NL
                                  "maxDepth = 89"                             NL
                                  "formattingMode = 1"                        NL
                                  "skipUnknownElements = false"               NL
                                  "validateInputIsUtf8 = true"                NL
                                  "validateRootTag = true"                    NL
-                                 "allowMissingRequiredAttributes = true"     NL
                                  "]"                                         NL
                                                                              },
 
-        { L_, -3,  2, 89, D, 0, 0, 0,  0,
+        { L_, -3,  2, 89, D, 0, 0, 0,
                         "["                                                  NL
                         "        maxDepth = 89"                              NL
                         "        formattingMode = 1"                         NL
                         "        skipUnknownElements = false"                NL
                         "        validateInputIsUtf8 = false"                NL
                         "        validateRootTag = false"                    NL
-                        "        allowMissingRequiredAttributes = false"     NL
                         "      ]"                                            NL
                                                                              },
 
-        { L_, -3, -2, 89, H, 1, 1, 1,  1,
+        { L_, -3, -2, 89, H, 1, 1, 1,
                                  "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "formattingMode = 2"                        SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = true"                SP
                                  "validateRootTag = true"                    SP
-                                 "allowMissingRequiredAttributes = true"     SP
                                  "]"
                                                                              },
 
@@ -1155,17 +1109,16 @@ int main(int argc, char *argv[])
         // P-2.1.3: { B } x { 2 } x { 3 } --> 1 expected output
         // -----------------------------------------------------------------
 
-        //LINE L SPL  MD  F  S  U  R MRA EXP
-        //---- - ---  --- -  -  -  - --- ---
+        //LINE L SPL  MD  F  S  U  R  EXP
+        //---- - ---  --- -  -  -  -  ---
 
-        { L_,  2,  3, 89, D, 0, 1, 1,  1,
+        { L_,  2,  3, 89, D, 0, 1, 1,
                         "      ["                                            NL
                         "         maxDepth = 89"                             NL
                         "         formattingMode = 1"                        NL
                         "         skipUnknownElements = false"               NL
                         "         validateInputIsUtf8 = true"                NL
                         "         validateRootTag = true"                    NL
-                        "         allowMissingRequiredAttributes = true"     NL
                         "      ]"                                            NL
                                                                              },
 
@@ -1173,27 +1126,25 @@ int main(int argc, char *argv[])
         // P-2.1.4: { A B } x { -9 } x { -9 } --> 2 expected outputs
         // -----------------------------------------------------------------
 
-        //LINE L SPL  MD  F  S  U  R MRA EXP
-        //---- - ---  --- -  -  -  - --- ---
+        //LINE L SPL  MD  F  S  U  R  EXP
+        //---- - ---  --- -  -  -  -  ---
 
-        { L_, -9, -9, 89, D, 1, 0, 1,  0,
+        { L_, -9, -9, 89, D, 1, 0, 1,
                                  "["                                         SP
                                  "maxDepth = 89"                             SP
                                  "formattingMode = 1"                        SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = false"               SP
                                  "validateRootTag = true"                    SP
-                                 "allowMissingRequiredAttributes = false"    SP
                                  "]"                                         },
 
-        { L_, -9, -9,  7, H, 1, 1, 0,  1,
+        { L_, -9, -9,  7, H, 1, 1, 0,
                                  "["                                         SP
                                  "maxDepth = 7"                              SP
                                  "formattingMode = 2"                        SP
                                  "skipUnknownElements = true"                SP
                                  "validateInputIsUtf8 = true"                SP
                                  "validateRootTag = false"                   SP
-                                 "allowMissingRequiredAttributes = true"     SP
                                  "]"                                         },
 
 #undef NL
@@ -1215,11 +1166,9 @@ int main(int argc, char *argv[])
 
                 const int   MAX_DEPTH  = DATA[ti].d_maxDepth;
                 const int   MODE       = DATA[ti].d_formattingMode;
-                const bool  SKIP_ELEMS = DATA[ti].d_skipUnknownElements;
-                const bool  VALID_UTF8 = DATA[ti].d_validateInputIsUtf8;
-                const bool  VALID_ROOT = DATA[ti].d_validateRootTag;
-                const bool  MRA        =
-                                     DATA[ti].d_allowMissingRequiredAttributes;
+                const int   SKIP_ELEMS = DATA[ti].d_skipUnknownElements;
+                const int   VALID_UTF8 = DATA[ti].d_validateInputIsUtf8;
+                const int   VALID_ROOT = DATA[ti].d_validateRootTag;
 
                 const char *const EXP    = DATA[ti].d_expected_p;
 
@@ -1230,8 +1179,7 @@ int main(int argc, char *argv[])
                              P_(MODE)
                              P_(SKIP_ELEMS)
                              P_(VALID_UTF8)
-                             P_(VALID_ROOT)
-                             P(MRA)
+                             P(VALID_ROOT)
                 }
 
                 if (veryVeryVerbose) { T_ T_ Q(EXPECTED) cout << EXP; }
@@ -1242,7 +1190,6 @@ int main(int argc, char *argv[])
                 mX.setSkipUnknownElements(SKIP_ELEMS);
                 mX.setValidateInputIsUtf8(VALID_UTF8);
                 mX.setValidateRootTag(VALID_ROOT);
-                mX.setAllowMissingRequiredAttributes(MRA);
 
                 ostringstream os;
 
@@ -1306,7 +1253,6 @@ int main(int argc, char *argv[])
         //   bool skipUnknownElements() const;
         //   bool validateInputIsUtf8() const;
         //   bool validateRootTag() const;
-        //   bool allowMissingRequiredAttributes() const;
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1320,7 +1266,6 @@ int main(int argc, char *argv[])
         typedef bool  T3;        // `skipUnknownElements`
         typedef bool  T4;        // `validateInputIsUtf8`
         typedef bool  T5;        // `validateRootTag`
-        typedef bool  T6;        // `allowMissingRequiredAttributes`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1333,7 +1278,6 @@ int main(int argc, char *argv[])
         const T3   D3 = true;             // `skipUnknownElements`
         const T4   D4 = false;            // `validateInputIsUtf8`
         const T5   D5 = false;            // `validateRootTag`
-        const T6   D6 = true;             // `allowMissingRequiredAttributes`
 
                     // ----------------------------
                     // `A` values: Boundary values.
@@ -1344,7 +1288,6 @@ int main(int argc, char *argv[])
         const T3    A3   = false;          // `skipUnknownElements`
         const T4    A4   = true;           // `validateInputIsUtf8`
         const T5    A5   = true;           // `validateRootTag`
-        const T6    A6   = false;          // `allowMissingRequiredAttributes`
 
         if (verbose) cout << "\nCreate an object." << endl;
 
@@ -1377,11 +1320,6 @@ int main(int argc, char *argv[])
                    X.validateRootTag();
             ASSERTV(D5,   validateRootTag,
                     D5 == validateRootTag);
-
-            const T6 allowMissingRequiredAttributes =
-                   X.allowMissingRequiredAttributes();
-            ASSERTV(D6,   allowMissingRequiredAttributes,
-                    D6 == allowMissingRequiredAttributes);
         }
 
         if (verbose) cout <<
@@ -1435,16 +1373,6 @@ int main(int argc, char *argv[])
             ASSERTV(A5,   validateRootTag,
                     A5 == validateRootTag);
         }
-
-        if (veryVerbose) { T_ Q(allowMissingRequiredAttributes) }
-        {
-            mX.setAllowMissingRequiredAttributes(A6);
-
-            const T6 allowMissingRequiredAttributes =
-                   X.allowMissingRequiredAttributes();
-            ASSERTV(A6,   allowMissingRequiredAttributes,
-                    A6 == allowMissingRequiredAttributes);
-        }
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -1493,7 +1421,6 @@ int main(int argc, char *argv[])
         //   setSkipUnknownElements(int value);
         //   setValidateInputIsUtf8(bool value);
         //   setValidateRootTag(bool value);
-        //   setAllowMissingRequiredAttributes(bool value);
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -1507,7 +1434,6 @@ int main(int argc, char *argv[])
         typedef bool  T3;        // `skipUnknownElements`
         typedef bool  T4;        // `validateInputIsUtf8`
         typedef bool  T5;        // `validateRootTag`
-        typedef bool  T6;        // `allowMissingRequiredAttributes`
 
         if (verbose) cout << "\nEstablish suitable attribute values." << endl;
 
@@ -1518,7 +1444,6 @@ int main(int argc, char *argv[])
         const T3   D3 = true;             // `skipUnknownElements`
         const T4   D4 = false;            // `validateInputIsUtf8`
         const T5   D5 = false;            // `validateRootTag`
-        const T6   D6 = true;             // `allowMissingRequiredAttributes`
 
         // `A` values.
 
@@ -1527,7 +1452,6 @@ int main(int argc, char *argv[])
         const T3    A3   = false;          // `skipUnknownElements`
         const T4    A4   = true;           // `validateInputIsUtf8`
         const T5    A5   = true;           // `validateRootTag`
-        const T6    A6   = false;          // `allowMissingRequiredAttributes`
 
         // `B` values.
 
@@ -1536,7 +1460,6 @@ int main(int argc, char *argv[])
         const T3    B3   = true;           // `skipUnknownElements`
         const T4    B4   = false;          // `validateInputIsUtf8`
         const T5    B5   = false;          // `validateRootTag`
-        const T6    B6   = true;           // `allowMissingRequiredAttributes`
 
         Obj mX;  const Obj& X = mX;
 
@@ -1553,7 +1476,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setMaxDepth(B1);
             ASSERT(B1 == X.maxDepth());                         // <= 1
@@ -1561,7 +1483,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setMaxDepth(D1);
             ASSERT(D1 == X.maxDepth());                         // <= 1
@@ -1569,7 +1490,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
         }
 
         // ----------------
@@ -1582,7 +1502,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setFormattingMode(B2);
             ASSERT(D1 == X.maxDepth());
@@ -1590,7 +1509,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setFormattingMode(D2);
             ASSERT(D1 == X.maxDepth());
@@ -1598,7 +1516,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
         }
 
         // ---------------------
@@ -1611,7 +1528,6 @@ int main(int argc, char *argv[])
             ASSERT(A3 == X.skipUnknownElements());              // <= 3
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setSkipUnknownElements(B3);
             ASSERT(D1 == X.maxDepth());
@@ -1619,7 +1535,6 @@ int main(int argc, char *argv[])
             ASSERT(B3 == X.skipUnknownElements());              // <= 3
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setSkipUnknownElements(D3);
             ASSERT(D1 == X.maxDepth());
@@ -1627,7 +1542,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());              // <= 3
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
         }
 
         // ---------------------
@@ -1640,7 +1554,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(A4 == X.validateInputIsUtf8());              // <= 4
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setValidateInputIsUtf8(B4);
             ASSERT(D1 == X.maxDepth());
@@ -1648,7 +1561,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(B4 == X.validateInputIsUtf8());              // <= 4
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setValidateInputIsUtf8(D4);
             ASSERT(D1 == X.maxDepth());
@@ -1656,7 +1568,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());              // <= 4
             ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
         }
 
         // -----------------
@@ -1669,7 +1580,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(A5 == X.validateRootTag());                  // <= 5
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setValidateRootTag(B5);
             ASSERT(D1 == X.maxDepth());
@@ -1677,7 +1587,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(B5 == X.validateRootTag());                  // <= 5
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
 
             mX.setValidateRootTag(D5);
             ASSERT(D1 == X.maxDepth());
@@ -1685,36 +1594,6 @@ int main(int argc, char *argv[])
             ASSERT(D3 == X.skipUnknownElements());
             ASSERT(D4 == X.validateInputIsUtf8());
             ASSERT(D5 == X.validateRootTag());                  // <= 5
-            ASSERT(D6 == X.allowMissingRequiredAttributes());
-        }
-
-        // --------------------------------
-        // `allowMissingRequiredAttributes`
-        // --------------------------------
-        {
-            mX.setAllowMissingRequiredAttributes(A6);
-            ASSERT(D1 == X.maxDepth());
-            ASSERT(D2 == X.formattingMode());
-            ASSERT(D3 == X.skipUnknownElements());
-            ASSERT(D4 == X.validateInputIsUtf8());
-            ASSERT(D5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());   // <= 6
-
-            mX.setAllowMissingRequiredAttributes(B6);
-            ASSERT(D1 == X.maxDepth());
-            ASSERT(D2 == X.formattingMode());
-            ASSERT(D3 == X.skipUnknownElements());
-            ASSERT(D4 == X.validateInputIsUtf8());
-            ASSERT(D5 == X.validateRootTag());
-            ASSERT(B6 == X.allowMissingRequiredAttributes());   // <= 6
-
-            mX.setAllowMissingRequiredAttributes(D6);
-            ASSERT(D1 == X.maxDepth());
-            ASSERT(D2 == X.formattingMode());
-            ASSERT(D3 == X.skipUnknownElements());
-            ASSERT(D4 == X.validateInputIsUtf8());
-            ASSERT(D5 == X.validateRootTag());
-            ASSERT(D6 == X.allowMissingRequiredAttributes());   // <= 6
         }
 
         if (verbose) cout << "Corroborate attribute independence." << endl;
@@ -1724,18 +1603,12 @@ int main(int argc, char *argv[])
             // ---------------------------------------
 
             mX.setMaxDepth(A1);
-            mX.setFormattingMode(A2);
             mX.setSkipUnknownElements(A3);
             mX.setValidateInputIsUtf8(A4);
-            mX.setValidateRootTag(A5);
-            mX.setAllowMissingRequiredAttributes(A6);
 
             ASSERT(A1 == X.maxDepth());
-            ASSERT(A2 == X.formattingMode());
             ASSERT(A3 == X.skipUnknownElements());
             ASSERT(A4 == X.validateInputIsUtf8());
-            ASSERT(A5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());
 
                  // ---------------------------------------
                  // Set all attributes to their `B` values.
@@ -1744,56 +1617,20 @@ int main(int argc, char *argv[])
             mX.setMaxDepth(B1);
 
             ASSERT(B1 == X.maxDepth());
-            ASSERT(A2 == X.formattingMode());
             ASSERT(A3 == X.skipUnknownElements());
             ASSERT(A4 == X.validateInputIsUtf8());
-            ASSERT(A5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());
-
-            mX.setFormattingMode(B2);
-
-            ASSERT(B1 == X.maxDepth());
-            ASSERT(B2 == X.formattingMode());
-            ASSERT(A3 == X.skipUnknownElements());
-            ASSERT(A4 == X.validateInputIsUtf8());
-            ASSERT(A5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());
 
             mX.setSkipUnknownElements(B3);
 
             ASSERT(B1 == X.maxDepth());
-            ASSERT(B2 == X.formattingMode());
             ASSERT(B3 == X.skipUnknownElements());
             ASSERT(A4 == X.validateInputIsUtf8());
-            ASSERT(A5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());
 
             mX.setValidateInputIsUtf8(B4);
 
             ASSERT(B1 == X.maxDepth());
-            ASSERT(B2 == X.formattingMode());
             ASSERT(B3 == X.skipUnknownElements());
             ASSERT(B4 == X.validateInputIsUtf8());
-            ASSERT(A5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());
-
-            mX.setValidateRootTag(B5);
-
-            ASSERT(B1 == X.maxDepth());
-            ASSERT(B2 == X.formattingMode());
-            ASSERT(B3 == X.skipUnknownElements());
-            ASSERT(B4 == X.validateInputIsUtf8());
-            ASSERT(B5 == X.validateRootTag());
-            ASSERT(A6 == X.allowMissingRequiredAttributes());
-
-            mX.setAllowMissingRequiredAttributes(B6);
-
-            ASSERT(B1 == X.maxDepth());
-            ASSERT(B2 == X.formattingMode());
-            ASSERT(B3 == X.skipUnknownElements());
-            ASSERT(B4 == X.validateInputIsUtf8());
-            ASSERT(B5 == X.validateRootTag());
-            ASSERT(B6 == X.allowMissingRequiredAttributes());
         }
       } break;
       case 2: {
@@ -1828,7 +1665,6 @@ int main(int argc, char *argv[])
         const bool  D3   = true;   // `skipUnknownElements`
         const bool  D4   = false;  // `validateInputIsUtf8`
         const bool  D5   = false;  // `validateRootTag`
-        const bool  D6   = true;   // `allowMissingRequiredAttributes`
         if (verbose) cout <<
                      "Create an object using the default constructor." << endl;
 
@@ -1850,8 +1686,6 @@ int main(int argc, char *argv[])
                      D4 == X.validateInputIsUtf8());
         LOOP2_ASSERT(D5,   X.validateRootTag(),
                      D5 == X.validateRootTag());
-        LOOP2_ASSERT(D6,   X.allowMissingRequiredAttributes(),
-                     D6 == X.allowMissingRequiredAttributes());
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -1888,7 +1722,6 @@ int main(int argc, char *argv[])
         typedef bool  T3;        // `skipUnknownElements`
         typedef bool  T4;        // `validateInputIsUtf8`
         typedef bool  T5;        // `validateRootTag`
-        typedef bool  T6;        // `allowMissingRequiredAttributes`
 
         // Attribute 1 Values: `maxDepth`
 
@@ -1915,11 +1748,6 @@ int main(int argc, char *argv[])
         const T5 D5 = false;    // default value
         const T5 A5 = true;
 
-        // Attribute 6 Values: `allowMissingRequiredAttributes`
-
-        const T6 D6 = true;    // default value
-        const T6 A6 = false;
-
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         if (verbose) cout << "\n 1. Create an object `w` (default ctor)."
@@ -1935,7 +1763,6 @@ int main(int argc, char *argv[])
         ASSERT(D3 == W.skipUnknownElements());
         ASSERT(D4 == W.validateInputIsUtf8());
         ASSERT(D5 == W.validateRootTag());
-        ASSERT(D6 == W.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
                   "\tb. Try equality operators: `w` <op> `w`." << endl;
@@ -1957,7 +1784,6 @@ int main(int argc, char *argv[])
         ASSERT(D3 == X.skipUnknownElements());
         ASSERT(D4 == X.validateInputIsUtf8());
         ASSERT(D5 == X.validateRootTag());
-        ASSERT(D6 == X.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
                    "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
@@ -1974,8 +1800,7 @@ int main(int argc, char *argv[])
         mX.setFormattingMode(A2);
         mX.setSkipUnknownElements(A3);
         mX.setValidateInputIsUtf8(A4);
-        mX.setValidateRootTag(A5);
-        mX.setAllowMissingRequiredAttributes(A6);
+        mX.setValidateRootTag(A4);
 
         if (veryVerbose) cout << "\ta. Check new value of `x`." << endl;
         if (veryVeryVerbose) { T_ T_ P(X) }
@@ -1985,7 +1810,6 @@ int main(int argc, char *argv[])
         ASSERT(A3 == X.skipUnknownElements());
         ASSERT(A4 == X.validateInputIsUtf8());
         ASSERT(A5 == X.validateRootTag());
-        ASSERT(A6 == X.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: `x` <op> `w`, `x`." << endl;
@@ -2004,8 +1828,7 @@ int main(int argc, char *argv[])
         mY.setFormattingMode(A2);
         mY.setSkipUnknownElements(A3);
         mY.setValidateInputIsUtf8(A4);
-        mY.setValidateRootTag(A5);
-        mY.setAllowMissingRequiredAttributes(A6);
+        mY.setValidateRootTag(A4);
 
         if (veryVerbose) cout << "\ta. Check initial value of `y`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Y) }
@@ -2015,7 +1838,6 @@ int main(int argc, char *argv[])
         ASSERT(A3 == Y.skipUnknownElements());
         ASSERT(A4 == Y.validateInputIsUtf8());
         ASSERT(A5 == Y.validateRootTag());
-        ASSERT(A6 == Y.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
              "\tb. Try equality operators: `y` <op> `w`, `x`, `y`" << endl;
@@ -2038,15 +1860,13 @@ int main(int argc, char *argv[])
         mZ.setFormattingMode(A2);
         mZ.setSkipUnknownElements(A3);
         mZ.setValidateInputIsUtf8(A4);
-        mZ.setValidateRootTag(A5);
-        mZ.setAllowMissingRequiredAttributes(A6);
+        mZ.setValidateRootTag(A4);
 
         ASSERT(A1 == Z.maxDepth());
         ASSERT(A2 == Z.formattingMode());
         ASSERT(A3 == Z.skipUnknownElements());
         ASSERT(A4 == Z.validateInputIsUtf8());
         ASSERT(A5 == Z.validateRootTag());
-        ASSERT(A6 == Z.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
@@ -2065,8 +1885,7 @@ int main(int argc, char *argv[])
         mZ.setFormattingMode(D2);
         mZ.setSkipUnknownElements(D3);
         mZ.setValidateInputIsUtf8(D4);
-        mZ.setValidateRootTag(D5);
-        mZ.setAllowMissingRequiredAttributes(D6);
+        mZ.setValidateRootTag(D4);
 
         if (veryVerbose) cout << "\ta. Check new value of `z`." << endl;
         if (veryVeryVerbose) { T_ T_ P(Z) }
@@ -2076,7 +1895,6 @@ int main(int argc, char *argv[])
         ASSERT(D3 == Z.skipUnknownElements());
         ASSERT(D4 == Z.validateInputIsUtf8());
         ASSERT(D5 == Z.validateRootTag());
-        ASSERT(D6 == Z.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `z` <op> `w`, `x`, `y`, `z`." << endl;
@@ -2100,7 +1918,6 @@ int main(int argc, char *argv[])
         ASSERT(A3 == W.skipUnknownElements());
         ASSERT(A4 == W.validateInputIsUtf8());
         ASSERT(A5 == W.validateRootTag());
-        ASSERT(A6 == W.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `w` <op> `w`, `x`, `y`, `z`." << endl;
@@ -2124,7 +1941,6 @@ int main(int argc, char *argv[])
         ASSERT(D3 == W.skipUnknownElements());
         ASSERT(D4 == W.validateInputIsUtf8());
         ASSERT(D5 == W.validateRootTag());
-        ASSERT(D6 == W.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;
@@ -2148,7 +1964,6 @@ int main(int argc, char *argv[])
         ASSERT(A3 == X.skipUnknownElements());
         ASSERT(A4 == X.validateInputIsUtf8());
         ASSERT(A5 == X.validateRootTag());
-        ASSERT(A6 == X.allowMissingRequiredAttributes());
 
         if (veryVerbose) cout <<
            "\tb. Try equality operators: `x` <op> `w`, `x`, `y`, `z`." << endl;

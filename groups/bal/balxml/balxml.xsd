@@ -286,16 +286,6 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name='AllowMissingRequiredAttributes' type='xs:boolean'
-                  minOccurs='0' maxOccurs='1'
-                  default='true'
-                  bdem:allowsDirectManipulation='0'>
-        <xs:annotation>
-          <xs:documentation>
-              Option to allow missing non-optional attributes.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
     </xs:sequence>
   </xs:complexType>
 

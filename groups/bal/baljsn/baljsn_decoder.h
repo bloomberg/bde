@@ -190,7 +190,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
-#include <bsl_unordered_map.h>
+#include <bsl_unordered_set.h>
 
 namespace BloombergLP {
 namespace baljsn {
@@ -425,8 +425,8 @@ struct Decoder_DecodeImpProxy {
 /// sequence attributes.
 struct Decoder_RequiredAttrsVisitor {
     // PUBLIC DATA
-    bsl::unordered_map<bsl::string, int> *d_requiredAttributes_p;
-    bool                                  d_usesDefaultValueFlag;
+    bsl::unordered_set<bsl::string> *d_requiredAttributes_p;
+    bool                             d_usesDefaultValueFlag;
 
     // MANIPULATORS
     template <class TYPE, class INFO>
@@ -510,8 +510,7 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
         }
 
         bdlma::LocalSequentialAllocator<512> localAllocator;
-        bsl::unordered_map<bsl::string, int> requiredAttributes(
-                                                              &localAllocator);
+        bsl::unordered_set<bsl::string> requiredAttributes(&localAllocator);
         if (!d_allowMissingRequiredAttributes) {
             // Collect a list of the non-optional attributes
             Decoder_RequiredAttrsVisitor visitor = {&requiredAttributes,
@@ -593,16 +592,9 @@ int Decoder::decodeImp(TYPE *value, int mode, bdlat_TypeCategory::Sequence)
         if (!requiredAttributes.empty()) {
             // There are non-optional attributes that are not presented
             // in the decoded message (sequence).
-            bsl::unordered_map<bsl::string, int>::const_iterator
-                                            minId = requiredAttributes.begin(),
-                                            it    = minId;
-            while(++it != requiredAttributes.end()) {
-                if (it->second < minId->second) {
-                    minId = it;
-                }
-            }
-            d_logStream << "Could not decode sequence, missing "
-                           "required attribute \"" << minId->first << "\"\n";
+            d_logStream << "Could not decode sequence, "
+                        << "missing required attribute \""
+                        << *requiredAttributes.begin() << "\"\n";
             return -1;                                                // RETURN
         }
 
@@ -1204,8 +1196,7 @@ int Decoder_RequiredAttrsVisitor::operator()(TYPE *value, const INFO& info) {
       default:
         if (!d_usesDefaultValueFlag ||
             !(info.formattingMode() & bdlat_FormattingMode::e_DEFAULT_VALUE)) {
-            (*d_requiredAttributes_p)[
-                      bsl::string(info.name(), info.nameLength())] = info.id();
+            d_requiredAttributes_p->emplace(info.name(), info.nameLength());
         }
     }
     return 0;

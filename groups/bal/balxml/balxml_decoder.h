@@ -269,11 +269,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_string.h>
 
-#include <bdlma_localsequentialallocator.h>
-
 #include <bdlsb_memoutstreambuf.h>
-
-#include <bsla_fallthrough.h>
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
@@ -291,7 +287,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
-#include <bsl_unordered_map.h>
 #include <bsl_vector.h>
 #include <bsl_cstddef.h>   // NULL
 #include <bsl_cstring.h>
@@ -1067,12 +1062,8 @@ template <class TYPE>
 class Decoder_SequenceContext : public Decoder_ElementContext {
 
     // DATA
-    bdlma::LocalSequentialAllocator<512> d_localAllocator;
-    bsl::unordered_map<bsl::string, int> d_requiredAttributes;
-
     bdlb::NullableValue<int>  d_simpleContentId;
     TYPE                     *d_object_p;
-
 
     // NOT IMPLEMENTED
     Decoder_SequenceContext(const Decoder_SequenceContext&);
@@ -1892,25 +1883,6 @@ struct Decoder_ParseNillableObject_executeImpProxy {
         return d_instance_p->executeImp(object, category);
     }
 };
-
-                       // ===================================
-                       // struct Decoder_RequiredAttrsVisitor
-                       // ===================================
-
-/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
-///
-/// This class provides a functor that finds and remembers all non-optional
-/// sequence attributes.
-struct Decoder_RequiredAttrsVisitor {
-    // PUBLIC DATA
-    bsl::unordered_map<bsl::string, int> *d_requiredAttributes_p;
-    bool                                  d_usesDefaultValueFlag;
-
-    // MANIPULATORS
-    template <class TYPE, class INFO>
-    int operator()(TYPE *value, const INFO& info);
-};
-
 }  // close package namespace
 
 // ============================================================================
@@ -2441,8 +2413,7 @@ template <class TYPE>
 inline
 Decoder_SequenceContext<TYPE>::Decoder_SequenceContext(TYPE *object,
                                                        int   formattingMode)
-: d_requiredAttributes(&d_localAllocator)
-, d_object_p(object)
+: d_object_p(object)
 {
     (void) formattingMode;
     BSLS_REVIEW(bdlat_FormattingMode::e_DEFAULT ==
@@ -2466,13 +2437,6 @@ int Decoder_SequenceContext<TYPE>::startElement(Decoder *decoder)
 
     Decoder_PrepareSequenceContext prepareSequenceContext(&d_simpleContentId);
 
-    if (!decoder->options()->allowMissingRequiredAttributes()) {
-        // Collect a list of the non-optional attributes
-        Decoder_RequiredAttrsVisitor visitor = {&d_requiredAttributes,
-                       ::BloombergLP::bdlat_UsesDefaultValueFlag<TYPE>::value};
-        bdlat_SequenceFunctions::manipulateAttributes(d_object_p, visitor);
-    }
-
     int ret = bdlat_SequenceFunctions::manipulateAttributes(
                                                        d_object_p,
                                                        prepareSequenceContext);
@@ -2487,26 +2451,9 @@ int Decoder_SequenceContext<TYPE>::startElement(Decoder *decoder)
 }
 
 template <class TYPE>
-int Decoder_SequenceContext<TYPE>::endElement(Decoder *decoder)
+int Decoder_SequenceContext<TYPE>::endElement(Decoder *)
 {
-    enum { k_SUCCESS = 0, k_FAILURE = -1 };
-
-    if (!d_requiredAttributes.empty()) {
-        // There are non-optional attributes that are not presented in the
-        // decoded message (sequence).
-        bsl::unordered_map<bsl::string, int>::const_iterator
-                                          minId = d_requiredAttributes.begin(),
-                                          it    = minId;
-        while(++it != d_requiredAttributes.end()) {
-            if (it->second < minId->second) {
-                minId = it;
-            }
-        }
-        BALXML_DECODER_LOG_ERROR(decoder)
-            << "Could not decode sequence, missing required attribute \""
-            << minId->first << "\"\n" << BALXML_DECODER_LOG_END;
-        return k_FAILURE;                                             // RETURN
-    }
+    enum { k_SUCCESS = 0 };
 
     return k_SUCCESS;
 }
@@ -2590,14 +2537,6 @@ int Decoder_SequenceContext<TYPE>::parseSubElement(const char *elementName,
                                      decoder->numUnknownElementsSkipped() + 1);
         Decoder_UnknownElementContext unknownElement;
         return unknownElement.beginParse(decoder);                    // RETURN
-    }
-
-    if (!decoder->options()->allowMissingRequiredAttributes() &&
-        (decoder->options()->skipUnknownElements() ||
-         bdlat_SequenceFunctions::hasAttribute(*d_object_p,
-                                               elementName,
-                                               lenName))) {
-        d_requiredAttributes.erase(elementName);
     }
 
     Decoder_ParseSequenceSubElement visitor(decoder, elementName, lenName);
@@ -3407,36 +3346,6 @@ inline
 bool Decoder_ParseNillableObject::isNil() const
 {
     return d_nillableContext.isNil();
-}
-
-                       // -----------------------------------
-                       // struct Decoder_RequiredAttrsVisitor
-                       // -----------------------------------
-
-// MANIPULATORS
-template <class TYPE, class INFO>
-inline
-int Decoder_RequiredAttrsVisitor::operator()(TYPE *value, const INFO& info) {
-    switch(bdlat_TypeCategoryFunctions::select(*value))
-    {
-      case bdlat_TypeCategory::e_NULLABLE_VALUE_CATEGORY:
-        break; // skip
-      // The following categories can have default values:
-      case bdlat_TypeCategory::e_SIMPLE_CATEGORY:
-      case bdlat_TypeCategory::e_ENUMERATION_CATEGORY:
-      case bdlat_TypeCategory::e_CUSTOMIZED_TYPE_CATEGORY:
-        if(!d_usesDefaultValueFlag) {
-            break; // skip
-        }
-        BSLA_FALLTHROUGH;
-      default:
-        if (!d_usesDefaultValueFlag ||
-            !(info.formattingMode() & bdlat_FormattingMode::e_DEFAULT_VALUE)) {
-            (*d_requiredAttributes_p)[
-                      bsl::string(info.name(), info.nameLength())] = info.id();
-        }
-    }
-    return 0;
 }
 
 }  // close package namespace

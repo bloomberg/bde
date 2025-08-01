@@ -54,9 +54,6 @@ class DecoderOptions {
     // Option to validate the root tag when decoding a structure.
     bool  d_validateRootTag;
 
-    // Option to allow missing non-optional attributes.
-    bool  d_allowMissingRequiredAttributes;
-
   public:
     // TYPES
     enum {
@@ -65,11 +62,10 @@ class DecoderOptions {
       , ATTRIBUTE_ID_SKIP_UNKNOWN_ELEMENTS  = 2
       , ATTRIBUTE_ID_VALIDATE_INPUT_IS_UTF8 = 3
       , ATTRIBUTE_ID_VALIDATE_ROOT_TAG      = 4
-      , ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES = 5
     };
 
     enum {
-        NUM_ATTRIBUTES = 6
+        NUM_ATTRIBUTES = 5
     };
 
     enum {
@@ -78,7 +74,6 @@ class DecoderOptions {
       , ATTRIBUTE_INDEX_SKIP_UNKNOWN_ELEMENTS  = 2
       , ATTRIBUTE_INDEX_VALIDATE_INPUT_IS_UTF8 = 3
       , ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG      = 4
-      , ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES = 5
     };
 
     // CONSTANTS
@@ -93,8 +88,6 @@ class DecoderOptions {
     static const bool DEFAULT_INITIALIZER_VALIDATE_INPUT_IS_UTF8;
 
     static const bool DEFAULT_INITIALIZER_VALIDATE_ROOT_TAG;
-
-    static const bool DEFAULT_INITIALIZER_ALLOW_MISSING_REQUIRED_ATTRIBUTES;
 
     static const bdlat_AttributeInfo ATTRIBUTE_INFO_ARRAY[];
 
@@ -198,10 +191,6 @@ class DecoderOptions {
     /// `value`.
     void setValidateRootTag(bool value);
 
-    /// Set "AllowMissingRequiredAttributes" attribute of this object to the
-    /// specified `value`.
-    void setAllowMissingRequiredAttributes(bool value);
-
     // ACCESSORS
 
     /// Format this object to the specified output `stream` at the
@@ -263,10 +252,6 @@ class DecoderOptions {
 
     /// Return the value of the "ValidateRootTag" attribute of this object.
     bool validateRootTag() const;
-
-    /// Return the value of the "AllowMissingRequiredAttributes" attribute of
-    /// this object.
-    bool allowMissingRequiredAttributes() const;
 };
 
 // FREE OPERATORS
@@ -337,11 +322,6 @@ int DecoderOptions::manipulateAttributes(t_MANIPULATOR& manipulator)
         return ret;
     }
 
-    ret = manipulator(&d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
-    if (ret) {
-        return ret;
-    }
-
     return 0;
 }
 
@@ -366,9 +346,6 @@ int DecoderOptions::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
       case ATTRIBUTE_ID_VALIDATE_ROOT_TAG: {
         return manipulator(&d_validateRootTag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG]);
       }
-      case ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES: {
-        return manipulator(&d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
-      } break;
       default:
         return NOT_FOUND;
     }
@@ -421,12 +398,6 @@ void DecoderOptions::setValidateRootTag(bool value)
     d_validateRootTag = value;
 }
 
-inline
-void DecoderOptions::setAllowMissingRequiredAttributes(bool value)
-{
-    d_allowMissingRequiredAttributes = value;
-}
-
 // ACCESSORS
 template <typename t_ACCESSOR>
 int DecoderOptions::accessAttributes(t_ACCESSOR& accessor) const
@@ -458,11 +429,6 @@ int DecoderOptions::accessAttributes(t_ACCESSOR& accessor) const
         return ret;
     }
 
-    ret = accessor(d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
-    if (ret) {
-        return ret;
-    }
-
     return 0;
 }
 
@@ -487,9 +453,6 @@ int DecoderOptions::accessAttribute(t_ACCESSOR& accessor, int id) const
       case ATTRIBUTE_ID_VALIDATE_ROOT_TAG: {
         return accessor(d_validateRootTag, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_VALIDATE_ROOT_TAG]);
       }
-      case ATTRIBUTE_ID_ALLOW_MISSING_REQUIRED_ATTRIBUTES: {
-        return accessor(d_allowMissingRequiredAttributes, ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_ALLOW_MISSING_REQUIRED_ATTRIBUTES]);
-      } break;
       default:
         return NOT_FOUND;
     }
@@ -542,12 +505,6 @@ bool DecoderOptions::validateRootTag() const
     return d_validateRootTag;
 }
 
-inline
-bool DecoderOptions::allowMissingRequiredAttributes() const
-{
-    return d_allowMissingRequiredAttributes;
-}
-
 }  // close package namespace
 
 // FREE FUNCTIONS
@@ -561,8 +518,7 @@ bool balxml::operator==(
          && lhs.formattingMode() == rhs.formattingMode()
          && lhs.skipUnknownElements() == rhs.skipUnknownElements()
          && lhs.validateInputIsUtf8() == rhs.validateInputIsUtf8()
-         && lhs.validateRootTag() == rhs.validateRootTag()
-         && lhs.allowMissingRequiredAttributes() == rhs.allowMissingRequiredAttributes();
+         && lhs.validateRootTag() == rhs.validateRootTag();
 }
 
 inline
