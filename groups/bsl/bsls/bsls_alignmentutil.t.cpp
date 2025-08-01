@@ -261,7 +261,7 @@ struct Case8<t_START, std::size_t(1)> {
                             Class::defaultAlignmentOfAlignedStorage<t_START>();
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_HAS_MACRO_PUSH_POP)
+#  if defined(BSLS_PLATFORM_CMP_GNU)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #  endif
@@ -269,7 +269,7 @@ struct Case8<t_START, std::size_t(1)> {
         ASSERT((std::is_same<std::aligned_storage<t_START>,
                              std::aligned_storage<t_START, a>>::value));
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_HAS_MACRO_PUSH_POP)
+#  if defined(BSLS_PLATFORM_CMP_GNU)
 #    pragma GCC diagnostic pop
 #  endif
 #endif
