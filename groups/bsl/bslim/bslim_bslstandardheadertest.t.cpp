@@ -929,7 +929,7 @@ struct T { };
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #  endif
@@ -940,7 +940,7 @@ void testCase43a(bsl::aligned_storage<t_SIZE>) {}
 template <std::size_t t_SIZE, std::size_t t_ALIGNMENT>
 void testCase43b(bsl::aligned_storage<t_SIZE, t_ALIGNMENT>) {}
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic pop
 #  endif
 #endif
@@ -995,7 +995,7 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #  endif
@@ -1003,7 +1003,7 @@ int main(int argc, char *argv[])
         testCase43a(bsl::aligned_storage<2>());
         testCase43b(bsl::aligned_storage<2, 1>());
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic pop
 #  endif
 #endif

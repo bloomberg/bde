@@ -155,7 +155,7 @@ using std::remove_all_extents;
     // Silence the warning that would result from including this header, but
     // mark the bsl aliases deprecated.
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #  endif
@@ -189,7 +189,7 @@ using aligned_union_t BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
 #endif
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic pop
 #  endif
 #  undef BSL_TYPE_TRAITS_DEPRECATED_ALIGNED_STORAGE

@@ -233,7 +233,7 @@ struct AlignmentUtil {
     // PRIVATE CLASS METHODS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #  endif
@@ -243,7 +243,7 @@ struct AlignmentUtil {
     static std::integral_constant<std::size_t, t_ALIGNMENT>
     alignmentOfAlignedStorage(std::aligned_storage<t_SIZE, t_ALIGNMENT>);
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic pop
 #  endif
 #endif
@@ -484,7 +484,7 @@ template <std::size_t t_SIZE>
 constexpr std::size_t AlignmentUtil::defaultAlignmentOfAlignedStorage()
 {
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #  endif
@@ -492,7 +492,7 @@ constexpr std::size_t AlignmentUtil::defaultAlignmentOfAlignedStorage()
     return decltype(alignmentOfAlignedStorage(
                                        std::aligned_storage<t_SIZE>()))::value;
 #if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_CMP_GNU)
+#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
 #    pragma GCC diagnostic pop
 #  endif
 #endif
