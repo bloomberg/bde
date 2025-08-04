@@ -47,8 +47,9 @@ using bsl::flush;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
-// [ 4] TESTING std::variant
+// [ 5] USAGE EXAMPLE
+// [ 4] bsl::format SUPPORT
+// [ 3] TESTING std::variant
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -281,7 +282,7 @@ int main(int argc, char *argv[])
 
     switch (test) {
       case 0:  // Zero is always the leading case.
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -299,9 +300,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose)
-            cout << "USAGE EXAMPLE\n"
-                    "=============\n";
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
 
         bsl::ostringstream  oss(&testAllocator);
         bsl::streambuf     *saveCoutStreamBuf = cout.rdbuf();
@@ -316,6 +316,103 @@ int main(int argc, char *argv[])
             cout << oss.view();
         }
       } break;
+      case 4: {
+        // --------------------------------------------------------------------
+        // bsl::format SUPPORT
+        //   Ensure that the value of the object can be formatted appropriately
+        //   using `bsl::format`.
+        //
+        // Concerns:
+        // 1. The value is written to the `bsl::format` result same as if
+        //    printed to a default-initialized stream, in other words the same
+        //    as `obj.print(s, 0, -1)`.
+        //
+        // 2. Format specifications work as defined by `bslfmt_streamed`.
+        //
+        // Plan:
+        // 1. Format optional values, using `bsl::format`, into `bsl::string`
+        //    and verify that the result is as expected.  (C-1)
+        //
+        // 2. Using the table-driven technique verify that format
+        //    specifications modify the output as expected. (C-2)
+        //
+        // Testing:
+        //   bsl::format SUPPORT
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nbsl::format SUPPORT"
+                             "\n===================\n";
+
+        using shared::ThrowOnCopy;
+        ThrowOnCopy toc(4);
+
+        typedef bsl::variant<int, bsl::string, ThrowOnCopy> VariantType;
+
+        if (veryVerbose) cout << "\tVerify default formatted output.\n";
+        {
+            VariantType        mV(107);
+            const VariantType& V = mV;
+
+            bsl::string RESULT = bsl::format("{}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "107");
+
+            mV     = 987654321;
+            RESULT = bsl::format("{}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "987654321");
+
+            mV     = bsl::string("String content");
+            RESULT = bsl::format("{}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "String content");
+
+            // valueless
+            ASSERT(!V.valueless_by_exception());
+            BSLS_TRY
+            {
+                mV = toc;
+                ASSERT(0 == "An exception was not thrown!");
+            }
+            BSLS_CATCH(...)
+            {
+            }
+            ASSERT(V.valueless_by_exception());
+
+            RESULT = bsl::format("{}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "(valueless)");
+        }
+
+        if (veryVerbose) cout << "\tVerify formatted output.\n";
+        {
+            VariantType        mV = bsl::string("1234");
+            const VariantType& V = mV;
+
+            bsl::string RESULT = bsl::format("{:6}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "1234  ");
+
+            RESULT = bsl::format("{:~^6}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "~1234~");
+
+            RESULT = bsl::format("{:~>6}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "~~1234");
+
+            RESULT = bsl::format("{:~^6.2}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "~~12~~");
+
+            // valueless
+            ASSERT(!V.valueless_by_exception());
+            BSLS_TRY
+            {
+                mV = toc;
+                ASSERT(0 == "An exception was not thrown!");
+            }
+            BSLS_CATCH(...)
+            {
+            }
+            ASSERT(V.valueless_by_exception());
+
+            RESULT = bsl::format("{:=^13}", Util::makePrinter(V));
+            ASSERTV(RESULT, RESULT == "=(valueless)=");
+        }
+      } break;
       case 3: {
         // --------------------------------------------------------------------
         // TESTING std::variant
@@ -328,7 +425,7 @@ int main(int argc, char *argv[])
         // 1. Use an 'std::variant':
         //    * Create the 'std::variant'.
         //
-        //    * Assign valuesof different types to it.
+        //    * Assign values of different types to it.
         //
         //    * Print them out.
         //

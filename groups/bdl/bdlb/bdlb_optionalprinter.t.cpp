@@ -10,6 +10,7 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 
+#include <bsl_format.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
 
@@ -39,7 +40,8 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 3] USAGE EXAMPLE
+// [ 3] bsl::format support
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -165,7 +167,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -183,9 +185,8 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl;
+        if (verbose) cout << "\nUSAGE EXAMPLE"
+                             "\n=============\n";
 
 ///Example 1: Printing `bsl::optional` to a Stream
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -195,6 +196,83 @@ int main(int argc, char *argv[])
     bsl::optional<int> value(42);
     bsl::cout << bdlb::OptionalPrinterUtil::makePrinter(value);
 // ```
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
+        // bsl::format SUPPORT
+        //   Ensure that the value of the object can be formatted appropriately
+        //   using `bsl::format`.
+        //
+        // Concerns:
+        // 1. The value is written to the `bsl::format` result same as if
+        //    printed to a default-initialized stream, in other words the same
+        //    as `obj.print(s, 0, -1)`.
+        //
+        // 2. Format specifications work as defined by `bslfmt_streamed`.
+        //
+        // Plan:
+        // 1. Format optional values, using `bsl::format`, into `bsl::string`
+        //    and verify that the result is as expected.  (C-1)
+        //
+        // 2. Using the table-driven technique verify that format
+        //    specifications modify the output as expected. (C-2)
+        //
+        // Testing:
+        //   bsl::format SUPPORT
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nbsl::format SUPPORT"
+                             "\n===================\n";
+
+        if (veryVerbose) cout << "\tVerify default formatted output.\n";
+        {
+            bsl::optional<int>         mX;
+            const bsl::optional<int>&  X = mX;
+            bdlb::OptionalPrinter<int> obj(&X);
+
+            const bsl::string RESULT = bsl::format("{}", obj);
+            ASSERTV(RESULT, RESULT == "NULL");
+        }
+        {
+            bsl::optional<int>         mX(9283675);
+            const bsl::optional<int>&  X = mX;
+            bdlb::OptionalPrinter<int> obj(&X);
+
+            const bsl::string RESULT = bsl::format("{}", obj);
+            ASSERTV(RESULT, RESULT == "9283675");
+        }
+        {
+            bsl::optional<const char *>         mX("Content");
+            const bsl::optional<const char *>&  X = mX;
+            bdlb::OptionalPrinter<const char *> obj(&X);
+
+            const bsl::string RESULT = bsl::format("{}", obj);
+            ASSERTV(RESULT, RESULT == "Content");
+        }
+
+        if (veryVerbose) cout << "\tVerify formatted output.\n";
+        {
+            const bsl::optional<const char *>   X = "1234";
+            bdlb::OptionalPrinter<const char *> obj(&X);
+
+            bsl::string RESULT = bsl::format("{}", obj);
+            ASSERTV(RESULT, RESULT == "1234");
+
+            RESULT = bsl::format("{:^6}", obj);
+            ASSERTV(RESULT, RESULT == " 1234 ");
+
+            RESULT = bsl::format("{:~^6}", obj);
+            ASSERTV(RESULT, RESULT == "~1234~");
+
+            RESULT = bsl::format("{:~<6}", obj);
+            ASSERTV(RESULT, RESULT == "1234~~");
+
+            RESULT = bsl::format("{:~>6}", obj);
+            ASSERTV(RESULT, RESULT == "~~1234");
+
+            RESULT = bsl::format("{:~^6.2}", obj);
+            ASSERTV(RESULT, RESULT == "~~12~~");
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -261,13 +339,12 @@ int main(int argc, char *argv[])
         //   ostream& operator<<(ostream&, const bdlb::OptionalPrinter<T>&);
         //   OptionalPrinterUtil::makePrinter(const bsl::optional<TYPE>&);
         // --------------------------------------------------------------------
-        if (verbose) cout << "\nPRINT AND OUTPUT OPERATOR (<<)"
-                             "\n=============================="
-                          << endl;
 
-        if (veryVerbose) cout << "\nAssign the addresses of `print` and "
-                              << "the output `operator<<` to variables."
-                              << endl;
+        if (verbose) cout << "\nPRINT AND OUTPUT OPERATOR (<<)"
+                             "\n==============================\n";
+
+        if (veryVerbose) cout << "\tAssign the addresses of `print` and "
+                              << "the output `operator<<` to variables.\n";
         {
             u::TestUtil<int>::printPtr printPtr =
                                             &bdlb::OptionalPrinter<int>::print;
@@ -279,7 +356,7 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-             "\nCreate a table of distinct value/format combinations." << endl;
+                   "\tCreate a table of distinct value/format combinations.\n";
 
         static const struct {
             int         d_line;            // source line number
@@ -335,8 +412,7 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
-        if (verbose) cout << "\nTesting with various print specifications."
-                          << endl;
+        if (verbose) cout << "\tTesting with various print specifications.\n";
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE  = DATA[ti].d_line;
@@ -415,8 +491,7 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nBREATHING TEST"
-                          << "\n=============="
-                          << endl;
+                          << "\n==============\n";
         {
             bsl::optional<int> value;
             bsl::cout << Util::makePrinter(value) << "\n";

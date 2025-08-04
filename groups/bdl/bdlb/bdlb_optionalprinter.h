@@ -14,6 +14,11 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component provides utility classes `bdlb::OptionalPrinter`
 // and `bdlb::OptionalPrinterUtil` for printing `bsl::optional`.
 //
+// The class `bdlb::OptionalPrinter` can also be used with `bsl::format` (it
+// defines the `bslfmt::EnableStreamedFormatter` trait).  For information about
+// the supported format options see
+// [the `bslfmt` package documentation](bslfmt#Streaming-based Formatting).
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
@@ -31,6 +36,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlb_printmethods.h>
 
+#include <bslfmt_enablestreamedformatter.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bsls_assert.h>
 
 #include <bsl_optional.h>
@@ -53,6 +60,10 @@ class OptionalPrinter {
     const bsl::optional<TYPE>* d_data_p;
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(OptionalPrinter,
+                                   bslfmt::EnableStreamedFormatter);
+
     // CREATORS
 
     /// Create `OptionalPrinter` with the specified `data`.
