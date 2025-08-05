@@ -299,6 +299,7 @@ void EventScheduler::dispatchEvents()
                 if (0 == ret) {
                     lock.release()->unlock();
                     d_dispatcherFunctor(data.d_callback);
+                    data.d_callback = 0;
                 }
             }
             else {

@@ -151,6 +151,7 @@ using namespace bsl;
 // [31] TESTING `scheduleRecurringEventRaw` WITH CHRONO CLOCKS
 // [32] CONCERN: `EventData` and `RecurringEventData` are allocator-aware.
 // [33] CONCERN: THREAD NAMES
+// [35] CONCERN: DESTROY THE CALLBACK AFTER EXECUTION
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1185,6 +1186,32 @@ void signalLatchCallback(bslmt::Latch& done)
     }
     done.arrive();
 }
+
+                         // ========================
+                         // struct CircularReference
+                         // ========================
+
+struct CircularReference {
+    // DATA
+    bdlmt::EventScheduler::EventHandle d_handle;
+};
+
+                         // ===============================
+                         // class CircularReferenceCallback
+                         // ===============================
+
+class CircularReferenceCallback {
+    // DATA
+    bsl::shared_ptr<CircularReference> circularRef;
+public:
+    // CREATORS
+    explicit CircularReferenceCallback(
+                            const bsl::shared_ptr<CircularReference>& p)
+    : circularRef(p) {}
+
+    // ACCESSORS
+    void operator()() const {}
+};
 
 // ============================================================================
 //                      USAGE EXAMPLE RELATED ENTITIES
@@ -2933,6 +2960,79 @@ int main(int argc, char *argv[])
                                       bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: DESTROY THE CALLBACK AFTER EXECUTION
+        //
+        // Concerns:
+        // 1. The event callback is explicitly destroyed after execution to
+        //    break potential circular references (DRQS 179819546).
+        //
+        // Plan:
+        // 1. Start a scheduler.  Create a callback with a `shared_ptr` that
+        //    references an object containing an `EventHandle`.
+        //
+        // 2. Schedule an event.  Wait a period of time that is long enough for
+        //    the event to be executed.
+        //
+        // 3. Stop the scheduler.  Verify that `use_count` of the `shared_ptr`
+        //    is 1, which means that the callback object was destroyed.
+        //
+        // 4. Repeat the same for a canceled event.
+        //
+        // Testing:
+        //   CONCERN: DESTROY THE CALLBACK AFTER EXECUTION
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                     "\nCONCERN: DESTROY THE CALLBACK AFTER EXECUTION"
+                     "\n=============================================" << endl;
+
+        // Executed event
+        {
+            Obj scheduler;
+            int rc = scheduler.start();
+            ASSERT(rc == 0);
+
+            bsl::shared_ptr<CircularReference> circularRef =
+                                         bsl::make_shared<CircularReference>();
+            bsls::TimeInterval when = scheduler.now() + bsls::TimeInterval(0);
+            scheduler.scheduleEvent(&circularRef->d_handle,
+                                    when,
+                                    CircularReferenceCallback(circularRef));
+            //ASSERTV(scheduler.numEvents(), scheduler.numEvents() == 1);
+
+            // Wait until the event is run
+            while(scheduler.numEvents() != 0) {
+                bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
+            }
+
+            scheduler.stop();
+
+            ASSERT(circularRef.use_count() == 1);
+        }
+        // Canceled event
+        {
+            Obj scheduler;
+            int rc = scheduler.start();
+            ASSERT(rc == 0);
+
+            bsl::shared_ptr<CircularReference> circularRef =
+                                         bsl::make_shared<CircularReference>();
+            bsls::TimeInterval when = scheduler.now() + bsls::TimeInterval(60);
+            scheduler.scheduleEvent(&circularRef->d_handle,
+                                    when,
+                                    CircularReferenceCallback(circularRef));
+            //ASSERTV(scheduler.numEvents(), scheduler.numEvents() == 1);
+
+            rc = scheduler.cancelEvent(circularRef->d_handle);
+            ASSERT(rc == 0); // Make sure the event didn't run
+
+            scheduler.stop();
+
+            ASSERT(circularRef.use_count() == 1);
+        }
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // TESTING `nextPendingEventTime`
