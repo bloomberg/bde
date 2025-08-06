@@ -24,6 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 using namespace BloombergLP;
 
 // ============================================================================
