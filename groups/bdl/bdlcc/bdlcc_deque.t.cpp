@@ -5993,6 +5993,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "MULTITHREADED RANGE TRY PUSH TEST\n"
                              "=================================\n";
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         using namespace MULTI_THREADED_TRY_PUSH;
 
         bdlcc::Deque<unsigned>  container(HIGH_WATER_MARK, &ta);
@@ -6881,6 +6884,9 @@ int main(int argc, char *argv[])
 
         namespace TC = TEST_CASE_12;
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         TC::testMultiThreadedTryPop<Element>();
         TC::testMultiThreadedTryPop<AElement>();
         TC::testMultiThreadedTryPop<MElement>();
@@ -7615,6 +7621,9 @@ int main(int argc, char *argv[])
         if (verbose) cout <<
                "\nTESTING TIMED PUSH & POP FUNCTIONS WITH A HIGH WATER MARK\n"
                  "=========================================================\n";
+
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         static  const struct {
             int          d_lineNum;

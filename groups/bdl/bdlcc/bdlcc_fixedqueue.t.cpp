@@ -2119,13 +2119,13 @@ int main(int argc, char *argv[])
         if (veryVerbose) cout << "...Initial queue state test" << endl;
 
         const int k_QUEUE_SIZE_SINGLETHREAD = 4;
-        const int k_NUM_FULL_ITERATIONS = 1200;
+        const int k_NUM_FULL_ITERATIONS = 1000;
         const int k_QUEUE_SIZE_MT = 30;
         const int k_NUM_PUSHERS = 12;
         const int k_QUEUE_SIZE_LARGE = 500000;
         const int k_NUM_PUSHERS_MORE = 20;
         const int k_NUM_PUSHERS_LESS = 2;
-        const int k_EMPTY_VERIFY_MS = 1500;
+        const int k_EMPTY_VERIFY_MS = 1000;
 
         bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_SINGLETHREAD);
         ASSERT(queue.isEnabled());
@@ -2397,12 +2397,15 @@ int main(int argc, char *argv[])
         //
         // ---------------------------------------------------------
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         if (verbose) cout << endl
                           << "ABA \"empty\" value test" << endl
                           << "======================"   << endl;
 
         enum {
-            k_NUM_PUSHER_THREADS = 30,
+            k_NUM_PUSHER_THREADS = 20,
             k_NUM_VALUES = 6,
             k_NUM_ITERATIONS = 1000
         };

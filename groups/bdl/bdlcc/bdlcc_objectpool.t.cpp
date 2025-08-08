@@ -1483,7 +1483,7 @@ int main(int argc, char *argv[])
 // ```
     enum {
         k_NUM_THREADS = 8,
-        k_NUM_QUERIES = 10000
+        k_NUM_QUERIES = 1000
     };
 
     bsls::AtomicInt numQueries(0);

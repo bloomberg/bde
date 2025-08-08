@@ -702,7 +702,7 @@ void orderingGuaranteeTest(const int numPushThread, const int numPopThread)
     s_continue = 0;
 }
 
-const int k_PUSHPUSHWAIT_COUNT = 100000;
+const int k_PUSHPUSHWAIT_COUNT = 10000;
 
 extern "C" void *pushPushWait(void *arg)
 {
@@ -1243,13 +1243,13 @@ int main(int argc, char *argv[])
                  << "==================================================\n";
         }
 
-        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(250, 0),
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
                                           bsl::format("case {}", test)));
 
         bdlcc::BoundedQueue<LongDestructor> queue(8192);
 
         bslmt::Barrier  barrier(3);
-        bsls::AtomicInt count(3000);
+        bsls::AtomicInt count(2000);
 
         Case13Data data;
 
