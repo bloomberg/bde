@@ -1795,7 +1795,9 @@ inline
 unsigned int AtomicOperations_DefaultUint<IMP>::
     getUintRelaxed(typename AtomicTypes::Uint const *atomicUint)
 {
-    return atomicUint->d_value;
+    return static_cast<unsigned int>(
+        IMP::getIntRelaxed(
+             reinterpret_cast<typename AtomicTypes::Int const *>(atomicUint)));
 }
 
 template <class IMP>
@@ -1820,7 +1822,9 @@ inline
 void AtomicOperations_DefaultUint<IMP>::
     setUintRelaxed(typename AtomicTypes::Uint *atomicUint, unsigned int value)
 {
-    atomicUint->d_value = value;
+    IMP::setIntRelaxed(
+        reinterpret_cast<typename AtomicTypes::Int *>(atomicUint),
+                static_cast<int>(value));
 }
 
 template <class IMP>
@@ -2079,7 +2083,8 @@ inline
 Types::Uint64 AtomicOperations_DefaultUint64<IMP>::
     getUint64Relaxed(typename AtomicTypes::Uint64 const *atomicUint)
 {
-    return atomicUint->d_value;
+    return static_cast<Types::Uint64>(IMP::getInt64Relaxed(
+        reinterpret_cast<typename AtomicTypes::Int64 const *>(atomicUint)));
 }
 
 template <class IMP>
@@ -2106,7 +2111,9 @@ void AtomicOperations_DefaultUint64<IMP>::setUint64Relaxed(
                                       typename AtomicTypes::Uint64 *atomicUint,
                                       Types::Uint64                 value)
 {
-    atomicUint->d_value = value;
+    IMP::setInt64Relaxed(
+        reinterpret_cast<typename AtomicTypes::Int64 *>(atomicUint),
+        static_cast<Types::Int64>(value));
 }
 
 template <class IMP>
