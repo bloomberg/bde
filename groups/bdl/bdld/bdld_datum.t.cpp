@@ -2317,14 +2317,15 @@ ForwardDeclared returnByValue();
 
 template <class t_VISITOR>
 void callerTemplate(const t_VISITOR& v) {
-    v.call(returnByValue());
+    v.call(returnByValue());  // A failure here means we should adjust
+                              // the clang version for the workaround
+// If you see the following error during compilation with clang:
 // error: calling `returnByValue` with incomplete return type `ForwardDeclared`
-// If you see the above error during compilation with clang please increase the
-// major version number in the `#if` around this code.  If you see a similar
-// error from a compiler that is not clang it means that the function-pointer
-// workaround code will have to remain in `<bdld_datum.h>`.  See the large
-// comment section right after the `#if` above for an explanation of what is
-// tested here, and why.
+// please increase the major version number in the `#if` around this code.  If
+// you see a similar error from a compiler that is not clang it means that the
+// function-pointer workaround code will have to remain in `<bdld_datum.h>`.
+// See the large comment section right after the `#if` above for an
+// explanation of what is tested here, and why.
 }
 
 // -----------------------------------------------------------------
@@ -2363,7 +2364,8 @@ int main(int argc, char *argv[])
 
 #if defined(BSLS_PLATFORM_CMP_CLANG) &&                                       \
                         BSLS_PLATFORM_CMP_VERSION >= u_NEXT_CLANG_MAJOR_VERSION
-    ASSERT(0 == "This clang major release fixed the 2 phase name lookup issue.");
+    ASSERT(0 ==
+           "This clang major release fixed the 2 phase name lookup issue.");
     // Time to plan phasing out the function-pointer workaround
 #endif  // The test driver should not have compiled
 
