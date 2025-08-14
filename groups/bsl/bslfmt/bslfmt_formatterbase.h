@@ -10,9 +10,6 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsl::formatter: standard-compliant formatter base template
 //
-//@MACROS:
-//  BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20: delegation ban mechanism
-//
 //@CANONICAL_HEADER: bsl_format.h
 //
 //@DESCRIPTION: This component provides a base template of the C++20 Standard
@@ -22,10 +19,6 @@ BSLS_IDENT("$Id: $")
 // It also provides a mechanism, when the standard library `<format>` header is
 // available, to forward those partial specializations to the `std` namespace
 // to enable use of `std::format` as well as `bsl::format`.
-//
-// Trait macro `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` is provided
-// to enable the prevention of that delegation where formatters already exist
-// in the `std` namespace.
 //
 // This header is not intended to be included directly.  Please include
 // `<bsl_format.h>` to be able to use specializations of `bsl::formatter`.
@@ -129,50 +122,218 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_libraryfeatures.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #include <chrono>
+  #include <concepts>
   #include <format>
+  #include <string>
+  #include <string_view>
 #endif
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatterBase_PreventStdDelegation
-#else
-// On earlier C++ compilers we use a dummy typedef to avoid the compiler
-// warning about extra semicolons.
-#define BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20                      \
-    typedef void FormatterBase_DoNotPreventStdDelegation
-#endif
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 namespace BloombergLP {
 namespace bslfmt {
 
-               // =========================================
-               // struct FormatterBase_IsStdAliasingEnabled
-               // =========================================
-
-/// This type exists to enable SFINAE-based detection of the presence or
-/// absence of the `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` trait as
-/// appropriate.
-template <class t_FORMATTER, class = void>
-struct FormatterBase_IsStdAliasingEnabled : bsl::true_type {
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::basic_string`.
+template <class t_TYPE>
+struct FormatterBase_IsStdBasicString {
+    static const bool value = false;
 };
 
-/// This specialization of `FormatterBase_IsStdAliasingEnabled` is used when
-/// `BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20` trait is defined in
-/// formatter specialization and standard formatting functionality is supported
-/// by compiler.  In this case such formatter specialization will **NOT** be
-/// promoted to the `std` namespace.
-template <class t_FORMATTER>
-struct FormatterBase_IsStdAliasingEnabled<
-    t_FORMATTER,
-    typename t_FORMATTER::FormatterBase_PreventStdDelegation>
-: bsl::false_type {
+template <class t_CHAR, class t_TRAITS, class t_ALLOCATOR>
+struct FormatterBase_IsStdBasicString<
+    std::basic_string<t_CHAR, t_TRAITS, t_ALLOCATOR> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::basic_string_view`.
+template <class t_TYPE>
+struct FormatterBase_IsStdBasicStringView {
+    static const bool value = false;
+};
+
+template <class t_CHAR, class t_TRAITS>
+struct FormatterBase_IsStdBasicStringView<
+    std::basic_string_view<t_CHAR, t_TRAITS> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::duration`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoDuration {
+    static const bool value = false;
+};
+
+template <class t_REP, class t_PERIOD>
+struct FormatterBase_IsStdChronoDuration<
+    std::chrono::duration<t_REP, t_PERIOD> > {
+    static const bool value = true;
+};
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::sys_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoSysTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoSysTime<
+    std::chrono::sys_time<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::utc_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoUtcTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoUtcTime<
+    std::chrono::utc_time<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::tai_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoTaiTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoTaiTime<
+    std::chrono::tai_time<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::gps_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoGpsTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoGpsTime<
+    std::chrono::gps_time<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::file_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoFileTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoFileTime<
+    std::chrono::file_time<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::local_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoLocalTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoLocalTime<
+    std::chrono::local_time<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::hh_mm_ss`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoHhMmSs {
+    static const bool value = false;
+};
+
+template <class t_DURATION>
+struct FormatterBase_IsStdChronoHhMmSs<
+    std::chrono::hh_mm_ss<t_DURATION> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of any of
+/// `std::chrono::*_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoTimeType {
+    static const bool value =
+                           FormatterBase_IsStdChronoSysTime<t_TYPE>::value   ||
+                           FormatterBase_IsStdChronoUtcTime<t_TYPE>::value   ||
+                           FormatterBase_IsStdChronoTaiTime<t_TYPE>::value   ||
+                           FormatterBase_IsStdChronoGpsTime<t_TYPE>::value   ||
+                           FormatterBase_IsStdChronoFileTime<t_TYPE>::value  ||
+                           FormatterBase_IsStdChronoLocalTime<t_TYPE>::value ||
+                           FormatterBase_IsStdChronoHhMmSs<t_TYPE>::value;
+};
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+
+/// Simple trait type that tells is `t_TYPE` is an instance of any of the
+/// `std::chrono` types that deal with points in time.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoPointInTimeType {
+    static const bool value =
+                std::is_same_v<t_TYPE, std::chrono::day>                     ||
+                std::is_same_v<t_TYPE, std::chrono::month>                   ||
+                std::is_same_v<t_TYPE, std::chrono::year>                    ||
+                std::is_same_v<t_TYPE, std::chrono::weekday>                 ||
+                std::is_same_v<t_TYPE, std::chrono::weekday_indexed>         ||
+                std::is_same_v<t_TYPE, std::chrono::weekday_last>            ||
+                std::is_same_v<t_TYPE, std::chrono::month_day>               ||
+                std::is_same_v<t_TYPE, std::chrono::month_day_last>          ||
+                std::is_same_v<t_TYPE, std::chrono::month_weekday>           ||
+                std::is_same_v<t_TYPE, std::chrono::month_weekday_last>      ||
+                std::is_same_v<t_TYPE, std::chrono::year_month>              ||
+                std::is_same_v<t_TYPE, std::chrono::year_month_day>          ||
+                std::is_same_v<t_TYPE, std::chrono::year_month_day_last>     ||
+                std::is_same_v<t_TYPE, std::chrono::year_month_weekday>      ||
+                std::is_same_v<t_TYPE, std::chrono::year_month_weekday_last>;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of
+/// `std::chrono::zoned_time`.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoZonedTime {
+    static const bool value = false;
+};
+
+template <class t_DURATION, class t_TIME_ZONE_PTR>
+struct FormatterBase_IsStdChronoZonedTime<
+    std::chrono::zoned_time<t_DURATION, t_TIME_ZONE_PTR> > {
+    static const bool value = true;
+};
+
+/// Simple trait type that tells is `t_TYPE` is an instance of any of the C++20
+/// standard formattable `std::chrono` types.
+template <class t_TYPE>
+struct FormatterBase_IsStdChronoCpp20FormattableType {
+    static const bool value =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+                     FormatterBase_IsStdChronoTimeType<t_TYPE>::value        ||
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+                     FormatterBase_IsStdChronoPointInTimeType<t_TYPE>::value ||
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+                     FormatterBase_IsStdChronoZonedTime<t_TYPE>::value       ||
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+                     std::is_same_v<t_TYPE, std::chrono::sys_info>           ||
+                     std::is_same_v<t_TYPE, std::chrono::local_info>;
 };
 
 }  // close package namespace
 }  // close enterprise namespace
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 namespace bsl {
 
@@ -186,32 +347,38 @@ namespace bsl {
 /// error.
 template <class t_ARG, class t_CHAR = char>
 struct formatter {
-  public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
   private:
     // NOT IMPLEMENTED
     formatter(const formatter&) BSLS_KEYWORD_DELETED;
     formatter& operator=(const formatter&) BSLS_KEYWORD_DELETED;
 };
+
 }  // close namespace bsl
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 namespace std {
 
 /// Partial `formatter` specialization in the `std` namespace to enable use of
 /// formatters defined in the `bsl` namespace.
 template <class t_ARG, class t_CHAR>
-requires(
-    BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-        bsl::formatter<t_ARG, t_CHAR> >::value
-)
-struct formatter<t_ARG, t_CHAR>
-: bsl::formatter<t_ARG, t_CHAR> {};
+    requires(
+          !std::is_arithmetic_v<t_ARG>                                       &&
+          !std::is_same_v<t_ARG, std::nullptr_t>                             &&
+          !std::is_same_v<t_ARG, void *>                                     &&
+          !std::is_same_v<t_ARG, const void *>                               &&
+          !std::is_same_v<t_ARG, t_CHAR *>                                   &&
+          !std::is_same_v<t_ARG, const t_CHAR *>                             &&
+          !std::is_same_v<std::remove_extent_t<t_ARG>, const t_CHAR>         &&
+          !BloombergLP::bslfmt::FormatterBase_IsStdBasicString<t_ARG>::value &&
+          !BloombergLP::bslfmt::FormatterBase_IsStdBasicStringView<
+              t_ARG>::value                                                  &&
+          !BloombergLP::bslfmt::FormatterBase_IsStdChronoCpp20FormattableType<
+              t_ARG>::value                                                  &&
+          std::default_initializable<bsl::formatter<t_ARG, t_CHAR> >)
+struct formatter<t_ARG, t_CHAR> : bsl::formatter<t_ARG, t_CHAR> {};
 
 }  // close namespace std
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 #endif  // INCLUDED_BSLFMT_FORMATTERBASE
 

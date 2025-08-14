@@ -80,9 +80,6 @@ namespace bslfmt {
 template <class t_VALUE, class t_CHAR>
 struct FormatterPointer_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
   public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Create string representation of the specified `ptrValue`, customized in
@@ -106,9 +103,6 @@ template <class t_CHAR>
 struct FormatterPointer_Nullptr
 : public FormatterIntegralBase<bsl::nullptr_t, t_CHAR> {
   public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Create string representation of the `bsl::nullptr_t` object, customized

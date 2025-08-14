@@ -75,9 +75,6 @@ namespace bslfmt {
 template <class t_VALUE, class t_CHAR>
 struct FormatterIntegral_Imp : public FormatterIntegralBase<t_VALUE, t_CHAR> {
   public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Create string representation of the specified `value`, customized in

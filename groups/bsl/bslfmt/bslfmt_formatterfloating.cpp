@@ -5,28 +5,6 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslfmt_formatterfloating_cpp, "$Id$ $CSID$")
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<float, char> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<float, wchar_t> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<double, char> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<double, wchar_t> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<long double, char> >::value));
-
-BSLMF_ASSERT((!BloombergLP::bslfmt::FormatterBase_IsStdAliasingEnabled<
-              bsl::formatter<long double, wchar_t> >::value));
-
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
 //

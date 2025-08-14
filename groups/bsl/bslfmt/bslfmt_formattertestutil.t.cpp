@@ -294,9 +294,6 @@ namespace breathing_test{
 template <class t_CHAR>
 struct MockFormatterInteger {
   public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     /// Throw a `bsl::format_error` exception if it is required by the current
     /// global test instruction and return an iterator, pointing to the
     /// end of the format string, obtained from the specified `parseContext`.
@@ -360,9 +357,6 @@ struct MockFormatterInteger {
 template <class t_CHAR>
 struct MockFormatterBoolean {
   public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     /// Return an iterator, pointing to the end of the format string, obtained
     /// from the specified `parseContext`.
     template <class t_PARSE_CONTEXT>

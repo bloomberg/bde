@@ -8,6 +8,8 @@
 #include <bslma_defaultallocatorguard.h> // Testing only
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <bslstl_string.h>
 
@@ -38,7 +40,9 @@ using namespace bsl;
 // [ 6] CONCERN: Format string is processed compile time
 // [ 7] CONCERN: Locale flag is prohibited
 // [ 8] CONCERN: Format string parsing with context
-// [ 9] USAGE EXAMPLE
+// ----------------------------------------------------------------------------
+// [ 9] STD NON-DELEGATION
+// [10] USAGE EXAMPLE
 // [ *] CONCERN: No memory is leaked from the default allocator.
 // [ *] CONCERN: No memory came from the global allocator.
 
@@ -245,7 +249,7 @@ int main(int argc, char **argv)
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) {  case 0:
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -289,6 +293,58 @@ int main(int argc, char **argv)
 
     ASSERT("1.51eb851eb851fp+5" == mfc.finalString());
 // ```
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // STD NON-DELEGATION
+        //   This test case verifies that we do not hijack the `std` formatter.
+        //   This test case is executed only when `std::format` is present and
+        //   usable/used by BDE.
+        //
+        // Concern:
+        // 1. When `std::format` is present and used/usable the component
+        //    `bslfmt_formatterbase` defines a `std::formatter` partial
+        //    specialization for all types that do not already have a standard
+        //    formatter) that is inherited from (implemented in terms of) the
+        //    `bsl::formatter` for that type.  However we do not want that
+        //    `std::formatter` partial specialization to be active for types
+        //    that do have a formatter in the standard library like `float`,
+        //    `double`, and `long double`.
+        //
+        // Plan:
+        // 1. Verify that `std::formatter` instantiations for `float`,
+        //    `double`, and `long double` with `char` and `wchar_t` are not
+        //    inherited from `bsl::formatter` of the same template parameters.
+        //
+        // Testing:
+        //   STD NON-DELEGATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTD NON-DELEGATION"
+                            "\n==================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        ASSERT(
+            (!bslmf::IsAccessibleBaseOf<bsl::formatter<float, char>,
+                                        std::formatter<float, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<float, wchar_t>,
+                std::formatter<float, wchar_t> >::value));
+
+        ASSERT((
+            !bslmf::IsAccessibleBaseOf<bsl::formatter<double, char>,
+                                       std::formatter<double, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<double, wchar_t>,
+                std::formatter<double, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<long double, char>,
+                std::formatter<long double, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<long double, wchar_t>,
+                std::formatter<long double, wchar_t> >::value));
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -1264,7 +1320,7 @@ int main(int argc, char **argv)
             ROW(" 1E-37 ", "{:^7.0G}", 1.234E-37f),
 
             // general .0 ALTERNATE
-#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_RELEASE > 13
             ROW("1.e-37",   "{:#.0g}",   1.234e-37f),
 #endif  // not gcc-13
 #define u_MSVC_LAST_BAD_VER 194334810
@@ -1277,7 +1333,7 @@ int main(int argc, char **argv)
             ROW(" 1.e-37 ", "{:^#8.0g}", 1.234e-37f),
 #endif  // MSVC lib is fixed in this version
             // uppercase general .0 ALTERNATE
-#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_RELEASE > 13
             ROW("1.E-37", "{:#.0G}", 1.234e-37f),
 #endif  // not gcc-13
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
@@ -2041,7 +2097,7 @@ int main(int argc, char **argv)
             ROW(" 1E-37 ", "{:^7.0G}", 1.234E-37),
 
             // general .0 ALTERNATE
-#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_RELEASE > 13
             ROW("1.e-37", "{:#.0g}", 1.234e-37),
 #endif  // not gcc-13
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER
@@ -2053,7 +2109,7 @@ int main(int argc, char **argv)
             ROW(" 1.e-37 ", "{:^#8.0g}", 1.234e-37),
 #endif  // MSVC lib is fixed in this version
             // uppercase general .0 ALTERNATE
-#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION / 10000 > 13
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) || _GLIBCXX_RELEASE > 13
             ROW("1.E-37", "{:#.0G}", 1.234e-37),
 #endif  // not gcc-13
 #if defined(_MSC_FULL_VER) && _MSC_FULL_VER > u_MSVC_LAST_BAD_VER

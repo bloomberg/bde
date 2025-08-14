@@ -232,12 +232,6 @@ template <class t_CHAR>
 struct formatter<t_CHAR *, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
-    // TRAITS
-
-    // There will already be a standard library formatter taking a raw
-    // character pointer, so do not alias this into `std`.
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -263,12 +257,6 @@ template <class t_CHAR>
 struct formatter<const t_CHAR *, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
-    // TRAITS
-
-    // There will already be a standard library formatter taking a raw
-    // character pointer, so do not alias this into `std`.
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -294,12 +282,6 @@ template <class t_CHAR, size_t t_SIZE>
 struct formatter<t_CHAR[t_SIZE], t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
-    // TRAITS
-
-    // There will already be a standard library formatter taking a raw
-    // character pointer, so do not alias this into `std`.
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -325,12 +307,6 @@ template <class t_CHAR>
 struct formatter<std::basic_string<t_CHAR>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
-    // TRAITS
-
-    // There will already be a standard library formatter taking a `std` string
-    // view, so do not alias this into `std`.
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the
@@ -388,12 +364,6 @@ template <class t_CHAR>
 struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
 : BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
   public:
-    // TRAITS
-
-    // There will already be a standard library formatter taking a `std`
-    // string view, so do *not* alias this class into `std`.
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // ACCESSORS
 
     /// Format the value in the specified `value` parameter according to the

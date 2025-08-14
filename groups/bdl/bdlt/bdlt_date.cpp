@@ -85,7 +85,7 @@ bsl::ostream& Date::print(bsl::ostream& stream,
                  d_serialDate);
 
         BSLS_ASSERT_SAFE(
-                 !"'bdlt::Date::print' attempted on date with invalid state.");
+             0 == "'bdlt::Date::print' attempted on date with invalid state.");
     }
     else {
 #endif  // defined(BSLS_ASSERT_OPT_IS_ACTIVE)

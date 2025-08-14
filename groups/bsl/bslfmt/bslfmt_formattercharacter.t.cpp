@@ -4,6 +4,7 @@
 #include <bslfmt_formattertestutil.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bslstl_string.h>
@@ -96,15 +97,15 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // 1. Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single character.
+        // 1. Use test contexts to format a single character.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -136,6 +137,52 @@ int main(int argc, char **argv)
     ASSERT("a*****" == mfc.finalString());
 // ```
 //
+      } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // STD NON-DELEGATION
+        //   This test case verifies that we do not hijack the `std` formatter.
+        //   This test case is executed only when `std::format` is present and
+        //   usable/used by BDE.
+        //
+        // Concern:
+        // 1. When `std::format` is present and used/usable the component
+        //    `bslfmt_formatterbase` defines a `std::formatter` partial
+        //    specialization for all types that do not already have a standard
+        //    formatter) that is inherited from (implemented in terms of) the
+        //    `bsl::formatter` for that type.  However we do not want that
+        //    `std::formatter` partial specialization to be active for types
+        //    that do have a formatter in the standard library, such as `char`
+        //    and `wchar_t`.
+        //
+        // Plan:
+        // 1. Verify that `std::formatter` for `char` (with `char` and
+        //    `wchar_t`) is not inherited from `bsl::formatter` of the same
+        //    template parameters.
+        //
+        // 2. Verify that `std::formatter` for `wchar_t` with `wchar_t` is not
+        //    inherited from `bsl::formatter` of the same template parameters.
+        //
+        // Testing:
+        //   STD NON-DELEGATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTD NON-DELEGATION"
+                            "\n==================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        ASSERT(
+             (!bslmf::IsAccessibleBaseOf<bsl::formatter<char, char>,
+                                         std::formatter<char, char> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<char, wchar_t>,
+                std::formatter<char, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<wchar_t, wchar_t>,
+                std::formatter<wchar_t, wchar_t> >::value));
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -397,10 +444,10 @@ int main(int argc, char **argv)
         // values.
 
         const bool compilerCorrectlyHandlesNegativeValues =
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 130300
-                                                            false;
+ #if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE <= 13
+            false;
 #else
-                                                            true;
+            true;
 #endif
 
         if (verbose) printf("\tTesting runtime processing.\n");

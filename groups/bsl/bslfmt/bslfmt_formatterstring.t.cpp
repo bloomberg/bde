@@ -13,6 +13,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #include <string_view>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+
 using namespace BloombergLP;
 using bsls::NameOf;
 
@@ -67,7 +71,8 @@ using bsls::NameOf;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 5] STD NON-DELEGATION
+// [ 6] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -815,7 +820,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -856,6 +861,67 @@ int main(int argc, char **argv)
         ASSERT("abc**" == mfc.finalString());
 //..
 //
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // STD NON-DELEGATION
+        //   This test case verifies that we do not hijack the `std` formatter.
+        //   This test case is executed only when `std::format` is present and
+        //   usable/used by BDE.
+        //
+        // Concern:
+        // 1. When `std::format` is present and used/usable the component
+        //    `bslfmt_formatterbase` defines a `std::formatter` partial
+        //    specialization for all types that do not already have a standard
+        //    formatter) that is inherited from (implemented in terms of) the
+        //    `bsl::formatter` for that type.  However we do not want that
+        //    `std::formatter` partial specialization to be active for types
+        //    that do have a formatter in the standard library such as the
+        //    string-like standard-formatted types.
+        //
+        // Plan:
+        // 1. Verify that `std::formatter` instantiations for string-like types
+        //    are not inherited from `bsl::formatter` of the same template
+        //    parameters.
+        //
+        // Testing:
+        //   STD NON-DELEGATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTD NON-DELEGATION"
+                            "\n==================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<const char *, char>,
+                std::formatter<const char *, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<const wchar_t *, wchar_t>,
+                std::formatter<const wchar_t *, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<std::string_view, char>,
+                std::formatter<std::string_view, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<std::wstring_view, wchar_t>,
+                std::formatter<std::wstring_view, wchar_t> >::value));
+
+#ifdef BSLSTL_STRING_VIEW_IS_ALIASED
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<bsl::string_view, char>,
+                std::formatter<bsl::string_view, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<bsl::wstring_view, wchar_t>,
+                std::formatter<bsl::wstring_view, wchar_t> >::value));
+#else   // BSLSTL_STRING_VIEW_IS_ALIASED
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bsl::formatter<bsl::string_view, char>,
+                std::formatter<bsl::string_view, char> >::value));
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bsl::formatter<bsl::wstring_view, wchar_t>,
+                std::formatter<bsl::wstring_view, wchar_t> >::value));
+#endif  // else - BSLSTL_STRING_VIEW_IS_ALIASED
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
       } break;
       case 4: {
         // --------------------------------------------------------------------

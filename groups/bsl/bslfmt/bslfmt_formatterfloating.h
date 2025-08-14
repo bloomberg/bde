@@ -244,9 +244,6 @@ struct FormatterFloating_Base {
                                          t_FORMAT_CONTEXT&    formatContext,
                                          const Specification& finalSpec) const;
   public:
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     // MANIPULATORS
 
     /// Create string representation of the specified `value`, customized in
@@ -1006,9 +1003,6 @@ struct formatter<double, t_CHAR>
 /// as `double`.  Plan is to implement it only in case it is actually needed.
 template <class t_CHAR>
 struct formatter<long double, t_CHAR> {
-    // TRAITS
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-
     template <class t_PARSE_CONTEXT>
     BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
                                                  t_PARSE_CONTEXT& parseContext)

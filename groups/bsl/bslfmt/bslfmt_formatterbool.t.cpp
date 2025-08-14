@@ -3,6 +3,8 @@
 
 #include <bslfmt_formattertestutil.h>
 
+#include <bslmf_isaccessiblebaseof.h>
+
 #include <bsls_bsltestutil.h>
 
 #include <bslstl_string.h>
@@ -123,15 +125,16 @@ int main(int argc, char **argv)
 
     printf("TEST %s CASE %d \n", __FILE__, test);
 
-    switch (test) {  case 0:  case 2: {
+    switch (test) {  case 0:
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // 1. Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single boolean.
+        // 1. Use test contexts to format a single boolean.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -163,14 +166,52 @@ int main(int argc, char **argv)
     ASSERT("false*" == mfc.finalString());
 // ```
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // STD NON-DELEGATION
+        //   This test case verifies that we do not hijack the `std` formatter.
+        //   This test case is executed only when `std::format` is present and
+        //   usable/used by BDE.
+        //
+        // Concern:
+        // 1. When `std::format` is present and used/usable the component
+        //    `bslfmt_formatterbase` defines a `std::formatter` partial
+        //    specialization for all types that do not already have a standard
+        //    formatter) that is inherited from (implemented in terms of) the
+        //    `bsl::formatter` for that type.  However we do not want that
+        //    `std::formatter` partial specialization to be active for types
+        //    that do have a formatter in the standard library, such as `bool`.
+        //
+        // Plan:
+        // 1. Verify that `std::formatter` for `bool` (`char` and `wchar_t`)
+        //    are not inherited from `bsl::formatter` of the same template
+        //    parameters.
+        //
+        // Testing:
+        //   STD NON-DELEGATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTD NON-DELEGATION"
+                            "\n==================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        ASSERT(
+             (!bslmf::IsAccessibleBaseOf<bsl::formatter<bool, char>,
+                                         std::formatter<bool, char> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<bool, wchar_t>,
+                std::formatter<bool, wchar_t> >::value));
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //
@@ -178,9 +219,8 @@ int main(int argc, char **argv)
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         static const struct {
             int         d_line;        // source line number

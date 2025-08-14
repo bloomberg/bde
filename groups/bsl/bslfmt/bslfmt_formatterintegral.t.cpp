@@ -22,7 +22,8 @@ using namespace bsl;
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] USAGE EXAMPLE
+// [ 2] STD NON-DELEGATION
+// [ 3] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -181,15 +182,15 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 2: {
+      case 3: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
         // Concern:
-        //: 1 Demonstrate the functioning of this component.
+        // 1. Demonstrate the functioning of this component.
         //
         // Plan:
-        //: 1 Use test contexts to format a single integer.
+        // 1. Use test contexts to format a single integer.
         //
         // Testing:
         //   USAGE EXAMPLE
@@ -222,14 +223,89 @@ int main(int argc, char **argv)
     ASSERT("2a***" == mfc.finalString());
 // ```
       } break;
+      case 2: {
+        // --------------------------------------------------------------------
+        // STD NON-DELEGATION
+        //   This test case verifies that we do not hijack the `std` formatter.
+        //   This test case is executed only when `std::format` is present and
+        //   usable/used by BDE.
+        //
+        // Concern:
+        // 1. When `std::format` is present and used/usable the component
+        //    `bslfmt_formatterbase` defines a `std::formatter` partial
+        //    specialization for all types that do not already have a standard
+        //    formatter) that is inherited from (implemented in terms of) the
+        //    `bsl::formatter` for that type.  However we do not want that
+        //    `std::formatter` partial specialization to be active for types
+        //    that do have a formatter in the standard library like `int`,
+        //    `unsigned`, `long`, `unsigned long`, `long long`, and
+        //    `unsigned long long`.
+        //
+        // Plan:
+        // 1. Verify that `std::formatter` instantiations for `int`,
+        //    `unsigned`, `long`, `unsigned long`, `long long`, and
+        //    `unsigned long long` with `char` and `wchar_t` are not
+        //    inherited from `bsl::formatter` of the same template parameters.
+        //
+        // Testing:
+        //   STD NON-DELEGATION
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTD NON-DELEGATION"
+                            "\n==================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        ASSERT(
+              (!bslmf::IsAccessibleBaseOf<bsl::formatter<int, char>,
+                                          std::formatter<int, char> >::value));
+        ASSERT((
+            !bslmf::IsAccessibleBaseOf<bsl::formatter<int, wchar_t>,
+                                       std::formatter<int, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<unsigned, char>,
+                std::formatter<unsigned, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<unsigned, wchar_t>,
+                std::formatter<unsigned, wchar_t> >::value));
+
+        ASSERT(
+             (!bslmf::IsAccessibleBaseOf<bsl::formatter<long, char>,
+                                         std::formatter<long, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<long, wchar_t>,
+                std::formatter<long, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<unsigned long, char>,
+                std::formatter<unsigned long, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<unsigned long, wchar_t>,
+                std::formatter<unsigned long, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<long long, char>,
+                std::formatter<long long, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<long long, wchar_t>,
+                std::formatter<long long, wchar_t> >::value));
+
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<unsigned long long, char>,
+                std::formatter<unsigned long long, char> >::value));
+        ASSERT((!bslmf::IsAccessibleBaseOf<
+                bsl::formatter<unsigned long long, wchar_t>,
+                std::formatter<unsigned long long, wchar_t> >::value));
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+      } break;
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
         //   This case exercises (but does not fully test) basic functionality.
         //
         // Concerns:
-        //: 1 The class is sufficiently functional to enable comprehensive
-        //:   testing in subsequent test cases.
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
         //
         // Plan:
         //

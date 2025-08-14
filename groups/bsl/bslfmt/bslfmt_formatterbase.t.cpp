@@ -1,16 +1,16 @@
 // bslfmt_formatterbase.t.cpp                                         -*-C++-*-
 #include <bslfmt_formatterbase.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#include <bslmf_isaccessiblebaseof.h>
-#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #include <bslmf_isaccessiblebaseof.h>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 #include <bslmf_issame.h>
 
 #include <bsls_bsltestutil.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#include <format>
-#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #include <format>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
@@ -106,40 +106,14 @@ void aSsErT(bool condition, const char *message, int line)
 
 namespace test_formatters {
 
-                      // ==============================
-                      // struct FormatterWithMacroTrait
-                      // ==============================
+                     // =================================
+                     // struct FormatterWithStdDelegation
+                     // =================================
 
-/// This struct provides a test class that simulates a custom formatter with a
-/// special trait that prevents this formatter from being promoted to the `std`
-/// namespace declared using conditional macro.
-struct FormatterWithMacroTrait {
-    // TYPES
-    BSL_FORMATTER_PREVENT_STD_DELEGATION_TRAIT_CPP20;
-    typedef void ExistenceMarker;
-};
-
-                      // =================================
-                      // struct FormatterWithExplicitTrait
-                      // =================================
-
-/// This struct provides a test class that simulates a custom formatter with an
-/// explicitly declared trait that prevents this formatter from being promoted
-/// to the `std` namespace.
-struct FormatterWithExplicitTrait {
-    // TYPES
-    typedef void FormatterBase_PreventStdDelegation;
-    typedef void ExistenceMarker;
-};
-
-                      // ============================
-                      // struct FormatterWithoutTrait
-                      // ============================
-
-/// This struct provides a test class that simulates a custom formatter with a
-/// missing trait preventing this formatter from being promoted to the `std`
-/// namespace.
-struct FormatterWithoutTrait {
+/// This struct provides a test class that simulates a custom formatter that is
+/// delegated to the `std` namespace (because it is not a standard formatter
+/// already provided by `std`).
+struct FormatterWithStdDelegation {
     // TYPES
     typedef void ExistenceMarker;
 };
@@ -148,31 +122,13 @@ struct FormatterWithoutTrait {
 
 namespace {
 
-                      // =========================
-                      // struct TestTypeMacroTrait
-                      // =========================
+                      // ================================
+                      // struct TestTypeWithStdDelegation
+                      // ================================
 
 /// This struct provides a test class that simulates a custom user type to be
-/// formatted by the `FormatterWithMacroTrait`.
-struct TestTypeMacroTrait {
-};
-
-                      // ============================
-                      // struct TestTypeExplicitTrait
-                      // ============================
-
-/// This struct provides a test class that simulates a custom user type to be
-/// formatted by the `FormatterWithExplicitTrait`.
-struct TestTypeExplicitTrait {
-};
-
-                      // ===========================
-                      // struct TestTypeWithoutTrait
-                      // ===========================
-
-/// This struct provides a test class that simulates a custom user type to be
-/// formatted by the `FormatterWithoutTrait`.
-struct TestTypeWithoutTrait {
+/// formatted by the `FormatterWithStdDelegation`.
+struct TestTypeWithStdDelegation {
 };
 
                       // ========================
@@ -200,40 +156,16 @@ struct IsStructInherited<t_FORMATTER, typename t_FORMATTER::ExistenceMarker>
 
 namespace bsl {
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 /// Partial specialization of the `bsl::formatter` template for the test type
-/// `TestTypeMacroTrait`.
+/// `TestTypeWithStdDelegation`.
 template <class t_CHAR>
-struct formatter<TestTypeMacroTrait, t_CHAR>
-: test_formatters::FormatterWithMacroTrait {
+struct formatter<TestTypeWithStdDelegation, t_CHAR>
+: test_formatters::FormatterWithStdDelegation {
 };
 
-/// Partial specialization of the `bsl::formatter` template for the test type
-/// `TestTypeWithoutTrait`.
-template <class t_CHAR>
-struct formatter<TestTypeWithoutTrait, t_CHAR>
-: test_formatters::FormatterWithoutTrait {
-};
-
-/// Partial specialization of the `bsl::formatter` template for the test type
-/// `TestTypeExplicitTrait`.
-template <class t_CHAR>
-struct formatter<TestTypeExplicitTrait, t_CHAR>
-: test_formatters::FormatterWithExplicitTrait {
-};
-
-/// Partial specialization of the `bsl::formatter` template for the type `int`.
-/// This specialization carries absolutely no useful load and is declared only
-/// to ensure that there is no ambiguity when formatter specializations for the
-/// same type are declared simultaneously in both the `std` namespace and the
-/// `bsl` namespace.
-template <class t_CHAR>
-struct formatter<int, t_CHAR>
-: test_formatters::FormatterWithExplicitTrait {
-};
-
-#endif
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 }  // close namespace bsl
 
@@ -446,10 +378,7 @@ int main(int argc, char **argv)
         //: 2 Default type for the second template parameter of
         //:  `bsl::formatter` is `char`.
         //:
-        //: 3 `bsl::formatter` specialization is promoted to the `std`
-        //:   namespace only in absence of the special type declaration.
-        //:
-        //: 4 Special type declaration prevents compiler complain about
+        //: 3 Special type declaration prevents compiler complain about
         //:   ambiguity in case of simultaneous declaration of formatter
         //:   specialization for the same type in the `bsl` and `std`
         //:   namespaces.
@@ -460,8 +389,7 @@ int main(int argc, char **argv)
         //:   default value.  (C-1..2)
         //:
         //: 2 Using meta-functions check the propagation of the
-        //:   `bsl::formatter` specializations to the `std` namespace depending
-        //:   on the presence or lack of defined special type.  (C-3..4)
+        //:   `bsl::formatter` specializations to the `std` namespace.  (C-3)
         //
         // Testing:
         //   CONCERN: `formatter` template is declared in the `bsl` namespace
@@ -483,46 +411,19 @@ int main(int argc, char **argv)
         ASSERT(true  == (bsl::is_same<bsl::formatter<int>,
                                       bsl::formatter<int,  char> >::value));
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
-        // Explicit trait definition.
-        // Concern:
-        // - `bsl::formatter` is **NOT** propagated to the `std` namespace
-        //   under any circumstances
-
-        ASSERT(false ==
-               (IsStructInherited<
-                   std::formatter<TestTypeExplicitTrait, char> >::value));
-
-        // No trait definition.
         // Concern:
         // - `bsl::formatter` is propagated to the `std` namespace under any
         //   circumstances
 
         ASSERT(true ==
                (IsStructInherited<
-                   std::formatter<TestTypeWithoutTrait, char> >::value));
+                   std::formatter<TestTypeWithStdDelegation, char> >::value));
         ASSERT(true ==
                (bslmf::IsAccessibleBaseOf<
-                   bsl::formatter<TestTypeWithoutTrait, char>,
-                   std::formatter<TestTypeWithoutTrait, char> >::value));
-
-        // Trait is added to the formatter as a macro.
-        // Concern:
-        // - `bsl::formatter` is propagated to the `std` namespace depending on
-        //   the version of the standard
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-        ASSERT(false ==
-               (IsStructInherited<
-                   std::formatter<TestTypeMacroTrait, char> >::value));
-#else
-        ASSERT(true == (IsStructInherited<
-                           std::formatter<TestTypeMacroTrait, char> >::value));
-        ASSERT(true == (bslmf::IsAccessibleBaseOf<
-                           bsl::formatter<TestTypeMacroTrait, char>,
-                           std::formatter<TestTypeMacroTrait, char> >::value));
-#endif
+                   bsl::formatter<TestTypeWithStdDelegation, char>,
+                   std::formatter<TestTypeWithStdDelegation, char> >::value));
 
         // Formatters are defined in both `std` and `bsl` namespaces.
         // Concern:
@@ -535,12 +436,9 @@ int main(int argc, char **argv)
                (bslmf::IsAccessibleBaseOf<bsl::formatter<int, char>,
                                           std::formatter<int, char> >::value));
 
-        bsl::formatter<int, char> bslIntFormatter;
-        (void) bslIntFormatter;  // suppress compiler warning
-
         std::formatter<int, char> stdIntFormatter;
         (void) stdIntFormatter;  // suppress compiler warning
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -553,10 +451,7 @@ int main(int argc, char **argv)
         //: 2 Default type for the second template parameter of
         //:  `bsl::formatter` is `char`.
         //:
-        //: 3 `bsl::formatter` specialization is promoted to the `std`
-        //:   namespace only in absence of the special type declaration.
-        //:
-        //: 4 Special type declaration prevents compiler complain about
+        //: 3 Special type declaration prevents compiler complain about
         //:   ambiguity in case of simultaneous declaration of formatter
         //:   specialization for the same type in the `bsl` and `std`
         //:   namespaces.
@@ -567,16 +462,14 @@ int main(int argc, char **argv)
         //:   default value.  (C-1..2)
         //:
         //: 2 Using meta-functions check the propagation of the
-        //:   `bsl::formatter` specializations to the `std` namespace depending
-        //:   on the presence or lack of defined special type.  (C-3..4)
+        //:   `bsl::formatter` specializations to the `std` namespace.  (C-3)
         //
         // Testing:
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nBREATHING TEST"
-                   "\n==============\n");
+        if (verbose) printf("\nBREATHING TEST"
+                            "\n==============\n");
 
         // Concerns:
         // - `formatter` is declared in the `bsl` namespace
@@ -589,19 +482,7 @@ int main(int argc, char **argv)
         ASSERT(true  == (bsl::is_same<bsl::formatter<int>,
                                       bsl::formatter<int,  char> >::value));
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-
-        // Explicit trait definition.
-        // Concern:
-        // - `bsl::formatter` is **NOT** propagated to the `std` namespace
-        //   under any circumstances
-
-        ASSERT(false ==
-               (bslfmt::FormatterBase_IsStdAliasingEnabled<
-                   bsl::formatter<TestTypeExplicitTrait, char> >::value));
-        ASSERT(false ==
-               (IsStructInherited<
-                   std::formatter<TestTypeExplicitTrait, char> >::value));
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
         // No trait definition.
         // Concern:
@@ -609,57 +490,27 @@ int main(int argc, char **argv)
         //   circumstances
 
         ASSERT(true ==
-               (bslfmt::FormatterBase_IsStdAliasingEnabled<
-                   bsl::formatter<TestTypeWithoutTrait, char> >::value));
-        ASSERT(true ==
                (IsStructInherited<
-                   std::formatter<TestTypeWithoutTrait, char> >::value));
+                   std::formatter<TestTypeWithStdDelegation, char> >::value));
         ASSERT(true ==
                (bslmf::IsAccessibleBaseOf<
-                   bsl::formatter<TestTypeWithoutTrait, char>,
-                   std::formatter<TestTypeWithoutTrait, char> >::value));
-
-        // Trait is added to the formatter as a macro.
-        // Concern:
-        // - `bsl::formatter` is propagated to the `std` namespace depending on
-        //   the version of the standard
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-        ASSERT(false ==
-               (bslfmt::FormatterBase_IsStdAliasingEnabled<
-                   bsl::formatter<TestTypeMacroTrait, char> >::value));
-        ASSERT(false ==
-               (IsStructInherited<
-                   std::formatter<TestTypeMacroTrait, char> >::value));
-#else
-        ASSERT(true == (bslfmt::FormatterBase_IsStdAliasingEnabled<
-                           bsl::formatter<TestTypeMacroTrait, char> >::value));
-        ASSERT(true == (IsStructInherited<
-                           std::formatter<TestTypeMacroTrait, char> >::value));
-        ASSERT(true == (bslmf::IsAccessibleBaseOf<
-                           bsl::formatter<TestTypeMacroTrait, char>,
-                           std::formatter<TestTypeMacroTrait, char> >::value));
-#endif
+                   bsl::formatter<TestTypeWithStdDelegation, char>,
+                   std::formatter<TestTypeWithStdDelegation, char> >::value));
 
         // Formatters are defined in both `std` and `bsl` namespaces.
         // Concern:
         // - `bsl::formatter` is **NOT** propagated to the `std` namespace, but
         //   the standard implementation is used for formatting.
 
-        ASSERT(false == (bslfmt::FormatterBase_IsStdAliasingEnabled<
-                            bsl::formatter<int, char> >::value));
         ASSERT(false ==
                (IsStructInherited<std::formatter<int, char> >::value));
         ASSERT(false ==
                (bslmf::IsAccessibleBaseOf<bsl::formatter<int, char>,
                                           std::formatter<int, char> >::value));
 
-        bsl::formatter<int, char> bslIntFormatter;
-        (void) bslIntFormatter;  // suppress compiler warning
-
         std::formatter<int, char> stdIntFormatter;
         (void) stdIntFormatter;  // suppress compiler warning
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
       } break;
       default: {
