@@ -7,6 +7,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bsltf_templatetestfacility.h>
+
 #include <bsla_maybeunused.h>
 
 #include <bslma_default.h>

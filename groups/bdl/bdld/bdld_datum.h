@@ -628,6 +628,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsl_algorithm.h>
 #include <bsl_climits.h>
+#include <bsl_cstddef.h>
 #include <bsl_cstring.h>
 #include <bsl_iosfwd.h>
 #include <bsl_limits.h>

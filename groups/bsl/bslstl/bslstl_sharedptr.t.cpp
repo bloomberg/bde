@@ -21938,7 +21938,9 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < numObjects; ++i) {
                     ASSERT(0 == strcmp(x[i].d_text, "text"));
                     ASSERT(0 == strcmp(x.get()[i].d_text, "text"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     ASSERT(0 == strcmp(x.ptr()[i].d_text, "text"));
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
                 }
             }
 #endif
@@ -21951,7 +21953,9 @@ int main(int argc, char *argv[])
                 for (int i = 0; i < numObjects; ++i) {
                     ASSERT(0 == strcmp(x[i].d_text, "text"));
                     ASSERT(0 == strcmp(x.get()[i].d_text, "text"));
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     ASSERT(0 == strcmp(x.ptr()[i].d_text, "text"));
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
                 }
             }
 

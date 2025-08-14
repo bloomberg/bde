@@ -12,6 +12,8 @@ BSLS_IDENT_RCSID(RCSid_bdld_datumutil_cpp, "$Id$ $CSID$")
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
 
+#include <bdldfp_decimal.h>
+
 #include <bdlma_localbufferedobject.h>
 
 #include <bdlsb_memoutstreambuf.h>
