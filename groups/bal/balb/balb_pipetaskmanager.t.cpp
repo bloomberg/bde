@@ -18,12 +18,15 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 
+#include <bslmt_barrier.h>
 #include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
+#include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstddef.h>   // `bsl::size_t`
 #include <bsl_cstdlib.h>   // `bsl::atoi`, `bsl::getenv`
@@ -188,15 +191,35 @@ void noop(const bsl::string_view& , bsl::istream& )
 }
 
 /// Assign `1` to the specified `*rc`.
-void rc1cb(const bsl::string_view& , bsl::istream&, int *rc)
+void rc1cb(const bsl::string_view&, bsl::istream&, int *rc)
 {
     *rc = 1;
 }
 
 /// Assign `2` to the specified `*rc`.
-void rc2cb(const bsl::string_view& , bsl::istream&, int *rc)
+void rc2cb(const bsl::string_view&, bsl::istream&, int *rc)
 {
     *rc = 2;
+}
+
+/// Assign `1` to the specified `*rc` and arrive on the specified `barrier`.
+void rc1barrier(const bsl::string_view&,
+                bsl::istream&,
+                int                     *rc,
+                bslmt::Barrier          *barrier)
+{
+    *rc = 1;
+    barrier->arrive();
+}
+
+/// Assign `2` to the specified `*rc` and arrive on the specified `barrier`.
+void rc2barrier(const bsl::string_view&,
+                bsl::istream&,
+                int                     *rc,
+                bslmt::Barrier          *barrier)
+{
+    *rc = 2;
+    barrier->arrive();
 }
 
 /// Wait two seconds and then shutdown the specified `obj`.
@@ -506,7 +529,7 @@ int main(int argc, char *argv[])
     bool     veryVeryVerbose = argc > 4;
     bool veryVeryVeryVerbose = argc > 5; (void) veryVeryVeryVerbose;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {
@@ -648,16 +671,21 @@ int main(int argc, char *argv[])
             using namespace bdlf::PlaceHolders;
 
             int rc = 3;
+            bslmt::Barrier synchronisationBarrier(2, bsls::SystemClockType::e_MONOTONIC);
 
-            CM::ControlHandler x1 = bdlf::BindUtil::bind(&rc1cb,
-                                                         _1,
-                                                         _2,
-                                                         &rc);
+            CM::ControlHandler x1 = bdlf::BindUtil::bind(
+                                                      &rc1barrier,
+                                                      _1,
+                                                      _2,
+                                                      &rc,
+                                                      &synchronisationBarrier);
 
-            CM::ControlHandler x2 = bdlf::BindUtil::bind(&rc2cb,
-                                                         _1,
-                                                         _2,
-                                                         &rc);
+            CM::ControlHandler x2 = bdlf::BindUtil::bind(
+                                                      &rc2barrier,
+                                                      _1,
+                                                      _2,
+                                                      &rc,
+                                                      &synchronisationBarrier);
 
             const bsl::string PIPE_NAME1 = bdlb::GuidUtil::guidToString(
                                                    bdlb::GuidUtil::generate());
@@ -688,23 +716,32 @@ int main(int argc, char *argv[])
                 int rcSend;
 
                 rcSend = bdls::PipeUtil::send(obj1.pipeName(), "MESSAGE1\n");
-                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERTV(rcSend, 0 == rcSend);
-                ASSERTV(rc,     1 == rc);
+                bsls::TimeInterval tenSec(10);
+                int timeoutRc = synchronisationBarrier.timedWait(
+                               bsls::SystemTime::nowMonotonicClock() + tenSec);
+                ASSERTV(timeoutRc, timeoutRc == 0);
+                ASSERTV(rc, 1 == rc);
 
                 rcSend = bdls::PipeUtil::send(obj1.pipeName(), "MESSAGE2\n");
-                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERTV(rcSend, 0 == rcSend);
-                ASSERTV(rc,     2 == rc);
+                timeoutRc = synchronisationBarrier.timedWait(
+                               bsls::SystemTime::nowMonotonicClock() + tenSec);
+                ASSERTV(timeoutRc, timeoutRc == 0);
+                ASSERTV(rc, 2 == rc);
 
                 rcSend = bdls::PipeUtil::send(obj2.pipeName(), "MESSAGE1\n");
-                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERTV(rcSend, 0 == rcSend);
-                ASSERTV(rc,     1 == rc);
+                timeoutRc = synchronisationBarrier.timedWait(
+                               bsls::SystemTime::nowMonotonicClock() + tenSec);
+                ASSERTV(timeoutRc, timeoutRc == 0);
+                ASSERTV(rc, 1 == rc);
 
                 rcSend = bdls::PipeUtil::send(obj2.pipeName(), "MESSAGE2\n");
-                bslmt::ThreadUtil::microSleep(0, 2);
                 ASSERTV(rcSend, 0 == rcSend);
+                timeoutRc = synchronisationBarrier.timedWait(
+                               bsls::SystemTime::nowMonotonicClock() + tenSec);
+                ASSERTV(timeoutRc, timeoutRc == 0);
                 ASSERTV(rc,     2 == rc);
             }
 
