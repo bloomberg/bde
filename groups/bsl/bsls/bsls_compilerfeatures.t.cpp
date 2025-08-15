@@ -89,6 +89,7 @@
 // [20] BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 // [16] BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 // [17] BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+// [42] BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
 // [36] BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
 // [29] BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
 // [  ] BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
@@ -1878,6 +1879,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR));
+#else
+    puts("UNDEFINED");
+#endif
+
     fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS));
@@ -2204,7 +2212,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 42: {
+      case 43: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2286,6 +2294,53 @@ int main(int argc, char *argv[])
 // may arise.
 #undef THATS_MY_LINE
       } break;
+      case 42: {
+        // --------------------------------------------------------------------
+        // BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
+        //
+        // Concerns:
+        // 1. `BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR` is defined
+        //    only when the compiler implements `static` fuction call
+        //    operators.
+        //
+        // Plan:
+        // 1. If `BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR` is
+        //    defined then compile code with a local class that declares a
+        //    function call operator with the static keyword.
+        //
+        // 2. Initialize a function pointer with the address of that function
+        //    call operator.
+        //
+        // Testing:
+        //   BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR",
+                         "==================================================");
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        ASSERT(__cpp_static_call_operator >= 202207L);
+
+        // Clang backported support to earlier dialects of C++, but issues
+        // extension warnings.
+
+        struct Local {
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wc++23-extensions"
+# endif
+            static void operator()(){}
+# ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   pragma GCC diagnostic pop
+# endif
+        };
+
+        using FunctionType = void();
+        [[maybe_unused]] FunctionType *y = &Local::operator();
+#endif
+      } break;
       case 41: {
         // --------------------------------------------------------------------
         // BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
@@ -2334,7 +2389,7 @@ int main(int argc, char *argv[])
           // ------------------------------------------------------------------
 
           MACRO_TEST_TITLE("_SUPPORT_CONSTEVAL_CPP20",
-                           "==================");
+                           "========================");
 
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20
           VERBOSE_PUTS("The feature is not supported in this configuration.");
@@ -4316,7 +4371,7 @@ will not improve the flavor.
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

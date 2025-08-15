@@ -51,6 +51,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ref-qualified member function
 //  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: flag for rvalue references
 //  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: flag for `static_assert`
+//  BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR: `static operator()`
 //  BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON: `<=>` operator
 //  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: C++98 exception specs.
 //  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: has `<type_traits>` header
@@ -393,6 +394,10 @@ BSLS_IDENT("$Id: $")
 //
 // * `BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT`
 //   > This macro is defined if `static_assert` is supported by the current
+//   > compiler settings for this platform.
+//
+// * `BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR`
+//   > This macro is defined if `static operator()` is supported by the current
 //   > compiler settings for this platform.
 //
 // * `BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON`
@@ -908,6 +913,18 @@ BSLS_IDENT("$Id: $")
 //   - IBM xlC 11.1
 //   - Oracle CC 12.4
 //
+//
+///`BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR`
+/// - - - - - - - - - - - - - - - - - - - - - - - - - -
+// This macro is defined if the compiler supports `static` declarations of
+// the function call operator, i.e., `static operator()(parameter-list)`.
+// This feture is typically enabled for C++23 and later.
+//
+// * Compiler support:
+//   - GCC 13.1
+//   - Clang 16.0
+//   - Visual Studio 2022 version 17.14 (<u>MSC</u>VER 1944)
+//
 ///`BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON`
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // This macro is defined if the compiler supports `<=>` operator.
@@ -1140,24 +1157,24 @@ BSLS_IDENT("$Id: $")
   #define BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS                              1
 #endif
 
+#if defined(__cpp_static_call_operator) &&                                    \
+                                          __cpp_static_call_operator >= 202207L
+  #define BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR                  1
+#endif
+
 #if defined(__cpp_lib_hardware_interference_size) &&                          \
             __cpp_lib_hardware_interference_size >= 201703L
   #define BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE                 1
 #endif
 
-#if defined(__cpp_impl_three_way_comparison) &&                              \
-                                    __cpp_impl_three_way_comparison >= 201907L
-  #if defined(__cpp_lib_three_way_comparison) &&                             \
-                                      __cpp_lib_three_way_comparison >= 201907L
-    #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
-  #endif
-#endif
+// Define BDE named macros for more capable evolutions of existing features
+// that require testing multiple macros and values.
 
 #if __cplusplus > 201703L || (defined(_MSVC_LANG) && _MSVC_LANG > 201703L)
   // We test against 201907L instead of the published 202002L.
   #if defined(__cpp_constexpr) && __cpp_constexpr >= 201907L
     #if defined(__cpp_constexpr_dynamic_alloc) &&                             \
-                                        __cpp_constexpr_dynamic_alloc >= 201907L
+                                       __cpp_constexpr_dynamic_alloc >= 201907L
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20                   1
   #endif
 #endif
@@ -1173,6 +1190,17 @@ BSLS_IDENT("$Id: $")
   #if defined(__cpp_consteval) && __cpp_consteval >= 201811L
       #define BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20                   1
     #endif
+  #endif
+#endif
+
+// The following feaure support macros have additional dependencies on library
+// feature support in the `<version>` header.
+
+#if defined(__cpp_impl_three_way_comparison) &&                               \
+                                     __cpp_impl_three_way_comparison >= 201907L
+  #if defined(__cpp_lib_three_way_comparison) &&                              \
+                                      __cpp_lib_three_way_comparison >= 201907L
+    #define BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON                1
   #endif
 #endif
 
@@ -1975,7 +2003,7 @@ enum CompilerFeaturesNilT { COMPILERFEATURESNILV = 0x7fff6f76 };
 #endif  // header guard
 
 // ----------------------------------------------------------------------------
-// Copyright 2020 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

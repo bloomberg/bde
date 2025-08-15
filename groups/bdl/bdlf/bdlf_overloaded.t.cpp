@@ -8,6 +8,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_review.h>
 
 #include <bsl_cstdlib.h>
@@ -173,8 +174,13 @@ struct NonStaticMF {
 //  ----- templated member functions
 struct staticTemplateMF {
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
-// warning: declaring overloaded `operator()` as `static` is a C++2b extension
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR)
+    // Declaring overloaded `operator()` as `static` is a C++23 feature
+    // backported as an extension by Clang.#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#   ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wc++23-extensions"
+#   endif
     static int operator()() { return kVoid; }
 
     template <class TYPE>
@@ -189,7 +195,10 @@ struct staticTemplateMF {
         if (bsl::is_same_v<TYPE, string_view>)      return kStringView;
         return -1;  // some other type
     }
-#endif
+#   ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#       pragma GCC diagnostic pop
+#   endif
+# endif  // BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
 
     static int MemberFN() { return kVoid; }
 
@@ -506,9 +515,16 @@ int main(int argc, char *argv[])
 
 
         //  You can use classes that have a templated `operator()`
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202302L
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR)
+#   ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#       pragma GCC diagnostic push
+#       pragma GCC diagnostic ignored "-Wc++23-extensions"
+#   endif
         checkEm(bdlf::Overloaded{staticTemplateMF()}); // works with operator()
-#endif
+#   ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#       pragma GCC diagnostic pop
+#   endif
+# endif
         checkEm(bdlf::Overloaded{TemplateMF()});       // works with operator()
 
         // You cannot take the address of a templated function (member or free)
@@ -559,9 +575,8 @@ int main(int argc, char *argv[])
         const TemplateMF tempMF;
         checkEm(over5, &tempMF);
 
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
       } break;
-
       case 2: {
         // --------------------------------------------------------------------
         // FREE FUNCTIONS AND MEMBER FUNCTIONS
@@ -746,7 +761,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2024 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
