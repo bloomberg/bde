@@ -80,7 +80,6 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #if (defined(BSLS_PLATFORM_CMP_SUN ) && BSLS_PLATFORM_CMP_VERSION <= 0x5150 ) \
- || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900    ) \
  || (defined(BSLS_PLATFORM_CMP_IBM ) && BSLS_PLATFORM_CMP_VERSION == 0x1001 )
 # define BSLMF_ADDPOINTER_CREATES_ABOMINABLE_POINTERS 1
 // Some compilers erroneously support pointers to "abominable" function types.

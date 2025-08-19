@@ -108,12 +108,9 @@ void aSsErT(bool condition, const char *message, int line)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER) &&                   \
     defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-#define BSLMF_MOVABLEREF_USE_NATIVE_ORACLE 1
-// `std::is_nothrow_move_constructible` is available as a trusted
-// oracle of the correct value for the `bsl::is_nothrow_move_constructible`
-// trait.  Note that MSVC 2013 provides the `nothrow` traits, but does not
-// support the `noexcept` operator so the traits erroneously return `false`
-// in many cases.
+# define BSLMF_MOVABLEREF_USE_NATIVE_ORACLE 1
+// `std::is_nothrow_move_constructible` is available as a trusted oracle of the
+// correct value for the `bsl::is_nothrow_move_constructible` trait.
 #endif
 
 //=============================================================================
@@ -2094,14 +2091,7 @@ int main(int argc, char *argv[])
 #endif
 
         // C-5
-#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)                               \
- || defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-        // MSVC 2013 is an awkward platform, supporting mostly accurate native
-        // traits, but not the `noexcept` operator.  In particular, it will
-        // give the correct (noexcept) answer for trivial classes, but does not
-        // guarantee to correctly identify a trivial class with the native
-        // trivial traits.
-
+#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
                                                     UnspecializedTrivialClass);
         ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(

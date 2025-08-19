@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:00 2024
+// Generated on Sat Aug 16 23:26:40 2025
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -1104,18 +1104,6 @@ struct ArrayPrimitives {
                         BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args);
 
 // }}} END GENERATED CODE
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    template <class CLASS_TYPE, class MEMBER_TYPE, class... ARGS>
-    static void emplace(MEMBER_TYPE CLASS_TYPE::* *toBegin,
-                        MEMBER_TYPE CLASS_TYPE::* *toEnd,
-                        bslma::Allocator          *allocator)
-        // Old Microsoft compilers need help value-initializing elements that
-        // are pointer-to-member types.
-    {
-        emplace(toBegin, toEnd, allocator, nullptr);
-    }
 #endif
 
     /// TBD: improve comment

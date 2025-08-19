@@ -110,12 +110,6 @@ void aSsErT(bool b, const char *s, int i)
 //                           ENTITIES FOR TESTING
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
-#define MSVC_2013 1
-#else
-#define MSVC_2013 0
-#endif
-
 namespace {
 namespace u {
 using namespace BloombergLP;
@@ -128,15 +122,6 @@ class IncompleteType;
     // `IncompleteType` provides a declaration an incomplete class type, which
     // this test driver uses to construct other types for the purposes of
     // testing.
-
-#if MSVC_2013
-    // However MSVC 2013 requires `IncompleteType` to be complete when
-    // calculating the size of `bsl::reference_wrapper<IncompleteType>` below.
-
-class IncompleteType {
-};
-
-#endif
 
                                // =============
                                // class TypeTag
@@ -534,14 +519,12 @@ int main(int argc, char *argv[])
 {
     using namespace BloombergLP;
 
-    const int test                = argc > 1 ? atoi(argv[1]) : 0;
-    const int verbose             = argc > 2;
-    const int veryVerbose         = argc > 3;
-    const int veryVeryVerbose     = argc > 4;
-    const int veryVeryVeryVerbose = argc > 5;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
-    static_cast<void>(verbose);
-    static_cast<void>(veryVerbose);
     static_cast<void>(veryVeryVerbose);
     static_cast<void>(veryVeryVeryVerbose);
 

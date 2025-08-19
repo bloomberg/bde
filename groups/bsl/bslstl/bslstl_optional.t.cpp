@@ -7434,8 +7434,7 @@ void TestDriver<TYPE>::testCase17b()
                                        MoveUtil::move(VA10)),
                                       &oa);
      }
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&        \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     if (veryVerbose)
         printf("\tUsing `initializer_list` argument.\n");
 
@@ -8140,9 +8139,7 @@ void TestDriver<TYPE>::testCase16b()
                             VA9,
                             MoveUtil::move(VA10)));
      }
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&        \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     if (veryVerbose)
         printf("\tUsing `initializer_list` argument.\n");
 
@@ -13577,7 +13574,7 @@ int main(int argc, char **argv)
         static_assert([] {
             // default constructor
             bsl::optional<int> o1;
-            
+
             // `has_value` and `operator bool`
             constexpr_assert(!o1.has_value());
             constexpr_assert(!bool(o1));

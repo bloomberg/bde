@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu May 22 15:59:53 2025
+// Generated on Sun Aug 17 02:42:59 2025
 // Command line: sim_cpp11_features.pl bslstl_sharedptr.h
 
 #ifdef COMPILING_BSLSTL_SHAREDPTR_H
@@ -34,17 +34,16 @@
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) \
- && !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
 # define BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS 1
 
-#if BSLS_PLATFORM_CMP_VERSION >= 1910 &&                                      \
-    BSLS_PLATFORM_CMP_VERSION <  1920 &&                                      \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
+# if BSLS_PLATFORM_CMP_VERSION >= 1910 &&                                      \
+     BSLS_PLATFORM_CMP_VERSION <  1920 &&                                      \
+     BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
 // Visual Studio 2017 in C++17 mode crashes with an internal compiler error on
 // the shared pointer SFINAE code.  See {DRQS 148281696}.
-# undef BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
-#endif
+#   undef BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS
+# endif
 
 // If the macro `BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS` is defined, then a
 // conforming C++11 compiler will define the constructors in this component in

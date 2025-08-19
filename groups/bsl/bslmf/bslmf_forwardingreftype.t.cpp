@@ -1047,10 +1047,6 @@ int main(int argc, char *argv[])
         testForwardToTargetRef<Struct  &&>(std::move(s), L_);
         testForwardToTargetRef<Union   &&>(std::move(u), L_);
         testForwardToTargetRef<Class   &&>(std::move(c), L_);
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-        // The following 6 tests fail for MS Visual C++ (tested up to VC 2013).
-        // Suspect the optimizer is creating a temporary, rather than truly
-        // passing by reference, when given a fundamental/primitive type.
         testForwardToTargetRef<Enum    &&>(std::move(e), L_);
         testForwardToTargetRef<double  &&>(std::move(d), L_);
         testForwardToTargetRef<double *&&>(std::move(p), L_);
@@ -1060,7 +1056,6 @@ int main(int argc, char *argv[])
 # if !defined(BSLMF_FOWARDINGTYPE_NO_SUPPORT_FOR_POINTER_TO_CV_MEMBER_FUNCTION)
         testForwardToTargetRef<Pmq     &&>(std::move(mf_q), L_);
 # endif
-#endif
 
         testForwardToTargetRef<Enum     const&&>(std::move(e), L_);
         testForwardToTargetRef<Struct   const&&>(std::move(s), L_);

@@ -21,18 +21,16 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:31 2024
+// Generated on Sun Aug 17 11:33:22 2025
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.h
 
 #ifdef COMPILING_BSLMF_INVOKERESULT_H
 
-#if   defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) \
- && !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
 // The implementation of C++17 semantics in this component depends upon the
-// use of 'decltype' for expression SFINAE.  MSVC 2013 (which has version
-// number 1800) claims to support 'decltype', but does not have a sufficiently
-// functional implementation of expression sfinae to enable C++17 semantics.
-#define BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS 1
+// use of 'decltype' and expression SFINAE.  Note that we have no feature
+// macro to test for expression SFINAE.
+# define BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS 1
 #endif
 
 namespace BloombergLP {

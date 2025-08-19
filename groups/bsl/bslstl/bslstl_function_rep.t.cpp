@@ -6,6 +6,9 @@
 
 #include <bslalg_constructorproxy.h>
 
+#include <bslma_allocator.h>
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -157,10 +160,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                                VERBOSITY
 // ----------------------------------------------------------------------------
 
-static int verbose = 0;
-static int veryVerbose = 0;
-static int veryVeryVerbose = 0;
-static int veryVeryVeryVerbose = 0; // For test allocators
+static bool             verbose;
+static bool         veryVerbose;
+static bool     veryVeryVerbose;
+static bool veryVeryVeryVerbose;    // For test allocators
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -170,12 +173,6 @@ static int veryVeryVeryVerbose = 0; // For test allocators
 # define ASSERT_IS_INPLACE(OBJ, EXP) ASSERT((OBJ).isInplace() == EXP)
 #else
 # define ASSERT_IS_INPLACE(OBJ, EXP) ((void *) 0)
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
-#define MSVC_2013 1
-#else
-#define MSVC_2013 0
 #endif
 
 namespace {
@@ -761,19 +758,10 @@ enum {
 };
 
 // List of types used for most tests
-#if MSVC_2013
-// MSVC 2013 miscompiles function templates that return pointers to data
-// members.  For this reason, `bslstl_function_rep` cannot support targets that
-// are reference wrappers of pointers to data members.
-# define FUNCTION_PTR_TYPES \
-    PtrToFunc_t,            \
-    PtrToMemFunc_t
-#else
-# define FUNCTION_PTR_TYPES \
+#define FUNCTION_PTR_TYPES  \
     PtrToFunc_t,            \
     PtrToMemData_t,         \
     PtrToMemFunc_t
-#endif
 
 // Generate a list functor types with the specified size and has-allocator
 // quality (`e_SMALL_FUNCTOR`, `e_MEDIUM_FUNCTOR` or `e_LARGE_FUNCTOR`,
@@ -1403,13 +1391,19 @@ void TestDriver<TYPE>::swap()
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     // TBD: Consider adding negative test cases on methods that have
     // precondition checks.
@@ -1939,6 +1933,12 @@ int main(int argc, char *argv[])
       }
     }
 
+    ASSERTV(defaultAllocator.numBlocksInUse(),
+            0 == defaultAllocator.numBlocksInUse());
+
+    // CONCERN: In no case does memory come from the global allocator.
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }

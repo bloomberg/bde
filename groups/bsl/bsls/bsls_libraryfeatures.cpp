@@ -58,17 +58,10 @@ BSLS_IDENT("$Id$ $CSID$")
 #endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
-#if BSLS_PLATFORM_CMP_VERSION < 1900
-#include <vadefs.h>
-#ifndef _INC_VADEFS
-#error <vadefs.h> does not seem to #define _INC_VADEFS.
-#endif
-#else
-#include <vcruntime.h>
-#ifndef _UCRT
-#error <vcruntime.h> does not seem to #define _UCRT.
-#endif
-#endif
+# include <vcruntime.h>
+# ifndef _UCRT
+#   error <vcruntime.h> does not seem to #define _UCRT.
+# endif
 
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
 #include <__config>

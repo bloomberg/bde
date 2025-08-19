@@ -138,47 +138,6 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_MSVC)
-#define MSVC 1
-#else
-#define MSVC 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
-#define MSVC_2013 1
-#else
-#define MSVC_2013 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
-#define MSVC_2015 1
-#else
-#define MSVC_2015 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)   \
- && BSLS_PLATFORM_CMP_VERSION >= 1910 \
- && BSLS_PLATFORM_CMP_VERSION <= 1916
-#define MSVC_2017 1
-#else
-#define MSVC_2017 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC)   \
- && BSLS_PLATFORM_CMP_VERSION >= 1920 \
- && BSLS_PLATFORM_CMP_VERSION <= 1929
-#define MSVC_2019 1
-#else
-#define MSVC_2019 0
-#endif
-
-// Some MSVC versions incorrectly drop reference qualifiers from return
-// types that are references to arrays:
-// https://developercommunity.visualstudio.com/t/Decay-of-array-reference-in-function-ret/10628367
-#if MSVC && BSLS_PLATFORM_CMP_VERSION < 1941
-# define MSVC_ARRAY_REFERENCE_BUG
-#endif
-
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) &&               \
     defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 90000
 // Prior to version 9, GCC does not retroactively apply Core Working Group
@@ -219,6 +178,13 @@ void aSsErT(bool condition, const char *message, int line)
     // the above mentioned defect affecting pointer-to-member dereference
     // expressions extends to expressions on *unqualified* class types.
 #       define MSVC_2015_PTR_TO_ARRAY_MEMBER_QUALIFIER_PROPAGATION_BUG
+#   endif
+
+#   if BSLS_PLATFORM_CMP_VERSION < 1941
+    // Some MSVC versions incorrectly drop reference qualifiers from return
+    // types that are references to arrays:
+    // https://developercommunity.visualstudio.com/t/Decay-of-array-reference-in-function-ret/10628367
+#       define MSVC_ARRAY_REFERENCE_BUG
 #   endif
 #endif //BSLS_PLATFORM_CMP_MSVC
 
@@ -669,16 +635,10 @@ struct ApplyRef {
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCE
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-#  if !MSVC_2013 // MSVC 2013 does not have a sufficiently functional
-                 // implementation of expression sfinae for
-                 // `bslmf_invokeresult` to make use of `decltype`.  This means
-                 // that `bslmf_invokeresult` cannot support
-                 // rvalue-reference-qualified types on MSVC 2013.
         TEST_KERNEL::template apply<RT&&>(LINE);
         TEST_KERNEL::template apply<const RT&&>(LINE);
         TEST_KERNEL::template apply<volatile RT&&>(LINE);
         TEST_KERNEL::template apply<const volatile RT&&>(LINE);
-#  endif
 # else
 #  error "Rvalue refs without `decltype` not supported by `bsl::invoke_result`"
 # endif
@@ -1515,7 +1475,7 @@ struct FunctorTest
             MFResult;
         typedef typename invoke_result<ManyFunc&, MetaType<RT>, int>::type
             MFrResult;
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
+#if defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
         // `decltype` is supported, the result type will always be correct.
         ASSERTV(LINE, (bsl::is_same<RT, MFResult>::value));
         ASSERTV(LINE, (bsl::is_same<RT, MFrResult>::value));
@@ -1977,7 +1937,7 @@ int main(int argc, char *argv[])
         // Remove the "defined but not used" warning:
         ASSERT(true);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
+#if defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
 
         typedef void                V;
         typedef int                 I;
@@ -2051,8 +2011,9 @@ int main(int argc, char *argv[])
         static const bool YES = true;
         static const bool NO = false;
 
-#if MSVC && (BSLS_PLATFORM_CMP_VERSION < 1930 || \
-             BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L)
+#if defined(BSLS_PLATFORM_CMP_MSVC) &&         \
+    (BSLS_PLATFORM_CMP_VERSION < 1930 ||       \
+     BSLS_COMPILERFEATURES_CPLUSPLUS < 202002L)
         // MSVC 2019 and earlier, and MSVC 2022 in C++17 (or earlier) mode
         // incorrectly handles volatile-qualified invocable types.  This has
         // been rectified in MSVC 2022 compiling in C++20 mode.
@@ -2534,7 +2495,7 @@ int main(int argc, char *argv[])
         TEST.run<YES, ConvertibleToFunc, ToLongLong, char               >(L_);
         TEST.run<YES, ConvertibleToFunc, ToLongLong, char , char        >(L_);
         TEST.run< NO, ConvertibleToFunc, ToLongLong, char , char , char >(L_);
-#endif  //  defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
+#endif  //  defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2917,7 +2878,7 @@ int main(int argc, char *argv[])
         TEST(bool                       , ConvertibleToFunc               );
         TEST(short                      , ConvertibleToFunc,short         );
         TEST(int*                       , ConvertibleToFunc,int,float     );
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) && !MSVC_2013
+#if defined(BSLMF_INVOKERESULT_SUPPORT_CPP17_SEMANTICS)
         TEST(MyClass                    , ConvertibleToFunc,int,float,bool);
 #else
         TEST(InvokeResultDeductionFailed, ConvertibleToFunc,int,float,bool);
@@ -3389,11 +3350,11 @@ int main(int argc, char *argv[])
         // unlike rvalue references to other types, which are conditionally
         // either lvalues or xvalues.  MSVC 2022 and earlier appears to get
         // this wrong.
-#if MSVC
+# if defined(BSLS_PLATFORM_CMP_MSVC)
         PtrToMemFuncTest<MyClass>::apply<F&&, F&&>(L_);
-#else
+# else
         PtrToMemFuncTest<MyClass>::apply<F&&, F&>(L_);
-#endif
+# endif
 #endif
 
         typedef int        i;
@@ -3578,7 +3539,7 @@ int main(int argc, char *argv[])
         // unlike rvalue references to other types, which are conditionally
         // either lvalues or xvalues.  MSVC 2022 and earlier appears to get
         // this wrong.
-# if MSVC
+# if defined(BSLS_PLATFORM_CMP_MSVC)
         FuncTest::apply<F&&, F&&>(L_);
 # else
         FuncTest::apply<F&&, F&>(L_);

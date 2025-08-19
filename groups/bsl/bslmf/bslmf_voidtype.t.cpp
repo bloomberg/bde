@@ -84,16 +84,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
 //=============================================================================
-//              PLATFORM DEFECT TRACKING MACROS TO SUPPORT TESTING
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-   // The older Microsoft compilers cannot parse "abominable" function types
-   // that have trailing cv-qualifiers.
-# define BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES 1
-#endif
-
-//=============================================================================
 //                             USAGE EXAMPLES
 //-----------------------------------------------------------------------------
 
@@ -543,9 +533,7 @@ int main(int argc, char *argv[])
         IS_MEDIUM_CLASS(void   ()       , false);
         IS_MEDIUM_CLASS(void(*)()       , false);
         IS_MEDIUM_CLASS(void(&)()       , false);
-#if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         IS_MEDIUM_CLASS(void   ()const  , false);
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         IS_MEDIUM_CLASS(void   ()        noexcept, false);
@@ -635,9 +623,7 @@ int main(int argc, char *argv[])
         ASSERT( IsReasonable<void   ()     >::k_VALUE);
         ASSERT( IsReasonable<void(*)()     >::k_VALUE);
         ASSERT(!IsReasonable<void(&)()     >::k_VALUE);
-# if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         ASSERT(!IsReasonable<void   ()const>::k_VALUE);
-# endif
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         ASSERT( IsReasonable<void   ()        noexcept>::k_VALUE);
@@ -715,9 +701,7 @@ int main(int argc, char *argv[])
         ASSERT(!IsClassType<void   ()     >::k_VALUE);
         ASSERT(!IsClassType<void(*)()     >::k_VALUE);
         ASSERT(!IsClassType<void(&)()     >::k_VALUE);
-#if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         ASSERT(!IsClassType<void   ()const>::k_VALUE);
-#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         ASSERT(!IsClassType<void   ()        noexcept>::k_VALUE);
@@ -956,9 +940,7 @@ int main(int argc, char *argv[])
              unsigned(*)[], unsigned(*)[2], unsigned(*)(), unsigned(*)(...),
              unsigned(&)[], unsigned(&)[2], unsigned(&)(), unsigned(&)(...));
 
-#  if !defined(BSLMF_VOIDTYPE_NO_ABOMINABLE_TYPES)
         TEST(int() const, int(int...) volatile, int(int, int(&)()...) const);
-#   endif
 # endif
 
 #undef TEST

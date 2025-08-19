@@ -81,14 +81,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-//=============================================================================
-//              PLATFORM-SPECIFIC MACROS FOR WORKAROUNDS
-//-----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-# define BSLMF_DETECTNESTEDTRAIT_NO_ABOMINABLE_TYPES    1
-#endif
-
 // ============================================================================
 //                      TEST DRIVER CONFIGURATION MACROS
 // ----------------------------------------------------------------------------
@@ -875,23 +867,21 @@ int main(int argc, char *argv[])
         }
 #endif
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(int (float,double),         false);
-#if !defined(BSLMF_DETECTNESTEDTRAIT_NO_ABOMINABLE_TYPES)
         ASSERT_DETECT_NESTED_TRAIT(void(...) const,                     false);
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) const,            false);
-#endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
         ASSERT_DETECT_NESTED_TRAIT(void(...) &,                         false);
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) volatile &&,      false);
 #endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
-#ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
+# ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(void(...) noexcept,         false);
-#else
+# else
         {
             typedef void FuncVoidAnyNoexcept(...) noexcept;
             ASSERT_DETECT_NESTED_TRAIT_FOR_TYPE(FuncVoidAnyNoexcept,    false);
         }
-#endif
+# endif
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) & noexcept,       false);
         ASSERT_DETECT_NESTED_TRAIT(void(...) const noexcept,            false);
         ASSERT_DETECT_NESTED_TRAIT(int (float,double) const && noexcept,false);
@@ -979,10 +969,8 @@ int main(int argc, char *argv[])
         ASSERT(!(IsInflatable<int(...)>::value));
         ASSERT(!(IsInflatable<int(&)(int)>::value));
         ASSERT(!(IsInflatable<int(&)(...)>::value));
-#if !defined(BSLMF_DETECTNESTEDTRAIT_NO_ABOMINABLE_TYPES)
         ASSERT(!(IsInflatable<int(int) const>::value));
         ASSERT(!(IsInflatable<int(...) const>::value));
-#endif
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         ASSERT(!(IsInflatable<int(int) noexcept>::value));
         ASSERT(!(IsInflatable<int(...) const & noexcept>::value));

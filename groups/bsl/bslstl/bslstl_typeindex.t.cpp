@@ -1368,10 +1368,7 @@ int main(int argc, char *argv[])
 
             (void)operatorCopyAssignment;  // quash potential compiler warning
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)             \
- && !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-            // Note that MSVC does not implement implicit move-assignment
-            // operator prior of MSVC 2015
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
             typedef Obj& (Obj::*MoveOperatorPtr)(Obj&&) LOCAL_NOEXCEPT;
 

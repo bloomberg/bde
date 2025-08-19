@@ -157,8 +157,7 @@ BSLS_IDENT("$Id: $")
 // wrong results for certain types with the initial implementation of that
 // trait.
 
-#if (defined(BSLS_PLATFORM_CMP_GNU)  && BSLS_PLATFORM_CMP_VERSION < 50000)    \
- || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 50000)
 # undef BSLMF_ISTRIVIALLYCOPYABLE_NATIVE_IMPLEMENTATION
 #endif
 

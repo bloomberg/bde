@@ -106,18 +106,6 @@ BSLS_IDENT("$Id: $")
 #include <algorithm>
 
 namespace BloombergLP {
-
-// A workaround for GCC which before version 4.0 had some problems with ADL.
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
-
-class bslalg_SwapUtil_Dummy;
-
-void swap(bslalg_SwapUtil_Dummy);
-    // Introduce 'swap' to the 'BloombergLP' namespace.  The dummy argument of
-    // a private type prevents this declaration from interfering with anything
-    // else.
-#endif
-
 namespace bslalg {
 
                            // ===============
@@ -155,11 +143,6 @@ void SwapUtil::swap(T *a, T *b)
     BSLS_ASSERT_SAFE(b != NULL);
 
     using std::swap;
-
-// A workaround for GCC, which had some problems with ADL before version 4.0.
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR < 40000
-    using BloombergLP::swap;
-#endif
 
     swap(*a, *b);
 }

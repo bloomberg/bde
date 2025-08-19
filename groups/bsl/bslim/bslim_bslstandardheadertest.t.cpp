@@ -5343,7 +5343,6 @@ int main(int argc, char *argv[])
         typedef bsl::unique_ptr<int> Id;
         typedef bsl::pair<int, Id>   Item;
 
-# if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
         bsl::vector<Item> items;
 
         Item item(7, Id(new int(14)));
@@ -5352,17 +5351,6 @@ int main(int argc, char *argv[])
 
         bsl::map<int, Id> index;
         index.emplace(13, Id(new int(42)));
-# else
-        static_assert(std::is_copy_constructible<Id>::value,
-            "Failed to detect the no-deleted-ctor bug, reconsider workaround");
-        static_assert(std::is_copy_constructible<Item>::value,
-            "Failed to detect the no-deleted-ctor bug, reconsider workaround");
-        // These checks are mostly provided as documentation of the exact issue
-        // that needs the workaround.  The `static_assert` tests verify that
-        // the MSVC 2013 compiler bug is in effect.  If these tests were ever
-        // to fail, that would indicate that the `#ifdef` check above can be
-        // safely removed.
-# endif
 #endif
       } break;
       case 5: {

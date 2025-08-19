@@ -72,16 +72,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                      DEFECT DETECTION MACROS
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // The older Microsoft compilers cannot parse "abominable" function types
-    // that have trailing cv-qualifiers.
-# define BSLMF_ISEMPTY_NO_ABOMINABLE_TYPES 1
-#endif
-
 //=============================================================================
 //                      WARNING SUPPRESSION
 //-----------------------------------------------------------------------------
@@ -381,9 +371,7 @@ int main(int argc, char *argv[])
         TEST_IS_EMPTY_NO_CV(EmptyStruct&, false);
         TEST_IS_EMPTY_NO_CV(int(), false);
         TEST_IS_EMPTY_NO_CV(int(...), false);
-#if !defined(BSLMF_ISEMPTY_NO_ABOMINABLE_TYPES)
         TEST_IS_EMPTY_NO_CV(int(...) const, false);
-#endif
 
         // Concern 3: non-empty classes
         TEST_IS_EMPTY(NonEmptyStruct, false);

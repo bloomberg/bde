@@ -75,13 +75,6 @@
 # define BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS 1
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-// MSVC 2013 cannot generate the correct implicit constructors/assignment
-// operators for move-only types as members.  Further investigation for
-// workarounds is required.
-# define BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013 1
-#endif
-
 #if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)              \
   && defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 // The presence of a default constructor of a pair is determined by the
@@ -6176,11 +6169,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONCERN: CONSTRUCTOR SFINAE"
                             "\n===================================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)                     \
- || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-        // MSVC 2013 does not support expression-SFINAE well enough to handle
-        // non-constructible cases.
-
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
         if (verbose) printf("Test not supported without native type traits\n");
 #else
 
@@ -6625,8 +6614,7 @@ int main(int argc, char *argv[])
             // is needed to test the allocator-aware constructors.
 
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- &&!defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
         // We do not have constructors with perfect-forwarding for the C++03
         // move-emulating library, so these tests require true support for
         // rvalue-references.
@@ -6765,7 +6753,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.second.data(), 42 == F.second.data());
 
         }
-#endif
+# endif
 
         if (verbose) printf("\t\twith move-optimized type as `second`\n");
         {
@@ -6801,14 +6789,14 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
             // Never clariffied why C++03 requires direct rather than copy
             // initialization, but this flags as an error with both Clang and
             // xlC otherwise.
             ObjL mE(MoveUtil::move(mB));      const ObjL& E = mE;
-#else
+# else
             ObjL mE = MoveUtil::move(mB);     const ObjL& E = mE;
-#endif
+# endif
 
             ASSERTV(E.first,  13 == E.first);
             ASSERTV(pDA, E.second.allocator(), pDA == E.second.allocator());
@@ -7134,8 +7122,6 @@ int main(int argc, char *argv[])
             // allocator-aware behavior for only the non-array member.  This
             // is needed to test the allocator-aware constructors.
 
-
-#if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
         if (verbose) printf("\t\twith array of `int` for `first`\n");
         {
             typedef bsl::pair<int[3], bsltf::MoveOnlyAllocTestType> ObjL;
@@ -7197,7 +7183,7 @@ int main(int argc, char *argv[])
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
-#if 0   //  TBD: need to forward directly to the move-constructor for the
+# if 0  //  TBD: need to forward directly to the move-constructor for the
         //  `FirstBase` class and not try to pass an array by reference as an
         //  argument, or this case will not compile.  Requires more work in the
         //  component header.
@@ -7215,12 +7201,10 @@ int main(int argc, char *argv[])
             ASSERTV(F.second.data(), 8888 == F.second.data());
             ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
             ASSERTV(D.second.data(), 0 == D.second.data());
-#endif
+# endif
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         }
-#endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
 
-#if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
         if (verbose) printf("\t\twith array of `int` for `first`\n");
         {
             typedef bsl::pair<int[3], bsltf::WellBehavedMoveOnlyAllocTestType>
@@ -7283,7 +7267,7 @@ int main(int argc, char *argv[])
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
-#if 0   //  TBD: need to forward directly to the move-constructor for the
+# if 0  //  TBD: need to forward directly to the move-constructor for the
         //  `FirstBase` class and not try to pass an array by reference as an
         //  argument, or this case will not compile.  Requires more work in the
         //  component header.
@@ -7301,10 +7285,9 @@ int main(int argc, char *argv[])
             ASSERTV(F.second.data(), 8888 == F.second.data());
             ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
             ASSERTV(D.second.data(), 0 == D.second.data());
-#endif
+# endif
 #endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
         }
-#endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -7746,7 +7729,6 @@ int main(int argc, char *argv[])
             // the other member.  This is needed to test the allocator-aware
             // constructors and `swap`
 
-#if !defined(BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013)
         if (verbose) printf("\t\twith move-only type as `second`\n");
         {
             typedef bsl::pair<bslma::ManagedPtr<int>,
@@ -7845,7 +7827,6 @@ int main(int argc, char *argv[])
             ASSERTV(Y.first.get(), 0 == Y.first.get());
             ASSERTV(Y.second.data(), 0 == Y.second.data());
         }
-#endif // BSLSTL_PAIR_DISABLE_MOVEONLY_TESTING_ON_VC2013
 
         if (verbose) printf("\t\twith move-optimized type as `second`\n");
         {

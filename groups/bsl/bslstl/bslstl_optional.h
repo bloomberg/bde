@@ -2621,7 +2621,7 @@ BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator>(const bsl::nullopt_t&,
                const bsl::optional<t_TYPE>&) BSLS_KEYWORD_NOEXCEPT;
 
-// Return 'true' if the specified 'value' is disengaged, and 'false' otherwise. 
+// Return 'true' if the specified 'value' is disengaged, and 'false' otherwise.
 // This function can be called in constant expressions only if `t_TYPE` is not
 // allocator-aware.
 template <class t_TYPE>
@@ -2987,12 +2987,7 @@ bsl::optional<t_TYPE> make_optional(
                    typename bsl::optional<t_TYPE>::allocator_type const& alloc,
                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...          args);
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-// MSVC2013 has a bug that causes deduction issues in free template functions
-// that have an 'std::initializer_list' argument where the
-// 'std::initializer_list' element type is deduced.
-
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 /// Return an `optional` object containing a `t_TYPE` object created by
 /// invoking a `bsl::optional` allocator-extended `in_place_t` constructor
 /// with the specified `alloc` as the allocator argument, and specified `il`
@@ -3035,12 +3030,7 @@ BSLSTL_OPTIONAL_CONSTEXPR17 BSLSTL_OPTIONAL_ENABLE_IF_NOT_ALLOCATOR_TAG(t_ARG)
 make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG)     arg,
               BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)... args);
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-// MSVC2013 has a bug that causes deduction issues in free template functions
-// that have an 'std::initializer_list' argument where the
-// 'std::initializer_list' element type is deduced.
-
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 /// Return an `optional` object containing a `t_TYPE` object created by
 /// invoking a `bsl::optional` `in_place_t` constructor with the specified
 /// `il` and `args` as the constructor arguments.  If `t_TYPE` uses an
@@ -5904,8 +5894,7 @@ bsl::optional<t_TYPE> make_optional(
 #endif
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class t_TYPE, class t_INIT_LIST_TYPE, class... t_ARGS>
 bsl::optional<t_TYPE> make_optional(
                    bsl::allocator_arg_t,
@@ -5949,8 +5938,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG)     arg,
                                BSLS_COMPILERFEATURES_FORWARD(t_ARGS, args)...);
 }
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class t_TYPE, class t_INIT_LIST_TYPE, class... t_ARGS>
 BSLSTL_OPTIONAL_CONSTEXPR17 bsl::optional<t_TYPE>
 make_optional(std::initializer_list<t_INIT_LIST_TYPE>      il,

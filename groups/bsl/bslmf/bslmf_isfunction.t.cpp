@@ -10,10 +10,6 @@
 
 using namespace BloombergLP;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-# define BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES
-#endif
-
 #if defined(BSLS_PLATFORM_CMP_SUN)
 # pragma error_messages(off, functypequal)
 #endif
@@ -644,31 +640,6 @@ int main(int argc, char *argv[])
         // cv-qualified function types (which do not exist) or function
         // references.
 
-#if defined(BSLMF_ISFUNCTION_NO_ABOMINABLE_TYPES)
-        ASSERT((bsl::is_function< int  (int )>::value));
-        ASSERT((bsl::is_function< void (void)>::value));
-        ASSERT((bsl::is_function< int  (void)>::value));
-        ASSERT((bsl::is_function< void (int )>::value));
-
-        ASSERT((bsl::is_function< int  (int...)>::value));
-        ASSERT((bsl::is_function< void (   ...)>::value));
-        ASSERT((bsl::is_function< int  (   ...)>::value));
-        ASSERT((bsl::is_function< void (int...)>::value));
-
-        ASSERT((bsl::is_function<
-                         int (int, int, int, int, int, int, int, int, int, int,
-                              int, int, int, int)>::value));
-        ASSERT((bsl::is_function<
-                         int (int, int, int, int, int, int, int, int, int, int,
-                              int, int, int, int...)>::value));
-
-        ASSERT((bsl::is_function<
-                         int (int, int, int, int, int, int, int, int, int, int,
-                              int, int, int, int, int)>::value));
-        ASSERT((bsl::is_function<
-                         int (int, int, int, int, int, int, int, int, int, int,
-                              int, int, int, int, int...)>::value));
-#else
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int  (int ),   true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, void (void),   true);
         TYPE_ASSERT_CVQ_SUFFIX(bsl::is_function, int  (void),   true);
@@ -703,7 +674,7 @@ int main(int argc, char *argv[])
                               int, int, int, int, int...),
                          true);
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS)
         TYPE_ASSERT_CVQ_REF(bsl::is_function, int (int ), true);
         TYPE_ASSERT_CVQ_REF(bsl::is_function, void(void), true);
         TYPE_ASSERT_CVQ_REF(bsl::is_function, int (void), true);
@@ -771,9 +742,9 @@ int main(int argc, char *argv[])
                          int (int, int, int, int, int, int, int, int, int, int,
                               int, int, int, int, int...),
                          true);
-# endif
+#endif
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES)
         // If a compiler supports C++17 noexcept as part of the function type,
         // it should already support C++11 cv-qualifiers in the function type.
 
@@ -844,8 +815,6 @@ int main(int argc, char *argv[])
                          int (int, int, int, int, int, int, int, int, int, int,
                               int, int, int, int, int...),
                          true);
-# endif
-
 #endif
 
         // Confirm that there are no surprises when function types are supplied

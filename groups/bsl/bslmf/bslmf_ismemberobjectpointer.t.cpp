@@ -83,10 +83,6 @@ void aSsErT(bool condition, const char *message, int line)
 //              PLATFORM-SPECIFIC MACROS FOR WORKAROUNDS
 //-----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-# define BSLMF_ISMEMBEROBJECTPOINTER_NO_ABOMINABLE_TYPES 1
-#endif
-
 // Visual Studio 2017, 2019 and 2022 in C++17 mode (when `noexcept` types are
 // supported) run out of heap space under certain circumstances specified
 // below.  Factoring out the large test case (case 1) was attempted and it made
@@ -244,15 +240,7 @@ void aSsErT(bool condition, const char *message, int line)
 // support testing of cv-qualified abominable functions, cv-ref qualified
 // abominable functions, and cv-ref-noexcept qualified abominable functions,
 // according to the level of support offered by the compiler.
-#if defined(BSLMF_ISMEMBEROBJECTPOINTER_NO_ABOMINABLE_TYPES)
-
-# define TEST_FUNCTION(META_FUNC, TYPE)                        \
-    TYPE_ASSERT(META_FUNC, TYPE,                   false);     \
-    TYPE_ASSERT(META_FUNC, Identity<TYPE>::type &, false);     \
-    TEST_OBJECT(META_FUNC, Identity<TYPE>::type *);            \
-    TEST_ARRAY (META_FUNC, Identity<TYPE>::type *);
-
-#elif !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
 
 # define TEST_FUNCTION(META_FUNC, TYPE)                        \
     TYPE_ASSERT(META_FUNC, TYPE,                   false);     \

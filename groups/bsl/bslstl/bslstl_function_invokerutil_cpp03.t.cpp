@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Tue Oct  1 13:59:08 2024
+// Generated on Sat Aug 16 21:17:54 2025
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
@@ -92,10 +92,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                                VERBOSITY
 // ----------------------------------------------------------------------------
 
-int verbose = 0;
-int veryVerbose = 0;
-int veryVeryVerbose = 0;
-int veryVeryVeryVerbose = 0; // For test allocators
+static bool             verbose;
+static bool         veryVerbose;
+static bool     veryVeryVerbose;
+static bool veryVeryVeryVerbose;
 
 // ============================================================================
 //                  GLOBAL DEFINITIONS FOR TESTING
@@ -111,12 +111,6 @@ int veryVeryVeryVerbose = 0; // For test allocators
 #define MSVC 1
 #else
 #define MSVC 0
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1800
-#define MSVC_2013 1
-#else
-#define MSVC_2013 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
@@ -2575,13 +2569,19 @@ class TestIsFuncInvocable {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    bslma::DefaultAllocatorGuard dag(&defaultAllocator);
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
 
     // `Function_Rep` requires an allocator at construction.  `Function_Rep` is
     // not the class under test, so there are no allocation tests.  Therefore,
@@ -4202,6 +4202,13 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    ASSERTV(defaultAllocator.numBlocksInUse(),
+            0 == defaultAllocator.numBlocksInUse());
+
+    // CONCERN: In no case does memory come from the global allocator.
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);

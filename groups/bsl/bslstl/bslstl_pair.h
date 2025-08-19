@@ -19,7 +19,7 @@ BSLS_IDENT("$Id: $")
 // using `bslma::Allocator`.  Its interface is identical to `std::pair` except
 // that it has constructors that take optional allocator arguments to correctly
 // construct the member variables.  For example, a
-// `bsl::pair<std::string, int>` has member `first` of type `std::string` and
+// `bsl::pair<bsl::string, int>` has member `first` of type `bsl::string` and
 // `second` of type `int`.  A client can pass a `bslma::Allocator` pointer to
 // the pair constructor and the constructor will pass it through to the `first`
 // member.  Similarly, the copy constructor takes an optional
@@ -80,16 +80,15 @@ BSLS_IDENT("$Id: $")
 // functions that exists only when they can be implemented properly.
 //
 // Hence, when using compilers with a reasonably complete implementation of
-// C++11 (notably MSVC 2013 is not one of those) we only implement the default
-// constructor of pair if both types inside the pair type have a default
-// constructor.  Note that it means that when using C++11 (except in compilers
-// not implementing it properly) a `bsl::pair` that stores a reference type
-// (such as `int&`), or any other type that cannot be default constructed using
-// the syntax `T v{};` will cause pair to neither declare nor define a default
+// C++11 we implement the default constructor of `pair` only if both types
+// inside the pair type have a default constructor.  Note that it means that
+// when using C++11 a `bsl::pair` that stores a reference type (such as
+// `int&`), or any other type that cannot be default constructed using the
+// syntax `T v{};`, will cause `pair` to neither declare nor define a default
 // constructor.  So from C++11 onwards a type of `bsl::pair<T1, T2>` will have
 // a default constructor only if both types `T1` and `T2` are default
-// constructible.  Otherwise, pair will have a default constructor that gives a
-// compile-error (only) if called.
+// constructible.  Otherwise, `pair` will have a default constructor that gives
+// a compile-error (only) if called.
 //
 ///Usage
 ///-----
@@ -323,7 +322,6 @@ BSLS_IDENT("$Id: $")
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && !defined(BSLS_PLATFORM_CMP_CLANG)
-
 // If the compiler supports rvalue references, then we have C++11 'std::swap',
 // which has a complicated SFINAE clause.  Fortunately, it is defined in
 // <utility>, which is included.
@@ -332,23 +330,22 @@ BSLS_IDENT("$Id: $")
 // C++03 'std::swap', which has a trivial signature.  We forward-declare it
 // here because otherwise we'd have to '#include <algorithm>', which causes
 // difficult-to-fix cyclic dependencies between the native library and bsl.
-#ifdef std
+# ifdef std
 #   error This header should not be #included with 'std' being a macro
-#endif
+# endif
 
-#if !defined(BSLS_PLATFORM_CMP_SUN) \
- || !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+# if !defined(BSLS_PLATFORM_CMP_SUN) \
+  || !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 namespace std {
 template <class TYPE>
 void swap(TYPE& a, TYPE& b);
 }  // close namespace std
-#endif
+# endif
 
 #endif // ! BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES  && ! CLANG
 
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS) \
- || (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
 # define BSLSTL_PAIR_NO_IMPLICIT_DELETED_FOR_MOVE_OPS 1
 // In order to support the correct signature for copy constructor/assignment
 // operators of members with non-'const' references for those operations, we
@@ -356,15 +353,11 @@ void swap(TYPE& a, TYPE& b);
 // for assignment through references requires defining the assignment operator
 // in those cases, and that will delete any (otherwise) implicitly-declared
 // constructors, so they must be explicitly defaulted on platforms that support
-// them.  However, Visual C++ 2013 refused to recognize these defaults as valid
-// for move constructors, so a special exception must be made in this case.
+// them.
 #endif
 
 #if !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS) ||            \
-    !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS) ||          \
-    (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-// MSVC 2013 implicitly declared and defines a default constructor, even for
-// members that are not default constructible such as references.
+    !defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS)
 #define BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR 1
 #endif
 

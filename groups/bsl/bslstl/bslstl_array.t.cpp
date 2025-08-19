@@ -3662,18 +3662,6 @@ void TestDriver<TYPE, SIZE>::testCase12()
 
     }
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-    // According to https://msdn.microsoft.com/en-us/library/hh567368.aspx
-    // Visual Studio 2015 has the first MS compiler, that supports compiler
-    // generated move assignment operator:
-    //
-    //    "Rvalue references v3.0" adds new rules to automatically generate
-    //    move constructors and move assignment operators under certain
-    //    conditions. This is implemented in Visual Studio 2015.
-    //
-    // So this test fails with Visual Studio 2013, because compiler generated
-    // copy assignment operator is used.
-
     if (veryVerbose)
         printf("\t\t\tTesting that move assignment operator is called for"
                " elements.\n");
@@ -3700,7 +3688,6 @@ void TestDriver<TYPE, SIZE>::testCase12()
             ASSERTV(SIZE, bsltf::MoveState::e_MOVED      == Y[i].movedInto());
         }
     }
-#endif
 
     if(veryVerbose)
         printf( "\t\t\tTesting that copy assignment operator is called for"
@@ -3804,18 +3791,6 @@ void TestDriver<TYPE, SIZE>::testCase11()
         ASSERTV(SIZE, W == Y);
     }
 
-#if !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800)
-    // According to https://msdn.microsoft.com/en-us/library/hh567368.aspx
-    // Visual Studio 2015 has the first MS compiler, that supports compiler
-    // generated move constructor:
-    //
-    //    "Rvalue references v3.0" adds new rules to automatically generate
-    //    move constructors and move assignment operators under certain
-    //    conditions. This is implemented in Visual Studio 2015.
-    //
-    // So this test fails with Visual Studio 2013, because compiler generated
-    // copy constructor is used.
-
     if(veryVerbose)
         printf(
               "\t\t\tTesting that move constructor is called for elements.\n");
@@ -3839,7 +3814,6 @@ void TestDriver<TYPE, SIZE>::testCase11()
             ASSERTV(bsltf::MoveState::e_MOVED      == Y[i].movedInto());
         }
     }
-#endif
 
     if(veryVerbose)
         printf(

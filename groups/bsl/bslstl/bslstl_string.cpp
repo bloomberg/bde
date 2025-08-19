@@ -611,7 +611,6 @@ double bsl::stod(const wstring& str, std::size_t *pos)
     return value;
 }
 
-#if !defined(BSLS_PLATFORM_CMP_MSVC) || BSLS_PLATFORM_CMP_VER_MAJOR > 1800
 float bsl::stof(const string& str, std::size_t *pos)
 {
     char *ptr;
@@ -716,49 +715,6 @@ long double bsl::stold(const wstring& str, std::size_t *pos)
     errno = original_errno;
     return value;
 }
-#else
-// Prior to C++17, the C++ standard specified this function using the C90
-// library, which did not have 'strtof'.  That is the implementation we
-// continue to support on older Microsoft compilers, lacking the necessary C99
-// conversion functions.  Note that 'errno' and invalid strings are detected
-// and thrown by the 'stod' function that is forwarded to, so need only to
-// worry about performing a safe floating-point conversion.
-
-namespace {
-inline
-float convertDoubleToFloatOrThrow(double value) {
-    if ((value <=  std::numeric_limits<float>::max()) &&
-        (value >= -std::numeric_limits<float>::max())) {
-        return static_cast<float>(value);
-    }
-
-    BloombergLP::bslstl::StdExceptUtil::throwOutOfRange("stolf");
-}
-
-}
-float bsl::stof(const string& str, std::size_t *pos)
-{
-    return convertDoubleToFloatOrThrow(stod(str, pos));
-}
-
-float bsl::stof(const wstring& str, std::size_t *pos)
-{
-    return convertDoubleToFloatOrThrow(stod(str, pos));
-}
-
-// 'long double' has an identical representation to 'double' on these Windows
-// compilers, so lacking the 'strtold' function is not an issue.
-
-long double bsl::stold(const string& str, std::size_t *pos)
-{
-    return stod(str, pos);
-}
-
-long double bsl::stold(const wstring& str, std::size_t *pos)
-{
-    return stod(str, pos);
-}
-#endif
 
 bsl::string bsl::to_string(int value) {
     BSLS_ASSERT(std::numeric_limits<int>::digits * 100/332 +

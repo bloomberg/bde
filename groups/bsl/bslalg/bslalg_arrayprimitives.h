@@ -874,18 +874,6 @@ struct ArrayPrimitives {
 
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    template <class CLASS_TYPE, class MEMBER_TYPE, class... ARGS>
-    static void emplace(MEMBER_TYPE CLASS_TYPE::* *toBegin,
-                        MEMBER_TYPE CLASS_TYPE::* *toEnd,
-                        bslma::Allocator          *allocator)
-        // Old Microsoft compilers need help value-initializing elements that
-        // are pointer-to-member types.
-    {
-        emplace(toBegin, toEnd, allocator, nullptr);
-    }
-#endif
-
     /// TBD: improve comment
     /// Destroy the elements of type given by the `allocator_traits` class
     /// template for (template parameter) `ALLOCATOR` starting at the

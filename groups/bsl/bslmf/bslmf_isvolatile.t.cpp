@@ -125,18 +125,7 @@ void aSsErT(bool condition, const char *message, int line)
 #   endif
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1800
-// The Microsoft Visual C++ compiler. prior to VC2015, will correctly match an
-// array of cv-qualified elements to a function template overload for a
-// compatible cv-reference type, but it also retains the full cv-qualifier on
-// the deduced type.  The trait is manually tested to confirm that it gives the
-// correct result, so we define a macro allowing us to disable the affected
-// tests on this platform.
-#   define BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS
-#endif
-
-# if defined(BSLS_PLATFORM_CMP_IBM)                                           \
-  || defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
+# if defined(BSLS_PLATFORM_CMP_IBM)
 // The IBM xlC compiler correctly matches an array of `const volatile` elements
 // to a function template taking `volatile T&`, but incorrectly deduces `T` to
 // be `const volatile X[N]` rather than simply `const X[N]`.  The trait is
@@ -542,10 +531,8 @@ int main(int argc, char *argv[])
         ASSERT(false == testCVOverload(constArray2D));
         ASSERT(false == testCVOverload(constArrayUB2D));
 
-#if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_CV_QUAL_FOR_ARRAYS)
         ASSERT(false == testCVOverload(volatileArray));
         ASSERT(false == testCVOverload(volatileArrayUB));
-#endif
 #if !defined(BSLMF_ISVOLATILE_COMPILER_DEDUCES_BAD_TYPE_FOR_CV_ARRAY)
         ASSERT(false == testCVOverload(volatileArray2D));
         ASSERT(false == testCVOverload(volatileArrayUB2D));

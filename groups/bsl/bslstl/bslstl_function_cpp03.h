@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Nov  6 15:08:55 2024
+// Generated on Sun Aug 17 02:26:47 2025
 // Command line: sim_cpp11_features.pl bslstl_function.h
 
 #ifdef COMPILING_BSLSTL_FUNCTION_H
@@ -3512,12 +3512,7 @@ template<class TP>
 inline
 const TP* bsl::function<PROTOTYPE>::target() const BSLS_KEYWORD_NOEXCEPT
 {
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // MSVC 2013 has a problem with implicit conversion to 'const nullptr_t*'.
-    return (const TP*) this->d_rep.target<TP>();
-#else
     return this->d_rep.template target<TP>();
-#endif
 }
 
 template <class PROTOTYPE>

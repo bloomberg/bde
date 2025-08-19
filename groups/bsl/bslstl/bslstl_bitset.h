@@ -657,8 +657,7 @@ Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase()
 template <std::size_t BITSETSIZE>
 inline BSLS_KEYWORD_CONSTEXPR
 Bitset_ImpBase<BITSETSIZE, 1>::Bitset_ImpBase(unsigned long long val)
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) \
- &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
   : d_data{static_cast<unsigned int>(val)}
 {
 }
@@ -682,8 +681,7 @@ Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase()
 template <std::size_t BITSETSIZE>
 inline BSLS_KEYWORD_CONSTEXPR
 Bitset_ImpBase<BITSETSIZE, 2>::Bitset_ImpBase(unsigned long long val)
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) \
- &&!(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
   : d_data{static_cast<unsigned int>(val),
            static_cast<unsigned int>(val >> (sizeof(int) * CHAR_BIT))}
 {

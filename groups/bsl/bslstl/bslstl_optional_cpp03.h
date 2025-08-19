@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Jul 16 19:30:39 2025
+// Generated on Sat Aug 16 22:58:37 2025
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -5547,7 +5547,7 @@ BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator>(const bsl::nullopt_t&,
                const bsl::optional<t_TYPE>&) BSLS_KEYWORD_NOEXCEPT;
 
-// Return 'true' if the specified 'value' is disengaged, and 'false' otherwise. 
+// Return 'true' if the specified 'value' is disengaged, and 'false' otherwise.
 // This function can be called in constant expressions only if `t_TYPE` is not
 // allocator-aware.
 template <class t_TYPE>
@@ -6088,9 +6088,7 @@ bsl::optional<t_TYPE> make_optional(
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_J >= 10
 
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_J >= 0
 template <class t_TYPE, class t_INIT_LIST_TYPE>
 bsl::optional<t_TYPE> make_optional(
@@ -6289,9 +6287,7 @@ bsl::optional<t_TYPE> make_optional(
                    typename bsl::optional<t_TYPE>::allocator_type const& alloc,
                    BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...          args);
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class t_TYPE, class t_INIT_LIST_TYPE, class... t_ARGS>
 bsl::optional<t_TYPE> make_optional(
                    bsl::allocator_arg_t,
@@ -6494,9 +6490,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG)     arg,
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_K >= 10
 
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_K >= 0
 template <class t_TYPE, class t_INIT_LIST_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17 bsl::optional<t_TYPE>
@@ -6673,9 +6667,7 @@ BSLSTL_OPTIONAL_CONSTEXPR17 BSLSTL_OPTIONAL_ENABLE_IF_NOT_ALLOCATOR_TAG(t_ARG)
 make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG)     arg,
               BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)... args);
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
-
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class t_TYPE, class t_INIT_LIST_TYPE, class... t_ARGS>
 BSLSTL_OPTIONAL_CONSTEXPR17 bsl::optional<t_TYPE>
 make_optional(std::initializer_list<t_INIT_LIST_TYPE>      il,
@@ -15087,8 +15079,7 @@ bsl::optional<t_TYPE> make_optional(
 #ifndef BSLSTL_OPTIONAL_VARIADIC_LIMIT_V
 #define BSLSTL_OPTIONAL_VARIADIC_LIMIT_V BSLSTL_OPTIONAL_VARIADIC_LIMIT
 #endif
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_V >= 0
 template <class t_TYPE, class t_INIT_LIST_TYPE>
 bsl::optional<t_TYPE> make_optional(
@@ -15413,8 +15404,7 @@ bsl::optional<t_TYPE> make_optional(
 #else
 // The generated code below is a workaround for the absence of perfect
 // forwarding in some compilers.
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class t_TYPE, class t_INIT_LIST_TYPE, class... t_ARGS>
 bsl::optional<t_TYPE> make_optional(
                    bsl::allocator_arg_t,
@@ -15733,8 +15723,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG)     arg,
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_W >= 10
 
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #if BSLSTL_OPTIONAL_VARIADIC_LIMIT_W >= 0
 template <class t_TYPE, class t_INIT_LIST_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17 bsl::optional<t_TYPE>
@@ -16026,8 +16015,7 @@ make_optional(BSLS_COMPILERFEATURES_FORWARD_REF(t_ARG)     arg,
                                BSLS_COMPILERFEATURES_FORWARD(t_ARGS, args)...);
 }
 
-#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS) &&      \
-    !(defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900)
+#  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 template <class t_TYPE, class t_INIT_LIST_TYPE, class... t_ARGS>
 BSLSTL_OPTIONAL_CONSTEXPR17 bsl::optional<t_TYPE>
 make_optional(std::initializer_list<t_INIT_LIST_TYPE>      il,
