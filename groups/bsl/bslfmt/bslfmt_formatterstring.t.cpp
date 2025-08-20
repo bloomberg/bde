@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <string>  // for `std::char_traits`
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #include <string_view>
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
@@ -72,7 +73,8 @@ using bsls::NameOf;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 5] STD NON-DELEGATION
-// [ 6] USAGE EXAMPLE
+// [ 6] DIFFERENT TRAITS/ALLOCATOR
+// [ 7] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -807,6 +809,26 @@ void TestDriver<t_CHAR>::testCase2Imp()
     }
 }
 
+// ============================================================================
+//                        GLOBAL TYPES FOR TESTING
+// ----------------------------------------------------------------------------
+
+/// Custom char traits types (for case 6) that are not equal to the default of
+/// the `t_CHAR_TRAITS` template parameter.
+struct CustomTypeTraits : std::char_traits<char> {
+};
+struct WCustomTypeTraits : std::char_traits<wchar_t> {
+};
+
+/// Custom allocator for testing non-default template arguments in case 6.
+template <class t_TYPE>
+struct CustomAllocator : std::allocator<t_TYPE> {
+    template <class t_OTHER>
+    CustomAllocator(const CustomAllocator<t_OTHER>& other)
+    : std::allocator<t_TYPE>(other)
+    {
+    }
+};
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -820,7 +842,7 @@ int main(int argc, char **argv)
     printf("TEST %s CASE %d \n", __FILE__, test);
 
     switch (test) {  case 0:
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -861,6 +883,147 @@ int main(int argc, char **argv)
         ASSERT("abc**" == mfc.finalString());
 //..
 //
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // DIFFERENT TRAITS/ALLOCATOR
+        //   This test case verifies that all `basic_string` and
+        //   `basic_string_view` template parameters are supported by the
+        //   formatter.
+        //
+        // Concern:
+        // 1. This is a regression concern.  Only the mandatory `t_CHAR`
+        //    template parameters was supported by the formatter for
+        //    `basic_string` and `basic_string_view`.  We are concerned that
+        //    such templates with custom traits or custom allocator (or both)
+        //    won't have a formatter.
+        //
+        // Plan:
+        // 1. Create a sufficient custom `CHAR_TRAITS` type.  (C-1)
+        //
+        // 2. Create a sufficient custom `ALLOCATOR` type.  (C-1)
+        //
+        // 3. Verify that `basic_string`s and `basic_string_view`s formatters
+        //    for types with custom traits or allocator are also inherited from
+        //    `FormatterString_Imp`.  (C-1)
+        //
+        // Testing:
+        //   DIFFERENT TRAITS/ALLOCATOR
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nDIFFERENT TRAITS/ALLOCATOR"
+                            "\n==========================\n");
+
+        if (veryVerbose) puts("basic_string: custom template arguments");
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, CustomTypeTraits>,
+                bsl::formatter<bsl::basic_string<char,
+                                                 CustomTypeTraits,
+                                                 CustomAllocator<char> > > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, CustomTypeTraits>,
+                bsl::formatter<bsl::basic_string<char, CustomTypeTraits> > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, bsl::char_traits<char> >,
+                bsl::formatter<bsl::basic_string<char,
+                                                 bsl::char_traits<char>,
+                                                 CustomAllocator<char> > > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t, WCustomTypeTraits>,
+                bsl::formatter<bsl::basic_string<wchar_t,
+                                                 WCustomTypeTraits,
+                                                 CustomAllocator<wchar_t> >,
+                               wchar_t> >::value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t, WCustomTypeTraits>,
+                bsl::formatter<bsl::basic_string<wchar_t, WCustomTypeTraits>,
+                               wchar_t> >::value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t,
+                                            bsl::char_traits<wchar_t> >,
+                bsl::formatter<bsl::basic_string<wchar_t,
+                                                 bsl::char_traits<wchar_t>,
+                                                 CustomAllocator<wchar_t> >,
+                               wchar_t> >::value));
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, CustomTypeTraits>,
+                bsl::formatter<std::basic_string<char,
+                                                 CustomTypeTraits,
+                                                 CustomAllocator<char> > > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, CustomTypeTraits>,
+                bsl::formatter<std::basic_string<char, CustomTypeTraits> > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, std::char_traits<char> >,
+                bsl::formatter<std::basic_string<char,
+                                                 std::char_traits<char>,
+                                                 CustomAllocator<char> > > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t, WCustomTypeTraits>,
+                bsl::formatter<std::basic_string<wchar_t,
+                                                 WCustomTypeTraits,
+                                                 CustomAllocator<wchar_t> >,
+                               wchar_t> >::value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t, WCustomTypeTraits>,
+                bsl::formatter<std::basic_string<wchar_t, WCustomTypeTraits>,
+                               wchar_t> >::value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t,
+                                            std::char_traits<wchar_t> >,
+                bsl::formatter<std::basic_string<wchar_t,
+                                                 std::char_traits<wchar_t>,
+                                                 CustomAllocator<wchar_t> >,
+                               wchar_t> >::value));
+#endif  // no BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+
+        if (veryVerbose) puts("basic_string_view: custom template arguments");
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, CustomTypeTraits>,
+                bsl::formatter<
+                    bsl::basic_string_view<char, CustomTypeTraits> > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t, WCustomTypeTraits>,
+                bsl::formatter<
+                    bsl::basic_string_view<wchar_t, WCustomTypeTraits>,
+                    wchar_t> >::value));
+
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT) &&                        \
+    defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<char, CustomTypeTraits>,
+                bsl::formatter<
+                    std::basic_string_view<char, CustomTypeTraits> > >::
+                    value));
+
+        ASSERT((bslmf::IsAccessibleBaseOf<
+                bslfmt::FormatterString_Imp<wchar_t, WCustomTypeTraits>,
+                bsl::formatter<
+                    std::basic_string_view<wchar_t, WCustomTypeTraits>,
+                    wchar_t> >::value));
+#endif  // !BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT & BSL_STD_STRING_VIEW_COEXIST
       } break;
       case 5: {
         // --------------------------------------------------------------------

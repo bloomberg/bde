@@ -12,10 +12,11 @@ BSLS_IDENT("$Id: $")
 //  bsl::formatter<t_CHAR *, t_CHAR>: formatter specialization for `t_CHAR *`
 //  bsl::formatter<const t_CHAR *, t_CHAR>: specialization for `const t_CHAR *`
 //  bsl::formatter<t_CHAR[N], t_CHAR> : specialization for character arrays
-//  bsl::formatter<std::basic_string, t_CHAR>: for `std::basic_string`
-//  bsl::formatter<bsl::basic_string, t_CHAR>: for `bsl::basic_string`
-//  bsl::formatter<bsl::basic_string_view, t_CHAR>: `bsl::basic_string_view`
-//  bsl::formatter<bslstl:::StringRef, t_CHAR>: for `bslstl:::StringRef`
+//  bsl::formatter<std::basic_string>: formatter for `std::basic_string`
+//  bsl::formatter<bsl::basic_string>: formatter for `bsl::basic_string`
+//  bsl::formatter<std::basic_string_view>: for `std::basic_string_view`
+//  bsl::formatter<bsl::basic_string_view>: for `bsl::basic_string_view`
+//  bsl::formatter<bslstl:::StringRefImp<t_CHAR> >: for `bslstl:::StringRef`
 //
 //@CANONICAL_HEADER: bsl_format.h
 //
@@ -168,7 +169,7 @@ class FormatterString_GraphemeCluster {
 /// This component-private class provides the implementations for parsing
 /// string formatting specifications and for formatting strings according to
 /// that specification.
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS = bsl::char_traits<t_CHAR> >
 struct FormatterString_Imp {
   private:
     // PRIVATE TYPES
@@ -188,10 +189,10 @@ struct FormatterString_Imp {
     /// maximal substring.  Throw an exception of type `bsl::format_error` in
     /// the event of failure.
     static void findPrecisionLimitedString(
-                   size_t                               *charactersUsed,
-                   int                                  *widthUsed,
-                   const bsl::basic_string_view<t_CHAR>  inputString,
-                   int                                   maxTotalDisplayWidth);
+    size_t                                              *charactersUsed,
+    int                                                 *widthUsed,
+    const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>  inputString,
+    int                                                  maxTotalDisplayWidth);
   protected:
     // PROTECTED ACCESSORS
 
@@ -202,8 +203,8 @@ struct FormatterString_Imp {
     /// Throw an exception of type `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator formatImpl(
-                     const bsl::basic_string_view<t_CHAR> value,
-                     t_FORMAT_CONTEXT&                    formatContext) const;
+      const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
+      t_FORMAT_CONTEXT&                                   formatContext) const;
 
   public:
     // MANIPULATORS
@@ -303,9 +304,9 @@ struct formatter<t_CHAR[t_SIZE], t_CHAR>
 /// This component-private class provides the partial specialization of the
 /// `bsl::formatter` type.  It implements formatting for `std::string` and
 /// `std::wstring` types.
-template <class t_CHAR>
-struct formatter<std::basic_string<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
+template <class t_CHAR, class t_CHAR_TRAITS, class t_ALLOCATOR>
+struct formatter<std::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
     // ACCESSORS
 
@@ -316,9 +317,9 @@ struct formatter<std::basic_string<t_CHAR>, t_CHAR>
     /// end iterator of the output range.  Throw an exception of type
     /// `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                         const std::basic_string<t_CHAR>& value,
-                         t_FORMAT_CONTEXT&                formatContext) const;
+    typename t_FORMAT_CONTEXT::iterator
+    format(const std::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>& value,
+           t_FORMAT_CONTEXT& formatContext) const;
 };
 
               // ===========================================
@@ -328,9 +329,9 @@ struct formatter<std::basic_string<t_CHAR>, t_CHAR>
 /// This component-private class provides the partial specialization of the
 /// `bsl::formatter` type.  It implements formatting for `bsl::string` and
 /// `bsl::wstring` types.
-template <class t_CHAR>
-struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
+template <class t_CHAR, class t_CHAR_TRAITS, class t_ALLOCATOR>
+struct formatter<bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
     // TRAITS
 
@@ -346,9 +347,9 @@ struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
     /// end iterator of the output range.  Throw an exception of type
     /// `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                         const bsl::basic_string<t_CHAR>& value,
-                         t_FORMAT_CONTEXT&                formatContext) const;
+    typename t_FORMAT_CONTEXT::iterator
+    format(const bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>& value,
+           t_FORMAT_CONTEXT& formatContext) const;
 };
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -360,9 +361,9 @@ struct formatter<bsl::basic_string<t_CHAR>, t_CHAR>
 /// This component-private class provides the partial specialization of the
 /// `bsl::formatter` type.  It implements formatting for `std::string_view`
 /// and `std::wstring_view` types.
-template <class t_CHAR>
-struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
+template <class t_CHAR, class t_CHAR_TRAITS>
+struct formatter<std::basic_string_view<t_CHAR, t_CHAR_TRAITS>, t_CHAR>
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
     // ACCESSORS
 
@@ -374,8 +375,8 @@ struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
     /// `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
-                           std::basic_string_view<t_CHAR> value,
-                           t_FORMAT_CONTEXT&              formatContext) const;
+            std::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
+            t_FORMAT_CONTEXT&                             formatContext) const;
 };
 #endif
 
@@ -388,9 +389,9 @@ struct formatter<std::basic_string_view<t_CHAR>, t_CHAR>
 /// This component-private class provides the partial specialization of the
 /// `bsl::formatter` type.  It implements formatting for `bsl::string_view` and
 /// `bsl::wstring_view` types.
-template <class t_CHAR>
-struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
-: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR> {
+template <class t_CHAR, class t_CHAR_TRAITS>
+struct formatter<bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>, t_CHAR>
+: BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS> {
   public:
     // TRAITS
 
@@ -408,8 +409,8 @@ struct formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>
     /// `bsl::format_error` in the event of failure.
     template <class t_FORMAT_CONTEXT>
     typename t_FORMAT_CONTEXT::iterator format(
-                           bsl::basic_string_view<t_CHAR> value,
-                           t_FORMAT_CONTEXT&              formatContext) const;
+            bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
+            t_FORMAT_CONTEXT&                             formatContext) const;
 };
 
 #endif
@@ -512,12 +513,12 @@ int FormatterString_GraphemeCluster::firstCodePointWidth() const
                         // struct FormatterString_Imp
                         // --------------------------
 
-template <class t_CHAR>
-void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
-                    size_t                               *charactersUsed,
-                    int                                  *widthUsed,
-                    const bsl::basic_string_view<t_CHAR>  inputString,
-                    int                                   maxTotalDisplayWidth)
+template <class t_CHAR, class t_CHAR_TRAITS>
+void FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::findPrecisionLimitedString(
+     size_t                                              *charactersUsed,
+     int                                                 *widthUsed,
+     const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>  inputString,
+     int                                                  maxTotalDisplayWidth)
 {
     *widthUsed      = 0;
     *charactersUsed = 0;
@@ -559,11 +560,12 @@ void FormatterString_Imp<t_CHAR>::findPrecisionLimitedString(
 }
 
 // PROTECTED ACCESSORS
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS>
 template <class t_FORMAT_CONTEXT>
-typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
-                      const bsl::basic_string_view<t_CHAR> value,
-                      t_FORMAT_CONTEXT&                    formatContext) const
+typename t_FORMAT_CONTEXT::iterator
+FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::formatImpl(
+       const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
+       t_FORMAT_CONTEXT&                                   formatContext) const
 {
     Specification finalSpec(d_spec);
 
@@ -666,10 +668,11 @@ typename t_FORMAT_CONTEXT::iterator FormatterString_Imp<t_CHAR>::formatImpl(
 }
 
 // MANIPULATORS
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS>
 template <class t_PARSE_CONTEXT>
 BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator
-FormatterString_Imp<t_CHAR>::parse(t_PARSE_CONTEXT& parseContext)
+FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::parse(
+                                                 t_PARSE_CONTEXT& parseContext)
 {
     d_spec.parse(&parseContext, Specification::e_CATEGORY_STRING);
 
@@ -756,17 +759,16 @@ typename t_FORMAT_CONTEXT::iterator formatter<t_CHAR[t_SIZE], t_CHAR>::format(
                 // -------------------------------------------
 
 // ACCESSORS
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS, class t_ALLOCATOR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-formatter<std::basic_string<t_CHAR>, t_CHAR>::format(
-                          const std::basic_string<t_CHAR>& value,
-                          t_FORMAT_CONTEXT&                formatContext) const
+formatter<std::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>::
+    format(const std::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>& value,
+           t_FORMAT_CONTEXT& formatContext) const
 {
-    bsl::basic_string_view<t_CHAR> view(value);
-    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(
-                                                                view,
-                                                                formatContext);
+    bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> view(value);
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::
+        formatImpl(view, formatContext);
 }
 
                 // -------------------------------------------
@@ -774,16 +776,15 @@ formatter<std::basic_string<t_CHAR>, t_CHAR>::format(
                 // -------------------------------------------
 
 // ACCESSORS
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS, class t_ALLOCATOR>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-formatter<bsl::basic_string<t_CHAR>, t_CHAR>::format(
-                          const bsl::basic_string<t_CHAR>& value,
-                          t_FORMAT_CONTEXT&                formatContext) const
+formatter<bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>::
+    format(const bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>& value,
+           t_FORMAT_CONTEXT& formatContext) const
 {
-    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(
-                                                                value,
-                                                                formatContext);
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::
+        formatImpl(value, formatContext);
 }
 
 
@@ -794,21 +795,19 @@ formatter<bsl::basic_string<t_CHAR>, t_CHAR>::format(
               // ------------------------------------------------
 
 // ACCESSORS
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS>
 template <class t_FORMAT_CONTEXT>
-typename t_FORMAT_CONTEXT::iterator
-formatter<std::basic_string_view<t_CHAR>, t_CHAR>::format(
-                            std::basic_string_view<t_CHAR> value,
+typename t_FORMAT_CONTEXT::iterator formatter<
+    std::basic_string_view<t_CHAR, t_CHAR_TRAITS>,
+    t_CHAR>::format(std::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
                             t_FORMAT_CONTEXT&              formatContext) const
 {
-    bsl::basic_string_view<t_CHAR> view(value);
-    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(
-                                                                view,
-                                                                formatContext);
+    bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> view(value);
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::
+        formatImpl(view, formatContext);
 }
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
 
@@ -817,16 +816,15 @@ formatter<std::basic_string_view<t_CHAR>, t_CHAR>::format(
               // ------------------------------------------------
 
 // ACCESSORS
-template <class t_CHAR>
+template <class t_CHAR, class t_CHAR_TRAITS>
 template <class t_FORMAT_CONTEXT>
 typename t_FORMAT_CONTEXT::iterator
-formatter<bsl::basic_string_view<t_CHAR>, t_CHAR>::format(
-                            bsl::basic_string_view<t_CHAR> value,
-                            t_FORMAT_CONTEXT&              formatContext) const
+formatter<bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>, t_CHAR>::format(
+             bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
+             t_FORMAT_CONTEXT&                             formatContext) const
 {
-    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR>::formatImpl(
-                                                                value,
-                                                                formatContext);
+    return BloombergLP::bslfmt::FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::
+        formatImpl(value, formatContext);
 }
 
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
