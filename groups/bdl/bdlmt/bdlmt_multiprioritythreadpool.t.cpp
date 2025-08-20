@@ -1648,6 +1648,9 @@ int main(int argc, char *argv[])
                     "===========================================\n";
         }
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(150, 0),
+                                          bsl::format("case {}", test)));
+
         using namespace MULTIPRIORITYTHREADPOOL_CASE_5;
 
         enum {

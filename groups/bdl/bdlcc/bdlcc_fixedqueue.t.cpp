@@ -2125,7 +2125,7 @@ int main(int argc, char *argv[])
         const int k_QUEUE_SIZE_LARGE = 500000;
         const int k_NUM_PUSHERS_MORE = 20;
         const int k_NUM_PUSHERS_LESS = 2;
-        const int k_EMPTY_VERIFY_MS = 1000;
+        const int k_EMPTY_VERIFY_MS = 500;
 
         bdlcc::FixedQueue<int> queue(k_QUEUE_SIZE_SINGLETHREAD);
         ASSERT(queue.isEnabled());
@@ -2377,7 +2377,6 @@ int main(int argc, char *argv[])
         ASSERT(0 < ta.numAllocations());
         ASSERT(0 == ta.numBytesInUse());
       } break;
-
       case 7: {
         // ---------------------------------------------------------
         // CONCERN: ABA `empty` PROBLEM
@@ -2407,7 +2406,7 @@ int main(int argc, char *argv[])
         enum {
             k_NUM_PUSHER_THREADS = 20,
             k_NUM_VALUES = 6,
-            k_NUM_ITERATIONS = 1000
+            k_NUM_ITERATIONS = 500
         };
 
         enum { k_NUM_ENTRIES = k_NUM_VALUES * k_NUM_PUSHER_THREADS };

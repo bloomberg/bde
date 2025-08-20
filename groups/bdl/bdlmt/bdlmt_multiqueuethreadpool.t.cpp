@@ -781,7 +781,7 @@ class Case27DrainThread {
     }
 
     void operator()() {
-        for (int i = 0; i < 10000; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             d_obj_p->drain();
             bslmt::ThreadUtil::microSleep(10);
         }

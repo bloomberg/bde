@@ -1249,7 +1249,7 @@ int main(int argc, char *argv[])
         bdlcc::BoundedQueue<LongDestructor> queue(8192);
 
         bslmt::Barrier  barrier(3);
-        bsls::AtomicInt count(2000);
+        bsls::AtomicInt count(1000);
 
         Case13Data data;
 

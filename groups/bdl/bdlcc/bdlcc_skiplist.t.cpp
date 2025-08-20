@@ -7733,6 +7733,8 @@ int main(int argc, char *argv[])
                           << "Usage Example" << endl
                           << "=============" << endl;
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
 
         using namespace USAGE;
 
