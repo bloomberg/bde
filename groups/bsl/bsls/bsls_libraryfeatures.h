@@ -68,6 +68,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: `std::jthread`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE: `<chrono>` timezone additions
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY: C++23 base lib provided
+//  BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT: `std::format` of ranges
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
@@ -1340,6 +1341,12 @@ BSLS_IDENT("$Id: $")
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
 //   - GCC 14+
 //
+///`BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT`
+///---------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT` macro is defined when the
+// range formatting support of C++23 (P2286R8, P2585R1, LWG3750) is present in
+// the `<format>` header and it is in a usable state.
+//
 ///`BSLS_LIBRARYFEATURES_STDCPP_GNU`
 ///---------------------------------
 // The `BSLS_LIBRARYFEATURES_STDCPP_GNU` macro is defined if the C++ standard
@@ -2385,6 +2392,10 @@ BSLS_IDENT("$Id: $")
     #undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
+
+#if __cpp_lib_format_ranges >= 202207L
+  #define BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT                         1
+#endif  // range formatter is implemented (P2286R8, P2585R1, LWG3750)
 
 // ============================================================================
 //                  DEFINE ABI COMPATIBILITY AND LINK-SYMBOL

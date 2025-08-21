@@ -787,6 +787,17 @@ formatter<bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR>, t_CHAR>::
         formatImpl(value, formatContext);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+}  // close namespace bsl
+
+template <class t_CHAR, class t_CHAR_TRAITS, class t_ALLOCATOR>
+inline
+constexpr std::range_format
+    std::format_kind<bsl::basic_string<t_CHAR, t_CHAR_TRAITS, t_ALLOCATOR> > =
+                                                   std::range_format::disabled;
+
+namespace bsl {
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
@@ -827,6 +838,18 @@ formatter<bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS>, t_CHAR>::format(
         formatImpl(value, formatContext);
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+}  // close namespace bsl
+
+template <class t_CHAR, class t_CHAR_TRAITS>
+inline
+constexpr std::range_format
+    std::format_kind<bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> > =
+                                                   std::range_format::disabled;
+
+namespace bsl {
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
 
               // ----------------------------------------------
@@ -848,6 +871,14 @@ formatter<BloombergLP::bslstl::StringRefImp<t_CHAR>, t_CHAR>::format(
 }
 
 }  // close namespace bsl
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+template <class t_CHAR>
+inline
+constexpr std::range_format
+    std::format_kind<BloombergLP::bslstl::StringRefImp<t_CHAR> > =
+                                                   std::range_format::disabled;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
 
 #endif  // INCLUDED_BSLFMT_FORMATTERSTRING
 

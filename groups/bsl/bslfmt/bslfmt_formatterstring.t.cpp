@@ -1467,8 +1467,26 @@ int main(int argc, char **argv)
 
         // Escaped string type
         // Not supported in bslfmt at all or in std before C++23
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 202302L
         TEST_PARSE_FAIL(char,     "{:*<5.5?}",    true);
         TEST_PARSE_FAIL(wchar_t, L"{:*<5.5?}",    true);
+#else  // Before C++23
+        // The following two test lines are for an intermediate state of
+        // affairs when `std` is C++23 (so the oracle succeeds, therefore we
+        // disable its checking) but `bslfmt` is still in C++20 state and does
+        // not handle escaped string formats.  Once C++23 `bslfmt` is extended
+        // to handle escaped string formats the following two lines have to be
+        // changed to:
+        //```
+        // TEST_PARSE_SUCCESS_F(char,     "{:*<5.5?}",    true);
+        // TEST_PARSE_SUCCESS_F(wchar_t, L"{:*<5.5?}",    true);
+        //```
+        // In case `bslfmt` is changed to support escaped string format for all
+        // standards the two lines in the `#if` part also have to be updated to
+        // something that checks that `bslfmt` works but the `std` does not.
+        TEST_PARSE_FAIL(char,     "{:*<5.5?}",    false);
+        TEST_PARSE_FAIL(wchar_t, L"{:*<5.5?}",    false);
+#endif  // Since C++23
 
         // Non-string type
         TEST_PARSE_FAIL(char,     "{:*<5.5d}",    true);

@@ -1731,6 +1731,31 @@ static void printFlags()
 }
 
 // ============================================================================
+//                           COMPILE TIME TESTS
+// ----------------------------------------------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+// This code verifies that we can disable range formatting for  range-looking
+// type by specializing the `std::format_kind` variable template.
+
+struct LooksLikeRange {
+    char *begin();
+    char *end();
+
+    const char *begin() const;
+    const char *end() const;
+};
+
+template <>
+inline
+constexpr std::range_format std::format_kind<LooksLikeRange> =
+                                                   std::range_format::disabled;
+
+static_assert(std::ranges::range<LooksLikeRange>);
+
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+
+// ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
 
@@ -2222,6 +2247,13 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
         {
             (void) std::format("{}", 42);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+        {
+            const int aRange[] = {1, 2, 3, 4};
+            (void) std::format("{}", aRange);
         }
 #endif
       } break;
