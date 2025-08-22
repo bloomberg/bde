@@ -65,6 +65,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslfmt_format.h>
+#include <bslfmt_formattable.h>
 #include <bslfmt_streamedformatter.h>
 
 #include <bsls_deprecatefeature.h>
@@ -73,9 +74,28 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bslfmt {
 
-                                 // ========
-                                 // Streamed
-                                 // ========
+#ifdef BSL_FORMATTABLE_DEFINED
+
+#define BSLFMT_STREAMED_INSTANCE_DEPRECATED_                                  \
+    BSLS_DEPRECATE_FEATURE(                                                   \
+            "bslfmt",                                                         \
+            "streamed",                                                       \
+            "There is already a formatter available for the specified type, " \
+            "please use that instead of streaming.")
+
+                  // =======================================
+                  // struct Streamed_NoWarningConstructorTag
+                  // =======================================
+
+/// A *component private* tag type used to internally construct a `Streamed`
+/// object without a warning (about an already existing formatter).
+struct Streamed_NoWarningConstructorTag {
+};
+#endif  // BSL_FORMATTABLE_DEFINED
+
+                               // ==============
+                               // class Streamed
+                               // ==============
 
 /// This class provides a wrapper to enable a streamable type to be used with
 /// `bsl::format` (and `std::format`) when no formatter specialization is
@@ -170,9 +190,9 @@ Streamed<t_STREAMABLE> streamed(const t_STREAMABLE& object);
 //                           INLINE DEFINITIONS
 // ============================================================================
 
-                             // --------
-                             // Streamed
-                             // --------
+                               // --------------
+                               // class Streamed
+                               // --------------
 
 // PRIVATE CREATORS
 #ifdef BSL_FORMATTABLE_DEFINED
