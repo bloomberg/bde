@@ -7,6 +7,7 @@
 
 #include <exception>    // testing exception specifications
 #include <limits>       // testing hexfloat literals
+#include <new>
 
 #include <stdio.h>      // `printf`, `puts`, `fwrite`
 #include <stdlib.h>     // `atoi`
@@ -100,7 +101,9 @@
 // [  ] BSLS_COMPILERFEATURES_FORWARD_REF
 // [  ] BSLS_COMPILERFEATURES_FORWARD
 // ----------------------------------------------------------------------------
-// [42] USAGE EXAMPLE
+// [45] USAGE EXAMPLE
+// [43] __cpp_sized_deallocation
+// [44] __cpp_template_template_args
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
@@ -233,6 +236,60 @@ void aSsErT(bool condition, const char *message, int line)
 //=============================================================================
 //              SUPPORTING FUNCTIONS AND TYPES USED FOR TESTING
 //-----------------------------------------------------------------------------
+// Test support for test cases 43 and 44, testing features that have been
+// implemented for C++17 builds, but the compiler fails to set the Standard C++
+// feature detection macros.
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP17
+
+// Telemetry variables
+static std::size_t g_sizeOfLastDeletedObject = 17;
+static std::size_t g_sizeOfLastDeletedArray  = 13;
+
+// Install sized deallocation functions with telemetry for test case 43.
+// Note that these deallocation functions are installed for all test cases, not
+// just test case 43.  Note that these functions must be installed in the
+// global namespace, thety cannot be static nor declared in unnamed namespace.
+void operator delete(void *p, std::size_t n) noexcept {
+    g_sizeOfLastDeletedObject = n;
+    ::operator delete(p);
+}
+
+void operator delete[](void *p, std::size_t n) noexcept {
+    g_sizeOfLastDeletedArray = n;
+    ::operator delete[](p);
+}
+
+// Installing size deallocation functions is deprecated unless we install
+// replacement functions for the unsized new and delete operators.
+void *operator new(std::size_t n) {
+    return malloc(n);
+}
+
+void *operator new[](std::size_t n) {
+    return malloc(n);
+}
+
+void operator delete(void *p) noexcept {
+    free(p);
+}
+
+void operator delete[](void *p) noexcept {
+    free(p);
+}
+
+namespace {
+
+struct NonTrivial {
+    // The sized array-delete function is not guaranteed to be called unless
+    // the array element type has a non-trivial destructor.
+    ~NonTrivial() {}
+};
+
+// Template class to demonstrate template template arguments for test case 44.
+template <template<class,class> class t_TRAIT, class t_T1, class t_T2>
+struct testTemplateTemplateArg : t_TRAIT<t_T1, t_T2> {};
+}
+#endif // BSLS_COMPILERFEATURES_FULL_CPP17
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE)
 namespace externTemplateTesting {
@@ -2212,7 +2269,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 43: {
+      case 45: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2293,6 +2350,105 @@ int main(int argc, char *argv[])
 // compilers) that further, more complicated or even indeterminate behaviors
 // may arise.
 #undef THATS_MY_LINE
+      } break;
+      case 44: {
+        // --------------------------------------------------------------------
+        // `__cpp_template_template_args`
+        //   This test ensures that the template template arguments feature of
+        //   C++17 is implemented when relying on the BDE feature test macro
+        //   `BSLS_COMPILERFEATURES_FULL_CPP17`.  Support for this feature is
+        //   specified to be reported by the `__cpp_template_template_args`
+        //   macro, but the Clang compiler did not define this macro for many
+        //   versions after the feature was implemented.
+        //
+        // Concerns:
+        // 1. `BSLS_COMPILERFEATURES_FULL_CPP17` is defined only when the
+        //    compiler implements template template arguments for class
+        //    templates.
+        //
+        // Plan:
+        // 1. If `BSLS_COMPILERFEATURES_FULL_CPP17` is defined then instantiate
+        //    the test case support template `testTemplateTemplateArg` with the
+        //    `is_same` trait defined for earlier test cases, supplying two
+        //    types that are the same, and two types that are different.
+        //
+        // 2. Verify that the trait returns `true` and `false`, respectively,
+        //    for passing two of the same type, and passing different types.
+        //
+        // Testing:
+        //   `__cpp_template_template_args`
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("__cpp_template_template_args",
+                         "============================");
+
+#ifndef BSLS_COMPILERFEATURES_FULL_CPP17
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        ASSERT( (testTemplateTemplateArg<is_same, char, char>::value));
+        ASSERT(!(testTemplateTemplateArg<is_same, char, void>::value));
+#endif
+      } break;
+      case 43: {
+        // --------------------------------------------------------------------
+        // `__cpp_sized_deallocation`
+        //   This test ensures that the sized deallocation feature of
+        //   C++17 is implemented when relying on the BDE feature test macro
+        //   `BSLS_COMPILERFEATURES_FULL_CPP17`.  Support for this feature is
+        //   specified to be reported by the `__cpp_sized_deallocation`
+        //   macro, but the Clang compiler did not define this macro for many
+        //   versions after the feature was implemented.
+        //
+        // Concerns:
+        // 1. `BSLS_COMPILERFEATURES_FULL_CPP17` is defined only when the
+        //    compiler implements sized deallocation functions.
+        //
+        // Plan:
+        // 1. If `BSLS_COMPILERFEATURES_FULL_CPP17` is defined then ...
+        //
+        // 2. Verify that the trait returns `true` and `false`, respectively,
+        //    for passing two of the same type, and passing different types.
+        //
+        // Testing:
+        //   `__cpp_sized_deallocation`
+        // --------------------------------------------------------------------
+
+        MACRO_TEST_TITLE("__cpp_sized_deallocation",
+                         "========================");
+
+#if !defined(BSLS_COMPILERFEATURES_FULL_CPP17) \
+  ||(defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 190000)
+        VERBOSE_PUTS("The feature is not supported in this configuration.");
+#else
+        {
+            g_sizeOfLastDeletedObject = 0;
+            g_sizeOfLastDeletedArray = 0;
+
+            int *pX = new int(12);
+            delete pX;
+
+            // Cache values in case `ASSERTV` performs unexpected memory management.
+            std::size_t sizeOfLastDeletedObject = g_sizeOfLastDeletedObject;
+            std::size_t sizeOfLastDeletedArray  = g_sizeOfLastDeletedArray;
+
+            ASSERTV(sizeOfLastDeletedObject, sizeof(int) == sizeOfLastDeletedObject);
+            ASSERTV(sizeOfLastDeletedArray, 0 == sizeOfLastDeletedArray);
+        }
+
+        {
+            g_sizeOfLastDeletedObject = 0;
+            g_sizeOfLastDeletedArray = 0;
+
+            NonTrivial *pA = new NonTrivial[5];
+            delete[] pA;
+
+            // Cache values in case `ASSERTV` performs unexpected memory management.
+            std::size_t sizeOfLastDeletedObject = g_sizeOfLastDeletedObject;
+            std::size_t sizeOfLastDeletedArray  = g_sizeOfLastDeletedArray;
+            ASSERTV(sizeOfLastDeletedObject, 0 == sizeOfLastDeletedObject);
+            ASSERTV(sizeOfLastDeletedArray, 5 * sizeof(NonTrivial) <= sizeOfLastDeletedArray);
+        }
+#endif
       } break;
       case 42: {
         // --------------------------------------------------------------------
@@ -3137,6 +3293,11 @@ int main(int argc, char *argv[])
 #ifndef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
         VERBOSE_PUTS("The feature is not supported in this configuration.");
 #else
+        // Note that in C++03 builds, the gcc preprocessor emits a warning that
+        // cannot be silenced on any use of raw string literals, even when the
+        // code is excluded by a `#if` directive.  The preprocessor must parse
+        // the exluded code to find the matching `#endif`.
+
         const char rawStringLiteral[] = R"RAW(
 This is a raw string.  It is not, however, an "uncooked" string - baking it
 will not improve the flavor.
