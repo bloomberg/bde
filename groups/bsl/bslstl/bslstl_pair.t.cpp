@@ -296,7 +296,7 @@ class Base {
     Base(int data) : d_data(data) {}
     Base(const Base& original) :d_data(original.d_data) {}
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
     /// Destroy this object.
     ~Base() = default;
 
@@ -394,7 +394,7 @@ class Node {
     Node(const Node& original) :d_data(original.d_data) {}
 
     //! ~Node() = default;
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
     Node& operator=(const Node&) = default;
 #endif
 
@@ -902,7 +902,7 @@ class  VolatileMovableType {
                       const volatile VolatileMovableType&  original,
                       bslma::Allocator                    *basicAllocator = 0);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
     /// Create an `VolatileMovableType` object having the same value as the
     /// specified `original`.  Optionally specify a `basicAllocator` used to
     /// supply memory.  If `basicAllocator` is 0, the currently installed
@@ -1001,7 +1001,7 @@ VolatileMovableType::VolatileMovableType(
     }
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 inline
 VolatileMovableType::VolatileMovableType(
                                 volatile VolatileMovableType&&  original,
@@ -1493,7 +1493,7 @@ struct TupleApiTestDriver
     /// index as a template parameter and rvalue reference as a parameter.
     static void getByIndexMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         // Testing first element extraction.
@@ -1572,7 +1572,7 @@ struct TupleApiTestDriver
     /// having at least one volatile element, as a parameter.
     static void getByIndexVolatileMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         // Testing first element extraction.
@@ -1716,7 +1716,7 @@ struct TupleApiTestDriver
     /// reference as a parameter.
     static void getByTypeMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         // Testing first element extraction.
@@ -1812,7 +1812,7 @@ struct TupleApiTestDriver
     /// having at least one volatile element, as a parameter.
     static void getByTypeVolatileMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         typedef VolatileMovableType VMT;
@@ -2402,7 +2402,7 @@ class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
     my_NoAllocString(const my_NoAllocString&  original,
                      bslma::Allocator        *alloc);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
     /// Destroy this object.
     ~my_NoAllocString() = default;
 
@@ -2652,7 +2652,7 @@ struct TypeWithoutSwap {
     : d_data(d)
     {}
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
     // Nothrow moves needed so that std::swap doesn't get SFINAEd out.
 
     TypeWithoutSwap(const TypeWithoutSwap& original) noexcept = default;
@@ -5729,7 +5729,7 @@ namespace IsDefaultConstructibleTestTypes {
 
                 // Types to Test Default Constructibility
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
     struct DeletedDefault {
         DeletedDefault() = delete;
     };
@@ -6046,7 +6046,7 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nTESTING FIX FOR DRQS 131875306"
                             "\n==============================\n");
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         bsl::pair<NonCopyable131875306, int> o1(1,2);
 
         // These would fail to compile, reporting an attempt to access
@@ -6614,7 +6614,7 @@ int main(int argc, char *argv[])
             // is needed to test the allocator-aware constructors.
 
 
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         // We do not have constructors with perfect-forwarding for the C++03
         // move-emulating library, so these tests require true support for
         // rvalue-references.
@@ -6789,7 +6789,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-# if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+# if !defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Never clariffied why C++03 requires direct rather than copy
             // initialization, but this flags as an error with both Clang and
             // xlC otherwise.
@@ -6911,7 +6911,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -6980,7 +6980,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -7057,7 +7057,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -7146,7 +7146,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -7161,7 +7161,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.second.data(), 9999 == C.second.data());
             ASSERTV(pDA, A.second.allocator(), pDA == A.second.allocator());
             ASSERTV(A.second.data(), 0 == A.second.data());
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
 
             if (veryVerbose) printf(
                                   "\t\tallocator-aware default constructor\n");
@@ -7179,7 +7179,7 @@ int main(int argc, char *argv[])
             mD.first[2] = 888;
             mD.second.setData(8888);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -7202,7 +7202,7 @@ int main(int argc, char *argv[])
             ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
             ASSERTV(D.second.data(), 0 == D.second.data());
 # endif
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
         }
 
         if (verbose) printf("\t\twith array of `int` for `first`\n");
@@ -7230,7 +7230,7 @@ int main(int argc, char *argv[])
 
             if (veryVerbose) printf("\t\tmove constructor\n");
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -7245,7 +7245,7 @@ int main(int argc, char *argv[])
             ASSERTV(C.second.data(), 9999 == C.second.data());
             ASSERTV(pDA, A.second.allocator(), pDA == A.second.allocator());
             ASSERTV(A.second.data(), 0 == A.second.data());
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
 
             if (veryVerbose) printf(
                                   "\t\tallocator-aware default constructor\n");
@@ -7263,7 +7263,7 @@ int main(int argc, char *argv[])
             mD.first[2] = 888;
             mD.second.setData(8888);
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             // Arrays do not move using BDE emulated move semantics, so this
             // test would fail to compile.
 
@@ -7286,7 +7286,7 @@ int main(int argc, char *argv[])
             ASSERTV(pDA, D.second.allocator(), pDA == D.second.allocator());
             ASSERTV(D.second.data(), 0 == D.second.data());
 # endif
-#endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
         }
       } break;
       case 20: {
@@ -8140,7 +8140,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING `noexcept` SPECIFICATIONS"
                             "\n=================================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+#if !defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (verbose) printf("`noexcept` not supported on this platform\n");
 #else
         // N4594: 20.4: Pairs
@@ -8161,7 +8161,7 @@ int main(int argc, char *argv[])
             const bsl::pair<int, long>&   X = mX;
 
             ASSERT(noexcept(mX = MoveUtil::move(mP)));
-# if defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+# if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             ASSERT(noexcept(mX.swap(mP)));
             ASSERT(noexcept(bsl::swap(mX, mP)));
 # endif
@@ -9927,7 +9927,7 @@ int main(int argc, char *argv[])
 #define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
         ASSERT(true == std::is_default_constructible<TYPE>::value)
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2);
 #endif
@@ -9941,7 +9941,7 @@ int main(int argc, char *argv[])
         ASSERT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef);
         ASSERT_DEFAULT_CONSTRUCTIBLE(int);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault&);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2&);
 #endif
@@ -9995,7 +9995,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose)
             printf("pair<..>::second is not default constructible.\n");
 
-        #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DeletedDefault2);
 #endif
@@ -10008,7 +10008,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DeletedDefault2);
 #endif
@@ -10021,7 +10021,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DeletedDefault2);
 #endif
@@ -10034,7 +10034,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DeletedDefault2);
 #endif
@@ -10050,7 +10050,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose)
             printf("pair<..>::first is not default constructible.\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , Empty);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, Empty);
 #endif
@@ -10063,7 +10063,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , Empty);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , Empty);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , DefArgDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DefArgDefault);
 #endif
@@ -10076,7 +10076,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , DefArgDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , DefArgDefault);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , ExpDefArgDef);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, ExpDefArgDef);
 #endif
@@ -10089,7 +10089,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , ExpDefArgDef);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , ExpDefArgDef);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , int);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, int);
 #endif
@@ -10105,7 +10105,7 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose)
             printf("Neither `first` or `second` is default constructible.\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, NoDefault);
@@ -10118,7 +10118,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, int&);
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2,DeletedDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, NoDefault);
@@ -10131,7 +10131,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, int&);
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DeletedDefault2);
 #endif
@@ -10144,7 +10144,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DeletedDefault2);
 #endif
@@ -10157,7 +10157,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault2);
 #endif
@@ -10170,7 +10170,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault2);
 #endif
@@ -10183,7 +10183,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DeletedDefault2);
 #endif
@@ -10196,7 +10196,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DeletedDefault2);
 #endif
@@ -10209,7 +10209,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DeletedDefault2);
 #endif
@@ -10344,7 +10344,7 @@ int main(int argc, char *argv[])
         TEST(my_NoAllocString   , my_STLAllocArgStr  );
         TEST(my_NoAllocString   , my_NoAllocString   );
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
         // `constexpr` tests
 
@@ -10492,7 +10492,7 @@ int main(int argc, char *argv[])
                       "Copy constructor is not `constexpr`.");
 #endif
 
-#endif // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
 
 #undef TEST
 
