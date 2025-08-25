@@ -2,6 +2,7 @@
 #include <bslfmt_testspecificationgenerator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bslstl_string.h>
 
@@ -562,8 +563,10 @@ int main(int argc, char **argv)
             printf("\tTesting generator with oracle.\n");
         {
             CharObj generator;
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 130300
-            // gcc does not support locale-based formatting till 13.3
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE < 14 &&      \
+    __GLIBCXX__ < 20240521
+            // The GNU lib has a bug in localized formatting of floating point
+            // numbers till gcc 13.3 (released 2024.05.21)
             generator.setup("VF^+#0{}f");
 #else
             generator.setup("VF^+#0{}Lf");
@@ -614,8 +617,10 @@ int main(int argc, char **argv)
         // wchar_t
         {
             WcharObj  generator;
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 130300
-            // gcc does not support locale-based formatting till 13.3
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE < 14 &&      \
+    __GLIBCXX__ < 20240521
+            // The GNU lib has a bug in localized formatting of floating point
+            // numbers till gcc 13.3 (released 2024.05.21)
             generator.setup("VF^+#0{}f");
 #else
             generator.setup("VF^+#0{}Lf");
