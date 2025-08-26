@@ -309,11 +309,13 @@ struct FormatterBase_IsStdChronoZonedTime {
     static const bool value = false;
 };
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 template <class t_DURATION, class t_TIME_ZONE_PTR>
 struct FormatterBase_IsStdChronoZonedTime<
     std::chrono::zoned_time<t_DURATION, t_TIME_ZONE_PTR> > {
     static const bool value = true;
 };
+#endif
 
 /// Simple trait type that tells is `t_TYPE` is an instance of any of the C++20
 /// standard formattable `std::chrono` types.
@@ -323,12 +325,12 @@ struct FormatterBase_IsStdChronoCpp20FormattableType {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
                      FormatterBase_IsStdChronoTimeType<t_TYPE>::value        ||
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
-                     FormatterBase_IsStdChronoPointInTimeType<t_TYPE>::value ||
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
                      FormatterBase_IsStdChronoZonedTime<t_TYPE>::value       ||
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
                      std::is_same_v<t_TYPE, std::chrono::sys_info>           ||
-                     std::is_same_v<t_TYPE, std::chrono::local_info>;
+                     std::is_same_v<t_TYPE, std::chrono::local_info>         ||
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+                     FormatterBase_IsStdChronoPointInTimeType<t_TYPE>::value;
 };
 
 }  // close package namespace
