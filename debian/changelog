@@ -1,5 +1,36 @@
-bsl-internal (4.28.0.0) unstable; urgency=low
+bsl-internal (4.29.0.0) unstable; urgency=low
 
+  * d685608cf Bumped version to 4.29.0.0
+  * f3415ded3 Fix compilation macros (#5555)
+  * 5ea5e9bcd Fix bslfmt clang-18 test crash. (#5548)
+  * 4483e8a7e Refactor pair assuming cpp11 (#5542)
+  * 99292ee8e Restore bslfmt::streamed warning support (#5526)
+  * 186deabc6 Establish compiler features macros that indicate full support for a language standard. (#5552)
+  * 61925fa4d Drqs 180373039 fix string range formatter ambiguity (#5544)
+  * c236b1cb6 Add all template parameters to string formatters (DRQS 180377489). (#5536)
+  * e8581bea1 correct TCG issues (#5537)
+  * efd6c8d58 Dead code cleanup in `bsl` (#5541)
+  * 7b3a1f7bf Replace sleep with Barrier in PipeTaskManagerTest (#5335)
+  * f19b85b09 Fix bdlf test driver compiled with MSVC C++23 (#5533)
+  * c45b84055 'u_NEXT_CLANG_MAJOR_VERSION' check has been removed from 'bdld_datum.t.cpp'. DRQS 180240838 (#5517)
+  * 328cf1abe Fix bslfmt_formatterintegral.t on clang-18 (DRQS 179970566) (#5528)
+  * d6db50cf1 Make relaxed unsigned atomic operations actually atomic (#5523)
+  * 92579f67d improve TimedCompletionGuard usage (#5527)
+  * a49f116f0 silence -Wmaybe-uninitialized in bslstl_hashtableiterator.t (#5521)
+  * eb9f7b8e9 bdlmt::EventScheduler unexpectedly stores callback in event, creating a retain cycle hazard (DRQS 179819546) (#5503)
+  * 6a64e7465 bsl::format for OptionalPrinter, VariantPrinter. (#5512)
+  * 033824602 Use the correct mecro to enabled warning suppression on Clang (#5515)
+  * 58c2c3281 Revert "Please support checking for required elements in balxml_decoder (DRQS 179898047)" (#5511)
+  * dcc5a761b Revert "Fix C++23 deprecation warnings in bsls_alignmentutil" (#5514)
+  * 6595bea9b Fix C++23 deprecation warnings in bsls_alignmentutil (#5510)
+  * 396816c55 Matrix build issues on clang-18 have been fixed (#5509)
+  * a9bcfa244 Issue in 'bslfmt' test driver with 'float128' has been fixed. DRQS 180062986 (#5506)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 29 Aug 2025 20:00:10 +0000
+
+bsl-internal (4.28.0.0) git; urgency=low
+
+  * cd22b3387 Changelog for version 4.28.0.0
   * ad4d509a4 Bumped version to 4.28.0.0
   * 9c8d02380 bdlmt_eventscheduler.t: Fix TSan race in cases 10 and 11 (#5496)
   * bdae8ba07 bdlcc_fixedqueue.t: Fix TSan errors in case 4 (#5500)
@@ -22,7 +53,7 @@ bsl-internal (4.28.0.0) unstable; urgency=low
   * 20cc33354 timedWait does some stuff, need to reduce the k_WAITING value (#5478)
   * 598d68adb use timed completion guard (#5477)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 30 Jul 2025 12:11:31 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Wed, 30 Jul 2025 12:18:42 -0400
 
 bsl-internal (4.27.0.0) git; urgency=low
 
