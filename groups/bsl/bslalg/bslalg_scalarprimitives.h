@@ -102,6 +102,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>
 
@@ -3782,7 +3783,7 @@ void ScalarPrimitives_Imp::swap(
                       RHS_TYPE&                                            rhs,
                       bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS> *)
 {
-    if (bsl::is_same<LHS_TYPE, RHS_TYPE>::value
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (bsl::is_same<LHS_TYPE, RHS_TYPE>::value
      && !bsl::is_fundamental<LHS_TYPE>::value
      && !bsl::is_pointer<LHS_TYPE>::value
      && !bslmf::UsesAllocatorArgT<LHS_TYPE>::value
