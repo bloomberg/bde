@@ -4011,13 +4011,19 @@ int main(int argc, char *argv[])
         //   time source.
         //
         // Plan:
-        //   Create objects with all values of `clockType`, and verify that the
-        //   value returned by the `now` accessor is as expected.  Then create
-        //   a test time source and verify that the value returned by the `now`
-        //   accessor matches that of the test time source.
+        //   1. Create objects with all values of `clockType`, and verify that the
+        //   value returned by the `now` accessor is as expected.
+        //   2. Create a test time source and verify that the value returned by the
+        //   `now` accessor matches that of the test time source.
+        //   3. Create a test time source with non-default test allocator and
+        //   verify that the value returned by `now` accessor matches that of the
+        //   test time source.  Check that the provided test allocator was used
+        //   and the default allocator was not used.
         //
         // Testing:
-        //   bsls::TimeInterval now() const;
+        //   bsls::TimeInterval bdlmt::EventScheduler::now() const
+        //   bsls::TimeInterval bdlmt::EventSchedulerTestTimeSource::now() const
+        //   `bdlmt::EventSchedulerTestTimeSource` is allocator-aware.
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING NOW ACCESSOR\n"
@@ -4075,6 +4081,58 @@ int main(int argc, char *argv[])
             ASSERT(X.now() == timeSource.now());
         }
 
+        if (verbose) cout << "Test time source allocator-awareness\n";
+        {
+            bslma::TestAllocator         oa("object", veryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            bslma::TestAllocatorMonitor  oamStart(&oa);
+            bslma::TestAllocatorMonitor  dam(&da);
+
+            {
+                bslma::TestAllocatorMonitor  tam(&ta);
+                bslma::TestAllocatorMonitor  oam(&oa);
+
+                // Use different allocators for scheduler and test time source
+                Obj x(&ta);    const Obj& X = x;
+
+                // Scheduler uses its allocator on construction
+                ASSERT(tam.isTotalUp());
+                ASSERT(tam.isInUseUp());
+                tam.reset();
+
+                bdlmt::EventSchedulerTestTimeSource timeSource(&x, &oa);
+
+                // Test time source allocates memory using its own allocator
+                ASSERT(tam.isInUseSame());
+                ASSERT(oam.isTotalUp());
+                ASSERT(oam.isInUseUp());
+                ASSERT(oam.isMaxUp());
+                oam.reset();
+
+                ASSERT(X.now() == timeSource.now());
+
+                // No extra allocations on `now` call
+                ASSERT(tam.isInUseSame());
+                ASSERT(oam.isInUseSame());
+
+                timeSource.advanceTime(bsls::TimeInterval(
+                                                bdlt::TimeUnitRatio::k_S_PER_D));
+                ASSERT(X.now() == timeSource.now());
+
+                // No extra allocations on `now` call
+                ASSERT(tam.isInUseSame());
+                ASSERT(oam.isInUseSame());
+
+                // No non-temporary default allocations.
+                ASSERT(dam.isInUseSame());
+            }
+            ASSERT(oamStart.isInUseSame());
+        }
+
+        ASSERT(0 < ta.numAllocations());
+        ASSERT(0 == ta.numBytesInUse());
       } break;
       case 22: {
         // --------------------------------------------------------------------

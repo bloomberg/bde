@@ -1599,7 +1599,7 @@ class EventSchedulerTestTimeSource {
   private:
     // DATA
     bsl::shared_ptr<EventSchedulerTestTimeSource_Data>
-                          d_data_p;       // shared pointer to the state whose
+                          d_data_sp;      // shared pointer to the state whose
                                           // lifetime must be as long as
                                           // '*this' and '*d_scheduler_p'
 
@@ -1607,14 +1607,23 @@ class EventSchedulerTestTimeSource {
                                           // are augmenting
 
   public:
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(EventSchedulerTestTimeSource,
+                                   bslma::UsesBslmaAllocator);
+
     // CREATORS
 
     /// Create a test time-source object that will control the "system-time"
     /// observed by the specified `scheduler`.  Initialize `now` to be an
     /// arbitrary time value.  The behavior is undefined if any methods have
-    /// previously been called on `scheduler`.
+    /// previously been called on `scheduler`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
+    /// the currently installed default allocator is used.  The behavior is
+    /// undefined unless the supplied allocator also outlives the
+    /// `EventScheduler` associated with this time source.
     explicit
-    EventSchedulerTestTimeSource(EventScheduler *scheduler);
+    EventSchedulerTestTimeSource(EventScheduler   *scheduler,
+                                 bslma::Allocator *basicAllocator = 0);
 
     // MANIPULATORS
 

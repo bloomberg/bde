@@ -1264,7 +1264,8 @@ bsls::TimeInterval EventScheduler::nextPendingEventTime() const
 
 // CREATORS
 EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
-                                                     EventScheduler *scheduler)
+                                              EventScheduler   *scheduler,
+                                              bslma::Allocator *basicAllocator)
 : d_scheduler_p(scheduler)
 {
     BSLS_ASSERT(0 != scheduler);
@@ -1281,12 +1282,8 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
     // 'EventSchedulerTestTimeSource::advanceTime'.  See the call to
     // 'timedWait' in 'EventScheduler::dispatchEvents'.
 
-    // The following uses the default allocator since the created object's
-    // lifetime is shared between 'EventSchedulerTestTimeSource' and the
-    // associated 'EventScheduler', so the data may outlive either individual
-    // object.
-
-    d_data_p = bsl::make_shared<EventSchedulerTestTimeSource_Data>(
+    d_data_sp = bsl::allocate_shared<EventSchedulerTestTimeSource_Data>(
+                                basicAllocator,
                                 bsls::SystemTime::now(scheduler->d_clockType)
                               + 1000 * bdlt::TimeUnitRatio::k_SECONDS_PER_DAY);
 
@@ -1295,7 +1292,7 @@ EventSchedulerTestTimeSource::EventSchedulerTestTimeSource(
 
     d_scheduler_p->d_currentTimeFunctor = bdlf::BindUtil::bind(
                                &EventSchedulerTestTimeSource_Data::currentTime,
-                               d_data_p);
+                               d_data_sp);
 }
 
 // MANIPULATORS
@@ -1307,7 +1304,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
     // Returning the new time allows an atomic 'advance' + 'now' operation.
     // This feature may not be necessary.
 
-    bsls::TimeInterval ret = d_data_p->advanceTime(amount);
+    bsls::TimeInterval ret = d_data_sp->advanceTime(amount);
 
     unsigned int waitCount;
     {
@@ -1346,7 +1343,7 @@ bsls::TimeInterval EventSchedulerTestTimeSource::advanceTime(
 // ACCESSORS
 bsls::TimeInterval EventSchedulerTestTimeSource::now() const
 {
-    return d_data_p->currentTime();
+    return d_data_sp->currentTime();
 }
 
 }  // close package namespace
