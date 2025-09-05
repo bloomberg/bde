@@ -13,6 +13,24 @@
 #include <stdlib.h>     // `atoi`
 #include <string.h>
 
+// ============================================================================
+//                 DISABLE TESTING WHEN BUILDING WITH TSAN
+// ----------------------------------------------------------------------------
+// The thread sanitizer replaces the `new` and `delete` operators, which
+// conflicts with this test driver providing its own replacements.
+//
+// To minimize the number of unused variable and function warnings, we do not
+// compile the whole test driver.
+
+#if defined(BDE_BUILD_TARGET_TSAN)
+int main(int argc, char *[])
+{
+    bool verbose = argc > 2;
+    if (verbose) puts("Tests for this component conflict with tsan.");
+    return -1;
+}
+#else
+
 #ifdef BDE_BUILD_TARGET_EXC
 #include <new>  // `std::bad_alloc` for standard exception specification
 #endif
@@ -552,6 +570,8 @@ int main(int argc, char *argv[])
 
     return testStatus;
 }
+
+#endif // BDE_BUILD_TARGET_TSAN
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

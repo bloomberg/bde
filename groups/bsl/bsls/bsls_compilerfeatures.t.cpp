@@ -241,7 +241,9 @@ void aSsErT(bool condition, const char *message, int line)
 // feature detection macros.
 #ifdef BSLS_COMPILERFEATURES_FULL_CPP17
 
-// Telemetry variables
+/// Installing replacement new and delete operators is incompatible with tsan.
+#if !defined(BDE_BUILD_TARGET_TSAN)
+/// Telemetry variables
 static std::size_t g_sizeOfLastDeletedObject = 17;
 static std::size_t g_sizeOfLastDeletedArray  = 13;
 
@@ -276,6 +278,7 @@ void operator delete(void *p) noexcept {
 void operator delete[](void *p) noexcept {
     free(p);
 }
+#endif // BDE_BUILD_TARGET_TSAN
 
 namespace {
 
@@ -2419,6 +2422,8 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_COMPILERFEATURES_FULL_CPP17) \
   ||(defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 190000)
         VERBOSE_PUTS("The feature is not supported in this configuration.");
+#elif defined(BDE_BUILD_TARGET_TSAN)
+        VERBOSE_PUTS("This feature test is incompatible with tsan.");
 #else
         {
             g_sizeOfLastDeletedObject = 0;

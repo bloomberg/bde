@@ -122,6 +122,24 @@ using namespace BloombergLP;
 // [15] CONCERN: Exception neutrality
 
 // ============================================================================
+//                 DISABLE TESTING WHEN BUILDING WITH TSAN
+// ----------------------------------------------------------------------------
+// The thread sanitizer replaces the `new` and `delete` operators, which
+// conflicts with this test driver providing its own replacements.
+//
+// To minimize the number of unused variable and function warnings, we do not
+// compile the whole test driver.
+
+#if defined(BDE_BUILD_TARGET_TSAN)
+int main(int argc, char *[])
+{
+    bool verbose = argc > 2;
+    if (verbose) puts("Tests for this component conflict with tsan.");
+    return -1;
+}
+#else
+
+// ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
 // ----------------------------------------------------------------------------
 
@@ -386,6 +404,7 @@ int globalDeleteCalledCountIsEnabled = 0;
 
 }  // close unnamed namespace
 
+/// Installing replacement new and delete operators is incompatible with tsan.
 #if defined(BDE_BUILD_TARGET_EXC) && \
    !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
 void *operator new(size_t size) throw(std::bad_alloc)
@@ -424,7 +443,6 @@ void operator delete(void *address)
 
     free(address);
 }
-
 
 #ifdef BDE_BUILD_TARGET_EXC
 # if !defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
@@ -2130,7 +2148,7 @@ int main(int argc, char *argv[])
 // does *not* appear to be an issue with EH support, but an issue with the test
 // case proper.  In the debugger, it appeared that the runtime had insufficient
 // resources to handle the exception, so `abort` was invoked.
-#if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
+# if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
         if (verbose) printf("\nTest throwing std::bad_alloc\n");
 
         rlimit rl = { 1 << 20, 1 << 20 };
@@ -2159,10 +2177,10 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(caught);
-#else
+# else
         if (verbose) printf(
                            "No testing.  Testing skipped on this platform.\n");
-#endif
+# endif
 #else
         if (verbose) printf("No testing.  Exceptions are not enabled.\n");
 #endif
@@ -3121,6 +3139,7 @@ int main(int argc, char *argv[])
     return testStatus;
 }
 
+#endif // BDE_BUILD_TARGET_TSAN
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.
 //
