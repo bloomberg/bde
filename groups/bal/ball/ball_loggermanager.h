@@ -771,13 +771,13 @@ BSLS_IDENT("$Id: $")
 // `ball::Severity::Level` enumeration:
 // ```
 // enum Level {
-//     OFF   =   0,  // disable generation of corresponding message
-//     FATAL =  32,  // a condition that will (likely) cause a *crash*
-//     ERROR =  64,  // a condition that *will* cause incorrect behavior
-//     WARN  =  96,  // a *potentially* problematic condition
-//     INFO  = 128,  // data about the running process
-//     DEBUG = 160,  // information useful while debugging
-//     TRACE = 192   // execution trace data
+//     e_OFF   =   0,  // disable generation of corresponding message
+//     e_FATAL =  32,  // a condition that will (likely) cause a *crash*
+//     e_ERROR =  64,  // a condition that *will* cause incorrect behavior
+//     e_WARN  =  96,  // a *potentially* problematic condition
+//     e_INFO  = 128,  // data about the running process
+//     e_DEBUG = 160,  // information useful while debugging
+//     e_TRACE = 192   // execution trace data
 // };
 // ```
 // Note that the intervals left between enumerator values allow applications
