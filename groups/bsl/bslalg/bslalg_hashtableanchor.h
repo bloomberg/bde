@@ -525,16 +525,16 @@ class HashTableAnchor {
 
     /// Create a `bslalg::HashTableAnchor` object having the same value
     /// as the specified `original` object.
-    HashTableAnchor(const HashTableAnchor& original);
+    //! HashTableAnchor(const HashTableAnchor& original) = default;
 
     /// Destroy this object.
-    //! ~bslalg::HashTableAnchor(); = default
+    //! ~HashTableAnchor(); = default
 
     // MANIPULATORS
 
     /// Assign to this object the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this object.
-    bslalg::HashTableAnchor& operator=(const bslalg::HashTableAnchor& rhs);
+    //! HashTableAnchor& operator=(const HashTableAnchor& rhs) = default;
 
     /// Set the bucket array address and bucket array size attributes of
     /// this object to the specified `bucketArrayAddress` and
@@ -613,24 +613,7 @@ HashTableAnchor::HashTableAnchor(bslalg::HashTableBucket   *bucketArrayAddress,
     BSLS_ASSERT_SAFE(!listRootAddress || !(listRootAddress->previousLink()));
 }
 
-inline
-HashTableAnchor::HashTableAnchor(const HashTableAnchor& original)
-: d_bucketArrayAddress_p(original.d_bucketArrayAddress_p)
-, d_bucketArraySize(original.d_bucketArraySize)
-, d_listRootAddress_p(original.d_listRootAddress_p)
-{
-}
-
 // MANIPULATORS
-inline
-HashTableAnchor& HashTableAnchor::operator=(const HashTableAnchor& rhs)
-{
-    d_bucketArrayAddress_p = rhs.d_bucketArrayAddress_p;
-    d_bucketArraySize      = rhs.d_bucketArraySize;
-    d_listRootAddress_p    = rhs.d_listRootAddress_p;
-    return *this;
-}
-
 inline
 void HashTableAnchor::setBucketArrayAddressAndSize(
                                            HashTableBucket *bucketArrayAddress,
