@@ -19,9 +19,9 @@ BSLS_IDENT("$Id: $")
 // ignored for comparison purposes.
 //
 // For example:
-//```
+// ```
 // bdlb::DoubleCompareUtil::fuzzyEq(a, b)
-//```
+// ```
 // This comparison returns whether values `a` and `b` are "close enough" to be
 // considered equal.  This example uses the default tolerances of
 // `bdlb::DoubleCompareUtil` for "absolute difference" and "relative
@@ -39,25 +39,25 @@ BSLS_IDENT("$Id: $")
 ///--------------------------------
 // More formally, the *absolute* *difference* between `a` and `b` is defined
 // as the absolute value of the difference of `a` and `b`:
-//```
-//  fabs(a - b)                              // absolute difference
-//```
+// ```
+// fabs(a - b)                              // absolute difference
+// ```
 // The *relative* *difference* is defined as the quotient of the absolute
 // difference and the absolute value of the average of `a` and `b`.
-//```
-//  fabs(a - b) / fabs((a + b) / 2.0)        // relative difference
-//```
+// ```
+// fabs(a - b) / fabs((a + b) / 2.0)        // relative difference
+// ```
 // Objects `a` and `b` have fuzzy equality if they have the same value, or if
 // either their absolute difference is less than or equal to some
 // user-specified (or default) tolerance value `absTol`, or their relative
 // difference is less or equal to some separate, user-specified (or default)
 // tolerance value `relTol`.  Using the notation "A ::= B" to mean
 // "A is defined as B", we define fuzzy equality (denoted "~eq") as follows:
-//```
-//  a ~eq b ::= a == b
-//           || fabs(a - b)                       <= absTol
-//           || fabs(a - b) / fabs((a + b) / 2.0) <= relTol
-//```
+// ```
+// a ~eq b ::= a == b
+//          || fabs(a - b)                       <= absTol
+//          || fabs(a - b) / fabs((a + b) / 2.0) <= relTol
+// ```
 // where `fabs(double)` is the standard C absolute-value function and all
 // symbols other than `~` and `::=` have their usual C++ meaning.  Note that
 // the fuzzy equality operation is symmetric (i.e., commutative) with respect
@@ -69,26 +69,26 @@ BSLS_IDENT("$Id: $")
 // `bdlb::DoubleCompareUtil` utility `struct` (note that the parameters
 // `relTol` and `absTol` are optional, and default to reasonable,
 // implementation-dependent values):
-//```
-//     C++       fuzzy
-//  operator   operation   qualified static member-function name
-//  --------   ---------   -------------------------------------------
-//     ==         ~eq      DoubleCompareUtil::eq(a, b, relTol, absTol)
-//     !=         ~ne      DoubleCompareUtil::ne(a, b, relTol, absTol)
-//     <          ~lt      DoubleCompareUtil::lt(a, b, relTol, absTol)
-//     <=         ~le      DoubleCompareUtil::le(a, b, relTol, absTol)
-//     >          ~gt      DoubleCompareUtil::gt(a, b, relTol, absTol)
-//     >=         ~ge      DoubleCompareUtil::ge(a, b, relTol, absTol)
-//```
+// ```
+//    C++       fuzzy
+// operator   operation   qualified static member-function name
+// --------   ---------   -------------------------------------------
+//    ==         ~eq      DoubleCompareUtil::eq(a, b, relTol, absTol)
+//    !=         ~ne      DoubleCompareUtil::ne(a, b, relTol, absTol)
+//    <          ~lt      DoubleCompareUtil::lt(a, b, relTol, absTol)
+//    <=         ~le      DoubleCompareUtil::le(a, b, relTol, absTol)
+//    >          ~gt      DoubleCompareUtil::gt(a, b, relTol, absTol)
+//    >=         ~ge      DoubleCompareUtil::ge(a, b, relTol, absTol)
+// ```
 // Each of the other fuzzy (inequality and relational) operations is defined
 // with respect to fuzzy equality:
-//```
-//  a ~ne b  ::=  !(a ~eq b)
-//  a ~lt b  ::=  !(a ~eq b) && (a < b)
-//  a ~le b  ::=   (a ~eq b) || (a < b)
-//  a ~gt b  ::=  !(a ~eq b) && (a > b)
-//  a ~ge b  ::=   (a ~eq b) || (a > b)
-//```
+// ```
+// a ~ne b  ::=  !(a ~eq b)
+// a ~lt b  ::=  !(a ~eq b) && (a < b)
+// a ~le b  ::=   (a ~eq b) || (a < b)
+// a ~gt b  ::=  !(a ~eq b) && (a > b)
+// a ~ge b  ::=   (a ~eq b) || (a > b)
+// ```
 //
 ///Special Values Handling
 ///-----------------------
@@ -121,22 +121,22 @@ BSLS_IDENT("$Id: $")
 // respectively the relative and absolute tolerances (the actual relative and
 // absolute differences of `x` and `y`, rounded to five decimal digits, are
 // tabulated, for reference, in the two columns to the extreme right):
-//```
-//  <---------INPUTS----------->   <--------OUTPUTS----->   <-ACTUAL DIFFS->
-//    x      y    relTol  absTol   eq  ne  lt  le  gt  ge   RelDiff  AbsDiff
-//  -----  -----  ------  ------   --  --  --  --  --  --   -------  -------
-//   99.0  100.0   0.010   0.001   0   1   1   1   0   0    0.01005  1.00000
-//  100.0   99.0   0.010   0.001   0   1   0   0   1   1    0.01005  1.00000
-//   99.0  100.0   0.011   0.001   1   0   0   1   0   1    0.01005  1.00000
-//   99.0  100.0   0.010   0.999   0   1   1   1   0   0    0.01005  1.00000
-//   99.0  100.0   0.010   1.000   1   0   0   1   0   1    0.01005  1.00000
+// ```
+// <---------INPUTS----------->   <--------OUTPUTS----->   <-ACTUAL DIFFS->
+//   x      y    relTol  absTol   eq  ne  lt  le  gt  ge   RelDiff  AbsDiff
+// -----  -----  ------  ------   --  --  --  --  --  --   -------  -------
+//  99.0  100.0   0.010   0.001   0   1   1   1   0   0    0.01005  1.00000
+// 100.0   99.0   0.010   0.001   0   1   0   0   1   1    0.01005  1.00000
+//  99.0  100.0   0.011   0.001   1   0   0   1   0   1    0.01005  1.00000
+//  99.0  100.0   0.010   0.999   0   1   1   1   0   0    0.01005  1.00000
+//  99.0  100.0   0.010   1.000   1   0   0   1   0   1    0.01005  1.00000
 //
-//  100.0  101.0   0.009   0.001   0   1   1   1   0   0    0.00995  1.00000
-//  101.0  100.0   0.009   0.001   0   1   0   0   1   1    0.00995  1.00000
-//  100.0  101.0   0.010   0.001   1   0   0   1   0   1    0.00995  1.00000
-//  100.0  101.0   0.009   0.999   0   1   1   1   0   0    0.00995  1.00000
-//  100.0  101.0   0.009   1.000   1   0   0   1   0   1    0.00995  1.00000
-//```
+// 100.0  101.0   0.009   0.001   0   1   1   1   0   0    0.00995  1.00000
+// 101.0  100.0   0.009   0.001   0   1   0   0   1   1    0.00995  1.00000
+// 100.0  101.0   0.010   0.001   1   0   0   1   0   1    0.00995  1.00000
+// 100.0  101.0   0.009   0.999   0   1   1   1   0   0    0.00995  1.00000
+// 100.0  101.0   0.009   1.000   1   0   0   1   0   1    0.00995  1.00000
+// ```
 ///Valid Use, Limitations, and Caveats
 ///------------------------------------
 // Each of the functions implemented in this component are well behaved for all
@@ -180,31 +180,31 @@ BSLS_IDENT("$Id: $")
 // comparison methods on two `double` values `a` and `b`.  First we'll
 // determine whether the two values are "CLOSE ENOUGH" using the
 // implementation-defined (default) tolerances:
-//```
-//  if (bdlb::DoubleCompareUtil::fuzzyEq(a, b)) {
-//      bsl::cout << "Values `a` and `b` are CLOSE ENOUGH.\n";
-//  }
-//```
+// ```
+// if (bdlb::DoubleCompareUtil::fuzzyEq(a, b)) {
+//     bsl::cout << "Values `a` and `b` are CLOSE ENOUGH.\n";
+// }
+// ```
 // Next, we'll determine whether the same two values are "NOT RELATIVELY CLOSE"
 // using our own (unusually large) criteria of 1.0 for relative tolerance, but
 // continuing to rely on the default value for absolute tolerance:
-//```
-//  if (bdlb::DoubleCompareUtil::fuzzyNe(a, b, 1.0)) {
-//      bsl::cout << "Values `a` and `b` are NOT RELATIVELY CLOSE.\n";
-//  }
-//```
+// ```
+// if (bdlb::DoubleCompareUtil::fuzzyNe(a, b, 1.0)) {
+//     bsl::cout << "Values `a` and `b` are NOT RELATIVELY CLOSE.\n";
+// }
+// ```
 // Finally, we'll determine if the value `a` is "SIGNIFICANTLY GREATER THAN"
 // `b` by supplying our own rather larger values of 1e-1 and 1e-3 for the
 // relative and absolute tolerances, respectively:
-//```
-//  if (bdlb::DoubleCompareUtil::fuzzyGt(a, b, 1e-1, 1e-3)) {
-//      bsl::cout << "Value `a` is SIGNIFICANTLY GREATER THAN `b`.\n";
-//  }
-//```
+// ```
+// if (bdlb::DoubleCompareUtil::fuzzyGt(a, b, 1e-1, 1e-3)) {
+//     bsl::cout << "Value `a` is SIGNIFICANTLY GREATER THAN `b`.\n";
+// }
+// ```
 // Which will print to `bsl::cout` if and only if:
-//```
-//  bdlb::DoubleCompareUtil::fuzzyNe(a, b, 1e-1, 1e-3) && a > b
-//```
+// ```
+// bdlb::DoubleCompareUtil::fuzzyNe(a, b, 1e-1, 1e-3) && a > b
+// ```
 // is `true`.
 
 #include <bdlscm_version.h>
