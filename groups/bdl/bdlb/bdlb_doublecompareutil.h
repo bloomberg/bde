@@ -252,7 +252,7 @@ struct DoubleCompareUtil {
     ///```
     ///  a == b || fabs(a - b)                       <= absTol
     ///         || fabs(a - b) / fabs((a + b) / 2.0) <= relTol
-    ///``
+    ///```
     /// is `true`; however, in the special case where `a != 0 && a == -b`
     /// is `true`, the actual relative difference is effectively infinite,
     /// and no value of `relTol` can imply fuzzy equality (although a
