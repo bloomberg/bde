@@ -164,6 +164,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // For ease of reading, we will not check all the options each time, but only
 // those that are significant for our example:
+// ```
 //  assert(true     == generator.isStateValidForParse());
 //  assert(true     == generator.isStateValidForFormat());
 //  assert(true     == generator.isSignOptionPresent());
