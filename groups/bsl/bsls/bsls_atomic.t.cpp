@@ -595,9 +595,13 @@ void testSharedCountWrite(int& data,
     int spin = g_spinCount;
 
     while (!done.loadRelaxed()) {
-        while (shared.loadRelaxed() > 1) {
-            const_cast<int volatile &>(data) = shared.loadRelaxed();
-            shared.addAcqRel(-1);           // plays the role of store release
+        if (shared.loadAcquire() == 10) {
+            while (true) {
+                const_cast<int volatile &>(data) = shared.loadRelaxed();
+                if (shared.addAcqRel(-1) <= 1) {
+                    break;
+                }
+            }
         }
 
         if (--spin == 0) {
