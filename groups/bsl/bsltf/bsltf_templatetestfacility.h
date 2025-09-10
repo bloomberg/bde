@@ -513,6 +513,7 @@ BSLS_IDENT("$Id: $")
 #include <bsltf_wellbehavedmoveonlyalloctesttype.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_destructorguard.h>
 #include <bslma_mallocfreeallocator.h>
 #include <bslma_bslallocator.h>
 
@@ -1141,6 +1142,7 @@ TYPE TemplateTestFacility::create(int identifier)
     emplace(obj.address(),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
+    bslma::DestructorGuard destructor(obj.address());
     return TYPE(bslmf::MovableRefUtil::move(obj.object()));
 }
 
