@@ -2658,13 +2658,15 @@ would be justified.
 
 /Appendix: Macro Reference
 /-------------------------
- This section documents the preprocessor macros defined in 'ball_log' that are
- most commonly used.
+ This section documents the preprocessor macros defined in 'ball_log' and
+ 'ball_fmt' that are most commonly used.
 
  The following two macros establish the logging context required by the other
  macros.  A use of one of these two macros must be visible from within the
  lexical scope where the C++ stream-based and 'printf'-style macros are used:
 
+/'ball_log' macros
+/- - - - - - - - -
 : 'BALL_LOG_SET_CATEGORY(CATEGORY)':
 :   Set the category for logging to the specified 'CATEGORY' (assumed to be of
 :   type convertible to 'const char *').  Note that this macro must be used at
@@ -2702,7 +2704,7 @@ would be justified.
       established by the 'BALL_LOG_SET_CATEGORY' (or
       'BALL_LOG_SET_DYNAMIC_CATEGORY') and '__FILE__' macros, respectively.
 ..
- The remaining macros are based on 'printf'-style format specifications:
+ A set of alternative macros are based on 'printf'-style format specifications:
 ..
   BALL_LOGVA_TRACE(MSG, ...);
   BALL_LOGVA_DEBUG(MSG, ...);
@@ -2718,4 +2720,26 @@ would be justified.
       The behavior is undefined unless the number and types of optional
       arguments are compatible with the format specification in 'MSG'.  Note
       that each use of these macros must be terminated by a ';'.
+
+/'ball_fmt' macros
+/- - - - - - - - -
 ..
+ Finally a set of macros are also provided for `bsl::format` style logging:
+..
+  BALL_FMT(      FMTSTR, ...): format a log record within a `*_BLOCK`
+  BALL_FMT_TRACE(FMTSTR, ...): format a log record with the `e_TRACE` level
+  BALL_FMT_DEBUG(FMTSTR, ...): format a log record with the `e_DEBUG` level
+  BALL_FMT_INFO( FMTSTR, ...): format a log record with the `e_INFO` level
+  BALL_FMT_WARN( FMTSTR, ...): format a log record with the `e_WARN` level
+  BALL_FMT_ERROR(FMTSTR, ...): format a log record with the `e_ERROR` level
+  BALL_FMT_FATAL(FMTSTR, ...): format a log record with the `e_FATAL` level
+      Format the specified '...' optional arguments, if any, according to the
+      'bsl::format'-style format specification in the specified 'FMTSTR'
+      (assumed to be of type convertible to 'const char *') and log the
+      resulting formatted message string with the severity indicated by the
+      name of the macro (e.g., 'BALL_FMT_INFO' logs with severity
+      'ball::Severity::e_INFO').  'BALL_FMT' logs with the severity of the
+      block it is part of. Note that each use of these macros must be
+      terminated by a ';'.  Note that due to the different implementations of
+      'bsl::format' on certain platforms the format string will be evaluated
+      compile time and so bad format strings may result in compilation errors.
