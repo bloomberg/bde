@@ -1142,7 +1142,7 @@ TYPE TemplateTestFacility::create(int identifier)
     emplace(obj.address(),
             identifier,
             &bslma::MallocFreeAllocator::singleton());
-    bslma::DestructorGuard destructor(obj.address());
+    bslma::DestructorGuard<TYPE> destructor(obj.address());
     return TYPE(bslmf::MovableRefUtil::move(obj.object()));
 }
 
