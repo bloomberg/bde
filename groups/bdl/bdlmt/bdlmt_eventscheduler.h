@@ -1795,11 +1795,7 @@ int EventScheduler::cancelEvent(const Event *handle)
     const EventQueue::Pair *itemPtr =
                        reinterpret_cast<const EventQueue::Pair*>(
                                        reinterpret_cast<const void*>(handle));
-    // We release the resources for the functor early (rather than waiting for
-    // handle to be released), since large objects may be bound to the functor
-    // and it may be surprising to users that they are not released until the
-    // handle is released.
-    itemPtr->data().d_callback = 0;
+
     return d_eventQueue.remove(itemPtr);
 }
 
@@ -1809,30 +1805,23 @@ int EventScheduler::cancelEvent(const RecurringEvent *handle)
     const RecurringEventQueue::Pair *itemPtr =
                reinterpret_cast<const RecurringEventQueue::Pair*>(
                                        reinterpret_cast<const void*>(handle));
-    // We release the resources for the functor early (rather than waiting for
-    // handle to be released), since large objects may be bound to the functor
-    // and it may be surprising to users that they are not released until the
-    // handle is released.
-    itemPtr->data().d_callback = 0;
+
     return d_recurringQueue.remove(itemPtr);
 }
 
 inline
 void EventScheduler::releaseEventRaw(Event *handle)
 {
-    EventQueue::Pair *h = reinterpret_cast<EventQueue::Pair*>(
-                                              reinterpret_cast<void*>(handle));
-    h->data().d_callback = 0;
-    d_eventQueue.releaseReferenceRaw(h);
+    d_eventQueue.releaseReferenceRaw(reinterpret_cast<EventQueue::Pair*>(
+                                            reinterpret_cast<void*>(handle)));
 }
 
 inline
 void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 {
-    RecurringEventQueue::Pair *h= reinterpret_cast<RecurringEventQueue::Pair*>(
-                                              reinterpret_cast<void*>(handle));
-    h->data().d_callback = 0;
-    d_recurringQueue.releaseReferenceRaw(h);
+    d_recurringQueue.releaseReferenceRaw(
+                         reinterpret_cast<RecurringEventQueue::Pair*>(
+                                            reinterpret_cast<void*>(handle)));
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
