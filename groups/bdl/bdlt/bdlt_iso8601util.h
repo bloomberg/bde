@@ -141,6 +141,12 @@ BSLS_IDENT("$Id: $")
 // and treat `+00:00`, `+0000`, `Z`, and `z` as equivalent zone designators
 // (all denoting UTC).
 //
+// The set of zone designators accepted by the `parse` functions differs
+// slightly from ISO 8601; see {Zone Designators} for details.  Other than
+// these differences, the `parse` functions accept all ISO 8601 complete
+// representations.  We will ignore these differences when discussing the
+// behavior of the `parse` functions below.
+//
 // Parsing in `Relaxed` mode accepts "relaxed" ISO 8601 format that is a
 // superset of the strict ISO 8601 format, meaning this function will parse
 // ISO 8601 values as well as supporting some common variations.  Currently
@@ -222,6 +228,15 @@ BSLS_IDENT("$Id: $")
 // Note that if such a carry causes an underflow or overflow at the extreme
 // ends of the valid range of dates (0001/01/01 and 9999/12/31), then parsing
 // for `Datetime` fails.
+//
+// The set of zone designators accepted by the `parse` functions deviates from
+// ISO 8601 in the following ways:
+// * ISO 8601 allows a zone designator of the form +hh or -hh (that is, with
+//   minutes omitted); the `parse` functions do not.
+// * The `parse` functions allow the zone designators "-00", "-0000", and
+//   "-00:00" as alternatives to the ISO 8601 zone designators "Z", "+00",
+//   "+0000", and "+00:00".  Note that this component never *generates*
+//   zone designators containing negative zeroes.
 //
 ///Fractional Seconds
 /// - - - - - - - - -
@@ -382,7 +397,8 @@ BSLS_IDENT("$Id: $")
 //
 // <ZONE>                    ::=  (+|-)hh{:}mm|Z   # zone designator (':' is
 //                                                 # optional whether default
-//                                                 # or basic)
+//                                                 # or basic); minutes cannot
+//                                                 # be omitted
 // ```
 //
 ///Summary of Supported ISO 8601 Duration Representations
