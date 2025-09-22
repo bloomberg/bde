@@ -3962,7 +3962,7 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, curLen == X.length()); // same lengths
                     LOOP_ASSERT(LINE, curLen == Y.length()); // same lengths
 
-#if TDB
+#if TBD
                     LOOP_ASSERT(LINE, firstResize == blocks12A);
 #endif
 
