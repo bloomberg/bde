@@ -565,7 +565,7 @@ class Allocator : public bsl::memory_resource {
     /// program in a non-exception build.  The behavior is undefined unless
     /// `0 <= size`.  Note that the alignment of the address returned
     /// conforms to the platform requirement for any object of the specified
-    /// `size`.  Note that this virtual function hides a two-argument
+    /// `size`.  Note that this virtual function hides a two-parameter
     /// non-virtual `allocate` method inherited from `bsl::memory_resource`;
     /// to access the inherited function, upcast the object to
     /// `bsl::memory_resource&` before calling the base-class function.
@@ -575,7 +575,7 @@ class Allocator : public bsl::memory_resource {
     /// allocator.  If `address` is 0, this function has no effect.  The
     /// behavior is undefined unless `address` was allocated using this
     /// allocator object and has not already been deallocated.  Note that
-    /// this virtual function hides a two-argument, non-virtual `deallocate`
+    /// this virtual function hides a three-parameter, non-virtual `deallocate`
     /// method inherited from `bsl::memory_resource`; to access the
     /// inherited function, upcast the object to `bsl::memory_resource&`
     /// before calling the base-class function.
