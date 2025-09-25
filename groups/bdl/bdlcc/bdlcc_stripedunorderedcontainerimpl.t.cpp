@@ -1224,11 +1224,14 @@ struct IntToPairConverter {
         bsltf::TemplateTestFacility::emplace(tempKey.address(),
                                              value,
                                              privateAllocator);
+        bslma::DestructorGuard<typename bsl::remove_const<KEY>::type>
+                                                       keyGuard(tempKey.address());
 
         bsls::ObjectBuffer<VALUE> tempValue;
         bsltf::TemplateTestFacility::emplace(tempValue.address(),
                                              value - 'A' + '0',
                                              privateAllocator);
+        bslma::DestructorGuard<VALUE> valueGuard(tempValue.address());
 
         bsl::allocator_traits<ALLOC>::construct(
                               allocator,

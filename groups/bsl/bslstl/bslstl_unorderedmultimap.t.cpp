@@ -469,11 +469,14 @@ struct IntToPairConverter {
         TstFacility::emplace(tempKey.address(),
                              value,
                              privateAllocator);
+        bslma::DestructorGuard<typename bsl::remove_const<KEY>::type>
+                                                   keyGuard(tempKey.address());
 
         bsls::ObjectBuffer<VALUE> tempValue;
         TstFacility::emplace(tempValue.address(),
                              value - 'A' + '0',
                              privateAllocator);
+        bslma::DestructorGuard<VALUE> valueGuard(tempValue.address());
 
         bsl::allocator_traits<ALLOC>::construct(
                                            allocator,
@@ -6169,7 +6172,7 @@ int main(int argc, char *argv[])
 
         typedef TestType::value_type BaseValue;
         const int MAX_SAMPLE = 1000;
-        BaseValue *dataSamples = new BaseValue[MAX_SAMPLE];
+        BaseValue dataSamples[MAX_SAMPLE];
         for(int i = 0; i != MAX_SAMPLE; ++i) {
             new(&dataSamples[i]) BaseValue(i, i*i);  // inplace-new needed to
                                                      // supply `const` key
