@@ -237,7 +237,7 @@ BSLS_IDENT("$Id: $")
 // exist, the current log file is closed, and the logging continues to the new
 // file.
 //
-// If the file having the new name already exits, then the behavior of the file
+// If the file having the new name already exists, then the behavior of the file
 // rotation is further controlled by the flag set with
 // `suppressUniqueFileNameOnRotation`:
 //
