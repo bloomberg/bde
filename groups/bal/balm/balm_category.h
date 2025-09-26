@@ -83,6 +83,7 @@ BSLS_IDENT("$Id: balm_category.h,v 1.4 2008/04/16 20:00:49 hversche Exp $")
 #include <balscm_version.h>
 
 #include <bsls_atomic.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bsl_iosfwd.h>
 
@@ -214,9 +215,21 @@ class CategoryHolder {
   public:
 
     // PUBLIC DATA MEMBERS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    bsls::AtomicBool                    d_enabled;     // whether the category
+                                                       // is enabled
+
+    bsls::AtomicPointer<const Category> d_category_p;  // held category (not
+                                                       // owned)
+
+    bsls::AtomicPointer<CategoryHolder> d_next_p;      // next category holder
+                                                       // in linked list
+#else
     bool            d_enabled;     // whether the category is enabled
     const Category *d_category_p;  // held category (not owned)
     CategoryHolder *d_next_p;      // next category holder in linked list
+#endif
 
     // CREATORS
 
