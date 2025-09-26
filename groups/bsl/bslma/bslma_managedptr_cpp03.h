@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Apr  8 14:32:42 2025
+// Generated on Mon Sep 22 15:11:15 2025
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 
 #ifdef COMPILING_BSLMA_MANAGEDPTR_H
@@ -253,6 +253,7 @@ class ManagedPtr {
 
     /// Create an empty managed pointer.
     ManagedPtr();
+    ManagedPtr(bsl::nullptr_t);  // IMPLICIT
 
     /// Create a managed pointer having a target object referenced by the
     /// specified `ptr`, owning the managed object `*ptr`, and having a
@@ -359,7 +360,7 @@ class ManagedPtr {
     /// necessary to match null-pointer literal arguments, in order to break
     /// ambiguities and provide valid type deduction with the other
     /// constructor templates in this class.
-    explicit ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0);
+    explicit ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
 
     /// Create an empty managed pointer.  Note that the specified `factory`
     /// is ignored, as an empty managed pointer does not call its deleter.
@@ -668,6 +669,12 @@ class ManagedPtr {
     void swap(ManagedPtr& other);
 
     // ACCESSORS
+
+    /// Return `true` if this managed pointer is empty, and `false` otherwise.
+    bool operator==(bsl::nullptr_t) const;
+
+    /// Return `false` if this managed pointer is empty, and `true` otherwise.
+    bool operator!=(bsl::nullptr_t) const;
 
     /// Return a value of "unspecified bool" type that evaluates to `false`
     /// if this managed pointer is empty, and `true` otherwise.  Note that
@@ -1812,6 +1819,13 @@ ManagedPtr<TARGET_TYPE>::ManagedPtr()
 }
 
 template <class TARGET_TYPE>
+inline
+ManagedPtr<TARGET_TYPE>::ManagedPtr(bsl::nullptr_t)
+: d_members()
+{
+}
+
+template <class TARGET_TYPE>
 template <class MANAGED_TYPE>
 inline
 ManagedPtr<TARGET_TYPE>::ManagedPtr(MANAGED_TYPE *ptr)
@@ -2329,6 +2343,20 @@ void ManagedPtr<TARGET_TYPE>::swap(ManagedPtr& other)
 }
 
 // ACCESSORS
+template <class TARGET_TYPE>
+inline
+bool ManagedPtr<TARGET_TYPE>::operator==(bsl::nullptr_t) const
+{
+    return !d_members.pointer();
+}
+
+template <class TARGET_TYPE>
+inline
+bool ManagedPtr<TARGET_TYPE>::operator!=(bsl::nullptr_t) const
+{
+    return d_members.pointer();
+}
+
 template <class TARGET_TYPE>
 inline
 #if defined(BSLS_PLATFORM_CMP_IBM)      // last confirmed with xlC 12.1

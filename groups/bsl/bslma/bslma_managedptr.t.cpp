@@ -113,7 +113,8 @@ using namespace BloombergLP;
 // caught early by the compiler, ideally with a helpful error diagnostic.
 //-----------------------------------------------------------------------------
 // [ 4] ManagedPtr();
-// [ 4] ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0);
+// [ 4] ManagedPtr(bsl::nullptr_t);
+// [ 4] ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
 // [ 8] ManagedPtr(OTHER *ptr);
 // [ 9] ManagedPtr(ManagedPtr& original);
 // [ 9] ManagedPtr(ManagedPtr&& original);
@@ -146,6 +147,8 @@ using namespace BloombergLP;
 // [13] void clear();
 // [13] bsl::pair<TYPE *, ManagedPtrDeleter> release();
 // [  ] TARGET_TYPE *release(ManagedPtrDeleter *deleter);
+// [ 7] bool operator==(bsl::nullptr_t) const;
+// [ 7] bool operator!=(bsl::nullptr_t) const;
 // [ 7] operator BoolType() const;
 // [ 7] TYPE& operator*() const;
 // [ 7] TYPE *operator->() const;
@@ -191,6 +194,7 @@ using namespace BloombergLP;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] TEST MACHINERY
+// [ 4] (implicit) ManagedPtr(bsl::nullptr_t);
 // [ 7] (implicit) bool operator!() const;  // via operator BoolType()
 // [19] USAGE EXAMPLE
 // [20] CASTING EXAMPLES
@@ -1708,7 +1712,29 @@ consumeManagedPtr(bslma::ManagedPtr<MyTestObject>,
 {
     ASSERTV(checkValue, *numDels, checkValue == *numDels);
 }
+
+template <typename MANAGEDPTR_TYPE>
+static void
+consumeManagedPtrNP(MANAGEDPTR_TYPE)
+{
+    // Will be called with a null pointer constant to test implicit conversion.
+}
 #endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <typename MANAGEDPTR_TYPE>
+static void
+consumeManagedPtrCRNP(const MANAGEDPTR_TYPE&)
+{
+    // Will be called with a null pointer constant to test implicit conversion.
+}
+
+template <typename MANAGEDPTR_TYPE>
+static MANAGEDPTR_TYPE
+returnManagedPtrNP()
+{
+    // Ensure implicit conversion works on return values.
+    return 0;
+}
 
 static void
 consumeManagedPtrCR(const bslma::ManagedPtr<MyTestObject>&,
@@ -1734,6 +1760,8 @@ void validateManagedState(unsigned int                     LINE,
                           const bslma::ManagedPtrDeleter&  del)
 {
     // Testing the following properties of the specified `obj`
+    //   bool operator==(bsl::nullptr_t);
+    //   bool operator!=(bsl::nullptr_t);
     //   operator BoolType() const;
     //   TYPE& operator*() const;
     //   TYPE *operator->() const;
@@ -1748,6 +1776,8 @@ void validateManagedState(unsigned int                     LINE,
     if (!ptr) {
         // Different negative testing constraints when `ptr` is null.
         ASSERTV(LINE, false == static_cast<bool>(obj));
+        ASSERTV(LINE, 0 == obj);
+        ASSERTV(LINE, obj == 0);
         ASSERTV(LINE, !obj);
         ASSERTV(LINE, 0 == obj.operator->());
         ASSERTV(LINE, 0 == obj.get());
@@ -1767,6 +1797,8 @@ void validateManagedState(unsigned int                     LINE,
     else {
         // Different negative testing constraints when `ptr` is null.
         ASSERT(true  == static_cast<bool>(obj));
+        ASSERT(0 != obj);
+        ASSERT(obj != 0);
         ASSERT(false == !obj);
 
         TYPE *arrow = obj.operator->();
@@ -1798,6 +1830,8 @@ void validateManagedState(unsigned int                     LINE,
                           const bslma::ManagedPtrDeleter&  del)
 {
     // Testing the following properties of the specified `obj`
+    //   bool operator==(bsl::nullptr_t);
+    //   bool operator!=(bsl::nullptr_t);
     //   operator BoolType() const;
     //   void operator*() const;
     //   void *operator->() const;
@@ -1812,6 +1846,8 @@ void validateManagedState(unsigned int                     LINE,
     if (!ptr) {
         // Different negative testing constraints when `ptr` is null.
         ASSERTV(LINE, false == static_cast<bool>(obj));
+        ASSERTV(LINE, 0 == obj);
+        ASSERTV(LINE, obj == 0);
         ASSERTV(LINE, !obj);
         ASSERTV(LINE, 0 == obj.operator->());
         ASSERTV(LINE, 0 == obj.get());
@@ -1829,6 +1865,8 @@ void validateManagedState(unsigned int                     LINE,
     else {
         // Different negative testing constraints when `ptr` is null.
         ASSERT(true  == static_cast<bool>(obj));
+        ASSERT(obj != 0);
+        ASSERT(0 != obj);
         ASSERT(false == !obj);
 
         void *arrow = obj.operator->();
@@ -1861,6 +1899,8 @@ void validateManagedState(unsigned int                          LINE,
                           const bslma::ManagedPtrDeleter&       del)
 {
     // Testing the following properties of the specified `obj`
+    //   bool operator==(bsl::nullptr_t);
+    //   bool operator!=(bsl::nullptr_t);
     //   operator BoolType() const;
     //   void operator*() const;
     //   const void *operator->() const;
@@ -1875,6 +1915,8 @@ void validateManagedState(unsigned int                          LINE,
     if (!ptr) {
         // Different negative testing constraints when `ptr` is null.
         ASSERTV(LINE, false == static_cast<bool>(obj));
+        ASSERTV(LINE, 0 == obj);
+        ASSERTV(LINE, obj == 0);
         ASSERTV(LINE, !obj);
         ASSERTV(LINE, 0 == obj.operator->());
         ASSERTV(LINE, 0 == obj.get());
@@ -1892,6 +1934,8 @@ void validateManagedState(unsigned int                          LINE,
     else {
         // Different negative testing constraints when `ptr` is null.
         ASSERT(true  == static_cast<bool>(obj));
+        ASSERT(0 != obj);
+        ASSERT(obj != 0);
         ASSERT(false == !obj);
 
         const void *arrow = obj.operator->();
@@ -13623,7 +13667,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   ManagedPtr();
-        //   ManagedPtr(bsl::nullptr_t, bsl::nullptr_t = 0);
+        //   ManagedPtr(bsl::nullptr_t);
+        //   ManagedPtr(bsl::nullptr_t, bsl::nullptr_t);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING PRIMARY CREATORS"
@@ -13783,6 +13828,62 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocatorMonitor dam(&da);
             bslma::ManagedPtr<const int> o(0, 0, 0);
+
+            ASSERT(0 == o.get());
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        if (verbose) printf("\tTest implicit construction from nullptr\n");
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) printf("\t\tBasic test object\n");
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            consumeManagedPtrNP<Obj>(0);
+#endif
+            consumeManagedPtrCRNP<Obj>(0);
+            Obj o = returnManagedPtrNP<Obj>();
+
+            ASSERT(0 == o.get());
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) printf("\t\tvoid type\n");
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            consumeManagedPtrNP<VObj>(0);
+#endif
+            consumeManagedPtrCRNP<VObj>(0);
+            VObj o = returnManagedPtrNP<VObj>();
+
+            ASSERT(0 == o.get());
+            ASSERT(dam.isTotalSame());
+        }
+        ASSERT(0 == numDeletes);
+
+        numDeletes = 0;
+        {
+            if (veryVerbose) printf("\t\tconst-qualified int\n");
+
+            bslma::TestAllocatorMonitor dam(&da);
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+            consumeManagedPtrNP<bslma::ManagedPtr<const int> >(0);
+#endif
+            consumeManagedPtrCRNP<bslma::ManagedPtr<const int> >(0);
+            bslma::ManagedPtr<const int> o =
+                           returnManagedPtrNP<bslma::ManagedPtr<const int> >();
 
             ASSERT(0 == o.get());
             ASSERT(dam.isTotalSame());
