@@ -115,7 +115,13 @@
 #include <bsl_cstring.h>
 #include <bsl_ctgmath.h>             // C++11 header
 #include <bsl_ctime.h>
-#include <bsl_cuchar.h>              // C++11 header
+
+#if !BSLS_PLATFORM_OS_DARWIN // || BSLS_LIBRARYFEATURES_STDCPP_GNU
+    // The standard header <cuchar> is not available on macOS, but the Gnu
+    // standard library provides its own implementation
+    #include <bsl_cuchar.h>              // C++11 header
+#endif
+
 #include <bsl_cwchar.h>
 #include <bsl_cwctype.h>
 #include <bsl_deque.h>
