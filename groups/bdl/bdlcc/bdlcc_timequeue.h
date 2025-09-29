@@ -532,11 +532,12 @@ BSLS_IDENT("$Id: $")
 //
 // void my_TestServer::monitorConnections()
 // {
-//     my_Session *session = new my_TestSession(d_verbose);
+//     const bslma::ManagedPtr<my_Session> session =
+//              bslma::ManagedPtrUtil::makeManaged<my_TestSession>(d_verbose);
 //
 //     // Simulate connection monitor logic...
 //     my_Connection *connection1 = new my_Connection;
-//     connection1->d_session_p = session;
+//     connection1->d_session_p = session.get();
 //     newConnection(connection1);
 //     if (d_verbose) {
 //         bsl::cout << bdlt::CurrentTime::utc() << ": ";
@@ -544,7 +545,7 @@ BSLS_IDENT("$Id: $")
 //     }
 //
 //     my_Connection *connection2 = new my_Connection;
-//     connection2->d_session_p = session;
+//     connection2->d_session_p = session.get();
 //     newConnection(connection2);
 //     if (d_verbose) {
 //         bsl::cout << bdlt::CurrentTime::utc() << ": ";
