@@ -155,8 +155,8 @@ class MySequenceWithNillable {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -164,8 +164,8 @@ class MySequenceWithNillable {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -173,8 +173,8 @@ class MySequenceWithNillable {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -204,7 +204,7 @@ class MySequenceWithNillable {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -213,16 +213,16 @@ class MySequenceWithNillable {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -230,8 +230,8 @@ class MySequenceWithNillable {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
@@ -245,33 +245,43 @@ class MySequenceWithNillable {
     /// Return a reference offering non-modifiable access to the
     /// "Attribute2" attribute of this object.
     const bsl::string& attribute2() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillable& lhs,
+                           const MySequenceWithNillable& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1() &&
+               lhs.myNillable() == rhs.myNillable() &&
+               lhs.attribute2() == rhs.attribute2();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillable& lhs,
+                           const MySequenceWithNillable& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&                 stream,
+                                    const MySequenceWithNillable& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillable& lhs, const MySequenceWithNillable& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillable& lhs, const MySequenceWithNillable& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillable& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillable)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillable> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -376,8 +386,8 @@ class MySequenceWithNillableBase64Binary {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -385,8 +395,8 @@ class MySequenceWithNillableBase64Binary {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -394,8 +404,8 @@ class MySequenceWithNillableBase64Binary {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -417,7 +427,7 @@ class MySequenceWithNillableBase64Binary {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -426,16 +436,16 @@ class MySequenceWithNillableBase64Binary {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -443,41 +453,50 @@ class MySequenceWithNillableBase64Binary {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bdlb::NullableValue<bsl::vector<char> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableBase64Binary& lhs,
+                           const MySequenceWithNillableBase64Binary& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableBase64Binary& lhs,
+                           const MySequenceWithNillableBase64Binary& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                              bsl::ostream&                             stream,
+                              const MySequenceWithNillableBase64Binary& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableBase64Binary& lhs, const MySequenceWithNillableBase64Binary& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableBase64Binary& lhs, const MySequenceWithNillableBase64Binary& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableBase64Binary& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableBase64Binary)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableBase64Binary> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -582,8 +601,8 @@ class MySequenceWithNillableHexBinary {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -591,8 +610,8 @@ class MySequenceWithNillableHexBinary {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -600,8 +619,8 @@ class MySequenceWithNillableHexBinary {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -623,7 +642,7 @@ class MySequenceWithNillableHexBinary {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -632,16 +651,16 @@ class MySequenceWithNillableHexBinary {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -649,41 +668,50 @@ class MySequenceWithNillableHexBinary {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bdlb::NullableValue<bsl::vector<char> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableHexBinary& lhs,
+                           const MySequenceWithNillableHexBinary& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableHexBinary& lhs,
+                           const MySequenceWithNillableHexBinary& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                                 bsl::ostream&                          stream,
+                                 const MySequenceWithNillableHexBinary& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableHexBinary& lhs, const MySequenceWithNillableHexBinary& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableHexBinary& lhs, const MySequenceWithNillableHexBinary& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableHexBinary& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableHexBinary)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableHexBinary> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -788,8 +816,8 @@ class MySequenceWithNillableIntArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -797,8 +825,8 @@ class MySequenceWithNillableIntArray {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -806,8 +834,8 @@ class MySequenceWithNillableIntArray {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -829,7 +857,7 @@ class MySequenceWithNillableIntArray {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -838,16 +866,16 @@ class MySequenceWithNillableIntArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -855,41 +883,50 @@ class MySequenceWithNillableIntArray {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::vector<bdlb::NullableValue<int> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableIntArray& lhs,
+                           const MySequenceWithNillableIntArray& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableIntArray& lhs,
+                           const MySequenceWithNillableIntArray& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                                  bsl::ostream&                         stream,
+                                  const MySequenceWithNillableIntArray& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableIntArray& lhs, const MySequenceWithNillableIntArray& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableIntArray& lhs, const MySequenceWithNillableIntArray& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableIntArray& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableIntArray)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableIntArray> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -942,35 +979,8 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// value.
     MySequenceWithNillableIntSequenceArraySequence();
 
-    /// Create an object of type
-    /// `MySequenceWithNillableIntSequenceArraySequence` having the value of
-    /// the specified `original` object.
-    MySequenceWithNillableIntSequenceArraySequence(const MySequenceWithNillableIntSequenceArraySequence& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type
-    /// `MySequenceWithNillableIntSequenceArraySequence` having the value of
-    /// the specified `original` object.  After performing this action, the
-    /// `original` object will be left in a valid, but unspecified state.
-    MySequenceWithNillableIntSequenceArraySequence(MySequenceWithNillableIntSequenceArraySequence&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~MySequenceWithNillableIntSequenceArraySequence();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    MySequenceWithNillableIntSequenceArraySequence& operator=(const MySequenceWithNillableIntSequenceArraySequence& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    MySequenceWithNillableIntSequenceArraySequence& operator=(MySequenceWithNillableIntSequenceArraySequence&& rhs);
-#endif
 
     /// Reset this object to the default value (i.e., its value upon
     /// default construction).
@@ -982,8 +992,8 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -991,8 +1001,8 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -1000,8 +1010,8 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -1023,7 +1033,7 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -1032,16 +1042,16 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -1049,40 +1059,51 @@ class MySequenceWithNillableIntSequenceArraySequence {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return the value of the "Attribute1" attribute of this object.
     int attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(
+                     const MySequenceWithNillableIntSequenceArraySequence& lhs,
+                     const MySequenceWithNillableIntSequenceArraySequence& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(
+                     const MySequenceWithNillableIntSequenceArraySequence& lhs,
+                     const MySequenceWithNillableIntSequenceArraySequence& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                  bsl::ostream&                                         stream,
+                  const MySequenceWithNillableIntSequenceArraySequence& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableIntSequenceArraySequence& lhs, const MySequenceWithNillableIntSequenceArraySequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableIntSequenceArraySequence& lhs, const MySequenceWithNillableIntSequenceArraySequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableIntSequenceArraySequence& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableIntSequenceArraySequence)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableIntSequenceArraySequence> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -1187,8 +1208,8 @@ class MySequenceWithNillableStringArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -1196,8 +1217,8 @@ class MySequenceWithNillableStringArray {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -1205,8 +1226,8 @@ class MySequenceWithNillableStringArray {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -1228,7 +1249,7 @@ class MySequenceWithNillableStringArray {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -1237,16 +1258,16 @@ class MySequenceWithNillableStringArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -1254,41 +1275,50 @@ class MySequenceWithNillableStringArray {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::vector<bdlb::NullableValue<bsl::string> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableStringArray& lhs,
+                           const MySequenceWithNillableStringArray& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableStringArray& lhs,
+                           const MySequenceWithNillableStringArray& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const MySequenceWithNillableStringArray& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableStringArray& lhs, const MySequenceWithNillableStringArray& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableStringArray& lhs, const MySequenceWithNillableStringArray& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableStringArray& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableStringArray)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableStringArray> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -1397,8 +1427,8 @@ class MySequenceWithNillableStringSequenceArraySequence {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -1406,8 +1436,8 @@ class MySequenceWithNillableStringSequenceArraySequence {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -1415,8 +1445,8 @@ class MySequenceWithNillableStringSequenceArraySequence {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -1438,7 +1468,7 @@ class MySequenceWithNillableStringSequenceArraySequence {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -1447,16 +1477,16 @@ class MySequenceWithNillableStringSequenceArraySequence {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -1464,41 +1494,52 @@ class MySequenceWithNillableStringSequenceArraySequence {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::string& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(
+                  const MySequenceWithNillableStringSequenceArraySequence& lhs,
+                  const MySequenceWithNillableStringSequenceArraySequence& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(
+                  const MySequenceWithNillableStringSequenceArraySequence& lhs,
+                  const MySequenceWithNillableStringSequenceArraySequence& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+               bsl::ostream&                                            stream,
+               const MySequenceWithNillableStringSequenceArraySequence& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableStringSequenceArraySequence& lhs, const MySequenceWithNillableStringSequenceArraySequence& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableStringSequenceArraySequence& lhs, const MySequenceWithNillableStringSequenceArraySequence& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableStringSequenceArraySequence& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableStringSequenceArraySequence)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableStringSequenceArraySequence> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -1603,8 +1644,8 @@ class MySequenceWithNillableIntList {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -1612,8 +1653,8 @@ class MySequenceWithNillableIntList {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -1621,8 +1662,8 @@ class MySequenceWithNillableIntList {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -1644,7 +1685,7 @@ class MySequenceWithNillableIntList {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -1653,16 +1694,16 @@ class MySequenceWithNillableIntList {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -1670,41 +1711,50 @@ class MySequenceWithNillableIntList {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::vector<bdlb::NullableValue<int> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableIntList& lhs,
+                           const MySequenceWithNillableIntList& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableIntList& lhs,
+                           const MySequenceWithNillableIntList& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                                   bsl::ostream&                        stream,
+                                   const MySequenceWithNillableIntList& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableIntList& lhs, const MySequenceWithNillableIntList& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableIntList& lhs, const MySequenceWithNillableIntList& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableIntList& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableIntList)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableIntList> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -1810,8 +1860,8 @@ class MySequenceWithNillableIntSequenceArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -1819,8 +1869,8 @@ class MySequenceWithNillableIntSequenceArray {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -1828,8 +1878,8 @@ class MySequenceWithNillableIntSequenceArray {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -1851,7 +1901,7 @@ class MySequenceWithNillableIntSequenceArray {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -1860,16 +1910,16 @@ class MySequenceWithNillableIntSequenceArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -1877,41 +1927,50 @@ class MySequenceWithNillableIntSequenceArray {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::vector<bdlb::NullableValue<MySequenceWithNillableIntSequenceArraySequence> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableIntSequenceArray& lhs,
+                           const MySequenceWithNillableIntSequenceArray& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableIntSequenceArray& lhs,
+                           const MySequenceWithNillableIntSequenceArray& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                          bsl::ostream&                                 stream,
+                          const MySequenceWithNillableIntSequenceArray& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableIntSequenceArray& lhs, const MySequenceWithNillableIntSequenceArray& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableIntSequenceArray& lhs, const MySequenceWithNillableIntSequenceArray& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableIntSequenceArray& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableIntSequenceArray)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableIntSequenceArray> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -2016,8 +2075,8 @@ class MySequenceWithNillableStringList {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -2025,8 +2084,8 @@ class MySequenceWithNillableStringList {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -2034,8 +2093,8 @@ class MySequenceWithNillableStringList {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -2057,7 +2116,7 @@ class MySequenceWithNillableStringList {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -2066,16 +2125,16 @@ class MySequenceWithNillableStringList {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -2083,41 +2142,50 @@ class MySequenceWithNillableStringList {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::vector<bdlb::NullableValue<bsl::string> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithNillableStringList& lhs,
+                           const MySequenceWithNillableStringList& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithNillableStringList& lhs,
+                           const MySequenceWithNillableStringList& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                                bsl::ostream&                           stream,
+                                const MySequenceWithNillableStringList& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableStringList& lhs, const MySequenceWithNillableStringList& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableStringList& lhs, const MySequenceWithNillableStringList& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableStringList& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableStringList)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableStringList> : bsl::true_type {};
 
 namespace s_baltst {
 
@@ -2223,8 +2291,8 @@ class MySequenceWithNillableStringSequenceArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -2232,8 +2300,8 @@ class MySequenceWithNillableStringSequenceArray {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -2241,8 +2309,8 @@ class MySequenceWithNillableStringSequenceArray {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -2264,7 +2332,7 @@ class MySequenceWithNillableStringSequenceArray {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -2273,16 +2341,16 @@ class MySequenceWithNillableStringSequenceArray {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -2290,44 +2358,55 @@ class MySequenceWithNillableStringSequenceArray {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return a reference offering non-modifiable access to the
     /// "Attribute1" attribute of this object.
     const bsl::vector<bdlb::NullableValue<MySequenceWithNillableStringSequenceArraySequence> >& attribute1() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(
+                          const MySequenceWithNillableStringSequenceArray& lhs,
+                          const MySequenceWithNillableStringSequenceArray& rhs)
+    {
+        return lhs.attribute1() == rhs.attribute1();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(
+                          const MySequenceWithNillableStringSequenceArray& lhs,
+                          const MySequenceWithNillableStringSequenceArray& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                       bsl::ostream&                                    stream,
+                       const MySequenceWithNillableStringSequenceArray& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithNillableStringSequenceArray& lhs, const MySequenceWithNillableStringSequenceArray& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithNillableStringSequenceArray& lhs, const MySequenceWithNillableStringSequenceArray& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithNillableStringSequenceArray& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithNillableStringSequenceArray)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithNillableStringSequenceArray> : bsl::true_type {};
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -2338,8 +2417,8 @@ namespace s_baltst {
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillable::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillable::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -2361,8 +2440,8 @@ int MySequenceWithNillable::manipulateAttributes(MANIPULATOR& manipulator)
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillable::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillable::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2381,11 +2460,11 @@ int MySequenceWithNillable::manipulateAttribute(MANIPULATOR& manipulator, int id
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillable::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2417,8 +2496,8 @@ bsl::string& MySequenceWithNillable::attribute2()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillable::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillable::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -2440,8 +2519,8 @@ int MySequenceWithNillable::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillable::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillable::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2460,11 +2539,11 @@ int MySequenceWithNillable::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillable::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2503,8 +2582,8 @@ const bsl::string& MySequenceWithNillable::attribute2() const
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableBase64Binary::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableBase64Binary::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -2516,8 +2595,8 @@ int MySequenceWithNillableBase64Binary::manipulateAttributes(MANIPULATOR& manipu
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableBase64Binary::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableBase64Binary::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2530,11 +2609,11 @@ int MySequenceWithNillableBase64Binary::manipulateAttribute(MANIPULATOR& manipul
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableBase64Binary::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2554,8 +2633,8 @@ bdlb::NullableValue<bsl::vector<char> >& MySequenceWithNillableBase64Binary::att
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableBase64Binary::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableBase64Binary::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -2567,8 +2646,8 @@ int MySequenceWithNillableBase64Binary::accessAttributes(ACCESSOR& accessor) con
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableBase64Binary::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableBase64Binary::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2581,11 +2660,11 @@ int MySequenceWithNillableBase64Binary::accessAttribute(ACCESSOR& accessor, int 
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableBase64Binary::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2612,8 +2691,8 @@ const bdlb::NullableValue<bsl::vector<char> >& MySequenceWithNillableBase64Binar
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableHexBinary::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableHexBinary::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -2625,8 +2704,8 @@ int MySequenceWithNillableHexBinary::manipulateAttributes(MANIPULATOR& manipulat
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableHexBinary::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableHexBinary::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2639,11 +2718,11 @@ int MySequenceWithNillableHexBinary::manipulateAttribute(MANIPULATOR& manipulato
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableHexBinary::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2663,8 +2742,8 @@ bdlb::NullableValue<bsl::vector<char> >& MySequenceWithNillableHexBinary::attrib
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableHexBinary::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableHexBinary::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -2676,8 +2755,8 @@ int MySequenceWithNillableHexBinary::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableHexBinary::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableHexBinary::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2690,11 +2769,11 @@ int MySequenceWithNillableHexBinary::accessAttribute(ACCESSOR& accessor, int id)
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableHexBinary::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2721,8 +2800,8 @@ const bdlb::NullableValue<bsl::vector<char> >& MySequenceWithNillableHexBinary::
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableIntArray::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntArray::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -2734,8 +2813,8 @@ int MySequenceWithNillableIntArray::manipulateAttributes(MANIPULATOR& manipulato
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableIntArray::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntArray::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2748,11 +2827,11 @@ int MySequenceWithNillableIntArray::manipulateAttribute(MANIPULATOR& manipulator
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableIntArray::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2772,8 +2851,8 @@ bsl::vector<bdlb::NullableValue<int> >& MySequenceWithNillableIntArray::attribut
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableIntArray::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntArray::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -2785,8 +2864,8 @@ int MySequenceWithNillableIntArray::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableIntArray::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntArray::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2799,11 +2878,11 @@ int MySequenceWithNillableIntArray::accessAttribute(ACCESSOR& accessor, int id) 
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableIntArray::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2830,8 +2909,8 @@ const bsl::vector<bdlb::NullableValue<int> >& MySequenceWithNillableIntArray::at
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableIntSequenceArraySequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntSequenceArraySequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -2843,8 +2922,8 @@ int MySequenceWithNillableIntSequenceArraySequence::manipulateAttributes(MANIPUL
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableIntSequenceArraySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntSequenceArraySequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2857,11 +2936,11 @@ int MySequenceWithNillableIntSequenceArraySequence::manipulateAttribute(MANIPULA
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableIntSequenceArraySequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2881,8 +2960,8 @@ int& MySequenceWithNillableIntSequenceArraySequence::attribute1()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableIntSequenceArraySequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntSequenceArraySequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -2894,8 +2973,8 @@ int MySequenceWithNillableIntSequenceArraySequence::accessAttributes(ACCESSOR& a
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableIntSequenceArraySequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntSequenceArraySequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2908,11 +2987,11 @@ int MySequenceWithNillableIntSequenceArraySequence::accessAttribute(ACCESSOR& ac
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableIntSequenceArraySequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -2939,8 +3018,8 @@ int MySequenceWithNillableIntSequenceArraySequence::attribute1() const
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableStringArray::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringArray::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -2952,8 +3031,8 @@ int MySequenceWithNillableStringArray::manipulateAttributes(MANIPULATOR& manipul
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableStringArray::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringArray::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2966,11 +3045,11 @@ int MySequenceWithNillableStringArray::manipulateAttribute(MANIPULATOR& manipula
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableStringArray::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -2990,8 +3069,8 @@ bsl::vector<bdlb::NullableValue<bsl::string> >& MySequenceWithNillableStringArra
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableStringArray::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringArray::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -3003,8 +3082,8 @@ int MySequenceWithNillableStringArray::accessAttributes(ACCESSOR& accessor) cons
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableStringArray::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringArray::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3017,11 +3096,11 @@ int MySequenceWithNillableStringArray::accessAttribute(ACCESSOR& accessor, int i
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableStringArray::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3048,8 +3127,8 @@ const bsl::vector<bdlb::NullableValue<bsl::string> >& MySequenceWithNillableStri
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableStringSequenceArraySequence::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringSequenceArraySequence::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -3061,8 +3140,8 @@ int MySequenceWithNillableStringSequenceArraySequence::manipulateAttributes(MANI
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableStringSequenceArraySequence::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringSequenceArraySequence::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3075,11 +3154,11 @@ int MySequenceWithNillableStringSequenceArraySequence::manipulateAttribute(MANIP
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableStringSequenceArraySequence::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3099,8 +3178,8 @@ bsl::string& MySequenceWithNillableStringSequenceArraySequence::attribute1()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableStringSequenceArraySequence::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringSequenceArraySequence::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -3112,8 +3191,8 @@ int MySequenceWithNillableStringSequenceArraySequence::accessAttributes(ACCESSOR
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableStringSequenceArraySequence::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringSequenceArraySequence::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3126,11 +3205,11 @@ int MySequenceWithNillableStringSequenceArraySequence::accessAttribute(ACCESSOR&
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableStringSequenceArraySequence::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3157,8 +3236,8 @@ const bsl::string& MySequenceWithNillableStringSequenceArraySequence::attribute1
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableIntList::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntList::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -3170,8 +3249,8 @@ int MySequenceWithNillableIntList::manipulateAttributes(MANIPULATOR& manipulator
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableIntList::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntList::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3184,11 +3263,11 @@ int MySequenceWithNillableIntList::manipulateAttribute(MANIPULATOR& manipulator,
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableIntList::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3208,8 +3287,8 @@ bsl::vector<bdlb::NullableValue<int> >& MySequenceWithNillableIntList::attribute
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableIntList::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntList::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -3221,8 +3300,8 @@ int MySequenceWithNillableIntList::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableIntList::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntList::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3235,11 +3314,11 @@ int MySequenceWithNillableIntList::accessAttribute(ACCESSOR& accessor, int id) c
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableIntList::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3266,8 +3345,8 @@ const bsl::vector<bdlb::NullableValue<int> >& MySequenceWithNillableIntList::att
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableIntSequenceArray::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntSequenceArray::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -3279,8 +3358,8 @@ int MySequenceWithNillableIntSequenceArray::manipulateAttributes(MANIPULATOR& ma
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableIntSequenceArray::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableIntSequenceArray::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3293,11 +3372,11 @@ int MySequenceWithNillableIntSequenceArray::manipulateAttribute(MANIPULATOR& man
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableIntSequenceArray::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3317,8 +3396,8 @@ bsl::vector<bdlb::NullableValue<MySequenceWithNillableIntSequenceArraySequence> 
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableIntSequenceArray::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntSequenceArray::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -3330,8 +3409,8 @@ int MySequenceWithNillableIntSequenceArray::accessAttributes(ACCESSOR& accessor)
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableIntSequenceArray::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableIntSequenceArray::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3344,11 +3423,11 @@ int MySequenceWithNillableIntSequenceArray::accessAttribute(ACCESSOR& accessor, 
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableIntSequenceArray::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3375,8 +3454,8 @@ const bsl::vector<bdlb::NullableValue<MySequenceWithNillableIntSequenceArraySequ
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableStringList::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringList::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -3388,8 +3467,8 @@ int MySequenceWithNillableStringList::manipulateAttributes(MANIPULATOR& manipula
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableStringList::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringList::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3402,11 +3481,11 @@ int MySequenceWithNillableStringList::manipulateAttribute(MANIPULATOR& manipulat
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableStringList::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3426,8 +3505,8 @@ bsl::vector<bdlb::NullableValue<bsl::string> >& MySequenceWithNillableStringList
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableStringList::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringList::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -3439,8 +3518,8 @@ int MySequenceWithNillableStringList::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableStringList::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringList::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3453,11 +3532,11 @@ int MySequenceWithNillableStringList::accessAttribute(ACCESSOR& accessor, int id
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableStringList::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3484,8 +3563,8 @@ const bsl::vector<bdlb::NullableValue<bsl::string> >& MySequenceWithNillableStri
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int MySequenceWithNillableStringSequenceArray::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringSequenceArray::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -3497,8 +3576,8 @@ int MySequenceWithNillableStringSequenceArray::manipulateAttributes(MANIPULATOR&
     return 0;
 }
 
-template <class MANIPULATOR>
-int MySequenceWithNillableStringSequenceArray::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int MySequenceWithNillableStringSequenceArray::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3511,11 +3590,11 @@ int MySequenceWithNillableStringSequenceArray::manipulateAttribute(MANIPULATOR& 
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int MySequenceWithNillableStringSequenceArray::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -3535,8 +3614,8 @@ bsl::vector<bdlb::NullableValue<MySequenceWithNillableStringSequenceArraySequenc
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int MySequenceWithNillableStringSequenceArray::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringSequenceArray::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -3548,8 +3627,8 @@ int MySequenceWithNillableStringSequenceArray::accessAttributes(ACCESSOR& access
     return 0;
 }
 
-template <class ACCESSOR>
-int MySequenceWithNillableStringSequenceArray::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int MySequenceWithNillableStringSequenceArray::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3562,11 +3641,11 @@ int MySequenceWithNillableStringSequenceArray::accessAttribute(ACCESSOR& accesso
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int MySequenceWithNillableStringSequenceArray::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -3589,290 +3668,14 @@ const bsl::vector<bdlb::NullableValue<MySequenceWithNillableStringSequenceArrayS
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillable& lhs,
-        const s_baltst::MySequenceWithNillable& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1()
-         && lhs.myNillable() == rhs.myNillable()
-         && lhs.attribute2() == rhs.attribute2();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillable& lhs,
-        const s_baltst::MySequenceWithNillable& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillable& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableBase64Binary& lhs,
-        const s_baltst::MySequenceWithNillableBase64Binary& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableBase64Binary& lhs,
-        const s_baltst::MySequenceWithNillableBase64Binary& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableBase64Binary& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableHexBinary& lhs,
-        const s_baltst::MySequenceWithNillableHexBinary& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableHexBinary& lhs,
-        const s_baltst::MySequenceWithNillableHexBinary& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableHexBinary& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableIntArray& lhs,
-        const s_baltst::MySequenceWithNillableIntArray& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableIntArray& lhs,
-        const s_baltst::MySequenceWithNillableIntArray& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableIntArray& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableIntSequenceArraySequence& lhs,
-        const s_baltst::MySequenceWithNillableIntSequenceArraySequence& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableIntSequenceArraySequence& lhs,
-        const s_baltst::MySequenceWithNillableIntSequenceArraySequence& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableIntSequenceArraySequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableStringArray& lhs,
-        const s_baltst::MySequenceWithNillableStringArray& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableStringArray& lhs,
-        const s_baltst::MySequenceWithNillableStringArray& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableStringArray& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableStringSequenceArraySequence& lhs,
-        const s_baltst::MySequenceWithNillableStringSequenceArraySequence& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableStringSequenceArraySequence& lhs,
-        const s_baltst::MySequenceWithNillableStringSequenceArraySequence& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableStringSequenceArraySequence& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableIntList& lhs,
-        const s_baltst::MySequenceWithNillableIntList& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableIntList& lhs,
-        const s_baltst::MySequenceWithNillableIntList& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableIntList& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableIntSequenceArray& lhs,
-        const s_baltst::MySequenceWithNillableIntSequenceArray& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableIntSequenceArray& lhs,
-        const s_baltst::MySequenceWithNillableIntSequenceArray& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableIntSequenceArray& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableStringList& lhs,
-        const s_baltst::MySequenceWithNillableStringList& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableStringList& lhs,
-        const s_baltst::MySequenceWithNillableStringList& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableStringList& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithNillableStringSequenceArray& lhs,
-        const s_baltst::MySequenceWithNillableStringSequenceArray& rhs)
-{
-    return  lhs.attribute1() == rhs.attribute1();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithNillableStringSequenceArray& lhs,
-        const s_baltst::MySequenceWithNillableStringSequenceArray& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithNillableStringSequenceArray& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_mysequencewithnillable.xsd --mode msg --includedir . --msgComponent mysequencewithnillable --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

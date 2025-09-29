@@ -72,188 +72,193 @@ class MySequenceWithThreeArrays {
 
   public:
     // CLASS METHODS
-    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
-        // Return attribute information for the attribute indicated by the
-        // specified 'id' if the attribute exists, and 0 otherwise.
 
+    /// Return attribute information for the attribute indicated by the
+    /// specified `id` if the attribute exists, and 0 otherwise.
+    static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
+
+    /// Return attribute information for the attribute indicated by the
+    /// specified `name` of the specified `nameLength` if the attribute
+    /// exists, and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
-        // Return attribute information for the attribute indicated by the
-        // specified 'name' of the specified 'nameLength' if the attribute
-        // exists, and 0 otherwise.
 
     // CREATORS
-    explicit MySequenceWithThreeArrays(bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithThreeArrays' having the
-        // default value.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 
+    /// Create an object of type `MySequenceWithThreeArrays` having the
+    /// default value.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
+    explicit MySequenceWithThreeArrays(bslma::Allocator *basicAllocator = 0);
+
+    /// Create an object of type `MySequenceWithThreeArrays` having the
+    /// value of the specified `original` object.  Use the optionally
+    /// specified `basicAllocator` to supply memory.  If `basicAllocator` is
+    /// 0, the currently installed default allocator is used.
     MySequenceWithThreeArrays(const MySequenceWithThreeArrays& original,
                               bslma::Allocator *basicAllocator = 0);
-        // Create an object of type 'MySequenceWithThreeArrays' having the
-        // value of the specified 'original' object.  Use the optionally
-        // specified 'basicAllocator' to supply memory.  If 'basicAllocator' is
-        // 0, the currently installed default allocator is used.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Create an object of type `MySequenceWithThreeArrays` having the
+    /// value of the specified `original` object.  After performing this
+    /// action, the `original` object will be left in a valid, but
+    /// unspecified state.
     MySequenceWithThreeArrays(MySequenceWithThreeArrays&& original) noexcept;
-        // Create an object of type 'MySequenceWithThreeArrays' having the
-        // value of the specified 'original' object.  After performing this
-        // action, the 'original' object will be left in a valid, but
-        // unspecified state.
 
+    /// Create an object of type `MySequenceWithThreeArrays` having the
+    /// value of the specified `original` object.  After performing this
+    /// action, the `original` object will be left in a valid, but
+    /// unspecified state.  Use the optionally specified `basicAllocator` to
+    /// supply memory.  If `basicAllocator` is 0, the currently installed
+    /// default allocator is used.
     MySequenceWithThreeArrays(MySequenceWithThreeArrays&& original,
                               bslma::Allocator *basicAllocator);
-        // Create an object of type 'MySequenceWithThreeArrays' having the
-        // value of the specified 'original' object.  After performing this
-        // action, the 'original' object will be left in a valid, but
-        // unspecified state.  Use the optionally specified 'basicAllocator' to
-        // supply memory.  If 'basicAllocator' is 0, the currently installed
-        // default allocator is used.
 #endif
 
+    /// Destroy this object.
     ~MySequenceWithThreeArrays();
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the specified `rhs` object.
     MySequenceWithThreeArrays& operator=(const MySequenceWithThreeArrays& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
  && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
+    /// Assign to this object the value of the specified `rhs` object.
+    /// After performing this action, the `rhs` object will be left in a
+    /// valid, but unspecified state.
     MySequenceWithThreeArrays& operator=(MySequenceWithThreeArrays&& rhs);
-        // Assign to this object the value of the specified 'rhs' object.
-        // After performing this action, the 'rhs' object will be left in a
-        // valid, but unspecified state.
 #endif
 
+    /// Reset this object to the default value (i.e., its value upon
+    /// default construction).
     void reset();
-        // Reset this object to the default value (i.e., its value upon
-        // default construction).
 
+    /// Invoke the specified `manipulator` sequentially on the address of
+    /// each (modifiable) attribute of this object, supplying `manipulator`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `manipulator` (i.e., the invocation that
+    /// terminated the sequence).
     template <typename t_MANIPULATOR>
     int manipulateAttributes(t_MANIPULATOR& manipulator);
-        // Invoke the specified 'manipulator' sequentially on the address of
-        // each (modifiable) attribute of this object, supplying 'manipulator'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'manipulator' (i.e., the invocation that
-        // terminated the sequence).
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `id`,
+    /// supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `manipulator` if `id` identifies an attribute of this
+    /// class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'id',
-        // supplying 'manipulator' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'manipulator' if 'id' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Invoke the specified `manipulator` on the address of
+    /// the (modifiable) attribute indicated by the specified `name` of the
+    /// specified `nameLength`, supplying `manipulator` with the
+    /// corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `name` identifies
+    /// an attribute of this class, and -1 otherwise.
     template <typename t_MANIPULATOR>
     int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
-        // Invoke the specified 'manipulator' on the address of
-        // the (modifiable) attribute indicated by the specified 'name' of the
-        // specified 'nameLength', supplying 'manipulator' with the
-        // corresponding attribute information structure.  Return the value
-        // returned from the invocation of 'manipulator' if 'name' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Return a reference to the modifiable "Attribute1" attribute of this
+    /// object.
     bsl::vector<bsl::string>& attribute1();
-        // Return a reference to the modifiable "Attribute1" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute2" attribute of this
+    /// object.
     bsl::vector<int>& attribute2();
-        // Return a reference to the modifiable "Attribute2" attribute of this
-        // object.
 
+    /// Return a reference to the modifiable "Attribute3" attribute of this
+    /// object.
     bsl::vector<double>& attribute3();
-        // Return a reference to the modifiable "Attribute3" attribute of this
-        // object.
 
     // ACCESSORS
+
+    /// Format this object to the specified output `stream` at the
+    /// optionally specified indentation `level` and return a reference to
+    /// the modifiable `stream`.  If `level` is specified, optionally
+    /// specify `spacesPerLevel`, the number of spaces per indentation level
+    /// for this and all of its nested objects.  Each line is indented by
+    /// the absolute value of `level * spacesPerLevel`.  If `level` is
+    /// negative, suppress indentation of the first line.  If
+    /// `spacesPerLevel` is negative, suppress line breaks and format the
+    /// entire output on one line.  If `stream` is initially invalid, this
+    /// operation has no effect.  Note that a trailing newline is provided
+    /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level          = 0,
                         int           spacesPerLevel = 4) const;
-        // Format this object to the specified output 'stream' at the
-        // optionally specified indentation 'level' and return a reference to
-        // the modifiable 'stream'.  If 'level' is specified, optionally
-        // specify 'spacesPerLevel', the number of spaces per indentation level
-        // for this and all of its nested objects.  Each line is indented by
-        // the absolute value of 'level * spacesPerLevel'.  If 'level' is
-        // negative, suppress indentation of the first line.  If
-        // 'spacesPerLevel' is negative, suppress line breaks and format the
-        // entire output on one line.  If 'stream' is initially invalid, this
-        // operation has no effect.  Note that a trailing newline is provided
-        // in multiline mode only.
 
+    /// Invoke the specified `accessor` sequentially on each
+    /// (non-modifiable) attribute of this object, supplying `accessor`
+    /// with the corresponding attribute information structure until such
+    /// invocation returns a non-zero value.  Return the value from the
+    /// last invocation of `accessor` (i.e., the invocation that terminated
+    /// the sequence).
     template <typename t_ACCESSOR>
     int accessAttributes(t_ACCESSOR& accessor) const;
-        // Invoke the specified 'accessor' sequentially on each
-        // (non-modifiable) attribute of this object, supplying 'accessor'
-        // with the corresponding attribute information structure until such
-        // invocation returns a non-zero value.  Return the value from the
-        // last invocation of 'accessor' (i.e., the invocation that terminated
-        // the sequence).
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `id`, supplying `accessor`
+    /// with the corresponding attribute information structure.  Return the
+    /// value returned from the invocation of `accessor` if `id` identifies
+    /// an attribute of this class, and -1 otherwise.
     template <typename t_ACCESSOR>
     int accessAttribute(t_ACCESSOR& accessor, int id) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'id', supplying 'accessor'
-        // with the corresponding attribute information structure.  Return the
-        // value returned from the invocation of 'accessor' if 'id' identifies
-        // an attribute of this class, and -1 otherwise.
 
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute
+    /// of this object indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `accessor` with the corresponding attribute
+    /// information structure.  Return the value returned from the
+    /// invocation of `accessor` if `name` identifies an attribute of this
+    /// class, and -1 otherwise.
     template <typename t_ACCESSOR>
     int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
-        // Invoke the specified 'accessor' on the (non-modifiable) attribute
-        // of this object indicated by the specified 'name' of the specified
-        // 'nameLength', supplying 'accessor' with the corresponding attribute
-        // information structure.  Return the value returned from the
-        // invocation of 'accessor' if 'name' identifies an attribute of this
-        // class, and -1 otherwise.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "Attribute1" attribute of this object.
     const bsl::vector<bsl::string>& attribute1() const;
-        // Return a reference offering non-modifiable access to the
-        // "Attribute1" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "Attribute2" attribute of this object.
     const bsl::vector<int>& attribute2() const;
-        // Return a reference offering non-modifiable access to the
-        // "Attribute2" attribute of this object.
 
+    /// Return a reference offering non-modifiable access to the
+    /// "Attribute3" attribute of this object.
     const bsl::vector<double>& attribute3() const;
-        // Return a reference offering non-modifiable access to the
-        // "Attribute3" attribute of this object.
 
     // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
     friend bool operator==(const MySequenceWithThreeArrays& lhs,
                            const MySequenceWithThreeArrays& rhs)
-        // Return 'true' if the specified 'lhs' and 'rhs' attribute objects
-        // have the same value, and 'false' otherwise.  Two attribute objects
-        // have the same value if each respective attribute has the same value.
     {
         return lhs.attribute1() == rhs.attribute1() &&
                lhs.attribute2() == rhs.attribute2() &&
                lhs.attribute3() == rhs.attribute3();
     }
 
+    /// Returns `!(lhs == rhs)`
     friend bool operator!=(const MySequenceWithThreeArrays& lhs,
                            const MySequenceWithThreeArrays& rhs)
-        // Returns '!(lhs == rhs)'
     {
         return !(lhs == rhs);
     }
 
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
     friend bsl::ostream& operator<<(bsl::ostream&                    stream,
                                     const MySequenceWithThreeArrays& rhs)
-        // Format the specified 'rhs' to the specified output 'stream' and
-        // return a reference to the modifiable 'stream'.
     {
         return rhs.print(stream, 0, -1);
     }
@@ -264,6 +269,8 @@ class MySequenceWithThreeArrays {
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithThreeArrays)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithThreeArrays> : bsl::true_type {};
 
 // ============================================================================
 //                          INLINE DEFINITIONS
@@ -441,7 +448,7 @@ const bsl::vector<double>& MySequenceWithThreeArrays::attribute3() const
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY BLP_BAS_CODEGEN_2025.05.15.1
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_mysequencewiththreearrays.xsd --mode msg --includedir . --msgComponent mysequencewiththreearrays --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:

@@ -17,8 +17,7 @@ BSLS_IDENT("$Id: $")
 // utility functions providing non-primitive operations on
 // `s_baltst::BasicSchema` objects.
 //
-///Checking Structural Equivalence Up To Annotation
-///------------------------------------------------
+// # Checking Structural Equivalence Up To Annotation
 // The most important operation provided by `s_baltst::BasicSchemaUtil` is
 // `areEqualUpToAnnotation`, which compares 2 basic schema objects and returns
 // `true` if they are structurally equal except for the presence or absence of

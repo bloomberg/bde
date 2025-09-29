@@ -78,34 +78,8 @@ class MySequenceWithCustomizedHexBinary {
     /// the default value.
     MySequenceWithCustomizedHexBinary();
 
-    /// Create an object of type `MySequenceWithCustomizedHexBinary` having
-    /// the value of the specified `original` object.
-    MySequenceWithCustomizedHexBinary(const MySequenceWithCustomizedHexBinary& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `MySequenceWithCustomizedHexBinary` having
-    /// the value of the specified `original` object.  After performing this
-    /// action, the `original` object will be left in a valid, but
-    /// unspecified state.
-    MySequenceWithCustomizedHexBinary(MySequenceWithCustomizedHexBinary&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~MySequenceWithCustomizedHexBinary();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    MySequenceWithCustomizedHexBinary& operator=(const MySequenceWithCustomizedHexBinary& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    MySequenceWithCustomizedHexBinary& operator=(MySequenceWithCustomizedHexBinary&& rhs);
-#endif
 
     /// Reset this object to the default value (i.e., its value upon
     /// default construction).
@@ -158,7 +132,7 @@ class MySequenceWithCustomizedHexBinary {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -192,36 +166,45 @@ class MySequenceWithCustomizedHexBinary {
     /// Return a reference offering non-modifiable access to the "Element"
     /// attribute of this object.
     const s_baltst::CustomizedHexBinary& element() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const MySequenceWithCustomizedHexBinary& lhs,
+                           const MySequenceWithCustomizedHexBinary& rhs)
+    {
+        return lhs.element() == rhs.element();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const MySequenceWithCustomizedHexBinary& lhs,
+                           const MySequenceWithCustomizedHexBinary& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(
+                               bsl::ostream&                            stream,
+                               const MySequenceWithCustomizedHexBinary& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const MySequenceWithCustomizedHexBinary& lhs, const MySequenceWithCustomizedHexBinary& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const MySequenceWithCustomizedHexBinary& lhs, const MySequenceWithCustomizedHexBinary& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const MySequenceWithCustomizedHexBinary& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::MySequenceWithCustomizedHexBinary)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::MySequenceWithCustomizedHexBinary> : bsl::true_type {};
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -337,38 +320,14 @@ const s_baltst::CustomizedHexBinary& MySequenceWithCustomizedHexBinary::element(
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::MySequenceWithCustomizedHexBinary& lhs,
-        const s_baltst::MySequenceWithCustomizedHexBinary& rhs)
-{
-    return  lhs.element() == rhs.element();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::MySequenceWithCustomizedHexBinary& lhs,
-        const s_baltst::MySequenceWithCustomizedHexBinary& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::MySequenceWithCustomizedHexBinary& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_mysequencewithcustomizedhexbinary.xsd --mode msg --includedir . --msgComponent mysequencewithcustomizedhexbinary --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2023 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

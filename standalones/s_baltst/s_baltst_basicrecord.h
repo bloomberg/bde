@@ -49,6 +49,9 @@ class BasicRecord {
     int               d_i1;
     int               d_i2;
 
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const BasicRecord& rhs) const;
+
   public:
     // TYPES
     enum {
@@ -146,8 +149,8 @@ class BasicRecord {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -155,8 +158,8 @@ class BasicRecord {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -164,8 +167,8 @@ class BasicRecord {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -195,7 +198,7 @@ class BasicRecord {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -204,16 +207,16 @@ class BasicRecord {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -221,8 +224,8 @@ class BasicRecord {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
@@ -239,36 +242,42 @@ class BasicRecord {
     /// Return a reference offering non-modifiable access to the "S"
     /// attribute of this object.
     const bsl::string& s() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const BasicRecord& lhs, const BasicRecord& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const BasicRecord& lhs, const BasicRecord& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&      stream,
+                                    const BasicRecord& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const BasicRecord& lhs, const BasicRecord& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const BasicRecord& lhs, const BasicRecord& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const BasicRecord& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::BasicRecord)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::BasicRecord> : bsl::true_type {};
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -277,10 +286,20 @@ namespace s_baltst {
                              // class BasicRecord
                              // -----------------
 
+// PRIVATE ACCESSORS
+inline
+bool BasicRecord::isEqualTo(const BasicRecord& rhs) const
+{
+    return this->i1() == rhs.i1() &&
+           this->i2() == rhs.i2() &&
+           this->dt() == rhs.dt() &&
+           this->s() == rhs.s();
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int BasicRecord::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int BasicRecord::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -307,8 +326,8 @@ int BasicRecord::manipulateAttributes(MANIPULATOR& manipulator)
     return 0;
 }
 
-template <class MANIPULATOR>
-int BasicRecord::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int BasicRecord::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -330,11 +349,11 @@ int BasicRecord::manipulateAttribute(MANIPULATOR& manipulator, int id)
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int BasicRecord::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -372,8 +391,8 @@ bsl::string& BasicRecord::s()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int BasicRecord::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int BasicRecord::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -400,8 +419,8 @@ int BasicRecord::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int BasicRecord::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int BasicRecord::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -423,11 +442,11 @@ int BasicRecord::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int BasicRecord::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -468,41 +487,14 @@ const bsl::string& BasicRecord::s() const
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::BasicRecord& lhs,
-        const s_baltst::BasicRecord& rhs)
-{
-    return  lhs.i1() == rhs.i1()
-         && lhs.i2() == rhs.i2()
-         && lhs.dt() == rhs.dt()
-         && lhs.s() == rhs.s();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::BasicRecord& lhs,
-        const s_baltst::BasicRecord& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::BasicRecord& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_basicrecord.xsd --mode msg --includedir . --msgComponent basicrecord --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

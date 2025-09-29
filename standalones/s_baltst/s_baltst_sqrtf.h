@@ -76,33 +76,8 @@ class SqrtF {
     /// Create an object of type `SqrtF` having the default value.
     SqrtF();
 
-    /// Create an object of type `SqrtF` having the value of the specified
-    /// `original` object.
-    SqrtF(const SqrtF& original);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Create an object of type `SqrtF` having the value of the specified
-    /// `original` object.  After performing this action, the `original`
-    /// object will be left in a valid, but unspecified state.
-    SqrtF(SqrtF&& original) = default;
-#endif
-
-    /// Destroy this object.
-    ~SqrtF();
 
     // MANIPULATORS
-
-    /// Assign to this object the value of the specified `rhs` object.
-    SqrtF& operator=(const SqrtF& rhs);
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-    /// Assign to this object the value of the specified `rhs` object.
-    /// After performing this action, the `rhs` object will be left in a
-    /// valid, but unspecified state.
-    SqrtF& operator=(SqrtF&& rhs);
-#endif
 
     /// Reset this object to the default value (i.e., its value upon
     /// default construction).
@@ -114,8 +89,8 @@ class SqrtF {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -123,8 +98,8 @@ class SqrtF {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -132,8 +107,8 @@ class SqrtF {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -155,7 +130,7 @@ class SqrtF {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -164,16 +139,16 @@ class SqrtF {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -181,43 +156,48 @@ class SqrtF {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
     /// Return the value of the "Value" attribute of this object.
     float value() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const SqrtF& lhs, const SqrtF& rhs)
+    {
+        return lhs.value() == rhs.value();
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const SqrtF& lhs, const SqrtF& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream& stream, const SqrtF& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const SqrtF& lhs, const SqrtF& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const SqrtF& lhs, const SqrtF& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const SqrtF& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(s_baltst::SqrtF)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::SqrtF> : bsl::true_type {};
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -228,8 +208,8 @@ namespace s_baltst {
 
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int SqrtF::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int SqrtF::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -241,8 +221,8 @@ int SqrtF::manipulateAttributes(MANIPULATOR& manipulator)
     return 0;
 }
 
-template <class MANIPULATOR>
-int SqrtF::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int SqrtF::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -255,11 +235,11 @@ int SqrtF::manipulateAttribute(MANIPULATOR& manipulator, int id)
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int SqrtF::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -279,8 +259,8 @@ float& SqrtF::value()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int SqrtF::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int SqrtF::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -292,8 +272,8 @@ int SqrtF::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int SqrtF::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int SqrtF::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -306,11 +286,11 @@ int SqrtF::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int SqrtF::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -333,38 +313,14 @@ float SqrtF::value() const
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::SqrtF& lhs,
-        const s_baltst::SqrtF& rhs)
-{
-    return  lhs.value() == rhs.value();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::SqrtF& lhs,
-        const s_baltst::SqrtF& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::SqrtF& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_sqrtf.xsd --mode msg --includedir . --msgComponent sqrtf --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

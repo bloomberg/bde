@@ -110,12 +110,7 @@ int Encoder_Formatter::openElement(const bsl::string& name)
         return rc;                                                    // RETURN
     }
 
-    if (d_usePrettyStyle) {
-        d_outputStream << " : ";
-    }
-    else {
-        d_outputStream << ':';
-    }
+    d_outputStream << (d_usePrettyStyle ? ": " : ":");
 
     return 0;
 }

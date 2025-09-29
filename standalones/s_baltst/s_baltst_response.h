@@ -51,6 +51,9 @@ class Response {
     int                                                    d_selectionId;
     bslma::Allocator                                      *d_allocator_p;
 
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const Response& rhs) const;
+
   public:
     // TYPES
 
@@ -175,8 +178,8 @@ class Response {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if this object has a defined selection,
     /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
 
     /// Return a reference to the modifiable "ResponseData" selection of
     /// this object if "ResponseData" is the current selection.  The
@@ -215,8 +218,8 @@ class Response {
     /// supplying `accessor` with the corresponding selection information
     /// structure.  Return the value returned from the invocation of
     /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
 
     /// Return a reference to the non-modifiable "ResponseData" selection of
     /// this object if "ResponseData" is the current selection.  The
@@ -244,26 +247,33 @@ class Response {
 
     /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and `false` otherwise.  Two `Response` objects have the same
+    /// value if either the selections in both objects have the same ids and
+    /// the same values, or both selections are undefined.
+    friend bool operator==(const Response& lhs, const Response& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same values, as determined by `operator==`, and `false`
+    /// otherwise.
+    friend bool operator!=(const Response& lhs, const Response& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream& stream, const Response& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `Response` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const Response& lhs, const Response& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const Response& lhs, const Response& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const Response& rhs);
 
 }  // close package namespace
 
@@ -272,7 +282,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Response& rhs);
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::Response)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -282,6 +292,27 @@ namespace s_baltst {
                                // --------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+bool Response::isEqualTo(const Response& rhs) const
+{
+    typedef Response Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_RESPONSE_DATA:
+            return this->responseData() == rhs.responseData();
+          case Class::SELECTION_ID_FEATURE_RESPONSE:
+            return this->featureResponse() == rhs.featureResponse();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 Response::Response(bslma::Allocator *basicAllocator)
@@ -297,8 +328,8 @@ Response::~Response()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int Response::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int Response::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case Response::SELECTION_ID_RESPONSE_DATA:
@@ -334,8 +365,8 @@ int Response::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int Response::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int Response::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_RESPONSE_DATA:
@@ -385,52 +416,14 @@ bool Response::isUndefinedValue() const
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::Response& lhs,
-        const s_baltst::Response& rhs)
-{
-    typedef s_baltst::Response Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_RESPONSE_DATA:
-            return lhs.responseData() == rhs.responseData();
-          case Class::SELECTION_ID_FEATURE_RESPONSE:
-            return lhs.featureResponse() == rhs.featureResponse();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::Response& lhs,
-        const s_baltst::Response& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::Response& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_response.xsd --mode msg --includedir . --msgComponent response --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

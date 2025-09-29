@@ -4767,25 +4767,25 @@ int main(int argc, char *argv[])
 #define NL "\n"
             const char *const INPUT_OK =
             "{"                                                              NL
-            "    \"name\" : \"I am an array of 'BasicRecord's.\","           NL
-            "    \"array\" : ["                                              NL
+            "    \"name\": \"I am an array of 'BasicRecord's.\","           NL
+            "    \"array\": ["                                              NL
             "        {"                                                      NL
-            "            \"i1\" : 11,"                                       NL
-            "            \"i2\" : 12,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value1.\""             NL
+            "            \"i1\": 11,"                                       NL
+            "            \"i2\": 12,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value1.\""             NL
             "        },"                                                     NL
             "        {"                                                      NL
-            "            \"i1\" : 21,"                                       NL
-            "            \"i2\" : 22,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value2.\""             NL
+            "            \"i1\": 21,"                                       NL
+            "            \"i2\": 22,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value2.\""             NL
             "        },"                                                     NL
             "        {"                                                      NL
-            "            \"i1\" : 31,"                                       NL
-            "            \"i2\" : 32,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value3.\""             NL
+            "            \"i1\": 31,"                                       NL
+            "            \"i2\": 32,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value3.\""             NL
             "        }"                                                      NL
             "    ]"                                                          NL
             "}"                                                              NL
@@ -4800,22 +4800,22 @@ int main(int argc, char *argv[])
 
             const char *const INPUT_NG0 =
             "{"                                                              NL
-            "    \"name\" : \"I am an array of 'BasicRecord's.\","           NL
-            "    \"array\" : ["                                              NL
+            "    \"name\": \"I am an array of 'BasicRecord's.\","           NL
+            "    \"array\": ["                                              NL
 
             "        null,"                                                  NL
 
             "        {"                                                      NL
-            "            \"i1\" : 21,"                                       NL
-            "            \"i2\" : 22,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value2.\""             NL
+            "            \"i1\": 21,"                                       NL
+            "            \"i2\": 22,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value2.\""             NL
             "        },"                                                     NL
             "        {"                                                      NL
-            "            \"i1\" : 31,"                                       NL
-            "            \"i2\" : 32,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value3.\""             NL
+            "            \"i1\": 31,"                                       NL
+            "            \"i2\": 32,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value3.\""             NL
             "        }"                                                      NL
             "    ]"                                                          NL
             "}"                                                              NL
@@ -4829,22 +4829,22 @@ int main(int argc, char *argv[])
 ;
             const char *const INPUT_NG1 =
             "{"                                                              NL
-            "    \"name\" : \"I am an array of 'BasicRecord's.\","           NL
-            "    \"array\" : ["                                              NL
+            "    \"name\": \"I am an array of 'BasicRecord's.\","           NL
+            "    \"array\": ["                                              NL
             "        {"                                                      NL
-            "            \"i1\" : 11,"                                       NL
-            "            \"i2\" : 12,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value1.\""             NL
+            "            \"i1\": 11,"                                       NL
+            "            \"i2\": 12,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value1.\""             NL
             "        },"                                                     NL
 
             "        null,"                                                  NL
 
             "        {"                                                      NL
-            "            \"i1\" : 31,"                                       NL
-            "            \"i2\" : 32,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value3.\""             NL
+            "            \"i1\": 31,"                                       NL
+            "            \"i2\": 32,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value3.\""             NL
             "        }"                                                      NL
             "    ]"                                                          NL
             "}"                                                              NL
@@ -4858,19 +4858,19 @@ int main(int argc, char *argv[])
 
             const char *const INPUT_NG2 =
             "{"                                                              NL
-            "    \"name\" : \"I am an array of 'BasicRecord's.\","           NL
-            "    \"array\" : ["                                              NL
+            "    \"name\": \"I am an array of 'BasicRecord's.\","           NL
+            "    \"array\": ["                                              NL
             "        {"                                                      NL
-            "            \"i1\" : 11,"                                       NL
-            "            \"i2\" : 12,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value1.\""             NL
+            "            \"i1\": 11,"                                       NL
+            "            \"i2\": 12,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value1.\""             NL
             "        },"                                                     NL
             "        {"                                                      NL
-            "            \"i1\" : 21,"                                       NL
-            "            \"i2\" : 22,"                                       NL
-            "            \"dt\" : \"0001-01-01T24:00:00.000+00:00\","        NL
-            "            \"s\" : \"I am 'BasicRecord' value2.\""             NL
+            "            \"i1\": 21,"                                       NL
+            "            \"i2\": 22,"                                       NL
+            "            \"dt\": \"0001-01-01T24:00:00.000+00:00\","        NL
+            "            \"s\": \"I am 'BasicRecord' value2.\""             NL
             "        },"                                                     NL
 
             "        null"                                                   NL
@@ -6266,13 +6266,13 @@ int main(int argc, char *argv[])
 
         const char *pattern =
                 "{\n"
-                "       \"name\" : \"Bob \xca\xbf\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street \xf1\x80\x80\x80\",\n"
-                "           \"city\" : \"Some City \xe0\xa0\xbf\",\n"
-                "           \"state\" : \"Some State \xcf\x80\"\n"
+                "       \"name\": \"Bob \xca\xbf\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street \xf1\x80\x80\x80\",\n"
+                "           \"city\": \"Some City \xe0\xa0\xbf\",\n"
+                "           \"state\": \"Some State \xcf\x80\"\n"
                 "       },\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}";
 
         typedef bdlde::Utf8Util Util;
@@ -6465,7 +6465,7 @@ int main(int argc, char *argv[])
         // `SOFStr` is a string that will fail to decode into an object of
         // `SOType`.
         static const char SOFStr[] =
-                "\"Address\" : {}";
+                "\"Address\": {}";
 
         // `FOFStr` is a string that will fail to decode into an object of
         // `FOType`.
@@ -6677,13 +6677,13 @@ int main(int argc, char *argv[])
         } DATA[] = {
             // line  text   output
             // ----  ----   ----
-            {   L_,   S1,   "{ \"color\" : \"RED\\/GREEN\" }"    },
+            {   L_,   S1,   "{ \"color\": \"RED\\/GREEN\" }"    },
                             // validate decoding unescaped solidus
-            {   L_,   S1,   "{ \"color\" : \"RED/GREEN\" }"      },
-            {   L_,   S2,   "{ \"color\" : \"GREY\\\\BLUE\" }"   },
-            {   L_,   S3,   "{ \"color\" : \"WHITE\'BLACK\" }"   },
-            {   L_,   S4,   "{ \"color\" : \"BLUE\\\"YELLOW\" }" },
-            {   L_,   S5,   "{ \"color\" : \"RED\b\r\t\f\n\" }"  }
+            {   L_,   S1,   "{ \"color\": \"RED/GREEN\" }"      },
+            {   L_,   S2,   "{ \"color\": \"GREY\\\\BLUE\" }"   },
+            {   L_,   S3,   "{ \"color\": \"WHITE\'BLACK\" }"   },
+            {   L_,   S4,   "{ \"color\": \"BLUE\\\"YELLOW\" }" },
+            {   L_,   S5,   "{ \"color\": \"RED\b\r\t\f\n\" }"  }
         };
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
@@ -6714,7 +6714,7 @@ int main(int argc, char *argv[])
             const bool UTF8 = tu;
 
             const bsl::string& ALL_OUTPUT   =
-                "{ \"colors\" : [\n"
+                "{ \"colors\": [\n"
                                    "\"RED\\/GREEN\",    \n"
                                    // validate decoding unescaped solidus
                                    "\"RED/GREEN\",      \n"
@@ -6834,7 +6834,7 @@ int main(int argc, char *argv[])
             test::HexBinarySequence value;
 
             bsl::ostringstream os;
-            os << "{ \"element1\" : " << INPUT << '}';
+            os << "{ \"element1\": " << INPUT << '}';
 
             bsl::istringstream is(os.str());
 
@@ -7034,7 +7034,7 @@ int main(int argc, char *argv[])
         {    L_,  "{ \" [ \"           }"              },
         {    L_,  "{ \" ] \"           }"              },
         {    L_,  "{ \" , \"           }"              },
-        {    L_,  "{ \" : \"           }"              },
+        {    L_,  "{ \": \"           }"              },
         {    L_,  "{" "\"id_num\"      }"              },
         {    L_,  "{" "\"id\"          }"              },
         {    L_,  "{" "  12345         }"              },
@@ -8052,7 +8052,7 @@ int main(int argc, char *argv[])
                     L_,
                     "["
                       "{"
-                        "\"name\" : \"Bob\""
+                        "\"name\": \"Bob\""
                       "},"
                     "]"
                 },
@@ -8060,9 +8060,9 @@ int main(int argc, char *argv[])
                     L_,
                     "["
                       "{"
-                        "\"name\" : \"Bob\""
+                        "\"name\": \"Bob\""
                       "},"
-                      "\"name\" : \"John\""
+                      "\"name\": \"John\""
                     "]"
                 },
                 {
@@ -8177,128 +8177,128 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"id\"  : 21\n"                 // <--- unknown element
+                "       \"age\": 21,\n"
+                "       \"id\": 21\n"                 // <--- unknown element
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"id\"  : 21,\n"                // <--- unknown element
-                "       \"age\" : 21\n"
+                "       \"id\": 21,\n"                // <--- unknown element
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"nickname\" : \"Robert\"\n"    // <--- unknown element
+                "       \"age\": 21,\n"
+                "       \"nickname\": \"Robert\"\n"    // <--- unknown element
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"nickname\" : \"Robert\",\n"   // <--- unknown element
-                "       \"age\" : 21\n"
+                "       \"nickname\": \"Robert\",\n"   // <--- unknown element
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"id\"  : 21,\n"                // <--- unknown element
-                "       \"nickname\" : \"Robert\"\n"    // <--- unknown element
+                "       \"age\": 21,\n"
+                "       \"id\": 21,\n"                 // <--- unknown element
+                "       \"nickname\": \"Robert\"\n"    // <--- unknown element
                 "}",
                 2
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"id\"  : 21,\n"                // <--- unknown element
-                "       \"nickname\" : \"Robert\",\n"   // <--- unknown element
-                "       \"age\" : 21\n"
+                "       \"id\": 21,\n"                 // <--- unknown element
+                "       \"nickname\": \"Robert\",\n"   // <--- unknown element
+                "       \"age\": 21\n"
                 "}",
                 2
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"ids\" : [ 1, 2 ]\n"           // <--- unknown element
+                "       \"age\": 21,\n"
+                "       \"ids\": [ 1, 2 ]\n"           // <--- unknown element
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"ids\" : [ 1, 2 ],\n"          // <--- unknown element
-                "       \"age\" : 21\n"
+                "       \"ids\": [ 1, 2 ],\n"          // <--- unknown element
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"aliases\" : [ \"Foo\", \"Bar\" ]\n"   // <--- unknown
+                "       \"age\": 21,\n"
+                "       \"aliases\": [ \"Foo\", \"Bar\" ]\n"   // <--- unknown
                                                                 //      element
                 "}",
                 1
@@ -8306,32 +8306,32 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"aliases\" : [ \"Foo\", \"Bar\" ],\n"  // <--- unknown
+                "       \"aliases\": [ \"Foo\", \"Bar\" ],\n"  // <--- unknown
                                                                 //      element
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"officeAddress\" : {\n"        // <--- unknown element
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"age\": 21,\n"
+                "       \"officeAddress\": {\n"        // <--- unknown element
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       }\n"
                 "}",
                 1
@@ -8339,36 +8339,36 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"officeAddress\" : {\n"        // <--- unknown element
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"officeAddress\": {\n"        // <--- unknown element
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"officeAddress\" : {\n"        // <--- unknown element
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\",\n"
-                "           \"ids\" : [ 1, 2, 3]\n"
+                "       \"age\": 21,\n"
+                "       \"officeAddress\": {\n"        // <--- unknown element
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\",\n"
+                "           \"ids\": [ 1, 2, 3]\n"
                 "       }\n"
                 "}",
                 1
@@ -8376,61 +8376,61 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"officeAddress\" : {\n"        // <--- unknown element
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\",\n"
-                "           \"ids\" : [ 1, 2, 3]\n"
+                "       \"officeAddress\": {\n"        // <--- unknown element
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\",\n"
+                "           \"ids\": [ 1, 2, 3]\n"
                 "       },\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"officeAddress\" : {\n"        // <--- unknown element
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\",\n"
-                "           \"misc\" : {\n"
-                "               \"country\" : \"USA\",\n"
-                "               \"timezone\" : \"EST\"\n"
+                "       \"officeAddress\": {\n"        // <--- unknown element
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\",\n"
+                "           \"misc\": {\n"
+                "               \"country\": \"USA\",\n"
+                "               \"timezone\": \"EST\"\n"
                 "           }\n"
                 "       },\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"officeAddress\" : {\n"        // <--- unknown element
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\",\n"
-                "           \"misc\" : {\n"
-                "               \"country\" : \"USA\",\n"
-                "               \"timezone\" : \"EST\"\n"
+                "       \"age\": 21,\n"
+                "       \"officeAddress\": {\n"        // <--- unknown element
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\",\n"
+                "           \"misc\": {\n"
+                "               \"country\": \"USA\",\n"
+                "               \"timezone\": \"EST\"\n"
                 "           }\n"
                 "       }\n"
                 "}",
@@ -8439,50 +8439,50 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"addrs\" : [\n"                // <--- unknown element
+                "       \"addrs\": [\n"                // <--- unknown element
                 "           {\n"
-                "               \"officeAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"officeAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           }\n"
                 "       ],\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"addrs\" : [\n"                // <--- unknown element
+                "       \"age\": 21,\n"
+                "       \"addrs\": [\n"                // <--- unknown element
                 "           {\n"
-                "               \"officeAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"officeAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           }\n"
@@ -8493,62 +8493,62 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"addrs\" : [\n"                // <--- unknown element
+                "       \"addrs\": [\n"                // <--- unknown element
                 "           {\n"
-                "               \"officeAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"officeAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           }\n"
                 "       ],\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"addrs\" : [\n"                // <--- unknown element
+                "       \"age\": 21,\n"
+                "       \"addrs\": [\n"                // <--- unknown element
                 "           {\n"
-                "               \"officeAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"officeAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           },\n"
                 "           {\n"
-                "               \"shippingAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"shippingAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           }\n"
@@ -8559,82 +8559,82 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"addrs\" : [\n"                // <--- unknown element
+                "       \"addrs\": [\n"                // <--- unknown element
                 "           {\n"
-                "               \"officeAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"officeAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           },\n"
                 "           {\n"
-                "               \"shippingAddress\" : {\n"
-                "                   \"street\" : \"Some Street\",\n"
-                "                   \"city\" : \"Some City\",\n"
-                "                   \"state\" : \"Some State\",\n"
-                "                   \"times\" : [ 1, 2, 3 ],\n"
-                "                   \"misc\" : {\n"
-                "                       \"country\" : \"USA\",\n"
-                "                       \"timezone\" : \"EST\"\n"
+                "               \"shippingAddress\": {\n"
+                "                   \"street\": \"Some Street\",\n"
+                "                   \"city\": \"Some City\",\n"
+                "                   \"state\": \"Some State\",\n"
+                "                   \"times\": [ 1, 2, 3 ],\n"
+                "                   \"misc\": {\n"
+                "                       \"country\": \"USA\",\n"
+                "                       \"timezone\": \"EST\"\n"
                 "                   }\n"
                 "               }\n"
                 "           }\n"
                 "       ],\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
-                "       \"misc\" : {\n"                 // <--- unknown element
-                "           \"name\" : \"Bob\",\n"
-                "           \"homeAddress\" : {\n"
-                "               \"street\" : \"Some Street\",\n"
-                "               \"city\" : \"Some City\",\n"
-                "               \"state\" : \"Some State\"\n"
+                "       \"age\": 21,\n"
+                "       \"misc\": {\n"                 // <--- unknown element
+                "           \"name\": \"Bob\",\n"
+                "           \"homeAddress\": {\n"
+                "               \"street\": \"Some Street\",\n"
+                "               \"city\": \"Some City\",\n"
+                "               \"state\": \"Some State\"\n"
                 "           },\n"
-                "           \"age\" : 21,\n"
-                "           \"addrs\" : [\n"
+                "           \"age\": 21,\n"
+                "           \"addrs\": [\n"
                 "               {\n"
-                "                   \"officeAddress\" : {\n"
-                "                       \"street\" : \"Some Street\",\n"
-                "                       \"city\" : \"Some City\",\n"
-                "                       \"state\" : \"Some State\",\n"
-                "                       \"times\" : [ 1, 2, 3 ],\n"
-                "                       \"misc\" : {\n"
-                "                           \"country\" : \"USA\",\n"
-                "                           \"timezone\" : \"EST\"\n"
+                "                   \"officeAddress\": {\n"
+                "                       \"street\": \"Some Street\",\n"
+                "                       \"city\": \"Some City\",\n"
+                "                       \"state\": \"Some State\",\n"
+                "                       \"times\": [ 1, 2, 3 ],\n"
+                "                       \"misc\": {\n"
+                "                           \"country\": \"USA\",\n"
+                "                           \"timezone\": \"EST\"\n"
                 "                       }\n"
                 "                   }\n"
                 "               },\n"
                 "               {\n"
-                "                   \"shippingAddress\" : {\n"
-                "                       \"street\" : \"Some Street\",\n"
-                "                       \"city\" : \"Some City\",\n"
-                "                       \"state\" : \"Some State\",\n"
-                "                       \"times\" : [ 1, 2, 3 ],\n"
-                "                       \"misc\" : {\n"
-                "                           \"country\" : \"USA\",\n"
-                "                           \"timezone\" : \"EST\"\n"
+                "                   \"shippingAddress\": {\n"
+                "                       \"street\": \"Some Street\",\n"
+                "                       \"city\": \"Some City\",\n"
+                "                       \"state\": \"Some State\",\n"
+                "                       \"times\": [ 1, 2, 3 ],\n"
+                "                       \"misc\": {\n"
+                "                           \"country\": \"USA\",\n"
+                "                           \"timezone\": \"EST\"\n"
                 "                       }\n"
                 "                   }\n"
                 "               }\n"
@@ -8646,48 +8646,48 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"misc\" : {\n"                 // <--- unknown element
-                "           \"name\" : \"Bob\",\n"
-                "           \"homeAddress\" : {\n"
-                "               \"street\" : \"Some Street\",\n"
-                "               \"city\" : \"Some City\",\n"
-                "               \"state\" : \"Some State\"\n"
+                "       \"misc\": {\n"                 // <--- unknown element
+                "           \"name\": \"Bob\",\n"
+                "           \"homeAddress\": {\n"
+                "               \"street\": \"Some Street\",\n"
+                "               \"city\": \"Some City\",\n"
+                "               \"state\": \"Some State\"\n"
                 "           },\n"
-                "           \"age\" : 21,\n"
-                "           \"addrs\" : [\n"
+                "           \"age\": 21,\n"
+                "           \"addrs\": [\n"
                 "               {\n"
-                "                   \"officeAddress\" : {\n"
-                "                       \"street\" : \"Some Street\",\n"
-                "                       \"city\" : \"Some City\",\n"
-                "                       \"state\" : \"Some State\",\n"
-                "                       \"times\" : [ 1, 2, 3 ],\n"
-                "                       \"misc\" : {\n"
-                "                           \"country\" : \"USA\",\n"
-                "                           \"timezone\" : \"EST\"\n"
+                "                   \"officeAddress\": {\n"
+                "                       \"street\": \"Some Street\",\n"
+                "                       \"city\": \"Some City\",\n"
+                "                       \"state\": \"Some State\",\n"
+                "                       \"times\": [ 1, 2, 3 ],\n"
+                "                       \"misc\": {\n"
+                "                           \"country\": \"USA\",\n"
+                "                           \"timezone\": \"EST\"\n"
                 "                       }\n"
                 "                   }\n"
                 "               },\n"
                 "               {\n"
-                "                   \"shippingAddress\" : {\n"
-                "                       \"street\" : \"Some Street\",\n"
-                "                       \"city\" : \"Some City\",\n"
-                "                       \"state\" : \"Some State\",\n"
-                "                       \"times\" : [ 1, 2, 3 ],\n"
-                "                       \"misc\" : {\n"
-                "                           \"country\" : \"USA\",\n"
-                "                           \"timezone\" : \"EST\"\n"
+                "                   \"shippingAddress\": {\n"
+                "                       \"street\": \"Some Street\",\n"
+                "                       \"city\": \"Some City\",\n"
+                "                       \"state\": \"Some State\",\n"
+                "                       \"times\": [ 1, 2, 3 ],\n"
+                "                       \"misc\": {\n"
+                "                           \"country\": \"USA\",\n"
+                "                           \"timezone\": \"EST\"\n"
                 "                       }\n"
                 "                   }\n"
                 "               }\n"
                 "           ]\n"
                 "       },\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
@@ -8697,11 +8697,11 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
                 "       \"build-depends\": [\n"         // <--- unknown element
                 "           \"cmake-breg-generate-code\",\n"
@@ -8717,7 +8717,7 @@ int main(int argc, char *argv[])
                 "           },\n"
                 "           \"liba-iaabass-dev\"\n"
                 "       ],\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}",
                 1
             },
@@ -8791,34 +8791,34 @@ int main(int argc, char *argv[])
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"homeAddress\" : {\n"
-                "           \"street\" : \"Some Street\",\n"
-                "           \"city\" : \"Some City\",\n"
-                "           \"state\" : \"Some State\"\n"
+                "       \"name\": \"Bob\",\n"
+                "       \"homeAddress\": {\n"
+                "           \"street\": \"Some Street\",\n"
+                "           \"city\": \"Some City\",\n"
+                "           \"state\": \"Some State\"\n"
                 "       },\n"
-                "       \"age\" : 21,\n"
+                "       \"age\": 21,\n"
                 "       \"empty value\"  :    \n"       // <--- unknown element
                 "}"
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
-                "       \"object\" : {\n"               // <--- unknown element
-                "           \"empty property value\" : \n"
+                "       \"name\": \"Bob\",\n"
+                "       \"object\": {\n"               // <--- unknown element
+                "           \"empty property value\": \n"
                 "       },\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}"
             },
             {
                 L_,
                 "{\n"
-                "       \"name\" : \"Bob\",\n"
+                "       \"name\": \"Bob\",\n"
                 "       \"build-depends\": [\n"         // <--- unknown element
-                "           \"key-value pair\" : \" in array\"\n"
+                "           \"key-value pair\": \" in array\"\n"
                 "       ],\n"
-                "       \"age\" : 21\n"
+                "       \"age\": 21\n"
                 "}"
             },
         };
@@ -9002,13 +9002,13 @@ int main(int argc, char *argv[])
 
         char jsonText[] =
             "{\n"
-            "       \"name\" : \"Bob\",\n"
-            "       \"homeAddress\" : {\n"
-            "           \"street\" : \"Some Street\",\n"
-            "           \"city\" : \"Some City\",\n"
-            "           \"state\" : \"Some State\"\n"
+            "       \"name\": \"Bob\",\n"
+            "       \"homeAddress\": {\n"
+            "           \"street\": \"Some Street\",\n"
+            "           \"city\": \"Some City\",\n"
+            "           \"state\": \"Some State\"\n"
             "       },\n"
-            "       \"age\" : 21\n"
+            "       \"age\": 21\n"
             "}";
 
         for (int tu = 0; tu < 2; ++tu) {

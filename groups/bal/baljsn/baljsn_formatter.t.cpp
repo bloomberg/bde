@@ -283,16 +283,16 @@ int main(int argc, char *argv[])
 // {
 //   "Stocks" : [
 //     {
-//       "Name" : "International Business Machines Corp",
-//       "Ticker" : "IBM US Equity",
-//       "Last Price" : 149.3,
-//       "Dividend Yield" : 3.95
+//       "Name": "International Business Machines Corp",
+//       "Ticker": "IBM US Equity",
+//       "Last Price": 149.3,
+//       "Dividend Yield": 3.95
 //     },
 //     {
-//       "Name" : "Apple Inc",
-//       "Ticker" : "AAPL US Equity",
-//       "Last Price" : 205.8,
-//       "Dividend Yield" : 1.4
+//       "Name": "Apple Inc",
+//       "Ticker": "AAPL US Equity",
+//       "Last Price": 205.8,
+//       "Dividend Yield": 1.4
 //     }
 //   ]
 // }
@@ -301,18 +301,18 @@ int main(int argc, char *argv[])
 // ```
     const bsl::string EXPECTED =
         "{\n"
-        "  \"Stocks\" : [\n"
+        "  \"Stocks\": [\n"
         "    {\n"
-        "      \"Name\" : \"International Business Machines Corp\",\n"
-        "      \"Ticker\" : \"IBM US Equity\",\n"
-        "      \"Last Price\" : 149.3,\n"
-        "      \"Dividend Yield\" : 3.95\n"
+        "      \"Name\": \"International Business Machines Corp\",\n"
+        "      \"Ticker\": \"IBM US Equity\",\n"
+        "      \"Last Price\": 149.3,\n"
+        "      \"Dividend Yield\": 3.95\n"
         "    },\n"
         "    {\n"
-        "      \"Name\" : \"Apple Inc\",\n"
-        "      \"Ticker\" : \"AAPL US Equity\",\n"
-        "      \"Last Price\" : 205.8,\n"
-        "      \"Dividend Yield\" : 1.4\n"
+        "      \"Name\": \"Apple Inc\",\n"
+        "      \"Ticker\": \"AAPL US Equity\",\n"
+        "      \"Last Price\": 205.8,\n"
+        "      \"Dividend Yield\": 1.4\n"
         "    }\n"
         "  ]\n"
         "}";
@@ -984,20 +984,20 @@ int main(int argc, char *argv[])
      {   L_,     0,     -1,   -1,   -1, "",         0,   "\"\":"             },
      {   L_,     0,     -1,   -1,   -1, "",         0,   "\"\":"             },
 
-     {   L_,     1,     -1,   -1,   -1, "",         0,   "\"\" : "           },
-     {   L_,     1,     -1,   -1,   -1, "",         0,   "\"\" : "           },
+     {   L_,     1,     -1,   -1,   -1, "",         0,   "\"\": "            },
+     {   L_,     1,     -1,   -1,   -1, "",         0,   "\"\": "            },
 
-     {   L_,     1,      1,    2,   -1, "",         0,   "  \"\" : "         },
-     {   L_,     1,      2,    3,   -1, "",         0,   "      \"\" : "     },
+     {   L_,     1,      1,    2,   -1, "",         0,   "  \"\": "          },
+     {   L_,     1,      2,    3,   -1, "",         0,   "      \"\": "      },
 
      {   L_,     0,     -1,   -1,   -1, "name",     0,   "\"name\":"         },
      {   L_,     0,     -1,   -1,   -1, "name",     0,   "\"name\":"         },
 
-     {   L_,     1,     -1,   -1,   -1, "name",     0,   "\"name\" : "       },
-     {   L_,     1,     -1,   -1,   -1, "name",     0,   "\"name\" : "       },
+     {   L_,     1,     -1,   -1,   -1, "name",     0,   "\"name\": "        },
+     {   L_,     1,     -1,   -1,   -1, "name",     0,   "\"name\": "        },
 
-     {   L_,     1,      1,    2,   -1, "name",     0,   "  \"name\" : "     },
-     {   L_,     1,      2,    3,   -1, "name",     0,   "      \"name\" : " },
+     {   L_,     1,      1,    2,   -1, "name",     0,   "  \"name\": "      },
+     {   L_,     1,      2,    3,   -1, "name",     0,   "      \"name\": "  },
 
      // Test `escapeForwardSlash`
      {   L_,     0,      0,    0,   -1, "/",        0,   "\"\\/\":"          },
@@ -1475,8 +1475,8 @@ int main(int argc, char *argv[])
         {   L_,     0,     -1,   -1,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
                                                                              },
         {   L_,     1,     -1,   -1,   -1, "{"                              NL
-                                           "\"A\\/Name\" : 1,"              NL
-                                           "\"B\\/Value\" : ["              NL
+                                           "\"A\\/Name\": 1,"               NL
+                                           "\"B\\/Value\": ["               NL
                                            "2"                              NL
                                            "]"                              NL
                                            "}"                               },
@@ -1487,8 +1487,8 @@ int main(int argc, char *argv[])
         {   L_,     0,      5,   -1,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
                                                                              },
         {   L_,     1,      1,   -1,   -1, "{"                              NL
-                                           "\"A\\/Name\" : 1,"              NL
-                                           "\"B\\/Value\" : ["              NL
+                                           "\"A\\/Name\": 1,"               NL
+                                           "\"B\\/Value\": ["               NL
                                            "2"                              NL
                                            "]"                              NL
                                            "}"                               },
@@ -1499,15 +1499,15 @@ int main(int argc, char *argv[])
         {   L_,     0,      5,   10,   -1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
                                                                              },
         {   L_,     1,      1,    2,   -1, "{"                              NL
-                                           "    \"A\\/Name\" : 1,"          NL
-                                           "    \"B\\/Value\" : ["          NL
+                                           "    \"A\\/Name\": 1,"           NL
+                                           "    \"B\\/Value\": ["           NL
                                            "      2"                        NL
                                            "    ]"                          NL
                                            "  }"                             },
-        {   L_,     1,      3,    5,   -1, 
+        {   L_,     1,      3,    5,   -1,
                                    "{"                                      NL
-                                   "                    \"A\\/Name\" : 1,"  NL
-                                   "                    \"B\\/Value\" : ["  NL
+                                   "                    \"A\\/Name\": 1,"   NL
+                                   "                    \"B\\/Value\": ["   NL
                                    "                         2"             NL
                                    "                    ]"                  NL
                                    "               }"                        },
@@ -1518,15 +1518,15 @@ int main(int argc, char *argv[])
         {   L_,     0,      5,   10,    1, "{\"A\\/Name\":1,\"B\\/Value\":[2]}"
                                                                              },
         {   L_,     1,      1,    2,    1, "{"                              NL
-                                           "    \"A\\/Name\" : 1,"          NL
-                                           "    \"B\\/Value\" : ["          NL
+                                           "    \"A\\/Name\": 1,"           NL
+                                           "    \"B\\/Value\": ["           NL
                                            "      2"                        NL
                                            "    ]"                          NL
                                            "  }"                             },
-        {   L_,     1,      3,    5,    1, 
+        {   L_,     1,      3,    5,    1,
                                    "{"                                      NL
-                                   "                    \"A\\/Name\" : 1,"  NL
-                                   "                    \"B\\/Value\" : ["  NL
+                                   "                    \"A\\/Name\": 1,"   NL
+                                   "                    \"B\\/Value\": ["   NL
                                    "                         2"             NL
                                    "                    ]"                  NL
                                    "               }"                        },
@@ -1537,15 +1537,15 @@ int main(int argc, char *argv[])
         {   L_,     0,      5,   10,    0, "{\"A/Name\":1,\"B/Value\":[2]}"
                                                                              },
         {   L_,     1,      1,    2,    0, "{"                              NL
-                                           "    \"A/Name\" : 1,"            NL
-                                           "    \"B/Value\" : ["            NL
+                                           "    \"A/Name\": 1,"             NL
+                                           "    \"B/Value\": ["             NL
                                            "      2"                        NL
                                            "    ]"                          NL
                                            "  }"                             },
         {   L_,     1,      3,    5,    0,
                                    "{"                                      NL
-                                   "                    \"A/Name\" : 1,"    NL
-                                   "                    \"B/Value\" : ["    NL
+                                   "                    \"A/Name\": 1,"     NL
+                                   "                    \"B/Value\": ["     NL
                                    "                         2"             NL
                                    "                    ]"                  NL
                                    "               }"                        },

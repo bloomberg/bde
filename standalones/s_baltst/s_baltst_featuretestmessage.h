@@ -72,6 +72,9 @@ class FeatureTestMessage {
     int                                                        d_selectionId;
     bslma::Allocator                                          *d_allocator_p;
 
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const FeatureTestMessage& rhs) const;
+
   public:
     // TYPES
 
@@ -300,8 +303,8 @@ class FeatureTestMessage {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if this object has a defined selection,
     /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
 
     /// Return a reference to the modifiable "Selection1" selection of this
     /// object if "Selection1" is the current selection.  The behavior is
@@ -383,8 +386,8 @@ class FeatureTestMessage {
     /// supplying `accessor` with the corresponding selection information
     /// structure.  Return the value returned from the invocation of
     /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
 
     /// Return a reference to the non-modifiable "Selection1" selection of
     /// this object if "Selection1" is the current selection.  The behavior
@@ -491,26 +494,36 @@ class FeatureTestMessage {
 
     /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and `false` otherwise.  Two `FeatureTestMessage` objects have
+    /// the same value if either the selections in both objects have the
+    /// same ids and the same values, or both selections are undefined.
+    friend bool operator==(const FeatureTestMessage& lhs,
+                           const FeatureTestMessage& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same values, as determined by `operator==`, and `false`
+    /// otherwise.
+    friend bool operator!=(const FeatureTestMessage& lhs,
+                           const FeatureTestMessage& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&             stream,
+                                    const FeatureTestMessage& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `FeatureTestMessage` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const FeatureTestMessage& lhs, const FeatureTestMessage& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const FeatureTestMessage& lhs, const FeatureTestMessage& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const FeatureTestMessage& rhs);
 
 }  // close package namespace
 
@@ -519,7 +532,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const FeatureTestMessage& rhs);
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::FeatureTestMessage)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -529,6 +542,45 @@ namespace s_baltst {
                           // ------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+bool FeatureTestMessage::isEqualTo(const FeatureTestMessage& rhs) const
+{
+    typedef FeatureTestMessage Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return this->selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return this->selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return this->selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return this->selection4() == rhs.selection4();
+          case Class::SELECTION_ID_SELECTION5:
+            return this->selection5() == rhs.selection5();
+          case Class::SELECTION_ID_SELECTION6:
+            return this->selection6() == rhs.selection6();
+          case Class::SELECTION_ID_SELECTION7:
+            return this->selection7() == rhs.selection7();
+          case Class::SELECTION_ID_SELECTION8:
+            return this->selection8() == rhs.selection8();
+          case Class::SELECTION_ID_SELECTION9:
+            return this->selection9() == rhs.selection9();
+          case Class::SELECTION_ID_SELECTION10:
+            return this->selection10() == rhs.selection10();
+          case Class::SELECTION_ID_SELECTION11:
+            return this->selection11() == rhs.selection11();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 FeatureTestMessage::FeatureTestMessage(bslma::Allocator *basicAllocator)
@@ -544,8 +596,8 @@ FeatureTestMessage::~FeatureTestMessage()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int FeatureTestMessage::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int FeatureTestMessage::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case FeatureTestMessage::SELECTION_ID_SELECTION1:
@@ -671,8 +723,8 @@ int FeatureTestMessage::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int FeatureTestMessage::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int FeatureTestMessage::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1:
@@ -866,70 +918,14 @@ bool FeatureTestMessage::isUndefinedValue() const
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::FeatureTestMessage& lhs,
-        const s_baltst::FeatureTestMessage& rhs)
-{
-    typedef s_baltst::FeatureTestMessage Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION1:
-            return lhs.selection1() == rhs.selection1();
-          case Class::SELECTION_ID_SELECTION2:
-            return lhs.selection2() == rhs.selection2();
-          case Class::SELECTION_ID_SELECTION3:
-            return lhs.selection3() == rhs.selection3();
-          case Class::SELECTION_ID_SELECTION4:
-            return lhs.selection4() == rhs.selection4();
-          case Class::SELECTION_ID_SELECTION5:
-            return lhs.selection5() == rhs.selection5();
-          case Class::SELECTION_ID_SELECTION6:
-            return lhs.selection6() == rhs.selection6();
-          case Class::SELECTION_ID_SELECTION7:
-            return lhs.selection7() == rhs.selection7();
-          case Class::SELECTION_ID_SELECTION8:
-            return lhs.selection8() == rhs.selection8();
-          case Class::SELECTION_ID_SELECTION9:
-            return lhs.selection9() == rhs.selection9();
-          case Class::SELECTION_ID_SELECTION10:
-            return lhs.selection10() == rhs.selection10();
-          case Class::SELECTION_ID_SELECTION11:
-            return lhs.selection11() == rhs.selection11();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::FeatureTestMessage& lhs,
-        const s_baltst::FeatureTestMessage& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::FeatureTestMessage& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_featuretestmessage.xsd --mode msg --includedir . --msgComponent featuretestmessage --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

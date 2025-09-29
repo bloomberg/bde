@@ -141,7 +141,7 @@ int Formatter::openMember(const bsl::string_view& name)
         return rc;                                                    // RETURN
     }
 
-    d_outputStream << (d_usePrettyStyle ? " : " : ":");
+    d_outputStream << (d_usePrettyStyle ? ": " : ":");
 
     return 0;
 }

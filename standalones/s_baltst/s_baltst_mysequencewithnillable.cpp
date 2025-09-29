@@ -170,10 +170,9 @@ void MySequenceWithNillable::reset()
 
 // ACCESSORS
 
-bsl::ostream& MySequenceWithNillable::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+bsl::ostream& MySequenceWithNillable::print(bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -299,9 +298,9 @@ void MySequenceWithNillableBase64Binary::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableBase64Binary::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -425,9 +424,9 @@ void MySequenceWithNillableHexBinary::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableHexBinary::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -551,9 +550,9 @@ void MySequenceWithNillableIntArray::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableIntArray::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -619,39 +618,7 @@ MySequenceWithNillableIntSequenceArraySequence::MySequenceWithNillableIntSequenc
 {
 }
 
-MySequenceWithNillableIntSequenceArraySequence::MySequenceWithNillableIntSequenceArraySequence(const MySequenceWithNillableIntSequenceArraySequence& original)
-: d_attribute1(original.d_attribute1)
-{
-}
-
-MySequenceWithNillableIntSequenceArraySequence::~MySequenceWithNillableIntSequenceArraySequence()
-{
-}
-
 // MANIPULATORS
-
-MySequenceWithNillableIntSequenceArraySequence&
-MySequenceWithNillableIntSequenceArraySequence::operator=(const MySequenceWithNillableIntSequenceArraySequence& rhs)
-{
-    if (this != &rhs) {
-        d_attribute1 = rhs.d_attribute1;
-    }
-
-    return *this;
-}
-
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
- && defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)
-MySequenceWithNillableIntSequenceArraySequence&
-MySequenceWithNillableIntSequenceArraySequence::operator=(MySequenceWithNillableIntSequenceArraySequence&& rhs)
-{
-    if (this != &rhs) {
-        d_attribute1 = bsl::move(rhs.d_attribute1);
-    }
-
-    return *this;
-}
-#endif
 
 void MySequenceWithNillableIntSequenceArraySequence::reset()
 {
@@ -661,9 +628,9 @@ void MySequenceWithNillableIntSequenceArraySequence::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableIntSequenceArraySequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -787,9 +754,9 @@ void MySequenceWithNillableStringArray::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableStringArray::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -912,9 +879,9 @@ void MySequenceWithNillableStringSequenceArraySequence::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableStringSequenceArraySequence::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1038,9 +1005,9 @@ void MySequenceWithNillableIntList::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableIntList::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1164,9 +1131,9 @@ void MySequenceWithNillableIntSequenceArray::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableIntSequenceArray::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1290,9 +1257,9 @@ void MySequenceWithNillableStringList::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableStringList::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1416,9 +1383,9 @@ void MySequenceWithNillableStringSequenceArray::reset()
 // ACCESSORS
 
 bsl::ostream& MySequenceWithNillableStringSequenceArray::print(
-        bsl::ostream& stream,
-        int           level,
-        int           spacesPerLevel) const
+                                            bsl::ostream& stream,
+                                            int           level,
+                                            int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
     printer.start();
@@ -1431,11 +1398,11 @@ bsl::ostream& MySequenceWithNillableStringSequenceArray::print(
 }  // close package namespace
 }  // close enterprise namespace
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_mysequencewithnillable.xsd --mode msg --includedir . --msgComponent mysequencewithnillable --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

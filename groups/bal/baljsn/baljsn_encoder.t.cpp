@@ -1200,13 +1200,13 @@ int main(int argc, char *argv[])
 // Finally, we will verify that the output is as expected:
 // ```
     const char EXP_OUTPUT[] = "    {\n"
-                              "        \"name\" : \"Bob\",\n"
-                              "        \"homeAddress\" : {\n"
-                              "            \"street\" : \"Lexington Ave\",\n"
-                              "            \"city\" : \"New York City\",\n"
-                              "            \"state\" : \"New York\"\n"
+                              "        \"name\": \"Bob\",\n"
+                              "        \"homeAddress\": {\n"
+                              "            \"street\": \"Lexington Ave\",\n"
+                              "            \"city\": \"New York City\",\n"
+                              "            \"state\": \"New York\"\n"
                               "        },\n"
-                              "        \"age\" : 21\n"
+                              "        \"age\": 21\n"
                               "    }\n";
 
     ASSERT(EXP_OUTPUT == os.str());
@@ -2185,32 +2185,32 @@ int main(int argc, char *argv[])
                                  "}"                                   );
 
         t( L_  , P   , F , obj , "{\n"
-                                 "    \"charArray\" : \"\",\n"
-                                 "    \"a\\/string\" : \"\\/\",\n"
-                                 "    \"choice\" : {\n"
-                                 "        \"selection0\" : 0\n"
+                                 "    \"charArray\": \"\",\n"
+                                 "    \"a\\/string\": \"\\/\",\n"
+                                 "    \"choice\": {\n"
+                                 "        \"selection0\": 0\n"
                                  "    },\n"
-                                 "    \"customizedType\" : \"\",\n"
-                                 "    \"enumeration\" : \"A\",\n"
-                                 "    \"sequence\" : {\n"
-                                 "        \"attribute\" : 0\n"
+                                 "    \"customizedType\": \"\",\n"
+                                 "    \"enumeration\": \"A\",\n"
+                                 "    \"sequence\": {\n"
+                                 "        \"attribute\": 0\n"
                                  "    },\n"
-                                 "    \"simple\" : 0\n"
+                                 "    \"simple\": 0\n"
                                  "}\n"                                 );
 
         t( L_  , P   , T , obj , "{\n"
-                                 "    \"charArray\" : \"\",\n"
-                                 "    \"a\\/string\" : \"\\/\",\n"
-                                 "    \"choice\" : {\n"
-                                 "        \"selection0\" : 0\n"
+                                 "    \"charArray\": \"\",\n"
+                                 "    \"a\\/string\": \"\\/\",\n"
+                                 "    \"choice\": {\n"
+                                 "        \"selection0\": 0\n"
                                  "    },\n"
-                                 "    \"customizedType\" : \"\",\n"
-                                 "    \"enumeration\" : \"A\",\n"
-                                 "    \"nullableValue\" : null,\n"
-                                 "    \"sequence\" : {\n"
-                                 "        \"attribute\" : 0\n"
+                                 "    \"customizedType\": \"\",\n"
+                                 "    \"enumeration\": \"A\",\n"
+                                 "    \"nullableValue\": null,\n"
+                                 "    \"sequence\": {\n"
+                                 "        \"attribute\": 0\n"
                                  "    },\n"
-                                 "    \"simple\" : 0\n"
+                                 "    \"simple\": 0\n"
                                  "}\n"                                 );
       } break;
       case 8: {
@@ -2302,49 +2302,49 @@ int main(int argc, char *argv[])
         t( L_  , C   , T , obj5 , "{\"simple\":0}"                      );
 
         t( L_  , P   , F , obj0 , "{\n"
-                                  "    \"charArray\" : \"\"\n"
+                                  "    \"charArray\": \"\"\n"
                                   "}\n"                                 );
         t( L_  , P   , F , obj1 , "{\n"
-                                  "    \"choice\" : {\n"
-                                  "        \"selection0\" : 0\n"
+                                  "    \"choice\": {\n"
+                                  "        \"selection0\": 0\n"
                                   "    }\n"
                                   "}\n"                                 );
         t( L_  , P   , F , obj2 , "{\n"
-                                  "    \"customizedType\" : \"\"\n"
+                                  "    \"customizedType\": \"\"\n"
                                   "}\n"                                 );
         t( L_  , P   , F , obj3 , "{\n"
-                                  "    \"enumeration\" : \"A\"\n"
+                                  "    \"enumeration\": \"A\"\n"
                                   "}\n"                                 );
         t( L_  , P   , F , obj4 , "{\n"
-                                  "    \"sequence\" : {\n"
-                                  "        \"attribute\" : 0\n"
+                                  "    \"sequence\": {\n"
+                                  "        \"attribute\": 0\n"
                                   "    }\n"
                                   "}\n"                                 );
         t( L_  , P   , F , obj5 , "{\n"
-                                  "    \"simple\" : 0\n"
+                                  "    \"simple\": 0\n"
                                   "}\n"                                 );
 
         t( L_  , P   , T , obj0 , "{\n"
-                                  "    \"charArray\" : \"\"\n"
+                                  "    \"charArray\": \"\"\n"
                                   "}\n"                                 );
         t( L_  , P   , T , obj1 , "{\n"
-                                  "    \"choice\" : {\n"
-                                  "        \"selection0\" : 0\n"
+                                  "    \"choice\": {\n"
+                                  "        \"selection0\": 0\n"
                                   "    }\n"
                                   "}\n"                                 );
         t( L_  , P   , T , obj2 , "{\n"
-                                  "    \"customizedType\" : \"\"\n"
+                                  "    \"customizedType\": \"\"\n"
                                   "}\n"                                 );
         t( L_  , P   , T , obj3 , "{\n"
-                                  "    \"enumeration\" : \"A\"\n"
+                                  "    \"enumeration\": \"A\"\n"
                                   "}\n"                                 );
         t( L_  , P   , T , obj4 , "{\n"
-                                  "    \"sequence\" : {\n"
-                                  "        \"attribute\" : 0\n"
+                                  "    \"sequence\": {\n"
+                                  "        \"attribute\": 0\n"
                                   "    }\n"
                                   "}\n"                                 );
         t( L_  , P   , T , obj5 , "{\n"
-                                  "    \"simple\" : 0\n"
+                                  "    \"simple\": 0\n"
                                   "}\n"                                 );
       } break;
       case 7: {
@@ -2471,47 +2471,47 @@ int main(int argc, char *argv[])
 
         t( L_  , P   , F , obj0 , "{\n\n}\n"                            );
         t( L_  , P   , F , obj1 , "{\n\n}\n"                            );
-        t( L_  , P   , F , obj2 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj2 , "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , F , obj3 , "{\n\n}\n"                            );
-        t( L_  , P   , F , obj4 , "{\n    \"attribute0\" : 0\n}\n"      );
-        t( L_  , P   , F , obj5 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj4 , "{\n    \"attribute0\": 0\n}\n"       );
+        t( L_  , P   , F , obj5 , "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , F , obj6 ,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
         t( L_  , P   , F , obj7 , "{\n\n}\n"                            );
-        t( L_  , P   , F , obj8 , "{\n    \"attribute0\" : 0\n}\n"      );
-        t( L_  , P   , F , obj9 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , F , obj8 , "{\n    \"attribute0\": 0\n}\n"       );
+        t( L_  , P   , F , obj9 , "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , F , obj10,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
-        t( L_  , P   , F , obj11, "{\n    \"attribute0\" : 0\n}\n"      );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
+        t( L_  , P   , F , obj11, "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , F , obj12,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
         t( L_  , P   , F , obj13,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
         t( L_  , P   , F , obj14,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0,\n"
-           "    \"attribute2\" : 0\n}\n"                                );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0,\n"
+           "    \"attribute2\": 0\n}\n"                                 );
 
         t( L_  , P   , T , obj0 , "{\n\n}\n"                            );
         t( L_  , P   , T , obj1 , "{\n\n}\n"                            );
-        t( L_  , P   , T , obj2 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj2 , "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , T , obj3 , "{\n\n}\n"                            );
-        t( L_  , P   , T , obj4 , "{\n    \"attribute0\" : 0\n}\n"      );
-        t( L_  , P   , T , obj5 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj4 , "{\n    \"attribute0\": 0\n}\n"       );
+        t( L_  , P   , T , obj5 , "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , T , obj6 ,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
         t( L_  , P   , T , obj7 , "{\n\n}\n"                            );
-        t( L_  , P   , T , obj8 , "{\n    \"attribute0\" : 0\n}\n"      );
-        t( L_  , P   , T , obj9 , "{\n    \"attribute0\" : 0\n}\n"      );
+        t( L_  , P   , T , obj8 , "{\n    \"attribute0\": 0\n}\n"       );
+        t( L_  , P   , T , obj9 , "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , T , obj10,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
-        t( L_  , P   , T , obj11, "{\n    \"attribute0\" : 0\n}\n"      );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
+        t( L_  , P   , T , obj11, "{\n    \"attribute0\": 0\n}\n"       );
         t( L_  , P   , T , obj12,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
         t( L_  , P   , T , obj13,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0\n}\n"    );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0\n}\n"      );
         t( L_  , P   , T , obj14,
-           "{\n    \"attribute0\" : 0,\n    \"attribute1\" : 0,\n"
-           "    \"attribute2\" : 0\n}\n"                                );
+           "{\n    \"attribute0\": 0,\n    \"attribute1\": 0,\n"
+           "    \"attribute2\": 0\n}\n"                                 );
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2795,10 +2795,10 @@ int main(int argc, char *argv[])
                 false,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ]\n"
                 "}\n"
@@ -2816,15 +2816,15 @@ int main(int argc, char *argv[])
                 true,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element3\" : null,\n"
-                "  \"element4\" : null,\n"
-                "  \"element5\" : null\n"
+                "  \"element3\": null,\n"
+                "  \"element4\": null,\n"
+                "  \"element5\": null\n"
                 "}\n"
             },
             {
@@ -2873,13 +2873,13 @@ int main(int argc, char *argv[])
                 false,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element6\" : [\n"
+                "  \"element6\": [\n"
                 "    null,\n"
                 "    null\n"
                 "  ]\n"
@@ -2900,16 +2900,16 @@ int main(int argc, char *argv[])
                 true,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element3\" : null,\n"
-                "  \"element4\" : null,\n"
-                "  \"element5\" : null,\n"
-                "  \"element6\" : [\n"
+                "  \"element3\": null,\n"
+                "  \"element4\": null,\n"
+                "  \"element5\": null,\n"
+                "  \"element6\": [\n"
                 "    null,\n"
                 "    null\n"
                 "  ]\n"
@@ -2968,14 +2968,14 @@ int main(int argc, char *argv[])
                 false,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element3\" : true,\n"
-                "  \"element6\" : [\n"
+                "  \"element3\": true,\n"
+                "  \"element6\": [\n"
                 "    null,\n"
                 "    null\n"
                 "  ]\n"
@@ -2997,16 +2997,16 @@ int main(int argc, char *argv[])
                 true,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element3\" : true,\n"
-                "  \"element4\" : null,\n"
-                "  \"element5\" : null,\n"
-                "  \"element6\" : [\n"
+                "  \"element3\": true,\n"
+                "  \"element4\": null,\n"
+                "  \"element5\": null,\n"
+                "  \"element6\": [\n"
                 "    null,\n"
                 "    null\n"
                 "  ]\n"
@@ -3069,15 +3069,15 @@ int main(int argc, char *argv[])
                 false,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element3\" : true,\n"
-                "  \"element4\" : \"arbitrary string value\",\n"
-                "  \"element6\" : [\n"
+                "  \"element3\": true,\n"
+                "  \"element4\": \"arbitrary string value\",\n"
+                "  \"element6\": [\n"
                 "    null,\n"
                 "    null\n"
                 "  ]\n"
@@ -3100,16 +3100,16 @@ int main(int argc, char *argv[])
                 true,
                 // JSON Text
                 "{\n"
-                "  \"element1\" : [\n"
+                "  \"element1\": [\n"
                 "    \"LONDON\"\n"
                 "  ],\n"
-                "  \"element2\" : [\n"
+                "  \"element2\": [\n"
                 "    \"arbitrary string value\"\n"
                 "  ],\n"
-                "  \"element3\" : true,\n"
-                "  \"element4\" : \"arbitrary string value\",\n"
-                "  \"element5\" : null,\n"
-                "  \"element6\" : [\n"
+                "  \"element3\": true,\n"
+                "  \"element4\": \"arbitrary string value\",\n"
+                "  \"element5\": null,\n"
+                "  \"element6\": [\n"
                 "    null,\n"
                 "    null\n"
                 "  ]\n"
@@ -3419,9 +3419,9 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [],\n"
-                    "  \"element2\" : [],\n"
-                    "  \"element6\" : []\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
                 {
@@ -3433,7 +3433,7 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ]\n"
                     "}\n"
@@ -3447,11 +3447,11 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [],\n"
-                    "  \"element6\" : []\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
                 {
@@ -3464,7 +3464,7 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\",\n"
                     "    \"NEW_JERSEY\"\n"
                     "  ]\n"
@@ -3480,12 +3480,12 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\",\n"
                     "    \"NEW_JERSEY\"\n"
                     "  ],\n"
-                    "  \"element2\" : [],\n"
-                    "  \"element6\" : []\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
                 {
@@ -3497,7 +3497,7 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ]\n"
                     "}\n"
@@ -3511,11 +3511,11 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ],\n"
-                    "  \"element6\" : []\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
                 {
@@ -3527,7 +3527,7 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element6\" : [\n"
+                    "  \"element6\": [\n"
                     "    \"NEW_YORK\"\n"
                     "  ]\n"
                     "}\n"
@@ -3541,9 +3541,9 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [],\n"
-                    "  \"element2\" : [],\n"
-                    "  \"element6\" : [\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": [\n"
                     "    \"NEW_YORK\"\n"
                     "  ]\n"
                     "}\n"
@@ -3558,10 +3558,10 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ]\n"
                     "}\n"
@@ -3576,13 +3576,13 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ],\n"
-                    "  \"element6\" : []\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
                 {
@@ -3596,13 +3596,13 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ],\n"
-                    "  \"element6\" : [\n"
+                    "  \"element6\": [\n"
                     "    \"NEW_YORK\"\n"
                     "  ]\n"
                     "}\n"
@@ -3618,13 +3618,13 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ],\n"
-                    "  \"element6\" : [\n"
+                    "  \"element6\": [\n"
                     "    \"NEW_YORK\"\n"
                     "  ]\n"
                     "}\n"
@@ -3640,13 +3640,13 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"arbitrary string value\"\n"
                     "  ],\n"
-                    "  \"element6\" : [\n"
+                    "  \"element6\": [\n"
                     "    \"NEW_YORK\"\n"
                     "  ]\n"
                     "}\n"
@@ -3665,15 +3665,15 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"NEW_JERSEY\",\n"
                     "    \"LONDON\"\n"
                     "  ],\n"
-                    "  \"element2\" : [\n"
+                    "  \"element2\": [\n"
                     "    \"something random\",\n"
                     "    \"arbitrary string value\"\n"
                     "  ],\n"
-                    "  \"element6\" : [\n"
+                    "  \"element6\": [\n"
                     "    \"NEW_YORK\",\n"
                     "    \"NEW_JERSEY\"\n"
                     "  ]\n"
@@ -3693,12 +3693,12 @@ int main(int argc, char *argv[])
                     false,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"NEW_JERSEY\"\n"
                     "  ],\n"
-                    "  \"element5\" : {\n"
-                    "    \"element1\" : {\n"
-                    "      \"element2\" : [\n"
+                    "  \"element5\": {\n"
+                    "    \"element1\": {\n"
+                    "      \"element2\": [\n"
                     "        \"arbitrary string value\"\n"
                     "      ]\n"
                     "    }\n"
@@ -3719,26 +3719,26 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [\n"
+                    "  \"element1\": [\n"
                     "    \"NEW_JERSEY\"\n"
                     "  ],\n"
-                    "  \"element2\" : [],\n"
-                    "  \"element5\" : {\n"
-                    "    \"element1\" : {\n"
-                    "      \"element1\" : [],\n"
-                    "      \"element2\" : [\n"
+                    "  \"element2\": [],\n"
+                    "  \"element5\": {\n"
+                    "    \"element1\": {\n"
+                    "      \"element1\": [],\n"
+                    "      \"element2\": [\n"
                     "        \"arbitrary string value\"\n"
                     "      ],\n"
-                    "      \"element6\" : []\n"
+                    "      \"element6\": []\n"
                     "    },\n"
-                    "    \"element2\" : [],\n"
-                    "    \"element3\" : [],\n"
-                    "    \"element4\" : [],\n"
-                    "    \"element5\" : [],\n"
-                    "    \"element6\" : [],\n"
-                    "    \"element7\" : []\n"
+                    "    \"element2\": [],\n"
+                    "    \"element3\": [],\n"
+                    "    \"element4\": [],\n"
+                    "    \"element5\": [],\n"
+                    "    \"element6\": [],\n"
+                    "    \"element7\": []\n"
                     "  },\n"
-                    "  \"element6\" : []\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
                 {
@@ -3755,25 +3755,25 @@ int main(int argc, char *argv[])
                     true,
                     // JSON Text
                     "{\n"
-                    "  \"element1\" : [],\n"
-                    "  \"element2\" : [],\n"
-                    "  \"element5\" : {\n"
-                    "    \"element1\" : {\n"
-                    "      \"element1\" : [],\n"
-                    "      \"element2\" : [],\n"
-                    "      \"element6\" : []\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element5\": {\n"
+                    "    \"element1\": {\n"
+                    "      \"element1\": [],\n"
+                    "      \"element2\": [],\n"
+                    "      \"element6\": []\n"
                     "    },\n"
-                    "    \"element2\" : [],\n"
-                    "    \"element3\" : [],\n"
-                    "    \"element4\" : [],\n"
-                    "    \"element5\" : [\n"
+                    "    \"element2\": [],\n"
+                    "    \"element3\": [],\n"
+                    "    \"element4\": [],\n"
+                    "    \"element5\": [\n"
                     "      123456,\n"
                     "      7890\n"
                     "    ],\n"
-                    "    \"element6\" : [],\n"
-                    "    \"element7\" : []\n"
+                    "    \"element6\": [],\n"
+                    "    \"element7\": []\n"
                     "  },\n"
-                    "  \"element6\" : []\n"
+                    "  \"element6\": []\n"
                     "}\n"
                 },
             };
@@ -3842,13 +3842,13 @@ int main(int argc, char *argv[])
 
         char jsonTextPretty[] =
             "    {\n"
-            "        \"name\" : \"Bob\",\n"
-            "        \"homeAddress\" : {\n"
-            "            \"street\" : \"Some Street\",\n"
-            "            \"city\" : \"Some City\",\n"
-            "            \"state\" : \"Some State\"\n"
+            "        \"name\": \"Bob\",\n"
+            "        \"homeAddress\": {\n"
+            "            \"street\": \"Some Street\",\n"
+            "            \"city\": \"Some City\",\n"
+            "            \"state\": \"Some State\"\n"
             "        },\n"
-            "        \"age\" : 21\n"
+            "        \"age\": 21\n"
             "    }\n";
 
         bob.name()                 = "Bob";

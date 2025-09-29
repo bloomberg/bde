@@ -60,6 +60,9 @@ class SequenceWithAnonymityChoice1 {
     int                                   d_selectionId;
     bslma::Allocator                     *d_allocator_p;
 
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const SequenceWithAnonymityChoice1& rhs) const;
+
   public:
     // TYPES
 
@@ -181,8 +184,8 @@ class SequenceWithAnonymityChoice1 {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if this object has a defined selection,
     /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
 
     /// Return a reference to the modifiable "Selection5" selection of this
     /// object if "Selection5" is the current selection.  The behavior is
@@ -219,8 +222,8 @@ class SequenceWithAnonymityChoice1 {
     /// supplying `accessor` with the corresponding selection information
     /// structure.  Return the value returned from the invocation of
     /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
 
     /// Return a reference to the non-modifiable "Selection5" selection of
     /// this object if "Selection5" is the current selection.  The behavior
@@ -246,26 +249,37 @@ class SequenceWithAnonymityChoice1 {
 
     /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and `false` otherwise.  Two `SequenceWithAnonymityChoice1`
+    /// objects have the same value if either the selections in both objects
+    /// have the same ids and the same values, or both selections are
+    /// undefined.
+    friend bool operator==(const SequenceWithAnonymityChoice1& lhs,
+                           const SequenceWithAnonymityChoice1& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same values, as determined by `operator==`, and `false`
+    /// otherwise.
+    friend bool operator!=(const SequenceWithAnonymityChoice1& lhs,
+                           const SequenceWithAnonymityChoice1& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&                       stream,
+                                    const SequenceWithAnonymityChoice1& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `SequenceWithAnonymityChoice1` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const SequenceWithAnonymityChoice1& lhs, const SequenceWithAnonymityChoice1& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const SequenceWithAnonymityChoice1& lhs, const SequenceWithAnonymityChoice1& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice1& rhs);
 
 }  // close package namespace
 
@@ -291,6 +305,9 @@ class SequenceWithAnonymityChoice {
 
     int                                              d_selectionId;
     bslma::Allocator                                *d_allocator_p;
+
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const SequenceWithAnonymityChoice& rhs) const;
 
   public:
     // TYPES
@@ -437,8 +454,8 @@ class SequenceWithAnonymityChoice {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if this object has a defined selection,
     /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
 
     /// Return a reference to the modifiable "Selection1" selection of this
     /// object if "Selection1" is the current selection.  The behavior is
@@ -485,8 +502,8 @@ class SequenceWithAnonymityChoice {
     /// supplying `accessor` with the corresponding selection information
     /// structure.  Return the value returned from the invocation of
     /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
 
     /// Return a reference to the non-modifiable "Selection1" selection of
     /// this object if "Selection1" is the current selection.  The behavior
@@ -530,26 +547,37 @@ class SequenceWithAnonymityChoice {
 
     /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and `false` otherwise.  Two `SequenceWithAnonymityChoice`
+    /// objects have the same value if either the selections in both objects
+    /// have the same ids and the same values, or both selections are
+    /// undefined.
+    friend bool operator==(const SequenceWithAnonymityChoice& lhs,
+                           const SequenceWithAnonymityChoice& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same values, as determined by `operator==`, and `false`
+    /// otherwise.
+    friend bool operator!=(const SequenceWithAnonymityChoice& lhs,
+                           const SequenceWithAnonymityChoice& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&                      stream,
+                                    const SequenceWithAnonymityChoice& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `SequenceWithAnonymityChoice` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const SequenceWithAnonymityChoice& lhs, const SequenceWithAnonymityChoice& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const SequenceWithAnonymityChoice& lhs, const SequenceWithAnonymityChoice& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice& rhs);
 
 }  // close package namespace
 
@@ -573,6 +601,9 @@ class SequenceWithAnonymityChoice2 {
 
     int                         d_selectionId;
     bslma::Allocator           *d_allocator_p;
+
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const SequenceWithAnonymityChoice2& rhs) const;
 
   public:
     // TYPES
@@ -699,8 +730,8 @@ class SequenceWithAnonymityChoice2 {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if this object has a defined selection,
     /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
 
     /// Return a reference to the modifiable "Selection7" selection of this
     /// object if "Selection7" is the current selection.  The behavior is
@@ -737,8 +768,8 @@ class SequenceWithAnonymityChoice2 {
     /// supplying `accessor` with the corresponding selection information
     /// structure.  Return the value returned from the invocation of
     /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
 
     /// Return a reference to the non-modifiable "Selection7" selection of
     /// this object if "Selection7" is the current selection.  The behavior
@@ -764,26 +795,37 @@ class SequenceWithAnonymityChoice2 {
 
     /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and `false` otherwise.  Two `SequenceWithAnonymityChoice2`
+    /// objects have the same value if either the selections in both objects
+    /// have the same ids and the same values, or both selections are
+    /// undefined.
+    friend bool operator==(const SequenceWithAnonymityChoice2& lhs,
+                           const SequenceWithAnonymityChoice2& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same values, as determined by `operator==`, and `false`
+    /// otherwise.
+    friend bool operator!=(const SequenceWithAnonymityChoice2& lhs,
+                           const SequenceWithAnonymityChoice2& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&                       stream,
+                                    const SequenceWithAnonymityChoice2& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `SequenceWithAnonymityChoice2` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const SequenceWithAnonymityChoice2& lhs, const SequenceWithAnonymityChoice2& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const SequenceWithAnonymityChoice2& lhs, const SequenceWithAnonymityChoice2& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymityChoice2& rhs);
 
 }  // close package namespace
 
@@ -804,6 +846,9 @@ class SequenceWithAnonymity {
     bdlb::NullableValue<SequenceWithAnonymityChoice2>  d_choice2;
     SequenceWithAnonymityChoice1                       d_choice1;
     SequenceWithAnonymityChoice                        d_choice;
+
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const SequenceWithAnonymity& rhs) const;
 
   public:
     // TYPES
@@ -902,8 +947,8 @@ class SequenceWithAnonymity {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `manipulator` (i.e., the invocation that
     /// terminated the sequence).
-    template<class MANIPULATOR>
-    int manipulateAttributes(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateAttributes(t_MANIPULATOR& manipulator);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `id`,
@@ -911,8 +956,8 @@ class SequenceWithAnonymity {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if `id` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR& manipulator, int id);
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR& manipulator, int id);
 
     /// Invoke the specified `manipulator` on the address of
     /// the (modifiable) attribute indicated by the specified `name` of the
@@ -920,8 +965,8 @@ class SequenceWithAnonymity {
     /// corresponding attribute information structure.  Return the value
     /// returned from the invocation of `manipulator` if `name` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateAttribute(MANIPULATOR&  manipulator,
+    template <typename t_MANIPULATOR>
+    int manipulateAttribute(t_MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
@@ -955,7 +1000,7 @@ class SequenceWithAnonymity {
     /// operation has no effect.  Note that a trailing newline is provided
     /// in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Invoke the specified `accessor` sequentially on each
@@ -964,16 +1009,16 @@ class SequenceWithAnonymity {
     /// invocation returns a non-zero value.  Return the value from the
     /// last invocation of `accessor` (i.e., the invocation that terminated
     /// the sequence).
-    template<class ACCESSOR>
-    int accessAttributes(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessAttributes(t_ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `id`, supplying `accessor`
     /// with the corresponding attribute information structure.  Return the
     /// value returned from the invocation of `accessor` if `id` identifies
     /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR& accessor, int id) const;
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute
     /// of this object indicated by the specified `name` of the specified
@@ -981,8 +1026,8 @@ class SequenceWithAnonymity {
     /// information structure.  Return the value returned from the
     /// invocation of `accessor` if `name` identifies an attribute of this
     /// class, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessAttribute(ACCESSOR&   accessor,
+    template <typename t_ACCESSOR>
+    int accessAttribute(t_ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
 
@@ -1001,36 +1046,44 @@ class SequenceWithAnonymity {
     /// Return a reference offering non-modifiable access to the "Element4"
     /// attribute of this object.
     const s_baltst::Sequence6& element4() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` attribute objects
+    /// have the same value, and `false` otherwise.  Two attribute objects
+    /// have the same value if each respective attribute has the same value.
+    friend bool operator==(const SequenceWithAnonymity& lhs,
+                           const SequenceWithAnonymity& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Returns `!(lhs == rhs)`
+    friend bool operator!=(const SequenceWithAnonymity& lhs,
+                           const SequenceWithAnonymity& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&                stream,
+                                    const SequenceWithAnonymity& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
-inline
-bool operator==(const SequenceWithAnonymity& lhs, const SequenceWithAnonymity& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
-inline
-bool operator!=(const SequenceWithAnonymity& lhs, const SequenceWithAnonymity& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const SequenceWithAnonymity& rhs);
 
 }  // close package namespace
 
 // TRAITS
 
 BDLAT_DECL_SEQUENCE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::SequenceWithAnonymity)
+template <>
+struct bdlat_UsesDefaultValueFlag<s_baltst::SequenceWithAnonymity> : bsl::true_type {};
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -1040,6 +1093,27 @@ namespace s_baltst {
                      // ----------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+bool SequenceWithAnonymityChoice1::isEqualTo(const SequenceWithAnonymityChoice1& rhs) const
+{
+    typedef SequenceWithAnonymityChoice1 Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION5:
+            return this->selection5() == rhs.selection5();
+          case Class::SELECTION_ID_SELECTION6:
+            return this->selection6() == rhs.selection6();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 SequenceWithAnonymityChoice1::SequenceWithAnonymityChoice1(bslma::Allocator *basicAllocator)
@@ -1055,8 +1129,8 @@ SequenceWithAnonymityChoice1::~SequenceWithAnonymityChoice1()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int SequenceWithAnonymityChoice1::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int SequenceWithAnonymityChoice1::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case SequenceWithAnonymityChoice1::SELECTION_ID_SELECTION5:
@@ -1092,8 +1166,8 @@ int SequenceWithAnonymityChoice1::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int SequenceWithAnonymityChoice1::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int SequenceWithAnonymityChoice1::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION5:
@@ -1146,6 +1220,31 @@ bool SequenceWithAnonymityChoice1::isUndefinedValue() const
                      // ---------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+bool SequenceWithAnonymityChoice::isEqualTo(const SequenceWithAnonymityChoice& rhs) const
+{
+    typedef SequenceWithAnonymityChoice Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION1:
+            return this->selection1() == rhs.selection1();
+          case Class::SELECTION_ID_SELECTION2:
+            return this->selection2() == rhs.selection2();
+          case Class::SELECTION_ID_SELECTION3:
+            return this->selection3() == rhs.selection3();
+          case Class::SELECTION_ID_SELECTION4:
+            return this->selection4() == rhs.selection4();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 SequenceWithAnonymityChoice::SequenceWithAnonymityChoice(bslma::Allocator *basicAllocator)
@@ -1161,8 +1260,8 @@ SequenceWithAnonymityChoice::~SequenceWithAnonymityChoice()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int SequenceWithAnonymityChoice::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int SequenceWithAnonymityChoice::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case SequenceWithAnonymityChoice::SELECTION_ID_SELECTION1:
@@ -1218,8 +1317,8 @@ int SequenceWithAnonymityChoice::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int SequenceWithAnonymityChoice::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int SequenceWithAnonymityChoice::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION1:
@@ -1304,6 +1403,27 @@ bool SequenceWithAnonymityChoice::isUndefinedValue() const
                      // ----------------------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+bool SequenceWithAnonymityChoice2::isEqualTo(const SequenceWithAnonymityChoice2& rhs) const
+{
+    typedef SequenceWithAnonymityChoice2 Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SELECTION7:
+            return this->selection7() == rhs.selection7();
+          case Class::SELECTION_ID_SELECTION8:
+            return this->selection8() == rhs.selection8();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 SequenceWithAnonymityChoice2::SequenceWithAnonymityChoice2(bslma::Allocator *basicAllocator)
@@ -1319,8 +1439,8 @@ SequenceWithAnonymityChoice2::~SequenceWithAnonymityChoice2()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int SequenceWithAnonymityChoice2::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int SequenceWithAnonymityChoice2::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case SequenceWithAnonymityChoice2::SELECTION_ID_SELECTION7:
@@ -1356,8 +1476,8 @@ int SequenceWithAnonymityChoice2::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int SequenceWithAnonymityChoice2::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int SequenceWithAnonymityChoice2::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SELECTION7:
@@ -1409,10 +1529,20 @@ bool SequenceWithAnonymityChoice2::isUndefinedValue() const
                         // class SequenceWithAnonymity
                         // ---------------------------
 
+// PRIVATE ACCESSORS
+inline
+bool SequenceWithAnonymity::isEqualTo(const SequenceWithAnonymity& rhs) const
+{
+    return this->choice() == rhs.choice() &&
+           this->choice1() == rhs.choice1() &&
+           this->choice2() == rhs.choice2() &&
+           this->element4() == rhs.element4();
+}
+
 // CLASS METHODS
 // MANIPULATORS
-template <class MANIPULATOR>
-int SequenceWithAnonymity::manipulateAttributes(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int SequenceWithAnonymity::manipulateAttributes(t_MANIPULATOR& manipulator)
 {
     int ret;
 
@@ -1439,8 +1569,8 @@ int SequenceWithAnonymity::manipulateAttributes(MANIPULATOR& manipulator)
     return 0;
 }
 
-template <class MANIPULATOR>
-int SequenceWithAnonymity::manipulateAttribute(MANIPULATOR& manipulator, int id)
+template <typename t_MANIPULATOR>
+int SequenceWithAnonymity::manipulateAttribute(t_MANIPULATOR& manipulator, int id)
 {
     enum { NOT_FOUND = -1 };
 
@@ -1462,11 +1592,11 @@ int SequenceWithAnonymity::manipulateAttribute(MANIPULATOR& manipulator, int id)
     }
 }
 
-template <class MANIPULATOR>
+template <typename t_MANIPULATOR>
 int SequenceWithAnonymity::manipulateAttribute(
-        MANIPULATOR&  manipulator,
-        const char   *name,
-        int           nameLength)
+        t_MANIPULATOR& manipulator,
+        const char    *name,
+        int            nameLength)
 {
     enum { NOT_FOUND = -1 };
 
@@ -1504,8 +1634,8 @@ s_baltst::Sequence6& SequenceWithAnonymity::element4()
 }
 
 // ACCESSORS
-template <class ACCESSOR>
-int SequenceWithAnonymity::accessAttributes(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int SequenceWithAnonymity::accessAttributes(t_ACCESSOR& accessor) const
 {
     int ret;
 
@@ -1532,8 +1662,8 @@ int SequenceWithAnonymity::accessAttributes(ACCESSOR& accessor) const
     return 0;
 }
 
-template <class ACCESSOR>
-int SequenceWithAnonymity::accessAttribute(ACCESSOR& accessor, int id) const
+template <typename t_ACCESSOR>
+int SequenceWithAnonymity::accessAttribute(t_ACCESSOR& accessor, int id) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -1555,11 +1685,11 @@ int SequenceWithAnonymity::accessAttribute(ACCESSOR& accessor, int id) const
     }
 }
 
-template <class ACCESSOR>
+template <typename t_ACCESSOR>
 int SequenceWithAnonymity::accessAttribute(
-        ACCESSOR&   accessor,
-        const char *name,
-        int         nameLength) const
+        t_ACCESSOR&  accessor,
+        const char  *name,
+        int          nameLength) const
 {
     enum { NOT_FOUND = -1 };
 
@@ -1600,162 +1730,14 @@ const s_baltst::Sequence6& SequenceWithAnonymity::element4() const
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::SequenceWithAnonymityChoice1& lhs,
-        const s_baltst::SequenceWithAnonymityChoice1& rhs)
-{
-    typedef s_baltst::SequenceWithAnonymityChoice1 Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION5:
-            return lhs.selection5() == rhs.selection5();
-          case Class::SELECTION_ID_SELECTION6:
-            return lhs.selection6() == rhs.selection6();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::SequenceWithAnonymityChoice1& lhs,
-        const s_baltst::SequenceWithAnonymityChoice1& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::SequenceWithAnonymityChoice1& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::SequenceWithAnonymityChoice& lhs,
-        const s_baltst::SequenceWithAnonymityChoice& rhs)
-{
-    typedef s_baltst::SequenceWithAnonymityChoice Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION1:
-            return lhs.selection1() == rhs.selection1();
-          case Class::SELECTION_ID_SELECTION2:
-            return lhs.selection2() == rhs.selection2();
-          case Class::SELECTION_ID_SELECTION3:
-            return lhs.selection3() == rhs.selection3();
-          case Class::SELECTION_ID_SELECTION4:
-            return lhs.selection4() == rhs.selection4();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::SequenceWithAnonymityChoice& lhs,
-        const s_baltst::SequenceWithAnonymityChoice& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::SequenceWithAnonymityChoice& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::SequenceWithAnonymityChoice2& lhs,
-        const s_baltst::SequenceWithAnonymityChoice2& rhs)
-{
-    typedef s_baltst::SequenceWithAnonymityChoice2 Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SELECTION7:
-            return lhs.selection7() == rhs.selection7();
-          case Class::SELECTION_ID_SELECTION8:
-            return lhs.selection8() == rhs.selection8();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::SequenceWithAnonymityChoice2& lhs,
-        const s_baltst::SequenceWithAnonymityChoice2& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::SequenceWithAnonymityChoice2& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
-
-inline
-bool s_baltst::operator==(
-        const s_baltst::SequenceWithAnonymity& lhs,
-        const s_baltst::SequenceWithAnonymity& rhs)
-{
-    return  lhs.choice() == rhs.choice()
-         && lhs.choice1() == rhs.choice1()
-         && lhs.choice2() == rhs.choice2()
-         && lhs.element4() == rhs.element4();
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::SequenceWithAnonymity& lhs,
-        const s_baltst::SequenceWithAnonymity& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::SequenceWithAnonymity& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_sequencewithanonymity.xsd --mode msg --includedir . --msgComponent sequencewithanonymity --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.

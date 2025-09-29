@@ -56,16 +56,16 @@ BSLS_IDENT("$Id: $")
 // {
 //   "Stocks" : [
 //     {
-//       "Name" : "International Business Machines Corp",
-//       "Ticker" : "IBM US Equity",
-//       "Last Price" : 149.3,
-//       "Dividend Yield" : 3.95
+//       "Name": "International Business Machines Corp",
+//       "Ticker": "IBM US Equity",
+//       "Last Price": 149.3,
+//       "Dividend Yield": 3.95
 //     },
 //     {
-//       "Name" : "Apple Inc",
-//       "Ticker" : "AAPL US Equity",
-//       "Last Price" : 205.8,
-//       "Dividend Yield" : 1.4
+//       "Name": "Apple Inc",
+//       "Ticker": "AAPL US Equity",
+//       "Last Price": 205.8,
+//       "Dividend Yield": 1.4
 //     }
 //   ]
 // }
@@ -74,18 +74,18 @@ BSLS_IDENT("$Id: $")
 // ```
 // const bsl::string EXPECTED =
 //     "{\n"
-//     "  \"Stocks\" : [\n"
+//     "  \"Stocks\": [\n"
 //     "    {\n"
-//     "      \"Name\" : \"International Business Machines Corp\",\n"
-//     "      \"Ticker\" : \"IBM US Equity\",\n"
-//     "      \"Last Price\" : 149.3,\n"
-//     "      \"Dividend Yield\" : 3.95\n"
+//     "      \"Name\": \"International Business Machines Corp\",\n"
+//     "      \"Ticker\": \"IBM US Equity\",\n"
+//     "      \"Last Price\": 149.3,\n"
+//     "      \"Dividend Yield\": 3.95\n"
 //     "    },\n"
 //     "    {\n"
-//     "      \"Name\" : \"Apple Inc\",\n"
-//     "      \"Ticker\" : \"AAPL US Equity\",\n"
-//     "      \"Last Price\" : 205.8,\n"
-//     "      \"Dividend Yield\" : 1.4\n"
+//     "      \"Name\": \"Apple Inc\",\n"
+//     "      \"Ticker\": \"AAPL US Equity\",\n"
+//     "      \"Last Price\": 205.8,\n"
+//     "      \"Dividend Yield\": 1.4\n"
 //     "    }\n"
 //     "  ]\n"
 //     "}";

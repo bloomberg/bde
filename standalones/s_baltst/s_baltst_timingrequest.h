@@ -55,6 +55,9 @@ class TimingRequest {
     int                                             d_selectionId;
     bslma::Allocator                               *d_allocator_p;
 
+    // PRIVATE ACCESSORS
+    bool isEqualTo(const TimingRequest& rhs) const;
+
   public:
     // TYPES
 
@@ -191,8 +194,8 @@ class TimingRequest {
     /// information structure.  Return the value returned from the
     /// invocation of `manipulator` if this object has a defined selection,
     /// and -1 otherwise.
-    template<class MANIPULATOR>
-    int manipulateSelection(MANIPULATOR& manipulator);
+    template <typename t_MANIPULATOR>
+    int manipulateSelection(t_MANIPULATOR& manipulator);
 
     /// Return a reference to the modifiable "Sqrt" selection of this object
     /// if "Sqrt" is the current selection.  The behavior is undefined
@@ -234,8 +237,8 @@ class TimingRequest {
     /// supplying `accessor` with the corresponding selection information
     /// structure.  Return the value returned from the invocation of
     /// `accessor` if this object has a defined selection, and -1 otherwise.
-    template<class ACCESSOR>
-    int accessSelection(ACCESSOR& accessor) const;
+    template <typename t_ACCESSOR>
+    int accessSelection(t_ACCESSOR& accessor) const;
 
     /// Return a reference to the non-modifiable "Sqrt" selection of this
     /// object if "Sqrt" is the current selection.  The behavior is
@@ -270,26 +273,34 @@ class TimingRequest {
 
     /// Return the symbolic name of the current selection of this object.
     const char *selectionName() const;
+
+    // HIDDEN FRIENDS
+
+    /// Return `true` if the specified `lhs` and `rhs` objects have the same
+    /// value, and `false` otherwise.  Two `TimingRequest` objects have the
+    /// same value if either the selections in both objects have the same
+    /// ids and the same values, or both selections are undefined.
+    friend bool operator==(const TimingRequest& lhs, const TimingRequest& rhs)
+    {
+        return lhs.isEqualTo(rhs);
+    }
+
+    /// Return `true` if the specified `lhs` and `rhs` objects do not have
+    /// the same values, as determined by `operator==`, and `false`
+    /// otherwise.
+    friend bool operator!=(const TimingRequest& lhs, const TimingRequest& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    /// Format the specified `rhs` to the specified output `stream` and
+    /// return a reference to the modifiable `stream`.
+    friend bsl::ostream& operator<<(bsl::ostream&        stream,
+                                    const TimingRequest& rhs)
+    {
+        return rhs.print(stream, 0, -1);
+    }
 };
-
-// FREE OPERATORS
-
-/// Return `true` if the specified `lhs` and `rhs` objects have the same
-/// value, and `false` otherwise.  Two `TimingRequest` objects have the same
-/// value if either the selections in both objects have the same ids and
-/// the same values, or both selections are undefined.
-inline
-bool operator==(const TimingRequest& lhs, const TimingRequest& rhs);
-
-/// Return `true` if the specified `lhs` and `rhs` objects do not have the
-/// same values, as determined by `operator==`, and `false` otherwise.
-inline
-bool operator!=(const TimingRequest& lhs, const TimingRequest& rhs);
-
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
-inline
-bsl::ostream& operator<<(bsl::ostream& stream, const TimingRequest& rhs);
 
 }  // close package namespace
 
@@ -298,7 +309,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const TimingRequest& rhs);
 BDLAT_DECL_CHOICE_WITH_ALLOCATOR_BITWISEMOVEABLE_TRAITS(s_baltst::TimingRequest)
 
 // ============================================================================
-//                         INLINE FUNCTION DEFINITIONS
+//                          INLINE DEFINITIONS
 // ============================================================================
 
 namespace s_baltst {
@@ -308,6 +319,29 @@ namespace s_baltst {
                             // -------------------
 
 // CLASS METHODS
+// PRIVATE ACCESSORS
+inline
+bool TimingRequest::isEqualTo(const TimingRequest& rhs) const
+{
+    typedef TimingRequest Class;
+    if (this->selectionId() == rhs.selectionId()) {
+        switch (rhs.selectionId()) {
+          case Class::SELECTION_ID_SQRT:
+            return this->sqrt() == rhs.sqrt();
+          case Class::SELECTION_ID_BASIC:
+            return this->basic() == rhs.basic();
+          case Class::SELECTION_ID_BIG:
+            return this->big() == rhs.big();
+          default:
+            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
+            return true;
+        }
+    }
+    else {
+        return false;
+    }
+}
+
 // CREATORS
 inline
 TimingRequest::TimingRequest(bslma::Allocator *basicAllocator)
@@ -323,8 +357,8 @@ TimingRequest::~TimingRequest()
 }
 
 // MANIPULATORS
-template <class MANIPULATOR>
-int TimingRequest::manipulateSelection(MANIPULATOR& manipulator)
+template <typename t_MANIPULATOR>
+int TimingRequest::manipulateSelection(t_MANIPULATOR& manipulator)
 {
     switch (d_selectionId) {
       case TimingRequest::SELECTION_ID_SQRT:
@@ -370,8 +404,8 @@ int TimingRequest::selectionId() const
     return d_selectionId;
 }
 
-template <class ACCESSOR>
-int TimingRequest::accessSelection(ACCESSOR& accessor) const
+template <typename t_ACCESSOR>
+int TimingRequest::accessSelection(t_ACCESSOR& accessor) const
 {
     switch (d_selectionId) {
       case SELECTION_ID_SQRT:
@@ -437,54 +471,14 @@ bool TimingRequest::isUndefinedValue() const
 
 // FREE FUNCTIONS
 
-inline
-bool s_baltst::operator==(
-        const s_baltst::TimingRequest& lhs,
-        const s_baltst::TimingRequest& rhs)
-{
-    typedef s_baltst::TimingRequest Class;
-    if (lhs.selectionId() == rhs.selectionId()) {
-        switch (rhs.selectionId()) {
-          case Class::SELECTION_ID_SQRT:
-            return lhs.sqrt() == rhs.sqrt();
-          case Class::SELECTION_ID_BASIC:
-            return lhs.basic() == rhs.basic();
-          case Class::SELECTION_ID_BIG:
-            return lhs.big() == rhs.big();
-          default:
-            BSLS_ASSERT(Class::SELECTION_ID_UNDEFINED == rhs.selectionId());
-            return true;
-        }
-    }
-    else {
-        return false;
-   }
-}
-
-inline
-bool s_baltst::operator!=(
-        const s_baltst::TimingRequest& lhs,
-        const s_baltst::TimingRequest& rhs)
-{
-    return !(lhs == rhs);
-}
-
-inline
-bsl::ostream& s_baltst::operator<<(
-        bsl::ostream& stream,
-        const s_baltst::TimingRequest& rhs)
-{
-    return rhs.print(stream, 0, -1);
-}
-
 }  // close enterprise namespace
 #endif
 
-// GENERATED BY @BLP_BAS_CODEGEN_VERSION@
+// GENERATED BY BLP_BAS_CODEGEN_2025.08.21
 // USING bas_codegen.pl s_baltst_timingrequest.xsd --mode msg --includedir . --msgComponent timingrequest --noRecurse --noExternalization --noHashSupport --noAggregateConversion
 // ----------------------------------------------------------------------------
 // NOTICE:
-//      Copyright 2022 Bloomberg Finance L.P. All rights reserved.
+//      Copyright 2025 Bloomberg Finance L.P. All rights reserved.
 //      Property of Bloomberg Finance L.P. (BFLP)
 //      This software is made available solely pursuant to the
 //      terms of a BFLP license agreement which governs its use.
