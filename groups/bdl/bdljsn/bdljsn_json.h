@@ -156,7 +156,7 @@ BSLS_IDENT("$Id: $")
 // ```
 //
 ///Example 2: More Efficiently Creating a `bdljsn::Json`
-///-----------------------------------------------------
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Example 1 used `operator[]` to implicitly add members to the Objects.  Using
 // `operator[]` is intuitive but not the most efficient method to add new
 // members to a `bdljsn::JsonObject` (similar to using `operator[]` to add
