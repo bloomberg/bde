@@ -1,6 +1,7 @@
 // balb_performancemonitor.t.cpp                                      -*-C++-*-
 #include <balb_performancemonitor.h>
 
+#include <bdls_filesystemutil.h>
 #include <bdls_processutil.h>
 
 #include <bdlt_currenttime.h>
@@ -27,6 +28,7 @@
 #include <bsls_types.h>
 
 #include <bsl_algorithm.h>
+#include <bsl_cfloat.h>
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
 #include <bsl_iomanip.h>
@@ -105,9 +107,10 @@ using bsl::flush;
 // [ 2] int numRegisteredPids() const
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [11] USAGE EXAMPLE
+// [13] USAGE EXAMPLE
 // [ 3] CONCERN: The Process Start Time is Reasonable
 // [ 5] CONCERN: Statistics are Reset Correctly (DRQS 49280976)
+// [12] CONCERN: Initial values of statistics (DRQS 180602553)
 // [-1] TESTING VIRTUAL SIZE AND RESIDENT SIZE
 // [-3] DUMMY TEST CASE
 // ----------------------------------------------------------------------------
@@ -566,6 +569,49 @@ ObjIterator advanceIt(const ObjIterator& begin, int n)
     return ret;
 }
 
+/// Force both the user and system time counters to advance by performing I/O
+/// and an expensive computation that can't be optimized.  (This isn't
+/// guaranteed to work, so don't rely on it.)
+void consumeUserAndSystemTime()
+{
+    bsl::string tmpFileName;
+
+    bdls::FilesystemUtil::FileDescriptor tmpFile =
+                  bdls::FilesystemUtil::createTemporaryFile(&tmpFileName, ".");
+
+    unsigned int x = bdls::ProcessUtil::getProcessId();
+
+    for (int i = 0; i < 100000; i++) {
+        bdls::FilesystemUtil::write(tmpFile, &x, sizeof x);
+        bdls::FilesystemUtil::seek(
+                                  tmpFile,
+                                  0,
+                                  bdls::FilesystemUtil::e_SEEK_FROM_BEGINNING);
+        bdls::FilesystemUtil::read(tmpFile, &x, sizeof x);
+        for (int j = 0; j < 1000; ++j) {
+            if (x % 2 == 0) x /= 2; else x = 3*x + 1;
+        }
+    }
+
+    bdls::FilesystemUtil::close(tmpFile);
+    bdls::FilesystemUtil::remove(tmpFileName);
+}
+
+bool isCumulative(int measure)
+{
+    return measure == Obj::e_CPU_TIME ||
+           measure == Obj::e_CPU_TIME_USER ||
+           measure == Obj::e_CPU_TIME_SYSTEM ||
+           measure == Obj::e_NUM_PAGEFAULTS;
+}
+
+bool isRate(int measure)
+{
+    return measure == Obj::e_CPU_UTIL ||
+           measure == Obj::e_CPU_UTIL_USER ||
+           measure == Obj::e_CPU_UTIL_SYSTEM;
+}
+
 }  // close unnamed namespace
 
 #if defined(BSLS_PLATFORM_OS_LINUX) || defined(BSLS_PLATFORM_OS_CYGWIN)
@@ -640,7 +686,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -717,6 +763,148 @@ int main(int argc, char *argv[])
 
     scheduler.stop();
 // ```
+      } break;
+      case 12: {
+        // --------------------------------------------------------------------
+        // TESTING INITIAL VALUES
+        //
+        // Concern:
+        // 1. If no samples are available for a given measure because `collect`
+        //    has not been called enough times, the `latestValue`, `minValue`,
+        //    and `maxValue` accessors of the `PerformanceMonitor::Statistics`
+        //    class return the values specified by their documentation.  The
+        //    necessary number of calls is one for point measures and two for
+        //    CPU utilization rates.
+        //
+        // 2. The zero value returned by the `latestValue` accessor when no
+        //    value was yet available is not actually part of the minimum;
+        //    therefore, if a positive value is computed in the future, the
+        //    minimum will be nonzero.
+        //
+        // 3. After a call to `resetStatistics`, the above properties hold as
+        //    if exactly one call to `collect` has ever occurred.
+        //
+        // Plan:
+        // 1. Create a `balb::PerformanceMonitor` object and register the
+        //    current process to it.
+        //
+        // 2. Before any collection has occurred, call the accessors mentioned
+        //    in C-1 and verify that they return the expected values.  (C-1)
+        //
+        // 3. Call `collect` and verify that for utilization rates, the values
+        //    are unchanged, and for point measures that are not cumulative,
+        //    the `minValue` accessor returns the same value as `latestValue`
+        //    (since only one value contributes to the minimum).  (C-1,2)
+        //
+        // 4. Call a function that consumes a significant amount of user and
+        //    system time, and then call `latestValue` and `minValue` for the
+        //    utilization measures again.  Verify that the latest and minimum
+        //    values are equal.  (Note that the intent is that these values are
+        //    nonzero, but the test doesn't fail if they are zero.)  (C-2)
+        //
+        // 5. Call `resetStatistics` and then repeat steps 3 and 4 (but without
+        //    the initial call to `collect` in P-3).  (C-3)
+        //
+        // Testing:
+        //   CONCERN: Initial values of statistics (DRQS 180602553)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING INITIAL VALUES\n"
+                             "======================\n";
+
+        const double maxDouble = std::numeric_limits<double>::max();
+
+        Obj perfmon;
+        perfmon.registerPid(0, "current process");
+
+        const Obj::Statistics& stats = *perfmon.begin();
+
+        {
+            if (veryVerbose) cout << "\tcollect() not yet called\n";
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure = static_cast<Obj::Measure>(i);
+                if (veryVerbose) { T_ T_ P(i) }
+                ASSERTV(measure, stats.latestValue(measure),
+                        0.0        == stats.latestValue(measure));
+                ASSERTV(measure, stats.minValue(measure),
+                        maxDouble  == stats.minValue(measure));
+                ASSERTV(measure, stats.maxValue(measure),
+                        -maxDouble == stats.maxValue(measure));
+            }
+
+            perfmon.collect();
+
+            if (veryVerbose) cout << "\tcollect() called once\n";
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure     = static_cast<Obj::Measure>(i);
+                double       latestValue = stats.latestValue(measure);
+                if (veryVerbose) { T_ T_ P_(i) P(latestValue) }
+                if (isRate(i)) {
+                    ASSERTV(measure, latestValue, 0.0 == latestValue);
+                    ASSERTV(measure, stats.minValue(measure),
+                            maxDouble   == stats.minValue(measure));
+                    ASSERTV(measure, stats.maxValue(measure),
+                            -maxDouble  == stats.maxValue(measure));
+                } else if (!isCumulative(i)) {
+                    ASSERTV(measure, latestValue, stats.minValue(measure),
+                            latestValue == stats.minValue(measure));
+                }
+            }
+
+            consumeUserAndSystemTime();
+            perfmon.collect();
+
+            if (veryVerbose) cout << "\tcollect() called twice\n";
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure     = static_cast<Obj::Measure>(i);
+                double       latestValue = stats.latestValue(measure);
+                if (veryVerbose) { T_ T_ P_(i) P(latestValue) }
+                if (isRate(i)) {
+                    ASSERTV(measure, latestValue, stats.minValue(measure),
+                            latestValue == stats.minValue(measure));
+                }
+            }
+        }
+
+        perfmon.resetStatistics();
+
+        {
+            if (veryVerbose) cout << "\tresetStatistics() called\n";
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure     = static_cast<Obj::Measure>(i);
+                double       latestValue = stats.latestValue(measure);
+                if (veryVerbose) { T_ T_ P_(i) P(latestValue) }
+                if (isRate(i)) {
+                    ASSERTV(measure, latestValue, 0.0 == latestValue);
+                    ASSERTV(measure, stats.minValue(measure),
+                            maxDouble   == stats.minValue(measure));
+                    ASSERTV(measure, stats.maxValue(measure),
+                            -maxDouble  == stats.maxValue(measure));
+                } else if (!isCumulative(i)) {
+                    ASSERTV(measure, latestValue, stats.minValue(measure),
+                            latestValue == stats.minValue(measure));
+                }
+            }
+
+            consumeUserAndSystemTime();
+            perfmon.collect();
+
+            if (veryVerbose) cout << "\tcollect() called once after reset\n";
+
+            for (int i = 0; i < Obj::e_NUM_MEASURES; ++i) {
+                Obj::Measure measure     = static_cast<Obj::Measure>(i);
+                double       latestValue = stats.latestValue(measure);
+                if (veryVerbose) { T_ T_ P_(i) P(latestValue) }
+                if (isRate(i)) {
+                    ASSERTV(measure, latestValue, stats.minValue(measure),
+                            latestValue == stats.minValue(measure));
+                }
+            }
+        }
       } break;
       case 11: {
         // --------------------------------------------------------------------

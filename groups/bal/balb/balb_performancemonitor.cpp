@@ -82,42 +82,12 @@ BSLS_IDENT_RCSID(balb_performancemonitor_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 
 namespace BloombergLP {
+namespace balb {
 namespace {
 
-typedef balb::PerformanceMonitor PM;
+typedef PerformanceMonitor PM;
 
 enum { INVALID_TIMER_HANDLE = -1 }; // invalid timer event scheduler handle
-
-struct MeasureData {
-    int         id;
-    const char *tag;
-    const char *name;
-    const char *units;
-    bool        hasAverage;
-};
-
-MeasureData s_measureData[PM::e_NUM_MEASURES] = {
-  { PM::e_CPU_TIME,
-            "CPU_TIME",        "CPU Time",        "s ", false },
-  { PM::e_CPU_TIME_USER,
-            "CPU_TIME_USER",   "User CPU Time",   "s ", false },
-  { PM::e_CPU_TIME_SYSTEM,
-            "CPU_TIME_SYSTEM", "System CPU Time", "s ", false },
-  { PM::e_CPU_UTIL,
-            "CPU_UTIL",        "CPU",             "% ", true  },
-  { PM::e_CPU_UTIL_USER,
-            "CPU_UTIL_USER",   "User CPU",        "% ", true  },
-  { PM::e_CPU_UTIL_SYSTEM,
-            "CPU_UTIL_SYSTEM", "System CPU",      "% ", true  },
-  { PM::e_RESIDENT_SIZE,
-            "RESIDENT_SIZE",   "Resident Size",   "Mb", true  },
-  { PM::e_NUM_THREADS,
-            "NUM_THREADS",     "Thread Count",    "  ", true  },
-  { PM::e_NUM_PAGEFAULTS,
-            "NUM_PAGEFAULTS",  "Page Faults",     "  ", false },
-  { PM::e_VIRTUAL_SIZE,
-            "VIRTUAL_SIZE",    "Virtual Size",    "Mb", true  }
-};
 
 /// Return `true` if the absolute value of the difference between the
 /// specified `lhs` and `rhs` is less than
@@ -129,7 +99,43 @@ bool nearlyEqual(double lhs, double rhs)
 
 }  // close unnamed namespace
 
-namespace balb {
+// PRIVATE TYPES
+
+/// This struct defines the properties of a measure.
+struct PerformanceMonitor::MeasureData {
+    int         id;
+    const char *tag;
+    const char *name;
+    const char *units;
+    MeasureType measureType;
+    bool        hasAverage;
+};
+
+// CLASS DATA
+
+const PerformanceMonitor::MeasureData
+PerformanceMonitor::s_measureData[e_NUM_MEASURES] = {
+  { PM::e_CPU_TIME,        "CPU_TIME",        "CPU Time",
+      "s ", e_NON_RATE_MEASURE, false },
+  { PM::e_CPU_TIME_USER,   "CPU_TIME_USER",   "User CPU Time",
+      "s ", e_NON_RATE_MEASURE, false },
+  { PM::e_CPU_TIME_SYSTEM, "CPU_TIME_SYSTEM", "System CPU Time",
+      "s ", e_NON_RATE_MEASURE, false },
+  { PM::e_CPU_UTIL,        "CPU_UTIL",        "CPU",
+      "% ", e_RATE_MEASURE,     true  },
+  { PM::e_CPU_UTIL_USER,   "CPU_UTIL_USER",   "User CPU",
+      "% ", e_RATE_MEASURE,     true  },
+  { PM::e_CPU_UTIL_SYSTEM, "CPU_UTIL_SYSTEM", "System CPU",
+      "% ", e_RATE_MEASURE,     true  },
+  { PM::e_RESIDENT_SIZE,   "RESIDENT_SIZE",   "Resident Size",
+      "Mb", e_NON_RATE_MEASURE, true  },
+  { PM::e_NUM_THREADS,     "NUM_THREADS",     "Thread Count",
+      "  ", e_NON_RATE_MEASURE, true  },
+  { PM::e_NUM_PAGEFAULTS, "NUM_PAGEFAULTS",   "Page Faults",
+      "  ", e_NON_RATE_MEASURE, false },
+  { PM::e_VIRTUAL_SIZE,   "VIRTUAL_SIZE",     "Virtual Size",
+      "Mb", e_NON_RATE_MEASURE, true  }
+};
 
 // PRIVATE TYPES
 
@@ -458,6 +464,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
+    int samplesCollected[e_NUM_MEASURE_TYPES] = {1, 0};
+
     ProcStatistics procStats;
     if (0 != readProcStat(&procStats, stats->d_pid)) {
         BSLS_LOG_DEBUG(
@@ -517,15 +525,12 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
     double deltaCpuTimeT = deltaCpuTimeU + deltaCpuTimeS;
 
-    if ((stats->d_numSamples != 0) && (dt > 0)) {
+    if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
         stats->d_lstData[e_CPU_UTIL]        = deltaCpuTimeT / dt * 100.0;
         stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
         stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
-    }
-    else {
-        stats->d_lstData[e_CPU_UTIL]        = 0;
-        stats->d_lstData[e_CPU_UTIL_USER]   = 0;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0;
+        ++stats->d_numSamples[e_RATE_MEASURE];
+        ++samplesCollected[e_RATE_MEASURE];
     }
 
     stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
@@ -534,13 +539,13 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 
     stats->d_elapsedTime = elapsedTime;
 
-    ++stats->d_numSamples;
+    ++stats->d_numSamples[e_NON_RATE_MEASURE];
 
     // Calculate averages for each measure
 
     for (int i = 0; i < e_NUM_MEASURES; ++i) {
-        if (s_measureData[i].hasAverage) {
-
+        if (s_measureData[i].hasAverage &&
+            samplesCollected[s_measureData[i].measureType] > 0) {
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                             stats->d_lstData[i]);
 
@@ -721,6 +726,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
+    int samplesCollected[e_NUM_MEASURE_TYPES] = {1, 0};
+
     ProcStatistics procStats;
     if (0 != readProcStat(&procStats, stats->d_pid)) {
         BSLS_LOG_DEBUG(
@@ -752,18 +759,15 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 
     double dt = elapsedTime - stats->d_elapsedTime;
 
-    if ((stats->d_numSamples != 0) && (dt > 0)) {
+    if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
         stats->d_lstData[e_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
                                    / dt
                                    * 100.0;
 
         stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
         stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
-    }
-    else {
-        stats->d_lstData[e_CPU_UTIL]        = 0.0;
-        stats->d_lstData[e_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
+        ++stats->d_numSamples[e_RATE_MEASURE];
+        ++samplesCollected[e_RATE_MEASURE];
     }
 
     stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
@@ -772,12 +776,13 @@ int PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd>
 
     stats->d_elapsedTime = elapsedTime;
 
-    ++stats->d_numSamples;
+    ++stats->d_numSamples[e_NON_RATE_MEASURE];
 
     // Calculate averages for each measure
 
     for (int i = 0; i < e_NUM_MEASURES; ++i) {
-        if (s_measureData[i].hasAverage) {
+        if (s_measureData[i].hasAverage &&
+            samplesCollected[s_measureData[i].measureType] > 0) {
 
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                             stats->d_lstData[i]);
@@ -866,6 +871,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
+    int samplesCollected[e_NUM_MEASURE_TYPES] = {1, 0};
+
     proc_taskinfo ti;
 
     int nb = proc_pidinfo(stats->d_pid,
@@ -898,15 +905,12 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
     const double elapsedTime = bdlt::CurrentTime::now().totalSecondsAsDouble();
     const double dt          = elapsedTime - stats->d_elapsedTime;
 
-    if ((stats->d_numSamples != 0) && (dt > 0)) {
+    if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
         stats->d_lstData[e_CPU_UTIL]        = deltaCpuTime  / dt * 100.0;
         stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
         stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
-    }
-    else {
-        stats->d_lstData[e_CPU_UTIL]        = 0.0;
-        stats->d_lstData[e_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
+        ++stats->d_numSamples[e_RATE_MEASURE];
+        ++samplesCollected[e_RATE_MEASURE];
     }
 
     stats->d_lstData[e_CPU_TIME]        = cpuTime;
@@ -915,12 +919,13 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 
     stats->d_elapsedTime                   = elapsedTime;
 
-    ++stats->d_numSamples;
+    ++stats->d_numSamples[e_NON_RATE_MEASURE];
 
     // Calculate averages for each measure
 
     for (int i = 0; i < e_NUM_MEASURES; ++i) {
-        if (s_measureData[i].hasAverage) {
+        if (s_measureData[i].hasAverage &&
+            samplesCollected[s_measureData[i].measureType] > 0) {
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                             stats->d_lstData[i]);
             stats->d_maxData[i]  = bsl::max(stats->d_maxData[i],
@@ -1015,6 +1020,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
+    int samplesCollected[e_NUM_MEASURE_TYPES] = {1, 0};
+
     int numThreads;
     double cpuTimeU;
     double cpuTimeS;
@@ -1086,30 +1093,20 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
     double dt = elapsedTime - stats->d_elapsedTime;
 
-    if ((stats->d_numSamples != 0) && (dt > 0)) {
-        stats->d_lstData[e_CPU_UTIL] = (deltaCpuTimeU + deltaCpuTimeS)
-                                   / dt
-                                   * 100.0;
-
-        stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
-    }
-    else {
-        stats->d_lstData[e_CPU_UTIL]        = 0.0;
-        stats->d_lstData[e_CPU_UTIL_USER]   = 0.0;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
-    }
-
-    if (stats->d_lstData[e_CPU_UTIL] > numThreads * 100.0)
-    {
-        BSLS_LOG_DEBUG("Calculated impossible CPU utilization = %f, "
-                       "num threads = %d",
-                       stats->d_lstData[e_CPU_UTIL],
-                       numThreads);
-
-        stats->d_lstData[e_CPU_UTIL] = 0.0;
-        stats->d_lstData[e_CPU_UTIL_USER] = 0.0;
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] = 0.0;
+    if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
+        const double cpuUtil = (deltaCpuTimeU + deltaCpuTimeS) / dt * 100.0;
+        if (cpuUtil > numThreads * 100.0) {
+            BSLS_LOG_DEBUG("Calculated impossible CPU utilization = %f, "
+                           "num threads = %d",
+                           cpuUtil,
+                           numThreads);
+        } else {
+            stats->d_lstData[e_CPU_UTIL]        = cpuUtil;
+            stats->d_lstData[e_CPU_UTIL_USER]   = deltaCpuTimeU / dt * 100.0;
+            stats->d_lstData[e_CPU_UTIL_SYSTEM] = deltaCpuTimeS / dt * 100.0;
+            ++stats->d_numSamples[e_RATE_MEASURE];
+            ++samplesCollected[e_RATE_MEASURE];
+        }
     }
 
     stats->d_lstData[e_CPU_TIME_USER]   = cpuTimeU;
@@ -1118,12 +1115,13 @@ int PerformanceMonitor::Collector<bsls::Platform::OsUnix>
 
     stats->d_elapsedTime = elapsedTime;
 
-    ++stats->d_numSamples;
+    ++stats->d_numSamples[e_NON_RATE_MEASURE];
 
     // Calculate averages for each measure
 
     for (int i = 0; i < e_NUM_MEASURES; ++i) {
-        if (s_measureData[i].hasAverage) {
+        if (s_measureData[i].hasAverage &&
+            samplesCollected[s_measureData[i].measureType] > 0) {
 
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                            stats->d_lstData[i]);
@@ -1438,6 +1436,8 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&stats->d_guard);
 
+    int samplesCollected[e_NUM_MEASURE_TYPES] = {1, 0};
+
     bsl::string name  = findModuleName(stats->d_pid);
     unsigned int instanceIndex;
     findInstanceIndexFromPid(&instanceIndex,
@@ -1478,15 +1478,18 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
         }
     }
 
-    if (stats->d_numSamples != 0) {
+    double elapsedTime = values[ELAPSED_TIME].doubleValue;
+    double dt          = elapsedTime - stats->d_elapsedTime;
+
+    if ((stats->d_numSamples[e_NON_RATE_MEASURE] != 0) && (dt > 0)) {
         stats->d_lstData[e_CPU_UTIL]        = values[PROCESSOR_TIME]
                                            .doubleValue;
         stats->d_lstData[e_CPU_UTIL_USER]   = values[USER_PROCESSOR_TIME]
                                            .doubleValue;
-
-        stats->d_lstData[e_CPU_UTIL_SYSTEM] =
-                                          stats->d_lstData[e_CPU_UTIL]
-                                        - stats->d_lstData[e_CPU_UTIL_USER];
+        stats->d_lstData[e_CPU_UTIL_SYSTEM] = stats->d_lstData[e_CPU_UTIL] -
+                                              stats->d_lstData[e_CPU_UTIL_USER];
+        ++stats->d_numSamples[e_RATE_MEASURE];
+        ++samplesCollected[e_RATE_MEASURE];
     }
 
     stats->d_lstData[e_NUM_THREADS]     = values[THREAD_COUNT].doubleValue;
@@ -1513,25 +1516,22 @@ int PerformanceMonitor::Collector<bsls::Platform::OsWindows>
     stats->d_lstData[e_CPU_TIME_USER]   = double(userTime.QuadPart)
                                       / 10000000.0;
 
-    stats->d_lstData[e_CPU_TIME_SYSTEM] =
+    stats->d_lstData[e_CPU_TIME]        =
                                         stats->d_lstData[e_CPU_TIME_USER]
                                       + stats->d_lstData[e_CPU_TIME_SYSTEM];
 
-    double elapsedTime = values[ELAPSED_TIME].doubleValue;
-    double deltaElapsedTime = elapsedTime - stats->d_elapsedTime;
-
     stats->d_lstData[e_NUM_PAGEFAULTS] +=
-                                         values[PAGEFAULTS_PER_SEC].doubleValue
-                                       * deltaElapsedTime;
+        values[PAGEFAULTS_PER_SEC].doubleValue * dt;
 
     stats->d_elapsedTime = elapsedTime;
 
-    ++stats->d_numSamples;
+    ++stats->d_numSamples[e_NON_RATE_MEASURE];
 
     // Calculate averages for each measure
 
     for (int i = 0; i < e_NUM_MEASURES; ++i) {
-        if (s_measureData[i].hasAverage) {
+        if (s_measureData[i].hasAverage &&
+            samplesCollected[s_measureData[i].measureType] > 0) {
             stats->d_minData[i]  = bsl::min(stats->d_minData[i],
                                             stats->d_lstData[i]);
 
@@ -1556,7 +1556,6 @@ PerformanceMonitor::Statistics::Statistics(bslma::Allocator *basicAllocator)
 , d_startTimeUtc()
 , d_startTime()
 , d_elapsedTime(0.0)
-, d_numSamples(0)
 , d_guard()
 {
     reset();
@@ -1573,7 +1572,10 @@ PerformanceMonitor::Statistics::Statistics(const Statistics&  original,
     d_startTimeUtc = original.d_startTimeUtc;
     d_startTime = original.d_startTime;
     d_elapsedTime = original.d_elapsedTime;
-    d_numSamples = static_cast<int>(original.d_numSamples);
+
+    for (int i = 0; i < e_NUM_MEASURE_TYPES; ++i) {
+        d_numSamples[i] = original.d_numSamples[i];
+    }
 
     for (int i = 0; i < e_NUM_MEASURES; ++i) {
         d_lstData[i] = original.d_lstData[i];
@@ -1609,13 +1611,17 @@ void PerformanceMonitor::Statistics::print(bsl::ostream& os,
     os << s_measureData[measure].name;
 
     os << bsl::right << bsl::setw(5);
-    os << d_numSamples;
+    os << d_numSamples[e_NON_RATE_MEASURE];
+
+    os << bsl::right << bsl::setw(5);
+    os << d_numSamples[e_RATE_MEASURE];
 
     os << bsl::right << bsl::setw(16);
     os << d_lstData[measure]
        << s_measureData[measure].units;
 
-    if (s_measureData[measure].hasAverage) {
+    int numSamples = d_numSamples[s_measureData[measure].measureType];
+    if (s_measureData[measure].hasAverage && numSamples > 0) {
         os << bsl::right << bsl::setw(14);
         if (nearlyEqual(d_minData[measure],
                         bsl::numeric_limits<double>::max()))
@@ -1633,7 +1639,7 @@ void PerformanceMonitor::Statistics::print(bsl::ostream& os,
            << s_measureData[measure].units;
 
         os << bsl::right << bsl::setw(14)
-           << d_totData[measure] / d_numSamples
+           << d_totData[measure] / numSamples
            << s_measureData[measure].units;
     }
     else {
@@ -1663,10 +1669,9 @@ void PerformanceMonitor::Statistics::reset()
 {
     bslmt::WriteLockGuard<bslmt::RWMutex> guard(&d_guard);
 
-    d_numSamples = 0;
-
-    bsl::memset(d_lstData, 0, sizeof d_lstData);
-    bsl::memset(d_totData, 0, sizeof d_totData);
+    bsl::memset(d_numSamples, 0, sizeof d_numSamples);
+    bsl::memset(d_lstData,    0, sizeof d_lstData);
+    bsl::memset(d_totData,    0, sizeof d_totData);
 
     bsl::fill(d_minData,
               d_minData + e_NUM_MEASURES,
@@ -1674,7 +1679,18 @@ void PerformanceMonitor::Statistics::reset()
 
     bsl::fill(d_maxData,
               d_maxData + e_NUM_MEASURES,
-              bsl::numeric_limits<double>::min());
+              -bsl::numeric_limits<double>::max());
+}
+
+// ACCESSORS
+
+double PerformanceMonitor::Statistics::avgValue(Measure measure) const
+{
+    BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
+
+    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
+    const int numSamples = d_numSamples[s_measureData[measure].measureType];
+    return numSamples > 0 ? (d_totData[measure] / numSamples) : 0;
 }
 
 PerformanceMonitor::PerformanceMonitor(bslma::Allocator *basicAllocator)

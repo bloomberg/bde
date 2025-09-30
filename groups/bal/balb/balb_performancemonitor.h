@@ -201,6 +201,53 @@ namespace balb {
 class PerformanceMonitor {
 
   public:
+    // TYPES
+
+    // Enumerates the set of performance measures this class is capable of
+    // monitoring.  Note that CPU utilization measures are calculated as a
+    // ratio of CPU time to elapsed time between two consecutive calls to
+    // `collect`, and therefore no value will be available if `collect` has
+    // been called only once.  Note that not all measures are supported on all
+    // platforms; for an unsupported measure, the behavior is as if the system
+    // reports a zero value.
+    enum Measure {
+        e_CPU_TIME,          // CPU time (seconds)
+        e_CPU_TIME_USER,     // user CPU time (seconds)
+        e_CPU_TIME_SYSTEM,   // system CPU time (seconds)
+        e_CPU_UTIL,          // weighted CPU % (user + system)
+        e_CPU_UTIL_USER,     // weighted user CPU %
+        e_CPU_UTIL_SYSTEM,   // weighted system CPU %
+        e_RESIDENT_SIZE,     // number of MBs of physical memory
+        e_NUM_THREADS,       // number of threads
+        e_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
+        e_VIRTUAL_SIZE,      // number of MBs in the heap
+        e_NUM_MEASURES
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+      , BAEA_CPU_TIME        BSLA_DEPRECATED = e_CPU_TIME
+      , BAEA_CPU_TIME_USER   BSLA_DEPRECATED = e_CPU_TIME_USER
+      , BAEA_CPU_TIME_SYSTEM BSLA_DEPRECATED = e_CPU_TIME_SYSTEM
+      , BAEA_CPU_UTIL        BSLA_DEPRECATED = e_CPU_UTIL
+      , BAEA_CPU_UTIL_USER   BSLA_DEPRECATED = e_CPU_UTIL_USER
+      , BAEA_CPU_UTIL_SYSTEM BSLA_DEPRECATED = e_CPU_UTIL_SYSTEM
+      , BAEA_RESIDENT_SIZE   BSLA_DEPRECATED = e_RESIDENT_SIZE
+      , BAEA_NUM_THREADS     BSLA_DEPRECATED = e_NUM_THREADS
+      , BAEA_NUM_PAGEFAULTS  BSLA_DEPRECATED = e_NUM_PAGEFAULTS
+      , BAEA_VIRTUAL_SIZE    BSLA_DEPRECATED = e_VIRTUAL_SIZE
+      , BAEA_NUM_MEASURES    BSLA_DEPRECATED = e_NUM_MEASURES
+      , CPU_TIME             BSLA_DEPRECATED = e_CPU_TIME
+      , CPU_TIME_USER        BSLA_DEPRECATED = e_CPU_TIME_USER
+      , CPU_TIME_SYSTEM      BSLA_DEPRECATED = e_CPU_TIME_SYSTEM
+      , CPU_UTIL             BSLA_DEPRECATED = e_CPU_UTIL
+      , CPU_UTIL_USER        BSLA_DEPRECATED = e_CPU_UTIL_USER
+      , CPU_UTIL_SYSTEM      BSLA_DEPRECATED = e_CPU_UTIL_SYSTEM
+      , RESIDENT_SIZE        BSLA_DEPRECATED = e_RESIDENT_SIZE
+      , NUM_THREADS          BSLA_DEPRECATED = e_NUM_THREADS
+      , NUM_PAGEFAULTS       BSLA_DEPRECATED = e_NUM_PAGEFAULTS
+      , VIRTUAL_SIZE         BSLA_DEPRECATED = e_VIRTUAL_SIZE
+      , NUM_MEASURES         BSLA_DEPRECATED = e_NUM_MEASURES
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
+    };
+
     // FRIENDS
     class Statistics;
     friend class Statistics;
@@ -255,6 +302,24 @@ class PerformanceMonitor {
     /// implementation.
     typedef bsl::map<int, bsl::pair<StatisticsPtr, CollectorPtr> > PidMap;
 
+    /// Enumeration used to distinguish rate and non-rate measures.  A rate
+    /// measure (i.e. a CPU utilization rate) is calculated by dividing another
+    /// quantity by the elapsed time between two collections.
+    enum MeasureType {
+        e_NON_RATE_MEASURE,
+        e_RATE_MEASURE,
+        e_NUM_MEASURE_TYPES
+    };
+
+    /// This struct is defined in the .cpp file.
+    struct MeasureData;
+
+    // CLASS DATA
+
+    /// This array contains the properties of all measures defined by this
+    /// class.
+    static const MeasureData s_measureData[e_NUM_MEASURES];
+
     // DATA
     PidMap                              d_pidMap;       // map of pid stats
 
@@ -280,46 +345,6 @@ class PerformanceMonitor {
 
   public:
     // TYPES
-    enum Measure {
-        // Enumerates the set of performance measures this class is capable of
-        // monitoring.
-
-        e_CPU_TIME,          // CPU time (seconds)
-        e_CPU_TIME_USER,     // user CPU time (seconds)
-        e_CPU_TIME_SYSTEM,   // system CPU time (seconds)
-        e_CPU_UTIL,          // weighted CPU % (user + system)
-        e_CPU_UTIL_USER,     // weighted user CPU %
-        e_CPU_UTIL_SYSTEM,   // weighted system CPU %
-        e_RESIDENT_SIZE,     // number of MBs of physical memory
-        e_NUM_THREADS,       // number of threads
-        e_NUM_PAGEFAULTS,    // number of pagefaults (major + minor)
-        e_VIRTUAL_SIZE,      // number of MBs in the heap
-        e_NUM_MEASURES
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
-      , BAEA_CPU_TIME        BSLA_DEPRECATED = e_CPU_TIME
-      , BAEA_CPU_TIME_USER   BSLA_DEPRECATED = e_CPU_TIME_USER
-      , BAEA_CPU_TIME_SYSTEM BSLA_DEPRECATED = e_CPU_TIME_SYSTEM
-      , BAEA_CPU_UTIL        BSLA_DEPRECATED = e_CPU_UTIL
-      , BAEA_CPU_UTIL_USER   BSLA_DEPRECATED = e_CPU_UTIL_USER
-      , BAEA_CPU_UTIL_SYSTEM BSLA_DEPRECATED = e_CPU_UTIL_SYSTEM
-      , BAEA_RESIDENT_SIZE   BSLA_DEPRECATED = e_RESIDENT_SIZE
-      , BAEA_NUM_THREADS     BSLA_DEPRECATED = e_NUM_THREADS
-      , BAEA_NUM_PAGEFAULTS  BSLA_DEPRECATED = e_NUM_PAGEFAULTS
-      , BAEA_VIRTUAL_SIZE    BSLA_DEPRECATED = e_VIRTUAL_SIZE
-      , BAEA_NUM_MEASURES    BSLA_DEPRECATED = e_NUM_MEASURES
-      , CPU_TIME             BSLA_DEPRECATED = e_CPU_TIME
-      , CPU_TIME_USER        BSLA_DEPRECATED = e_CPU_TIME_USER
-      , CPU_TIME_SYSTEM      BSLA_DEPRECATED = e_CPU_TIME_SYSTEM
-      , CPU_UTIL             BSLA_DEPRECATED = e_CPU_UTIL
-      , CPU_UTIL_USER        BSLA_DEPRECATED = e_CPU_UTIL_USER
-      , CPU_UTIL_SYSTEM      BSLA_DEPRECATED = e_CPU_UTIL_SYSTEM
-      , RESIDENT_SIZE        BSLA_DEPRECATED = e_RESIDENT_SIZE
-      , NUM_THREADS          BSLA_DEPRECATED = e_NUM_THREADS
-      , NUM_PAGEFAULTS       BSLA_DEPRECATED = e_NUM_PAGEFAULTS
-      , VIRTUAL_SIZE         BSLA_DEPRECATED = e_VIRTUAL_SIZE
-      , NUM_MEASURES         BSLA_DEPRECATED = e_NUM_MEASURES
-#endif // BDE_OMIT_INTERNAL_DEPRECATED
-    };
 
     /// Defines the performance statistics collected for a monitored
     /// process.  Note that this class is not fully value-semantic.  It is
@@ -349,8 +374,8 @@ class PerformanceMonitor {
         double                 d_elapsedTime;
                                  // time elapsed since process startup
 
-        bsls::AtomicInt        d_numSamples;
-                                 // num samples taken
+        int                    d_numSamples[e_NUM_MEASURE_TYPES];
+                                 // num samples taken, indexed by measure type
 
         double                 d_lstData[e_NUM_MEASURES];
                                  // latest collected data
@@ -392,23 +417,28 @@ class PerformanceMonitor {
 
         // MANIPULATORS
 
-        /// Reset the min, max, and average values collected for each
-        /// measure.
+        /// Reset this object to the state in which no samples have been
+        /// collected.  Note that although this method is public, it can't be
+        /// called directly by users, since `PerformanceMonitor` provides only
+        /// const access to statistics.
         void reset();
 
         // ACCESSORS
 
-        /// Return the latest collected value for the specified `measure`.
+        /// Return the latest collected value for the specified `measure`, or 0
+        /// if no values are yet available.
         double latestValue(Measure measure) const;
 
-        /// Return the minimum collected value for the specified `measure`.
+        /// Return the minimum collected value for the specified `measure`, or
+        /// a large positive value if no values have been collected.
         double minValue(Measure measure) const;
 
-        /// Return the maximum collected value for the specified `measure`.
+        /// Return the maximum collected value for the specified `measure`, or
+        /// a large negative value if no values have been collected.
         double maxValue(Measure measure) const;
 
         /// Return the average of the collected values for the specified
-        /// `metric`.
+        /// `metric`, or an unspecified value if no values have been collected.
         double avgValue(Measure measure) const;
 
         /// Return the pid for which these statistics were collected.
@@ -587,7 +617,9 @@ class PerformanceMonitor {
     void collect();
 
     /// Reset the collected min, max, and average values collected for each
-    /// measure for each monitored process.
+    /// measure for each monitored process.  Note that this method will call
+    /// `collect` once for each monitored process, so the statistics after this
+    /// method returns will be based on the values collected thereby.
     void resetStatistics();
 
     // ACCESSORS
@@ -798,15 +830,6 @@ double PerformanceMonitor::Statistics::maxValue(Measure measure) const
 
     bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
     return d_maxData[measure];
-}
-
-inline
-double PerformanceMonitor::Statistics::avgValue(Measure measure) const
-{
-    BSLS_ASSERT_SAFE(measure >= 0 && measure < e_NUM_MEASURES);
-
-    bslmt::ReadLockGuard<bslmt::RWMutex> guard(&d_guard);
-    return d_totData[measure] / d_numSamples;
 }
 
 inline
