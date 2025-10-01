@@ -39,6 +39,7 @@
 #include <s_baltst_mysequencewithnullables.h>
 #include <s_baltst_mysimplecontent.h>
 #include <s_baltst_mysimpleintcontent.h>
+#include <s_baltst_sequencewithnilonly.h>
 #include <s_baltst_testchoice.h>
 #include <s_baltst_testcustomizedtype.h>
 #include <s_baltst_testdynamictype.h>
@@ -3382,6 +3383,8 @@ void runTestCase14()
         //    integers, but also a sequence of an enumeration and a choice
         //    between an integer and a string.
         //
+        // 8. `nil` array elements are never elided.
+        //
         // Plan:
         // 1. Create objects enumerating all 8 `bdlat` attribute type concepts,
         //    and where applicable, recursively up to a depth of 2.
@@ -3394,6 +3397,10 @@ void runTestCase14()
         // 3. For each of the above objects, verify that their XML encodings
         //    created by `balxml::Encoder::encode` satisfy the 6 properties
         //    defined in the "Concerns".
+        //
+        // 4. Create an object of type "SequenceWithNilOnly".  Fill it with
+        //    elements, one of which is `nil`, and encode it.  Verify that
+        //    all elements were encoded.  (C-8)
         //
         // Testing:
         //   int encode(bsl::streambuf *buffer, const TYPE& object);
@@ -3832,6 +3839,35 @@ R(L_,  s(na0,na1,n(i0),n(i1))   , t, t, x(S,x(A0,V0   ),x(A1,V1   )) )  // *
         const TestCase14Row& ROW = DATA[i];
 
         ROW.runTest();
+    }
+
+    // Encoding of array with nillable elements
+    {
+        s_baltst::SequenceWithNilOnly seq;
+        seq.v().push_back(1);
+        seq.v().emplace_back();
+        seq.v().push_back(3);
+        ASSERT(seq.v().size() == 3);
+
+        const bsl::string EXPECTED_OUTPUT =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
+            "<SequenceWithNilOnly>"
+                "<v>1</v>"
+                "<v xsi:nil=\"true\"/>"
+                "<v>3</v>"
+            "</SequenceWithNilOnly>";
+
+        balxml::EncoderOptions options;
+        options.setOutputXSIAlias(false);
+        balxml::Encoder        encoder(&options);
+        ASSERT(options.encodingStyle() == balxml::EncodingStyle::COMPACT);
+        ASSERT(options.objectNamespace().empty());
+        ASSERT(!options.outputXSIAlias());
+
+        bsl::ostringstream os;
+        ASSERT(encoder.encodeToStream(os, seq) == 0);
+        bsl::string output = os.str();
+        ASSERTV(EXPECTED_OUTPUT, output, output == EXPECTED_OUTPUT);
     }
 }
 
@@ -4721,6 +4757,8 @@ int main(int argc, char *argv[])
         //    integers, but also a sequence of an enumeration and a choice
         //    between an integer and a string.
         //
+        // 8. `nil` array elements are never elided.
+        //
         // Plan:
         // 1. Create objects enumerating all 8 `bdlat` attribute type concepts,
         //    and where applicable, recursively up to a depth of 2.
@@ -4733,6 +4771,10 @@ int main(int argc, char *argv[])
         // 3. For each of the above objects, verify that their XML encodings
         //    created by `balxml::Encoder::encode` satisfy the 6 properties
         //    defined in the "Concerns".
+        //
+        // 4. Create an object of type "SequenceWithNilOnly".  Fill it with
+        //    elements, one of which is `nil`, and encode it.  Verify that
+        //    all elements were encoded.  (C-8)
         //
         // Testing:
         //   int encode(bsl::streambuf *buffer, const TYPE& object);

@@ -288,6 +288,7 @@ void Encoder_OptionsCompatibilityUtil::getFormatterOptions(
 int Encoder_EncodeObject::executeImp(const bsl::vector<char>&  object,
                                      const bsl::string_view&   tag,
                                      int                       formattingMode,
+                                     bool                      ,
                                      bdlat_TypeCategory::Array)
 {
     if (formattingMode & bdlat_FormattingMode::e_LIST) {

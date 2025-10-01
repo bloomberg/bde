@@ -463,29 +463,34 @@ class Encoder_EncodeObject {
     int executeImp(const TYPE&               object,
                    const bsl::string_view&   tag,
                    int                       formattingMode,
+                   bool                      isMultiple,
                    bdlat_TypeCategory::Array);
 
     template <class TYPE>
     int executeImp(const TYPE&                       object,
                    const bsl::string_view&           tag,
                    int                               formattingMode,
+                   bool                              isMultiple,
                    bdlat_TypeCategory::NullableValue);
 
     template <class TYPE>
     int executeImp(const TYPE&                     object,
                    const bsl::string_view&         tag,
                    int                             formattingMode,
+                   bool                            isMultiple,
                    bdlat_TypeCategory::DynamicType);
 
     template <class TYPE, class ANY_CATEGORY>
     int executeImp(const TYPE&              object,
                    const bsl::string_view&  tag,
                    int                      formattingMode,
+                   bool                     isMultiple,
                    ANY_CATEGORY);
 
     int executeImp(const bsl::vector<char>&  object,
                    const bsl::string_view&   tag,
                    int                       formattingMode,
+                   bool                      isMultiple,
                    bdlat_TypeCategory::Array);
 
     template <class TYPE>
@@ -515,7 +520,8 @@ class Encoder_EncodeObject {
     template <class TYPE>
     int execute(const TYPE&              object,
                 const bsl::string_view&  tag,
-                int                      formattingMode);
+                int                      formattingMode,
+                bool                     isMultiple);
 };
 
                          // =========================
@@ -712,6 +718,7 @@ struct Encoder_EncodeObject_executeProxy {
     Encoder_EncodeObject    *d_instance_p;
     const bsl::string_view  *d_tag_p;
     int                      d_formattingMode;
+    bool                     d_isMultiple; // = false
 
     // CREATORS
 
@@ -723,7 +730,10 @@ struct Encoder_EncodeObject_executeProxy {
     inline
     int operator()(const TYPE& object)
     {
-        return d_instance_p->execute(object, *d_tag_p, d_formattingMode);
+        return d_instance_p->execute(object,
+                                     *d_tag_p,
+                                     d_formattingMode,
+                                     d_isMultiple);
     }
 };
 
@@ -738,6 +748,7 @@ struct Encoder_EncodeObject_executeImpProxy {
     Encoder_EncodeObject    *d_instance_p;
     const bsl::string_view  *d_tag_p;
     int                      d_formattingMode;
+    bool                     d_isMultiple;
 
     // CREATORS
 
@@ -760,6 +771,7 @@ struct Encoder_EncodeObject_executeImpProxy {
         return d_instance_p->executeImp(object,
                                         *d_tag_p,
                                         d_formattingMode,
+                                        d_isMultiple,
                                         category);
     }
 };
@@ -1176,6 +1188,7 @@ inline
 int Encoder_EncodeObject::executeImp(const TYPE&               object,
                                      const bsl::string_view&   tag,
                                      int                       formattingMode,
+                                     bool                      ,
                                      bdlat_TypeCategory::Array)
 {
     if (formattingMode & bdlat_FormattingMode::e_LIST) {
@@ -1193,16 +1206,19 @@ int Encoder_EncodeObject::executeImp(
                               const TYPE&                       object,
                               const bsl::string_view&           tag,
                               int                               formattingMode,
+                              bool                              isMultiple,
                               bdlat_TypeCategory::NullableValue)
 {
     enum { k_SUCCESS = 0 };
 
     if (bdlat_NullableValueFunctions::isNull(object)) {
         if (formattingMode & bdlat_FormattingMode::e_NILLABLE) {
-            if (!d_context_p->encoderOptions().objectNamespace().empty()
-             && d_context_p->encoderOptions().outputXSIAlias()) {
-                // Only add the "xsi:nil" attribute if an object namespace was
-                // provided because only then can validation happen.
+            if ((!d_context_p->encoderOptions().objectNamespace().empty() &&
+                 d_context_p->encoderOptions().outputXSIAlias()) ||
+                isMultiple) {
+                // Add the "xsi:nil" attribute for array elements even when
+                // `outputXSIAlias()` is false; otherwise the number of the
+                // encoded array elements wiil be different.
                 d_context_p->openElement(tag);
                 d_context_p->addAttribute("xsi:nil", "true");
                 d_context_p->closeElement(tag);
@@ -1215,7 +1231,8 @@ int Encoder_EncodeObject::executeImp(
     Encoder_EncodeObject_executeProxy proxy = {
         this,
         &tag,
-        formattingMode
+        formattingMode,
+        false
     };
 
     return bdlat_NullableValueFunctions::accessValue(object, proxy);
@@ -1227,12 +1244,14 @@ int Encoder_EncodeObject::executeImp(
                                 const TYPE&                     object,
                                 const bsl::string_view&         tag,
                                 int                             formattingMode,
+                                bool                            isMultiple,
                                 bdlat_TypeCategory::DynamicType)
 {
     Encoder_EncodeObject_executeImpProxy proxy = {
         this,
         &tag,
-        formattingMode
+        formattingMode,
+        isMultiple
     };
 
     return bdlat_TypeCategoryUtil::accessByCategory(object, proxy);
@@ -1242,6 +1261,7 @@ template <class TYPE, class ANY_CATEGORY>
 int Encoder_EncodeObject::executeImp(const TYPE&              object,
                                      const bsl::string_view&  tag,
                                      int                      formattingMode,
+                                     bool                     ,
                                      ANY_CATEGORY)
 {
     enum { k_FAILURE = -1 };
@@ -1309,7 +1329,8 @@ int Encoder_EncodeObject::executeArrayRepetitionImp(
 
     const int size = (int)bdlat_ArrayFunctions::size(object);
 
-    Encoder_EncodeObject_executeProxy proxy = { this, &tag, formattingMode };
+    Encoder_EncodeObject_executeProxy proxy =
+                                          { this, &tag, formattingMode, true };
 
     for (int i = 0; i < size; ++i) {
         if (0 != bdlat_ArrayFunctions::accessElement(object, proxy, i)) {
@@ -1342,18 +1363,19 @@ int Encoder_EncodeObject::operator()(const TYPE& object, const INFO_TYPE& info)
 {
     bsl::string_view name(info.name(), info.nameLength());
 
-    return execute(object, name, info.formattingMode());
+    return execute(object, name, info.formattingMode(), false);
 }
 
 template <class TYPE>
 inline
 int Encoder_EncodeObject::execute(const TYPE&              object,
                                   const bsl::string_view&  tag,
-                                  int                      formattingMode)
+                                  int                      formattingMode,
+                                  bool                     isMultiple)
 {
     typedef typename bdlat_TypeCategory::Select<TYPE>::Type TypeCategory;
 
-    return executeImp(object, tag, formattingMode, TypeCategory());
+    return executeImp(object, tag, formattingMode, isMultiple, TypeCategory());
 }
 
                          // -------------------------

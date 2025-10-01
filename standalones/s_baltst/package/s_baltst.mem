@@ -56,6 +56,7 @@ s_baltst_rawdataunformatted
 s_baltst_request
 s_baltst_response
 s_baltst_sequencewithanonymity
+s_baltst_sequencewithnilonly
 s_baltst_simplerequest
 s_baltst_sqrt
 s_baltst_sqrtf

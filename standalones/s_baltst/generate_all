@@ -43,6 +43,7 @@
 ./generate s_baltst_request.xsd
 ./generate s_baltst_response.xsd
 ./generate s_baltst_sequencewithanonymity.xsd
+./generate s_baltst_sequencewithnilonly.xsd
 ./generate s_baltst_simplerequest.xsd
 ./generate s_baltst_sqrt.xsd
 ./generate s_baltst_sqrtf.xsd
