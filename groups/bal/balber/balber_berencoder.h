@@ -167,6 +167,8 @@ BSLS_IDENT("$Id: $")
 #include <balber_beruniversaltagnumber.h>
 #include <balber_berutil.h>
 
+#include <bdlar_refutil.h>
+
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
@@ -413,6 +415,26 @@ class BerEncoder {
     /// the encoding fails `stream` will be invalidated.
     template <typename TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
+
+    /// Encode the specified non-modifiable `value` to the specified
+    /// `streamBuf`.  Return 0 on success, and a non-zero value otherwise.
+    /// Note that this function behaves identically to `encode`, but does not
+    /// instantiate any templates at compile time at the expense of being
+    /// slightly slower at runtime; see the `balber` package documentation for
+    /// more details.
+    template <typename TYPE>
+    int encodeAny(bsl::streambuf *streamBuf, const TYPE& value);
+    int encodeAny(bsl::streambuf *streamBuf, const bdlar::AnyConstRef& any);
+
+    /// Encode the specified non-modifiable `value` to the specified `stream`.
+    /// Return 0 on success, and a non-zero value otherwise.  If the encoding
+    /// fails `stream` will be invalidated.  Note that this function behaves
+    /// identically to `encode`, but does not instantiate any templates at
+    /// compile time at the expense of being slightly slower at runtime; see
+    /// the `balber` package documentation for more details.
+    template <typename TYPE>
+    int encodeAny(bsl::ostream& stream, const TYPE& value);
+    int encodeAny(bsl::ostream& stream, const bdlar::AnyConstRef& any);
 
     // ACCESSORS
 
@@ -767,6 +789,20 @@ int BerEncoder::encode(bsl::ostream& stream, const TYPE& value)
         return -1;
     }
     return 0;
+}
+
+template <typename TYPE>
+inline
+int BerEncoder::encodeAny(bsl::streambuf *streamBuf, const TYPE& value)
+{
+    return encodeAny(streamBuf, bdlar::RefUtil::makeAnyConstRef(value));
+}
+
+template <typename TYPE>
+inline
+int BerEncoder::encodeAny(bsl::ostream& stream, const TYPE& value)
+{
+    return encodeAny(stream, bdlar::RefUtil::makeAnyConstRef(value));
 }
 
 // PRIVATE MANIPULATORS

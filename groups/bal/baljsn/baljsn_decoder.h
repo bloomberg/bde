@@ -162,6 +162,9 @@ BSLS_IDENT("$Id: $")
 #include <baljsn_parserutil.h>
 #include <baljsn_tokenizer.h>
 
+#include <bdlar_isref.h>
+#include <bdlar_refutil.h>
+
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_customizedtypefunctions.h>
@@ -225,6 +228,9 @@ class Decoder {
     // FRIENDS
     friend struct Decoder_DecodeImpProxy;
     friend struct Decoder_ElementVisitor;
+
+    // PRIVATE TYPES
+    struct CustomizedManipulator;
 
     // PRIVATE MANIPULATORS
 
@@ -340,6 +346,50 @@ class Decoder {
     template <class TYPE>
     int decode(bsl::istream& stream, TYPE *value);
 
+    /// Decode into the specified `value`, of a (template parameter) `TYPE`,
+    /// the JSON data read from the specified `streamBuf` and using the
+    /// specified `options`.  Specifying a nullptr `options` is equivalent to
+    /// passing a default-constructed `DecoderOptions` in `options`.  `TYPE`
+    /// shall be a `bdlat`-compatible sequence, choice, or array type, or a
+    /// `bdlat`-compatible dynamic type referring to one of those types.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that this
+    /// function behaves identically to `decode`, but does not instantiate any
+    /// templates at compile time at the expense of being slightly slower at
+    /// runtime; see the `baljsn` package documentation for more details.
+    template <class TYPE>
+    int decodeAny(bsl::streambuf        *streamBuf,
+                  TYPE                  *value,
+                  const DecoderOptions&  options);
+    template <class TYPE>
+    int decodeAny(bsl::streambuf        *streamBuf,
+                  TYPE                  *value,
+                  const DecoderOptions  *options = 0);
+    int decodeAny(bsl::streambuf        *streamBuf,
+                  bdlar::AnyRef         *value,
+                  const DecoderOptions&  options);
+
+    /// Decode into the specified `value`, of a (template parameter) `TYPE`,
+    /// the JSON data read from the specified `stream` and using the specified
+    /// `options`.  `TYPE` shall be a `bdlat`-compatible sequence, choice, or
+    /// array type, or a `bdlat`-compatible dynamic type referring to one of
+    /// those types.  Specifying a nullptr `options` is equivalent to passing a
+    /// default-constructed `DecoderOptions` in `options`.  Return 0 on
+    /// success, and a non-zero value otherwise.  Note that this function
+    /// behaves identically to `decode`, but does not instantiate any templates
+    /// at compile time at the expense of being slightly slower at runtime; see
+    /// the `baljsn` package documentation for more details.
+    template <class TYPE>
+    int decodeAny(bsl::istream&          stream,
+                  TYPE                  *value,
+                  const DecoderOptions&  options);
+    template <class TYPE>
+    int decodeAny(bsl::istream&          stream,
+                  TYPE                  *value,
+                  const DecoderOptions  *options = 0);
+    int decodeAny(bsl::istream&          stream,
+                  bdlar::AnyRef         *value,
+                  const DecoderOptions&  options);
+
     // ACCESSORS
 
     /// Return a string containing any error, warning, or trace messages that
@@ -440,6 +490,41 @@ struct Decoder_RequiredAttrsVisitor {
                                // -------------
                                // class Decoder
                                // -------------
+
+// PRIVATE TYPES
+struct Decoder::CustomizedManipulator {
+    // PUBLIC DATA
+    bsl::ostringstream& d_logStream;
+    bslstl::StringRef   d_dataValue;
+    bool                d_convertCalled;
+
+    // MANIPULATORS
+    template <class t_BASE_TYPE>
+    typename bsl::enable_if<!bdlar::IsRef<t_BASE_TYPE>::value, int>::type
+    operator()(t_BASE_TYPE *value) {
+        int rc = ParserUtil::getValue(value, d_dataValue);
+        // For integral base types, we also accept a quoted representation
+        // (DRQS 166048981).
+        if (bsl::is_integral<t_BASE_TYPE>::value && 0 != rc &&
+            ParserUtil::stripQuotes(&d_dataValue)) {
+            rc = ParserUtil::getValue(value, d_dataValue);
+        }
+        if (rc) {
+            d_logStream << "Could not decode Enum Customized, "
+                        << "value not allowed \"" << d_dataValue << "\"\n";
+            return -1;                                                // RETURN
+        }
+        d_convertCalled = true;
+        return 0;
+    }
+
+    /// Stub for the `bdlar` ref types.
+    template <class t_REF>
+    typename bsl::enable_if<bdlar::IsRef<t_REF>::value, int>::type
+    operator()(t_REF *) {
+        return -1;
+    }
+};
 
 // PRIVATE MANIPULATORS
 template <class TYPE>
@@ -819,30 +904,14 @@ int Decoder::decodeImp(TYPE *value, int, bdlat_TypeCategory::CustomizedType)
         return -1;                                                    // RETURN
     }
 
-    typedef
-        typename bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+    CustomizedManipulator baseManipulator = {d_logStream, dataValue, false};
+    rc = bdlat_CustomizedTypeFunctions::createBaseAndConvert(value,
+                                                             baseManipulator);
 
-    BaseType valueBaseType;
-
-    rc = ParserUtil::getValue(&valueBaseType, dataValue);
-    // For integral base types, we also accept a quoted representation
-    // (DRQS 166048981).
-    if (bsl::is_integral<BaseType>::value && 0 != rc &&
-        ParserUtil::stripQuotes(&dataValue)) {
-        rc = ParserUtil::getValue(&valueBaseType, dataValue);
-    }
-    if (rc) {
-        d_logStream << "Could not decode Enum Customized, "
-                    << "value not allowed \"" << dataValue << "\"\n";
-        return -1;                                                    // RETURN
-    }
-
-    rc = bdlat_CustomizedTypeFunctions::convertFromBaseType(value,
-                                                            valueBaseType);
-    if (rc) {
+    if (rc && baseManipulator.d_convertCalled) {
         d_logStream << "Could not convert base type to customized type, "
                     << "base value disallowed: \"";
-        bdlb::PrintMethods::print(d_logStream, valueBaseType, 0, -1);
+        bdlb::PrintMethods::print(d_logStream, dataValue, 0, -1);
         d_logStream << "\"\n";
     }
     return rc;
@@ -1114,6 +1183,44 @@ int Decoder::decode(bsl::istream& stream, TYPE *value)
 {
     const DecoderOptions options;
     return decode(stream, value, options);
+}
+
+template <class TYPE>
+inline
+int Decoder::decodeAny(bsl::streambuf        *streamBuf,
+                       TYPE                  *value,
+                       const DecoderOptions&  options)
+{
+    bdlar::AnyRef any = bdlar::RefUtil::makeAnyRef(*value);
+    return decodeAny(streamBuf, &any, options);
+}
+
+template <class TYPE>
+inline
+int Decoder::decodeAny(bsl::streambuf        *streamBuf,
+                       TYPE                  *value,
+                       const DecoderOptions  *options)
+{
+    return decodeAny(streamBuf, value, options ? *options : DecoderOptions());
+}
+
+template <class TYPE>
+inline
+int Decoder::decodeAny(bsl::istream&          stream,
+                       TYPE                  *value,
+                       const DecoderOptions&  options)
+{
+    bdlar::AnyRef any = bdlar::RefUtil::makeAnyRef(*value);
+    return decodeAny(stream, &any, options);
+}
+
+template <class TYPE>
+inline
+int Decoder::decodeAny(bsl::istream&          stream,
+                       TYPE                  *value,
+                       const DecoderOptions  *options)
+{
+    return decodeAny(stream, value, options ? *options : DecoderOptions());
 }
 
 // ACCESSORS

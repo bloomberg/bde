@@ -69,6 +69,16 @@ BerDecoder::ErrorSeverity BerDecoder::logMsg(const char *prefix,
     return d_severity;
 }
 
+int BerDecoder::decodeAny(bsl::streambuf *streamBuf, bdlar::AnyRef *any)
+{
+    return decode(streamBuf, any);
+}
+
+int BerDecoder::decodeAny(bsl::istream& stream, bdlar::AnyRef *any)
+{
+    return decode(stream, any);
+}
+
                        // -----------------------------
                        // private class BerDecoder_Node
                        // -----------------------------

@@ -206,10 +206,16 @@ struct PrintUtil {
                           unsigned int          value,
                           const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
-                          bsls::Types::Int64    value,
+                          long                  value,
                           const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
-                          bsls::Types::Uint64   value,
+                          unsigned long         value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          long long             value,
+                          const EncoderOptions *options = 0);
+    static int printValue(bsl::ostream&         stream,
+                          unsigned long long    value,
                           const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
                           float                 value,
@@ -419,7 +425,16 @@ int PrintUtil::printValue(bsl::ostream&         stream,
 
 inline
 int PrintUtil::printValue(bsl::ostream&         stream,
-                          bsls::Types::Int64    value,
+                          long                  value,
+                          const EncoderOptions *)
+{
+    stream << value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          long long             value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -455,7 +470,16 @@ int PrintUtil::printValue(bsl::ostream&         stream,
 
 inline
 int PrintUtil::printValue(bsl::ostream&         stream,
-                          bsls::Types::Uint64   value,
+                          unsigned long         value,
+                          const EncoderOptions *)
+{
+    stream << value;
+    return 0;
+}
+
+inline
+int PrintUtil::printValue(bsl::ostream&         stream,
+                          unsigned long long    value,
                           const EncoderOptions *)
 {
     stream << value;

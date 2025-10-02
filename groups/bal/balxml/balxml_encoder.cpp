@@ -80,6 +80,23 @@ ErrorInfo::Severity  Encoder::logError(
     return d_severity;
 }
 
+int Encoder::encodeAny(bsl::streambuf            *streamBuf,
+                       const bdlar::AnyConstRef&  any)
+{
+    return encode(streamBuf, any);
+}
+
+bsl::ostream& Encoder::encodeAny(bsl::ostream&             stream,
+                                 const bdlar::AnyConstRef& any)
+{
+    return encode(stream, any);
+}
+
+int Encoder::encodeAny(Formatter& formatter, const bdlar::AnyConstRef& any)
+{
+    return encode(formatter, any);
+}
+
                            // ---------------------
                            // class Encoder_Context
                            // ---------------------
