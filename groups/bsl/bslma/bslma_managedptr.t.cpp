@@ -1712,18 +1712,19 @@ consumeManagedPtr(bslma::ManagedPtr<MyTestObject>,
 {
     ASSERTV(checkValue, *numDels, checkValue == *numDels);
 }
-
-template <typename MANAGEDPTR_TYPE>
-static void
-consumeManagedPtrNP(MANAGEDPTR_TYPE)
-{
-    // Will be called with a null pointer constant to test implicit conversion.
-}
 #endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
 template <typename MANAGEDPTR_TYPE>
 static void
 consumeManagedPtrCRNP(const MANAGEDPTR_TYPE&)
+{
+    // Will be called with a null pointer constant to test implicit conversion.
+}
+
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+template <typename MANAGEDPTR_TYPE>
+static void
+consumeManagedPtrNP(MANAGEDPTR_TYPE)
 {
     // Will be called with a null pointer constant to test implicit conversion.
 }
@@ -1735,6 +1736,7 @@ returnManagedPtrNP()
     // Ensure implicit conversion works on return values.
     return 0;
 }
+#endif //defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 
 static void
 consumeManagedPtrCR(const bslma::ManagedPtr<MyTestObject>&,
@@ -13844,13 +13846,14 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocatorMonitor dam(&da);
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            consumeManagedPtrNP<Obj>(0);
-#endif
             consumeManagedPtrCRNP<Obj>(0);
-            Obj o = returnManagedPtrNP<Obj>();
 
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+            consumeManagedPtrNP<Obj>(0);
+            Obj o = returnManagedPtrNP<Obj>();
             ASSERT(0 == o.get());
+#endif
+
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -13861,13 +13864,14 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocatorMonitor dam(&da);
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            consumeManagedPtrNP<VObj>(0);
-#endif
             consumeManagedPtrCRNP<VObj>(0);
-            VObj o = returnManagedPtrNP<VObj>();
 
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+            consumeManagedPtrNP<VObj>(0);
+            VObj o = returnManagedPtrNP<VObj>();
             ASSERT(0 == o.get());
+#endif
+
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
@@ -13878,14 +13882,15 @@ int main(int argc, char *argv[])
 
             bslma::TestAllocatorMonitor dam(&da);
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-            consumeManagedPtrNP<bslma::ManagedPtr<const int> >(0);
-#endif
             consumeManagedPtrCRNP<bslma::ManagedPtr<const int> >(0);
+
+#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+            consumeManagedPtrNP<bslma::ManagedPtr<const int> >(0);
             bslma::ManagedPtr<const int> o =
                            returnManagedPtrNP<bslma::ManagedPtr<const int> >();
-
             ASSERT(0 == o.get());
+#endif
+
             ASSERT(dam.isTotalSame());
         }
         ASSERT(0 == numDeletes);
