@@ -4,14 +4,12 @@
 
 // the following suppresses warnings from `#include` inlined functions
 #if defined(BSLS_PLATFORM_CMP_SUN)
-#pragma error_messages(off, SEC_NULL_PTR_DEREF)
+# pragma error_messages(off, SEC_NULL_PTR_DEREF)
 #endif
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#endif
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic ignored "-Wstringop-overflow="
+# pragma GCC diagnostic ignored "-Warray-bounds"
+# pragma GCC diagnostic ignored "-Wstringop-overflow="
 #endif
 
 #include <bslstl_multimap_test.h>
@@ -64,16 +62,22 @@
 #include <utility>      // move
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-#include <initializer_list>
+# include <initializer_list>
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-#include <ranges>
+# include <ranges>
 #endif
 
 #include <limits.h>
 #include <stdlib.h>      // atoi
 #include <stdio.h>       // stdout
+
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
 
 // ============================================================================
 //                              TEST PLAN

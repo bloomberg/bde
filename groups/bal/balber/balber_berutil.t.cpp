@@ -54,9 +54,14 @@
 #include <bsl_string_view.h>
 
 #if defined(BSLS_PLATFORM_CMP_SUN)
-#pragma error_messages(off, arrowrtn)
+# pragma error_messages(off, arrowrtn)
 #endif
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;

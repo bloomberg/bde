@@ -4,8 +4,8 @@
 
 // the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wfloat-conversion"
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wfloat-conversion"
 #endif
 
 #include <bslstl_pair.h>
@@ -64,7 +64,13 @@
 #include <algorithm>    // `std::swap`
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-#include <type_traits>  // No `bslmf` support for `is_constructible`
+# include <type_traits>  // No `bslmf` support for `is_constructible`
+#endif
+
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
 #endif
 
 // Local macros to detect and work around compiler defects.

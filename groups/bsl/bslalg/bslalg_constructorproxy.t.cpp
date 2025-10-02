@@ -27,13 +27,19 @@
 #include <cstdlib>  // `atoi`
 #include <cstring>
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
-#pragma bde_verify -FD01   // Function declaration requires contract
-#pragma bde_verify -FD03   // Parameter not documented in function contract
-#pragma bde_verify -FABC01 // Function not in alphabetical order
-#pragma bde_verify -TP19   // Missing or malformed standard test driver section
-#pragma bde_verify -TY02   // Template parameter uses single-letter name
+# pragma bde_verify -FD01   // Function declaration requires contract
+# pragma bde_verify -FD03   // Parameter not documented in function contract
+# pragma bde_verify -FABC01 // Function not in alphabetical order
+# pragma bde_verify -TP19   // Missing or malformed standard test driver section
+# pragma bde_verify -TY02   // Template parameter uses single-letter name
 #endif
 
 using std::printf;

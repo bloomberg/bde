@@ -43,12 +43,19 @@
 #include <bsltf_testvaluesarray.h>
 
 #include <utility> // move
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-#include <ranges>
+# include <ranges>
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
 
 using namespace BloombergLP;
 using bsls::NameOf;

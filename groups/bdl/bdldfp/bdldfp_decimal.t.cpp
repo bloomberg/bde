@@ -34,8 +34,14 @@
 
 #include <typeinfo>
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-    #include <format>  // Testing only
+# include <format>  // Testing only
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+# ifdef BDE_BUILD_TARGET_ASAN
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
 
 using namespace BloombergLP;
 using bsl::cout;

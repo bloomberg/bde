@@ -34,6 +34,12 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 using bsl::cout;

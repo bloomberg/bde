@@ -30,9 +30,11 @@ using bsl::endl;
 using bsl::atoi;
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
-#endif
+# ifdef BSLS_PLATFORM_CMP_CLANG
+#   pragma GCC diagnostic ignored "-Wtautological-type-limit-compare"
+# elif defined(BDE_BUILD_TARGET_ASAN)
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
 #endif
 
 // ============================================================================

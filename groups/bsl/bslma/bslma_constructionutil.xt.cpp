@@ -20,23 +20,29 @@
 #include <cstdlib>     // `std::atoi`
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
 #endif
 
 #ifdef BDE_VERIFY
 // Suppress some pedantic bde_verify checks in this test driver
-#pragma bde_verify -FD01   // Function must have contract
-#pragma bde_verify -MN01   // Class data members must be private
-#pragma bde_verify -AP02   // Class needs d_allocator_p member
-#pragma bde_verify -AL01   // Class needs allocator() method
-#pragma bde_verify -MA02   // Allocator not passed to member
-#pragma bde_verify -GA01:  // Global variable must use non-default allocator
-#pragma bde_verify -FABC01 // Function not in alphanumeric order
-#pragma bde_verify -FD03   // Parameter is not documented in function contract
-#pragma bde_verify -TY02   // Template parameter uses single-letter name
-#pragma bde_verify -IND03  // Function parameter names should align vertically
+# pragma bde_verify -FD01   // Function must have contract
+# pragma bde_verify -MN01   // Class data members must be private
+# pragma bde_verify -AP02   // Class needs d_allocator_p member
+# pragma bde_verify -AL01   // Class needs allocator() method
+# pragma bde_verify -MA02   // Allocator not passed to member
+# pragma bde_verify -GA01:  // Global variable must use non-default allocator
+# pragma bde_verify -FABC01 // Function not in alphanumeric order
+# pragma bde_verify -FD03   // Parameter is not documented in function contract
+# pragma bde_verify -TY02   // Template parameter uses single-letter name
+# pragma bde_verify -IND03  // Function parameter names should align vertically
 
-#pragma bde_verify append dictionary src tbd  // Doesn't work ??
+# pragma bde_verify append dictionary src tbd  // Doesn't work ??
 #endif
 
 using namespace BloombergLP;

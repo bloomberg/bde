@@ -27,6 +27,12 @@
   #define u_IF_NOT_CONSTEXPR
 #endif
 
+#ifdef BDE_BUILD_TARGET_ASAN
+  #ifdef BSLS_PLATFORM_CMP_GNU
+    #pragma GCC diagnostic ignored "-Wlarger-than="
+  #endif
+#endif
+
 using namespace BloombergLP;
 using namespace bsl;
 

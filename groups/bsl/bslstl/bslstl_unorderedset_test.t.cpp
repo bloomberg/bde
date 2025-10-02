@@ -43,14 +43,21 @@
 #include <bsltf_testvaluesarray.h>
 
 #include <utility> // move
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-#include <ranges>
+# include <ranges>
 #endif
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef BDE_BUILD_TARGET_ASAN
+# ifdef BSLS_PLATFORM_CMP_GNU
+#   pragma GCC diagnostic ignored "-Wlarger-than="
+# endif
+#endif
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -2721,7 +2728,7 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase31b_RunTest(Obj   *target,
         // (and we should not dereference it, even if it wasn't invalidated).
         ASSERTV(inserted, hintWasEnd,
                 (hintWasEnd && inserted) ||
-                (!hintWasEnd && (inserted == (&*result != &*hint)))); 
+                (!hintWasEnd && (inserted == (&*result != &*hint))));
 
         ASSERTV(MOVE_01, A01.movedFrom(),
                MOVE_01 == (MoveState::e_MOVED == A01.movedFrom()) || 2 == N01);
