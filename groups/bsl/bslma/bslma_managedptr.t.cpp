@@ -1712,16 +1712,7 @@ consumeManagedPtr(bslma::ManagedPtr<MyTestObject>,
 {
     ASSERTV(checkValue, *numDels, checkValue == *numDels);
 }
-#endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 
-template <typename MANAGEDPTR_TYPE>
-static void
-consumeManagedPtrCRNP(const MANAGEDPTR_TYPE&)
-{
-    // Will be called with a null pointer constant to test implicit conversion.
-}
-
-#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
 template <typename MANAGEDPTR_TYPE>
 static void
 consumeManagedPtrNP(MANAGEDPTR_TYPE)
@@ -1736,7 +1727,14 @@ returnManagedPtrNP()
     // Ensure implicit conversion works on return values.
     return 0;
 }
-#endif //defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+#endif //defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+
+template <typename MANAGEDPTR_TYPE>
+static void
+consumeManagedPtrCRNP(const MANAGEDPTR_TYPE&)
+{
+    // Will be called with a null pointer constant to test implicit conversion.
+}
 
 static void
 consumeManagedPtrCR(const bslma::ManagedPtr<MyTestObject>&,
@@ -13848,7 +13846,7 @@ int main(int argc, char *argv[])
 
             consumeManagedPtrCRNP<Obj>(0);
 
-#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
             consumeManagedPtrNP<Obj>(0);
             Obj o = returnManagedPtrNP<Obj>();
             ASSERT(0 == o.get());
@@ -13866,7 +13864,7 @@ int main(int argc, char *argv[])
 
             consumeManagedPtrCRNP<VObj>(0);
 
-#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
             consumeManagedPtrNP<VObj>(0);
             VObj o = returnManagedPtrNP<VObj>();
             ASSERT(0 == o.get());
@@ -13884,7 +13882,7 @@ int main(int argc, char *argv[])
 
             consumeManagedPtrCRNP<bslma::ManagedPtr<const int> >(0);
 
-#if defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
             consumeManagedPtrNP<bslma::ManagedPtr<const int> >(0);
             bslma::ManagedPtr<const int> o =
                            returnManagedPtrNP<bslma::ManagedPtr<const int> >();
