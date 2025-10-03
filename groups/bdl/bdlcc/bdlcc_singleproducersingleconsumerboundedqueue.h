@@ -663,7 +663,7 @@ void SingleProducerSingleConsumerBoundedQueue<TYPE>
             state = AtomicOp::testAndSwapUintAcqRel(value,
                                                      state,
                                                      state + 1);
-        } while (state != expState && (bitValue == (state & 1)));
+        } while (state != expState && (bitValue != (state & 1)));
     }
 }
 

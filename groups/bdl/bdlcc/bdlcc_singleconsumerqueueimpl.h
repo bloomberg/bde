@@ -636,7 +636,7 @@ void SingleConsumerQueueImpl<TYPE, ATOMIC_OP, MUTEX, CONDITION>
             state = ATOMIC_OP::testAndSwapUintAcqRel(value,
                                                      state,
                                                      state + 1);
-        } while (state != expState && (bitValue == (state & 1)));
+        } while (state != expState && (bitValue != (state & 1)));
     }
 }
 
