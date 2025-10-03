@@ -53,6 +53,11 @@ BSLS_IDENT("$Id: $")
 // non-multi-threading environment).  See `bsldoc_glossary` for complete
 // definitions of **fully thread-safe** and **thread-enabled**.
 //
+///Order of Execution
+///------------------
+// 'bdlmt::ThreadMultiplexor' does not guarantee that jobs in the pending job
+// queue will be processed in the order in which they were enqueued.
+//
 ///Usage
 ///-----
 // This section illustrates intended use of this component.
