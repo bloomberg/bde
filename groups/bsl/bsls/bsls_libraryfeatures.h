@@ -1727,13 +1727,6 @@ BSLS_IDENT("$Id: $")
         #endif
         #if BSLS_PLATFORM_CMP_VERSION >= 90000
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM                 1
-            #ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-              #if __has_include(<tbb/blocked_range.h>)
-                // GCC 9 needs at least 2018 Intel Thread Building Blocks (TBB)
-                // installed for full C++17 parallel algorithm support.
-                #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS    1
-              #endif
-            #endif
         #endif
         #if _GLIBCXX_RELEASE >= 9
             #define BSLS_LIBRARYFEATURES_HAS_CPP17_PMR                        1
@@ -1793,6 +1786,14 @@ BSLS_IDENT("$Id: $")
         #undef BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
         #undef BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED
     #endif
+
+    // Prior to GCC 14, Intel Thread Building Blocks (TBB) were required to be
+    // used for full C++17 parallel algorithm support, linking with which was
+    // not safe in the RHEL environment.  GCC14 can use OpenMP as a backend
+    // instead, but requires `-fopenmp` flag to be supplied during compilation,
+    // which BDE currently does not add.  Enabling this flag requires further
+    // investigation of its impact.  See internal bug report 175302952.
+    // #define BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_IBM)
