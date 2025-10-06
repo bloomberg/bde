@@ -503,8 +503,10 @@ BSLS_IDENT("$Id: $")
 #include <balm_publicationtype.h>
 #include <balm_stopwatchscopedguard.h>
 
+#include <bsls_atomic.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_spinlock.h>
 
                         // ================================
                         // BALM_METRICS_IF_CATEGORY_ENABLED
@@ -524,12 +526,16 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -540,15 +546,19 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
-   static balm::Collector *collector2 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
+   static bsls::AtomicPointer<balm::Collector> collector2;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getCollector(CATEGORY, METRIC1);                  \
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -566,10 +576,13 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
-   static balm::Collector *collector2 = 0;                                    \
-   static balm::Collector *collector3 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
+   static bsls::AtomicPointer<balm::Collector> collector2;                    \
+   static bsls::AtomicPointer<balm::Collector> collector3;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -578,6 +591,7 @@ BSLS_IDENT("$Id: $")
        collector2 = Helper::getCollector(CATEGORY, METRIC2);                  \
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -598,11 +612,14 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
-   static balm::Collector *collector2 = 0;                                    \
-   static balm::Collector *collector3 = 0;                                    \
-   static balm::Collector *collector4 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
+   static bsls::AtomicPointer<balm::Collector> collector2;                    \
+   static bsls::AtomicPointer<balm::Collector> collector3;                    \
+   static bsls::AtomicPointer<balm::Collector> collector4;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -613,6 +630,7 @@ BSLS_IDENT("$Id: $")
        collector3 = Helper::getCollector(CATEGORY, METRIC3);                  \
        collector4 = Helper::getCollector(CATEGORY, METRIC4);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -636,12 +654,15 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
-   static balm::Collector *collector2 = 0;                                    \
-   static balm::Collector *collector3 = 0;                                    \
-   static balm::Collector *collector4 = 0;                                    \
-   static balm::Collector *collector5 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
+   static bsls::AtomicPointer<balm::Collector> collector2;                    \
+   static bsls::AtomicPointer<balm::Collector> collector3;                    \
+   static bsls::AtomicPointer<balm::Collector> collector4;                    \
+   static bsls::AtomicPointer<balm::Collector> collector5;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -654,6 +675,7 @@ BSLS_IDENT("$Id: $")
        collector4 = Helper::getCollector(CATEGORY, METRIC4);                  \
        collector5 = Helper::getCollector(CATEGORY, METRIC5);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -680,13 +702,16 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
-   static balm::Collector *collector2 = 0;                                    \
-   static balm::Collector *collector3 = 0;                                    \
-   static balm::Collector *collector4 = 0;                                    \
-   static balm::Collector *collector5 = 0;                                    \
-   static balm::Collector *collector6 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
+   static bsls::AtomicPointer<balm::Collector> collector2;                    \
+   static bsls::AtomicPointer<balm::Collector> collector3;                    \
+   static bsls::AtomicPointer<balm::Collector> collector4;                    \
+   static bsls::AtomicPointer<balm::Collector> collector5;                    \
+   static bsls::AtomicPointer<balm::Collector> collector6;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY, Helper::e_TYPE_CATEGORY,                  \
                             __FILE__, __LINE__);                              \
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -702,6 +727,7 @@ BSLS_IDENT("$Id: $")
        collector5 = Helper::getCollector(CATEGORY, METRIC5);                  \
        collector6 = Helper::getCollector(CATEGORY, METRIC6);                  \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -718,13 +744,17 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::Collector *collector1 = 0;                                    \
+   static bsls::AtomicPointer<balm::Collector> collector1;                    \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC, Helper::e_TYPE_METRIC, __FILE__, __LINE__); \
        collector1 = Helper::getCollector(CATEGORY, METRIC);                   \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE);                                             \
@@ -752,12 +782,16 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -772,15 +806,19 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
-   static balm::IntegerCollector *collector2 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector2;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC1);           \
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -798,10 +836,13 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
-   static balm::IntegerCollector *collector2 = 0;                             \
-   static balm::IntegerCollector *collector3 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector2;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector3;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -810,6 +851,7 @@ BSLS_IDENT("$Id: $")
        collector2 = Helper::getIntegerCollector(CATEGORY, METRIC2);           \
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -830,11 +872,14 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
-   static balm::IntegerCollector *collector2 = 0;                             \
-   static balm::IntegerCollector *collector3 = 0;                             \
-   static balm::IntegerCollector *collector4 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector2;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector3;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector4;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -845,6 +890,7 @@ BSLS_IDENT("$Id: $")
        collector3 = Helper::getIntegerCollector(CATEGORY, METRIC3);           \
        collector4 = Helper::getIntegerCollector(CATEGORY, METRIC4);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -868,12 +914,15 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
-   static balm::IntegerCollector *collector2 = 0;                             \
-   static balm::IntegerCollector *collector3 = 0;                             \
-   static balm::IntegerCollector *collector4 = 0;                             \
-   static balm::IntegerCollector *collector5 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector2;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector3;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector4;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector5;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -886,6 +935,7 @@ BSLS_IDENT("$Id: $")
        collector4 = Helper::getIntegerCollector(CATEGORY, METRIC4);           \
        collector5 = Helper::getIntegerCollector(CATEGORY, METRIC5);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -912,13 +962,16 @@ BSLS_IDENT("$Id: $")
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
-   static balm::IntegerCollector *collector2 = 0;                             \
-   static balm::IntegerCollector *collector3 = 0;                             \
-   static balm::IntegerCollector *collector4 = 0;                             \
-   static balm::IntegerCollector *collector5 = 0;                             \
-   static balm::IntegerCollector *collector6 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector2;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector3;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector4;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector5;             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector6;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC1, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
      Helper::logEmptyName(METRIC2, Helper::e_TYPE_METRIC, __FILE__, __LINE__);\
@@ -933,6 +986,7 @@ BSLS_IDENT("$Id: $")
        collector5 = Helper::getIntegerCollector(CATEGORY, METRIC5);           \
        collector6 = Helper::getIntegerCollector(CATEGORY, METRIC6);           \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE1);                                            \
@@ -952,13 +1006,17 @@ do {                                                                          \
    using namespace BloombergLP;                                               \
    typedef balm::Metrics_Helper Helper;                                       \
    static balm::CategoryHolder holder = { false, 0, 0 };                      \
-   static balm::IntegerCollector *collector1 = 0;                             \
+   static bsls::AtomicPointer<balm::IntegerCollector> collector1;             \
    if (0 == holder.category() && balm::DefaultMetricsManager::instance()) {   \
+     static bsls::SpinLock lock = BSLS_SPINLOCK_UNLOCKED;                     \
+     bsls::SpinLockGuard guard(&lock);                                        \
+     if (0 == holder.category()) {                                            \
      Helper::logEmptyName(CATEGORY,Helper::e_TYPE_CATEGORY,__FILE__,__LINE__);\
      Helper::logEmptyName(METRIC, Helper::e_TYPE_METRIC, __FILE__, __LINE__); \
        collector1 = Helper::getIntegerCollector(CATEGORY, METRIC);            \
        Helper::setPublicationType(collector1->metricId(), PREFERRED_TYPE);    \
        Helper::initializeCategoryHolder(&holder, CATEGORY);                   \
+     }                                                                        \
    }                                                                          \
    if (holder.enabled()) {                                                    \
        collector1->update(VALUE);                                             \
