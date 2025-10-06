@@ -17,6 +17,7 @@
 
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
+#include <bslma_destructorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
@@ -461,15 +462,33 @@ bool TestConstraint::timeFunc(const bdlt::Time *, bsl::ostream& stream)
 
 bool returnTrueFunc(const bool *, bsl::ostream&) { return true; }
 bsl::function<bool (const bool *, bsl::ostream&)> testBoolConstraint(
-                                                              &returnTrueFunc);
-Constraint::    CharConstraint     testCharConstraint(&TC::    charFunc);
-Constraint::     IntConstraint      testIntConstraint(&TC::     intFunc);
-Constraint::   Int64Constraint    testInt64Constraint(&TC::   int64Func);
-Constraint::  DoubleConstraint   testDoubleConstraint(&TC::  doubleFunc);
-Constraint::  StringConstraint   testStringConstraint(&TC::  stringFunc);
-Constraint::DatetimeConstraint testDatetimeConstraint(&TC::datetimeFunc);
-Constraint::    DateConstraint     testDateConstraint(&TC::    dateFunc);
-Constraint::    TimeConstraint     testTimeConstraint(&TC::    timeFunc);
+                                                            bsl::allocator_arg,
+                                                            GA,
+                                                            &returnTrueFunc);
+Constraint::    CharConstraint     testCharConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::charFunc);
+Constraint::     IntConstraint      testIntConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::intFunc);
+Constraint::   Int64Constraint    testInt64Constraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::int64Func);
+Constraint::  DoubleConstraint   testDoubleConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::doubleFunc);
+Constraint::  StringConstraint   testStringConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::stringFunc);
+Constraint::DatetimeConstraint testDatetimeConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::datetimeFunc);
+Constraint::    DateConstraint     testDateConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::dateFunc);
+Constraint::    TimeConstraint     testTimeConstraint(bsl::allocator_arg,
+                                                      GA,
+                                                      &TC::timeFunc);
 
 #undef TC  // TestConstraint
 
@@ -1777,13 +1796,27 @@ bool isOptionalLinkedVariableInTable(void *variable)
 // ----------------------------------------------------------------------------
 
 int main(int argc, const char *argv[])  {
-    int                test = argc > 1 ? bsl::atoi(argv[1]) : 0;
-    int             verbose = argc > 2;
-    int         veryVerbose = argc > 3;
-    int     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
-    int veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: No global memory is allocated after `main` starts.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 11: {
@@ -1936,7 +1969,7 @@ int main(int argc, const char *argv[])  {
                         << "`balcl::TypeInfoUtil`: `parseAndValidate`" << endl
                         << "-----------------------------------------" << endl;
 
-        if (verbose) cout << "Verify the signature and return type ." << endl;
+        if (verbose) cout << "Verify the signature and return type." << endl;
         {
             typedef bool (*functionPtr)(OptionValue             *,
                                         const bsl::string_view&  ,
@@ -1968,6 +2001,8 @@ int main(int argc, const char *argv[])  {
                                                TYPE,
                                                0);  // no linked variable
                                                     // no constraint
+            bslma::DestructorGuard<Obj> guard(objPtr);
+
             bsl::ostringstream oss;
 
             if (Ot::e_BOOL != TYPE || *INPUT) {
@@ -2051,8 +2086,6 @@ int main(int argc, const char *argv[])  {
                                                     oss);
             ASSERTV(LINE, !wasParsedOK);
             ASSERTV(LINE, !oss.str().empty());
-
-            objPtr->~Obj();
         }
 
         if (veryVerbose) cout << "Negative testing." << endl;
@@ -2075,6 +2108,8 @@ int main(int argc, const char *argv[])  {
                                                TYPE,
                                                0);  // no linked variable
                                                     // no constraint
+            bslma::DestructorGuard<Obj> guard(objPtr);
+
             bsl::ostringstream oss;
             OptionValue        elementOK(TYPE);
 
@@ -2119,7 +2154,6 @@ int main(int argc, const char *argv[])  {
                                                   INPUT,
                                                   *objPtr,
                                                   oss));
-            objPtr->~Obj();
         }
       } break;
       case 9: {
@@ -3631,6 +3665,11 @@ int main(int argc, const char *argv[])  {
         testStatus = -1;
       }
     }
+
+      // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
