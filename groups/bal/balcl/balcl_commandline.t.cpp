@@ -578,18 +578,32 @@ bool TestConstraint::timeFunc(const bdlt::Time *, bsl::ostream& stream)
 
 // BDE_VERIFY pragma: +FABC01  // Function ... not in alphabetic order
 
-#define TC TestConstraint
+typedef TestConstraint TC;
 
-Constraint::    CharConstraint     testCharConstraint(&TC::    charFunc);
-Constraint::     IntConstraint      testIntConstraint(&TC::     intFunc);
-Constraint::   Int64Constraint    testInt64Constraint(&TC::   int64Func);
-Constraint::  DoubleConstraint   testDoubleConstraint(&TC::  doubleFunc);
-Constraint::  StringConstraint   testStringConstraint(&TC::  stringFunc);
-Constraint::DatetimeConstraint testDatetimeConstraint(&TC::datetimeFunc);
-Constraint::    DateConstraint     testDateConstraint(&TC::    dateFunc);
-Constraint::    TimeConstraint     testTimeConstraint(&TC::    timeFunc);
-
-#undef TC  // TestConstraint
+Constraint::    CharConstraint     testCharConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::charFunc);
+Constraint::     IntConstraint      testIntConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::intFunc);
+Constraint::   Int64Constraint    testInt64Constraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::int64Func);
+Constraint::  DoubleConstraint   testDoubleConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::doubleFunc);
+Constraint::  StringConstraint   testStringConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::stringFunc);
+Constraint::DatetimeConstraint testDatetimeConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::datetimeFunc);
+Constraint::    DateConstraint     testDateConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::dateFunc);
+Constraint::    TimeConstraint     testTimeConstraint(bsl::allocator_arg,
+                                                      &ga,
+                                                      &TC::timeFunc);
 
 const struct {
     int       d_line;              // line number
@@ -754,6 +768,12 @@ bool                     linkedBoolC;
 bsl::string              linkedString1     (&ga);
 bsl::vector<bsl::string> linkedStringArray1(&ga);
 
+// This test table is a global array, so all the `OptionInfo` objects will use
+// the default allocator, locking the default down before `main`, and there is
+// no way to change that behavior in current C++.  Note that we could move the
+// `SPECS` table into a function and hope that function-local statics are not
+// initialized before the first function call, but compilers are still allowed
+// to intialize the array before `main` is called.
 const int MAX_SPEC_SIZE = 12;
 static const struct {
     int        d_line;
@@ -1937,7 +1957,7 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE_1 {
 //    variable to use for the option if the option is not provided on the
 //    command line
 // ```
-        static const balcl::OptionInfo specTable[] = {
+        const balcl::OptionInfo specTable[] = {
           {
             "r|reverse",                                   // tag
             "isReverse",                                   // name
@@ -2196,7 +2216,7 @@ namespace BALCL_COMMANDLINE_USAGE_EXAMPLE_4 {
 
 int                                       LINE;
 
-bdlma::LocalSequentialAllocator<1 << 13>  parseAlloc;
+bdlma::LocalSequentialAllocator<1 << 13>  parseAlloc(&ga);
 bsl::ostringstream                        parseOss(&parseAlloc);
 const char                               *expMessage;
 
@@ -2297,8 +2317,7 @@ void checkExample5(const balcl::CommandLine& cmdLine, int rc)
 // constraint functions to the second argument of the `TypeInfo` constructor.
 // ```
         // option specification table
-
-        static const balcl::OptionInfo specTable[] = {
+        const balcl::OptionInfo specTable[] = {
           {
             "r|reverse",                             // tag
             "isReverse",                             // name
@@ -2513,11 +2532,25 @@ int main(int argc, const char *argv[])
         veryVeryVerbose = argc > 4; (void) veryVeryVerbose;
     veryVeryVeryVerbose = argc > 5; (void) veryVeryVeryVerbose;
 
-    bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
-    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
+    // CONCERN: No global memory is ever allocated.
 
     bslma::Default::setGlobalAllocator(&ga);
+
+    // Confirm no static initialization locked the global allocator.
+    ASSERT(&ga == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+
+    // Force-replace the default allocator using a `DefaultAllocatorGuard`
+    // as global data tables lock the default during static intitialization.
+    bslma::DefaultAllocatorGuard defGuard(&defaultAllocator);
+
+    // Confirm the expected default allocator is installed.
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
+
+    bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 29: {
@@ -2801,7 +2834,7 @@ int main(int argc, const char *argv[])
                                               || defined(BSLS_PLATFORM_CMP_SUN)
 
         bsl::string stringOne;
-        static const OptionInfo SPEC[] = {
+        const OptionInfo SPEC[] = {
             {
                 "o|stringOne",
                 "StringOne",
@@ -2896,7 +2929,7 @@ int main(int argc, const char *argv[])
         static const int A2_S[] = { 74, 33, -2 };
         static const bsl::vector<int> A2(A2_S+0, A2_S+3, &ga);
 
-        static const OptionInfo SPEC[] = {
+        const OptionInfo SPEC[] = {
             {
                 "i|int",                     // tag
                 "intOption",                 // name
@@ -3843,7 +3876,7 @@ int main(int argc, const char *argv[])
 #ifdef BDE_BUILD_TARGET_EXC
         bsls::Assert::setFailureHandler(&u::throwInvalidSpec);
 
-        static const struct {
+        const struct {
             int         d_line;
             int         d_numSpecs;
             OptionInfo  d_specTable[MAX_SPEC_SIZE];
@@ -6126,7 +6159,7 @@ int main(int argc, const char *argv[])
         TestConstraint::s_constraintValue = false;  // See constraint-violation
                                                     // entry in `DATA` below.
 
-        static const struct {
+        const struct {
             int         d_line;
             int         d_numSpecs;
             OptionInfo  d_specTable[MAX_SPEC_SIZE];
