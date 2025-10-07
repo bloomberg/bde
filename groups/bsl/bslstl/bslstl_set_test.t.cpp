@@ -10,7 +10,9 @@
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 # pragma GCC diagnostic ignored "-Warray-bounds"
-# pragma GCC diagnostic ignored "-Wstringop-overflow="
+# if !defined(BSLS_PLATFORM_CMP_CLANG)
+#   pragma GCC diagnostic ignored "-Wstringop-overflow="
+# endif
 #endif
 
 #include <bslstl_set_test.h>
