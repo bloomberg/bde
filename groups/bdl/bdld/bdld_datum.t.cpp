@@ -6,6 +6,7 @@
 #include <bdldfp_decimalutil.h>
 
 #include <bdlma_bufferedsequentialallocator.h>  // for testing only
+#include <bdlma_countingallocator.h>
 
 #include <bdlsb_memoutstreambuf.h>
 
@@ -24,6 +25,7 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_atomic.h>
 #include <bsls_review.h>
 #include <bsls_stopwatch.h>
 #include <bsls_timeutil.h>
@@ -1363,6 +1365,9 @@ class BenchmarkSuite {
     /// Run the visit benchmarks.
     void runVisit();
 
+    /// Run the clone benchmarks.
+    void runClone();
+
     /// Write the specified `label and the specified `value' to standard
     /// output.
     void write(const char *label, double value) const;
@@ -1650,6 +1655,8 @@ void BenchmarkSuite::run(int   iterations,
 
     runVisit();
 
+    runClone();
+
     cout << "/// END BENCHMARK\n";
 }
 
@@ -1685,7 +1692,7 @@ void BenchmarkSuite::runVisit()
 
         for (int j = 0; j < d_iterations; ++j) {
             for (int i = 0; i < k_DATUMS; ++i) {
-                volatile double sum = 0;
+                bsls::AtomicInt sum;
                 for (ConstDatumIter iter = combo.begin(), last = combo.end();
                      iter != last;
                      ++iter) {
@@ -1760,6 +1767,54 @@ void BenchmarkSuite::runVisit()
         outputValue = comboTime.accumulatedUserTime() /
               static_cast<double>(combo.size()) / static_cast<double>(d_scale);
         write(d_current,"Process heterogeneous array (visitor)", outputValue);
+    }
+}
+
+void BenchmarkSuite::runClone()
+{
+    // Clone for non-allocating values.
+    bdlma::BufferedSequentialAllocator oa(d_buf.begin(), k_ALLOC_SIZE);
+    bdlma::CountingAllocator ca(&oa);
+
+    vector<Datum> combo;
+    combo.push_back(Datum::createNull());
+    combo.push_back(Datum::copyString("1", &ca));
+    combo.push_back(Datum::copyString("abcdef", &ca));
+    combo.push_back(Datum::createBoolean(true));
+    combo.push_back(Datum::createDate(bdlt::Date(2010, 1, 5)));
+    combo.push_back(Datum::createDouble(1));
+    combo.push_back(Datum::createError(1));
+    combo.push_back(Datum::createInteger(1));
+    combo.push_back(Datum::createInteger64(1LL, &ca));
+
+    Stopwatch comboTime;
+    typedef vector<Datum>::const_iterator ConstDatumIter;
+    double outputValue = 0.0;
+
+    if (next()) {
+        comboTime.start(true);
+
+        for (int j = 0; j < d_iterations; ++j) {
+            for (int i = 0; i < k_DATUMS; ++i) {
+                bsls::AtomicInt sum;
+                for (ConstDatumIter iter = combo.begin(), last = combo.end();
+                    iter != last;
+                    ++iter) {
+                    sum += iter->clone(&ca).type();
+                }
+            }
+        }
+
+        comboTime.stop();
+
+        ASSERT(ca.numBytesTotal() == 0);
+
+        outputValue = comboTime.accumulatedUserTime() /
+            static_cast<double>(combo.size()) / static_cast<double>(d_scale);
+        write(
+            d_current,
+            "Running Datum::clone()", outputValue);
+        cout << "\n";
     }
 }
 
