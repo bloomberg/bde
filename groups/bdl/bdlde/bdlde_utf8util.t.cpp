@@ -6,6 +6,9 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_log.h>
 #include <bsls_platform.h>
@@ -3712,7 +3715,21 @@ int main(int argc, char *argv[])
     veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
-    cout << "TEST " << __FILE__ << " CASE " << test << endl;;
+    cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    // CONCERN: No global memory is ever allocated.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
@@ -4876,7 +4893,6 @@ int main(int argc, char *argv[])
         ASSERT(3 == bdlde::Utf8Util::numBytesInCodePoint(&document[20]));
         ASSERT(4 == bdlde::Utf8Util::numBytesInCodePoint(&document[30]));
 
-
         struct LineDate {
             int    d_line;
             Uint64 d_offset;              // input offset into `documentPtr`
@@ -5033,7 +5049,7 @@ int main(int argc, char *argv[])
             bsl::cout << "\t\tTesting different delimeters" << bsl::endl;
         }
         {
-            const char document[] = {'a', 'a', 'b', 'c', 'a'};
+            const char document[] = {'a', 'a', 'b', 'c', 'a', '\0'};
 
             bsl::stringbuf d(document);
             int    rc;
@@ -5078,15 +5094,13 @@ int main(int argc, char *argv[])
 
         }
 
-
         if (verbose) {
             bsl::cout << "\t\tTesting invalid UTF-8 sequence" << bsl::endl;
         }
         {
-            const unsigned char DATA[] = {'a',  'b', '\n', 0xf6, 'x' };
+            const unsigned char DATA[] = {'a',  'b', '\n', 0xf6, 'x', '\0' };
             Uint64 actualLine, actualColumn, actualStartLineOffset;
             int rc;
-
 
             bsl::stringbuf stringbuf(reinterpret_cast<const char *>(DATA));
             rc = Obj::getLineAndColumnNumber(&actualLine,
@@ -8381,6 +8395,12 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
+
     if (testStatus > 0) {
         cerr << "Error, non-zero test status = " << testStatus << "." << endl;
     }
