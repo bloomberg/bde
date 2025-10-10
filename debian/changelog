@@ -1,5 +1,52 @@
-bsl-internal (4.29.0.0) unstable; urgency=low
+bsl-internal (4.30.0.0) unstable; urgency=low
 
+  * 2cdbeab67 Revert "Integrate bdlar" (#5609)
+  * 1836a3744 Remove datum.t.tcpp warnings (#5613)
+  * e4449ad10 [DRQS 181086705] Disable tests in asan builds that deliberately test memory concerns (#5606)
+  * 83401ed7b One pass string trim (DRQS 180875393) (#5588)
+  * 7f6edf1b3 DRQS 180944848: Optimise `bdld::Datum::clone` (#5596)
+  * 2ffdf8669 Bumped version to 4.30.0.0
+  * c8d169f9f Fix bad memory access reported by asan against bdlde_utf8util (DRQS 181086768) (#5607)
+  * 0ea3ff129 Fix suppression of unknown warnings in Clang (#5605)
+  * 3e20f931c correct TSAN issues (#5604)
+  * b3eaef59a Properly disable parallel algorithms on gcc. (#5603)
+  * 64aefaa4f Fix memory leaks in `balcl_commandline` tests reported by asan (#5602)
+  * 29d630d1f Fix memory leaks in `balcl_typeinfo` test driver (#5601)
+  * 73927b5dc Fix name of tbb header for BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS (#4487)
+  * 4abde6583 Remove aggressively inappropriate apostrophe usage (#2732)
+  * 1868b8874 bslma::ManagedPtr: Fix Unit Test Pre-C++17 (#5600)
+  * 1545cf580 correct incrementUntil logic (#5599)
+  * 399baa2c7 Document that pending job queue is not FIFO (#4706)
+  * dd813e5b3 Integrate bdlar (#5574)
+  * d85bdda7e bslma::ManagedPtr: Fix Unit Test Pre-C++17 (#5597)
+  * 2756ea7b5 Targeted silencing of Wlarger-than warnings on asan (#5585)
+  * cf5b64eca Never elide nil array elements (#5554)
+  * a08d26e4a fix balb::PerformanceMonitor handling of rates (DRQS 180602553) (#5566)
+  * 00b9954ae Fix leak in time queue usage example (#5595)
+  * 71ca7d932 Json pretty print fix (remove space before colon) (#5564)
+  * ac1766381 bslma::ManagedPtr: Add `nullptr` constructor (#5579)
+  * 0cbfc9e76 make balm_categoryholder values atomic (#5540)
+  * 65cb5939b fix: typo in ball_fileobserver.h docs (#5594)
+  * 16222cef9 Resolve many asan runtime errors (#5586)
+  * 8aded9091 DRQS 180861579: Fix typo `bslma::Allocator::deallocate` documentation. (#5589)
+  * ae2d802a9 Fix typo: TDB -> TBD (#5583)
+  * f551000ea Documentation fix for calendar/TZ macros (DRQS 180348839) (#5573)
+  * ac1742825 Document differences from ISO 8601 (DRQS 179180924) (#5439)
+  * c04d31e0d Revert "bdlmt::EventScheduler unexpectedly stores callback in event, creating a retain cycle hazard (DRQS 179819546) (#5503)" (#5571)
+  * ac4f57bab Add BALL_FMT to ball.txt. (#5570)
+  * 144d14ae1 Fix C++03 code accidentally relying on CTAD (#5569)
+  * 033fe52ab Fix leak in bsltf::TemplateTestFacility::create (#5568)
+  * 77596e9f3 DRQS 180683642: FIX [bsls_atomic.t: Case 9] Set loadAcquire to properly enforce visibility and order of instructions such that `data` is properly read (#5428)
+  * d5d23b88d Make hash table anchors trivially copyable (#5565)
+  * a6e3c2544 Fix build failures with tsan (#5558)
+  * 47e6b74f4 Eventschedulertesttimesource allocator drqs179902303 (#5562)
+  * 7ece762ad Fix false positive static analysis warning on memory overwite (#5560)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Oct 2025 19:40:27 -0400
+
+bsl-internal (4.29.0.0) git; urgency=low
+
+  * ca4e21715 Changelog for version 4.29.0.0
   * d685608cf Bumped version to 4.29.0.0
   * f3415ded3 Fix compilation macros (#5555)
   * 5ea5e9bcd Fix bslfmt clang-18 test crash. (#5548)
@@ -26,7 +73,7 @@ bsl-internal (4.29.0.0) unstable; urgency=low
   * 396816c55 Matrix build issues on clang-18 have been fixed (#5509)
   * a9bcfa244 Issue in 'bslfmt' test driver with 'float128' has been fixed. DRQS 180062986 (#5506)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 29 Aug 2025 20:00:10 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 29 Aug 2025 20:03:43 +0000
 
 bsl-internal (4.28.0.0) git; urgency=low
 
