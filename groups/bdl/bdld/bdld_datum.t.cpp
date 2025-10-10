@@ -1701,10 +1701,10 @@ void BenchmarkSuite::runVisit()
                         sum = sum + iter->theInteger();
                         break;
                       case Datum::e_DOUBLE:
-                        sum = sum + iter->theDouble();
+                        sum = sum + static_cast<int>(iter->theDouble());
                         break;
                       case Datum::e_STRING:
-                        sum = sum + static_cast<double>(
+                        sum = sum + static_cast<int>(
                                                    iter->theString().length());
                         break;
                       case Datum::e_BOOLEAN:
@@ -1726,7 +1726,7 @@ void BenchmarkSuite::runVisit()
                         sum = sum + iter->theDatetimeInterval().seconds();
                         break;
                       case Datum::e_INTEGER64:
-                        sum = sum + static_cast<double>(iter->theInteger64());
+                        sum = sum + static_cast<int>(iter->theInteger64());
                         break;
                       default:
                         break;
