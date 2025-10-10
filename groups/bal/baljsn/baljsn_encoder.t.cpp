@@ -224,15 +224,6 @@ namespace u {
                                // FREE FUNCTIONS
                                // ==============
 
-bool equal(const bdlsb::MemOutStreamBuf& osb1,
-           const bdlsb::MemOutStreamBuf& osb2)
-{
-    if (osb1.length() != osb2.length()) {
-        return false;                                                 // RETURN
-    }
-    return bsl::memcmp(osb1.data(), osb2.data(), osb1.length()) == 0;
-}
-
 /// Print to stdout the length and the characters that are difference in the
 /// specified `lhs` and `rhs` strings.
 void printStringDifferences(const bsl::string& lhs, const bsl::string& rhs)
@@ -3196,19 +3187,11 @@ int main(int argc, char *argv[])
                 bsl::ostringstream oss;
                 ASSERTV(0 == encoder.encode(oss, object, mO));
                 ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
-
-                bsl::ostringstream oss2;
-                ASSERTV(0 == encoder.encodeAny(oss2, object, mO));
-                ASSERT(oss.str() == oss2.str());
             }
             {
                 bsl::ostringstream oss;
                 ASSERTV(0 == encoder.encode(oss, object, &mO));
                 ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
-
-                bsl::ostringstream oss2;
-                ASSERTV(0 == encoder.encodeAny(oss2, object, &mO));
-                ASSERT(oss.str() == oss2.str());
             }
         }
       } break;
@@ -3279,12 +3262,6 @@ int main(int argc, char *argv[])
                 if (ACTUAL != EXP) {
                     u::printStringDifferences(ACTUAL, EXP);
                 }
-
-                bdlsb::MemOutStreamBuf osb2;
-                ASSERTV(0 == encoder.encodeAny(&osb2,
-                                               testObjects[i],
-                                               options));
-                ASSERT(u::equal(osb, osb2));
             }
 
             {
@@ -3297,11 +3274,6 @@ int main(int argc, char *argv[])
                 if (ACTUAL != EXP) {
                     u::printStringDifferences(ACTUAL, EXP);
                 }
-
-                bdlsb::MemOutStreamBuf osb2;
-                bsl::ostream           oss2(&osb2);
-                ASSERTV(0 == encoder.encodeAny(oss2, testObjects[i], options));
-                ASSERT(u::equal(osb, osb2));
             }
         }
 
@@ -3321,12 +3293,6 @@ int main(int argc, char *argv[])
                 if (ACTUAL != EXP) {
                     u::printStringDifferences(ACTUAL, EXP);
                 }
-
-                bdlsb::MemOutStreamBuf osb2;
-                ASSERTV(0 == encoder.encodeAny(&osb2,
-                                               testObjects[i],
-                                               options));
-                ASSERT(u::equal(osb, osb2));
             }
 
             {
@@ -3339,11 +3305,6 @@ int main(int argc, char *argv[])
                 if (ACTUAL != EXP) {
                     u::printStringDifferences(ACTUAL, EXP);
                 }
-
-                bdlsb::MemOutStreamBuf osb2;
-                bsl::ostream           oss2(&osb2);
-                ASSERTV(0 == encoder.encodeAny(oss2, testObjects[i], options));
-                ASSERT(u::equal(osb, osb2));
             }
         }
       } break;
@@ -3839,19 +3800,11 @@ int main(int argc, char *argv[])
                     bsl::ostringstream oss;
                     ASSERTV(0 == encoder.encode(oss, object, mO));
                     ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
-
-                    bsl::ostringstream oss2;
-                    ASSERTV(0 == encoder.encodeAny(oss2, object, mO));
-                    ASSERT(oss.str() == oss2.str());
                 }
                 {
                     bsl::ostringstream oss;
                     ASSERTV(0 == encoder.encode(oss, object, &mO));
                     ASSERTV(LINE, oss.str(), EXP, oss.str() == EXP);
-
-                    bsl::ostringstream oss2;
-                    ASSERTV(0 == encoder.encodeAny(oss2, object, &mO));
-                    ASSERT(oss.str() == oss2.str());
                 }
             }
         }
@@ -3921,10 +3874,6 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(oss.str());
             }
-
-            bsl::ostringstream oss2;
-            ASSERTV(0 == encoder.encodeAny(oss2, bob, options));
-            ASSERT(oss2.str() == oss.str());
         }
 
         baljsn::EncoderOptions options;
@@ -3944,10 +3893,6 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(oss.str()); P(bsl::string(jsonTextPretty));
             }
-
-            bsl::ostringstream oss2;
-            ASSERTV(0 == encoder.encodeAny(oss2, bob, mO));
-            ASSERT(oss2.str() == oss.str());
         }
         {
             bsl::istringstream iss(jsonTextPretty);
@@ -3958,10 +3903,6 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(oss.str()); P(bsl::string(jsonTextPretty));
             }
-
-            bsl::ostringstream oss2;
-            ASSERTV(0 == encoder.encodeAny(oss2, bob, &mO));
-            ASSERT(oss2.str() == oss.str());
         }
 
         u::EmptySequenceExample sequenceExample;

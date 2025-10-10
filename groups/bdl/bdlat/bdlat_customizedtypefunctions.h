@@ -491,14 +491,6 @@ namespace bdlat_CustomizedTypeFunctions {
 
     // MANIPULATORS
 
-    /// Create an uninitialized value of the base type, apply the specified
-    /// `baseManipulator` to it, then call the
-    /// `bdlat_CustomizedTypeFunctions::convertFromBaseType` function with the
-    /// specified `object` and the value.
-    template <class t_TYPE, class t_MANIPULATOR>
-    int createBaseAndConvert(t_TYPE         *object,
-                             t_MANIPULATOR&  baseManipulator);
-
     /// Convert from the specified `value` to the specified customized
     /// `object`.  Return 0 if successful and non-zero otherwise.
     template <class TYPE, class BASE_TYPE>
@@ -523,11 +515,6 @@ namespace bdlat_CustomizedTypeFunctions {
 /// "simple" types.
 namespace bdlat_CustomizedTypeFunctions {
     // MANIPULATORS
-    template <class t_TYPE, class t_MANIPULATOR>
-    int bdlat_customizedTypeCreateBaseAndConvert(
-                                              t_TYPE         *object,
-                                              t_MANIPULATOR&  baseManipulator);
-
     template <class TYPE, class BASE_TYPE>
     int bdlat_customizedTypeConvertFromBaseType(TYPE             *object,
                                                 const BASE_TYPE&  value);
@@ -686,15 +673,6 @@ struct bdlat_CustomizedTypeFunctions_Imp {
                    // ---------------------------------------
 
 // MANIPULATORS
-template <class t_TYPE, class t_MANIPULATOR>
-inline
-int bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                               t_TYPE         *object,
-                                               t_MANIPULATOR&  baseManipulator)
-{
-    return bdlat_customizedTypeCreateBaseAndConvert(object, baseManipulator);
-}
-
 template <class TYPE, class BASE_TYPE>
 inline
 int bdlat_CustomizedTypeFunctions::convertFromBaseType(
@@ -718,29 +696,6 @@ bdlat_CustomizedTypeFunctions::convertToBaseType(const TYPE&  object)
                             // -------------------
 
 // MANIPULATORS
-template <class t_TYPE, class t_MANIPULATOR>
-int bdlat_CustomizedTypeFunctions::bdlat_customizedTypeCreateBaseAndConvert(
-                                               t_TYPE         *object,
-                                               t_MANIPULATOR&  baseManipulator)
-{
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#ifndef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-#endif
-    typedef typename BaseType<t_TYPE>::Type BaseType;
-    BaseType base;
-    if (int rc = baseManipulator(&base)) {
-        return rc;
-    }
-    return bdlat_CustomizedTypeFunctions::convertFromBaseType(object, base);
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
-}
-
 template <class TYPE, class BASE_TYPE>
 inline
 int bdlat_CustomizedTypeFunctions::bdlat_customizedTypeConvertFromBaseType(

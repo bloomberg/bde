@@ -86,8 +86,6 @@ BSLS_IDENT("$Id: $")
 #include <balber_beruniversaltagnumber.h>
 #include <balber_berutil.h>
 
-#include <bdlar_refutil.h>
-
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_customizedtypefunctions.h>
@@ -270,27 +268,6 @@ class BerDecoder {
     template <typename TYPE>
     int decode(bsl::istream& stream, TYPE *variable);
 
-    /// Decode an object of parameterized `TYPE` from the specified `streamBuf`
-    /// and load the result into the specified `variable`.  Return 0 on
-    /// success, and a non-zero value otherwise.  Note that this function
-    /// behaves identically to `decode`, but does not instantiate any templates
-    /// at compile time at the expense of being slightly slower at runtime; see
-    /// the `balber` package documentation for more details.
-    template <typename TYPE>
-    int decodeAny(bsl::streambuf *streamBuf, TYPE *variable);
-    int decodeAny(bsl::streambuf *streamBuf, bdlar::AnyRef *variable);
-
-    /// Decode an object of parameterized `TYPE` from the specified `stream`
-    /// and load the result into the specified modifiable `variable`.  Return 0
-    /// on success, and a non-zero value otherwise.  If the decoding fails
-    /// `stream` will be invalidated.  Note that this function behaves
-    /// identically to `decode`, but does not instantiate any templates at
-    /// compile time at the expense of being slightly slower at runtime; see
-    /// the `balber` package documentation for more details.
-    template <typename TYPE>
-    int decodeAny(bsl::istream& stream, TYPE *variable);
-    int decodeAny(bsl::istream& stream, bdlar::AnyRef *variable);
-
     /// Set the number of unknown elements skipped by the decoder during the
     /// current decoding operation to the specified `value`.  The behavior
     /// is undefined unless `0 <= value`.
@@ -354,9 +331,6 @@ class BerDecoder_Node {
     BerDecoder_Node& operator=(BerDecoder_Node&); // = delete;
 
   private:
-    // PRIVATE TYPES
-    struct CustomizedManipulator;
-
     // PRIVATE MANIPULATORS
 
     /// Family of methods to decode current element into the specified
@@ -693,22 +667,6 @@ int BerDecoder::decode(bsl::streambuf *streamBuf, TYPE *variable)
     return rc;
 }
 
-template <typename TYPE>
-inline
-int BerDecoder::decodeAny(bsl::istream& stream, TYPE *variable)
-{
-    bdlar::AnyRef any = bdlar::RefUtil::makeAnyRef(*variable);
-    return decodeAny(stream, &any);
-}
-
-template <typename TYPE>
-inline
-int BerDecoder::decodeAny(bsl::streambuf *streamBuf, TYPE *variable)
-{
-    bdlar::AnyRef any = bdlar::RefUtil::makeAnyRef(*variable);
-    return decodeAny(streamBuf, &any);
-}
-
 inline
 void BerDecoder::setNumUnknownElementsSkipped(int value)
 {
@@ -886,19 +844,6 @@ int BerDecoder_Node::operator()(TYPE *object)
     return this->decode(object, Tag());
 }
 
-// PRIVATE TYPES
-struct BerDecoder_Node::CustomizedManipulator {
-    // PUBLIC DATA
-    BerDecoder_Node *d_that;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *value) {
-        typedef typename bdlat_TypeCategory::Select<t_BASE_TYPE>::Type BaseTag;
-        return d_that->decode(value, BaseTag());
-    }
-};
-
 // PRIVATE MANIPULATORS
 template <typename TYPE>
 int
@@ -1020,10 +965,37 @@ template <typename TYPE>
 int
 BerDecoder_Node::decode(TYPE *variable, bdlat_TypeCategory::CustomizedType)
 {
-    CustomizedManipulator baseManipulator = {this};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              variable,
-                                                              baseManipulator);
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#ifndef BSLS_PLATFORM_CMP_CLANG
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+#endif
+
+    BaseType base;
+
+    typedef typename bdlat_TypeCategory::Select<BaseType>::Type BaseTag;
+    int rc = this->decode(&base, BaseTag());
+
+    if (rc != BerDecoder::e_BER_SUCCESS) {
+        return rc;  // error message is already logged                // RETURN
+    }
+
+    if (bdlat_CustomizedTypeFunctions::convertFromBaseType(variable,
+                                                           base) != 0) {
+        return logError(
+                  "Error converting from base type for customized");  // RETURN
+    }
+
+#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+#pragma GCC diagnostic pop
+#endif
+
+    return BerDecoder::e_BER_SUCCESS;
 }
 
 template <typename TYPE>

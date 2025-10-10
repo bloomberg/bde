@@ -10,24 +10,6 @@ BSLS_IDENT_RCSID(baljsn_encoder_cpp,"$Id$ $CSID$")
 namespace BloombergLP {
 namespace baljsn {
 
-                               // -------------
-                               // class Encoder
-                               // -------------
-
-int Encoder::encodeAny(bsl::streambuf            *streamBuf,
-                       const bdlar::AnyConstRef&  any,
-                       const EncoderOptions&      options)
-{
-    return encode(streamBuf, any, options);
-}
-
-int Encoder::encodeAny(bsl::ostream&             stream,
-                       const bdlar::AnyConstRef& any,
-                       const EncoderOptions&     options)
-{
-    return encode(stream, any, options);
-}
-
 // The 'Encoder_Formatter' 'class' has been replaced by the 'baljsn::Formatter'
 // 'class' in the 'baljsn_formatter' component.  Clients should use that
 // 'class' instead.  The following method definitions are provided for

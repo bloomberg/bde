@@ -2354,9 +2354,6 @@ class HexBinaryCustomizedType {
 
     /// Return the array encapsulated by this object.
     const bsl::vector<char>& array() const;
-
-    /// Return the array encapsulated by this object.
-    const bsl::vector<char>& toVector() const { return array(); };
 };
 
 // FREE OPERATORS
@@ -6861,12 +6858,6 @@ int main(int argc, char *argv[])
                     bdlb::PrintMethods::print(cout, value, 0, -1);
                     cout << endl;
                 }
-
-                {
-                    bsl::istringstream is(os.str());
-                    test::HexBinarySequence value2;
-                    ASSERT(decoder.decodeAny(is, &value2, options) == 0);
-                }
             }
             else {
                 LOOP2_ASSERT(LINE, rc, rc);
@@ -7014,11 +7005,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, RC, 0 != RC);
                 if (veryVerbose) {
                     P(decoder.loggedMessages());
-                }
-
-                {
-                    bsl::istringstream iss(INPUT);
-                    ASSERT(decoder.decodeAny(iss, &value, mO) != 0);
                 }
             }
         }
@@ -7938,11 +7924,6 @@ int main(int argc, char *argv[])
                 if (veryVerbose) {
                     P(decoder.loggedMessages());
                 }
-
-                {
-                    bsl::istringstream iss(INPUT);
-                    ASSERT(decoder.decodeAny(iss, &bob, options) != 0);
-                }
             }
         }
 
@@ -7967,11 +7948,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, RC, 0 != RC);
                 if (veryVerbose) {
                     P(decoder.loggedMessages());
-                }
-
-                {
-                    bsl::istringstream iss(INPUT);
-                    ASSERT(decoder.decodeAny(iss, &bob, options) != 0);
                 }
             }
         }
@@ -8115,11 +8091,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, RC, 0 != RC);
                 if (veryVerbose) {
                     P(decoder.loggedMessages());
-                }
-
-                {
-                    bsl::istringstream iss(INPUT);
-                    ASSERT(decoder.decodeAny(iss, &bob, options) != 0);
                 }
             }
         }
@@ -8782,12 +8753,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 0 != decoder.decode(iss, &bob, &mO));
                 ASSERTV(LINE, 0 == decoder.numUnknownElementsSkipped());
             }
-            {
-                test::Employee     bob;
-                bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 != decoder.decodeAny(iss, &bob, mO));
-                ASSERTV(LINE, 0 == decoder.numUnknownElementsSkipped());
-            }
 
             // With skipping option
             options.setSkipUnknownElements(true);
@@ -8803,8 +8768,8 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, NUM_UNKNOWN_ELEMENTS ==
                                           decoder.numUnknownElementsSkipped());
             }
-            test::Employee     bob;
             {
+                test::Employee     bob;
                 bsl::istringstream iss(jsonText);
                 ASSERTV(LINE, 0 == decoder.decode(iss, &bob, &mO));
                 ASSERTV(bob.name(), "Bob" == bob.name());
@@ -8813,14 +8778,6 @@ int main(int argc, char *argv[])
                 ASSERT("Some State"  == bob.homeAddress().state());
                 ASSERTV(LINE, 21     == bob.age());
                 ASSERTV(LINE, NUM_UNKNOWN_ELEMENTS ==
-                                          decoder.numUnknownElementsSkipped());
-            }
-            {
-                bsl::istringstream iss(jsonText);
-                test::Employee     bob2;
-                ASSERT(decoder.decodeAny(iss, &bob2, mO) == 0);
-                ASSERT(bob2 == bob);
-                ASSERT(NUM_UNKNOWN_ELEMENTS ==
                                           decoder.numUnknownElementsSkipped());
             }
         }
@@ -8888,11 +8845,6 @@ int main(int argc, char *argv[])
                 bsl::istringstream iss(jsonText);
                 ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
             }
-            {
-                test::Employee     bob;
-                bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 != decoder.decodeAny(iss, &bob, mO));
-            }
 
             // With skipping option
             options.setSkipUnknownElements(true);
@@ -8900,11 +8852,6 @@ int main(int argc, char *argv[])
                 test::Employee     bob;
                 bsl::istringstream iss(jsonText);
                 ASSERTV(LINE, 0 != decoder.decode(iss, &bob, mO));
-            }
-            {
-                test::Employee     bob;
-                bsl::istringstream iss(jsonText);
-                ASSERTV(LINE, 0 != decoder.decodeAny(iss, &bob, mO));
             }
         }
       } break;
@@ -8982,14 +8929,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 1 == isb.length()); // trailing newline
                 ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
                         EXP == value);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(PRETTY.data(),
-                                                   PRETTY.length());
-                    balb::FeatureTestMessage value2;
-                    ASSERT(decoder.decodeAny(&isb, &value2, options) == 0);
-                    ASSERT(value2 == value);
-                }
             }
 
             {
@@ -9007,15 +8946,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, 1 == isb.length()); // trailing newline
                 ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
                         EXP == value);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(PRETTY.data(),
-                                                   PRETTY.length());
-                    bsl::istream               iss(&isb);
-                    balb::FeatureTestMessage value2;
-                    ASSERT(decoder.decodeAny(iss, &value2, options) == 0);
-                    ASSERT(value2 == value);
-                }
             }
         }
 
@@ -9049,14 +8979,6 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, isb.length(), 0 == isb.length());
                 ASSERTV(LINE, decoder.loggedMessages(), EXP, value,
                         EXP == value);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(COMPACT.data(),
-                                                   COMPACT.length());
-                    balb::FeatureTestMessage value2;
-                    ASSERT(decoder.decodeAny(&isb, &value2, options) == 0);
-                    ASSERT(value2 == value);
-                }
             }
         }
       } break;

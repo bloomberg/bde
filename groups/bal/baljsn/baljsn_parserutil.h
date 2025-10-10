@@ -212,13 +212,9 @@ struct ParserUtil {
                         const bsl::string_view&  data);
     static int getValue(unsigned int            *value,
                         const bsl::string_view&  data);
-    static int getValue(long                    *value,
+    static int getValue(bsls::Types::Int64      *value,
                         const bsl::string_view&  data);
-    static int getValue(unsigned long           *value,
-                        const bsl::string_view&  data);
-    static int getValue(long long               *value,
-                        const bsl::string_view&  data);
-    static int getValue(unsigned long long      *value,
+    static int getValue(bsls::Types::Uint64     *value,
                         const bsl::string_view&  data);
     static int getValue(float                   *value,
                         const bsl::string_view&  data);
@@ -442,28 +438,14 @@ int ParserUtil::getValue(unsigned int *value, const bsl::string_view& data)
 }
 
 inline
-int ParserUtil::getValue(long                    *value,
+int ParserUtil::getValue(bsls::Types::Int64      *value,
                          const bsl::string_view&  data)
 {
     return getIntegralValue(value, data);
 }
 
 inline
-int ParserUtil::getValue(unsigned long           *value,
-                         const bsl::string_view&  data)
-{
-    return getUnsignedIntegralValue(value, data);
-}
-
-inline
-int ParserUtil::getValue(long long               *value,
-                         const bsl::string_view&  data)
-{
-    return getIntegralValue(value, data);
-}
-
-inline
-int ParserUtil::getValue(unsigned long long      *value,
+int ParserUtil::getValue(bsls::Types::Uint64     *value,
                          const bsl::string_view&  data)
 {
     return getUnsignedIntegralValue(value, data);

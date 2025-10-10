@@ -206,16 +206,10 @@ struct PrintUtil {
                           unsigned int          value,
                           const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
-                          long                  value,
+                          bsls::Types::Int64    value,
                           const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
-                          unsigned long         value,
-                          const EncoderOptions *options = 0);
-    static int printValue(bsl::ostream&         stream,
-                          long long             value,
-                          const EncoderOptions *options = 0);
-    static int printValue(bsl::ostream&         stream,
-                          unsigned long long    value,
+                          bsls::Types::Uint64   value,
                           const EncoderOptions *options = 0);
     static int printValue(bsl::ostream&         stream,
                           float                 value,
@@ -425,16 +419,7 @@ int PrintUtil::printValue(bsl::ostream&         stream,
 
 inline
 int PrintUtil::printValue(bsl::ostream&         stream,
-                          long                  value,
-                          const EncoderOptions *)
-{
-    stream << value;
-    return 0;
-}
-
-inline
-int PrintUtil::printValue(bsl::ostream&         stream,
-                          long long             value,
+                          bsls::Types::Int64    value,
                           const EncoderOptions *)
 {
     stream << value;
@@ -470,16 +455,7 @@ int PrintUtil::printValue(bsl::ostream&         stream,
 
 inline
 int PrintUtil::printValue(bsl::ostream&         stream,
-                          unsigned long         value,
-                          const EncoderOptions *)
-{
-    stream << value;
-    return 0;
-}
-
-inline
-int PrintUtil::printValue(bsl::ostream&         stream,
-                          unsigned long long    value,
+                          bsls::Types::Uint64   value,
                           const EncoderOptions *)
 {
     stream << value;

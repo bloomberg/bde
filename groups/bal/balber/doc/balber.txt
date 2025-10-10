@@ -4,38 +4,12 @@
 
 @MNEMONIC: Basic Application Library BER (balber)
 
-@DESCRIPTION: The `balber` ("Basic Application BER") package defines classes
+@DESCRIPTION: The 'balber' ("Basic Application BER") package defines classes
  that can encode and decode data per the X.690 BER (Basic Encoding Rules)
  specification.  These classes can be used only for types supported by the
- `bdlat` framework.  Typical usage is illustrated in
- [balber_berdecoder](balber_berdecoder#Example 1: Decoding an Employee Record)
- and
- [balber_berencoder](balber_berencoder#Example 1: Encoding an Employee Record).
-
- There are 2 sets of the encoding/decoding member functions:
-
- 1. `encode` & `decode`, and
- 2. `encodeAny` & `decodeAny` (referred as "any-functions" below).
-
- The first set uses templates and compile-time metaprogramming to generate the
- encoding/decoding C++ code.  The second set uses the runtime dispatch
- approach - base classes and virtual functions - to provide the same
- functionality.  The result does not depend on the functions you use - their
- functionality is absolutely identical.  The difference is not in **what**
- they do, but in **how** they do it.
-
- As usual, the compile-time approach can be faster, but generates a lot of
- code.  And since this code is in the headers, this causes big load on the
- compiler and linker - the generated code is in each translation unit and in
- the object file generated from it.  As a result, slow compilation, huge
- memory and CPU consumption during the compilation and linking, and a larger
- resulting executable file size.
-
- All the above mentioned shortcomings (except the final runtime performance)
- can be mitigated by using the "any-functions", at the cost of a small runtime
- slowdown.  All the encoding/decoding code is pre-compiled and located in one
- place - the BDE library (archive) files.  But how big is the execution
- slowdown?  Our benchmarks show that the slowdown is less than 10%.
+ 'bdlat' framework.  Typical usage is illustrated in
+ {'balber_berdecoder'|Example 1: Decoding an Employee Record} and
+ {'balber_berencoder'|Example 1: Encoding an Employee Record}.
 
 /Hierarchical Synopsis
 /---------------------

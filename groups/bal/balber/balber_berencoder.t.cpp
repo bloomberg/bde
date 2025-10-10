@@ -160,15 +160,6 @@ static bool veryVeryVerbose = false;
 //                    GLOBAL HELPER FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-static bool equal(const bdlsb::MemOutStreamBuf& osb1,
-                  const bdlsb::MemOutStreamBuf& osb2)
-{
-    if (osb1.length() != osb2.length()) {
-        return false;                                                 // RETURN
-    }
-    return bsl::memcmp(osb1.data(), osb2.data(), osb1.length()) == 0;
-}
-
 int getIntValue(char c)
 {
     if (c >= '0' && c <= '9') {
@@ -2703,16 +2694,6 @@ int main(int argc, char *argv[])
                 P(osb4.length())
                 printBuffer(osb4.data(), osb4.length());
             }
-
-            bdlsb::MemOutStreamBuf osb21, osb22, osb23, osb24;
-            ASSERT(0 == encoder1.encodeAny(&osb21, value));
-            ASSERT(equal(osb1, osb21));
-            ASSERT(0 == encoder2.encodeAny(&osb22, value));
-            ASSERT(equal(osb2, osb22));
-            ASSERT(0 == encoder3.encodeAny(&osb23, value));
-            ASSERT(equal(osb3, osb23));
-            ASSERT(0 == encoder4.encodeAny(&osb24, value));
-            ASSERT(equal(osb4, osb24));
         }
 
         if (verbose) cout << "\tNon-empty array\n";
@@ -2761,16 +2742,6 @@ int main(int argc, char *argv[])
                 P(osb4.length())
                 printBuffer(osb4.data(), osb4.length());
             }
-
-            bdlsb::MemOutStreamBuf osb21, osb22, osb23, osb24;
-            ASSERT(0 == encoder1.encodeAny(&osb21, value));
-            ASSERT(equal(osb1, osb21));
-            ASSERT(0 == encoder2.encodeAny(&osb22, value));
-            ASSERT(equal(osb2, osb22));
-            ASSERT(0 == encoder3.encodeAny(&osb23, value));
-            ASSERT(equal(osb3, osb23));
-            ASSERT(0 == encoder4.encodeAny(&osb24, value));
-            ASSERT(equal(osb4, osb24));
         }
 
         if (verbose) cout << "End of test.\n";
@@ -2805,10 +2776,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "\tNon-null value\n";
@@ -2827,10 +2794,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "End of test.\n";
@@ -2900,10 +2863,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -2922,10 +2881,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -2946,10 +2901,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 != encoderDisableUnselectedChoices.encodeAny(&osb2,
-                                                                  value));
         }
 
         if (verbose) cout << "\tChoice with selection\n";
@@ -2968,10 +2919,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             bdlsb::MemOutStreamBuf osb;
@@ -2988,10 +2935,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3011,10 +2954,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3034,10 +2973,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3058,11 +2993,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoderDisableUnselectedChoices.encodeAny(&osb2,
-                                                                  value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3083,11 +3013,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoderDisableUnselectedChoices.encodeAny(&osb2,
-                                                                  value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "End of test.\n";
@@ -3121,10 +3046,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "\tNon-empty array\n";
@@ -3143,10 +3064,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "End of test.\n";
@@ -3180,10 +3097,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "\tNon-null value\n";
@@ -3201,10 +3114,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "End of test.\n";
@@ -3272,10 +3181,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3292,10 +3197,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3314,10 +3215,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 != encoderDisableUnselectedChoices.encodeAny(&osb2,
-                                                                  value));
         }
 
         if (verbose) cout << "\tChoice with selection\n";
@@ -3336,10 +3233,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3359,10 +3252,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoder.encodeAny(&osb2, value));
-            ASSERT(equal(osb, osb2));
         }
         {
             balber::BerEncoderOptions options;
@@ -3382,11 +3271,6 @@ int main(int argc, char *argv[])
                 P(osb.length())
                 printBuffer(osb.data(), osb.length());
             }
-
-            bdlsb::MemOutStreamBuf osb2;
-            ASSERT(0 == encoderDisableUnselectedChoices.encodeAny(&osb2,
-                                                                  value));
-            ASSERT(equal(osb, osb2));
         }
 
         if (verbose) cout << "End of test.\n";
@@ -3419,10 +3303,6 @@ int main(int argc, char *argv[])
             P(osb.length())
             printBuffer(osb.data(), osb.length());
         }
-
-        bdlsb::MemOutStreamBuf osb2;
-        ASSERT(0 == encoder.encodeAny(&osb2, value));
-        ASSERT(equal(osb, osb2));
 
         if (verbose) cout << "End of test.\n";
       } break;

@@ -1239,35 +1239,6 @@ const char *MyChoiceWithDefaultValues::selectionName() const
     }
 }
 
-inline
-bool operator==(const MyChoiceWithDefaultValues& lhs,
-                const MyChoiceWithDefaultValues& rhs)
-{
-    if (lhs.selectionId() != rhs.selectionId()) {
-        return false;                                                 // RETURN
-    }
-    switch(lhs.selectionId())
-    {
-      case MyChoiceWithDefaultValues::SELECTION_ID_UNDEFINED:
-        return true;                                                  // RETURN
-      case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION0:
-        return lhs.selection0() == rhs.selection0();                  // RETURN
-      case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION1:
-        return lhs.selection1() == rhs.selection1();                  // RETURN
-      case MyChoiceWithDefaultValues::SELECTION_ID_SELECTION2:
-        return lhs.selection2() == rhs.selection2();                  // RETURN
-    }
-    ASSERT(false);
-    return false; // only to suppress the warning
-}
-
-inline
-bool operator!=(const MyChoiceWithDefaultValues& lhs,
-                const MyChoiceWithDefaultValues& rhs)
-{
-    return !(lhs == rhs);
-}
-
 }  // close package namespace
 
 namespace s_baltst {
@@ -1789,22 +1760,6 @@ MySequenceWithDefaultValues::print(bsl::ostream& stream,
     printer.printAttribute("attribute2", d_attribute2);
     printer.end();
     return stream;
-}
-
-inline
-bool operator==(const MySequenceWithDefaultValues& lhs,
-                const MySequenceWithDefaultValues& rhs)
-{
-    return lhs.attribute0() == rhs.attribute0()
-        && lhs.attribute1() == rhs.attribute1()
-        && lhs.attribute2() == rhs.attribute2();
-}
-
-inline
-bool operator!=(const MySequenceWithDefaultValues& lhs,
-                const MySequenceWithDefaultValues& rhs)
-{
-    return !(lhs == rhs);
 }
 
                              // ==================
@@ -3341,16 +3296,6 @@ int main(int argc, char *argv[])
                     }
                   } break;
                 }
-
-                {
-                    bdlsb::FixedMemInStreamBuf inStreamBuf(
-                                                        outStreamBuf.data(),
-                                                        outStreamBuf.length());
-                    SerializableObject decodedObject2;
-                    ASSERT(0 == decoder.decodeAny(&inStreamBuf,
-                                                  &decodedObject2));
-                    ASSERT(decodedObject2 == decodedObject);
-                }
             }
         }
 
@@ -3559,16 +3504,6 @@ int main(int argc, char *argv[])
                     ASSERT1_EQ(LINE, ARBITRARY_ENUM, object.attribute2());
                   } break;
                 }
-
-                {
-                    bdlsb::FixedMemInStreamBuf inStreamBuf(
-                                                        outStreamBuf.data(),
-                                                        outStreamBuf.length());
-                    SerializableObject decodedObject2;
-                    ASSERT(0 == decoder.decodeAny(&inStreamBuf,
-                                                  &decodedObject2));
-                    ASSERT(decodedObject2 == decodedObject);
-                }
             }
         }
         if (verbose) cout << "\nEnd of test.\n";
@@ -3651,13 +3586,6 @@ int main(int argc, char *argv[])
             ASSERT(  rawData == rawDataParsed);
             ASSERT( testData == rawDataParsed.charvec());
             ASSERT(utestData == rawDataParsed.ucharvec());
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::RawData rawData2;
-                ASSERT(0 == decoder.decodeAny(&isb, &rawData2));
-                ASSERT(rawData2 == rawDataParsed);
-            }
         }
 
         if (verbose) cout << "\nTesting with `RawDataUnformatted`.\n";
@@ -3688,13 +3616,6 @@ int main(int argc, char *argv[])
 
             ASSERT( testData == rawDataParsed.charvec());
             ASSERT(utestData == rawDataParsed.ucharvec());
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::RawData rawData2;
-                ASSERT(0 == decoder.decodeAny(&isb, &rawData2));
-                ASSERT(rawData2 == rawDataParsed);
-            }
         }
 
         if (verbose) cout << "\nTesting uchar->char with `RawDataSwitched`.\n";
@@ -3728,13 +3649,6 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == rawDataParsed.ucharvec().size());
             ASSERT(testData == rawDataParsed.charvec());
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::RawData rawData2;
-                ASSERT(0 == decoder.decodeAny(&isb, &rawData2));
-                ASSERT(rawData2 == rawDataParsed);
-            }
         }
       } break;
       case 17: {
@@ -5604,12 +5518,6 @@ int main(int argc, char *argv[])
                                                                      "says:\n";
                 printDiagnostic(decoder);
             }
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MyChoice value2;
-                ASSERT(0 != decoder.decodeAny(&isb, &value2));
-            }
         }
 
         if (verbose) cout << "\nEmpty Sequence\n";
@@ -5634,12 +5542,6 @@ int main(int argc, char *argv[])
                 cout << "We expect the decoder to complain.  Here is what it "
                                                                      "says:\n";
                 printDiagnostic(decoder);
-            }
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MyChoice value2;
-                ASSERT(0 != decoder.decodeAny(&isb, &value2));
             }
         }
       } break;
@@ -5681,12 +5583,6 @@ int main(int argc, char *argv[])
                                                                      "says:\n";
                 printDiagnostic(decoder);
             }
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequence value2;
-                ASSERT(0 != decoder.decodeAny(&isb, &value2));
-            }
         }
 
         if (verbose) cout << "\nNull Choice\n";
@@ -5712,12 +5608,6 @@ int main(int argc, char *argv[])
                 cout << "We expect the decoder to complain.  Here is what it "
                                                                      "says:\n";
                 printDiagnostic(decoder);
-            }
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequence value2;
-                ASSERT(0 != decoder.decodeAny(&isb, &value2));
             }
         }
       } break;
@@ -5761,13 +5651,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithNillable value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
 
@@ -5786,14 +5669,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNillable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -5814,14 +5689,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNillable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -5850,13 +5717,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithNillable value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).";
             {
@@ -5874,14 +5734,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNillable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -5901,14 +5753,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNillable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -5953,13 +5797,6 @@ int main(int argc, char *argv[])
             printDiagnostic(decoder);
 
             ASSERT(valueOut == valueIn);
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithAnonymousChoice value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
         }
 
         if (verbose) cout << "\nChoice with selection.\n";
@@ -5987,13 +5824,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithAnonymousChoice value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6011,14 +5841,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithAnonymousChoice value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6038,14 +5860,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithAnonymousChoice value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6073,13 +5887,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithAnonymousChoice value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6097,14 +5904,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithAnonymousChoice value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6124,14 +5923,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithAnonymousChoice value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6179,13 +5970,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithArray value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6206,14 +5990,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithArray value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6236,14 +6012,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithArray value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6283,13 +6051,6 @@ int main(int argc, char *argv[])
             printDiagnostic(decoder);
 
             ASSERT(valueOut == valueIn);
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithArray value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
         }
 
         if (verbose) cout << "\nNon-empty array.\n";
@@ -6317,13 +6078,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithArray value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6341,14 +6095,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithArray value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6368,14 +6114,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithArray value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6614,13 +6352,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithNullable value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6639,14 +6370,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNullable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6667,14 +6390,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNullable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6702,14 +6417,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MySequenceWithNullable value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6726,14 +6433,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNullable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6752,14 +6451,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MySequenceWithNullable value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6803,13 +6494,6 @@ int main(int argc, char *argv[])
             printDiagnostic(decoder);
 
             ASSERT(valueOut == valueIn);
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MyChoice value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
         }
 
         if (verbose) cout << "\nChoice with selection.\n";
@@ -6836,13 +6520,6 @@ int main(int argc, char *argv[])
 
             ASSERT(valueOut == valueIn);
 
-            {
-                bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-                test::MyChoice value2;
-                ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                ASSERT(value2 == valueIn);
-            }
-
             if (veryVerbose)
                 cout << "\tDecoding from Nokalva (DEFINITE LENGTH).\n";
             {
@@ -6859,14 +6536,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MyChoice value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
 
             if (veryVerbose)
@@ -6885,14 +6554,6 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueFromNokalva);
-
-                {
-                    bdlsb::FixedMemInStreamBuf isb(&nokalvaData[0],
-                                                   nokalvaData.size());
-                    test::MyChoice value2;
-                    ASSERT(0 == decoder.decodeAny(&isb, &value2));
-                    ASSERT(value2 == valueFromNokalva);
-                }
             }
         }
 
@@ -6934,13 +6595,6 @@ int main(int argc, char *argv[])
         printDiagnostic(decoder);
 
         ASSERT(valueOut == valueIn);
-
-        {
-            bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
-            test::MySequence value2;
-            ASSERT(0 == decoder.decodeAny(&isb, &value2));
-            ASSERT(value2 == valueIn);
-        }
 
         static const struct {
             int         d_line;
@@ -7024,13 +6678,6 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(LINE,
      berDataLen == static_cast<bsl::size_t>(isb.pubseekoff(0, bsl::ios::cur)));
             LOOP_ASSERT(LINE, valueOut == valueFromNokalva);
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(berData, berDataLen);
-                test::MySequence value2;
-                LOOP_ASSERT(LINE, 0 == decoder.decodeAny(&isb, &value2));
-                LOOP_ASSERT(LINE, value2 == valueFromNokalva);
-            }
         }
 
         if (verbose) cout << "skipUnknownElements == false\n";
@@ -7068,16 +6715,6 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(LINE,
      berDataLen == static_cast<bsl::size_t>(isb.pubseekoff(0, bsl::ios::cur)));
                 LOOP_ASSERT(LINE, valueOut == valueFromNokalva);
-            }
-
-            {
-                bdlsb::FixedMemInStreamBuf isb(berData, berDataLen);
-                test::MySequence value2;
-                int ret2 = decoder2.decodeAny(&isb, &value2);
-                LOOP_ASSERT(LINE, ret2 == ret);
-                if (NUM_UNKNOWN == 0) {
-                    LOOP_ASSERT(LINE, value2 == valueOut);
-                }
             }
         }
 

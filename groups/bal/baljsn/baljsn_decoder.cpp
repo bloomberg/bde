@@ -177,23 +177,8 @@ int Decoder::skipUnknownElement(const bsl::string_view& elementName)
     d_numUnknownElementsSkipped++;
     return 0;
 }
-
-// MANIPULATORS
-int Decoder::decodeAny(bsl::streambuf        *streamBuf,
-                       bdlar::AnyRef         *any,
-                       const DecoderOptions&  options)
-{
-    return decode(streamBuf, any, options);
-}
-
-int Decoder::decodeAny(bsl::istream&          stream,
-                       bdlar::AnyRef         *any,
-                       const DecoderOptions&  options)
-{
-    return decode(stream, any, options);
-}
-
 }  // close package namespace
+
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------

@@ -272,9 +272,6 @@ struct bdlat_SymbolicConverter {
 
 /// This class contains implementation functions for this component.
 class bdlat_SymbolicConverter_Imp {
-    // PRIVATE TYPES
-    template <class RHS_TYPE>
-    struct CustomizedManipulator;
 
     // PRIVATE DATA MEMBERS
     bsl::ostream *d_errorStream_p;  // held, not owned
@@ -883,23 +880,6 @@ int bdlat_SymbolicConverter_Imp::convert(
                    bdlat_CustomizedTypeFunctions::convertToBaseType(rhs));
 }
 
-template <class RHS_TYPE>
-struct bdlat_SymbolicConverter_Imp::CustomizedManipulator {
-    // PUBLIC DATA
-    bdlat_SymbolicConverter_Imp *d_that;
-    const RHS_TYPE&              d_rhs;
-
-    // MANIPULATORS
-    template <class LHS_BASE_TYPE>
-    int operator()(LHS_BASE_TYPE *lhsBaseValue) {
-        enum { k_FAILURE = -5 };
-        if (0 != d_that->convert(lhsBaseValue, d_rhs)) {
-            return k_FAILURE;                                         // RETURN
-        }
-        return 0;
-    }
-};
-
 template <class LHS_TYPE, class RHS_TYPE, class RHS_CATEGORY>
 int bdlat_SymbolicConverter_Imp::convert(
                                       LHS_TYPE                            *lhs,
@@ -907,10 +887,19 @@ int bdlat_SymbolicConverter_Imp::convert(
                                       const RHS_TYPE&                      rhs,
                                       RHS_CATEGORY)
 {
-    CustomizedManipulator<RHS_TYPE> baseManipulator = {this, rhs};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              lhs,
-                                                              baseManipulator);
+    enum { k_FAILURE = -5 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<LHS_TYPE>::Type LhsBaseType;
+
+    LhsBaseType lhsBaseValue;
+
+    if (0 != convert(&lhsBaseValue, rhs)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(lhs,
+                                                              lhsBaseValue);
 }
 
 template <class LHS_TYPE, class LHS_CATEGORY, class RHS_TYPE>

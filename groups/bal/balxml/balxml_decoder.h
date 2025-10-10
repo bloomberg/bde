@@ -257,8 +257,6 @@ BSLS_IDENT("$Id: $")
 #include <balxml_reader.h>
 #include <balxml_utf8readerwrapper.h>
 
-#include <bdlar_refutil.h>
-
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_customizedtypefunctions.h>
@@ -360,7 +358,6 @@ class Decoder {
     friend class  Decoder_ElementContext;
     friend struct Decoder_decodeImpProxy;
     friend class  Decoder_ErrorLogger;
-    friend class  Decoder_ParseObject;
 
     // PRIVATE TYPES
 
@@ -400,8 +397,6 @@ class Decoder {
         /// characters appended to the stream, if any.
         int length() const;
     };
-
-    struct CustomizedManipulator;
 
     // DATA
     const DecoderOptions            *d_options;        // held, not owned
@@ -461,16 +456,7 @@ class Decoder {
     int  parse(Decoder_ElementContext *context);
 
     template <class TYPE>
-    int decodeCustomized(TYPE *object, int formattingMode);
-
-    template <class TYPE>
-    int decodeImp(TYPE *object, bdlat_TypeCategory::CustomizedType);
-
-    template <class TYPE>
     int decodeImp(TYPE *object, bdlat_TypeCategory::DynamicType);
-
-    template <class TYPE>
-    int decodeImp(TYPE *, bdlat_TypeCategory::NullableValue); // stub
 
     template <class TYPE, class ANY_CATEGORY>
     int decodeImp(TYPE *object, ANY_CATEGORY);
@@ -587,56 +573,6 @@ class Decoder {
     /// successful call to `open`
     template <class TYPE>
     int decode(TYPE *object);
-
-    /// Decode the specified `object` of parameterized `TYPE` from the
-    /// specified input `stream`.  Return a reference to the modifiable
-    /// `stream`.  If a decoding error is detected, `stream.fail()` will be
-    /// `true` after this method returns.  The (optionally) specified `uri` is
-    /// used for identifying the input document in error messages.  A
-    /// compilation error will result unless `TYPE` conforms to the
-    /// requirements of a `bdlat` sequence or choice, as described in
-    /// `bdlat_sequencefunctions` and `bdlat_choicefunctions`.  Note that this
-    /// function behaves identically to `decode`, but does not instantiate any
-    /// templates at compile time at the expense of being slightly slower at
-    /// runtime; see the `balxml` package documentation for more details.
-    template <class TYPE>
-    bsl::istream& decodeAny(bsl::istream&  stream,
-                            TYPE          *object,
-                            const char    *uri = 0);
-    bsl::istream& decodeAny(bsl::istream&  stream,
-                            bdlar::AnyRef *object,
-                            const char    *uri = 0);
-
-    /// Decode the specified `object` of parameterized `TYPE` from the
-    /// specified stream `buffer`.  The (optionally) specified `uri` is used
-    /// for identifying the input document in error messages.  Return 0 on
-    /// success, and a non-zero value otherwise.  A compilation error will
-    /// result unless `TYPE` conforms to the requirements of a `bdlat` sequence
-    /// or choice, as described in `bdlat_sequencefunctions` and
-    /// `bdlat_choicefunctions`.  Note that this function behaves identically
-    /// to `decode`, but does not instantiate any templates at compile time at
-    /// the expense of being slightly slower at runtime; see the `balxml`
-    /// package documentation for more details.
-    template <class TYPE>
-    int decodeAny(bsl::streambuf *buffer, TYPE *object, const char *uri = 0);
-    int decodeAny(bsl::streambuf *buffer,
-                  bdlar::AnyRef  *object,
-                  const char     *uri = 0);
-
-    /// Decode the specified `object` of parameterized `TYPE` from the input
-    /// source specified by a previous call to `open` and leave the reader in
-    /// an open state.  Return 0 on success, and a non-zero value otherwise.  A
-    /// compilation error will result unless `TYPE` conforms to the
-    /// requirements of a bdlat sequence or choice, as described in
-    /// `bdlat_sequencefunctions` and `bdlat_choicefunctions`.  The behavior is
-    /// undefined unless this call was preceded by a prior successful call to
-    /// `open`.  Note that this function behaves identically to `decode`, but
-    /// does not instantiate any templates at compile time at the expense of
-    /// being slightly slower at runtime; see the `balxml` package
-    /// documentation for more details.
-    template <class TYPE>
-    int decodeAny(TYPE *object);
-    int decodeAny(bdlar::AnyRef *object);
 
     /// Set the number of unknown elements skipped by the decoder during
     /// the current decoding operation to the specified `value`.  The
@@ -771,6 +707,8 @@ class Decoder_ElementContext;
 
 template <class TYPE>
 class Decoder_ChoiceContext;
+template <class TYPE>
+class Decoder_CustomizedContext;
 template <class TYPE, class PARSER>
 class Decoder_PushParserContext;
 template <class TYPE>
@@ -918,6 +856,17 @@ struct
 Decoder_InstantiateContext<bdlat_TypeCategory::Simple, bsl::string>
 {
     typedef Decoder_StdStringContext Type;
+};
+
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// Note: Customized are treated as simple types (i.e., they are parsed by
+/// `TypesParserUtil`).
+template <class TYPE>
+struct
+Decoder_InstantiateContext<bdlat_TypeCategory::CustomizedType, TYPE>
+{
+    typedef Decoder_CustomizedContext<TYPE> Type;
 };
 
 /// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
@@ -1170,6 +1119,56 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
 
     // Using compiler generated destructor:
     //  ~Decoder_SimpleContext();
+
+    // CALLBACKS
+    int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
+
+    int endElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
+
+    int addCharacters(const char   *chars,
+                      bsl::size_t   length,
+                      Decoder      *decoder) BSLS_KEYWORD_OVERRIDE;
+
+    int parseAttribute(const char  *name,
+                       const char  *value,
+                       bsl::size_t  lenValue,
+                       Decoder     *decoder) BSLS_KEYWORD_OVERRIDE;
+
+    int parseSubElement(const char *elementName,
+                        Decoder    *decoder) BSLS_KEYWORD_OVERRIDE;
+};
+
+                   // =====================================
+                   // class Decoder_CustomizedContext<TYPE>
+                   // =====================================
+
+/// COMPONENT-PRIVATE CLASS.  DO NOT USE OUTSIDE OF THIS COMPONENT.
+///
+/// This is the context for types that fall under
+/// `bdlat_TypeCategory::Customized`.
+template <class TYPE>
+class Decoder_CustomizedContext : public Decoder_ElementContext {
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type         BaseType;
+
+    typedef typename Decoder_InstantiateContext<bdlat_TypeCategory::Simple,
+                                                BaseType>::Type BaseContext;
+    // DATA
+    TYPE       *d_object;
+    BaseType    d_baseObj;
+    BaseContext d_baseContext;
+
+    // NOT IMPLEMENTED
+    Decoder_CustomizedContext(const Decoder_CustomizedContext&);
+    Decoder_CustomizedContext &operator=(const Decoder_CustomizedContext &);
+
+  public:
+    // CREATORS
+    Decoder_CustomizedContext(TYPE *object, int formattingMode);
+
+    // Using compiler generated destructor:
+    //  ~Decoder_CustomizedContext();
 
     // CALLBACKS
     int startElement(Decoder *decoder) BSLS_KEYWORD_OVERRIDE;
@@ -1669,19 +1668,10 @@ class Decoder_ParseNillableObject {
     Decoder_NillableContext  d_nillableContext;
     Decoder                 *d_decoder;
 
-    // PRIVATE TYPES
-    struct CustomizedManipulator;
-
   public:
     // IMPLEMENTATION MANIPULATORS
     template <class TYPE>
     int executeImp(TYPE *object, bdlat_TypeCategory::DynamicType);
-
-    template <class TYPE>
-    int executeImp(TYPE *object, bdlat_TypeCategory::CustomizedType);
-
-    template <class TYPE>
-    int executeImp(TYPE *, bdlat_TypeCategory::NullableValue); // stub
 
     template <class TYPE, class ANY_CATEGORY>
     int executeImp(TYPE *object, ANY_CATEGORY);
@@ -2148,32 +2138,6 @@ int Decoder::decode(TYPE *object)
 
 template <class TYPE>
 inline
-bsl::istream& Decoder::decodeAny(bsl::istream&  stream,
-                                 TYPE          *object,
-                                 const char    *uri)
-{
-    bdlar::AnyRef ref = bdlar::RefUtil::makeAnyRef(*object);
-    return decodeAny(stream, &ref, uri);
-}
-
-template <class TYPE>
-inline
-int Decoder::decodeAny(bsl::streambuf *buffer, TYPE *object, const char *uri)
-{
-    bdlar::AnyRef ref = bdlar::RefUtil::makeAnyRef(*object);
-    return decodeAny(buffer, &ref, uri);
-}
-
-template <class TYPE>
-inline
-int Decoder::decodeAny(TYPE *object)
-{
-    bdlar::AnyRef ref = bdlar::RefUtil::makeAnyRef(*object);
-    return decodeAny(&ref);
-}
-
-template <class TYPE>
-inline
 int Decoder::decodeImp(TYPE *object, bdlat_TypeCategory::DynamicType)
 {
     Decoder_decodeImpProxy proxy = { this };
@@ -2188,46 +2152,6 @@ int Decoder::decodeImp(TYPE *object, bdlat_TypeCategory::DynamicType)
     }
 
     return 0;
-}
-
-struct Decoder::CustomizedManipulator {
-    // DATA
-    Decoder *d_that;
-    int      d_formattingMode;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        typedef typename Decoder_InstantiateContext<
-                    bdlat_TypeCategory::Simple, t_BASE_TYPE>::Type BaseContext;
-        BaseContext ctx(base, d_formattingMode);
-        return ctx.beginParse(d_that);
-    }
-};
-
-template <class TYPE>
-inline
-int Decoder::decodeCustomized(TYPE *object, int formattingMode)
-{
-    CustomizedManipulator baseManipulator = {this, formattingMode};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              object,
-                                                              baseManipulator);
-}
-
-template <class TYPE>
-inline
-int Decoder::decodeImp(TYPE *object, bdlat_TypeCategory::CustomizedType)
-{
-    return decodeCustomized(object, d_options->formattingMode());
-}
-
-template <class TYPE>
-inline
-int Decoder::decodeImp(TYPE *, bdlat_TypeCategory::NullableValue)
-{
-    BSLS_ASSERT_INVOKE_NORETURN("Must not be reached");
 }
 
 template <class TYPE, class ANY_CATEGORY>
@@ -2714,6 +2638,68 @@ int Decoder_SimpleContext<TYPE>::parseSubElement(const char *elementName,
     return k_FAILURE;  // will trigger failure in parser
 }
 
+                   // -------------------------------------
+                   // class Decoder_CustomizedContext<TYPE>
+                   // -------------------------------------
+
+// CREATORS
+template <class TYPE>
+inline
+Decoder_CustomizedContext<TYPE>::Decoder_CustomizedContext(
+                                                          TYPE *object,
+                                                          int   formattingMode)
+: d_object (object)
+, d_baseObj()
+, d_baseContext(&d_baseObj, formattingMode)
+{
+}
+
+// CALLBACKS
+
+template <class TYPE>
+int Decoder_CustomizedContext<TYPE>::startElement(Decoder *decoder)
+{
+    return d_baseContext.startElement (decoder);
+}
+
+template <class TYPE>
+int Decoder_CustomizedContext<TYPE>::endElement(Decoder *decoder)
+{
+    enum { k_SUCCESS = 0, k_FAILURE = -1 };
+    int rc = d_baseContext.endElement(decoder);
+    if (rc == k_SUCCESS
+     &&  0 == bdlat_CustomizedTypeFunctions::convertFromBaseType(d_object,
+                                                                 d_baseObj)) {
+        return k_SUCCESS;                                             // RETURN
+    }
+
+    return k_FAILURE;
+}
+
+template <class TYPE>
+int Decoder_CustomizedContext<TYPE>::addCharacters(const char   *chars,
+                                                   bsl::size_t   length,
+                                                   Decoder      *decoder)
+{
+    return d_baseContext.addCharacters(chars, length, decoder);
+}
+
+template <class TYPE>
+int Decoder_CustomizedContext<TYPE>::parseAttribute(const char  *name,
+                                                    const char  *value,
+                                                    bsl::size_t  lenValue,
+                                                    Decoder     *decoder)
+{
+    return d_baseContext.parseAttribute(name, value, lenValue, decoder);
+}
+
+template <class TYPE>
+int Decoder_CustomizedContext<TYPE>::parseSubElement(const char *elementName,
+                                                     Decoder    *decoder)
+{
+    return d_baseContext.parseSubElement(elementName, decoder);
+}
+
                          // -------------------------
                          // class Decoder_UTF8Context
                          // -------------------------
@@ -3193,7 +3179,14 @@ int Decoder_ParseObject::executeImp(
                             int                                 formattingMode,
                             bdlat_TypeCategory::CustomizedType)
 {
-    return d_decoder->decodeCustomized(object, formattingMode);
+    typedef typename
+    Decoder_InstantiateContext<
+                     bdlat_TypeCategory::CustomizedType, TYPE>::Type
+                     Context;
+
+    Context context(object, formattingMode);
+
+    return context.beginParse(d_decoder);
 }
 
 template <class TYPE>
@@ -3311,46 +3304,6 @@ int Decoder_ParseNillableObject::executeImp(
     Decoder_ParseNillableObject_executeImpProxy proxy = { this };
 
     return bdlat_TypeCategoryUtil::manipulateByCategory(object, proxy);
-}
-
-struct Decoder_ParseNillableObject::CustomizedManipulator {
-    // DATA
-    Decoder_ParseNillableObject *d_that;
-    bool                         d_isNil;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        typedef typename Decoder_InstantiateContext<
-                    bdlat_TypeCategory::Simple, t_BASE_TYPE>::Type BaseContext;
-        BaseContext ctx(base, d_that->d_formattingMode);
-        d_that->d_nillableContext.setElementContext(&ctx);
-        int rc = d_that->d_nillableContext.beginParse(d_that->d_decoder);
-        d_isNil = d_that->d_nillableContext.isNil();
-        return rc;
-    }
-};
-
-template <class TYPE>
-inline
-int Decoder_ParseNillableObject::executeImp(
-                                    TYPE                               *object,
-                                    bdlat_TypeCategory::CustomizedType)
-{
-    CustomizedManipulator baseManipulator = {this, false};
-    int rc = bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              object,
-                                                              baseManipulator);
-    return baseManipulator.d_isNil ? 0 : rc;
-}
-
-template <class TYPE>
-inline
-int Decoder_ParseNillableObject::executeImp(TYPE *,
-                                            bdlat_TypeCategory::NullableValue)
-{
-    BSLS_ASSERT_INVOKE_NORETURN("Must not be reached");
 }
 
 template <class TYPE, class ANY_CATEGORY>

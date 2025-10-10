@@ -148,8 +148,6 @@ class ListParser {
     typedef typename
     bdlat_ArrayFunctions::ElementType<TYPE>::Type ElementType;
 
-    struct ParseElementFunctor;
-
   public:
     // TYPES
     typedef int (*ParseElementFunction)(ElementType*, const char*, int);
@@ -223,25 +221,6 @@ class ListParser {
 // PRIVATE MANIPULATORS
 
 template <class TYPE>
-struct ListParser<TYPE>::ParseElementFunctor {
-    // PUBLIC DATA
-    ParseElementCallback&  d_parseElementCallback;
-    const char            *d_data;
-    int                    d_dataLength;
-
-    // MANIPULATORS
-    int operator()(ElementType *elem)
-    {
-        return d_parseElementCallback(elem, d_data, d_dataLength);
-    }
-    template <class t_ELEM>
-    int operator()(t_ELEM *)
-    {
-        return -1;
-    }
-};
-
-template <class TYPE>
 int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 {
     BSLS_ASSERT(data);
@@ -253,9 +232,14 @@ int ListParser<TYPE>::appendElement(const char *data, int dataLength)
 
     bdlat_ArrayFunctions::resize(d_object_p, i + 1);
 
-    ParseElementFunctor parseElementFunctor = {d_parseElementCallback,
-                                               data,
-                                               dataLength};
+    typedef bsl::function<int(ElementType*)> Functor;
+
+    using bdlf::PlaceHolders::_1;
+
+    Functor parseElementFunctor = bdlf::BindUtil::bind(d_parseElementCallback,
+                                                       _1,
+                                                       data,
+                                                       dataLength);
 
     if (0 != bdlat_ArrayFunctions::manipulateElement(d_object_p,
                                                      parseElementFunctor,

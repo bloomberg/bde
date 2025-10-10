@@ -165,17 +165,6 @@ int BerEncoder::encodeImpl(const bsl::vector<char>&  value,
     return k_SUCCESS;
 }
 
-int BerEncoder::encodeAny(bsl::streambuf            *streamBuf,
-                          const bdlar::AnyConstRef&  any)
-{
-    return encode(streamBuf, any);
-}
-
-int BerEncoder::encodeAny(bsl::ostream& stream, const bdlar::AnyConstRef& any)
-{
-    return encode(stream, any);
-}
-
 }  // close package namespace
 }  // close enterprise namespace
 

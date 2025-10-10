@@ -252,12 +252,6 @@ struct TypesParserUtil_Imp {
     typedef bdlb::Variant2<bdlt::Datetime, bdlt::DatetimeTz>
                                                           DatetimeOrDatetimeTz;
 
-    struct ParseHexManipulator;
-    struct ParseTextManipulator;
-    struct ParseBase64Manipulator;
-    struct ParseDecimalManipulator;
-    struct ParseDefaultManipulator;
-
     // CLASS METHODS
 
                             // BASE64 FUNCTIONS
@@ -1015,23 +1009,6 @@ int TypesParserUtil::parseText(TYPE       *result,
 
 // BASE64 FUNCTIONS
 
-struct TypesParserUtil_Imp::ParseBase64Manipulator {
-    // PRIVATE DATA
-    const char *d_input;
-    int         d_inputLength;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        enum { k_FAILURE = -1 };
-        if (0 != TypesParserUtil::parseBase64(base, d_input, d_inputLength)) {
-            return k_FAILURE;                                         // RETURN
-        }
-        return 0;
-    }
-};
-
 template <class TYPE>
 inline
 int TypesParserUtil_Imp::parseBase64(
@@ -1040,10 +1017,18 @@ int TypesParserUtil_Imp::parseBase64(
                                int                                 inputLength,
                                bdlat_TypeCategory::CustomizedType)
 {
-    ParseBase64Manipulator baseManipulator = {input, inputLength};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              result,
-                                                              baseManipulator);
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseBase64(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
 }
 
 template <class TYPE>
@@ -1093,23 +1078,6 @@ int TypesParserUtil_Imp::parseDecimal(
     return bdlat::EnumUtil::fromIntOrFallbackIfEnabled(result, intValue);
 }
 
-struct TypesParserUtil_Imp::ParseDecimalManipulator {
-    // PRIVATE DATA
-    const char *d_input;
-    int         d_inputLength;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        enum { k_FAILURE = -1 };
-        if (0 != TypesParserUtil::parseDecimal(base, d_input, d_inputLength)) {
-            return k_FAILURE;                                         // RETURN
-        }
-        return 0;
-    }
-};
-
 template <class TYPE>
 inline
 int TypesParserUtil_Imp::parseDecimal(
@@ -1118,10 +1086,18 @@ int TypesParserUtil_Imp::parseDecimal(
                                int                                 inputLength,
                                bdlat_TypeCategory::CustomizedType)
 {
-    ParseDecimalManipulator baseManipulator = {input, inputLength};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              result,
-                                                              baseManipulator);
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseDecimal(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
 }
 
 template <class TYPE>
@@ -1161,23 +1137,6 @@ int TypesParserUtil_Imp::parseDefault(
         result, input, inputLength);
 }
 
-struct TypesParserUtil_Imp::ParseDefaultManipulator {
-    // PRIVATE DATA
-    const char *d_input;
-    int         d_inputLength;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        enum { k_FAILURE = -1 };
-        if (0 != TypesParserUtil::parseDefault(base, d_input, d_inputLength)) {
-            return k_FAILURE;                                         // RETURN
-        }
-        return 0;
-    }
-};
-
 template <class TYPE>
 inline
 int TypesParserUtil_Imp::parseDefault(
@@ -1186,10 +1145,18 @@ int TypesParserUtil_Imp::parseDefault(
                                int                                 inputLength,
                                bdlat_TypeCategory::CustomizedType)
 {
-    ParseDefaultManipulator baseManipulator = {input, inputLength};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              result,
-                                                              baseManipulator);
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseDefault(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
 }
 
 template <class TYPE>
@@ -1418,23 +1385,6 @@ int TypesParserUtil_Imp::parseDefault(bsl::vector<char>         *result,
 
 // HEX FUNCTIONS
 
-struct TypesParserUtil_Imp::ParseHexManipulator {
-    // PRIVATE DATA
-    const char *d_input;
-    int         d_inputLength;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        enum { k_FAILURE = -1 };
-        if (0 != TypesParserUtil::parseHex(base, d_input, d_inputLength)) {
-            return k_FAILURE;                                         // RETURN
-        }
-        return 0;
-    }
-};
-
 template <class TYPE>
 inline
 int TypesParserUtil_Imp::parseHex(
@@ -1443,10 +1393,18 @@ int TypesParserUtil_Imp::parseHex(
                                int                                 inputLength,
                                bdlat_TypeCategory::CustomizedType)
 {
-    ParseHexManipulator baseManipulator = {input, inputLength};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              result,
-                                                              baseManipulator);
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseHex(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
 }
 
 template <class TYPE>
@@ -1583,23 +1541,6 @@ int TypesParserUtil_Imp::parseText(
         result, input, inputLength);
 }
 
-struct TypesParserUtil_Imp::ParseTextManipulator {
-    // PRIVATE DATA
-    const char *d_input;
-    int         d_inputLength;
-
-    // MANIPULATORS
-    template <class t_BASE_TYPE>
-    int operator()(t_BASE_TYPE *base)
-    {
-        enum { k_FAILURE = -1 };
-        if (0 != TypesParserUtil::parseText(base, d_input, d_inputLength)) {
-            return k_FAILURE;                                         // RETURN
-        }
-        return 0;
-    }
-};
-
 template <class TYPE>
 inline
 int TypesParserUtil_Imp::parseText(
@@ -1608,10 +1549,18 @@ int TypesParserUtil_Imp::parseText(
                                int                                 inputLength,
                                bdlat_TypeCategory::CustomizedType)
 {
-    ParseTextManipulator baseManipulator = {input, inputLength};
-    return bdlat_CustomizedTypeFunctions::createBaseAndConvert(
-                                                              result,
-                                                              baseManipulator);
+    enum { k_FAILURE = -1 };
+
+    typedef typename
+    bdlat_CustomizedTypeFunctions::BaseType<TYPE>::Type BaseType;
+
+    BaseType base;
+
+    if (0 != TypesParserUtil::parseText(&base, input, inputLength)) {
+        return k_FAILURE;                                             // RETURN
+    }
+
+    return bdlat_CustomizedTypeFunctions::convertFromBaseType(result, base);
 }
 
 template <class TYPE>
