@@ -1741,7 +1741,11 @@ void test_case_16() {
 
         // See usage examples section at top of this file.
 
-#ifndef BDE_BUILD_TARGET_SAFE_2
+#if defined(BDE_BUILD_TARGET_ASAN)
+        // This usage example demonstrates assertions on runtime failure that
+        // are not compatible with asan reporting those same issues as errors.
+        if (verbose) puts("\tThis test is not compatible with asan");
+#elif !defined(BDE_BUILD_TARGET_SAFE_2)
         if (veryVerbose) printf( "\tsafe mode 2 is *not* defined\n" );
         usage_example_assert_6::sillyFunc(veryVerbose);
 #else
@@ -1753,19 +1757,19 @@ void test_case_16() {
                                                           // for regression
         globalReset();
         ASSERT(false == globalReviewFiredFlag);
-#ifdef BDE_BUILD_TARGET_EXC
+# ifdef BDE_BUILD_TARGET_EXC
         try
         {
-#endif  // BDE_BUILD_TARGET_EXC
+# endif // BDE_BUILD_TARGET_EXC
             usage_example_assert_6::sillyFunc(veryVerbose);
             ASSERT(false);
-#ifdef BDE_BUILD_TARGET_EXC
+# ifdef BDE_BUILD_TARGET_EXC
         }
         catch(const std::exception &)
         {
             ASSERT(true == globalReviewFiredFlag);
         }
-#endif  // BDE_BUILD_TARGET_EXC
+# endif // BDE_BUILD_TARGET_EXC
 #endif  // BDE_BUILD_TARGET_SAFE_2
 }
 

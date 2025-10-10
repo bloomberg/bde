@@ -2007,6 +2007,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTesting buffer over/underrun detection"
                             "\n======================================\n");
 
+#if defined(BDE_BUILD_TARGET_ASAN)
+        // Testing that we detect allocator misuse at runtime is not compatible
+        // with asan reporting all of those same errors as true failures.
+        if (verbose) puts("\tThis test is not compatible with asan");
+#else
         Obj alloc(veryVeryVerbose);
         char *seg;
 
@@ -2113,6 +2118,7 @@ int main(int argc, char *argv[])
         ASSERT(alloc.status() == expectedBoundsErrors + mismatchErrors);
         ASSERT(expectedBoundsErrors == alloc.numBoundsErrors());
         ASSERT(mismatchErrors       == alloc.numMismatches());
+#endif
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2577,6 +2583,11 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING ERROR COUNTS"
                             "\n====================\n");
 
+#if defined(BDE_BUILD_TARGET_ASAN)
+        // Testing that we detect allocator misuse at runtime is not compatible
+        // with asan reporting all of those same errors as true failures.
+        if (verbose) puts("\tThis test is not compatible with asan");
+#else
         if (verbose) printf(
                      "\nNote:\n"
                      "  Error messages can be viewed in veryVerbose mode\n"
@@ -2733,7 +2744,7 @@ int main(int argc, char *argv[])
                                 LOOP_ASSERT(a.status(), 7 == a.status());
                                 ASSERT(7 == a.numMismatches());
 
-#if 0
+# if 0
     // Accessing deallocated memory can result in errors on some platforms.
     // For this reason, this part of the test has been removed for now.
             if (verbose) printf("\nEnsure deallocated memory is scribbled.\n");
@@ -2745,7 +2756,7 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(mi, SCRIBBLED_MEMORY == q[mi]);
             }
             if (veryVerbose) puts(LINE);
-#endif
+# endif
 
             p = static_cast<char*>(a.allocate(9));  p[0] = (char) 0xA9;
                                 ASSERT(1 == a.numBlocksInUse());
@@ -2761,7 +2772,7 @@ int main(int argc, char *argv[])
             if (veryVerbose) puts(LINE);
         }
         if (veryVerbose) puts(LINE);
-
+#endif
       } break;
       case 2: {
         // --------------------------------------------------------------------
