@@ -414,41 +414,36 @@ void String::trim(char *string)
 {
     BSLS_ASSERT(string);
 
-    // This is organized to minimize passes through the string.  One pass to
-    // set 'start', 'end', and 'trailing':
+    char *shiftEnd = string;
 
-    char *start = string;    // will point to after initial spaces
-    while (bdlb::CharType::isSpace(*start)) {
-        ++start;
+    while(bdlb::CharType::isSpace(*shiftEnd)) {
+        ++shiftEnd;
     }
 
-    char *end      = start;  // will traverse to trailing '\0'
-    char *trailing = 0;      // will point to start of trailing spaces, or 0
-                             // if there are none
-    for (; *end; ++end) {
-        if (bdlb::CharType::isSpace(*end)) {
-            if (!trailing) {
-                trailing = end;
+    if(*shiftEnd == '\0') {
+        *string = '\0';
+        return;
+    }
+
+    char *rightTrimStartPos = 0;
+    while(*shiftEnd) {
+        if(bdlb::CharType::isSpace(*shiftEnd)) {
+            if(!rightTrimStartPos) {
+                rightTrimStartPos = string;
             }
         }
         else {
-            trailing = 0;
+            rightTrimStartPos = 0;
         }
+        
+        *string++ = *shiftEnd++;
     }
 
-    // Then the second pass to change the string given that information,
-    // moving it only if necessary.
-
-    if (trailing) {
-        *trailing = '\0';
+    if(rightTrimStartPos) {
+        *rightTrimStartPos = '\0';
     }
-
-    if (start == string) {
-        return;                                                       // RETURN
-    }
-
-    while ((*string++ = *start++)) {
-        ;
+    else {
+        *string = '\0';
     }
 }
 
