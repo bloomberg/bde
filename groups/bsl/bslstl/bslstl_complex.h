@@ -134,23 +134,23 @@ inline namespace complex_literals {
     /// Create a `bsl::complex<double>` complex number having the specified
     /// `imag` imaginary component and the real part zero.
     BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<double> operator "" _i(unsigned long long imag);
+    bsl::complex<double> operator""_i(unsigned long long imag);
     BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<double> operator "" _i(long double imag);
+    bsl::complex<double> operator""_i(long double imag);
 
     /// Create a `bsl::complex<float>` complex number having the specified
     /// `imag` imaginary component and the real part zero.
     BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<float> operator "" _if(unsigned long long imag);
+    bsl::complex<float> operator""_if(unsigned long long imag);
     BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<float> operator "" _if(long double imag);
+    bsl::complex<float> operator""_if(long double imag);
 
     /// Create a `bsl::complex<long double>` complex number having the
     /// specified `imag` imaginary component and the real part zero.
     BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<long double> operator "" _il(unsigned long long imag);
+    bsl::complex<long double> operator""_il(unsigned long long imag);
     BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<long double> operator "" _il(long double imag);
+    bsl::complex<long double> operator""_il(long double imag);
 
 }  // close complex_literals namespace
 }  // close literals namespace
@@ -166,37 +166,37 @@ inline namespace complex_literals {
 inline namespace literals {
 inline namespace complex_literals {
     inline BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<double> operator "" _i(unsigned long long arg)
+    bsl::complex<double> operator""_i(unsigned long long arg)
     {
         return bsl::complex<double>{0.0, static_cast<double>(arg)};
     }
 
     inline BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<double> operator "" _i(long double arg)
+    bsl::complex<double> operator""_i(long double arg)
     {
         return bsl::complex<double>{0.0, static_cast<double>(arg)};
     }
 
     inline BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<float> operator "" _if(unsigned long long arg)
+    bsl::complex<float> operator""_if(unsigned long long arg)
     {
         return bsl::complex<float>{0.0f, static_cast<float>(arg)};
     }
 
     inline BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<float> operator "" _if(long double arg)
+    bsl::complex<float> operator""_if(long double arg)
     {
         return bsl::complex<float>{0.0f, static_cast<float>(arg)};
     }
 
     inline BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<long double> operator "" _il(unsigned long long arg)
+    bsl::complex<long double> operator""_il(unsigned long long arg)
     {
         return bsl::complex<long double>{0.0L, static_cast<long double>(arg)};
     }
 
     inline BSLS_KEYWORD_CONSTEXPR
-    bsl::complex<long double> operator "" _il(long double arg)
+    bsl::complex<long double> operator""_il(long double arg)
     {
         return bsl::complex<long double>{0.0L, static_cast<long double>(arg)};
     }

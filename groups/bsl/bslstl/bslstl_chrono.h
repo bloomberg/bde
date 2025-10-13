@@ -64,7 +64,7 @@ BSLS_IDENT("$Id: $")
 // using namespace bsl::chrono_literals;
 // ```
 // Then, we construct two duration objects that represent a 24-hours and a half
-// an hour time intervals using `operator "" _h`.
+// an hour time intervals using `operator""_h`.
 // ```
 // auto hours_in_a_day = 24_h;
 // auto halfhour       = 0.5_h;
@@ -265,51 +265,51 @@ inline namespace chrono_literals {
 /// `bsl::ratio<3600, 1>` duration period and initialized with the
 /// specified `hrs` number of hours.
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::hours operator "" _h(unsigned long long hrs);
+bsl::chrono::hours operator""_h(unsigned long long hrs);
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::ratio<3600, 1>> operator "" _h(
+bsl::chrono::duration<long double, bsl::ratio<3600, 1>> operator""_h(
                                                               long double hrs);
 
 /// Create a `bsl::chrono::duration` object having the
 /// `bsl::ratio<60, 1>` duration period and initialized with the
 /// specified `mins` number of minutes.
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::minutes operator "" _min(unsigned long long mins);
+bsl::chrono::minutes operator""_min(unsigned long long mins);
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::ratio<60, 1>> operator "" _min(
+bsl::chrono::duration<long double, bsl::ratio<60, 1>> operator""_min(
                                                              long double mins);
 
 /// Create a `bsl::chrono::duration` object having the `bsl::ratio<1>`
 /// duration period and initialized with the specified `secs` number of
 /// seconds.
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::seconds operator "" _s(unsigned long long secs);
+bsl::chrono::seconds operator""_s(unsigned long long secs);
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double> operator "" _s(long double secs);
+bsl::chrono::duration<long double> operator""_s(long double secs);
 
 /// Create a `bsl::chrono::duration` object having the
 /// `bsl::milli` duration period and initialized with the specified `ms`
 /// number of milliseconds.
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::milliseconds operator "" _ms(unsigned long long ms);
+bsl::chrono::milliseconds operator""_ms(unsigned long long ms);
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::milli> operator "" _ms(long double ms);
+bsl::chrono::duration<long double, bsl::milli> operator""_ms(long double ms);
 
 /// Create a `bsl::chrono::duration` object having the
 /// `bsl::micro` duration period and initialized with the specified `us`
 /// number of microseconds.
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::microseconds operator "" _us(unsigned long long us);
+bsl::chrono::microseconds operator""_us(unsigned long long us);
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::micro> operator "" _us(long double us);
+bsl::chrono::duration<long double, bsl::micro> operator""_us(long double us);
 
 /// Create a `bsl::chrono::duration` object having the `bsl::nano`
 /// duration period and initialized with the specified `ns` number of
 /// microseconds.
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::nanoseconds operator "" _ns(unsigned long long ns);
+bsl::chrono::nanoseconds operator""_ns(unsigned long long ns);
 BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::nano> operator "" _ns(long double ns);
+bsl::chrono::duration<long double, bsl::nano> operator""_ns(long double ns);
 
 }  // close chrono_literals namespace
 }  // close literals namespace
@@ -326,75 +326,75 @@ inline namespace literals {
 inline namespace chrono_literals {
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::hours operator "" _h(unsigned long long hrs)
+bsl::chrono::hours operator""_h(unsigned long long hrs)
 {
     return bsl::chrono::hours(hrs);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::ratio<3600, 1>> operator "" _h(
+bsl::chrono::duration<long double, bsl::ratio<3600, 1>> operator""_h(
                                                                long double hrs)
 {
     return bsl::chrono::duration<long double, bsl::ratio<3600, 1>>(hrs);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::minutes operator "" _min(unsigned long long mins)
+bsl::chrono::minutes operator""_min(unsigned long long mins)
 {
     return bsl::chrono::minutes(mins);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
 bsl::chrono::duration<long double, bsl::ratio<60, 1>>
-    operator "" _min(long double mins)
+    operator""_min(long double mins)
 {
     return bsl::chrono::duration<long double, bsl::ratio<60, 1>>(mins);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::seconds operator "" _s(unsigned long long secs)
+bsl::chrono::seconds operator""_s(unsigned long long secs)
 {
     return bsl::chrono::seconds(secs);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double> operator "" _s(long double secs)
+bsl::chrono::duration<long double> operator""_s(long double secs)
 {
     return bsl::chrono::duration<long double>(secs);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::milliseconds operator "" _ms(unsigned long long ms)
+bsl::chrono::milliseconds operator""_ms(unsigned long long ms)
 {
     return bsl::chrono::milliseconds(ms);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::milli> operator "" _ms(long double ms)
+bsl::chrono::duration<long double, bsl::milli> operator""_ms(long double ms)
 {
     return bsl::chrono::duration<long double, bsl::milli>(ms);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::microseconds operator "" _us(unsigned long long us)
+bsl::chrono::microseconds operator""_us(unsigned long long us)
 {
     return bsl::chrono::microseconds(us);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::micro> operator "" _us(long double us)
+bsl::chrono::duration<long double, bsl::micro> operator""_us(long double us)
 {
     return bsl::chrono::duration<long double, bsl::micro>(us);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::nanoseconds operator "" _ns(unsigned long long ns)
+bsl::chrono::nanoseconds operator""_ns(unsigned long long ns)
 {
     return bsl::chrono::nanoseconds(ns);
 }
 
 inline BSLS_KEYWORD_CONSTEXPR
-bsl::chrono::duration<long double, bsl::nano> operator "" _ns(long double ns)
+bsl::chrono::duration<long double, bsl::nano> operator""_ns(long double ns)
 {
     return bsl::chrono::duration<long double, bsl::nano>(ns);
 }

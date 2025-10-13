@@ -25,7 +25,7 @@ namespace bdljsn {
 
 inline namespace literals {
 inline namespace JsonLiterals {
-bdljsn::Json operator"" _json(const char *text, bsl::size_t numBytes)
+bdljsn::Json operator""_json(const char *text, bsl::size_t numBytes)
 {
     bdljsn::Json result(bslma::Default::globalAllocator());
     bdljsn::Error error;

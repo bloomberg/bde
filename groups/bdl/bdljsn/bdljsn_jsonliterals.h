@@ -24,7 +24,7 @@ BSLS_IDENT("$Id: $")
 //
 ///Use of the Global Allocator
 ///---------------------------
-// The `operator "" _json` returns a `bdljsn::Json` object that allocates
+// The `operator""_json` returns a `bdljsn::Json` object that allocates
 // memory using the currently installed global allocator.  Using the global
 // allocator prevents inadvertently locking the default allocator, as may
 // happen before `main` when using a JSON literal to initialize an object at
@@ -73,7 +73,7 @@ inline namespace JsonLiterals {
 /// the specified `text` of the specified `numBytes`.  If `text` is not a
 /// valid JSON document then invoke the currently installed `bsls::Assert`
 /// failure handler.
-bdljsn::Json operator "" _json (const char *text, bsl::size_t numBytes);
+bdljsn::Json operator""_json (const char *text, bsl::size_t numBytes);
 
 }  // close JsonLiterals namespace
 }  // close literals namespace

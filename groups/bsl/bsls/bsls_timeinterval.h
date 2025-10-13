@@ -42,8 +42,8 @@ BSLS_IDENT("$Id: $")
 //
 ///User-Defined Literals
 ///---------------------
-// The user-defined literal `operator"" _h`, `operator"" _min`,
-// `operator"" _s`, `operator"" _ms`, `operator"" _us` and `operator"" _ns` are
+// The user-defined literal `operator""_h`, `operator""_min`,
+// `operator""_s`, `operator""_ms`, `operator""_us` and `operator""_ns` are
 // declared for the `TimeInterval`.  These suffixes can be applied to integer
 // literals and allow to create an object, representing the specified number of
 // hours, minutes, seconds, milliseconds, microseconds or nanoseconds
@@ -1624,7 +1624,7 @@ bool bsls::operator>=(double lhs, const TimeInterval& rhs)
     defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 
 inline BSLS_KEYWORD_CONSTEXPR_CPP14
-bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _h(
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator""_h(
                                                   unsigned long long int hours)
 {
     BSLS_ASSERT((LLONG_MAX/3600) >= hours);
@@ -1632,7 +1632,7 @@ bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _h(
 }
 
 inline BSLS_KEYWORD_CONSTEXPR_CPP14
-bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _min(
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator""_min(
                                                 unsigned long long int minutes)
 {
     BSLS_ASSERT((LLONG_MAX/60) >= minutes);
@@ -1640,7 +1640,7 @@ bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _min(
 }
 
 inline BSLS_KEYWORD_CONSTEXPR_CPP14
-bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _s(
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator""_s(
                                                 unsigned long long int seconds)
 {
     BSLS_ASSERT(LLONG_MAX > seconds);
@@ -1648,7 +1648,7 @@ bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _s(
 }
 
 inline BSLS_KEYWORD_CONSTEXPR_CPP14
-bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _ms(
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator""_ms(
                                            unsigned long long int milliseconds)
 {
     const bsls::Types::Int64 k_MILLISECS_PER_SEC     = 1000;
@@ -1660,7 +1660,7 @@ bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _ms(
 }
 
 inline BSLS_KEYWORD_CONSTEXPR_CPP14
-bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _us(
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator""_us(
                                            unsigned long long int microseconds)
 {
     const bsls::Types::Int64 k_MICROSECS_PER_SEC     = 1000000;
@@ -1672,7 +1672,7 @@ bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _us(
 }
 
 inline BSLS_KEYWORD_CONSTEXPR_CPP14
-bsls::TimeInterval bsls::TimeIntervalLiterals::operator"" _ns(
+bsls::TimeInterval bsls::TimeIntervalLiterals::operator""_ns(
                                             unsigned long long int nanoseconds)
 {
     const bsls::Types::Int64 k_NANOSECS_PER_SEC = 1000000000;

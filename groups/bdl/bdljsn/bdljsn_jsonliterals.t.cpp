@@ -40,7 +40,7 @@ using bsl::ends;
 // wrapper around already tested facilities in `bdljsn_json` and
 // `bdljsn_jsonutil`.
 // ----------------------------------------------------------------------------
-// [ 1] bdljsn::Json operator "" _json(const char *, bsl::size_t );
+// [ 1] bdljsn::Json operator""_json(const char *, bsl::size_t );
 // ----------------------------------------------------------------------------
 // [ 2] USAGE EXAMPLE
 
@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
         //    is invoked.
         //
         // Testing:
-        //   bdljsn::Json operator "" _json(const char *, bsl::size_t );
+        //   bdljsn::Json operator""_json(const char *, bsl::size_t );
         // --------------------------------------------------------------------
 
         if (verbose)

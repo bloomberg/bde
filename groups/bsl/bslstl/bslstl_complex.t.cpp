@@ -24,12 +24,12 @@ using namespace BloombergLP;
 // test driver tests each implemented UDL operator.
 //-----------------------------------------------------------------------------
 // FREE OPERATORS
-// [1] bsl::complex<double>      operator "" _i (unsigned long long);
-// [1] bsl::complex<double>      operator "" _i (long double);
-// [1] bsl::complex<float>       operator "" _if(unsigned long long);
-// [1] bsl::complex<float>       operator "" _if(long double);
-// [1] bsl::complex<long double> operator "" _il(unsigned long long);
-// [1] bsl::complex<long double> operator "" _il(long double);
+// [1] bsl::complex<double>      operator""_i (unsigned long long);
+// [1] bsl::complex<double>      operator""_i (long double);
+// [1] bsl::complex<float>       operator""_if(unsigned long long);
+// [1] bsl::complex<float>       operator""_if(long double);
+// [1] bsl::complex<long double> operator""_il(unsigned long long);
+// [1] bsl::complex<long double> operator""_il(long double);
 // ----------------------------------------------------------------------------
 // [2] USAGE EXAMPLE
 
@@ -197,12 +197,12 @@ int main(int argc, char *argv[])
       //    expected `bsl::complex<T>` objects for the various values.
       //
       // Testing:
-      //   bsl::complex<double>      operator "" _i (unsigned long long);
-      //   bsl::complex<double>      operator "" _i (long double);
-      //   bsl::complex<float>       operator "" _if(unsigned long long);
-      //   bsl::complex<float>       operator "" _if(long double);
-      //   bsl::complex<long double> operator "" _il(unsigned long long);
-      //   bsl::complex<long double> operator "" _il(long double);
+      //   bsl::complex<double>      operator""_i (unsigned long long);
+      //   bsl::complex<double>      operator""_i (long double);
+      //   bsl::complex<float>       operator""_if(unsigned long long);
+      //   bsl::complex<float>       operator""_if(long double);
+      //   bsl::complex<long double> operator""_il(unsigned long long);
+      //   bsl::complex<long double> operator""_il(long double);
       // ----------------------------------------------------------------------
 
         if (verbose) printf("\nTesting User-defined literal operators"

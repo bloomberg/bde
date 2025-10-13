@@ -524,8 +524,8 @@ BSLS_IDENT("$Id$")
 //
 ///User-defined literals
 ///---------------------
-// The user-defined literal `operator "" _d32`, `operator "" _d64`, and
-// `operator "" _d128` are declared for the `bdldfp::Decimal32`,
+// The user-defined literal `operator""_d32`, `operator""_d64`, and
+// `operator""_d128` are declared for the `bdldfp::Decimal32`,
 // `bdldfp::Decimal64`, and `bdldfp::Decimal128` types respectively .  These
 // user-defined literal suffixes can be applied to both numeric and string
 // literals, (i.e., 1.2_d128, "1.2"_d128 or "inf"_d128) to produce a decimal
@@ -1746,8 +1746,8 @@ inline namespace DecimalLiterals {
 /// `1.5_d32;       "1.5"_d32       =>      15e-1`
 /// `1.500_d32;     "1.500"d_32     =>    1500e-3`
 /// `1.2345678_d32; "1.2345678_d32" => 1234568e-6`
-bdldfp::Decimal32  operator "" _d32 (const char *str);
-bdldfp::Decimal32  operator "" _d32 (const char *str, bsl::size_t len);
+bdldfp::Decimal32  operator""_d32 (const char *str);
+bdldfp::Decimal32  operator""_d32 (const char *str, bsl::size_t len);
 
 }  // close DecimalLiterals namespace
 }  // close literals namespace
@@ -2932,8 +2932,8 @@ inline namespace DecimalLiterals {
 /// `1.5_d64;                 =>              15e-1`
 /// `1.500_d64;               =>            1500e-3`
 /// `1.2345678901234567_d64;  => 1234567890123458-15`
-bdldfp::Decimal64  operator "" _d64 (const char *str);
-bdldfp::Decimal64  operator "" _d64 (const char *str, bsl::size_t len);
+bdldfp::Decimal64  operator""_d64 (const char *str);
+bdldfp::Decimal64  operator""_d64 (const char *str, bsl::size_t len);
 
 }  // close DecimalLiterals namespace
 }  // close literals namespace
@@ -4081,8 +4081,8 @@ inline namespace DecimalLiterals {
 /// `1.500_d128;                  =>                               1500e-3`
 /// '1.2345678901234567890123456789012349_d128;
 ///                               => 1234567890123456789012345678901235e-33'
-bdldfp::Decimal128 operator "" _d128(const char *str);
-bdldfp::Decimal128 operator "" _d128(const char *str, bsl::size_t len);
+bdldfp::Decimal128 operator""_d128(const char *str);
+bdldfp::Decimal128 operator""_d128(const char *str, bsl::size_t len);
 
 }  // close DecimalLiterals namespace
 }  // close literals namespace
@@ -7645,13 +7645,13 @@ bool bdldfp::operator>=(bdldfp::Decimal32 lhs, bdldfp::Decimal32 rhs)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline
-bdldfp::Decimal32 bdldfp::DecimalLiterals::operator "" _d32(const char *str)
+bdldfp::Decimal32 bdldfp::DecimalLiterals::operator""_d32(const char *str)
 {
     return DecimalImpUtil::parse32(str);
 }
 
 inline
-bdldfp::Decimal32 bdldfp::DecimalLiterals::operator "" _d32(
+bdldfp::Decimal32 bdldfp::DecimalLiterals::operator""_d32(
                                                   const char *str, bsl::size_t)
 {
     return DecimalImpUtil::parse32(str);
@@ -8190,13 +8190,13 @@ inline bool bdldfp::operator>=(bdldfp::Decimal64 lhs, bdldfp::Decimal32 rhs)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline
-bdldfp::Decimal64 bdldfp::DecimalLiterals::operator "" _d64(const char *str)
+bdldfp::Decimal64 bdldfp::DecimalLiterals::operator""_d64(const char *str)
 {
     return DecimalImpUtil::parse64(str);
 }
 
 inline
-bdldfp::Decimal64 bdldfp::DecimalLiterals::operator "" _d64(
+bdldfp::Decimal64 bdldfp::DecimalLiterals::operator""_d64(
                                                   const char *str, bsl::size_t)
 {
     return DecimalImpUtil::parse64(str);
@@ -8912,13 +8912,13 @@ bool bdldfp::operator>=(bdldfp::Decimal128 lhs, bdldfp::Decimal64 rhs)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE)  && \
     defined(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS)
 inline
-bdldfp::Decimal128 bdldfp::DecimalLiterals::operator "" _d128(const char *str)
+bdldfp::Decimal128 bdldfp::DecimalLiterals::operator""_d128(const char *str)
 {
     return DecimalImpUtil::parse128(str);
 }
 
 inline
-bdldfp::Decimal128 bdldfp::DecimalLiterals::operator "" _d128(
+bdldfp::Decimal128 bdldfp::DecimalLiterals::operator""_d128(
                                                   const char *str, bsl::size_t)
 {
     return DecimalImpUtil::parse128(str);

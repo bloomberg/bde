@@ -201,7 +201,7 @@ BSLS_IDENT("$Id: $")
 // the `bsl`-string's user-defined literal operators and the `std`-string's
 // user-defined literal `operator ""s` introduced in the C++14 standard and
 // implemented in the standard library provided by the compiler vendor.  Note
-// that the `bsl`-string's `operator "" _s`, unlike the `std`-string's
+// that the `bsl`-string's `operator""_s`, unlike the `std`-string's
 // `operator ""s`, can be used in a client's code if the compiler supports the
 // C++11 standard.  Also note that if the compiler supports the C++14 standard
 // then the `std`-string's `operator ""s` can be used to initialize a
@@ -228,11 +228,11 @@ BSLS_IDENT("$Id: $")
 //
 ///Memory Allocation For a File-Scope Strings
 /// - - - - - - - - - - - - - - - - - - - - -
-// The `operator "" _s` uses the currently installed default allocator to
+// The `operator""_s` uses the currently installed default allocator to
 // supply memory.  Note that the default allocator can become locked prior to
 // entering `main` as a side-effect of initializing a file-scope static string
-// object using `operator "" _s`.  To avoid the default allocator locking an
-// `operator "" _S` can be used instead.  This operator uses the global
+// object using `operator""_s`.  To avoid the default allocator locking an
+// `operator""_S` can be used instead.  This operator uses the global
 // allocator to supply memory and has no side-effects.  (See the "Default
 // Allocator" section in the `bslma::Default` component-level documentation for
 // details.)  For Example:

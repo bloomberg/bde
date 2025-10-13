@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // between the `bsl`-string_view's user-defined literal operators and the
 // `std`-string_view's user-defined literal `operator ""sv` introduced in the
 // C++14 standard and implemented in the standard library provided by the
-// compiler vendor.  Note that the `bsl`-string_view's `operator "" _sv`,
+// compiler vendor.  Note that the `bsl`-string_view's `operator""_sv`,
 // unlike the `std`-string_view's `operator ""sv`, can be used in a client's
 // code if the compiler supports the C++11 standard.  Also note that if the
 // compiler supports the C++17 standard then the `std`-string_view's

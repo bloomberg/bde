@@ -31,18 +31,18 @@ using namespace BloombergLP;
 // driver tests each implemented UDL operator.
 //-----------------------------------------------------------------------------
 // FREE OPERATORS
-// [1] bsl::chrono::hours        operator "" _h  (unsigned long long);
-// [1] bsl::chrono::duration     operator "" _h  (long double);
-// [1] bsl::chrono::minutes      operator "" _min(unsigned long long);
-// [1] bsl::chrono::duration     operator "" _min(long double);
-// [1] bsl::chrono::seconds      operator "" _s  (unsigned long long);
-// [1] bsl::chrono::duration     operator "" _s  (long double);
-// [1] bsl::chrono::milliseconds operator "" _ms (unsigned long long);
-// [1] bsl::chrono::duration     operator "" _ms (long double);
-// [1] bsl::chrono::microseconds operator "" _us (unsigned long long);
-// [1] bsl::chrono::duration     operator "" _us (long double);
-// [1] bsl::chrono::nanoseconds  operator "" _ns (unsigned long long);
-// [1] bsl::chrono::duration     operator "" _ns (long double);
+// [1] bsl::chrono::hours        operator""_h  (unsigned long long);
+// [1] bsl::chrono::duration     operator""_h  (long double);
+// [1] bsl::chrono::minutes      operator""_min(unsigned long long);
+// [1] bsl::chrono::duration     operator""_min(long double);
+// [1] bsl::chrono::seconds      operator""_s  (unsigned long long);
+// [1] bsl::chrono::duration     operator""_s  (long double);
+// [1] bsl::chrono::milliseconds operator""_ms (unsigned long long);
+// [1] bsl::chrono::duration     operator""_ms (long double);
+// [1] bsl::chrono::microseconds operator""_us (unsigned long long);
+// [1] bsl::chrono::duration     operator""_us (long double);
+// [1] bsl::chrono::nanoseconds  operator""_ns (unsigned long long);
+// [1] bsl::chrono::duration     operator""_ns (long double);
 // ----------------------------------------------------------------------------
 // [5] USAGE EXAMPLE
 // [2] CONCERN: clocks match those in `bsls::SystemTime`
@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
         using namespace bsl::chrono_literals;
 
 // Then, we construct two duration objects that represent a 24-hours and a half
-// an hour time intervals using `operator "" _h`.
+// an hour time intervals using `operator""_h`.
 
         auto hours_in_a_day = 24_h;
         auto halfhour       = 0.5_h;
@@ -583,18 +583,18 @@ int main(int argc, char *argv[])
       //    having the expected values.
       //
       // Testing:
-      //   bsl::chrono::hours        operator "" _h  (unsigned long long);
-      //   bsl::chrono::duration     operator "" _h  (long double);
-      //   bsl::chrono::minutes      operator "" _min(unsigned long long);
-      //   bsl::chrono::duration     operator "" _min(long double);
-      //   bsl::chrono::seconds      operator "" _s  (unsigned long long);
-      //   bsl::chrono::duration     operator "" _s  (long double);
-      //   bsl::chrono::milliseconds operator "" _ms (unsigned long long);
-      //   bsl::chrono::duration     operator "" _ms (long double);
-      //   bsl::chrono::microseconds operator "" _us (unsigned long long);
-      //   bsl::chrono::duration     operator "" _us (long double);
-      //   bsl::chrono::nanoseconds  operator "" _ns (unsigned long long);
-      //   bsl::chrono::duration     operator "" _ns (long double);
+      //   bsl::chrono::hours        operator""_h  (unsigned long long);
+      //   bsl::chrono::duration     operator""_h  (long double);
+      //   bsl::chrono::minutes      operator""_min(unsigned long long);
+      //   bsl::chrono::duration     operator""_min(long double);
+      //   bsl::chrono::seconds      operator""_s  (unsigned long long);
+      //   bsl::chrono::duration     operator""_s  (long double);
+      //   bsl::chrono::milliseconds operator""_ms (unsigned long long);
+      //   bsl::chrono::duration     operator""_ms (long double);
+      //   bsl::chrono::microseconds operator""_us (unsigned long long);
+      //   bsl::chrono::duration     operator""_us (long double);
+      //   bsl::chrono::nanoseconds  operator""_ns (unsigned long long);
+      //   bsl::chrono::duration     operator""_ns (long double);
       // ----------------------------------------------------------------------
 
         if (verbose) printf("\nTesting User-defined literal operators"
