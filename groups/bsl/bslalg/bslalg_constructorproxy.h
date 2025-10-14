@@ -249,13 +249,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_aamodel.h>
 #include <bslma_constructionutil.h>
 #include <bslma_destructionutil.h>
+#include <bslma_isstdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_enableif.h>
-#include <bslmf_integralconstant.h>
-#include <bslmf_issame.h>
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
-#include <bslmf_removecvref.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -263,6 +262,10 @@ BSLS_IDENT("$Id: $")
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_scalarprimitives.h>
+#include <bslmf_enableif.h>
+#include <bslmf_integralconstant.h>
+#include <bslmf_issame.h>
+#include <bslmf_removecvref.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
@@ -1166,7 +1169,7 @@ namespace bslmf {
 
 template <class OBJECT_TYPE>
 struct IsBitwiseMoveable<bslalg::ConstructorProxy<OBJECT_TYPE> > :
-                                                 IsBitwiseMoveable<OBJECT_TYPE>
+                                           IsBitwiseMoveable<OBJECT_TYPE>::type
 {};
 
 }  // close namespace bslmf

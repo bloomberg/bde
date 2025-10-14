@@ -1,26 +1,32 @@
 // bslalg_constructorproxy.t.cpp                                      -*-C++-*-
-
 #include <bslalg_constructorproxy.h>
 
 #include <bslma_aamodel.h>
-#include <bslma_allocatorutil.h>
-#include <bslma_default.h>
 #include <bslma_allocator.h>
+#include <bslma_allocatorutil.h>
+#include <bslma_bslallocator.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_hasallocatortype.h>
-#include <bslma_bslallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
+#include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_usesallocatorargt.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_macrorepeat.h>
+#include <bsls_platform.h>
 
 #include <bsltf_argumenttype.h>
+#include <bsltf_copymovestate.h>
+#include <bsltf_copymovetracker.h>
 #include <bsltf_stdallocatoradaptor.h>
 
 #include <cstdio>   // `printf`
@@ -1068,20 +1074,20 @@ int main(int argc, char *argv[])
         //
         // Plan:
         // 1. Instrument a class `WrapTest` to detect whether it was
-        //    constructed with an `bslmf::ArgumentType<T>` or a
-        //    `bslalg::ConstructorProxy<bslmf::ArgumentType<1>>`.
+        //    constructed with an `bsltf::ArgumentType<T>` or a
+        //    `bslalg::ConstructorProxy<bsltf::ArgumentType<1>>`.
         //
         // 2. Using the `WrapTest` class, construct a
         //    bslalg::ConstructorProxy<WrapTest>' object from a
-        //    `bslmf::ArgumentType<1>` object.  Verify that the proxied
-        //    `WrapTest` was constructed with a bare `bslmf::ArgumentType<1>`
+        //    `bsltf::ArgumentType<1>` object.  Verify that the proxied
+        //    `WrapTest` was constructed with a bare `bsltf::ArgumentType<1>`
         //    argument.
         //
         // 3. Repeat step 2, passing a
-        //    `bslalg::ConstructorProxy<bslmf::ArgumentType<1>>` argument to
+        //    `bslalg::ConstructorProxy<bsltf::ArgumentType<1>>` argument to
         //    the constructor.   erify that the proxied
         //    `WrapTest` was *still* constructed with a bare
-        //    `bslmf::ArgumentType<1>` argument (i.e., the proxy layer was
+        //    `bsltf::ArgumentType<1>` argument (i.e., the proxy layer was
         //    stripped off).
         //
         // 4. Repeat steps 2 and 3 with `const` and non-`const` arguments and
@@ -1368,8 +1374,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nALLOCATOR-ONLY CONSTRUCTOR"
                             "\n==========================\n");
 
-        using namespace bslalg;
-
         typedef bsl::polymorphic_allocator<int> PmrAllocatorInt;
         typedef bsl::allocator<short>           BslAllocatorShort;
         typedef bslma::Allocator               *LegacyAllocator;
@@ -1378,8 +1382,8 @@ int main(int argc, char *argv[])
 
 #define TEST(ALLOC, USE_PREFIX_ARG) do {                                      \
         int objCount = g_objectCount;                                         \
-        typedef TestType<ALLOC, USE_PREFIX_ARG> ValueType;                    \
-        typedef ConstructorProxy<ValueType>     Obj;                          \
+        typedef TestType<ALLOC, USE_PREFIX_ARG>     ValueType;                \
+        typedef bslalg::ConstructorProxy<ValueType> Obj;                      \
         Obj mX(&ta); const Obj& X = mX;                                       \
         ASSERT(objCount + 1 == g_objectCount);                                \
         ValueType&       mV = mX.object();                                    \
@@ -1433,8 +1437,8 @@ int main(int argc, char *argv[])
         // 4. `bslmf::UseAllocatorArgT<bslalg::ConstructorProxy<TYPE>>` always
         //    yields `false`.
         //
-        // 5. `bsltf::IsBitwiseMoveable<bslalg::ConstructorProxy<TYPE>>`
-        //     mirrors `bsltf::IsBitwiseMoveable<TYPE>`.
+        // 5. `bslmf::IsBitwiseMoveable<bslalg::ConstructorProxy<TYPE>>`
+        //     mirrors `bslmf::IsBitwiseMoveable<TYPE>`.
         //
         // Plan
         // 1. For a list of `TYPE`s conforming to each of the five AA models,
@@ -1455,7 +1459,7 @@ int main(int argc, char *argv[])
         //
         //   5. `bslmf::UsesAllocatorArgT<Obj>::value` is `false`.  (C-4)
         //
-        // 2. Verify that `bsltf::IsBitwiseMoveable<Obj>::value` for
+        // 2. Verify that `bslmf::IsBitwiseMoveable<Obj>::value` for
         //    non-bitwise moveable `TYPE` (e.g., `TestType<A, U>`) and `true`
         //    for bitwise moveable `TYPE` (e.g., `int`).  (C-5)
         //
@@ -1467,8 +1471,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nNESTED TYPES and TRAITS"
                             "\n=======================\n");
 
-        using namespace bslalg;
-
         typedef bsl::polymorphic_allocator<>    PmrAllocator;
         typedef bsl::allocator<>                BslAllocator;
         typedef bslma::Allocator               *LegacyAllocator;
@@ -1477,8 +1479,8 @@ int main(int argc, char *argv[])
         typedef bsl::allocator<short>           BslAllocatorShort;
 
 #define TEST(ALLOC, USE_PREFIX_ARG, EXP_ALLOC_TYPE, EXP_MODEL) do {           \
-        typedef TestType<ALLOC, USE_PREFIX_ARG> ValueType;                    \
-        typedef ConstructorProxy<ValueType>     Obj;                          \
+        typedef TestType<ALLOC, USE_PREFIX_ARG>     ValueType;                \
+        typedef bslalg::ConstructorProxy<ValueType> Obj;                      \
         ASSERT((bsl::is_same<Obj::ValueType,      ValueType>::value));        \
         ASSERT((bsl::is_same<Obj::allocator_type, EXP_ALLOC_TYPE>::value));   \
         ASSERT(bslma::AAModel<Obj>::value == EXP_MODEL::value);               \
@@ -1538,7 +1540,7 @@ int main(int argc, char *argv[])
         //    constructor, the captured `FrozenArg` reflects that the
         //    argument's `copiedInto()` attribute is `e_COPIED_MUTABLE`.
         //
-        // 9. For each argument of rvalue (bslmf::MutableRef) type passed to a
+        // 9. For each argument of rvalue (bslmf::MovableRef) type passed to a
         //    `TestType` constructor, the captured `FrozenArg` reflects that
         //    the argument's `movedInto()` attribute is `e_MOVED`.
         //
