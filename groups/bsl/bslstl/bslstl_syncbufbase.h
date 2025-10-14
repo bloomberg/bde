@@ -96,7 +96,7 @@ struct SyncBufBaseUtil {
     /// the associated output were successfully transferred, and the flush
     /// (if any) succeeded; return `false` otherwise.  The behavior is
     /// undefined unless `syncBuf` is not null.
-    static bool emit(SyncBufBase *syncBuf);
+    static bool emitInternal(SyncBufBase *syncBuf);
 
     /// Set the "emit-on-sync" property of the synchronized buffer to the
     /// specified `value`.  If "emit-on-sync" is `true`, the synchronized
@@ -114,7 +114,7 @@ struct SyncBufBaseUtil {
 
 // CLASS METHODS
 inline
-bool SyncBufBaseUtil::emit(SyncBufBase *syncBuf)
+bool SyncBufBaseUtil::emitInternal(SyncBufBase *syncBuf)
 {
     BSLS_ASSERT(syncBuf);
     return syncBuf->emitInternal();

@@ -123,7 +123,7 @@ basic_ostream<CHAR,TRAITS>& flush_emit(basic_ostream<CHAR,TRAITS>& stream)
             stream.setstate(ios_base::badbit);
         }
         else {
-            if (!BloombergLP::bslstl::SyncBufBaseUtil::emit(p)) {
+            if (!BloombergLP::bslstl::SyncBufBaseUtil::emitInternal(p)) {
                 stream.setstate(ios_base::badbit);
             }
         }
