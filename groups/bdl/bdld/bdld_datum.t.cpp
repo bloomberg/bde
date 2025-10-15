@@ -5767,7 +5767,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting `clone` for Datums having "
                           << "aggregate values.\n";
 
-        if (verbose) cout << "\nTesting `clone` for an array.\n";
+        if (verbose) cout << "\nTesting `clone` for arrays.\n";
         {
             // Testing cloning of an empty array
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -5832,6 +5832,106 @@ int main(int argc, char *argv[])
             ASSERT(REF   == DC.theArray());
 
             Datum::destroy(D, &oa);
+            Datum::destroy(DC, &ca);
+
+            ASSERT(0 == oa.status());
+            ASSERT(0 == ca.status());
+        }
+
+        if (verbose) cout << "\nTesting `clone` for array references.\n";
+        {
+            // Testing cloning of an empty array reference
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone",  veryVeryVeryVerbose);
+
+            const Datum D = Datum::createArrayReference(0, 0, &oa);
+
+            Datum               dummyDatum;
+            const DatumArrayRef REF(&dummyDatum, 0);
+
+            ASSERT(true == D.isArray());
+            ASSERT(REF  == D.theArray());
+
+            const Int64 bytesInUse = oa.numBytesInUse();
+
+            const Datum DC = D.clone(&ca);
+
+            ASSERT(bytesInUse == ca.numBytesInUse());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isArray());
+            ASSERT(REF   == DC.theArray());
+
+            Datum::destroy(D, &oa);
+            Datum::destroy(DC, &ca);
+        }
+
+        {
+            // Testing cloning of a non-empty array reference
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            bslma::TestAllocator ca("clone", veryVeryVeryVerbose);
+
+            const SizeType array2Size = 3;
+
+            const Datum array2[] = {
+                Datum::createStringRef("A longer stringer binger", &oa),
+                Datum::createDatetime(
+                           bdlt::Datetime(2010,1,5, 16,45,32,12),
+                           &oa),
+                Datum::createArrayReference(0, 0, &oa),
+            };
+
+            const SizeType array1Size = 7;
+
+            const Datum array1[] = {
+                Datum::createInteger(0),
+                Datum::createDouble(-3.1416),
+                Datum::copyString("A long string", &oa),
+                Datum::copyString("Abc", &oa),
+                Datum::createArrayReference(array2, array2Size, &oa),
+                Datum::createDate(bdlt::Date(2010, 1, 5)),
+                Datum::createDatetime(
+                           bdlt::Datetime(2010,1,5, 16,45,32,12),
+                           &oa),
+            };
+            const Datum D = Datum::createArrayReference(array1,
+                                                        array1Size,
+                                                        &oa);
+
+            const DatumArrayRef REF(array1, array1Size);
+
+            ASSERT(true == D.isArray());
+            ASSERT(REF  == D.theArray());
+
+            const Datum DC = D.clone(&ca);
+
+            ASSERTV(0 < ca.numBytesInUse());
+
+            ASSERT(false == DC.isExternalReference());
+            ASSERT(true  == DC.isArray());
+            ASSERT(REF   == DC.theArray());
+
+            // Verify that no references have remained in the data structure
+            const DatumArrayRef dcTopArray = DC.theArray();
+            for (bsl::size_t i = 0; i < dcTopArray.length(); ++i) {
+                const Datum& Elem = dcTopArray[i];
+                ASSERT(false == Elem.isExternalReference());
+                if (Elem.isArray()) {
+                    ASSERT(false == Elem.isExternalReference());
+
+                    const DatumArrayRef dcInnerArray = Elem.theArray();
+                    for (bsl::size_t i = 0; i < dcInnerArray.length(); ++i) {
+                        const Datum& Elem2 = dcInnerArray[i];
+                        ASSERT(false == Elem2.isExternalReference());
+                    }
+                }
+
+            }
+
+            Datum::destroy(D, &oa);
+            for (bsl::size_t i = 0; i < array1Size; ++i) {
+                Datum::destroy(array1[i], &oa);
+            }
             Datum::destroy(DC, &ca);
 
             ASSERT(0 == oa.status());
