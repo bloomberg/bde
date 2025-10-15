@@ -217,11 +217,6 @@ static void printFlags()
 {
     StaticStringsTable<512> undefinedMacros("undefinedMacros");
 
-    puts("printFlags: Enter");
-
-    puts("\n  printFlags: Configuration Macros");
-    puts(  "  --------------------------------");
-
 /// Add the specified macro named by `X` to the list of macros to report as
 /// not defined.
 #define D_MACRO(X) undefinedMacros.pushBack(#X);
@@ -230,10 +225,99 @@ static void printFlags()
 /// source it expands to.
 #define P_MACRO(X) printf("\t  %s:\t%s\n", #X, STRINGIFY(X));
 
+    puts("printFlags: Enter");
+
+    puts("\n  printFlags: Configuration Macros");
+    puts(  "  --------------------------------");
+
+#if defined(BDE_ACTIVATE_FUZZ_TESTING)
+    P_MACRO(BDE_ACTIVATE_FUZZ_TESTING);
+#else
+    D_MACRO(BDE_ACTIVATE_FUZZ_TESTING);
+#endif
+
+#if defined(BDE_BUILD_SKIP_VERSION_CHECKS)
+    P_MACRO(BDE_BUILD_SKIP_VERSION_CHECKS);
+#else
+    D_MACRO(BDE_BUILD_SKIP_VERSION_CHECKS);
+#endif
+
 #if defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
     P_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
 #else
     D_MACRO(BDE_BUILD_TARGET_AGGRESSIVE_INLINE);
+#endif
+
+#if defined(BDE_BUILD_TARGET_ASAN)
+    P_MACRO(BDE_BUILD_TARGET_ASAN);
+#else
+    D_MACRO(BDE_BUILD_TARGET_ASAN);
+#endif
+
+#if defined(BDE_BUILD_TARGET_DBG)
+    P_MACRO(BDE_BUILD_TARGET_DBG);
+#else
+    D_MACRO(BDE_BUILD_TARGET_DBG);
+#endif
+
+#if defined(BDE_BUILD_TARGET_EXC)
+    P_MACRO(BDE_BUILD_TARGET_EXC);
+#else
+    D_MACRO(BDE_BUILD_TARGET_EXC);
+#endif
+
+#if defined(BDE_BUILD_TARGET_MT)
+    P_MACRO(BDE_BUILD_TARGET_MT);
+#else
+    D_MACRO(BDE_BUILD_TARGET_MT);
+#endif
+
+#if defined(BDE_BUILD_TARGET_NO_EXC)
+    P_MACRO(BDE_BUILD_TARGET_NO_EXC);
+#else
+    D_MACRO(BDE_BUILD_TARGET_NO_EXC);
+#endif
+
+#if defined(BDE_BUILD_TARGET_NO_MT)
+    P_MACRO(BDE_BUILD_TARGET_NO_MT);
+#else
+    D_MACRO(BDE_BUILD_TARGET_NO_MT);
+#endif
+
+#if defined(BDE_BUILD_TARGET_OPT)
+    P_MACRO(BDE_BUILD_TARGET_OPT);
+#else
+    D_MACRO(BDE_BUILD_TARGET_OPT);
+#endif
+
+#if defined(BDE_BUILD_TARGET_SAFE)
+    P_MACRO(BDE_BUILD_TARGET_SAFE);
+#else
+    D_MACRO(BDE_BUILD_TARGET_SAFE);
+#endif
+
+#if defined(BDE_BUILD_TARGET_SAFE_2)
+    P_MACRO(BDE_BUILD_TARGET_SAFE_2);
+#else
+    D_MACRO(BDE_BUILD_TARGET_SAFE_2);
+#endif
+
+#if defined(BDE_BUILD_TARGET_STLPORT)
+    P_MACRO(BDE_BUILD_TARGET_STLPORT);
+#else
+    D_MACRO(BDE_BUILD_TARGET_STLPORT);
+#endif
+
+#if defined(BDE_BUILD_TARGET_TSAN)
+    P_MACRO(BDE_BUILD_TARGET_TSAN);
+#else
+    D_MACRO(BDE_BUILD_TARGET_TSAN);
+#endif
+
+#if defined(BDE_BUILD_TARGET_UBSAN)
+    P_MACRO(BDE_BUILD_TARGET_UBSAN);
+#else
+    D_MACRO(BDE_BUILD_TARGET_UBSAN);
 #endif
 
 #if defined(BDE_DISABLE_COMPILER_VERSION_CHECK)
@@ -242,13 +326,59 @@ static void printFlags()
     D_MACRO(BDE_DISABLE_COMPILER_VERSION_CHECK);
 #endif
 
+#if defined(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES)
+    P_MACRO(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES);
+#else
+    D_MACRO(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES);
+#endif
+
+#if defined(BDE_OMIT_DEPRECATED)
+    P_MACRO(BDE_OMIT_DEPRECATED);
+#else
+    D_MACRO(BDE_OMIT_DEPRECATED);
+#endif
+
+#if defined(BDE_OMIT_INTERNAL_DEPRECATED)
+    P_MACRO(BDE_OMIT_INTERNAL_DEPRECATED);
+#else
+    D_MACRO(BDE_OMIT_INTERNAL_DEPRECATED);
+#endif
+
+#if defined(BDE_OPENSOURCE_PUBLICATION)
+    P_MACRO(BDE_OPENSOURCE_PUBLICATION);
+#else
+    D_MACRO(BDE_OPENSOURCE_PUBLICATION);
+#endif
+
+#if defined(BDE_USE_ADDRESSOF)
+    P_MACRO(BDE_USE_ADDRESSOF);
+#else
+    D_MACRO(BDE_USE_ADDRESSOF);
+#endif
+
+#if defined(BDE_USE_PROLEPTIC_DATES)
+    P_MACRO(BDE_USE_PROLEPTIC_DATES);
+#else
+    D_MACRO(BDE_USE_PROLEPTIC_DATES);
+#endif
+
+#if defined(BSL_USE_NATIVE_STD_IMPLEMENTATION)
+    P_MACRO(BSL_USE_NATIVE_STD_IMPLEMENTATION);
+#else
+    D_MACRO(BSL_USE_NATIVE_STD_IMPLEMENTATION);
+#endif
+
 #if defined(BSL_DOUBLE_UNDERSCORE_XLAT)
     P_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
 #else
     D_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
 #endif
 
-    if (4 == undefinedMacros.count()) {
+    // TODO: we need a more robust way to report that no macros are defined for
+    // a specific category.  Currently we update the magic number in the test
+    // below, and do nothing for the other categories.
+
+    if (24 == undefinedMacros.count()) {
         puts("\n      None defined");
     }
 
@@ -313,6 +443,12 @@ static void printFlags()
     D_MACRO(__STDC_HOSTED__);
 #endif
 
+#if defined(__STDC_ISO_10646__)
+    P_MACRO(__STDC_ISO_10646__);
+#else
+    D_MACRO(__STDC_ISO_10646__);
+#endif
+
 #if defined(__STDC_MB_MIGHT_NEQ_WC__)
     P_MACRO(__STDC_MB_MIGHT_NEQ_WC__);
 #else
@@ -325,16 +461,40 @@ static void printFlags()
     D_MACRO(__STDC_VERSION__);
 #endif
 
-#if defined(__STDC_ISO_10646__)
-    P_MACRO(__STDC_ISO_10646__);
+#if defined(__STDCPP_BFLOAT16_T__)
+    P_MACRO(__STDCPP_BFLOAT16_T__);
 #else
-    D_MACRO(__STDC_ISO_10646__);
+    D_MACRO(__STDCPP_BFLOAT16_T__);
 #endif
 
 #if defined(__STDCPP_DEFAULT_NEW_ALIGNMENT__)
     P_MACRO(__STDCPP_DEFAULT_NEW_ALIGNMENT__);
 #else
     D_MACRO(__STDCPP_DEFAULT_NEW_ALIGNMENT__);
+#endif
+
+#if defined(__STDCPP_FLOAT16_T__)
+    P_MACRO(__STDCPP_FLOAT16_T__);
+#else
+    D_MACRO(__STDCPP_FLOAT16_T__);
+#endif
+
+#if defined(__STDCPP_FLOAT32_T__)
+    P_MACRO(__STDCPP_FLOAT32_T__);
+#else
+    D_MACRO(__STDCPP_FLOAT32_T__);
+#endif
+
+#if defined(__STDCPP_FLOAT64_T__)
+    P_MACRO(__STDCPP_FLOAT64_T__);
+#else
+    D_MACRO(__STDCPP_FLOAT64_T__);
+#endif
+
+#if defined(__STDCPP_FLOAT128_T__)
+    P_MACRO(__STDCPP_FLOAT128_T__);
+#else
+    D_MACRO(__STDCPP_FLOAT128_T__);
 #endif
 
 #if defined(__STDCPP_STRICT_POINTER_SAFETY__)
@@ -347,6 +507,27 @@ static void printFlags()
     P_MACRO(__STDCPP_THREADS__);
 #else
     D_MACRO(__STDCPP_THREADS__);
+#endif
+
+#if defined(__has_cpp_attribute)
+    // Cannot use identifier `__has_cpp_attribute` as macro argument
+//  P_MACRO(__has_cpp_attribute);
+#else
+    D_MACRO(__has_cpp_attribute);
+#endif
+
+#if defined(__has_embed)
+    // Cannot use identifier `__has_embed` as macro argument
+//  P_MACRO(__has_embed);
+#else
+    D_MACRO(__has_embed);
+#endif
+
+#if defined(__has_include)
+    // Cannot use identifier `__has_include` as macro argument
+//  P_MACRO(__has_include);
+#else
+    D_MACRO(__has_include);
 #endif
 
 
@@ -2014,6 +2195,14 @@ static void printFlags()
     P_MACRO(WINVER);
 #else
     D_MACRO(WINVER);
+#endif
+
+                     // Standard library specific macros
+
+#if defined(_GLIBCXX_USE_CXX11_ABI)
+    P_MACRO(_GLIBCXX_USE_CXX11_ABI);
+#else
+    D_MACRO(_GLIBCXX_USE_CXX11_ABI);
 #endif
 
     puts("\n\n  printFlags: UNDEFINED MACROS:");
