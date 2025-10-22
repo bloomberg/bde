@@ -346,208 +346,6 @@ void Datum_ArrayProctor<ELEMENT>::release()
     d_released = true;
 }
 
-                          // =======================
-                          // class Datum_CopyVisitor
-                          // =======================
-
-/// This component-local class provides a visitor to visit and copy value
-/// within a `Datum` object and create a new `Datum` object out of it.  This
-/// class implements "deep-copy" of `Datum` objects.  Note that this class
-/// has implicit copy constructor and copy-assignment operator.
-class Datum_CopyVisitor {
-
-  private:
-    // DATA
-    Datum                *d_result_p;   // pointer where the newly created
-                                        // 'Datum' object is to be stored (not
-                                        // owned)
-
-    Datum::AllocatorType  d_allocator;  // allocator used to allocate memory
-                                        // for 'd_result_p' (if needed)
-
-  public:
-    // CREATORS
-
-    /// Create a `Datum_CopyVisitor` object with the specified `result` and
-    /// `basicAllocator`.
-    Datum_CopyVisitor(Datum                       *result,
-                      const Datum::AllocatorType&  allocator);
-
-    // MANIPULATORS
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(bslmf::Nil value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const bdlt::Date& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const bdlt::Datetime& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const bdlt::DatetimeInterval& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const bdlt::Time& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const bslstl::StringRef& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(bool value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(bsls::Types::Int64 value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(double value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const DatumError& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(int value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const DatumUdt& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const DatumArrayRef& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const DatumIntMapRef& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const DatumMapRef& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(const DatumBinaryRef& value);
-
-    /// Create a `Datum` object using the specified `value` and copy it into
-    /// `d_result_p`.
-    void operator()(bdldfp::Decimal64 value);
-};
-
-                          // -----------------------
-                          // class Datum_CopyVisitor
-                          // -----------------------
-
-// CREATORS
-Datum_CopyVisitor::Datum_CopyVisitor(Datum                       *result,
-                                     const Datum::AllocatorType&  allocator)
-: d_result_p(result)
-, d_allocator(allocator)
-{
-}
-
-// MANIPULATORS
-void Datum_CopyVisitor::operator()(bslmf::Nil value)
-{
-    (void)value;
-    *d_result_p = Datum::createNull();
-}
-
-void Datum_CopyVisitor::operator()(const bdlt::Date& value)
-{
-    *d_result_p = Datum::createDate(value);
-}
-
-void Datum_CopyVisitor::operator()(const bdlt::Datetime& value)
-{
-    *d_result_p = Datum::createDatetime(value, d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(const bdlt::DatetimeInterval& value)
-{
-    *d_result_p = Datum::createDatetimeInterval(value, d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(const bdlt::Time& value)
-{
-    *d_result_p = Datum::createTime(value);
-}
-
-void Datum_CopyVisitor::operator()(const bslstl::StringRef& value)
-{
-    *d_result_p = Datum::copyString(value.data(),
-                                    value.length(),
-                                    d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(bool value)
-{
-    *d_result_p = Datum::createBoolean(value);
-}
-
-void Datum_CopyVisitor::operator()(bsls::Types::Int64 value)
-{
-    *d_result_p = Datum::createInteger64(value, d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(double value)
-{
-    *d_result_p = Datum::createDouble(value);
-}
-
-void Datum_CopyVisitor::operator()(const DatumError& value)
-{
-    *d_result_p = Datum::createError(value.code(),
-                                     value.message(),
-                                     d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(int value)
-{
-    *d_result_p = Datum::createInteger(value);
-}
-
-void Datum_CopyVisitor::operator()(const DatumUdt& value)
-{
-    *d_result_p = Datum::createUdt(value.data(), value.type());
-}
-
-void Datum_CopyVisitor::operator()(const DatumArrayRef& value)
-{
-    *d_result_p = copyArray(value, d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(const DatumMapRef& value)
-{
-    *d_result_p = copyMapOwningKeys(value, d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(const DatumIntMapRef& value)
-{
-    *d_result_p = copyIntMap(value, d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(const DatumBinaryRef& value)
-{
-    *d_result_p = Datum::copyBinary(value.data(),
-                                    value.size(),
-                                    d_allocator);
-}
-
-void Datum_CopyVisitor::operator()(bdldfp::Decimal64 value)
-{
-    *d_result_p = Datum::createDecimal64(value, d_allocator);
-}
 
                          // =========================
                          // class Datum_StreamVisitor
@@ -1373,12 +1171,85 @@ void Datum::destroy(const Datum& value, const AllocatorType& allocator)
 // ACCESSORS
 Datum Datum::clone(const AllocatorType& allocator) const
 {
-    Datum result;
-
-    Datum_CopyVisitor cv(&result, allocator);
-    apply(cv);
-
-    return result;
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    switch (internalType()) {
+    case e_INTERNAL_EXTENDED: {
+        switch (extendedInternalType()) {
+        case e_EXTENDED_INTERNAL_MAP:
+            BSLS_ANNOTATION_FALLTHROUGH;
+        case e_EXTENDED_INTERNAL_OWNED_MAP:
+            return copyMapOwningKeys(theMap(), allocator);
+        case e_EXTENDED_INTERNAL_INT_MAP:
+            return copyIntMap(theIntMap(), allocator);
+        case e_EXTENDED_INTERNAL_ERROR_ALLOC: {
+            const DatumError& e = theError();
+            return createError(e.code(), e.message(), allocator);
+        }
+        case e_EXTENDED_INTERNAL_SREF_ALLOC:
+            return copyString(theLongStringReference(), allocator);
+        case e_EXTENDED_INTERNAL_AREF_ALLOC:
+            return copyArray(theLongArrayReference(), allocator);
+        case e_EXTENDED_INTERNAL_DATETIME_ALLOC:
+            return createDatetime(theDatetime(), allocator);
+        case e_EXTENDED_INTERNAL_DATETIME_INTERVAL_ALLOC:
+            return createDatetimeInterval(theDatetimeInterval(), allocator);
+        case e_EXTENDED_INTERNAL_INTEGER64_ALLOC:
+            return createInteger64(theInteger64(), allocator);
+        case e_EXTENDED_INTERNAL_BINARY_ALLOC: {
+            const DatumBinaryRef& b = theBinary();
+            return copyBinary(b.data(), b.size(), allocator);
+        }
+        case e_EXTENDED_INTERNAL_DECIMAL64_ALLOC:
+            return createDecimal64(theDecimal64(), allocator);
+        default:
+            // Nothing is allocated externally.
+            return *this;
+        }
+    } break;
+    case e_INTERNAL_ARRAY_REFERENCE:
+        return copyArray(theArrayReference(), allocator);
+    case e_INTERNAL_ARRAY:
+        return copyArray(theInternalArray(), allocator);
+    case e_INTERNAL_STRING:
+        return copyString(theInternalString(), allocator);
+    case e_INTERNAL_STRING_REFERENCE:
+        return copyString(theStringReference(), allocator);
+    default:
+        // Nothing is allocated externally.
+        return *this;
+    }
+#else   // end - 32 bit / begin - 64 bit
+    switch (internalType()) {
+    case e_INTERNAL_MAP:
+        BSLS_ANNOTATION_FALLTHROUGH;
+    case e_INTERNAL_OWNED_MAP: 
+        return copyMapOwningKeys(theMap(), allocator);
+    case e_INTERNAL_INT_MAP:
+        return copyIntMap(theIntMap(), allocator);
+    case e_INTERNAL_ARRAY_REFERENCE:
+        return copyArray(theArrayReference(), allocator);
+    case e_INTERNAL_ARRAY:
+        return copyArray(theInternalArray(), allocator);
+    case e_INTERNAL_BINARY_ALLOC: {
+        const DatumBinaryRef& b = theBinary();
+        return copyBinary(b.data(), b.size(), allocator);
+    }
+    case e_INTERNAL_ERROR_ALLOC: {
+        const DatumError& e = theError();
+        return createError(e.code(), e.message(), allocator);
+    }
+    case e_INTERNAL_STRING:
+        return copyString(theInternalString(), allocator);
+    case e_INTERNAL_STRING_REFERENCE:
+        return copyString(theStringReference(), allocator);
+    case e_INTERNAL_UNINITIALIZED:
+        BSLS_ASSERT(0 == "Uninitialized Datum");
+        BSLS_ANNOTATION_FALLTHROUGH;
+    default: 
+        // Nothing is allocated externally.
+        return *this;
+    }
+#endif  // end - 64 bit
 }
 
 bdldfp::Decimal64 Datum::theDecimal64() const
