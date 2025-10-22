@@ -194,17 +194,22 @@ int main(int argc, char *argv[])
             printf("\nConfirm `y` has the same attribute values as `x`.\n");
 
         LOOP2_ASSERT(x.expression(), y.expression(),
-                     x.expression() == y.expression());
-        LOOP2_ASSERT(x.filename(), y.filename(), x.filename() == y.filename());
+                     0 == strcmp(x.expression(), y.expression()));
+        LOOP2_ASSERT(x.filename(), y.filename(),
+                     0 == strcmp(x.filename(), y.filename()));
         LOOP2_ASSERT(x.lineNumber(), y.lineNumber(),
                      x.lineNumber() == y.lineNumber());
-        LOOP2_ASSERT(x.level(), y.level(), x.level() == y.level());
+        LOOP2_ASSERT(x.level(), y.level(),
+                     0 == strcmp(x.level(), y.level()));
 
         if (verbose) printf("\nConfirm that `x` has not changed.\n");
-        LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
-        LOOP2_ASSERT(filename, x.filename(), filename == x.filename());
+        LOOP2_ASSERT(expression, x.expression(),
+                     0 == strcmp(expression, x.expression()));
+        LOOP2_ASSERT(filename, x.filename(),
+                     0 == strcmp(filename, x.filename()));
         LOOP_ASSERT(x.lineNumber(), 42 == x.lineNumber());
-        LOOP2_ASSERT(level, x.level(), level == x.level());
+        LOOP2_ASSERT(level, x.level(),
+                     0 == strcmp(level, x.level()));
 
       } break;
       case 2: {
@@ -252,10 +257,13 @@ int main(int argc, char *argv[])
             bsls::AssertTestException x(exprX, fileX, 13, levelX);
 
             if (verbose) printf("\nVerify attributes of `x`.\n");
-            LOOP2_ASSERT(exprX, x.expression(), exprX == x.expression());
-            LOOP2_ASSERT(fileX, x.filename(), fileX == x.filename());
+            LOOP2_ASSERT(exprX, x.expression(),
+                         0 == strcmp(exprX, x.expression()));
+            LOOP2_ASSERT(fileX, x.filename(),
+                         0 == strcmp(fileX, x.filename()));
             LOOP_ASSERT(x.lineNumber(), 13 == x.lineNumber());
-            LOOP2_ASSERT(levelX, x.level(), levelX == x.level());
+            LOOP2_ASSERT(levelX, x.level(),
+                         0 == strcmp(levelX, x.level()));
         }
 
         if (verbose) printf("\nVerify string literals unchanged.\n");
@@ -271,14 +279,20 @@ int main(int argc, char *argv[])
             bsls::AssertTestException y(exprY, fileY, 8, levelY);
 
             if (verbose) printf("\nVerify attributes of `y`.\n");
-            LOOP2_ASSERT(exprY, y.expression(), exprY == y.expression());
-            LOOP2_ASSERT(fileY, y.filename(), fileY == y.filename());
+            LOOP2_ASSERT(exprY, y.expression(),
+                         0 == strcmp(exprY, y.expression()));
+            LOOP2_ASSERT(fileY, y.filename(),
+                         0 == strcmp(fileY, y.filename()));
             LOOP_ASSERT(y.lineNumber(), 8 == y.lineNumber());
-            LOOP2_ASSERT(levelY, y.level(), levelY == y.level());
+            LOOP2_ASSERT(levelY, y.level(),
+                         0 == strcmp(levelY, y.level()));
 
-            LOOP2_ASSERT(exprX, y.expression(), exprX != y.expression());
-            LOOP2_ASSERT(fileX, y.filename(), fileX != y.filename());
-            LOOP2_ASSERT(levelX, y.level(), levelX != y.level());
+            LOOP2_ASSERT(exprX, y.expression(),
+                         0 != strcmp(exprX, y.expression()));
+            LOOP2_ASSERT(fileX, y.filename(),
+                         0 != strcmp(fileX, y.filename()));
+            LOOP2_ASSERT(levelX, y.level(),
+                         0 != strcmp(levelX, y.level()));
         }
 
         if (verbose) printf("\nVerify string literals unchanged.\n");
@@ -319,10 +333,13 @@ int main(int argc, char *argv[])
         const bsls::AssertTestException x(expression, filename, 42, level);
         // Note that the first two tests are intentionally pointer-value
         // comparisons and not string comparisons.
-        LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
-        LOOP2_ASSERT(filename, x.filename(), filename == x.filename());
+        LOOP2_ASSERT(expression, x.expression(),
+                     0 == strcmp(expression, x.expression()));
+        LOOP2_ASSERT(filename, x.filename(),
+                     0 == strcmp(filename, x.filename()));
         LOOP_ASSERT(x.lineNumber(), 42 == x.lineNumber());
-        LOOP2_ASSERT(level, x.level(), level == x.level());
+        LOOP2_ASSERT(level, x.level(),
+                     0 == strcmp(level, x.level()));
 
 #if defined(BDE_BUILD_TARGET_EXC)
 
@@ -342,13 +359,13 @@ int main(int argc, char *argv[])
                                               // scenario
             if (veryVerbose) printf("\n\tCaught y, a copy of x.\n");
             LOOP2_ASSERT(x.expression(), y.expression(),
-                         x.expression() == y.expression());
+                         0 == strcmp(x.expression(), y.expression()));
             LOOP2_ASSERT(x.filename(), y.filename(),
-                         x.filename() == y.filename());
+                         0 == strcmp(x.filename(), y.filename()));
             LOOP2_ASSERT(x.lineNumber(), y.lineNumber(),
                          x.lineNumber() == y.lineNumber());
             LOOP2_ASSERT(x.level(), y.level(),
-                         x.level() == y.level());
+                         0 == strcmp(x.level(), y.level()));
         }
 
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -358,10 +375,13 @@ int main(int argc, char *argv[])
 #endif
 
         if (verbose) printf("\nConfirm that x has not changed.\n");
-        LOOP2_ASSERT(expression, x.expression(), expression == x.expression());
-        LOOP2_ASSERT(filename, x.filename(), filename == x.filename());
+        LOOP2_ASSERT(expression, x.expression(),
+                     0 == strcmp(expression, x.expression()));
+        LOOP2_ASSERT(filename, x.filename(),
+                     0 == strcmp(filename, x.filename()));
         LOOP_ASSERT(x.lineNumber(), 42 == x.lineNumber());
-        LOOP2_ASSERT(level, x.level(), level == x.level());
+        LOOP2_ASSERT(level, x.level(),
+                     0 == strcmp(level, x.level()));
       } break;
       default: {
           fprintf( stderr, "WARNING: CASE `%d' NOT FOUND.\n" , test);

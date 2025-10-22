@@ -754,8 +754,17 @@ BSLS_IDENT("$Id: $")
 // macro `BSLS_ASSERT_INVOKE_NORETURN` is also available.  It behaves the same
 // way as `BSLS_ASSERT_INVOKE`, but if the installed handler *does* return
 // `failByAbort` will be immediately called.  On supported platforms it is
-// marked appropriately to not return to support compiler requirements and
+// marked appropriately to not return to support compiler optimizations and
 // static analysis tools.
+//
+// Note that it is possible to use the two `INVOKE` macros with a dynamically
+// generated string, but it is generally inadvisable to do so based on how
+// downstream systems are likely to handle the logs produced for the triggered
+// violation.   Additional information that will be useful to diagnose a
+// problem should be logged (using, for example, `bsls_log`) prior to using
+// the `INVOKE` macro, and the string passed is ideally a string to identify
+// the character of the error, not to encode additional identifying
+// information.  
 //
 ///Example 3: Runtime Configuration of the `bsls::Assert` Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1589,12 +1598,11 @@ BSLS_IDENT("$Id: $")
 #define BSLS_ASSERT_ASSERT_IMP(X,LVL) do {                                    \
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                    \
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
-            BloombergLP::bsls::AssertViolation violation(                     \
-                                                     #X,                      \
-                                                     BSLS_ASSERTIMPUTIL_FILE, \
-                                                     BSLS_ASSERTIMPUTIL_LINE, \
-                                                     LVL);                    \
-            BloombergLP::bsls::Assert::invokeHandler(violation);              \
+            BloombergLP::bsls::Assert::invokeHandler(                         \
+                BloombergLP::bsls::AssertViolation(#X,                        \
+                                                   BSLS_ASSERTIMPUTIL_FILE,   \
+                                                   BSLS_ASSERTIMPUTIL_LINE,   \
+                                                   LVL));                     \
         }                                                                     \
     } while (false)
 
@@ -1797,12 +1805,12 @@ BSLS_IDENT("$Id: $")
 
 // 'BSLS_ASSERT_INVOKE' is always active and never in review mode or disabled.
 #define BSLS_ASSERT_INVOKE(X) do {                                            \
-        BloombergLP::bsls::AssertViolation violation(                         \
+        BloombergLP::bsls::Assert::invokeHandler(                             \
+            BloombergLP::bsls::AssertViolation(                               \
                                   X,                                          \
                                   BSLS_ASSERTIMPUTIL_FILE,                    \
                                   BSLS_ASSERTIMPUTIL_LINE,                    \
-                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE); \
-        BloombergLP::bsls::Assert::invokeHandler(violation);                  \
+                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE));\
     } while (false)
 
 // 'BSLS_ASSERT_INVOKE_NORETURN' is always active and guaranteed to never
@@ -1814,12 +1822,12 @@ BSLS_IDENT("$Id: $")
 // code paths that are meant to be unreachable within functions having non-void
 // return types.
 #define BSLS_ASSERT_INVOKE_NORETURN(X) do {                                   \
-        BloombergLP::bsls::AssertViolation violation(                         \
+        BloombergLP::bsls::Assert::invokeHandlerNoReturn(                     \
+            BloombergLP::bsls::AssertViolation(                               \
                                   X,                                          \
                                   BSLS_ASSERTIMPUTIL_FILE,                    \
                                   BSLS_ASSERTIMPUTIL_LINE,                    \
-                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE); \
-        BloombergLP::bsls::Assert::invokeHandlerNoReturn(violation);          \
+                                  BloombergLP::bsls::Assert::k_LEVEL_INVOKE));\
     } while (true)
 
                     // ===================================

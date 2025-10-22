@@ -59,9 +59,49 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 
+#include <cstring>
+#include <cstdlib>
+
 namespace BloombergLP {
 
 namespace bsls {
+
+                      // ================================
+                      // class AssertTestException_String
+                      // ================================
+
+/// This non-assignable class owns a null-terminated string, provides no
+/// accessors to manipulate that string, and allocates a new copy of that
+/// string when copied.
+class AssertTestException_String {
+    const char *d_data;  // the string
+
+  private:
+    // NOT IMPLEMENTED
+    AssertTestException_String& operator=(
+                       const AssertTestException_String&) BSLS_KEYWORD_DELETED;
+
+  public:
+    // Create an `AssertTestException_String` that owns a copy of the string
+    // denoted by the specified `data` if it is not `NULL`.
+    AssertTestException_String(const char *data);
+
+    // Create an `AssertionTestException_String` that owns a string whose value
+    // is the same as that owned by `original` if any.
+    AssertTestException_String(const AssertTestException_String& original);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    // Take ownership of the string owned by the specified `original`, if any,
+    // and set `original` to own no string.
+    AssertTestException_String(AssertTestException_String&& original);
+#endif
+
+    // Free the string owned by this object, if any.
+    ~AssertTestException_String();
+
+    // Return a pointer to the owned string.
+    const char *data() const;
+};
 
                          // =========================
                          // class AssertTestException
@@ -74,10 +114,14 @@ namespace bsls {
 class AssertTestException {
 
     // DATA
-    const char *d_expression;  // expression that failed to assert as 'true'
-    const char *d_filename;    // name of file where the assert failed
-    const int   d_lineNumber;  // line number in file where the assert failed
-    const char *d_level;       // level of failed assertion or review
+    AssertTestException_String d_expression;
+        // expression that failed to assert as 'true'
+    AssertTestException_String d_filename;
+        // name of file where the assert failed
+    const int                  d_lineNumber;
+        // line number in file where the assert failed
+    AssertTestException_String d_level;
+        // level of failed assertion or review
 
   private:
     // NOT IMPLEMENTED
@@ -90,10 +134,8 @@ class AssertTestException {
     /// Create a `AssertTestException` object with the specified
     /// `expression`, `filename`, `lineNumber`, and `level`.  The behavior
     /// is undefined unless `0 < line` and all of `expression`, `filename`,
-    /// and `level` point to valid null-terminated character strings that
-    /// will remain unmodified for the lifetime of this object (e.g., string
-    /// literals).
-    BSLS_KEYWORD_CONSTEXPR
+    /// and `level` are `NULL` or point to valid null-terminated character
+    /// strings.
     AssertTestException(const char *expression,
                         const char *filename,
                         int         lineNumber,
@@ -107,12 +149,21 @@ class AssertTestException {
 
     /// Create a `AssertTestException` object that is a copy of the
     /// specified `original`, having the same value for the `expression`,
-    /// `filename`, and `lineNumber` attributes.  Note that this trivial
+    /// `filename`, and `lineNumber` attributes.  Note that this
     /// constructor's definition is compiler generated.
     AssertTestException(const AssertTestException& original) = default;
 
-    /// Destroy this object.  Note that this trivial destructor's definition
-    /// is compiler generated.
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+    /// Create a `AssertTestException` object whose value is that of
+    /// specified `original`, having the same value for the `expression`,
+    /// `filename`, and `lineNumber` attributes.  Note that this
+    /// constructor's definition is compiler generated.
+    AssertTestException(AssertTestException&& original) = default;
+#endif
+
+    
+    /// Destroy this object.  Note that this destructor's definition is
+    /// compiler generated.
     ~AssertTestException() = default;
 #endif
 
@@ -144,7 +195,6 @@ class AssertTestException {
                          // =========================
 
 // CREATORS
-BSLS_KEYWORD_CONSTEXPR
 inline
 AssertTestException::AssertTestException(const char *expression,
                                          const char *filename,
@@ -161,19 +211,19 @@ AssertTestException::AssertTestException(const char *expression,
 inline
 const char *AssertTestException::expression() const
 {
-    return d_expression;
+    return d_expression.data();
 }
 
 inline
 const char *AssertTestException::filename() const
 {
-    return d_filename;
+    return d_filename.data();
 }
 
 inline
 const char *AssertTestException::level() const
 {
-    return d_level;
+    return d_level.data();
 }
 
 inline

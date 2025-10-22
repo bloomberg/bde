@@ -50,7 +50,12 @@ BSLS_IDENT("$Id: $")
 //
 // An additional macro, `BSLS_REVIEW_INVOKE`, is included for directly invoking
 // the current review handler as if an assertion had failed on the current
-// line.
+// line with a string passed in.  This string will be used as if it was the
+// string the other macros generate from the expression.   Though it can be
+// dynamically generated, it is recommended to use a stable string to identify
+// the character of the error and to use a logging component (such as
+// `bsls_log`) to log any additional information relevant to the failure prior
+// to invoking the handler.
 //
 ///Detailed Behavior
 ///- - - - - - - - -
@@ -789,13 +794,12 @@ BSLS_IDENT("$Id: $")
         if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!(X))) {                    \
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
             BSLS_REVIEW_REVIEW_COUNT_IMP;                                     \
-            BloombergLP::bsls::ReviewViolation violation(                     \
-                                                     #X,                      \
-                                                     BSLS_ASSERTIMPUTIL_FILE, \
-                                                     BSLS_ASSERTIMPUTIL_LINE, \
-                                                     LVL,                     \
-                                                     lastCount);              \
-            BloombergLP::bsls::Review::invokeHandler(violation);              \
+            BloombergLP::bsls::Review::invokeHandler(                         \
+                BloombergLP::bsls::ReviewViolation(#X,                        \
+                                                   BSLS_ASSERTIMPUTIL_FILE,   \
+                                                   BSLS_ASSERTIMPUTIL_LINE,   \
+                                                   LVL,                       \
+                                                   lastCount));               \
         }                                                                     \
     } while (false)
 
@@ -814,13 +818,13 @@ BSLS_IDENT("$Id: $")
 // 'BSLS_REVIEW_INVOKE' is always active.
 #define BSLS_REVIEW_INVOKE(X) do {                                            \
         BSLS_REVIEW_REVIEW_COUNT_IMP;                                         \
-        BloombergLP::bsls::ReviewViolation violation(                         \
+        BloombergLP::bsls::Review::invokeHandler(                             \
+            BloombergLP::bsls::ReviewViolation(                               \
                                   X,                                          \
                                   BSLS_ASSERTIMPUTIL_FILE,                    \
                                   BSLS_ASSERTIMPUTIL_LINE,                    \
                                   BloombergLP::bsls::Review::k_LEVEL_INVOKE,  \
-                                  lastCount);                                 \
-        BloombergLP::bsls::Review::invokeHandler(violation);                  \
+                                  lastCount));                                \
     } while (false)
 
                               // ================

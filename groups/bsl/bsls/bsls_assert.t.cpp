@@ -114,16 +114,16 @@ using namespace std;
 // [ 9] CONCERN: Returning handler log: backoff
 // [-7] CONCERN: Returning handler log: limits
 //
-// [13] USAGE EXAMPLE: Using Assert Macros
-// [14] USAGE EXAMPLE: Invoking an assert handler directly
-// [15] USAGE EXAMPLE: Using Administration Functions
-// [15] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
-// [16] USAGE EXAMPLE: Creating Your Own Assert-Handler
-// [17] USAGE EXAMPLE: Using Scoped Guard
-// [18] USAGE EXAMPLE: Using "ASSERT" with `BDE_BUILD_TARGET_SAFE_2`
-// [19] USAGE EXAMPLE: Conditional Compilation
-// [20] USAGE EXAMPLE: Conditional Compilation of Support Functions
-// [21] USAGE EXAMPLE: Conditional Compilation of Support Code
+// [14] USAGE EXAMPLE: Using Assert Macros
+// [15] USAGE EXAMPLE: Invoking an assert handler directly
+// [16] USAGE EXAMPLE: Using Administration Functions
+// [16] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
+// [17] USAGE EXAMPLE: Creating Your Own Assert-Handler
+// [18] USAGE EXAMPLE: Using Scoped Guard
+// [19] USAGE EXAMPLE: Using "ASSERT" with `BDE_BUILD_TARGET_SAFE_2`
+// [20] USAGE EXAMPLE: Conditional Compilation
+// [21] USAGE EXAMPLE: Conditional Compilation of Support Functions
+// [22] USAGE EXAMPLE: Conditional Compilation of Support Code
 //
 // [ 1] CONCERN: By default, the `bsls::Assert::failByAbort` is used.
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
@@ -145,6 +145,7 @@ using namespace std;
 // [-6] CONCERN: `bsls::Assert::failSleep` prints to `stderr`
 // [11] CONCERN: `BSLS_ASSERTIMPUTIL_FILE` interaction
 // [12] CONCERN: `constexpr` interaction
+// [13] CONCERN: Dynamic assertion messages
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -1624,7 +1625,7 @@ struct MySwapper {
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
 
-void test_case_21() {
+void test_case_22() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #9
         //
@@ -1656,7 +1657,7 @@ void test_case_21() {
 
 }
 
-void test_case_20() {
+void test_case_21() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #8
         //
@@ -1683,7 +1684,7 @@ void test_case_20() {
         o.doSomethingPurpley();
 }
 
-void test_case_19() {
+void test_case_20() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #7
         //
@@ -1710,7 +1711,7 @@ void test_case_19() {
         ASSERT(usage_example_assert_7::MyDateImpUtil::isValidSerialDate(1));
 }
 
-void test_case_18() {
+void test_case_19() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #6
         //
@@ -1766,7 +1767,7 @@ void test_case_18() {
 #endif  // BDE_BUILD_TARGET_SAFE_2
 }
 
-void test_case_17() {
+void test_case_18() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #5
         //
@@ -1801,7 +1802,7 @@ void test_case_17() {
 
 #ifndef BDE_BUILD_TARGET_OPT
     #if defined(BSLS_ASSERT_IS_ACTIVE) ||                                     \
-        defined(BSLS_ASSERT_ENABLE_TEST_CASE_10)
+        defined(BSLS_ASSERT_ENABLE_TEST_CASE_18)
 
         if (verbose) printf(
                 "\n*** Note that the following `Internal Error: ... 0 <= n` "
@@ -1816,7 +1817,7 @@ void test_case_17() {
 
 }
 
-void test_case_16() {
+void test_case_17() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #4
         //
@@ -1856,7 +1857,7 @@ void test_case_16() {
 #endif
 }
 
-void test_case_15() {
+void test_case_16() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #3
         //
@@ -1885,7 +1886,7 @@ void test_case_15() {
 
 }
 
-void test_case_14() {
+void test_case_15() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -1916,7 +1917,7 @@ void test_case_14() {
         ASSERTION_TEST_END
 }
 
-void test_case_13() {
+void test_case_14() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1
         //
@@ -1940,6 +1941,116 @@ void test_case_13() {
 
         // See usage examples section at top of this file.
 
+}
+
+namespace {
+
+/// This class stores a pointer to a character buffer and a string, then copies
+/// the string into the buffer upon destruction.  The purpose is to allow the
+/// detection of code paths which continue to use a string after the completion
+/// of a complete expression where such a string might have belonged to a
+/// temporary and thus would be deallocated, i.e. where a user might pass
+/// `make_some_string().c_str()` to a function we can instead use a
+/// `StringResetter` that references a static buffer and pass
+/// `StringResetter(buffer,bufferSize,"Bad Value")` and then verify that the
+/// invoked code does not expose a string whose contents are `"Bad Value"`.
+class StringResetter {
+  public:
+    StringResetter(char *buffer, std::size_t bufferSize, const char *newValue)
+    : d_buffer(buffer)
+    , d_bufferSize(bufferSize)
+    , d_newValue(newValue)
+    {
+    }
+
+    ~StringResetter() { std::strncpy(d_buffer, d_newValue, d_bufferSize); }
+
+    const char *buffer() const { return d_buffer; }
+
+  private:
+    char        *d_buffer;
+    std::size_t  d_bufferSize;
+    const char  *d_newValue;
+};
+
+void testCase13Handler(const bsls::AssertViolation& violation)
+{
+    ASSERTV(violation.comment(), 0 == strcmp(violation.comment(), "InitValue"));
+
+#ifdef BDE_BUILD_TARGET_EXC
+    // Test that throwing will produce an exception that still has the same
+    // contents even if they are changed or freed as the stack unwinds.
+    bsls::Assert::failByThrow(violation);
+#endif    
+}
+
+}
+void test_case_13() {
+        // --------------------------------------------------------------------
+        // Dynamic assertion messages
+        //
+        // Concerns:
+        // 1. The string passed to `BSLS_ASSERT_INVOKE` might have a lifetime
+        //    that ends after the complete expression used as an argument to
+        //    the macro, which must be after invoking the violation handler
+        //    {DRQS 181156417}.
+        //
+        // 2. An `AssertTestException` constructed from a violation object must
+        //    not contain references to strings that might be freed before that
+        //    exception is caught {DRQS 180431036}.
+        //
+        // Plan:
+        // 1. Use an expression that changes the contents of the string when
+        //    the temporary it returns is destroyed, verify that the violation
+        //    handler is invoked with the unchanged string.
+        //
+        // 2. Throw a `bsls::AssertTestException` created from the violation
+        //    and verify that its expression also remains correct as the stack
+        //    is unwound.
+        //
+        // Testing:
+        //   CONCERN: Dynamic assertion messages
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nDynamic Assertion Messages"
+                             "\n==========================\n" );
+
+        bsls::AssertFailureHandlerGuard guard(&testCase13Handler);
+
+#ifdef BDE_BUILD_TARGET_EXC
+        // Note that we cannot reasonably return from a violation, and so 
+        // forgo testing this behavior when exceptions are not enabled.
+
+        if (veryVerbose) printf( "\tTesting BSLS_ASSERT_INVOKE\n" );
+        {
+            char buffer[32] = "InitValue";
+            try {
+                BSLS_ASSERT_INVOKE(
+                    StringResetter(buffer,
+                                   sizeof(buffer)-1,
+                                   "ResetValue").buffer() );
+            } catch (const bsls::AssertTestException& ex) {
+                ASSERT(buffer != ex.expression());
+                ASSERTV(ex.expression(),
+                        0 == strcmp(ex.expression(), "InitValue"));
+            }
+        }
+        
+        if (veryVerbose) printf( "\tTesting BSLS_ASSERT_INVOKE_NORETURN\n" );
+        {
+            char buffer[32] = "InitValue";
+            try {
+                BSLS_ASSERT_INVOKE_NORETURN(
+                    StringResetter(buffer,
+                                   sizeof(buffer)-1,
+                                   "ResetValue").buffer() );
+            } catch (const bsls::AssertTestException& ex) {
+                ASSERT(buffer != ex.expression());
+                ASSERTV(ex.expression(),
+                        0 == strcmp(ex.expression(), "InitValue"));
+            }
+        }
+#endif  // BDE_BUILD_TARGET_EXC
 }
 
 void test_case_12() {
@@ -4222,6 +4333,7 @@ int main(int argc, char *argv[])
 
     switch (test) {
     case 0:  // zero is always the leading case
+    case 22: test_case_22(); break;
     case 21: test_case_21(); break;
     case 20: test_case_20(); break;
     case 19: test_case_19(); break;
