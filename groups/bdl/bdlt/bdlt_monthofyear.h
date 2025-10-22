@@ -66,6 +66,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bsla_deprecated.h>
+
 #include <bsls_annotation.h>
 
 #include <bsl_iosfwd.h>
@@ -104,50 +106,61 @@ struct MonthOfYear {
         e_NOV,     e_NOVEMBER  = e_NOV,
         e_DEC,     e_DECEMBER  = e_DEC
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
 
 #if !defined(JAN) && !defined(JANUARY)
-      , JAN       = e_JAN
-      , FEB       = e_FEB
-      , MAR       = e_MAR
-      , APR       = e_APR
-      , MAY       = e_MAY
-      , JUN       = e_JUN
-      , JUL       = e_JUL
-      , AUG       = e_AUG
-      , SEP       = e_SEP
-      , OCT       = e_OCT
-      , NOV       = e_NOV
-      , DEC       = e_DEC
+      , JAN  BSLA_DEPRECATED     = e_JAN
+      , FEB  BSLA_DEPRECATED     = e_FEB
+      , MAR  BSLA_DEPRECATED     = e_MAR
+      , APR  BSLA_DEPRECATED     = e_APR
+      , MAY  BSLA_DEPRECATED     = e_MAY
+      , JUN  BSLA_DEPRECATED     = e_JUN
+      , JUL  BSLA_DEPRECATED     = e_JUL
+      , AUG  BSLA_DEPRECATED     = e_AUG
+      , SEP  BSLA_DEPRECATED     = e_SEP
+      , OCT  BSLA_DEPRECATED     = e_OCT
+      , NOV  BSLA_DEPRECATED     = e_NOV
+      , DEC  BSLA_DEPRECATED     = e_DEC
 
-      , JANUARY   = e_JANUARY
-      , FEBRUARY  = e_FEBRUARY
-      , MARCH     = e_MARCH
-      , APRIL     = e_APRIL
-      , JUNE      = e_JUNE
-      , JULY      = e_JULY
-      , AUGUST    = e_AUGUST
-      , SEPTEMBER = e_SEPTEMBER
-      , OCTOBER   = e_OCTOBER
-      , NOVEMBER  = e_NOVEMBER
-      , DECEMBER  = e_DECEMBER
+      , JANUARY   BSLA_DEPRECATED = e_JANUARY
+      , FEBRUARY  BSLA_DEPRECATED = e_FEBRUARY
+      , MARCH     BSLA_DEPRECATED = e_MARCH
+      , APRIL     BSLA_DEPRECATED = e_APRIL
+      , JUNE      BSLA_DEPRECATED = e_JUNE
+      , JULY      BSLA_DEPRECATED = e_JULY
+      , AUGUST    BSLA_DEPRECATED = e_AUGUST
+      , SEPTEMBER BSLA_DEPRECATED = e_SEPTEMBER
+      , OCTOBER   BSLA_DEPRECATED = e_OCTOBER
+      , NOVEMBER  BSLA_DEPRECATED = e_NOVEMBER
+      , DECEMBER  BSLA_DEPRECATED = e_DECEMBER
 #endif  // !defined(JAN) && !defined(JANUARY)
 
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
-      , BDET_JAN  = e_JAN, BDET_JANUARY   = e_JAN
-      , BDET_FEB  = e_FEB, BDET_FEBRUARY  = e_FEB
-      , BDET_MAR  = e_MAR, BDET_MARCH     = e_MAR
-      , BDET_APR  = e_APR, BDET_APRIL     = e_APR
-      , BDET_MAY  = e_MAY
-      , BDET_JUN  = e_JUN, BDET_JUNE      = e_JUN
-      , BDET_JUL  = e_JUL, BDET_JULY      = e_JUL
-      , BDET_AUG  = e_AUG, BDET_AUGUST    = e_AUG
-      , BDET_SEP  = e_SEP, BDET_SEPTEMBER = e_SEP
-      , BDET_OCT  = e_OCT, BDET_OCTOBER   = e_OCT
-      , BDET_NOV  = e_NOV, BDET_NOVEMBER  = e_NOV
-      , BDET_DEC  = e_DEC, BDET_DECEMBER  = e_DEC
+      , BDET_JAN  BSLA_DEPRECATED = e_JAN
+      , BDET_FEB  BSLA_DEPRECATED = e_FEB
+      , BDET_MAR  BSLA_DEPRECATED = e_MAR
+      , BDET_APR  BSLA_DEPRECATED = e_APR
+      , BDET_MAY  BSLA_DEPRECATED = e_MAY
+      , BDET_JUN  BSLA_DEPRECATED = e_JUN
+      , BDET_JUL  BSLA_DEPRECATED = e_JUL
+      , BDET_AUG  BSLA_DEPRECATED = e_AUG
+      , BDET_SEP  BSLA_DEPRECATED = e_SEP
+      , BDET_OCT  BSLA_DEPRECATED = e_OCT
+      , BDET_NOV  BSLA_DEPRECATED = e_NOV
+      , BDET_DEC  BSLA_DEPRECATED = e_DEC
+      , BDET_JANUARY   BSLA_DEPRECATED = e_JAN
+      , BDET_FEBRUARY  BSLA_DEPRECATED = e_FEB
+      , BDET_MARCH     BSLA_DEPRECATED = e_MAR
+      , BDET_APRIL     BSLA_DEPRECATED = e_APR
+      , BDET_JUNE      BSLA_DEPRECATED = e_JUN
+      , BDET_JULY      BSLA_DEPRECATED = e_JUL
+      , BDET_AUGUST    BSLA_DEPRECATED = e_AUG
+      , BDET_SEPTEMBER BSLA_DEPRECATED = e_SEP
+      , BDET_OCTOBER   BSLA_DEPRECATED = e_OCT
+      , BDET_NOVEMBER  BSLA_DEPRECATED = e_NOV
+      , BDET_DECEMBER  BSLA_DEPRECATED = e_DEC
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
     };
 
@@ -156,13 +169,9 @@ struct MonthOfYear {
     enum {
         k_NUM_MONTHS = e_DEC
 
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       , LENGTH        = k_NUM_MONTHS
-#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-#ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
-      , BDET_LENGTH   = k_NUM_MONTHS
-
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif
     };
 
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
