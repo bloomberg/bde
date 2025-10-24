@@ -216,7 +216,7 @@ class CategoryHolder {
 
     // PUBLIC DATA MEMBERS
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     bsls::AtomicBool                    d_enabled;     // whether the category
                                                        // is enabled
 
