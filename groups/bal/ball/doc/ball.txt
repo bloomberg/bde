@@ -2720,6 +2720,7 @@ would be justified.
       The behavior is undefined unless the number and types of optional
       arguments are compatible with the format specification in 'MSG'.  Note
       that each use of these macros must be terminated by a ';'.
+..
 
 /'ball_fmt' macros
 /- - - - - - - - -
@@ -2743,3 +2744,4 @@ would be justified.
       terminated by a ';'.  Note that due to the different implementations of
       'bsl::format' on certain platforms the format string will be evaluated
       compile time and so bad format strings may result in compilation errors.
+..
