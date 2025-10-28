@@ -378,6 +378,25 @@ Decoder::checkForErrors(const ErrorInfo& errInfo)
 }
 
 // MANIPULATORS
+bsl::istream& Decoder::decodeAny(bsl::istream&  stream,
+                                 bdlar::AnyRef *any,
+                                 const char    *uri)
+{
+    return decode(stream, any, uri);
+}
+
+int Decoder::decodeAny(bsl::streambuf *buffer,
+                       bdlar::AnyRef  *any,
+                       const char     *uri)
+{
+    return decode(buffer, any, uri);
+}
+
+int Decoder::decodeAny(bdlar::AnyRef *any)
+{
+    return decode(any);
+}
+
 int
 Decoder::parse(Decoder_ElementContext *context)
 {

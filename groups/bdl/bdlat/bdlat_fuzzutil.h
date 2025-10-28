@@ -369,21 +369,8 @@ FuzzUtil::consume(t_CUSTOMIZED          *object,
                   bslim::FuzzDataView   *fuzzData,
                   const FuzzUtilOptions *options)
 {
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wuninitialized"
-#ifndef BSLS_PLATFORM_CMP_CLANG
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-#endif
-    typedef typename bdlat_CustomizedTypeFunctions::
-                                         BaseType<t_CUSTOMIZED>::Type BaseType;
-    BaseType base;
-    consume(&base, fuzzData, options);
-    bdlat_CustomizedTypeFunctions::convertFromBaseType(object, base);
-#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
-#pragma GCC diagnostic pop
-#endif
+    FuzzUtil_Manipulator manipulator = {fuzzData, options};
+    bdlat_CustomizedTypeFunctions::createBaseAndConvert(object, manipulator);
 }
 
 template <class t_DYNAMIC>

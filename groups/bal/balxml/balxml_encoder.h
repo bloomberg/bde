@@ -125,6 +125,8 @@ BSLS_IDENT("$Id: $")
 #include <balxml_formatter.h>
 #include <balxml_typesprintutil.h>
 
+#include <bdlar_refutil.h>
+
 #include <bdlat_arrayfunctions.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_nullablevaluefunctions.h>
@@ -291,6 +293,53 @@ class Encoder {
     /// streams specified at the construction time.
     template <class TYPE>
     int encode(Formatter& formatter, const TYPE& object);
+
+    /// Encode the specified non-modifiable `object` to the specified `buffer`.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that the
+    /// encoder will use encoder options, error and warning streams specified
+    /// at the construction time.  Also note that this function behaves
+    /// identically to `encode`, but does not instantiate any templates at
+    /// compile time at the expense of being slightly slower at runtime; see
+    /// the `balxml` package documentation for more details.
+    template <class TYPE>
+    int encodeAny(bsl::streambuf *buffer, const TYPE& object);
+    int encodeAny(bsl::streambuf *buffer, const bdlar::AnyConstRef& object);
+
+    /// Encode the specified non-modifiable `object` to the specified `stream`.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that the
+    /// encoder will use encoder options, error and warning streams specified
+    /// at the construction time.  Also note that this function behaves
+    /// identically to `encodeToStream`, but does not instantiate any templates
+    /// at compile time at the expense of being slightly slower at runtime; see
+    /// the `balxml` package documentation for more details.
+    template <class TYPE>
+    int encodeAnyToStream(bsl::ostream& stream, const TYPE& object);
+    int encodeAnyToStream(bsl::ostream&             stream,
+                          const bdlar::AnyConstRef& object);
+
+    /// Encode the specified non-modifiable `object` to the specified `stream`.
+    /// Return a reference to `stream`.  If an encoding error is detected,
+    /// `stream.fail()` will be true on return.  Note that the encoder will use
+    /// encoder options, error and warning streams specified at the
+    /// construction time.  Also note that this function behaves identically to
+    /// `encode`, but does not instantiate any templates at compile time at the
+    /// expense of being slightly slower at runtime; see the `balxml` package
+    /// documentation for more details.
+    template <class TYPE>
+    bsl::ostream& encodeAny(bsl::ostream& stream, const TYPE& object);
+    bsl::ostream& encodeAny(bsl::ostream&             stream,
+                            const bdlar::AnyConstRef& object);
+
+    /// Encode the specified non-modifiable `object` to the specified
+    /// `formatter`.  Return 0 on success, and a non-zero value otherwise.
+    /// Note that encoder will use encoder options, error and warning streams
+    /// specified at the construction time.  Also note that this function
+    /// behaves identically to `encode`, but does not instantiate any templates
+    /// at compile time at the expense of being slightly slower at runtime; see
+    /// the `balxml` package documentation for more details.
+    template <class TYPE>
+    int encodeAny(Formatter& formatter, const TYPE& object);
+    int encodeAny(Formatter& formatter, const bdlar::AnyConstRef& object);
 
     //ACCESSORS
 
@@ -1103,6 +1152,41 @@ int Encoder::encode(Formatter& formatter, const TYPE& object)
       } break;
     }
     return rc;
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAny(bsl::streambuf *streamBuf, const TYPE& object)
+{
+    return encodeAny(streamBuf, bdlar::RefUtil::makeAnyConstRef(object));
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAnyToStream(bsl::ostream& stream, const TYPE& object)
+{
+    return encodeAnyToStream(stream, bdlar::RefUtil::makeAnyConstRef(object));
+}
+
+inline
+int Encoder::encodeAnyToStream(bsl::ostream&             stream,
+                               const bdlar::AnyConstRef& object)
+{
+    return encodeAny(stream.rdbuf(), object);
+}
+
+template <class TYPE>
+inline
+bsl::ostream& Encoder::encodeAny(bsl::ostream& stream, const TYPE& object)
+{
+    return encodeAny(stream, bdlar::RefUtil::makeAnyConstRef(object));
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAny(Formatter& formatter, const TYPE& object)
+{
+    return encode(formatter, bdlar::RefUtil::makeAnyConstRef(object));
 }
 
                            // ---------------------

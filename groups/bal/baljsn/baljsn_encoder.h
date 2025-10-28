@@ -136,6 +136,8 @@ BSLS_IDENT("$Id: $")
 #include <baljsn_encoderoptions.h>
 #include <baljsn_formatter.h>
 
+#include <bdlar_refutil.h>
+
 #include <bdlat_attributeinfo.h>
 #include <bdlat_choicefunctions.h>
 #include <bdlat_customizedtypefunctions.h>
@@ -256,6 +258,56 @@ class Encoder {
     /// non-modifiable `EncoderOptions` object instead.
     template <class TYPE>
     int encode(bsl::ostream& stream, const TYPE& value);
+
+    /// Encode the specified `value`, of (template parameter) `TYPE`, in the
+    /// JSON format using the specified `options` and output it onto the
+    /// specified `streamBuf`.  Specifying a nullptr `options` is equivalent to
+    /// passing a default-constructed DecoderOptions in `options`.  `TYPE`
+    /// shall be a `bdlat`-compatible sequence, choice, or array type, or a
+    /// `bdlat`-compatible dynamic type referring to one of those types.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that this
+    /// function behaves identically to `encode`, but does not instantiate any
+    /// templates at compile time at the expense of being slightly slower at
+    /// runtime; see the `baljsn` package documentation for more details.
+    template <class TYPE>
+    int encodeAny(bsl::streambuf        *streamBuf,
+                  const TYPE&            value,
+                  const EncoderOptions&  options);
+    template <class TYPE>
+    int encodeAny(bsl::streambuf       *streamBuf,
+                  const TYPE&           value,
+                  const EncoderOptions *options = 0);
+    int encodeAny(bsl::streambuf            *streamBuf,
+                  const bdlar::AnyConstRef&  any,
+                  const EncoderOptions&      options);
+    int encodeAny(bsl::streambuf            *streamBuf,
+                  const bdlar::AnyConstRef&  any,
+                  const EncoderOptions      *options = 0);
+
+    /// Encode the specified `value`, of (template parameter) `TYPE`, in the
+    /// JSON format using the specified `options` and output it onto the
+    /// specified `stream`.  Specifying a nullptr `options` is equivalent to
+    /// passing a default-constructed DecoderOptions in `options`.  `TYPE`
+    /// shall be a `bdlat`-compatible choice, or array type, or a
+    /// `bdlat`-compatible dynamic type referring to one of those types.
+    /// Return 0 on success, and a non-zero value otherwise.  Note that this
+    /// function behaves identically to `encode`, but does not instantiate any
+    /// templates at compile time at the expense of being slightly slower at
+    /// runtime; see the `baljsn` package documentation for more details.
+    template <class TYPE>
+    int encodeAny(bsl::ostream&         stream,
+                  const TYPE&           value,
+                  const EncoderOptions& options);
+    template <class TYPE>
+    int encodeAny(bsl::ostream&         stream,
+                  const TYPE&           value,
+                  const EncoderOptions *options = 0);
+    int encodeAny(bsl::ostream&             stream,
+                  const bdlar::AnyConstRef& any,
+                  const EncoderOptions&     options);
+    int encodeAny(bsl::ostream&              stream,
+                  const bdlar::AnyConstRef&  any,
+                  const EncoderOptions      *options = 0);
 
     // ACCESSORS
 
@@ -389,6 +441,62 @@ int Encoder::encode(bsl::ostream&         stream,
 {
     EncoderOptions localOpts;
     return encode(stream, value, options ? *options : localOpts);
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAny(bsl::streambuf        *streamBuf,
+                       const TYPE&            value,
+                       const EncoderOptions&  options)
+{
+    return encodeAny(streamBuf,
+                     bdlar::RefUtil::makeAnyConstRef(value),
+                     options);
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAny(bsl::streambuf       *streamBuf,
+                       const TYPE&           value,
+                       const EncoderOptions *options)
+{
+    return encodeAny(streamBuf, value, options ? *options : EncoderOptions());
+}
+
+inline
+int Encoder::encodeAny(bsl::streambuf            *streamBuf,
+                       const bdlar::AnyConstRef&  any,
+                       const EncoderOptions      *options)
+{
+    return encodeAny(streamBuf, any, options ? *options : EncoderOptions());
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAny(bsl::ostream&         stream,
+                       const TYPE&           value,
+                       const EncoderOptions& options)
+{
+    return encodeAny(stream,
+                     bdlar::RefUtil::makeAnyConstRef(value),
+                     options);
+}
+
+template <class TYPE>
+inline
+int Encoder::encodeAny(bsl::ostream&         stream,
+                       const TYPE&           value,
+                       const EncoderOptions *options)
+{
+    return encodeAny(stream, value, options ? *options : EncoderOptions());
+}
+
+inline
+int Encoder::encodeAny(bsl::ostream&              stream,
+                       const bdlar::AnyConstRef&  any,
+                       const EncoderOptions      *options)
+{
+    return encodeAny(stream, any, options ? *options : EncoderOptions());
 }
 
 // ACCESSORS

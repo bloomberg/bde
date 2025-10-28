@@ -1,0 +1,207 @@
+ bdlar.txt
+
+@PURPOSE: Provide dynamic dispatch types to manipulate attribute types
+
+@MNEMONIC: Basic Development Library Attribute types Runtime (bdlar)
+
+@DESCRIPTION: The `bdlar` package provides a runtime wrappers for `bdlat`.
+
+/Hierarchical Synopsis
+/---------------------
+ The 'bdlar' package currently has 45 components having 10 levels of physical
+ dependency.  The list below shows the hierarchical ordering of the components.
+ The order of components within each level is not architecturally significant,
+ just alphabetical.
+..
+  10. bdlar_symbolicconverter
+
+   9. bdlar_refutil
+
+   8. bdlar_anycastutil
+      bdlar_anymanipulators
+      bdlar_customizedtypetraits
+
+   7. bdlar_anyref
+
+   6. bdlar_accessorref
+      bdlar_dynamictyperef
+      bdlar_manipulatorref
+
+   5. bdlar_accessorvtableutil
+      bdlar_customizedtyperef
+      bdlar_manipulatorvtableutil
+
+   4. bdlar_customizedtypevtableutil
+      bdlar_dynamictypevtableutil
+      bdlar_simpletyperef
+
+   3. bdlar_arrayref
+      bdlar_choiceref
+      bdlar_customizedtypevtable
+      bdlar_dynamictypevtable
+      bdlar_enumref
+      bdlar_nullablevalueref
+      bdlar_refdatautil
+      bdlar_sequenceref
+      bdlar_simpletypevtableutil
+
+   2. bdlar_anyrefdata
+      bdlar_arrayvtableutil
+      bdlar_choicevtableutil
+      bdlar_enumvtableutil
+      bdlar_nullablevaluevtableutil
+      bdlar_sequencevtableutil
+      bdlar_simpletypevtable
+      bdlar_vtableutil
+
+   1. bdlar_accessorvtable
+      bdlar_anyref_test                                               !PRIVATE!
+      bdlar_anyvtable
+      bdlar_arrayvtable
+      bdlar_choicevtable
+      bdlar_enumvtable
+      bdlar_fieldinfo
+      bdlar_isref
+      bdlar_manipulatorvtable
+      bdlar_nullablevaluevtable
+      bdlar_sequencevtable
+      bdlar_simpletypeid
+      bdlar_typecategory
+..
+
+/Component Synopsis
+/------------------
+: 'bdlar_accessorref':
+:      Provide ...
+:
+: 'bdlar_accessorvtable':
+:      Provide ...
+:
+: 'bdlar_accessorvtableutil':
+:      Provide ...
+:
+: 'bdlar_anycastutil':
+:      Provide ...
+:
+: 'bdlar_anymanipulators':
+:      Provide ...
+:
+: 'bdlar_anyref':
+:      Provide ...
+:
+: 'bdlar_anyref_test':                                                !PRIVATE!
+:      Provide ...
+:
+: 'bdlar_anyrefdata':
+:      Provide ...
+:
+: 'bdlar_anyvtable':
+:      Provide ...
+:
+: 'bdlar_arrayref':
+:      Provide ...
+:
+: 'bdlar_arrayvtable':
+:      Provide ...
+:
+: 'bdlar_arrayvtableutil':
+:      Provide ...
+:
+: 'bdlar_choiceref':
+:      Provide ...
+:
+: 'bdlar_choicevtable':
+:      Provide ...
+:
+: 'bdlar_choicevtableutil':
+:      Provide ...
+:
+: 'bdlar_customizedtyperef':
+:      Provide ...
+:
+: 'bdlar_customizedtypetraits':
+:      Provide ...
+:
+: 'bdlar_customizedtypevtable':
+:      Provide ...
+:
+: 'bdlar_customizedtypevtableutil':
+:      Provide ...
+:
+: 'bdlar_dynamictyperef':
+:      Provide ...
+:
+: 'bdlar_dynamictypevtable':
+:      Provide ...
+:
+: 'bdlar_dynamictypevtableutil':
+:      Provide ...
+:
+: 'bdlar_enumref':
+:      Provide ...
+:
+: 'bdlar_enumvtable':
+:      Provide ...
+:
+: 'bdlar_enumvtableutil':
+:      Provide ...
+:
+: 'bdlar_fieldinfo':
+:      Provide ...
+:
+: 'bdlar_isref':
+:      Provide ...
+:
+: 'bdlar_manipulatorref':
+:      Provide ...
+:
+: 'bdlar_manipulatorvtable':
+:      Provide ...
+:
+: 'bdlar_manipulatorvtableutil':
+:      Provide ...
+:
+: 'bdlar_nullablevalueref':
+:      Provide ...
+:
+: 'bdlar_nullablevaluevtable':
+:      Provide ...
+:
+: 'bdlar_nullablevaluevtableutil':
+:      Provide ...
+:
+: 'bdlar_refdatautil':
+:      Provide ...
+:
+: 'bdlar_refutil':
+:      Provide ...
+:
+: 'bdlar_sequenceref':
+:      Provide ...
+:
+: 'bdlar_sequencevtable':
+:      Provide ...
+:
+: 'bdlar_sequencevtableutil':
+:      Provide ...
+:
+: 'bdlar_simpletypeid':
+:      Provide ...
+:
+: 'bdlar_simpletyperef':
+:      Provide ...
+:
+: 'bdlar_simpletypevtable':
+:      Provide ...
+:
+: 'bdlar_simpletypevtableutil':
+:      Provide ...
+:
+: 'bdlar_symbolicconverter':
+:      Provide a utility for convert types with matching member symbols.
+:
+: 'bdlar_typecategory':
+:      Provide ...
+:
+: 'bdlar_vtableutil':
+:      Provide ...

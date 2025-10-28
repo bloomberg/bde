@@ -1021,8 +1021,8 @@ int bdlat_sequenceAccessAttribute(const TestSequence2& object,
 }
 
 template <class ACCESSOR>
-int bdlat_sequenceAccessAttribute(const TestSequence2& object,
-                                  ACCESSOR&            accessor)
+int bdlat_sequenceAccessAttributes(const TestSequence2& object,
+                                   ACCESSOR&            accessor)
 {
     if (0 == accessor(object.d_element1,
                       TestSequence2::ATTRIBUTE_INFO_ARRAY[0])
@@ -4590,6 +4590,12 @@ int main(int argc, char *argv[])
                         xml_options.maxDepth(),
                         rc,
                         0 != rc);
+
+                {
+                    bsl::istringstream       ss(XML);
+                    balb::FeatureTestMessage object2;
+                    ASSERT(xml_decoder.decodeAny(ss.rdbuf(), &object2) != 0);
+                }
             }
 
             // Set depth correctly, expect success
@@ -4623,6 +4629,13 @@ int main(int argc, char *argv[])
                         xml_options.maxDepth(),
                         rc,
                         0 == rc);
+
+                {
+                    bsl::istringstream       ss(XML);
+                    balb::FeatureTestMessage object2;
+                    ASSERT(xml_decoder.decodeAny(ss.rdbuf(), &object2) == 0);
+                    ASSERT(object2 == object);
+                }
             }
         }
       } break;
@@ -13831,6 +13844,13 @@ int main(int argc, char *argv[])
                      << " with rc: " << rc << endl;
                 cout << decoder.loggedMessages() << "," << e << endl;
             }
+
+            {
+                bdlsb::FixedMemInStreamBuf isb(STR.data(), STR.size());
+                Test::Topchoice            object2;
+                ASSERT(decoder.decodeAny(&isb, &object2) == 0);
+                ASSERT(object2 == object);
+            }
         }
       } break;
 
@@ -14419,6 +14439,16 @@ int main(int argc, char *argv[])
             else {
                 LOOP2_ASSERT(LINE, retCode, 0 != retCode);
             }
+
+            {
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TS                         result2 = INIT_VALUE;
+                LOOP_ASSERT(LINE, decoder.decodeAny(&isb, &result2) ==
+                                                            EXPECTED_RET_CODE);
+                if (0 == EXPECTED_RET_CODE) {
+                    LOOP_ASSERT(LINE, result2 == EXPECTED_RESULT);
+                }
+            }
         }
 
         if (verbose) cout << "\nTesting 'Decoder::decode(streambuf*, "
@@ -14475,6 +14505,16 @@ int main(int argc, char *argv[])
             else {
                 LOOP2_ASSERT(LINE, retCode, 0 != retCode);
             }
+
+            {
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                TS                         result2 = INIT_VALUE;
+                LOOP_ASSERT(LINE, decoder.decodeAny(&isb, &result2) ==
+                                                            EXPECTED_RET_CODE);
+                if (0 == EXPECTED_RET_CODE) {
+                    LOOP_ASSERT(LINE, result2 == EXPECTED_RESULT);
+                }
+            }
         }
 
         if (verbose) cout << "\nTesting 'Decoder::decode(istream&, "
@@ -14519,6 +14559,20 @@ int main(int argc, char *argv[])
             }
             else {
                 LOOP_ASSERT(LINE, input.fail());
+            }
+
+            {
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
+                TS                         result2 = INIT_VALUE;
+                decoder.decodeAny(input, &result2);
+                if (0 == EXPECTED_RET_CODE) {
+                    LOOP_ASSERT(LINE, input);
+                    LOOP_ASSERT(LINE, result2 == EXPECTED_RESULT);
+                }
+                else {
+                    LOOP_ASSERT(LINE, input.fail());
+                }
             }
         }
 
@@ -14576,6 +14630,20 @@ int main(int argc, char *argv[])
             }
             else {
                 LOOP_ASSERT(LINE, input.fail());
+            }
+
+            {
+                bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                bsl::istream               input(&isb);
+                TS                         result2 = INIT_VALUE;
+                decoder.decodeAny(input, &result2);
+                if (0 == EXPECTED_RET_CODE) {
+                    LOOP_ASSERT(LINE, input);
+                    LOOP_ASSERT(LINE, result2 == EXPECTED_RESULT);
+                }
+                else {
+                    LOOP_ASSERT(LINE, input.fail());
+                }
             }
         }
 
@@ -14733,6 +14801,15 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, input);
                 LOOP3_ASSERT(i, X, Y, X == Y);
+
+                {
+                    bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                    bsl::istream               input(&isb);
+                    Type                       mX2;
+                    decoder.decodeAny(input, &mX2);
+                    LOOP_ASSERT(i, input);
+                    LOOP_ASSERT(i, mX2 == mX);
+                }
             }
         }
 
@@ -14848,6 +14925,15 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(i, input);
                 LOOP3_ASSERT(i, X, Y, X == Y);
+
+                {
+                    bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                    bsl::istream               input(&isb);
+                    Type                       mX2;
+                    decoder.decodeAny(input, &mX2);
+                    LOOP_ASSERT(i, input);
+                    LOOP_ASSERT(i, mX2 == mX);
+                }
             }
         }
 
@@ -14958,6 +15044,15 @@ int main(int argc, char *argv[])
 
                 LOOP_ASSERT(tii, input);
                 LOOP3_ASSERT(tii, X, Y, X == Y);
+
+                {
+                    bdlsb::FixedMemInStreamBuf isb(INPUT.data(), INPUT.size());
+                    bsl::istream               input(&isb);
+                    Type                       mX2;
+                    decoder.decodeAny(input, &mX2);
+                    LOOP_ASSERT(tii, input);
+                    LOOP_ASSERT(tii, mX2 == mX);
+                }
             }
         }
 
@@ -16980,15 +17075,6 @@ int main(int argc, char *argv[])
                 balxml::Decoder_SelectContext<TestType>::Type Result;
                 typedef
                 balxml::Decoder_SimpleContext<TestType>       ExpectedResult;
-
-                ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
-            }
-            {
-                typedef DummyCustomizedType                   TestType;
-                typedef
-                balxml::Decoder_SelectContext<TestType>::Type Result;
-                typedef
-                balxml::Decoder_CustomizedContext<TestType>   ExpectedResult;
 
                 ASSERT((bslmf::IsSame<Result, ExpectedResult>::value));
             }

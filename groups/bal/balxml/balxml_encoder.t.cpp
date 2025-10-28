@@ -6079,6 +6079,10 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
 
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
+
             if (verbose) cout << "PRETTY with object namespace" << endl;
 
             // Format expected result with object namespace and, therefore,
@@ -6102,6 +6106,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            oss2.str("");
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
 
             static const char *COMPACT_RESULT[3] = {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
@@ -6183,6 +6191,10 @@ int main(int argc, char *argv[])
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
 
+            oss2.str("");
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
+
             if (verbose) cout << "COMPACT with object namespace" << endl;
 
             // Format expected result with object namespace and, therefore,
@@ -6206,6 +6218,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            oss2.str("");
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
 
         } // End for i
 
@@ -6259,6 +6275,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySimpleContent` with COMPACT." << endl;
@@ -6293,6 +6313,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySimpleIntContent`." << endl;
@@ -6327,6 +6351,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySimpleIntContent` with COMPACT."
@@ -6362,6 +6390,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
@@ -6415,6 +6447,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySequenceWithAttributes` with "
@@ -6452,6 +6488,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySequenceWithAttributes` with "
@@ -6490,6 +6530,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
@@ -6543,6 +6587,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySequenceWithAnonymousChoice` with "
@@ -6579,6 +6627,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySequenceWithAnonymousChoice` with "
@@ -6615,6 +6667,10 @@ int main(int argc, char *argv[])
             LOOP_ASSERT(rc, 0 == rc);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
@@ -6704,6 +6760,10 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(rc, 0 == rc);
                 LOOP2_ASSERT(EXPECTED_RESULT[i],   result.str(),
                              EXPECTED_RESULT[i] == result.str());
+
+                bsl::ostringstream oss2;
+                ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+                ASSERT(oss2.str() == result.str());
             }
         }
 
@@ -6778,6 +6838,10 @@ int main(int argc, char *argv[])
                 LOOP_ASSERT(rc, 0 == rc);
                 LOOP2_ASSERT(EXPECTED_RESULT[i],   result.str(),
                              EXPECTED_RESULT[i] == result.str());
+
+                bsl::ostringstream oss2;
+                ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+                ASSERT(oss2.str() == result.str());
             }
         }
 
@@ -6874,6 +6938,10 @@ int main(int argc, char *argv[])
             encoder.encode(result, X);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySequenceWithArrays` with COMPACT."
@@ -6953,6 +7021,10 @@ int main(int argc, char *argv[])
             encoder.encode(result, X);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
@@ -7007,6 +7079,10 @@ int main(int argc, char *argv[])
             encoder.encode(result, X);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MyChoice` with selection 2." << endl;
@@ -7044,6 +7120,10 @@ int main(int argc, char *argv[])
             encoder.encode(result, X);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
@@ -7099,6 +7179,10 @@ int main(int argc, char *argv[])
             encoder.encode(result, X);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nUsing `MySequence` with COMPACT." << endl;
@@ -7136,6 +7220,10 @@ int main(int argc, char *argv[])
             encoder.encode(result, X);
             LOOP2_ASSERT(EXPECTED_RESULT,   result.str(),
                          EXPECTED_RESULT == result.str());
+
+            bsl::ostringstream oss2;
+            ASSERT(encoder.encodeAnyToStream(oss2, X) == 0);
+            ASSERT(oss2.str() == result.str());
         }
 
         if (verbose) cout << "\nEnd of Test." << endl;
