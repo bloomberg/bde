@@ -205,7 +205,7 @@
 
 /Schema
 / - - -
-..                                                                            \
+..
   s_baltst.xsd
 ..
 
