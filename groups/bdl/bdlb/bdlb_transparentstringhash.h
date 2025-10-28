@@ -12,7 +12,7 @@ BSLS_IDENT("$Id: $")
 //
 //@SEE_ALSO: bsl_unordered_map, bsl_unordered_set
 //
-//@DESCRIPTION: This component provides a `struct`, 
+//@DESCRIPTION: This component provides a `struct`,
 // `bdlb::TransparentStringHash`, that defines a functor to generate a hash
 // code for different 'string-like' types and can be used as transparent hash
 // functor for heterogeneous lookup.
@@ -153,7 +153,7 @@ struct TransparentStringHash {
     /// `str`.
     template <class CHAR>
     std::size_t operator()(const CHAR *str) const;
-    
+
     template <class CHAR, class TRAITS, class ALLOCATOR>
     std::size_t operator()(
                   const bsl::basic_string<CHAR, TRAITS, ALLOCATOR>& str) const;

@@ -1214,8 +1214,8 @@ class Json {
                typename bsl::enable_if<
                    bsl::is_same<STRING_TYPE, bsl::string>::value>::type * = 0);
 
-    // BDE_VERIFY pragma: +IND01 DEDUCE macro confuses bde_verify 
-    // BDE_VERIFY pragma: +FD06 'string' and 'bsl::string' are too similar 
+    // BDE_VERIFY pragma: +IND01 DEDUCE macro confuses bde_verify
+    // BDE_VERIFY pragma: +FD06 'string' and 'bsl::string' are too similar
     // BDE_VERIFY pragma: +FD07 'string' and 'bsl::string' are too similar
 
     // MANIPULATORS
@@ -1518,7 +1518,7 @@ class Json {
     /// `index < theArray().size()`.
     Json& operator[](bsl::size_t index);
 
-    // ACCESSORS 
+    // ACCESSORS
 
     // BDE_VERIFY pragma: -FABC01
 

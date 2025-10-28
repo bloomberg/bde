@@ -1328,7 +1328,7 @@ int main(int argc, char *argv[])
 // expect.
 // ```
     ASSERT(family->isArray());
-    
+
     const bdld::DatumArrayRef &familyArray = family->theArray();
     ASSERT(5 == familyArray.length());
 

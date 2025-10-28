@@ -518,7 +518,7 @@ int main(int argc, const char *argv[])
                       "",                                    // description
                       TypeInfo(),                            // dflt typeinfo
                       OccurrenceInfo(),                      // dflt occurrence
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableB;
@@ -529,7 +529,7 @@ int main(int argc, const char *argv[])
                       "",                                    // description
                       TypeInfo(),                            // dflt typeinfo
                       OccurrenceInfo(),                      // dflt occurrence
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableC;
@@ -540,7 +540,7 @@ int main(int argc, const char *argv[])
                       "",                                    // description
                       TypeInfo(),                            // dflt typeinfo
                       OccurrenceInfo(),                      // dflt occurrence
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableD;
@@ -551,7 +551,7 @@ int main(int argc, const char *argv[])
                       "description",                         // description
                       TypeInfo(),                            // dflt typeinfo
                       OccurrenceInfo(),                      // dflt occurrence
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableE;
@@ -562,7 +562,7 @@ int main(int argc, const char *argv[])
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag),          // linked variable
                       OccurrenceInfo(),                      // occurrence info
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableF;
@@ -584,7 +584,7 @@ int main(int argc, const char *argv[])
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag),          // linked variable
                       balcl::OccurrenceInfo::e_REQUIRED,     // occurrence info
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableH;
@@ -607,7 +607,7 @@ int main(int argc, const char *argv[])
                       "description",                         // description
                       balcl::TypeInfo(&linkedFlag),          // linked variable
                       balcl::OccurrenceInfo(defaultValue),   // occurrence info
-                      ""                                     // env var name                      
+                      ""                                     // env var name
                     }
         };
         (void) specTableJ;

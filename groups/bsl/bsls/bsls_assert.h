@@ -764,7 +764,7 @@ BSLS_IDENT("$Id: $")
 // problem should be logged (using, for example, `bsls_log`) prior to using
 // the `INVOKE` macro, and the string passed is ideally a string to identify
 // the character of the error, not to encode additional identifying
-// information.  
+// information.
 //
 ///Example 3: Runtime Configuration of the `bsls::Assert` Facility
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

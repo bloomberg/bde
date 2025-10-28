@@ -1682,7 +1682,7 @@ int main(int argc, char **argv)
                 }
             }
         }
-        
+
         if (verbose) printf("\tNegative Testing\n");
         {
             // Table abbreviations

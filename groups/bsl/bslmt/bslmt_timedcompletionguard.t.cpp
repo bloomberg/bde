@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
             *s_copiedText_p = "";
 
             Obj mX(copyTextHandler);
-            
+
             ASSERT(0 != mX.updateText(""));
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(0, 400000000), "a"));
@@ -366,7 +366,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nTesting `isGuarding`." << endl;
         {
             Obj mX(copyTextHandler);  const Obj& X = mX;
-            
+
             ASSERT(false == X.isGuarding());
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(0, 400000000), "a"));

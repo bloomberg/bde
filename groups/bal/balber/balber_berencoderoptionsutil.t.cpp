@@ -205,7 +205,7 @@ int main(int argc, char *argv[])
             ASSERT(D.preserveSignOfNegativeZero()
                                             != X.preserveSignOfNegativeZero());
             ASSERT(D.encodeArrayLengthHints() != X.encodeArrayLengthHints());
-        
+
             Util::setMode(&mX, Util::e_DEFAULT);
 
             ASSERT(D.traceLevel()             == X.traceLevel());
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
             ASSERT(D.preserveSignOfNegativeZero()
                                             != X.preserveSignOfNegativeZero());
             ASSERT(true                      != X.encodeArrayLengthHints());
-        
+
             Util::setMode(&mX, Util::e_FAST_20250615);
 
             ASSERT(D.traceLevel()            == X.traceLevel());

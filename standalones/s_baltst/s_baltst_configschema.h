@@ -11,7 +11,7 @@ BSLS_IDENT_PRAGMA_ONCE
 //@CLASSES:
 // s_baltst::ConfigSchema: the  configuration schema
 //
-//@DESCRIPTION: This component provides a namespace for the 
+//@DESCRIPTION: This component provides a namespace for the
 // service configuration schema.  This in-core representation of the schema
 // is used to validate XML configuration data used to initialize the service.
 

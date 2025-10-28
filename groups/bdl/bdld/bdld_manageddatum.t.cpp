@@ -1676,7 +1676,7 @@ int main(int argc, char *argv[])
                     Obj        *sourcePtr = new (fa) Obj(Z, &soa);
                     Obj&        mY = *sourcePtr;  // source object
                     const Obj&   Y = mY;
-                    
+
                     bsls::Types::Int64 sourceNumBytesUsed =
                                                            soa.numBytesInUse();
 

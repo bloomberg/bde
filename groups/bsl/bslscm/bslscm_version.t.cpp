@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
         testStatus = -1;
       }
     }
-    
+
     if (testStatus > 0) {
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }

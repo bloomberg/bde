@@ -105,7 +105,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // First, create `JsonDoc`, an ASCII string an representation of the above JSON
 // document (having required escape sequences and quoting) -- elided.
-// 
+//
 // Then, create `json`, the programmatic representation of the JSON document.
 // ```
 //  bdljsn::Json json;
@@ -132,7 +132,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, create `tokenizer`, a `baljsn::JsonTokenizer`, that will generate
 // a sequence of tokens (and sometimes values as well) for the previously
-// initialized `json` object.  
+// initialized `json` object.
 // ```
 //  baljsn::JsonTokenizer tokenizer(&json);
 //

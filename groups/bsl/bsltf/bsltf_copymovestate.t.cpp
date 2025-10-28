@@ -107,14 +107,14 @@ typedef bsltf::CopyMoveState::Enum Enum;
 // Namespace `xyz` for ADL testing
 namespace xyz {
 
-// Address of last argument to `xyz::copyMoveState` found via ADL.  The value 
+// Address of last argument to `xyz::copyMoveState` found via ADL.  The value
 // of this pointer may be an automatic variable that is out of its lifetime,
 // so we disable the warning GCC gives.
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdangling-pointer"
-#endif    
+#endif
 
 const void *lastAdl_p = 0;
 
@@ -185,7 +185,7 @@ struct TemplateTest3 {
 
 #ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
 #pragma GCC diagnostic pop
-#endif    
+#endif
 
 }  // close namespace xyz
 

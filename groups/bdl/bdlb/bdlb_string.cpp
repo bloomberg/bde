@@ -435,7 +435,7 @@ void String::trim(char *string)
         else {
             rightTrimStartPos = 0;
         }
-        
+
         *string++ = *shiftEnd++;
     }
 

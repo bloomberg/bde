@@ -1956,7 +1956,7 @@ void test_case_12() {
 namespace {
 
 class StringResetter {
-public: 
+  public:
     StringResetter(char*       buffer,
                    std::size_t bufferSize,
                    const char* newValue)
@@ -1964,7 +1964,7 @@ public:
     , d_bufferSize(bufferSize)
     , d_newValue(newValue)
     {}
-    
+
     ~StringResetter()
     {
         std::strncpy(d_buffer, d_newValue, d_bufferSize);
@@ -1973,7 +1973,7 @@ public:
     const char* buffer() const
     { return d_buffer; }
 
-private:
+  private:
     char*       d_buffer;
     std::size_t d_bufferSize;
     const char *d_newValue;
@@ -2025,12 +2025,12 @@ void test_case_11() {
 
         bsls::ReviewFailureHandlerGuard guard(&testCase11Handler);
 
-        if (veryVerbose) printf( "\tTesting BSLS_REVIEW_INVOKE\n" );        
+        if (veryVerbose) printf( "\tTesting BSLS_REVIEW_INVOKE\n" );
         {
             char buffer[32] = "InitValue";
 #ifdef BDE_BUILD_TARGET_EXC
             try {
-#endif                
+#endif
                 BSLS_REVIEW_INVOKE(
                     StringResetter(buffer,
                                    sizeof(buffer)-1,
@@ -2042,7 +2042,7 @@ void test_case_11() {
                 ASSERTV(ex.expression(),
                         0 == strcmp(ex.expression(), "InitValue"));
             }
-#endif            
+#endif
         }
 }
 

@@ -813,7 +813,7 @@ int main(int argc, char *argv[])
                    // -------------------------------------
 
         const T5 A5 = false;                 // baseline
-        const T5 B5 = true; 
+        const T5 B5 = true;
 
         if (verbose) cout <<
             "\nCreate a table of distinct, but similar object values." << endl;

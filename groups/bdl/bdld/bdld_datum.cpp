@@ -1222,7 +1222,7 @@ Datum Datum::clone(const AllocatorType& allocator) const
     switch (internalType()) {
     case e_INTERNAL_MAP:
         BSLS_ANNOTATION_FALLTHROUGH;
-    case e_INTERNAL_OWNED_MAP: 
+    case e_INTERNAL_OWNED_MAP:
         return copyMapOwningKeys(theMap(), allocator);
     case e_INTERNAL_INT_MAP:
         return copyIntMap(theIntMap(), allocator);
@@ -1245,7 +1245,7 @@ Datum Datum::clone(const AllocatorType& allocator) const
     case e_INTERNAL_UNINITIALIZED:
         BSLS_ASSERT(0 == "Uninitialized Datum");
         BSLS_ANNOTATION_FALLTHROUGH;
-    default: 
+    default:
         // Nothing is allocated externally.
         return *this;
     }

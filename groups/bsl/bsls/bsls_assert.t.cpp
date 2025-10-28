@@ -1981,7 +1981,7 @@ void testCase13Handler(const bsls::AssertViolation& violation)
     // Test that throwing will produce an exception that still has the same
     // contents even if they are changed or freed as the stack unwinds.
     bsls::Assert::failByThrow(violation);
-#endif    
+#endif
 }
 
 }
@@ -2018,7 +2018,7 @@ void test_case_13() {
         bsls::AssertFailureHandlerGuard guard(&testCase13Handler);
 
 #ifdef BDE_BUILD_TARGET_EXC
-        // Note that we cannot reasonably return from a violation, and so 
+        // Note that we cannot reasonably return from a violation, and so
         // forgo testing this behavior when exceptions are not enabled.
 
         if (veryVerbose) printf( "\tTesting BSLS_ASSERT_INVOKE\n" );
@@ -2035,7 +2035,7 @@ void test_case_13() {
                         0 == strcmp(ex.expression(), "InitValue"));
             }
         }
-        
+
         if (veryVerbose) printf( "\tTesting BSLS_ASSERT_INVOKE_NORETURN\n" );
         {
             char buffer[32] = "InitValue";

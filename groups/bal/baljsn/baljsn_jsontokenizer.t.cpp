@@ -246,7 +246,7 @@ int main(int argc, char *argv[])
 // ```
 // Then, create `tokenizer`, a baljsn::JsonTokenizer`, that will generate
 // a sequence of tokens (and sometimes values as well) for the previously
-// initialized `json` object.  
+// initialized `json` object.
 // ```
     baljsn::JsonTokenizer tokenizer(&json);
 

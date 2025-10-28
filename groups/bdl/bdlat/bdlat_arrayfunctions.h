@@ -89,7 +89,7 @@ BSLS_IDENT("$Id: $")
 //   type.
 //
 // The two optional methods for reserving capacity:
-// ``` 
+// ```
 // /// If successful, make the capacity of the specified modifiable `array` at
 // /// least the specified `numElements` and return zero.  If unsuccessful or
 // /// unsupported, return a non-zero value.  This method has no effect, and

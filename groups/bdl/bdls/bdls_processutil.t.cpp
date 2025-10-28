@@ -474,7 +474,7 @@ int main(int argc, char *argv[])
         }
 
         ASSERT(FUtil::isDirectory(directoryName));
-        
+
         if (u::e_UNIX) {
             rc = FUtil::remove(directoryName, true);
         } else {

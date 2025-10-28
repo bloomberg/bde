@@ -161,7 +161,6 @@ class AssertTestException {
     AssertTestException(AssertTestException&& original) = default;
 #endif
 
-    
     /// Destroy this object.  Note that this destructor's definition is
     /// compiler generated.
     ~AssertTestException() = default;

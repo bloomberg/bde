@@ -570,7 +570,7 @@ bool eq(t_TYPE1 x, t_TYPE2 y)
 }
 
 /// Return `true` if the specified `x` is greater than or equal to the
-/// specified `y`, `false` otherwise.  `t_TYPE1` and `t_TYPE2` shall be integer 
+/// specified `y`, `false` otherwise.  `t_TYPE1` and `t_TYPE2` shall be integer
 /// types (possibly of different signedness).
 template <class t_TYPE1, class t_TYPE2>
 bool ge(t_TYPE1 x, t_TYPE2 y)
