@@ -457,7 +457,7 @@ class NullableAllocatedValue {
                               "Use 'has_value() ? &value() : address' instead")
     const TYPE *addressOr(const TYPE *address) const;
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=9
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
 
     /// Assign to this nullable object the value of the (template parameter)
     /// `TYPE` created in place using the specified `args`.  Return a
@@ -1428,7 +1428,7 @@ const TYPE *NullableAllocatedValue<TYPE>::addressOr(const TYPE *address) const
     return has_value() ? &value() : address;
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=9
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
 template <class TYPE>
 template <class... ARGS>
 inline

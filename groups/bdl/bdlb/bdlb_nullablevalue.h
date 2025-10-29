@@ -536,7 +536,7 @@ class NullableValue : public bsl::optional<TYPE> {
     /// object.
     TYPE& makeValue();
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=5
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
 
     /// Assign to this nullable object the value of the (template parameter)
     /// `TYPE` created in place using the specified `args`.  Return a
@@ -624,14 +624,14 @@ class NullableValue : public bsl::optional<TYPE> {
     /// inefficient in some contexts.
     TYPE valueOr(const TYPE& value) const;
 
-    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
-    BSLS_DEPRECATE
-    #endif
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and the specified `value` otherwise.
     ///
     /// @DEPRECATED: Use `addressOr` instead.
+    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
+    BSLS_DEPRECATE
+    #endif
     const TYPE *valueOr(const TYPE *value) const;
 
     /// Return an address providing non-modifiable access to the underlying
@@ -1687,7 +1687,7 @@ TYPE& NullableValue<TYPE>::makeValue()
     return this->emplace();
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=10
 template <class TYPE>
 template <class... ARGS>
 inline

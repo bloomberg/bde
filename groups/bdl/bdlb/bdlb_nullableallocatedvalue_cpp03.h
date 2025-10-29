@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Oct 28 18:06:03 2025
+// Generated on Wed Oct 29 16:14:12 2025
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEALLOCATEDVALUE_H
@@ -203,7 +203,7 @@ class NullableAllocatedValue {
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
-#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 9
+#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 10
 #endif
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A
 #define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
@@ -213,121 +213,144 @@ class NullableAllocatedValue {
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 0
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 1
-    template <class ARGS_1>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1));
+    template <class ARGS_01>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 1
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 2
-    template <class ARGS_1,
-              class ARGS_2>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2));
+    template <class ARGS_01,
+              class ARGS_02>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 2
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 3
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 3
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 4
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 4
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 5
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 5
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 6
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 6
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 7
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6,
-              class ARGS_7>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 7
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 8
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6,
-              class ARGS_7,
-              class ARGS_8>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 8
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 9
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6,
-              class ARGS_7,
-              class ARGS_8,
-              class ARGS_9>
-    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_9));
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 9
+
+#if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 10
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10>
+    TYPE& emplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10));
+#endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 10
 
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -337,130 +360,154 @@ class NullableAllocatedValue {
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 0
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 1
-    template <class INIT_LIST_TYPE, class ARGS_1>
+    template <class INIT_LIST_TYPE, class ARGS_01>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 1
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 2
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 2
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 3
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 3
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 4
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3,
-                                    class ARGS_4>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 4
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 5
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3,
-                                    class ARGS_4,
-                                    class ARGS_5>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04,
+                                    class ARGS_05>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 5
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 6
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3,
-                                    class ARGS_4,
-                                    class ARGS_5,
-                                    class ARGS_6>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04,
+                                    class ARGS_05,
+                                    class ARGS_06>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 6
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 7
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3,
-                                    class ARGS_4,
-                                    class ARGS_5,
-                                    class ARGS_6,
-                                    class ARGS_7>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04,
+                                    class ARGS_05,
+                                    class ARGS_06,
+                                    class ARGS_07>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 7
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 8
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3,
-                                    class ARGS_4,
-                                    class ARGS_5,
-                                    class ARGS_6,
-                                    class ARGS_7,
-                                    class ARGS_8>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04,
+                                    class ARGS_05,
+                                    class ARGS_06,
+                                    class ARGS_07,
+                                    class ARGS_08>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 8
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 9
-    template <class INIT_LIST_TYPE, class ARGS_1,
-                                    class ARGS_2,
-                                    class ARGS_3,
-                                    class ARGS_4,
-                                    class ARGS_5,
-                                    class ARGS_6,
-                                    class ARGS_7,
-                                    class ARGS_8,
-                                    class ARGS_9>
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04,
+                                    class ARGS_05,
+                                    class ARGS_06,
+                                    class ARGS_07,
+                                    class ARGS_08,
+                                    class ARGS_09>
     TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8),
-                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_9));
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09));
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 9
+
+#if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 10
+    template <class INIT_LIST_TYPE, class ARGS_01,
+                                    class ARGS_02,
+                                    class ARGS_03,
+                                    class ARGS_04,
+                                    class ARGS_05,
+                                    class ARGS_06,
+                                    class ARGS_07,
+                                    class ARGS_08,
+                                    class ARGS_09,
+                                    class ARGS_10>
+    TYPE& emplace(std::initializer_list<INIT_LIST_TYPE>      il,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09),
+                  BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10));
+#endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_A >= 10
 
 
 #   endif
@@ -629,7 +676,7 @@ class NullableAllocatedValue {
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
-#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 9
+#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 10
 #endif
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B
 #define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
@@ -642,139 +689,164 @@ class NullableAllocatedValue {
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 0
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 1
-    template <class ARGS_1>
+    template <class ARGS_01>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 1
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 2
-    template <class ARGS_1,
-              class ARGS_2>
+    template <class ARGS_01,
+              class ARGS_02>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 2
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 3
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 3
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 4
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 4
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 5
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 5
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 6
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 6
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 7
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6,
-              class ARGS_7>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 7
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 8
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6,
-              class ARGS_7,
-              class ARGS_8>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 8
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 9
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5,
-              class ARGS_6,
-              class ARGS_7,
-              class ARGS_8,
-              class ARGS_9>
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09>
     BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
                                                        "Use 'emplace' instead")
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_9) args_9);
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 9
+
+#if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 10
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10>
+    BSLS_DEPRECATE_FEATURE("bdl", "NullableAllocatedValue::makeValueInplace",
+                                                       "Use 'emplace' instead")
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -1433,7 +1505,7 @@ TYPE& NullableAllocatedValue<TYPE>::operator*()
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
-#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 9
+#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 10
 #endif
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C
 #define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
@@ -1475,10 +1547,10 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 1
 template <class TYPE>
-template <class ARGS_1>
+template <class ARGS_01>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1496,14 +1568,14 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
         proctor.release();
     }
     setHasValueFlag();
@@ -1513,12 +1585,12 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 2
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2>
+template <class ARGS_01,
+          class ARGS_02>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1536,16 +1608,16 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
         proctor.release();
     }
     setHasValueFlag();
@@ -1555,14 +1627,14 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 3
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1580,18 +1652,18 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
         proctor.release();
     }
     setHasValueFlag();
@@ -1601,16 +1673,16 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 4
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1628,20 +1700,20 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
         proctor.release();
     }
     setHasValueFlag();
@@ -1651,18 +1723,18 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 5
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1680,22 +1752,22 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
         proctor.release();
     }
     setHasValueFlag();
@@ -1705,20 +1777,20 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 6
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1736,24 +1808,24 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
         proctor.release();
     }
     setHasValueFlag();
@@ -1763,22 +1835,22 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 7
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6,
-          class ARGS_7>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1796,26 +1868,26 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
         proctor.release();
     }
     setHasValueFlag();
@@ -1825,24 +1897,24 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 8
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6,
-          class ARGS_7,
-          class ARGS_8>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1860,28 +1932,28 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
         proctor.release();
     }
     setHasValueFlag();
@@ -1891,26 +1963,26 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 9
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6,
-          class ARGS_7,
-          class ARGS_8,
-          class ARGS_9>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
 inline
 TYPE& NullableAllocatedValue<TYPE>::emplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_9) args_9)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -1928,36 +2000,110 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_9, args_9));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
         BloombergLP::bslma::ConstructionUtil::construct(
                                  ptr,
                                  alloc,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_9, args_9));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
         proctor.release();
     }
     setHasValueFlag();
     return value();
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 9
+
+#if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 10
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
+inline
+TYPE& NullableAllocatedValue<TYPE>::emplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    bslma::Allocator *alloc = allocator();
+    TYPE             *ptr = getAddress();
+    if (has_value()) {
+        BSLS_ASSERT(ptr);
+        ptr->~TYPE();
+        clearHasValueFlag();
+    }
+    else if (!isLocal()) {
+        ptr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
+        setRemoteAddress(ptr);
+    }
+
+    if (isLocal()) {
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+    }
+    else {
+        bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+        proctor.release();
+    }
+    setHasValueFlag();
+    return value();
+}
+#endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 10
 
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2000,10 +2146,10 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 1
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1>
+template <class INIT_LIST_TYPE, class ARGS_01>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2022,7 +2168,7 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2030,7 +2176,7 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
         proctor.release();
     }
     setHasValueFlag();
@@ -2040,12 +2186,12 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 2
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2064,8 +2210,8 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2073,8 +2219,8 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
         proctor.release();
     }
     setHasValueFlag();
@@ -2084,14 +2230,14 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 3
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2110,9 +2256,9 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2120,9 +2266,9 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
         proctor.release();
     }
     setHasValueFlag();
@@ -2132,16 +2278,16 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 4
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3,
-                                class ARGS_4>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2160,10 +2306,10 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2171,10 +2317,10 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
         proctor.release();
     }
     setHasValueFlag();
@@ -2184,18 +2330,18 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 5
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3,
-                                class ARGS_4,
-                                class ARGS_5>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2214,11 +2360,11 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2226,11 +2372,11 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
         proctor.release();
     }
     setHasValueFlag();
@@ -2240,20 +2386,20 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 6
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3,
-                                class ARGS_4,
-                                class ARGS_5,
-                                class ARGS_6>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2272,12 +2418,12 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2285,12 +2431,12 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
         proctor.release();
     }
     setHasValueFlag();
@@ -2300,22 +2446,22 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 7
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3,
-                                class ARGS_4,
-                                class ARGS_5,
-                                class ARGS_6,
-                                class ARGS_7>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2334,13 +2480,13 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2348,13 +2494,13 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
         proctor.release();
     }
     setHasValueFlag();
@@ -2364,24 +2510,24 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 8
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3,
-                                class ARGS_4,
-                                class ARGS_5,
-                                class ARGS_6,
-                                class ARGS_7,
-                                class ARGS_8>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2400,14 +2546,14 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2415,14 +2561,14 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
         proctor.release();
     }
     setHasValueFlag();
@@ -2432,26 +2578,26 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 9
 template <class TYPE>
-template <class INIT_LIST_TYPE, class ARGS_1,
-                                class ARGS_2,
-                                class ARGS_3,
-                                class ARGS_4,
-                                class ARGS_5,
-                                class ARGS_6,
-                                class ARGS_7,
-                                class ARGS_8,
-                                class ARGS_9>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08,
+                                class ARGS_09>
 TYPE& NullableAllocatedValue<TYPE>::emplace(
                                std::initializer_list<INIT_LIST_TYPE>      il,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_9) args_9)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
     bslma::Allocator *alloc = allocator();
     TYPE             *ptr = getAddress();
@@ -2470,15 +2616,15 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_9, args_9));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
     }
     else {
         bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
@@ -2486,21 +2632,97 @@ TYPE& NullableAllocatedValue<TYPE>::emplace(
                                  ptr,
                                  alloc,
                                  il,
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8),
-                                BSLS_COMPILERFEATURES_FORWARD(ARGS_9, args_9));
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
         proctor.release();
     }
     setHasValueFlag();
     return value();
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 9
+
+#if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 10
+template <class TYPE>
+template <class INIT_LIST_TYPE, class ARGS_01,
+                                class ARGS_02,
+                                class ARGS_03,
+                                class ARGS_04,
+                                class ARGS_05,
+                                class ARGS_06,
+                                class ARGS_07,
+                                class ARGS_08,
+                                class ARGS_09,
+                                class ARGS_10>
+TYPE& NullableAllocatedValue<TYPE>::emplace(
+                               std::initializer_list<INIT_LIST_TYPE>      il,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    bslma::Allocator *alloc = allocator();
+    TYPE             *ptr = getAddress();
+    if (has_value()) {
+        BSLS_ASSERT(ptr);
+        ptr->~TYPE();
+        clearHasValueFlag();
+    }
+    else if (!isLocal()) {
+        ptr = reinterpret_cast<TYPE *>(alloc->allocate(sizeof(TYPE)));
+        setRemoteAddress(ptr);
+    }
+
+    if (isLocal()) {
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                                 il,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+    }
+    else {
+        bslma::DeallocatorProctor<bslma::Allocator> proctor(ptr, alloc);
+        BloombergLP::bslma::ConstructionUtil::construct(
+                                 ptr,
+                                 alloc,
+                                 il,
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                              BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+        proctor.release();
+    }
+    setHasValueFlag();
+    return value();
+}
+#endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_C >= 10
 
 #  endif
 #else
@@ -2810,7 +3032,7 @@ const TYPE *NullableAllocatedValue<TYPE>::addressOr(const TYPE *address) const
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlb_nullableallocatedvalue.h
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
-#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 9
+#define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT 10
 #endif
 #ifndef BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D
 #define BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT
@@ -2827,210 +3049,248 @@ TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 1
 template <class TYPE>
-template <class ARGS_1>
+template <class ARGS_01>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 1
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 2
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2>
+template <class ARGS_01,
+          class ARGS_02>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 2
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 3
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 3
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 4
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 4
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 5
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 5
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 6
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 6
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 7
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6,
-          class ARGS_7>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 7
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 8
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6,
-          class ARGS_7,
-          class ARGS_8>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 8
 
 #if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 9
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5,
-          class ARGS_6,
-          class ARGS_7,
-          class ARGS_8,
-          class ARGS_9>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
 inline
 TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_6) args_6,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_7) args_7,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_8) args_8,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_9) args_9)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
 {
-    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_6, args_6),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_7, args_7),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_8, args_8),
-                   BSLS_COMPILERFEATURES_FORWARD(ARGS_9, args_9));
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
 }
 #endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 9
+
+#if BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 10
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
+inline
+TYPE& NullableAllocatedValue<TYPE>::makeValueInplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    return emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                   BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+}
+#endif  // BDLB_NULLABLEALLOCATEDVALUE_VARIADIC_LIMIT_D >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect

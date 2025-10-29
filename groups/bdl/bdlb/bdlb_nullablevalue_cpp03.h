@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Apr  8 14:33:21 2025
+// Generated on Wed Oct 29 16:14:12 2025
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
@@ -419,7 +419,7 @@ class NullableValue : public bsl::optional<TYPE> {
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT
-#define BDLB_NULLABLEVALUE_VARIADIC_LIMIT 5
+#define BDLB_NULLABLEVALUE_VARIADIC_LIMIT 10
 #endif
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A
 #define BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A BDLB_NULLABLEVALUE_VARIADIC_LIMIT
@@ -430,49 +430,144 @@ class NullableValue : public bsl::optional<TYPE> {
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 0
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 1
-    template <class ARGS_1>
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1);
+    template <class ARGS_01>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01);
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 1
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 2
-    template <class ARGS_1,
-              class ARGS_2>
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2);
+    template <class ARGS_01,
+              class ARGS_02>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02);
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 2
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 3
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3>
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3);
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03);
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 3
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 4
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4>
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4);
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04);
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 4
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 5
-    template <class ARGS_1,
-              class ARGS_2,
-              class ARGS_3,
-              class ARGS_4,
-              class ARGS_5>
-    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5);
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05);
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 5
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 6
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06);
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 6
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 7
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07);
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 7
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 8
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08);
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 8
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 9
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09);
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 9
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 10
+    template <class ARGS_01,
+              class ARGS_02,
+              class ARGS_03,
+              class ARGS_04,
+              class ARGS_05,
+              class ARGS_06,
+              class ARGS_07,
+              class ARGS_08,
+              class ARGS_09,
+              class ARGS_10>
+    TYPE& makeValueInplace(BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10);
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_A >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
@@ -552,14 +647,14 @@ class NullableValue : public bsl::optional<TYPE> {
     /// inefficient in some contexts.
     TYPE valueOr(const TYPE& value) const;
 
-    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
-    BSLS_DEPRECATE
-    #endif
     /// Return an address providing non-modifiable access to the underlying
     /// object of a (template parameter) `TYPE` if this object is non-null,
     /// and the specified `value` otherwise.
     ///
     /// @DEPRECATED: Use `addressOr` instead.
+    #if BSLS_DEPRECATE_IS_ACTIVE(BDL, 3, 5)
+    BSLS_DEPRECATE
+    #endif
     const TYPE *valueOr(const TYPE *value) const;
 
     /// Return an address providing non-modifiable access to the underlying
@@ -1619,7 +1714,7 @@ TYPE& NullableValue<TYPE>::makeValue()
 // {{{ BEGIN GENERATED CODE
 // Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT
-#define BDLB_NULLABLEVALUE_VARIADIC_LIMIT 5
+#define BDLB_NULLABLEVALUE_VARIADIC_LIMIT 10
 #endif
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B
 #define BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B BDLB_NULLABLEVALUE_VARIADIC_LIMIT
@@ -1636,88 +1731,248 @@ TYPE& NullableValue<TYPE>::makeValueInplace(
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 1
 template <class TYPE>
-template <class ARGS_1>
+template <class ARGS_01>
 inline
 TYPE& NullableValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
 {
-    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1));
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
 }
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 1
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 2
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2>
+template <class ARGS_01,
+          class ARGS_02>
 inline
 TYPE& NullableValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
 {
-    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2));
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
 }
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 2
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 3
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03>
 inline
 TYPE& NullableValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
 {
-    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3));
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
 }
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 3
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 4
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04>
 inline
 TYPE& NullableValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
 {
-    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4));
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04));
 }
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 4
 
 #if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 5
 template <class TYPE>
-template <class ARGS_1,
-          class ARGS_2,
-          class ARGS_3,
-          class ARGS_4,
-          class ARGS_5>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05>
 inline
 TYPE& NullableValue<TYPE>::makeValueInplace(
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_1) args_1,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_2) args_2,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_3) args_3,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_4) args_4,
-                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_5) args_5)
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
 {
-    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_1, args_1),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_2, args_2),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_3, args_3),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_4, args_4),
-                         BSLS_COMPILERFEATURES_FORWARD(ARGS_5, args_5));
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05));
 }
 #endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 5
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 6
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06>
+inline
+TYPE& NullableValue<TYPE>::makeValueInplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
+{
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06));
+}
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 6
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 7
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07>
+inline
+TYPE& NullableValue<TYPE>::makeValueInplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
+{
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07));
+}
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 7
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 8
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08>
+inline
+TYPE& NullableValue<TYPE>::makeValueInplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
+{
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08));
+}
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 8
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 9
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09>
+inline
+TYPE& NullableValue<TYPE>::makeValueInplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
+{
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09));
+}
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 9
+
+#if BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 10
+template <class TYPE>
+template <class ARGS_01,
+          class ARGS_02,
+          class ARGS_03,
+          class ARGS_04,
+          class ARGS_05,
+          class ARGS_06,
+          class ARGS_07,
+          class ARGS_08,
+          class ARGS_09,
+          class ARGS_10>
+inline
+TYPE& NullableValue<TYPE>::makeValueInplace(
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
+{
+    return this->emplace(BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, args_04),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, args_05),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, args_06),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, args_07),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, args_08),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, args_09),
+                         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, args_10));
+}
+#endif  // BDLB_NULLABLEVALUE_VARIADIC_LIMIT_B >= 10
 
 #else
 // The generated code below is a workaround for the absence of perfect
