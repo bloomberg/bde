@@ -1,5 +1,25 @@
-bsl-internal (4.30.0.0) unstable; urgency=low
+bsl-internal (4.31.0.0) unstable; urgency=low
 
+  * 993fcd2f7 Bumped version to 4.31.0.0
+  * 5de7c91cc Regenerate bdlb_nullable* API for up to 10 params for c++03 (#5641)
+  * 56fe4d053 Regenerate bdlb_nullableallocatedvalue API for up to 9 params for c++03 (#5637)
+  * 10fa9e306 Integration/bdlar (#5634)
+  * 2006075cc Remove trailing spaces globally (#5636)
+  * a438a6188 move baseline to cpp17 for atomic change (#5631)
+  * 4c9d4d5a1 DRQS 181170047: Optimise bdld::Datum::clone (#5626)
+  * 41a377c2a assert&review: Creating temporary violation objects instead of named ones so parameter lifetimes exceed invocation of handler (#5624)
+  * 6b7a106a4 [DRQS 181109701] Update list of macros relevant to `bsls_platform.t.cpp` (#5615)
+  * 3da67f3e0 TEST Datum array references are deep copied. (#5619)
+  * dc379410d tidy the constructor proxy component (DRQS 181142537) (#5620)
+  * 3a2bcf673 Fix name clash with Qt emit macro (#5623)
+  * 4d68783f7 Revert "DRQS 180944848: Optimise `bdld::Datum::clone`" (#5618)
+  * b5e11a5a9 DRQS 181119568 - Fix user defined literal declaration (#5616)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 29 Oct 2025 19:51:20 +0000
+
+bsl-internal (4.30.0.0) git; urgency=low
+
+  * 2c5c22bca Changelog for version 4.30.0.0
   * 2cdbeab67 Revert "Integrate bdlar" (#5609)
   * 1836a3744 Remove datum.t.tcpp warnings (#5613)
   * e4449ad10 [DRQS 181086705] Disable tests in asan builds that deliberately test memory concerns (#5606)
@@ -42,7 +62,7 @@ bsl-internal (4.30.0.0) unstable; urgency=low
   * 47e6b74f4 Eventschedulertesttimesource allocator drqs179902303 (#5562)
   * 7ece762ad Fix false positive static analysis warning on memory overwite (#5560)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Oct 2025 19:40:27 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 10 Oct 2025 19:49:47 -0400
 
 bsl-internal (4.29.0.0) git; urgency=low
 
