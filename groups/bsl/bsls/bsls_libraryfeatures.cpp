@@ -154,15 +154,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
-
-    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    #error "'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' \
-            requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
-    #endif
-
-#endif
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION)
 
     #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -198,6 +189,128 @@ BSLS_IDENT("$Id$ $CSID$")
             'BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES'"
     #endif
 
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS)
+
+    #ifndef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    #error "'BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS' \
+            requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'"
+    #endif
+
+#endif
+
+                        // Enforce feature sets
+
+// Each baseline should require at least the previous version's baseline.
+
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#   error    'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY' \
+    requires 'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
+# endif
+#endif
+
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+#   error    'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY' \
+    requires 'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
+# endif
+#endif
+
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#   error    'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY' \
+    requires 'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'
+# endif
+#endif
+
+#if   defined(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY)
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#   error    'BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY' \
+    requires 'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY'
+# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
+// The following feature macros may be removed by later standards so should
+// never be assumed as part if full C++11 support:
+//```
+//  BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS: [deprecated]
+//  BSLS_LIBRARYFEATURES_HAS_CPP11_EXCEPTION_HANDLING: except handling provided
+//  BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API: GC support provided
+//  BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING: depends on platform ABI
+//```
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_MISCELLANEOUS_UTILITIES'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP11' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR'
+# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP14)
+// C++ is a mostly incremental release, and we expect full support for the
+// library additions.
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP14' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP14' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE'
+# endif
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP14' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS'
+# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP17)
+// For C++17, the compilers reached feature completion far before the library
+// implementations, so we do not tie the compiler features and library features
+// macros together for full conformance, and limit ourselves to confirming that
+// the baseline library can be assumed.
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP17' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY'
+# endif
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP20)
+// There are too few platforms claiming full C++20 support at the current time
+// to establish the library expectations of what full C++20 support would look
+// like.  We test for the baseline library features on principle.
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+#   error 'BSLS_COMPILERFEATURES_FULL_CPP20' requires                         \
+          'BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY'
+# endif
 #endif
 
 namespace BloombergLP {

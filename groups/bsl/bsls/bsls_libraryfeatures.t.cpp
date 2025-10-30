@@ -197,6 +197,7 @@
 // [ 3] BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 // [12] BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+// [ 2] BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 // [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
@@ -3450,6 +3451,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3473,6 +3475,50 @@ int main(int argc, char *argv[])
             (void)X;
         }
 #endif
+
+        {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
+            // Confirm that `a` and `b` do not alias the same string.
+            // If the implementation uses the CoW optimization then the
+            // two strings will share the same buffer until a non-`const`
+            // operation is called on either of them --- hence we declare
+            // the copied string as `const` to ensure we call the `const`
+            // qualified `data()` function.  Note that this test is
+            // carefully crafted to avoid undefined behavior associated
+            // with iterator invalidation, otherwise we might have looked
+            // into two calls to `begin()` returning different values for
+            // the same `string`, before and after overwriting the character
+            // at index 0.
+            std::string a = "short";    const std::string& A = a;
+            const void *pA = A.data();
+
+            const std::string b = a;
+            const void *pB = b.data();
+
+            ASSERTV(pA, pB, pA != pB);
+
+            a[0] = 'S';
+            const void *pA2 = A.data();
+
+            ASSERTV(pA, pA2, pA == pA2);
+#else       // Confirm the CoW string semantics instead
+            std::string a = "copy on Write";    const std::string& A = a;
+            const void *pA = A.data();
+
+            const std::string b = a;
+            const void *pB = b.data();
+
+            ASSERTV(pA, pB, pA == pB);
+
+            a[0] = 'C';
+            const void *pA2 = A.data();
+            const void *pB2 = b.data();
+
+            ASSERTV(pA2, pB2, pA2 != pB2);
+            ASSERTV(pA,  pA2, pA  != pA2);
+            ASSERTV(pB,  pB2, pB  == pB2);
+#endif
+        }
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;
       case 1: {
