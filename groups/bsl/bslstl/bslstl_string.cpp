@@ -12,6 +12,8 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <ctype.h>
 #include <errno.h>
+#include <limits.h>
+#include <float.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -717,16 +719,15 @@ long double bsl::stold(const wstring& str, std::size_t *pos)
 }
 
 bsl::string bsl::to_string(int value) {
-    BSLS_ASSERT(std::numeric_limits<int>::digits * 100/332 +
-                std::numeric_limits<int>::is_signed + 1 <
-                bsl::string::SHORT_BUFFER_LENGTH);
+    BSLMF_ASSERT(std::numeric_limits<int>::digits * 100/332 +
+                 std::numeric_limits<int>::is_signed + 1 <
+                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-
-    int len = snprintf(str.dataPtr(),
-                       bsl::string::SHORT_BUFFER_LENGTH,
-                       "%d",
-                       value);
+    const int   len = snprintf(str.dataPtr(),
+                               bsl::string::SHORT_BUFFER_LENGTH,
+                               "%d",
+                               value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
 
@@ -735,16 +736,15 @@ bsl::string bsl::to_string(int value) {
 }
 
 bsl::string bsl::to_string(unsigned value) {
-    BSLS_ASSERT(std::numeric_limits<unsigned>::digits * 100/332 +
-                std::numeric_limits<unsigned>::is_signed + 1 <
-                bsl::string::SHORT_BUFFER_LENGTH);
+    BSLMF_ASSERT(std::numeric_limits<unsigned>::digits * 100/332 +
+                 std::numeric_limits<unsigned>::is_signed + 1 <
+                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-
-    int len = snprintf(str.dataPtr(),
-                       bsl::string::SHORT_BUFFER_LENGTH,
-                       "%u",
-                       value);
+    const int   len = snprintf(str.dataPtr(),
+                               bsl::string::SHORT_BUFFER_LENGTH,
+                               "%u",
+                               value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
 
@@ -753,16 +753,15 @@ bsl::string bsl::to_string(unsigned value) {
 }
 
 bsl::string bsl::to_string(long value) {
-    BSLS_ASSERT(std::numeric_limits<long>::digits * 100/332 +
-                std::numeric_limits<long>::is_signed + 1 <
-                bsl::string::SHORT_BUFFER_LENGTH);
+    BSLMF_ASSERT(std::numeric_limits<long>::digits * 100/332 +
+                 std::numeric_limits<long>::is_signed + 1 <
+                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-
-    int len = snprintf(str.dataPtr(),
-                       bsl::string::SHORT_BUFFER_LENGTH,
-                       "%ld",
-                       value);
+    const int   len = snprintf(str.dataPtr(),
+                               bsl::string::SHORT_BUFFER_LENGTH,
+                               "%ld",
+                               value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
 
@@ -771,16 +770,15 @@ bsl::string bsl::to_string(long value) {
 }
 
 bsl::string bsl::to_string(unsigned long value) {
-    BSLS_ASSERT(std::numeric_limits<unsigned long >::digits * 100/332 +
-                std::numeric_limits<unsigned long >::is_signed + 1 <
-                bsl::string::SHORT_BUFFER_LENGTH);
+    BSLMF_ASSERT(std::numeric_limits<unsigned long >::digits * 100/332 +
+                 std::numeric_limits<unsigned long >::is_signed + 1 <
+                 bsl::string::SHORT_BUFFER_LENGTH);
 
     bsl::string str;
-
-    int len = snprintf(str.dataPtr(),
-                       bsl::string::SHORT_BUFFER_LENGTH,
-                       "%lu",
-                       value);
+    const int   len = snprintf(str.dataPtr(),
+                               bsl::string::SHORT_BUFFER_LENGTH,
+                               "%lu",
+                               value);
 
     BSLS_ASSERT_SAFE(len < bsl::string::SHORT_BUFFER_LENGTH);
 
@@ -789,133 +787,156 @@ bsl::string bsl::to_string(unsigned long value) {
 }
 
 bsl::string bsl::to_string(long long value) {
-    char tempBuf[e_MAX_INT64_STRLEN10];
-    int  len = snprintf(tempBuf, sizeof(tempBuf), "%lld", value);
+    BSLMF_ASSERT(std::numeric_limits<long long>::digits * 100 / 332 +
+                 std::numeric_limits<long long>::is_signed + 1 <
+                 e_MAX_INT64_STRLEN10);
+
+    char      tempBuf[e_MAX_INT64_STRLEN10];
+    const int len = snprintf(tempBuf, sizeof(tempBuf), "%lld", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
-    return string (tempBuf, len);
+    return bsl::string(tempBuf, len);
 }
 
 bsl::string bsl::to_string(unsigned long long value) {
-    char tempBuf[e_MAX_INT64_STRLEN10];
-    int  len = snprintf(tempBuf, sizeof(tempBuf), "%llu", value);
+    BSLMF_ASSERT(std::numeric_limits<unsigned long long>::digits * 100 / 332 +
+                 std::numeric_limits<unsigned long long>::is_signed + 1 <
+                 e_MAX_INT64_STRLEN10);
+
+    char      tempBuf[e_MAX_INT64_STRLEN10];
+    const int len = snprintf(tempBuf, sizeof(tempBuf), "%llu", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
-    return string (tempBuf, len);
+    return bsl::string(tempBuf, len);
 }
 
 bsl::string bsl::to_string(float value) {
-    char tempBuf[e_MAX_FLOAT_STRLEN10];
-    int  len = snprintf(tempBuf, sizeof(tempBuf), "%f", value);
+    char      tempBuf[e_MAX_FLOAT_STRLEN10];
+    const int len = snprintf(tempBuf, sizeof(tempBuf), "%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
-    return string (tempBuf, len);
+    return bsl::string(tempBuf, len);
 }
 
 bsl::string bsl::to_string(double value) {
-    char tempBuf[e_MAX_DOUBLE_STRLEN10];
-    int  len = snprintf(tempBuf, sizeof(tempBuf), "%f", value);
+    char      tempBuf[e_MAX_DOUBLE_STRLEN10];
+    const int len = snprintf(tempBuf, sizeof(tempBuf), "%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
-    return string (tempBuf, len);
+    return bsl::string(tempBuf, len);
 }
 
 bsl::string bsl::to_string(long double value) {
-    char tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-    int  len = snprintf(tempBuf, sizeof(tempBuf), "%Lf", value);
+    char      tempBuf[e_STARTING_LONGDOUBLE_STRLEN10];
+    const int len = snprintf(tempBuf, sizeof(tempBuf), "%Lf", value);
 
-    BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
-    return string (tempBuf, len);
+    if (len > e_STARTING_LONGDOUBLE_STRLEN10) {
+        bsl::string str(len, 0);
+        // `data()` is required to return an array of `size() + 1`.
+        snprintf(str.data(), str.size() + 1, "%Lf", value);
+        return str;                                                   // RETURN
+    }
+
+    return bsl::string(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(int value) {
-    wchar_t tempBuf[e_MAX_INT_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%d", value);
+    wchar_t   tempBuf[e_MAX_INT_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%d", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(long value) {
-    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%ld", value);
+    wchar_t   tempBuf[e_MAX_INT64_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%ld", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(long long value) {
-    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%lld", value);
+    wchar_t   tempBuf[e_MAX_INT64_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%lld", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(unsigned value) {
-    wchar_t tempBuf[e_MAX_INT_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%u", value);
+    wchar_t   tempBuf[e_MAX_INT_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%u", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(unsigned long value) {
-    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%lu", value);
+    wchar_t   tempBuf[e_MAX_INT64_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%lu", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(unsigned long long value) {
-    wchar_t tempBuf[e_MAX_INT64_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%llu", value);
+    wchar_t   tempBuf[e_MAX_INT64_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%llu", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_INT64_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(float value) {
-    wchar_t tempBuf[e_MAX_FLOAT_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%f", value);
+    wchar_t   tempBuf[e_MAX_FLOAT_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_FLOAT_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(double value) {
-    wchar_t tempBuf[e_MAX_DOUBLE_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%f", value);
+    wchar_t   tempBuf[e_MAX_DOUBLE_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%f", value);
 
     BSLS_ASSERT_SAFE(len < e_MAX_DOUBLE_STRLEN10);
-    return wstring (tempBuf, len);
+    return bsl::wstring(tempBuf, len);
 }
 
 bsl::wstring bsl::to_wstring(long double value) {
-    wchar_t tempBuf[e_MAX_LONGDOUBLE_STRLEN10];
-    int     len = swprintf(tempBuf,
-                           sizeof tempBuf / sizeof *tempBuf,
-                           L"%Lf", value);
+    wchar_t   tempBuf[e_STARTING_LONGDOUBLE_STRLEN10];
+    const int len = swprintf(tempBuf,
+                             sizeof tempBuf / sizeof *tempBuf,
+                             L"%Lf", value);
 
-    BSLS_ASSERT_SAFE(len < e_MAX_LONGDOUBLE_STRLEN10);
-    return wstring (tempBuf, len);
+    if (len < 0) {
+        bsl::wstring str(e_MAX_LONGDOUBLE_STRLEN10, 0);
+        // `data()` is required to return an array of `size() + 1`.
+        const int len2 = swprintf(str.data(), str.size() + 1, L"%Lf", value);
+        BSLS_ASSERT(len2 > 0);
+        str.resize(len2);
+        return str;                                                   // RETURN
+    }
+
+    BSLS_ASSERT_SAFE(len < e_STARTING_LONGDOUBLE_STRLEN10);
+    return bsl::wstring(tempBuf, len);
 }
 
 #if defined (BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY) && \

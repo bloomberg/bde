@@ -22705,7 +22705,9 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING `to_string` AND `to_wstring`"
                             "\n====================================\n");
 
-        static const size_t BUF_LEN = 384;
+        static const size_t BUF_LEN = sizeof(double) == sizeof(long double)
+                                          ? 384
+                                          : 4942;
         char    tempBuf[BUF_LEN];  // `char` buffer for largest number
         wchar_t wTempBuf[BUF_LEN]; // `wchar_t` buffer for largest number
 
@@ -22732,34 +22734,6 @@ int main(int argc, char *argv[])
             { L_, -9223372036854775807LL, false, false               }
         };
         enum { NUM_DATA = sizeof DATA / sizeof *DATA };
-
-        static const struct {
-            int         d_lineNum;
-            double      d_value;
-        } DOUBLE_DATA[] = {
-            //   value
-            {L_, 1.0},
-            {L_, 1.01},
-            {L_, 1.001},
-            {L_, 1.0101},
-            {L_, 1.01001},
-            {L_, 1.010101},
-            {L_, 1.01010101},
-            {L_, 1.0101019},
-            {L_, 3.1415926},
-            {L_, 5.156},
-            {L_, 24.0},
-            {L_, 24.1111111111111111111},
-            {L_, 12345.12345678},
-            {L_, 123456789.123456789},
-            {L_, 123456789012345.123456},
-            {L_, 1234567890123456789.123456789},
-            {L_, std::numeric_limits<float>::max()},
-            {L_, std::numeric_limits<float>::min()},
-            {L_, 1.79769e+308},
-            {L_,-1.79769e+308},
-        };
-        enum { NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA };
 
         if (verbose) printf("\nTesting `to_string` with integrals.\n");
 
@@ -22983,11 +22957,46 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) printf("\nTesting `to_string` with floating points.\n");
+        if (verbose) printf("\nTesting `to_string` with `float`, `double`.\n");
+
+        static const struct {
+            int    d_lineNum;
+            double d_value;
+        } DOUBLE_DATA[] = {
+            //   value
+            {L_, 0.0},
+            {L_, 1.0},
+            {L_, 1.01},
+            {L_, 1.001},
+            {L_, 1.0101},
+            {L_, 1.01001},
+            {L_, 1.010101},
+            {L_, 1.01010101},
+            {L_, 1.0101019},
+            {L_, 3.1415926},
+            {L_, 5.156},
+            {L_, 24.0},
+            {L_, 24.1111111111111111111},
+            {L_, 12345.12345678},
+            {L_, 123456789.123456789},
+            {L_, 123456789012345.123456},
+            {L_, 1234567890123456789.123456789},
+            {L_,  std::numeric_limits<float>::max()},
+            {L_,  std::numeric_limits<float>::min()},
+            {L_, -std::numeric_limits<float>::max()},
+            {L_, -std::numeric_limits<float>::min()},
+            {L_,  std::numeric_limits<double>::max()},
+            {L_,  std::numeric_limits<double>::min()},
+            {L_, -std::numeric_limits<double>::max()},
+            {L_, -std::numeric_limits<double>::min()},
+            {L_, 1.79769e+308},
+            {L_,-1.79769e+308},
+        };
+        enum { NUM_DOUBLE_DATA = sizeof DOUBLE_DATA / sizeof *DOUBLE_DATA };
 
         for (int ti = 0; ti < NUM_DOUBLE_DATA; ++ti){
-            const int                LINE  = DOUBLE_DATA[ti].d_lineNum;
-            const double             VALUE = DOUBLE_DATA[ti].d_value;
+            const int    LINE  = DOUBLE_DATA[ti].d_lineNum;
+            const double VALUE = DOUBLE_DATA[ti].d_value;
 
             if (veryVerbose){
                 printf("\tConverting ");P_(VALUE);
@@ -23006,7 +23015,8 @@ int main(int argc, char *argv[])
                          sizeof(tempBuf),
                          "%f",
                          static_cast<float>(VALUE));
-                bsl::string str = bsl::to_string(static_cast<float>(VALUE));
+                const bsl::string str =
+                                     bsl::to_string(static_cast<float>(VALUE));
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );
             }
 
@@ -23015,17 +23025,8 @@ int main(int argc, char *argv[])
                          sizeof(tempBuf),
                          "%f",
                          static_cast<double>(VALUE));
-                bsl::string str = bsl::to_string(static_cast<double>(VALUE));
-                ASSERTV(LINE, tempBuf, str, tempBuf == str );
-            }
-
-            if (VALUE <= std::numeric_limits<float>::max()){
-                snprintf(tempBuf,
-                         sizeof(tempBuf),
-                         "%Lf",
-                         static_cast<long double>(VALUE));
-                bsl::string str =
-                               bsl::to_string(static_cast<long double>(VALUE));
+                const bsl::string str =
+                                    bsl::to_string(static_cast<double>(VALUE));
                 ASSERTV(LINE, tempBuf, str, tempBuf == str );
             }
 
@@ -23039,7 +23040,7 @@ int main(int argc, char *argv[])
         ASSERT(0 == defaultAllocator.numMismatches());
         ASSERT(0 == defaultAllocator.numBlocksInUse());
 
-        if (verbose) printf("\nTesting `to_wstring` with floating points.\n");
+        if (verbose) puts("\nTesting `to_wstring` with `float`, `double`.");
 
         for (int ti = 0; ti < NUM_DOUBLE_DATA; ++ti){
             const int    LINE  = DOUBLE_DATA[ti].d_lineNum;
@@ -23062,7 +23063,8 @@ int main(int argc, char *argv[])
                          sizeof wTempBuf / sizeof *wTempBuf,
                          L"%f",
                          static_cast<float>(VALUE));
-                bsl::wstring wstr = bsl::to_wstring(static_cast<float>(VALUE));
+                const bsl::wstring wstr =
+                                    bsl::to_wstring(static_cast<float>(VALUE));
                 ASSERTV(LINE, wTempBuf, wstr, wTempBuf == wstr );
             }
 
@@ -23071,18 +23073,8 @@ int main(int argc, char *argv[])
                          sizeof wTempBuf / sizeof *wTempBuf,
                          L"%f",
                          static_cast<double>(VALUE));
-                bsl::wstring wstr =
+                const bsl::wstring wstr =
                                    bsl::to_wstring(static_cast<double>(VALUE));
-                ASSERTV(LINE, wTempBuf, wstr, wTempBuf == wstr );
-            }
-
-            if (VALUE <= std::numeric_limits<float>::max()){
-                swprintf(wTempBuf,
-                         sizeof wTempBuf / sizeof *wTempBuf,
-                         L"%Lf",
-                         static_cast<long double>(VALUE));
-                bsl::wstring wstr =
-                              bsl::to_wstring(static_cast<long double>(VALUE));
                 ASSERTV(LINE, wTempBuf, wstr, wTempBuf == wstr );
             }
 
@@ -23095,6 +23087,113 @@ int main(int argc, char *argv[])
         }
         ASSERT(0 == defaultAllocator.numMismatches());
         ASSERT(0 == defaultAllocator.numBlocksInUse());
+
+        if (verbose) printf("\nTesting `to_string` with `long double`.\n");
+
+        static const struct {
+            int         d_lineNum;
+            long double d_value;
+        } LDOUBLE_DATA[] = {
+            //   value
+            {L_, 0.0},
+            {L_, 1.0},
+            {L_, 1.01},
+            {L_, 1.001},
+            {L_, 1.0101},
+            {L_, 1.01001},
+            {L_, 1.010101},
+            {L_, 1.01010101},
+            {L_, 1.0101019},
+            {L_, 3.1415926},
+            {L_, 5.156},
+            {L_, 24.0},
+            {L_, 24.1111111111111111111},
+            {L_, 12345.12345678},
+            {L_, 123456789.123456789},
+            {L_, 123456789012345.123456},
+            {L_, 1234567890123456789.123456789},
+            {L_,  std::numeric_limits<float>::max()},
+            {L_, -std::numeric_limits<float>::max()},
+            {L_,  std::numeric_limits<float>::min()},
+            {L_, -std::numeric_limits<float>::min()},
+            {L_,  std::numeric_limits<double>::max()},
+            {L_, -std::numeric_limits<double>::max()},
+            {L_,  std::numeric_limits<double>::min()},
+            {L_, -std::numeric_limits<double>::min()},
+            {L_,  std::numeric_limits<long double>::max()},
+            {L_, -std::numeric_limits<long double>::max()},
+            {L_,  std::numeric_limits<long double>::min()},
+            {L_, -std::numeric_limits<long double>::min()},
+            {L_, 1.79769e+308},
+            {L_,-1.79769e+308},
+        };
+        enum { NUM_LDOUBLE_DATA = sizeof LDOUBLE_DATA / sizeof *LDOUBLE_DATA };
+
+        for (int ti = 0; ti < NUM_LDOUBLE_DATA; ++ti){
+            const int         LINE  = LDOUBLE_DATA[ti].d_lineNum;
+            const long double VALUE = LDOUBLE_DATA[ti].d_value;
+
+            if (veryVerbose){
+                printf("\tConverting ");P_(VALUE);
+                printf("to a `string`.\n");
+            }
+
+            const Int64 BB = defaultAllocator.numBlocksTotal();
+            const Int64  B = defaultAllocator.numBlocksInUse();
+
+            if (veryVerbose) {
+                printf("\t\tBefore: ");P_(BB);P(B);
+            }
+
+            snprintf(tempBuf, sizeof(tempBuf), "%Lf", VALUE);
+            const bsl::string str = bsl::to_string(VALUE);
+            ASSERTV(LINE, tempBuf, str, tempBuf == str );
+
+            const Int64 AA = defaultAllocator.numBlocksTotal();
+            const Int64  A = defaultAllocator.numBlocksInUse();
+
+            if (veryVerbose) {
+                printf("\t\tAfter: ");P_(AA);P(A);
+            }
+        }
+        ASSERT(0 == defaultAllocator.numMismatches());
+        ASSERT(0 == defaultAllocator.numBlocksInUse());
+
+        if (verbose) printf("\nTesting `to_wstring` with `long double`.\n");
+
+        for (int ti = 0; ti < NUM_LDOUBLE_DATA; ++ti){
+            const int         LINE  = LDOUBLE_DATA[ti].d_lineNum;
+            const long double VALUE = LDOUBLE_DATA[ti].d_value;
+
+            if (veryVerbose) {
+                printf("\tConverting ");P_(VALUE);
+                printf("to a `wstring`.\n");
+            }
+
+            const Int64 BB = defaultAllocator.numBlocksTotal();
+            const Int64  B = defaultAllocator.numBlocksInUse();
+
+            if (veryVerbose) {
+                printf("\t\tBefore: ");P_(BB);P(B);
+            }
+
+            swprintf(wTempBuf,
+                     sizeof wTempBuf / sizeof *wTempBuf,
+                     L"%Lf",
+                     VALUE);
+            const bsl::wstring wstr = bsl::to_wstring(VALUE);
+            ASSERTV(LINE, wTempBuf, wstr, wTempBuf == wstr );
+
+            const Int64 AA = defaultAllocator.numBlocksTotal();
+            const Int64  A = defaultAllocator.numBlocksInUse();
+
+            if (veryVerbose) {
+                printf("\t\tAfter: ");P_(AA);P(A);
+            }
+        }
+        ASSERT(0 == defaultAllocator.numMismatches());
+        ASSERT(0 == defaultAllocator.numBlocksInUse());
+
       } break;
       case 31: {
         // --------------------------------------------------------------------

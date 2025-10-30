@@ -3907,10 +3907,12 @@ erase_if(basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& str,
          const UNARY_PREDICATE&                           pred);
 
 /// This `enum` give upper bounds on the maximum string lengths storing each
-/// scalar numerical type.  It is safe to use stack-allocated buffers of
-/// these sizes for generating decimal representations of the corresponding
-/// type, including sign and terminating null character, using the default
-/// precision of 6 significant digits for floating point types.
+/// scalar numerical type, and the starting value for `long double` that can
+/// get way too long for stack storage when printed.  It is safe to use
+/// stack-allocated buffers of these sizes for generating decimal
+/// representations of the corresponding type, including sign and terminating
+/// null character, using the default precision of 6 significant digits for
+/// floating point types.
 enum MaxDecimalStringLengths{
 
     e_MAX_SHORT_STRLEN10      = 2 + sizeof(short) * 3,
@@ -3918,8 +3920,12 @@ enum MaxDecimalStringLengths{
     e_MAX_INT64_STRLEN10      = 26,
     e_MAX_FLOAT_STRLEN10      = 48,
     e_MAX_DOUBLE_STRLEN10     = 318,
-    e_MAX_LONGDOUBLE_STRLEN10 = 318,
-    e_MAX_SCALAR_STRLEN10     = e_MAX_INT64_STRLEN10
+    e_MAX_LONGDOUBLE_STRLEN10 = 4942,
+    e_MAX_SCALAR_STRLEN10     = e_MAX_INT64_STRLEN10,
+
+    e_STARTING_LONGDOUBLE_STRLEN10 = 318  // Try to print into this with
+                                          // `snprintf`, if too long print into
+                                          // a dynamically allocated buffer.
 };
 
 // HASH SPECIALIZATIONS
