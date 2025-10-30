@@ -1,4 +1,6 @@
 // bslma_stdallocator.h                                               -*-C++-*-
+#ifndef INCLUDED_BSLMA_STDALLOCATOR
+#define INCLUDED_BSLMA_STDALLOCATOR
 
 //@PURPOSE: Provide an STL-compatible proxy for `bslma::Allocator` objects.
 //
@@ -17,6 +19,8 @@
 // documentation for more information.
 
 #include <bslma_bslallocator.h>
+
+#endif // INCLUDED_BSLMA_STDALLOCATOR
 
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
