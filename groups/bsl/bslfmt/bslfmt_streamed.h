@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // compatible with `std::format` on platforms where it is provided.
 //
 //```
-// bsl::format("Example: {}", bslfmt::streamed(ATypeWithoutAFormatter(42));
+// bsl::format("Example: {}", bslfmt::streamed(ATypeWithoutAFormatter(42)));
 //```
 //
 // Using the `bslfmt::streamed` free function may be preferred to using the
