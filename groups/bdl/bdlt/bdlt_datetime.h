@@ -1125,20 +1125,6 @@ bsls::Types::Uint64 Datetime::updatedRepresentation() const
          | k_REP_MASK;
 }
 
-inline
-bool Datetime::validateAndTraceLogRepresentation() const
-{
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(k_REP_MASK <= d_value)) {
-        return true;                                                  // RETURN
-    }
-    BSLS_ASSERT_SAFE(
-                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
-    BSLS_REVIEW_INVOKE(
-                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
-
-    return false;
-}
-
 // CLASS METHODS
 inline
 bool Datetime::isValid(int year,
