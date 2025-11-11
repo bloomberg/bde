@@ -20,6 +20,7 @@
 #include <bsl_iostream.h>
 #include <bsl_string.h>
 #include <bsl_vector.h>
+#include <bsl_deque.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -359,24 +360,25 @@ typedef bslmt::Semaphore Semaphore;
 // Test Case 7: Multiple-threads, 2-qlocks
 //
 // Concerns:
-//   Verify that each thread obtains the lock in the order in
-//   which it requested it.
+//   Verify that two independent qlocks can be acquired by the same
+//   thread at different points in time
 //
 // Plan:
-//   The two qlocks are completely independent.  A thread locking one QLock
-//   does not wait for a thread that holds the lock to the other.  Two context
-//   structures, each with a QLock, a few threads on each context.  In the
-//   critical region, each thread sets a flag in its context, reads the other
-//   context's flag, sleeps briefly, clears its flag, exits the critical
-//   region, and loops.  When every thread's flag has been represented in the
-//   other context structure, all threads exit.  An error is reported if the
-//   maximum loop count is reached.
+//   The two qlocks are completely independent. This test
+//   only succeeds if each thread holding a QLock(1) notices that all the other
+//   threads(including itself) held the other QLock(2) at some point in time.
+//   This proves that each thread held both QLock(1) and QLock(2) at different
+//   points in time
 // ----------------------------------------------------------------------------
 
 struct ContextCase7 {
     bslmt::QLock     *d_qlock;
     bsls::AtomicInt   d_owner;
-    bsl::vector<int> d_slots;
+    // Using any memory order other than relaxed for loads and stores of d_slots
+    // would prevent accurate testing of QLock as it would interfere with
+    // verification of acquire-release semantics of qlock by introducing
+    // additional synchronization
+    bsl::deque<bsls::AtomicInt> d_slots;
 };
 
 struct DataCase7 {
@@ -411,7 +413,7 @@ void *testCase7(int threadNum, const MyTask& task)
         if (otherOwner != -1) {
             ASSERT(otherOwner <
                           static_cast<int>(data->d_myContext->d_slots.size()));
-            data->d_myContext->d_slots[otherOwner] = otherOwner;
+            data->d_myContext->d_slots[otherOwner].storeRelaxed(otherOwner);
         }
 
         // lets threads of other context to see me
@@ -419,10 +421,10 @@ void *testCase7(int threadNum, const MyTask& task)
 
         // exit flag is OK if this thread has been seen in other context and we
         // have seen all threads in other context
-        flgExit = (data->d_otherContext->d_slots[threadNum-1] != -1);
+        flgExit = (data->d_otherContext->d_slots[threadNum-1].loadRelaxed() != -1);
 
         for (bsl::size_t i=0;  i < data->d_myContext->d_slots.size(); ++i) {
-            if (data->d_myContext->d_slots[i] == -1) {
+            if (data->d_myContext->d_slots[i].loadRelaxed() == -1) {
                 flgExit = false;
                 break;
             }
@@ -1083,11 +1085,12 @@ int main(int argc, char *argv[])
             ASSERT(context1.d_owner == -1);
             ASSERT(context2.d_owner == -1);
 
-            context1.d_slots.assign(i, -1);
-            ASSERT(static_cast<int>(context1.d_slots.size()) == i);
-
-            context2.d_slots.assign(i, -1);
-            ASSERT(static_cast<int>(context2.d_slots.size()) == i);
+            context1.d_slots.resize(i);
+            context2.d_slots.resize(i);
+            for (int slotIndex = 0; slotIndex < i; ++slotIndex) {
+                context1.d_slots[slotIndex].storeRelaxed(-1);
+                context2.d_slots[slotIndex].storeRelaxed(-1);
+            }
 
             ASSERT(0 == task71.start(i));
             ASSERT(0 == task72.start(i));
@@ -1096,8 +1099,8 @@ int main(int argc, char *argv[])
             ASSERT(0 == task72.stop());
 
             for (int j=0; j < i; ++j) {
-                ASSERT(context1.d_slots[j] != -1);
-                ASSERT(context2.d_slots[j] != -1);
+                ASSERT(context1.d_slots[j].loadRelaxed() != -1);
+                ASSERT(context2.d_slots[j].loadRelaxed() != -1);
             }
 
             bslmt::QLockGuard guard1(&qlock1, false);
