@@ -1698,15 +1698,15 @@ int main(int argc, char *argv[])
                 const bool res_v = bsl::is_pointer_interconvertible_base_of_v
                                                             < Bar, Baz>;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1943
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1944
                 // Known Windows bug.   Hopefully fixed in future release.
 
                 const bool expected = false;
-#else   // MSVC up to 19.42
+#else   // MSVC up to 19.43
                 const bool expected = true;
-#endif  // Not MSVC or later than 19.42
-                ASSERT(expected == res);
-                ASSERT(expected == res_v);
+#endif  // Not MSVC or later than 19.43
+                ASSERTV(expected, res,   expected == res);
+                ASSERTV(expected, res_v, expected == res_v);
             }
             {
                 struct Foo { int x; };
