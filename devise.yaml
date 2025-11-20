@@ -1,0 +1,15 @@
+verify:
+  berg: {}
+  context:
+    dpkg-distribution: unstable
+  cmake:
+    archs:
+    - linux
+    - sundev1
+    bitness:
+    - 64
+    build_type: RelWithDebInfo
+    coverage: false
+    ctest_args: ''
+    jobs: 8
+    sanitizers: []

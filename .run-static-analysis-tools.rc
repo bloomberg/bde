@@ -1,0 +1,3 @@
+--tool bde-tidy
+--tool clang-tidy
+--tool bde-format
