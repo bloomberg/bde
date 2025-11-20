@@ -228,6 +228,7 @@ using namespace BloombergLP;
 // defined in `bslstl`.
 //
 //-----------------------------------------------------------------------------
+// [44] CONCERN: `bsl::hash<std::thread::id>` is provided.
 // [43] CONCERN: `bsl::aligned_storage` allows deduction.
 // [42] BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
 // [42] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
@@ -967,6 +968,40 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 44: {
+        // --------------------------------------------------------------------
+        // `bsl::hash<std::thread::id>`
+        //
+        // Concerns:
+        // 1. Including `<bsl_thread.h>` provides access to
+        //    `bsl::hash<std::thread::id>`, which is enabled and meets the
+        //    requirements of the Standard.
+        //
+        // Plan:
+        // 1. Create an object of type `const bsl::hash<std::thread::id>` and
+        //    use it to hash a `std::thread::id` value.  Verify that the
+        //    resulting value is of type `std::size_t`, then hash the same
+        //    `std::thread::id` a second time and verify that the same hash
+        //    value is produced.  Also verify that the hash function object is
+        //    copyable.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: `bsl::hash<std::thread::id>` is provided.
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\n`bsl::hash<std::thread::id>`"
+                          "\n============================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        const bsl::hash<std::thread::id> hasher;
+
+        std::thread::id id = std::this_thread::get_id();
+
+        ASSERT((std::is_same<std::size_t, decltype(hasher(id))>::value));
+        ASSERT(hasher(id) == hasher(id));
+        ASSERT(std::is_copy_constructible<bsl::hash<std::thread::id>>::value);
+#endif
+      } break;
       case 43: {
         // --------------------------------------------------------------------
         // `bsl::aligned_storage` DEDUCTION

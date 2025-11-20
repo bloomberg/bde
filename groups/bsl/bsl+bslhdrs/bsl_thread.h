@@ -19,6 +19,12 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+// `<thread>` provides `std::hash<std::thread::id>`, so we must provide
+// `bsl::hash<std::thread::id>` (even if `<bsl_functional.h>` has not been
+// included).  And we might as well include `<bslstl_hash.h>` in all language
+// versions to avoid surprises when upgrading.
+#include <bslstl_hash.h>
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 #include <thread>
 namespace bsl {
@@ -31,6 +37,9 @@ namespace bsl {
         using std::this_thread::sleep_for;
     }  // close namespace this_thread
     using std::thread;
+
+    template <>
+    struct hash<std::thread::id> : std::hash<std::thread::id> { };
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD
     using std::jthread;

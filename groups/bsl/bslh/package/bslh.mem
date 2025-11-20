@@ -5,6 +5,7 @@ bslh_filesystem
 bslh_hash
 bslh_hashoptional
 bslh_hashpair
+bslh_hashthreadid
 bslh_hashtuple
 bslh_hashvariant
 bslh_seededhash
