@@ -52,7 +52,7 @@ BSLS_IDENT("$Id: $")
 // effects because it may or may not be executed based on run-time
 // configuration of the `ball` logging subsystem:
 //```
-// BALL_FMT_INFO << ++i;    // (!) May or may not be incremented
+// BALL_FMT_INFO("Count: {}", ++i);    // (!) May or may not be incremented
 //```
 // The following `BALL_FMT_*` macros, are the simplest mechanisms to format
 // (using a standard `format` specification) a single message to a log:
