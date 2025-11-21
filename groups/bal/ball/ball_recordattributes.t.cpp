@@ -594,23 +594,25 @@ int main(int argc, char *argv[])
         if (verbose) cout << endl << "Initialization Constructor Test" << endl
                                   << "===============================" << endl;
 
-        const char           *DEFAULT_CATEGORY   = "";
-        const char           *DEFAULT_FILENAME   = "";
-        const int             DEFAULT_LINENUMBER = 0;
-        const char           *DEFAULT_MESSAGE    = "";
-        const int             DEFAULT_PROCESSID  = 0;
-        const int             DEFAULT_SEVERITY   = 0;
-        const int             DEFAULT_THREADID   = 0;
+        const char           *DEFAULT_CATEGORY       = "";
+        const char           *DEFAULT_FILENAME       = "";
+        const int             DEFAULT_LINENUMBER     = 0;
+        const char           *DEFAULT_MESSAGE        = "";
+        const int             DEFAULT_PROCESSID      = 0;
+        const int             DEFAULT_SEVERITY       = 0;
+        const int             DEFAULT_THREADID       = 0;
+        const int             DEFAULT_KERNELTHREADID = 0;
         const bdlt::Datetime  DEFAULT_TIMESTAMP;
 
-        const char     *OTHER_CATEGORY   = "category";
-        const char     *OTHER_FILENAME   = "filename.cpp";
-        const int       OTHER_LINENUMBER = L_;
-        const char     *OTHER_MESSAGE    = "message";
-        const int       OTHER_PROCESSID  = 13248;
-        const int       OTHER_SEVERITY   = 128;
-        const int       OTHER_THREADID   = 19;
-        bdlt::Datetime  OTHER_TIMESTAMP  =
+        const char     *OTHER_CATEGORY       = "category";
+        const char     *OTHER_FILENAME       = "filename.cpp";
+        const int       OTHER_LINENUMBER     = L_;
+        const char     *OTHER_MESSAGE        = "message";
+        const int       OTHER_PROCESSID      = 13248;
+        const int       OTHER_SEVERITY       = 128;
+        const int       OTHER_THREADID       = 19;
+        const int       OTHER_KERNELTHREADID = 23;
+        bdlt::Datetime  OTHER_TIMESTAMP =
                             bdlt::EpochUtil::convertFromTimeT(time(0));  // now
 
         {
@@ -619,6 +621,7 @@ int main(int argc, char *argv[])
             Obj mY(DEFAULT_TIMESTAMP,
                    DEFAULT_PROCESSID,
                    DEFAULT_THREADID,
+                   DEFAULT_KERNELTHREADID,
                    DEFAULT_FILENAME,
                    DEFAULT_LINENUMBER,
                    DEFAULT_CATEGORY,
@@ -640,11 +643,13 @@ int main(int argc, char *argv[])
             mX.setProcessID(OTHER_PROCESSID);
             mX.setSeverity(OTHER_SEVERITY);
             mX.setThreadID(OTHER_THREADID);
+            mX.setKernelThreadID(OTHER_KERNELTHREADID);
             mX.setTimestamp(OTHER_TIMESTAMP);
 
             Obj mY(OTHER_TIMESTAMP,
                    OTHER_PROCESSID,
                    OTHER_THREADID,
+                   OTHER_KERNELTHREADID,
                    OTHER_FILENAME,
                    OTHER_LINENUMBER,
                    OTHER_CATEGORY,
@@ -667,6 +672,7 @@ int main(int argc, char *argv[])
               Obj(DEFAULT_TIMESTAMP,
                   DEFAULT_PROCESSID,
                   DEFAULT_THREADID,
+                  DEFAULT_KERNELTHREADID,
                   "a_string_long_enough_to_trigger_allocation",
                   DEFAULT_LINENUMBER,
                   "a_string_long_enough_to_trigger_allocation",
@@ -1214,11 +1220,13 @@ int main(int argc, char *argv[])
             mX.setProcessID(74372);
             mX.setSeverity(128);
             mX.setThreadID(19);
+            mX.setKernelThreadID(21);
 
             o << X << ends;
             bsl::string s = "[ 01JAN0001_24:00:00.000 "
                             "74372 "
                             "19 "
+                            "21 "
                             "ball_recordattributes.t.cpp "
                             "1066 "
                             "category "
@@ -1246,6 +1254,7 @@ int main(int argc, char *argv[])
                 { L_,    0,         -1,         "[ 01JAN0001_24:00:00.000 "
                                                 "74372 "
                                                 "19 "
+                                                "21 "
                                                 "ball_recordattributes.t.cpp "
                                                 "1066 "
                                                 "category "
@@ -1258,6 +1267,7 @@ int main(int argc, char *argv[])
                                                "01JAN0001_24:00:00.000"      NL
                                                "74372"                       NL
                                                "19"                          NL
+                                               "21"                          NL
                                                "ball_recordattributes.t.cpp" NL
                                                "1066"                        NL
                                                "category"                    NL
@@ -1270,6 +1280,7 @@ int main(int argc, char *argv[])
                                              "  01JAN0001_24:00:00.000"      NL
                                              "  74372"                       NL
                                              "  19"                          NL
+                                             "  21"                          NL
                                              "  ball_recordattributes.t.cpp" NL
                                              "  1066"                        NL
                                              "  category"                    NL
@@ -1282,6 +1293,7 @@ int main(int argc, char *argv[])
                                              "  01JAN0001_24:00:00.000"      NL
                                              "  74372"                       NL
                                              "  19"                          NL
+                                             "  21"                          NL
                                              "  ball_recordattributes.t.cpp" NL
                                              "  1066"                        NL
                                              "  category"                    NL
@@ -1294,6 +1306,7 @@ int main(int argc, char *argv[])
                                            "    01JAN0001_24:00:00.000"      NL
                                            "    74372"                       NL
                                            "    19"                          NL
+                                           "    21"                          NL
                                            "    ball_recordattributes.t.cpp" NL
                                            "    1066"                        NL
                                            "    category"                    NL
@@ -1306,6 +1319,7 @@ int main(int argc, char *argv[])
                                            "    01JAN0001_24:00:00.000"      NL
                                            "    74372"                       NL
                                            "    19"                          NL
+                                           "    21"                          NL
                                            "    ball_recordattributes.t.cpp" NL
                                            "    1066"                        NL
                                            "    category"                    NL
@@ -1318,6 +1332,7 @@ int main(int argc, char *argv[])
                                             "   01JAN0001_24:00:00.000"      NL
                                             "   74372"                       NL
                                             "   19"                          NL
+                                            "   21"                          NL
                                             "   ball_recordattributes.t.cpp" NL
                                             "   1066"                        NL
                                             "   category"                    NL
@@ -1330,6 +1345,7 @@ int main(int argc, char *argv[])
                                            "   01JAN0001_24:00:00.000"       NL
                                            "   74372"                        NL
                                            "   19"                           NL
+                                           "   21"                           NL
                                            "   ball_recordattributes.t.cpp"  NL
                                            "   1066"                         NL
                                            "   category"                     NL
@@ -1342,6 +1358,7 @@ int main(int argc, char *argv[])
                                          "      01JAN0001_24:00:00.000"      NL
                                          "      74372"                       NL
                                          "      19"                          NL
+                                         "      21"                          NL
                                          "      ball_recordattributes.t.cpp" NL
                                          "      1066"                        NL
                                          "      category"                    NL
@@ -1371,6 +1388,7 @@ int main(int argc, char *argv[])
             mX.setProcessID(74372);
             mX.setSeverity(128);
             mX.setThreadID(19);
+            mX.setKernelThreadID(21);
 
             for (int ti = 0; ti < NUM_DATA;  ++ti) {
                 const int         IND  = DATA[ti].d_indent;
@@ -1632,17 +1650,19 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             cout << "\n 7. Create a third object x3 (explicit ctor)." << endl;
 
-        const char *CATEGORY   = "Bonds";
-        const char *FILENAME   = "bondmarket.cpp";
-        const int   LINENUMBER = L_;
-        const char *MESSAGE    = "Bond market is closed.";
-        const int   PROCESSID  = 234178;
-        const int   SEVERITY   = 128;
-        const int   THREADID   = 15;
+        const char *CATEGORY       = "Bonds";
+        const char *FILENAME       = "bondmarket.cpp";
+        const int   LINENUMBER     = L_;
+        const char *MESSAGE        = "Bond market is closed.";
+        const int   PROCESSID      = 234178;
+        const int   SEVERITY       = 128;
+        const int   THREADID       = 15;
+        const int   KERNELTHREADID = 19;
 
         Obj mX3(TIMESTAMP,
                 PROCESSID,
                 THREADID,
+                KERNELTHREADID,
                 FILENAME,
                 LINENUMBER,
                 CATEGORY,
@@ -1656,12 +1676,13 @@ int main(int argc, char *argv[])
 
         ASSERT(0 == strcmp(X3.category(), CATEGORY));
         ASSERT(0 == strcmp(X3.fileName(), FILENAME));
-        ASSERT(0 == strcmp(X3.message(),  MESSAGE));
+        ASSERT(0 == strcmp(X3.message(), MESSAGE));
         ASSERT(X3.lineNumber() == LINENUMBER);
-        ASSERT(X3.processID()  == PROCESSID);
-        ASSERT(X3.threadID()   == THREADID);
-        ASSERT(X3.timestamp()  == TIMESTAMP);
-        ASSERT(X3.severity()   == SEVERITY);
+        ASSERT(X3.processID() == PROCESSID);
+        ASSERT(X3.threadID() == THREADID);
+        ASSERT(X3.kernelThreadID() == KERNELTHREADID);
+        ASSERT(X3.timestamp() == TIMESTAMP);
+        ASSERT(X3.severity() == SEVERITY);
 
         if (veryVerbose) cout << "\tb. Try equality operators -- x3 <op> x3."
                               << endl;

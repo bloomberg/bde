@@ -1392,11 +1392,13 @@ void createKeyTestDestructor5(void *);
 
 namespace BSLMT_THREADUTIL_CREATEKEY_TEST5 {
 
-Obj::Id childId;
-Obj::Key parentKey;
-Obj::Key childKey1;
-Obj::Key childKey2;
-int terminated = 0;
+Obj::Id             childId;
+bsls::Types::Uint64 childTid;
+bsls::Types::Uint64 childKTid;
+Obj::Key            parentKey;
+Obj::Key            childKey1;
+Obj::Key            childKey2;
+int                 terminated = 0;
 
 struct CreateKeyTestFunctor {
     bool d_doDestructor;    // do the destructor if and only if this is `true`
@@ -1416,6 +1418,8 @@ void CreateKeyTestFunctor::operator()() const
     const IntPtr one = 1, zero = 0;
 
     TC::childId = Obj::selfId();
+    TC::childTid = Obj::selfIdAsUint64();
+    TC::childKTid = Obj::selfKernelIdAsUint64();
 
     int rc = Obj::createKey(&TC::childKey1,
                             d_doDestructor ? &createKeyTestDestructor5 : 0);
@@ -1454,6 +1458,8 @@ void createKeyTestDestructor5(void *data)
     namespace TC = BSLMT_THREADUTIL_CREATEKEY_TEST5;
 
     ASSERT(Obj::selfId() == TC::childId);
+    ASSERT(Obj::selfIdAsUint64() == TC::childTid);
+    ASSERT(Obj::selfKernelIdAsUint64() == TC::childKTid);
 
     if (TC::terminated < 2)  {
         ASSERT((void *) 1 == data);
@@ -2926,6 +2932,8 @@ int main(int argc, char *argv[])
 
         ASSERT(parentKey != TC::childKey1);
         ASSERT(Obj::selfId() != TC::childId);
+        ASSERT(Obj::selfIdAsUint64() != TC::childTid);
+        ASSERT(Obj::selfKernelIdAsUint64() != TC::childKTid);
 
         ASSERT((void *) 2 == Obj::getSpecific(parentKey));
         ASSERT(0 == Obj::getSpecific(TC::childKey1));
@@ -2933,6 +2941,8 @@ int main(int argc, char *argv[])
         TC::terminated = 0;
         TC::childKey1 = parentKey;
         TC::childId = Obj::selfId();
+        TC::childTid = Obj::selfIdAsUint64();
+        TC::childKTid = Obj::selfKernelIdAsUint64();
 
         bslmt::ThreadUtil::create(&handle, TC::CreateKeyTestFunctor(false));
         bslmt::ThreadUtil::join(handle);
@@ -2940,6 +2950,8 @@ int main(int argc, char *argv[])
         ASSERT(0 == TC::terminated);
         ASSERT(parentKey != TC::childKey1);
         ASSERT(Obj::selfId() != TC::childId);
+        ASSERT(Obj::selfIdAsUint64() != TC::childTid);
+        ASSERT(Obj::selfKernelIdAsUint64() != TC::childKTid);
 
         ASSERT((void *) 2 == Obj::getSpecific(parentKey));
         ASSERT(0 == Obj::getSpecific(TC::childKey1));

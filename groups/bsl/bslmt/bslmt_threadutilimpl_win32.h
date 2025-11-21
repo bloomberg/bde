@@ -291,12 +291,17 @@ struct ThreadUtilImpl<Platform::Win32Threads> {
     /// DEPRECATED: Use `selfIdAsUint64` instead.
     static bsls::Types::Uint64 selfIdAsInt();
 
-    /// Return an integral identifier that can be used to uniquely identify
-    /// the current thread within the current process.  This representation
-    /// is particularly useful for logging purposes.  Note that this value
-    /// is only valid until the thread terminates and may be reused
-    /// thereafter.
+    /// Return an integral identifier that can be used to uniquely identify the
+    /// current thread within the current process.  This representation is
+    /// particularly useful for logging purposes.  Note that this value is only
+    /// valid until the thread terminates and may be reused thereafter.
     static bsls::Types::Uint64 selfIdAsUint64();
+
+    /// Return an integral identifier of the current thread used by the
+    /// operating system.  Note that this value is only valid until the thread
+    /// terminates and may be reused thereafter.  Also note that this method on
+    /// Windows returns the same value as `selfIdAsUint64`.
+    static bsls::Types::Uint64 selfKernelIdAsUint64();
 
     /// Return the unique identifier of the thread having the specified
     /// `threadHandle` within the current process.  Note that this value is
@@ -455,6 +460,13 @@ bsls::Types::Uint64
 ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
+}
+
+inline
+bsls::Types::Uint64
+ThreadUtilImpl<bslmt::Platform::Win32Threads>::selfKernelIdAsUint64()
+{
+    return selfIdAsUint64();
 }
 
 inline

@@ -695,7 +695,14 @@ struct ThreadUtil {
     /// may be reused thereafter.
     static bsls::Types::Uint64 selfIdAsUint64();
 
-
+    /// Return an integral identifier that can be used to uniquely identify the
+    /// kernel thread within the current process.  Note that this identifier
+    /// may be different from the identifier returned by `selfIdAsUint64()`.
+    /// Also note that this value is valid only until the thread terminates,
+    /// and may be reused thereafter.  Also note that this method returns the
+    /// kernel thread id only on the operating systems which implement that (on
+    /// Windows, the thread ids returned by both methods are the same).
+    static bsls::Types::Uint64 selfKernelIdAsUint64();
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***
 
@@ -1048,6 +1055,12 @@ inline
 bsls::Types::Uint64 ThreadUtil::selfIdAsUint64()
 {
     return Imp::selfIdAsUint64();
+}
+
+inline
+bsls::Types::Uint64 ThreadUtil::selfKernelIdAsUint64()
+{
+    return Imp::selfKernelIdAsUint64();
 }
 
             // *** Thread-Specific (Local) Storage (TSS or TLS) ***

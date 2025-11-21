@@ -25,6 +25,7 @@ RecordAttributes::RecordAttributes(bslma::Allocator *basicAllocator)
 : d_timestamp()
 , d_processID(0)
 , d_threadID(0)
+, d_kernelThreadID(0)
 , d_fileName(basicAllocator)
 , d_lineNumber(0)
 , d_category(basicAllocator)
@@ -46,6 +47,31 @@ RecordAttributes::RecordAttributes(const bdlt::Datetime&    timestamp,
 : d_timestamp(timestamp)
 , d_processID(processID)
 , d_threadID(threadID)
+, d_kernelThreadID(0)
+, d_fileName(fileName, basicAllocator)
+, d_lineNumber(lineNumber)
+, d_category(category, basicAllocator)
+, d_severity(severity)
+, d_messageStreamBuf(basicAllocator)
+, d_messageStream(&d_messageStreamBuf)
+{
+    setMessage(message);
+}
+
+RecordAttributes::RecordAttributes(const bdlt::Datetime&    timestamp,
+                                   int                      processID,
+                                   bsls::Types::Uint64      threadID,
+                                   bsls::Types::Uint64      kernelThreadID,
+                                   const bsl::string_view&  fileName,
+                                   int                      lineNumber,
+                                   const bsl::string_view&  category,
+                                   int                      severity,
+                                   const bsl::string_view&  message,
+                                   bslma::Allocator        *basicAllocator)
+: d_timestamp(timestamp)
+, d_processID(processID)
+, d_threadID(threadID)
+, d_kernelThreadID(kernelThreadID)
 , d_fileName(fileName, basicAllocator)
 , d_lineNumber(lineNumber)
 , d_category(category, basicAllocator)
@@ -61,6 +87,7 @@ RecordAttributes::RecordAttributes(const RecordAttributes&  original,
 : d_timestamp(original.d_timestamp)
 , d_processID(original.d_processID)
 , d_threadID(original.d_threadID)
+, d_kernelThreadID(original.d_kernelThreadID)
 , d_fileName(original.d_fileName, basicAllocator)
 , d_lineNumber(original.d_lineNumber)
 , d_category(original.d_category, basicAllocator)
@@ -84,13 +111,14 @@ void RecordAttributes::setMessage(const bsl::string_view& message)
 RecordAttributes& RecordAttributes::operator=(const RecordAttributes& rhs)
 {
     if (this != &rhs) {
-        d_timestamp  = rhs.d_timestamp;
-        d_processID  = rhs.d_processID;
-        d_threadID   = rhs.d_threadID;
-        d_fileName   = rhs.d_fileName;
-        d_lineNumber = rhs.d_lineNumber;
-        d_category   = rhs.d_category;
-        d_severity   = rhs.d_severity;
+        d_timestamp      = rhs.d_timestamp;
+        d_processID      = rhs.d_processID;
+        d_threadID       = rhs.d_threadID;
+        d_kernelThreadID = rhs.d_kernelThreadID;
+        d_fileName       = rhs.d_fileName;
+        d_lineNumber     = rhs.d_lineNumber;
+        d_category       = rhs.d_category;
+        d_severity       = rhs.d_severity;
         d_messageStreamBuf.pubseekpos(0);
         d_messageStreamBuf.sputn(rhs.d_messageStreamBuf.data(),
                                  rhs.d_messageStreamBuf.length());
@@ -197,6 +225,15 @@ bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
     else {
         stream << ' ';
     }
+    stream << d_kernelThreadID;
+
+    if (0 <= spacesPerLevel) {
+        stream << '\n';
+        bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
+    }
+    else {
+        stream << ' ';
+    }
     stream << d_fileName;
 
     if (0 <= spacesPerLevel) {
@@ -253,14 +290,15 @@ bsl::ostream& RecordAttributes::print(bsl::ostream& stream,
 // FREE OPERATORS
 bool ball::operator==(const RecordAttributes& lhs, const RecordAttributes& rhs)
 {
-    return lhs.d_timestamp  == rhs.d_timestamp
-        && lhs.d_processID  == rhs.d_processID
-        && lhs.d_threadID   == rhs.d_threadID
-        && lhs.d_severity   == rhs.d_severity
-        && lhs.d_lineNumber == rhs.d_lineNumber
-        && lhs.d_fileName   == rhs.d_fileName
-        && lhs.d_category   == rhs.d_category
-        && lhs.messageRef() == rhs.messageRef();
+    return lhs.d_timestamp == rhs.d_timestamp &&
+           lhs.d_processID == rhs.d_processID &&
+           lhs.d_threadID == rhs.d_threadID &&
+           lhs.d_kernelThreadID == rhs.d_kernelThreadID &&
+           lhs.d_severity == rhs.d_severity &&
+           lhs.d_lineNumber == rhs.d_lineNumber &&
+           lhs.d_fileName == rhs.d_fileName &&
+           lhs.d_category == rhs.d_category &&
+           lhs.messageRef() == rhs.messageRef();
 }
 
 }  // close enterprise namespace

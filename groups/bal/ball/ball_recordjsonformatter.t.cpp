@@ -171,7 +171,6 @@ struct DefaultDataRow{
     bsl::string_view d_recordSeparator;
 };
 
-
 static const  DefaultDataRow DEFAULT_DATA[] = {
     //-------------------------------------------------------------------------
     // LINE                          SPEC                          RSEP
@@ -190,6 +189,9 @@ static const  DefaultDataRow DEFAULT_DATA[] = {
     {  L_,   "[\"tid\"]",                                          k_NULL_SV },
     {  L_,   "[{\"tid\":{\"name\":\"My tid\"}}]",                  "\n"      },
     {  L_,   "[{\"tid\":{\"format\":\"decimal\"}}]",               ""        },
+    {  L_,   "[\"ktid\"]",                                         k_NULL_SV },
+    {  L_,   "[{\"ktid\":{\"name\":\"Kernel tid\"}}]",             "\n"      },
+    {  L_,   "[{\"ktid\":{\"format\":\"decimal\"}}]",              ""        },
     {  L_,   "[\"file\"]",                                         " "       },
     {  L_,   "[{\"file\":{\"name\":\"My file\"}}]",                "\r\n"    },
     {  L_,   "[{\"file\":{\"path\":\"full\"}}]",                   k_NULL_SV },
@@ -1536,6 +1538,69 @@ int main(int argc, char *argv[])
                 RA                 fields(&scratch);
 
                 fields.setThreadID(TID);
+                fields.setKernelThreadID(TID+20);
+
+                X(oss, Rec(fields, UF(&scratch)));
+
+                if (veryVeryVerbose) P(oss.str().c_str());
+
+                ASSERTV(LINE, oss.str().c_str(), EXPECTED,
+                              oss.str() ==       EXPECTED);
+
+                ASSERTV(dam.isInUseSame());
+            }
+            // Verify all memory is released.
+            ASSERTV(0 == sa.numBlocksInUse());
+            ASSERTV(0 == scratch.numBlocksInUse());
+        }
+
+        if (verbose)
+            bsl::cout << "\nKERNEL THREAD ID TEST"
+                      << "\n=====================" << bsl::endl;
+
+        {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
+
+            static const struct {
+                int         d_line;
+                const char *d_spec;
+                const int   d_ktid;
+                const char *d_expected;
+            } DATA[] = {
+              //---------------------------------------------------------------
+              // LINE SPEC                          KTID  EXPECTED
+              {  L_,  "[\"ktid\"]",                 43,   "{\"ktid\":43}"    },
+              {  L_,  "[{\"ktid\":{}}]",            35,   "{\"ktid\":35}"    },
+              {  L_,  "[{\"ktid\":"
+                      "{\"name\":\"My ktid\"}}]",   81,   "{\"My ktid\":81}" },
+              {  L_,  "[{\"ktid\":"
+                      "{\"format\":\"decimal\"}}]", 40,   "{\"ktid\":40}"    },
+              {  L_,  "[{\"ktid\":"
+                      "{\"format\":\"hex\"}}]",     41,   "{\"ktid\":\"29\"}"}
+            };
+            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+
+                const int         LINE     = DATA[i].d_line;
+                bsl::string_view  SPEC     = DATA[i].d_spec;
+                const int         KTID     = DATA[i].d_ktid;
+                const char       *EXPECTED = DATA[i].d_expected;
+
+                bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+                Obj mX(&sa); const Obj& X = mX;
+
+                int rc = mX.setFormat(SPEC);
+                ASSERTV(rc, 0 == rc);
+                mX.setRecordSeparator("");
+
+                bsl::ostringstream oss(&scratch);
+                RA                 fields(&scratch);
+
+                fields.setThreadID(KTID+20);
+                fields.setKernelThreadID(KTID);
 
                 X(oss, Rec(fields, UF(&scratch)));
 
@@ -2472,10 +2537,12 @@ int main(int argc, char *argv[])
 
         bsl::ostringstream oss;
 
-        const int   lineNum   = 542;
-        const char *filename  = "subdir/process.cpp";
-        const bsls::Types::Uint64
-                               threadID  = bslmt::ThreadUtil::selfIdAsUint64();
+        const int                  lineNum  = 542;
+        const char                *filename = "subdir/process.cpp";
+        const bsls::Types::Uint64  threadID =
+                                           bslmt::ThreadUtil::selfIdAsUint64();
+        const bsls::Types::Uint64 kernelTID =
+                                     bslmt::ThreadUtil::selfKernelIdAsUint64();
 #ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();
 #else
@@ -2485,6 +2552,7 @@ int main(int argc, char *argv[])
         ball::RecordAttributes fixedFields(bdlt::Datetime(),
                                           processID,
                                           threadID,
+                                          kernelTID,
                                           filename,
                                           lineNum,
                                           "FOO.BAR.BAZ",

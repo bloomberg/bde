@@ -201,6 +201,18 @@ struct PrintUtil {
     /// invoked when processing "%T" specifier.
     static void appendThreadIdAsHex(bsl::string *result, const Record& record);
 
+    /// Append a kernel thread ID provided by the specified `record` to the
+    /// specified `result` string.  Note that this method is invoked when
+    /// processing "%k" specifier.
+    static void appendKernelThreadId(bsl::string   *result,
+                                     const Record&  record);
+
+    /// Append a kernel thread ID provided by the specified `record` to the
+    /// specified `result` string in hex format.  Note that this method is
+    /// invoked when processing "%K" specifier.
+    static void appendKernelThreadIdAsHex(bsl::string   *result,
+                                          const Record&  record);
+
     /// Append a severity provided by the specified `record` to the
     /// specified `result` string.  Note that this method is invoked when
     /// processing "%s" specifier.
@@ -667,6 +679,18 @@ void PrintUtil::appendThreadIdAsHex(bsl::string   *result,
     appendValue(result, "%llX", record.fixedFields().threadID());
 }
 
+void PrintUtil::appendKernelThreadId(bsl::string   *result,
+                                     const Record&  record)
+{
+    appendValue(result, "%llu", record.fixedFields().kernelThreadID());
+}
+
+void PrintUtil::appendKernelThreadIdAsHex(bsl::string   *result,
+                                          const Record&  record)
+{
+    appendValue(result, "%llX", record.fixedFields().kernelThreadID());
+}
+
 void PrintUtil::appendSeverity(bsl::string   *result,
                                const Record&  record)
 {
@@ -1014,6 +1038,18 @@ void RecordStringFormatter::parseFormatSpecification()
                           bdlf::BindUtil::bind(&PrintUtil::appendThreadIdAsHex,
                                                _1,
                                                _2));
+              } break;
+              case 'k': {  // ---------------- Kernel Thread ID ---------------
+                d_fieldFormatters.emplace_back(
+                          bdlf::BindUtil::bind(&PrintUtil::appendKernelThreadId,
+                                               _1,
+                                               _2));
+              } break;
+              case 'K': {  // ---------------- Kernel Thread ID hex -----------
+                d_fieldFormatters.emplace_back(
+                    bdlf::BindUtil::bind(&PrintUtil::appendKernelThreadIdAsHex,
+                                         _1,
+                                         _2));
               } break;
               case 's': {  // ---------------- Severity -----------------------
                 d_fieldFormatters.emplace_back(

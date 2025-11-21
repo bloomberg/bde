@@ -58,12 +58,14 @@ BSLS_IDENT("$Id: $")
 // ```
 // Then, we set the fixed fields of the record to contain a simple message:
 // ```
-// int                 processId = bdls::ProcessUtil::getProcessId();
-// bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
+// int                 processId  = bdls::ProcessUtil::getProcessId();
+// bsls::Types::Uint64 threadId   = bslmt::ThreadUtil::selfIdAsUint64();
+// bsls::Types::Uint64 kernelTid  = bslmt::ThreadUtil::selfKernelIdAsUint64();
 //
 // ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
 //                                   processId,                // process id
 //                                   threadId,                 // thread id
+//                                   kernelTid,                // kernel tid
 //                                   __FILE__,                 // filename
 //                                   __LINE__,                 // line number
 //                                   "ExampleCategory",        // category

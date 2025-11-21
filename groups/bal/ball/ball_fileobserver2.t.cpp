@@ -472,8 +472,9 @@ void publishRecord(Obj *observer, const char *message)
     ball::RecordAttributes attr(bdlt::CurrentTime::utc(),
                                1,
                                2,
-                               "FILENAME",
                                3,
+                               "FILENAME",
+                               4,
                                "CATEGORY",
                                32,
                                message);

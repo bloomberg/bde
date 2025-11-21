@@ -241,13 +241,14 @@ class RecordAttributes {
     };
 
     // DATA
-    bdlt::Datetime   d_timestamp;    // creation date and time
-    int              d_processID;    // process id of creator
-    Uint64           d_threadID;     // thread id of creator
-    bsl::string      d_fileName;     // name of file where created (__FILE__)
-    int              d_lineNumber;   // line number of said file   (__LINE__)
-    bsl::string      d_category;     // category of log record
-    int              d_severity;     // severity of log record
+    bdlt::Datetime d_timestamp;       // creation date and time
+    int            d_processID;       // process id of creator
+    Uint64         d_threadID;        // thread id of creator
+    Uint64         d_kernelThreadID;  // thread id of creator
+    bsl::string    d_fileName;        // name of file where created (__FILE__)
+    int            d_lineNumber;      // line number of said file   (__LINE__)
+    bsl::string    d_category;        // category of log record
+    int            d_severity;        // severity of log record
 
     bdlsb::MemOutStreamBuf d_messageStreamBuf;  // stream buffer associated
                                                 // with the message attribute
@@ -280,13 +281,23 @@ class RecordAttributes {
     explicit RecordAttributes(bslma::Allocator *basicAllocator = 0);
 
     /// Create a record attributes object having the specified `timestamp`,
-    /// `processID`, `threadID`, `fileName`, `lineNumber`, `category`,
-    /// `severity` and `message` values, respectively.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// `processID`, `threadID`, `kernelThreadId`, `fileName`, `lineNumber`,
+    /// `category`, `severity` and `message` values, respectively.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.
     RecordAttributes(const bdlt::Datetime&    timestamp,
                      int                      processID,
                      bsls::Types::Uint64      threadID,
+                     const bsl::string_view&  fileName,
+                     int                      lineNumber,
+                     const bsl::string_view&  category,
+                     int                      severity,
+                     const bsl::string_view&  message,
+                     bslma::Allocator        *basicAllocator = 0);
+    RecordAttributes(const bdlt::Datetime&    timestamp,
+                     int                      processID,
+                     bsls::Types::Uint64      threadID,
+                     bsls::Types::Uint64      kernelThreadID,
                      const bsl::string_view&  fileName,
                      int                      lineNumber,
                      const bsl::string_view&  category,
@@ -353,6 +364,10 @@ class RecordAttributes {
     /// specified `threadID`.
     void setThreadID(bsls::Types::Uint64 threadID);
 
+    /// Set the kernelThreadID attribute of this record attributes object to the
+    /// specified `kernelThreadID`.
+    void setKernelThreadID(bsls::Types::Uint64 kernelThreadID);
+
     /// Set the timestamp attribute of this record attributes object to the
     /// specified `timestamp`.
     void setTimestamp(const bdlt::Datetime& timestamp);
@@ -392,6 +407,9 @@ class RecordAttributes {
 
     /// Return the threadID attribute of this record attributes object.
     bsls::Types::Uint64 threadID() const;
+
+    /// Return the kernelThreadID attribute of this record attributes object.
+    bsls::Types::Uint64 kernelThreadID() const;
 
     /// Return the timestamp attribute of this record attributes object.
     const bdlt::Datetime& timestamp() const;
@@ -533,6 +551,12 @@ void RecordAttributes::setThreadID(bsls::Types::Uint64 threadID)
 }
 
 inline
+void RecordAttributes::setKernelThreadID(bsls::Types::Uint64 kernelThreadID)
+{
+    d_kernelThreadID = kernelThreadID;
+}
+
+inline
 void RecordAttributes::setTimestamp(const bdlt::Datetime& timestamp)
 {
     d_timestamp = timestamp;
@@ -573,6 +597,12 @@ inline
 bsls::Types::Uint64 RecordAttributes::threadID() const
 {
     return d_threadID;
+}
+
+inline
+bsls::Types::Uint64 RecordAttributes::kernelThreadID() const
+{
+    return d_kernelThreadID;
 }
 
 inline

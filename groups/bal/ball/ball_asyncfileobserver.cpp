@@ -57,6 +57,7 @@ bsl::shared_ptr<ball::Record> createEmptyRecord(
     record->fixedFields().setLineNumber(lineNumber);
     record->fixedFields().setTimestamp(bdlt::CurrentTime::utc());
     record->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
+    record->fixedFields().setKernelThreadID(bslmt::ThreadUtil::selfKernelIdAsUint64());
 
     return record;
 }

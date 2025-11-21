@@ -554,6 +554,7 @@ int main(int argc, char *argv[])
             ball::RecordAttributes fixedFields(dtUtc,
                                                0,
                                                0,
+                                               0,
                                                "",
                                                0,
                                                "",
@@ -963,10 +964,12 @@ int main(int argc, char *argv[])
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
-        const int   lineNum   = 542;
-        const char *filename  = "subdir/process.cpp";
-        const bsls::Types::Uint64
-                               threadID  = bslmt::ThreadUtil::selfIdAsUint64();
+        const int                  lineNum  = 542;
+        const char                *filename = "subdir/process.cpp";
+        const bsls::Types::Uint64  threadID =
+                                           bslmt::ThreadUtil::selfIdAsUint64();
+        const bsls::Types::Uint64  kernelTID =
+                                           bslmt::ThreadUtil::selfKernelIdAsUint64();
 #ifdef BSLS_PLATFORM_OS_UNIX
         const pid_t processID = getpid();
 #else
@@ -976,6 +979,7 @@ int main(int argc, char *argv[])
         ball::RecordAttributes fixedFields(bdlt::Datetime(),
                                            processID,
                                            threadID,
+                                           kernelTID,
                                            filename,
                                            lineNum,
                                            "FOO.BAR.BAZ",
@@ -1464,6 +1468,36 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (verbose) cout << "\n  Testing \"%k\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%k");
+            X(oss1, record);
+            oss2 << kernelTID;
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERTV(oss1.str() == oss2.str());
+            }
+        }
+
+        if (verbose) cout << "\n  Testing \"%K\"." << endl;
+        {
+            oss1.str("");
+            oss2.str("");
+            mX.setFormat("%K");
+            X(oss1, record);
+            oss2 << uppercase << hex << kernelTID << nouppercase << dec;
+            {
+                bslma::TestAllocator         da;
+                bslma::DefaultAllocatorGuard guard(&da);
+                if (veryVerbose) { P_(oss1.str());  P(oss2.str()) }
+                ASSERT(oss1.str() == oss2.str());
+            }
+        }
+
         if (verbose) cout << "\n  Testing \"%s\"." << endl;
         {
             oss1.str("");
@@ -1875,6 +1909,7 @@ int main(int argc, char *argv[])
                 ball::RecordAttributes fixedFields(bdlt::Datetime(),
                                                    processID,
                                                    threadID,
+                                                   kernelTID,
                                                    filename,
                                                    lineNum,
                                                    "FOO.BAR.BAZ",

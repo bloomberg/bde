@@ -464,6 +464,8 @@ void Logger::logMessage(const Category&                category,
     record->fixedFields().setProcessID(pid);
 
     record->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
+    record->fixedFields().setKernelThreadID(
+                                    bslmt::ThreadUtil::selfKernelIdAsUint64());
 
     // Invoke legacy user fields populator callback.
     if (d_userFieldsPopulator) {
@@ -1027,10 +1029,11 @@ void LoggerManager::logMessage(int severity, Record *record)
     // Here we simply write the log message to the stderr.
 
     bsl::fprintf(stderr,
-                 "%s %d %llu %s %s %d UNINITIALIZED_LOGGER_MANAGER ",
+                 "%s %d %llu(%llu) %s %s %d UNINITIALIZED_LOGGER_MANAGER ",
                  datetimeStream.str().c_str(),
                  pid,
                  bslmt::ThreadUtil::selfIdAsUint64(),
+                 bslmt::ThreadUtil::selfKernelIdAsUint64(),
                  Severity::toAscii(severityLevel),
                  record->fixedFields().fileName(),
                  record->fixedFields().lineNumber());

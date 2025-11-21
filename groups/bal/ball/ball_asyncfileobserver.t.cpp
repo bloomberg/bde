@@ -251,6 +251,7 @@ bsl::shared_ptr<ball::Record> createRecord(const bsl::string&     message,
     result->fixedFields().setMessage(message.c_str());
     result->fixedFields().setProcessID(bdls::ProcessUtil::getProcessId());
     result->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
+    result->fixedFields().setKernelThreadID(bslmt::ThreadUtil::selfKernelIdAsUint64());
     result->fixedFields().setSeverity(severity);
     result->fixedFields().setTimestamp(bdlt::CurrentTime::utc());
 

@@ -62,6 +62,15 @@ BSLS_IDENT("$Id: $")
 
 #include <pthread.h>
 
+#ifdef BSLS_PLATFORM_OS_LINUX
+#include <sys/syscall.h>
+#include <unistd.h>
+#endif
+
+#ifdef BSLS_PLATFORM_OS_SOLARIS
+#include <thread.h>
+#endif
+
 namespace BloombergLP {
 
 extern "C" {
@@ -295,19 +304,26 @@ struct ThreadUtilImpl<Platform::PosixThreads> {
     /// valid until the thread terminates and may be reused thereafter.
     static Id selfId();
 
-    /// Return an integer of the unique identifier of the current thread
-    /// within the current process.  This representation is particularly
-    /// useful for logging purposes.  Note that this value is only valid
-    /// until the thread terminates and may be reused thereafter.
+    /// Return an integeral identifier that can be used to uniquely identify
+    /// the current thread within the current process.  This representation is
+    /// particularly useful for logging purposes.  Note that this value is only
+    /// valid until the thread terminates and may be reused thereafter.
     ///
     /// DEPRECATED: Use `selfIdAsUint64` instead.
     static bsls::Types::Uint64 selfIdAsInt();
 
-    /// Return an integer of the unique identifier of the current thread
-    /// within the current process.  This representation is particularly
-    /// useful for logging purposes.  Note that this value is only valid
-    /// until the thread terminates and may be reused thereafter.
+    /// Return an integral identifier that can be used to uniquely identify the
+    /// current thread within the current process.  This representation is
+    /// particularly useful for logging purposes.  Note that this value is only
+    /// valid until the thread terminates and may be reused thereafter.
     static bsls::Types::Uint64 selfIdAsUint64();
+
+    /// Return an integral identifier of the current thread used by the
+    /// operating system. Note that kernel thread ID is different from the
+    /// user-space thread ID returned by `selfIdAsUint64()`.  Note that this
+    /// value is only valid until the thread terminates and may be reused
+    /// thereafter.
+    static bsls::Types::Uint64 selfKernelIdAsUint64();
 
     /// Return the unique identifier of the thread having the specified
     /// `threadHandle` within the current process.  Note that this value is
@@ -477,6 +493,19 @@ bsls::Types::Uint64
 ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfIdAsUint64()
 {
     return idAsUint64(selfId());
+}
+
+inline
+bsls::Types::Uint64
+ThreadUtilImpl<bslmt::Platform::PosixThreads>::selfKernelIdAsUint64()
+{
+#if defined(BSLS_PLATFORM_OS_LINUX)
+    return static_cast<bsls::Types::Uint64>(syscall(SYS_gettid));
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
+    return static_cast<bsls::Types::Uint64>(thr_self());
+#else
+    return selfIdAsUint64();
+#endif
 }
 
                 // *** Thread-Specific (Local) Storage (TSS or TLS) ***

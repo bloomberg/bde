@@ -103,6 +103,36 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 //             "additionalProperties": false,
 //             "required": ["threadId"]
 //         },
+//         "kernelThreadId": {
+//             "type": "object",
+//             "$id": "#kernelThreadId",
+//             "title": "kernelThreadId",
+//             "description":
+//                 "This object type defines the format in which the fixed
+//                  'kernelThreadId' field of the  log record will be
+//                  displayed as JSON.",
+//             "properties": {
+//                 "kernelThreadId": {
+//                     "type": "object",
+//                     "properties": {
+//                         "name": {
+//                             "description":
+//                                 "Custom name for the 'kernelThreadId'
+//                                  fixed field.",
+//                             "type": "string"
+//                         },
+//                         "hex": {
+//                             "description": "Thread output format.",
+//                             "type": "string",
+//                             "enum": ["hex", "decimal"]
+//                         }
+//                     },
+//                     "additionalProperties": false
+//                 }
+//             },
+//             "additionalProperties": false,
+//             "required": ["kernelThreadId"]
+//         },
 //         "file": {
 //             "type": "object",
 //             "$id": "#file",
@@ -260,6 +290,7 @@ typedef BloombergLP::bslma::AllocatorUtil AllocUtil;
 const char *const k_KEY_TIMESTAMP        = "timestamp";
 const char *const k_KEY_PROCESS_ID       = "pid";
 const char *const k_KEY_THREAD_ID        = "tid";
+const char *const k_KEY_KERNEL_THREAD_ID = "ktid";
 const char *const k_KEY_SEVERITY         = "severity";
 const char *const k_KEY_FILE             = "file";
 const char *const k_KEY_LINE             = "line";
@@ -421,10 +452,16 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
                    // class ThreadIdFormatter
                    // =======================
 
-/// This class implements JSON field formatter for the `tid` tag.
+/// This class implements JSON field formatter for the `tid`/`ktid` tag.
 class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
 
     // PRIVATE TYPES
+    enum Type {
+        // Enumeration used to distinguish among different thread IDs.
+        e_TID  = 0,
+        e_KTID = 1
+    };
+
     enum Format {
         // Enumeration used to distinguish among different formats.
         e_DECIMAL     = 0,
@@ -433,6 +470,7 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
 
     // DATA
     bsl::string d_name;
+    Type        d_type;
     Format      d_format;
 
   public:
@@ -441,12 +479,12 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
 
     // CREATORS
 
-    /// Create thread id formatter object.  Use the specified
+    /// Create thread/kernel thread id formatter object.  Use the specified
     /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
     /// supply memory.
-    explicit
-    ThreadIdFormatter(const allocator_type& allocator)
-    : d_name(k_KEY_THREAD_ID, allocator)
+    ThreadIdFormatter(const bsl::string& name, const allocator_type& allocator)
+    : d_name(name, allocator)
+    , d_type(k_KEY_THREAD_ID == name ? e_TID : e_KTID)
     , d_format(e_DECIMAL)
     {}
 
@@ -456,16 +494,22 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
     /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
 
+    /// Format the 'tid'/'ktid' field of the specified 'record' and render it
+    /// to the specified 'formatter'.  Return 0 on success, and a non-zero
+    /// value otherwise.
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Format the 'tid' field of the specified 'record' and render it to
-        // the specified 'formatter'.  Return 0 on success, and a non-zero
-        // value otherwise.
 
+    /// Parse the specified 'v' datum map and initialize this object with the
+    /// values retrieved from the map.  Return 0 on success, and a non-zero
+    /// value otherwise.
     int parse(bdld::DatumMapRef v) BSLS_KEYWORD_OVERRIDE;
-       // Parse the specified 'v' datum map and initialize this object with the
-       // values retrieved from the map.  Return 0 on success, and a non-zero
-       // value otherwise.
+
+    // ACCESSORS
+
+    /// Return the name of the log record field or attribute.
+    const bsl::string& name() const;
+
 };
 
                    // =========================
@@ -501,8 +545,9 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
        // value otherwise.
 
     // ACCESSORS
+
+    /// Return the name of the log record field or attribute.
     const bsl::string& name() const;
-      // Return the name of the log record field or attribute.
 };
 
                    // ========================
@@ -564,11 +609,11 @@ class LineFormatter : public FixedFieldFormatter {
     /// specified `allocator`.
     void deleteSelf(const bsl::allocator<> allocator) BSLS_KEYWORD_OVERRIDE;
 
-    int format(baljsn::SimpleFormatter *formatter, const Record& record)
-                                                         BSLS_KEYWORD_OVERRIDE;
-        // Format the 'line' field of the specified 'record' and render it to
-        // the specified 'formatter'.  Return 0 on success, and a non-zero
-        // value otherwise.
+    /// Format the 'line' field of the specified 'record' and render it to
+    /// the specified 'formatter'.  Return 0 on success, and a non-zero
+    /// value otherwise.
+    int format(baljsn::SimpleFormatter *formatter,
+               const Record&            record) BSLS_KEYWORD_OVERRIDE;
 };
 
                    // =======================
@@ -1080,7 +1125,10 @@ int ThreadIdFormatter::format(baljsn::SimpleFormatter *formatter,
     int rc = 0;
     switch (d_format) {
       case e_DECIMAL: {
-        rc = formatter->addValue(d_name, record.fixedFields().threadID());
+        rc = formatter->addValue(d_name,
+                                 e_TID == d_type
+                                     ? record.fixedFields().threadID()
+                                     : record.fixedFields().kernelThreadID());
       } break;
       case e_HEXADECIMAL: {
         char buffer[32];
@@ -1092,7 +1140,9 @@ int ThreadIdFormatter::format(baljsn::SimpleFormatter *formatter,
         snprintf(buffer,
                  sizeof(buffer),
                  "%llX",
-                 record.fixedFields().threadID());
+                 e_TID == d_type
+                     ? record.fixedFields().threadID()
+                     : record.fixedFields().kernelThreadID());
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
@@ -1151,7 +1201,6 @@ int FixedFieldFormatter::parse(bdld::DatumMapRef v)
 }
 
 // ACCESSORS
-inline
 const bsl::string& FixedFieldFormatter::name() const
 {
     return d_name;
@@ -1434,7 +1483,13 @@ DatumParser::make(const bslstl::StringRef& v)
         formatter = AllocUtil::newObject<ProcessIdFormatter>(d_allocator);
     }
     else if (k_KEY_THREAD_ID  == v) {
-        formatter = AllocUtil::newObject<ThreadIdFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<ThreadIdFormatter>(d_allocator,
+                                                            k_KEY_THREAD_ID);
+    }
+    else if (k_KEY_KERNEL_THREAD_ID  == v) {
+        formatter = AllocUtil::newObject<ThreadIdFormatter>(
+                                                       d_allocator,
+                                                       k_KEY_KERNEL_THREAD_ID);
     }
     else if (k_KEY_SEVERITY   == v) {
         formatter = AllocUtil::newObject<SeverityFormatter>(d_allocator);

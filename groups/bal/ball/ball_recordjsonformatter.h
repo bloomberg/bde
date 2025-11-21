@@ -66,6 +66,7 @@ BSLS_IDENT("$Id: $")
 // "timestamp"       creation date and time           ["timestamp"]
 // "pid"             process id of creator            ["pid"]
 // "tid"             thread id of creator             ["tid"]
+// "ktid"            kernel thread id of creator      ["ktid"]
 // "file"            file where created  (__FILE__)   ["file"]
 // "line"            line number in file (__LINE__)   ["line"]
 // "category"        category of logged record        ["category"]
@@ -160,18 +161,19 @@ BSLS_IDENT("$Id: $")
 //  { "Process Id": 2313 }
 // ```
 //
-///The "tid" (thread Id) field format
-///-  -  -  -  -  -  -  -  -  -  -  -
+///The "tid"/"ktid" (thread/kernel thread Id) field format
+///-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 // The format attributes of the thread Id field are given in the following
 // table:
 // ```
 //                                                    Value        Default
 //   Key                   Description                Constraint   Value
-// --------    -------------------------------------  -----------  ---------
-// "name"      name by which "tid" will be published  JSON string  "tid"
+// --------  -------------------------------------  -----------  ---------
+// "name"    name by which "tid"/"ktid" will be     JSON string  "tid"/"ktid"
+//           published
 //
-// "format"    output format                          "decimal",   "decimal"
-//                                                    "hex"
+// "format"  output format                          "decimal",   "decimal"
+//                                                  "hex"
 // ```
 // For example, the following record format specification:
 // ```

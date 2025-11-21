@@ -225,6 +225,7 @@ int main(int argc, char *argv[])
     struct {
         int d_pid;
         int d_tid;
+        int d_ktid;
         int d_lineNum;
         int d_severity;
         int d_year;
@@ -234,25 +235,27 @@ int main(int argc, char *argv[])
         const char *d_category;
         const char *d_message;
     } ATTR_VALUES[] = {
-///pid     tid     line sev year  month day  file name   category  message
-///------- ------- ---- --- ----  ----  ---  ----------  --------  ----------
- { 1,      0,      0,   0,  2004, 1,    1,   "",         "",       ""        },
- { 0,      1,      0,   0,  2004, 1,    1,   "",         "",       ""        },
- { 0,      0,      1,   0,  2004, 1,    1,   "",         "",       ""        },
- { 0,      0,      0,   1,  2004, 1,    1,   "",         "",       ""        },
- { 0,      0,      0,   0,  2000, 1,    1,   "",         "",       ""        },
- { 0,      0,      0,   0,  2004, 2,    1,   "",         "",       ""        },
- { 0,      0,      0,   0,  2004, 1,    2,   "",         "",       ""        },
- { 0,      0,      0,   0,  2004, 1,    1,   "FILE1",    "",       ""        },
- { 0,      0,      0,   0,  2004, 1,    1,   "",         "CATE1",  ""        },
- { 0,      0,      0,   0,  2004, 1,    1,   "",         "",       "MSG1"    }
-        };
+///pid tid ktid line sev year  month day  file name   category  message
+///--- --- ---- ---- --- ----  ----  ---  ----------  --------  -------
+ { 1,  0,  0,   0,   0,  2004, 1,    1,   "",         "",       ""      },
+ { 0,  1,  0,   0,   0,  2004, 1,    1,   "",         "",       ""      },
+ { 0,  0,  1,   0,   0,  2004, 1,    1,   "",         "",       ""      },
+ { 0,  0,  0,   1,   0,  2004, 1,    1,   "",         "",       ""      },
+ { 0,  0,  0,   0,   1,  2004, 1,    1,   "",         "",       ""      },
+ { 0,  0,  0,   0,   0,  2000, 1,    1,   "",         "",       ""      },
+ { 0,  0,  0,   0,   0,  2004, 2,    1,   "",         "",       ""      },
+ { 0,  0,  0,   0,   0,  2004, 1,    2,   "",         "",       ""      },
+ { 0,  0,  0,   0,   0,  2004, 1,    1,   "FILE1",    "",       ""      },
+ { 0,  0,  0,   0,   0,  2004, 1,    1,   "",         "CATE1",  ""      },
+ { 0,  0,  0,   0,   0,  2004, 1,    1,   "",         "",       "MSG1"  }
+    };
 
     const int NUM_ATTRS = sizeof ATTR_VALUES / sizeof ATTR_VALUES[0];
-    Record_Attr REC_ATTRS[10];
+    Record_Attr REC_ATTRS[NUM_ATTRS];
     for (int jj = 0; jj < NUM_ATTRS; ++jj) {
         const int PID        = ATTR_VALUES[jj].d_pid;
         const int TID        = ATTR_VALUES[jj].d_tid;
+        const int KTID       = ATTR_VALUES[jj].d_ktid;
         const int YEAR       = ATTR_VALUES[jj].d_year;
         const int MONTH      = ATTR_VALUES[jj].d_month;
         const int DAY        = ATTR_VALUES[jj].d_day;
@@ -265,6 +268,7 @@ int main(int argc, char *argv[])
         Record_Attr mY(bdlt::Datetime(YEAR, MONTH, DAY),
                        PID,
                        TID,
+                       KTID,
                        FILENAME,
                        LINE,
                        CATEGORY,
@@ -284,6 +288,7 @@ int main(int argc, char *argv[])
     const Record_Attr AH = REC_ATTRS[7];
     const Record_Attr AI = REC_ATTRS[8];
     const Record_Attr AJ = REC_ATTRS[9];
+    const Record_Attr AK = REC_ATTRS[10];
     const Record_Attr AU;   // default value
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
@@ -339,10 +344,13 @@ int main(int argc, char *argv[])
 // ```
     int                 processId = bdls::ProcessUtil::getProcessId();
     bsls::Types::Uint64 threadId  = bslmt::ThreadUtil::selfIdAsUint64();
+    bsls::Types::Uint64 kernelThreadId =
+                                     bslmt::ThreadUtil::selfKernelIdAsUint64();
 
     ball::RecordAttributes attributes(bdlt::CurrentTime::utc(), // time stamp
                                       processId,                // process id
                                       threadId,                 // thread id
+                                      kernelThreadId,           // kernel thread id
                                       __FILE__,                 // filename
                                       __LINE__,                 // line number
                                       "ExampleCategory",        // category
@@ -941,6 +949,7 @@ int main(int argc, char *argv[])
         Record_Attr FA(bdlt::Datetime(2004, 1, 21, 12, 30, 25, 150),
                        bdls::ProcessUtil::getProcessId(),
                        0,
+                       1,
                        __FILE__,
                        __LINE__,
                        "MyCategory1",
@@ -954,6 +963,7 @@ int main(int argc, char *argv[])
         Record_Attr FB(bdlt::Datetime(2000, 2, 29, 10, 13, 55, 111),
                        bdls::ProcessUtil::getProcessId(),
                        0,
+                       1,
                        "myFile",
                        __LINE__,
                        "MyCategory2",
@@ -1341,6 +1351,7 @@ int main(int argc, char *argv[])
         Record_Attr FA(bdlt::CurrentTime::utc(),
                        bdls::ProcessUtil::getProcessId(),
                        0,
+                       1,
                        __FILE__,
                        __LINE__,
                        "EQUITY.NASD",
@@ -1357,6 +1368,7 @@ int main(int argc, char *argv[])
         Record_Attr FB(bdlt::CurrentTime::utc(),
                        bdls::ProcessUtil::getProcessId(),
                        0,
+                       1,
                        __FILE__,
                        __LINE__,
                        "USER_SESSION",
