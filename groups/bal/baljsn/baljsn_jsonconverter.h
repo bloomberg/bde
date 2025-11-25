@@ -164,6 +164,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 #include <bsl_string.h>
+#include <bsl_vector.h>
 
 namespace BloombergLP {
 namespace baljsn {

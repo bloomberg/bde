@@ -247,13 +247,13 @@ BSLS_IDENT("$Id: $")
 #include <bsls_types.h>
 
 #include <bsl_deque.h>
+#include <bsl_iomanip.h>
 #include <bsl_ios.h>
+#include <bsl_ostream.h>
 #include <bsl_stack.h>
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
-
-#include <bsl_iomanip.h>  // for 'printTokens'
 
 namespace BloombergLP {
 namespace baljsn {

@@ -234,10 +234,10 @@ int ThreadGroup::addThread(const INVOKABLE&        functor,
     return rc;
 }
 
-template<class INVOKABLE>
+template <class INVOKABLE>
 int ThreadGroup::addThreads(const INVOKABLE&        functor,
-                                   int                     numThreads,
-                                   const ThreadAttributes& attributes)
+                            int                     numThreads,
+                            const ThreadAttributes& attributes)
 {
     BSLS_ASSERT(0 <= numThreads);
 

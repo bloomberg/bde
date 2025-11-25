@@ -299,6 +299,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 #include <bsls_types.h>
 
+#include <bsl_functional.h>
 #include <bsl_iosfwd.h>
 
 namespace BloombergLP {

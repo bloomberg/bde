@@ -858,7 +858,8 @@ int ThreadUtil::createWithAllocator(Handle           *handle,
                                                   bslstl::StringRef(),
                                                   allocator);
 
-    int rc = Imp::create(handle, bslmt_EntryPointFunctorAdapter_invoker,
+    int rc = Imp::create(handle,
+                         bslmt_EntryPointFunctorAdapter_invoker,
                          threadData.ptr());
     if (0 == rc) {
         threadData.release();
