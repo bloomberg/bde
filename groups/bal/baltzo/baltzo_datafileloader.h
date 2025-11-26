@@ -85,8 +85,8 @@ BSLS_IDENT("$Id: $")
 // practice, clients should *not* generate data files in this manner.  Data
 // files are typically created using the `zic` compiler -- a publicly available
 // tool provided as part of the standard Zoneinfo distribution (see
-// `http://www.twinsun.com/tz/tz-link.htm`) -- and deployed in a standard
-// directory location (see `baltzo_defaultzoneinfocache`).
+// ` https://www.iana.org/time-zones/repository/tz-link.html`) -- and deployed
+// in a standard directory location (see `baltzo_defaultzoneinfocache`).
 //
 // We start by defining static binary data for "Asia/Bangkok", (chosen because
 // it is relatively small):
