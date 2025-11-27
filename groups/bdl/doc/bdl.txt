@@ -17,7 +17,8 @@
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
- 10. bdlmt
+ 10. bdlat
+     bdlmt
 
   9. bdlar
 
