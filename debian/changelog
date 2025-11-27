@@ -1,5 +1,23 @@
-bsl-internal (4.31.0.0) unstable; urgency=low
+bsl-internal (4.32.0.0) unstable; urgency=low
 
+  * 30c893887 Fix Datum array deallocation size (#5669)
+  * 1075895f5 Bumped version to 4.32.0.0
+  * 17a7be16a Add ability to use kernel thread ids for logging on Linux and Solaris. (#5625)
+  * 097e2c0fb Initial drop of devise configuration. (#5659)
+  * 1420fc0ee Hash support for std::thread::id (DRQS 181501943) (#5658)
+  * 03a25d54a DRQS-181678096-fix-doc (#5657)
+  * f8b09a929 Update MSVC expected failure for most current patch release (#5654)
+  * 648bce514 Fix race in qlock test (#5404)
+  * 866081dff Minor comment fix (#5630)
+  * 6505dd134 Revert "[DRQS 180888864] Enforce consistency of library features macros" (#5644)
+  * 0490e07b7 [DRQS 180888864] Enforce consistency of library features macros (#5587)
+  * 612d0123b Fixing long double to_string and to_wstring. (#5638)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 27 Nov 2025 12:37:44 -0500
+
+bsl-internal (4.31.0.0) git; urgency=low
+
+  * 2a4b29773 Changelog for version 4.31.0.0
   * 993fcd2f7 Bumped version to 4.31.0.0
   * 5de7c91cc Regenerate bdlb_nullable* API for up to 10 params for c++03 (#5641)
   * 56fe4d053 Regenerate bdlb_nullableallocatedvalue API for up to 9 params for c++03 (#5637)
@@ -15,7 +33,7 @@ bsl-internal (4.31.0.0) unstable; urgency=low
   * 4d68783f7 Revert "DRQS 180944848: Optimise `bdld::Datum::clone`" (#5618)
   * b5e11a5a9 DRQS 181119568 - Fix user defined literal declaration (#5616)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 29 Oct 2025 19:51:20 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Wed, 29 Oct 2025 19:54:51 +0000
 
 bsl-internal (4.30.0.0) git; urgency=low
 
