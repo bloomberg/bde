@@ -437,7 +437,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // be destroyed without invalidating the array contained in the datum.
 //
 // A DatumArray may be adopted by only one datum. If the DatumArray is not
-// adopted, it must be destroyed via `disposeUnitializedArray`.
+// adopted, it must be destroyed via `disposeUninitializedArray`.
 //
 // Now, we can access the contents of the array through the datum:
 // ```
@@ -3957,7 +3957,8 @@ void Datum::disposeUninitializedArray(const DatumMutableArrayRef& array,
     void *ptr = array.allocatedPtr();
 
     if (ptr) {
-        AllocUtil::deallocateBytes(allocator, ptr, array.capacity());
+        AllocUtil::deallocateBytes(allocator, ptr,
+                                       sizeof(Datum) * (array.capacity() + 1));
     }
 }
 
