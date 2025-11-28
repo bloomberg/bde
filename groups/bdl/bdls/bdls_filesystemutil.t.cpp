@@ -60,6 +60,7 @@
     #include <sys/types.h>
     #include <sys/un.h>
     #include <sys/wait.h>
+    #include <time.h>
     #include <unistd.h>
     #include <utime.h>
 #else // BSLS_PLATFORM_OS_WINDOWS
@@ -1635,22 +1636,22 @@ bool TestUtil_UnixImpUtil::isBigtimeSupportAvailable(
     tm32.tm_hour  = 3;            // 03:00
     tm32.tm_min   = 14;           // 00:14
     tm32.tm_sec   = 7;            // 03:14:07
-    tm32.tm_isdst = 0;            // Not daylight saving
+    tm32.tm_isdst = -1;           // Daylight saving is unknown
 
-    bsl::time_t smallModTime = bsl::mktime(&tm32);
+    bsl::time_t smallModTime = timegm(&tm32);  // utc conversion
 
     // `tmw` and `writeModTime` represent a date and time that is too large to
     // store in a 32-bit filesystem timestamp, but can be stored if "big
     // timestamp" support is available.
     bsl::tm tmw = bsl::tm();     // zero initialise
-    tmw.tm_year  = 2200 - 1900;  // 2020
+    tmw.tm_year  = 2200 - 1900;  // 2200
     tmw.tm_mon   = 1 - 1;        // January
     tmw.tm_mday  = 1;            // 1st
     tmw.tm_hour  = 0;            // 00:00
     tmw.tm_min   = 0;            // 00:00
-    tmw.tm_isdst = 0;            // Not daylight saving
+    tmw.tm_isdst = -1;           // Daylight saving is unknown
 
-    bsl::time_t writeModTime = bsl::mktime(&tmw);
+    bsl::time_t writeModTime = timegm(&tmw);  // utc conversion
 
     // Update the file modification time to `writeModTime`.
     struct timespec times[2] = {};
