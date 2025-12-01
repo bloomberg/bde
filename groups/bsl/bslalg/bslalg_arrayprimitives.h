@@ -4834,7 +4834,7 @@ void ArrayPrimitives_Imp::shiftAndInsert(
 #pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 
-    std::memmove(begin + 1, begin, bytesNum);
+    std::memmove(static_cast<void *>(begin + 1), begin, bytesNum);
 
 
     /// Moves the elements back if `construct` throws.
@@ -4848,7 +4848,9 @@ void ArrayPrimitives_Imp::shiftAndInsert(
         ElementsProctor(ValueType *p, size_t n) : d_begin(p), d_bytesNum(n) {}
         ~ElementsProctor()
         {
-            if(d_bytesNum) std::memmove(d_begin, d_begin + 1, d_bytesNum);
+            if(d_bytesNum) std::memmove(static_cast<void *>(d_begin),
+                                        d_begin + 1,
+                                        d_bytesNum);
         }
         // MANIPULATORS
         void release() { d_bytesNum = 0; }

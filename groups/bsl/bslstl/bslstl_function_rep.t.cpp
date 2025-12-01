@@ -592,7 +592,7 @@ class TestFunctor
         operator=(bslmf::MovableRefUtil::move(originalRef));
     }
 
-    ~TestFunctor() { memset(this, 0xbb, sizeof(*this)); }
+    ~TestFunctor() { memset(static_cast<void *>(this), 0xbb, sizeof(*this)); }
 
     // MANIPULATORS
     TestFunctor& operator=(const TestFunctor& rhs) {

@@ -140,7 +140,7 @@ void UnionTestType::setData(int value)
 inline
 UnionTestType::~UnionTestType()
 {
-    std::memset(this, 0xa5, sizeof(*this));
+    std::memset(static_cast<void *>(this), 0xa5, sizeof(*this));
 }
 
 // ACCESSORS

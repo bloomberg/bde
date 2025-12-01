@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
 #               pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 
-                ::memcpy(&b, &a, sizeof(a));
+                ::memcpy(static_cast<void *>(&b), &a, sizeof(a));
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 80000)
 #               pragma GCC diagnostic pop

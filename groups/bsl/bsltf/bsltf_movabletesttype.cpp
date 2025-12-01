@@ -68,7 +68,7 @@ MovableTestType::~MovableTestType()
 
     const int oldData = d_data;
 
-    std::memset(this, 0xa5, sizeof(*this));
+    std::memset(static_cast<void *>(this), 0xa5, sizeof(*this));
     d_data = ~oldData & 0xf0f0f0f0;
 }
 
