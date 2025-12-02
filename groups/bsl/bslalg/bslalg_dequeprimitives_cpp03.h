@@ -21,32 +21,12 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:39:00 2024
+// Generated on Tue Dec  2 21:32:49 2025
 // Command line: sim_cpp11_features.pl bslalg_dequeprimitives.h
 
 #ifdef COMPILING_BSLALG_DEQUEPRIMITIVES_H
 
 namespace BloombergLP {
-
-namespace {
-        // Workaround for windows.  The windows compiler refuses to recognize
-        // enum declarations within a class template.  TBD: verify this is
-        // still a concern with recent Windows compilers, as unnamed namespaces
-        // in header files are not a great workaround.
-
-    enum {
-        // These constants are used in the overloads below, when the last
-        // argument is of type 'bsl::integral_constant<int, N>', indicating
-        // that 'VALUE_TYPE' has the traits for which the enumerator equal to
-        // 'N' is named.
-
-        NIL_TRAITS              = 0,
-        BITWISE_MOVEABLE_TRAITS = 1,
-        BITWISE_COPYABLE_TRAITS = 2,
-        NON_NIL_TRAITS          = 3
-    };
-
-}  // close unnamed namespace
 
 namespace bslalg {
 
@@ -61,6 +41,18 @@ class DequePrimitives_ExternalDequeElementGuard;
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 class DequePrimitives_DequeEndpointProctor;
+
+/// These constants are used in the overloads below, when the last argument is
+/// of type 'bsl::integral_constant<int, N>', indicating that 'VALUE_TYPE' has
+/// the traits for which the enumerator equal to 'N' is named.
+/// Workaround for windows.  The windows compiler refuses to recognize enum
+/// declarations within a class template.
+enum {
+    BSLALG_DEQUEPRIMITIVES_NIL_TRAITS              = 0,
+    BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS = 1,
+    BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS = 2,
+    BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS          = 3
+};
 
                         // ======================
                         // struct DequePrimitives
@@ -105,16 +97,17 @@ struct DequePrimitives {
     /// removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static void destruct(
-                Iterator                                             begin,
-                Iterator                                             end,
-                ALLOCATOR                                            allocator,
-                bsl::integral_constant<int, NIL_TRAITS>);
+      Iterator                                                       begin,
+      Iterator                                                       end,
+      ALLOCATOR                                                      allocator,
+      bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
     template <class ALLOCATOR>
-    static void destruct(
-                Iterator                                             begin,
-                Iterator                                             end,
-                ALLOCATOR                                            allocator,
-                bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+    static void destruct(Iterator  begin,
+                         Iterator  end,
+                         ALLOCATOR allocator,
+                         bsl::integral_constant<
+                             int,
+                             BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
 
     /// Call the destructor on each of the elements of a deque of
     /// parameterized `VALUE_TYPE` in the specified range `[first .. last)`.
@@ -146,24 +139,25 @@ struct DequePrimitives {
     /// argument is for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static Iterator erase(
-                Iterator                                            *toBegin,
-                Iterator                                            *toEnd,
-                Iterator                                             fromBegin,
-                Iterator                                             first,
-                Iterator                                             last,
-                Iterator                                             fromEnd,
-                ALLOCATOR                                            allocator,
-                bsl::integral_constant<int, NIL_TRAITS>);
+     Iterator                                                       *toBegin,
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromBegin,
+     Iterator                                                        first,
+     Iterator                                                        last,
+     Iterator                                                        fromEnd,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
     template <class ALLOCATOR>
-    static Iterator erase(
-               Iterator                                             *toBegin,
-               Iterator                                             *toEnd,
-               Iterator                                              fromBegin,
-               Iterator                                              first,
-               Iterator                                              last,
-               Iterator                                              fromEnd,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+    static Iterator erase(Iterator  *toBegin,
+                          Iterator  *toEnd,
+                          Iterator   fromBegin,
+                          Iterator   first,
+                          Iterator   last,
+                          Iterator   fromEnd,
+                          ALLOCATOR  allocator,
+                          bsl::integral_constant<
+                              int,
+                              BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
 
     /// Insert the specified `numElements` copies of the specified `value`
     /// at the specified `position`, by moving the elements in the range
@@ -193,32 +187,36 @@ struct DequePrimitives {
     /// position to insert `numElements`).  Note that the last argument is
     /// for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
-    static void insertAndMoveToBack(
-             Iterator                                             *toEnd,
-             Iterator                                              fromEnd,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+    static void
+    insertAndMoveToBack(Iterator          *toEnd,
+                        Iterator           fromEnd,
+                        Iterator           position,
+                        size_type          numElements,
+                        const VALUE_TYPE&  value,
+                        ALLOCATOR          allocator,
+                        bsl::integral_constant<
+                            int,
+                            BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
+    template <class ALLOCATOR>
+    static void
+    insertAndMoveToBack(Iterator          *toEnd,
+                        Iterator           fromEnd,
+                        Iterator           position,
+                        size_type          numElements,
+                        const VALUE_TYPE&  value,
+                        ALLOCATOR          allocator,
+                        bsl::integral_constant<
+                            int,
+                            BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
     static void insertAndMoveToBack(
-             Iterator                                             *toEnd,
-             Iterator                                              fromEnd,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
-    template <class ALLOCATOR>
-    static void insertAndMoveToBack(
-             Iterator                                             *toEnd,
-             Iterator                                              fromEnd,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, NIL_TRAITS>);
+               Iterator          *toEnd,
+               Iterator           fromEnd,
+               Iterator           position,
+               size_type          numElements,
+               const VALUE_TYPE&  value,
+               ALLOCATOR          allocator,
+               bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 
     /// Insert the specified `numElements` in the range `[first .. last)` at
     /// the specified `position`, by moving the elements in the range
@@ -265,28 +263,32 @@ struct DequePrimitives {
     /// last argument is for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+                          Iterator                      *toEnd,
+                          Iterator                       fromEnd,
+                          Iterator                       position,
+                          bslmf::MovableRef<VALUE_TYPE>  value,
+                          ALLOCATOR                      allocator,
+                          bsl::integral_constant<
+                              int,
+                              BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
+                          Iterator                      *toEnd,
+                          Iterator                       fromEnd,
+                          Iterator                       position,
+                          bslmf::MovableRef<VALUE_TYPE>  value,
+                          ALLOCATOR                      allocator,
+                          bsl::integral_constant<
+                              int,
+                              BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToBack(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, NIL_TRAITS>);
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     bslmf::MovableRef<VALUE_TYPE>                                   value,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 
     /// Insert the specified `numElements` copies of the specified `value`
     /// at the specified `position`, by moving the elements in the range
@@ -316,32 +318,36 @@ struct DequePrimitives {
     /// `fromBegin` position to insert `numElements`).  Note that the last
     /// argument is for removing overload ambiguities and is not used.
     template <class ALLOCATOR>
-    static void insertAndMoveToFront(
-             Iterator                                             *toBegin,
-             Iterator                                              fromBegin,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+    static void
+    insertAndMoveToFront(Iterator          *toBegin,
+                         Iterator           fromBegin,
+                         Iterator           position,
+                         size_type          numElements,
+                         const VALUE_TYPE&  value,
+                         ALLOCATOR          allocator,
+                         bsl::integral_constant<
+                             int,
+                             BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
+    template <class ALLOCATOR>
+    static void
+    insertAndMoveToFront(Iterator          *toBegin,
+                         Iterator           fromBegin,
+                         Iterator           position,
+                         size_type          numElements,
+                         const VALUE_TYPE&  value,
+                         ALLOCATOR          allocator,
+                         bsl::integral_constant<
+                             int,
+                             BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
     static void insertAndMoveToFront(
-             Iterator                                             *toBegin,
-             Iterator                                              fromBegin,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
-    template <class ALLOCATOR>
-    static void insertAndMoveToFront(
-             Iterator                                             *toBegin,
-             Iterator                                              fromBegin,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, NIL_TRAITS>);
+               Iterator          *toBegin,
+               Iterator           fromBegin,
+               Iterator           position,
+               size_type          numElements,
+               const VALUE_TYPE&  value,
+               ALLOCATOR          allocator,
+               bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 
     /// Insert the specified `numElements` in the range `[first .. last)` at
     /// the specified `position`, by moving the elements in the range
@@ -390,28 +396,32 @@ struct DequePrimitives {
     /// ambiguities and is not used.
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+                          Iterator                      *toBegin,
+                          Iterator                       fromBegin,
+                          Iterator                       position,
+                          bslmf::MovableRef<VALUE_TYPE>  value,
+                          ALLOCATOR                      allocator,
+                          bsl::integral_constant<
+                              int,
+                              BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
+                          Iterator                      *toBegin,
+                          Iterator                       fromBegin,
+                          Iterator                       position,
+                          bslmf::MovableRef<VALUE_TYPE>  value,
+                          ALLOCATOR                      allocator,
+                          bsl::integral_constant<
+                              int,
+                              BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>);
     template <class ALLOCATOR>
     static void moveInsertAndMoveToFront(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, NIL_TRAITS>);
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     bslmf::MovableRef<VALUE_TYPE>                                   value,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -614,35 +624,38 @@ struct DequePrimitives {
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
     template <class ALLOCATOR, class Args_01>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
     template <class ALLOCATOR, class Args_01,
                                class Args_02>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
@@ -650,14 +663,15 @@ struct DequePrimitives {
                                class Args_02,
                                class Args_03>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
@@ -666,15 +680,16 @@ struct DequePrimitives {
                                class Args_03,
                                class Args_04>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
@@ -684,16 +699,17 @@ struct DequePrimitives {
                                class Args_04,
                                class Args_05>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
@@ -704,17 +720,18 @@ struct DequePrimitives {
                                class Args_05,
                                class Args_06>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
@@ -726,18 +743,19 @@ struct DequePrimitives {
                                class Args_06,
                                class Args_07>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
@@ -750,19 +768,20 @@ struct DequePrimitives {
                                class Args_07,
                                class Args_08>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
@@ -776,20 +795,21 @@ struct DequePrimitives {
                                class Args_08,
                                class Args_09>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
@@ -804,55 +824,59 @@ struct DequePrimitives {
                                class Args_09,
                                class Args_10>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
     template <class ALLOCATOR, class Args_01>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
     template <class ALLOCATOR, class Args_01,
                                class Args_02>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
@@ -860,14 +884,15 @@ struct DequePrimitives {
                                class Args_02,
                                class Args_03>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
@@ -876,15 +901,16 @@ struct DequePrimitives {
                                class Args_03,
                                class Args_04>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
@@ -894,16 +920,17 @@ struct DequePrimitives {
                                class Args_04,
                                class Args_05>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
@@ -914,17 +941,18 @@ struct DequePrimitives {
                                class Args_05,
                                class Args_06>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
@@ -936,18 +964,19 @@ struct DequePrimitives {
                                class Args_06,
                                class Args_07>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
@@ -960,19 +989,20 @@ struct DequePrimitives {
                                class Args_07,
                                class Args_08>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
@@ -986,20 +1016,21 @@ struct DequePrimitives {
                                class Args_08,
                                class Args_09>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
@@ -1014,55 +1045,56 @@ struct DequePrimitives {
                                class Args_09,
                                class Args_10>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
     template <class ALLOCATOR, class Args_01>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
     template <class ALLOCATOR, class Args_01,
                                class Args_02>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
@@ -1070,14 +1102,14 @@ struct DequePrimitives {
                                class Args_02,
                                class Args_03>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
@@ -1086,15 +1118,15 @@ struct DequePrimitives {
                                class Args_03,
                                class Args_04>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
@@ -1104,16 +1136,16 @@ struct DequePrimitives {
                                class Args_04,
                                class Args_05>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
@@ -1124,17 +1156,17 @@ struct DequePrimitives {
                                class Args_05,
                                class Args_06>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
@@ -1146,18 +1178,18 @@ struct DequePrimitives {
                                class Args_06,
                                class Args_07>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
@@ -1170,19 +1202,19 @@ struct DequePrimitives {
                                class Args_07,
                                class Args_08>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
@@ -1196,20 +1228,20 @@ struct DequePrimitives {
                                class Args_08,
                                class Args_09>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
@@ -1224,21 +1256,21 @@ struct DequePrimitives {
                                class Args_09,
                                class Args_10>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 
@@ -1434,35 +1466,38 @@ struct DequePrimitives {
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
     template <class ALLOCATOR, class Args_01>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
     template <class ALLOCATOR, class Args_01,
                                class Args_02>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
@@ -1470,14 +1505,15 @@ struct DequePrimitives {
                                class Args_02,
                                class Args_03>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
@@ -1486,15 +1522,16 @@ struct DequePrimitives {
                                class Args_03,
                                class Args_04>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
@@ -1504,16 +1541,17 @@ struct DequePrimitives {
                                class Args_04,
                                class Args_05>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
@@ -1524,17 +1562,18 @@ struct DequePrimitives {
                                class Args_05,
                                class Args_06>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
@@ -1546,18 +1585,19 @@ struct DequePrimitives {
                                class Args_06,
                                class Args_07>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
@@ -1570,19 +1610,20 @@ struct DequePrimitives {
                                class Args_07,
                                class Args_08>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
@@ -1596,20 +1637,21 @@ struct DequePrimitives {
                                class Args_08,
                                class Args_09>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
@@ -1624,55 +1666,59 @@ struct DequePrimitives {
                                class Args_09,
                                class Args_10>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
     template <class ALLOCATOR, class Args_01>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
     template <class ALLOCATOR, class Args_01,
                                class Args_02>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
@@ -1680,14 +1726,15 @@ struct DequePrimitives {
                                class Args_02,
                                class Args_03>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
@@ -1696,15 +1743,16 @@ struct DequePrimitives {
                                class Args_03,
                                class Args_04>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
@@ -1714,16 +1762,17 @@ struct DequePrimitives {
                                class Args_04,
                                class Args_05>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
@@ -1734,17 +1783,18 @@ struct DequePrimitives {
                                class Args_05,
                                class Args_06>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
@@ -1756,18 +1806,19 @@ struct DequePrimitives {
                                class Args_06,
                                class Args_07>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
@@ -1780,19 +1831,20 @@ struct DequePrimitives {
                                class Args_07,
                                class Args_08>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
@@ -1806,20 +1858,21 @@ struct DequePrimitives {
                                class Args_08,
                                class Args_09>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
@@ -1834,55 +1887,56 @@ struct DequePrimitives {
                                class Args_09,
                                class Args_10>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
     template <class ALLOCATOR>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 0
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
     template <class ALLOCATOR, class Args_01>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 1
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
     template <class ALLOCATOR, class Args_01,
                                class Args_02>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 2
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
@@ -1890,14 +1944,14 @@ struct DequePrimitives {
                                class Args_02,
                                class Args_03>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 3
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
@@ -1906,15 +1960,15 @@ struct DequePrimitives {
                                class Args_03,
                                class Args_04>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 4
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
@@ -1924,16 +1978,16 @@ struct DequePrimitives {
                                class Args_04,
                                class Args_05>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 5
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
@@ -1944,17 +1998,17 @@ struct DequePrimitives {
                                class Args_05,
                                class Args_06>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 6
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
@@ -1966,18 +2020,18 @@ struct DequePrimitives {
                                class Args_06,
                                class Args_07>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 7
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
@@ -1990,19 +2044,19 @@ struct DequePrimitives {
                                class Args_07,
                                class Args_08>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 8
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
@@ -2016,20 +2070,20 @@ struct DequePrimitives {
                                class Args_08,
                                class Args_09>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 9
 
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
@@ -2044,21 +2098,21 @@ struct DequePrimitives {
                                class Args_09,
                                class Args_10>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10);
 #endif  // BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_A >= 10
 
 #else
@@ -2073,28 +2127,30 @@ struct DequePrimitives {
 
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToBackDispatch(
-              Iterator                                             *toEnd,
-              Iterator                                              fromEnd,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToBackDispatch(
-             Iterator                                              *toEnd,
-             Iterator                                               fromEnd,
-             Iterator                                               position,
-             ALLOCATOR                                              allocator,
-             bsl::integral_constant<int, NIL_TRAITS>,
-             BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+    Iterator                                                       *toEnd,
+    Iterator                                                        fromEnd,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFront(Iterator  *toBegin,
@@ -2105,28 +2161,30 @@ struct DequePrimitives {
 
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
     template <class ALLOCATOR, class... Args>
     static void emplaceAndMoveToFrontDispatch(
-              Iterator                                             *toBegin,
-              Iterator                                              fromBegin,
-              Iterator                                              position,
-              ALLOCATOR                                             allocator,
-              bsl::integral_constant<int, NIL_TRAITS>,
-              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
+    Iterator                                                       *toBegin,
+    Iterator                                                        fromBegin,
+    Iterator                                                        position,
+    ALLOCATOR                                                       allocator,
+    bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+    BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments);
 // }}} END GENERATED CODE
 #endif
 
@@ -2201,9 +2259,9 @@ template <class VALUE_TYPE>
 struct DequePrimitives<VALUE_TYPE, 1> {
 
     // PUBLIC TYPES
-    typedef std::size_t                                         size_type;
-    typedef DequeImpUtil<VALUE_TYPE, 1>                  ImpUtil;
-    typedef DequeIterator<VALUE_TYPE, 1>                 Iterator;
+    typedef std::size_t                  size_type;
+    typedef DequeImpUtil<VALUE_TYPE, 1>  ImpUtil;
+    typedef DequeIterator<VALUE_TYPE, 1> Iterator;
 
     // CLASS METHODS
     template <class ALLOCATOR>
@@ -2259,21 +2317,21 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                        const VALUE_TYPE&  value,
                                        ALLOCATOR          allocator);
     template <class ALLOCATOR>
-static void uninitializedFillNBack(
-                     Iterator                                    *toEnd,
-                     Iterator                                     fromEnd,
-                     size_type                                    numElements,
-                     const VALUE_TYPE&                            value,
-                     ALLOCATOR                                    allocator,
-                     bsl::integral_constant<int, NIL_TRAITS>);
+    static void uninitializedFillNBack(
+               Iterator          *toEnd,
+               Iterator           fromEnd,
+               size_type          numElements,
+               const VALUE_TYPE&  value,
+               ALLOCATOR          allocator,
+               bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
     template <class ALLOCATOR>
     static void uninitializedFillNBack(
-                      Iterator                                    *toEnd,
-                      Iterator                                     fromEnd,
-                      size_type                                    numElements,
-                      const VALUE_TYPE&                            value,
-                      ALLOCATOR                                    allocator,
-                      bsl::integral_constant<int, NON_NIL_TRAITS>);
+           Iterator          *toEnd,
+           Iterator           fromEnd,
+           size_type          numElements,
+           const VALUE_TYPE&  value,
+           ALLOCATOR          allocator,
+           bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS>);
 
     template <class ALLOCATOR>
     static void uninitializedFillNFront(Iterator          *toBegin,
@@ -2283,20 +2341,20 @@ static void uninitializedFillNBack(
                                         ALLOCATOR          allocator);
     template <class ALLOCATOR>
     static void uninitializedFillNFront(
-                      Iterator                                   *toBegin,
-                      Iterator                                    fromBegin,
-                      size_type                                   numElements,
-                      const VALUE_TYPE&                           value,
-                      ALLOCATOR                                   allocator,
-                      bsl::integral_constant<int, NIL_TRAITS>);
+               Iterator          *toBegin,
+               Iterator           fromBegin,
+               size_type          numElements,
+               const VALUE_TYPE&  value,
+               ALLOCATOR          allocator,
+               bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
     template <class ALLOCATOR>
     static void uninitializedFillNFront(
-                      Iterator                                    *toBegin,
-                      Iterator                                     fromBegin,
-                      size_type                                    numElements,
-                      const VALUE_TYPE&                            value,
-                      ALLOCATOR                                    allocator,
-                      bsl::integral_constant<int, NON_NIL_TRAITS>);
+           Iterator          *toBegin,
+           Iterator           fromBegin,
+           size_type          numElements,
+           const VALUE_TYPE&  value,
+           ALLOCATOR          allocator,
+           bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS>);
 
     template <class ALLOCATOR>
     static void valueInititalizeN(Iterator  *toEnd,
@@ -2306,19 +2364,19 @@ static void uninitializedFillNBack(
 
     template <class ALLOCATOR>
     static void valueInititalizeN(
-                      Iterator                                    *toEnd,
-                      Iterator                                     fromEnd,
-                      size_type                                    numElements,
-                      ALLOCATOR                                    allocator,
-                      bsl::integral_constant<int, NIL_TRAITS>);
+               Iterator  *toEnd,
+               Iterator   fromEnd,
+               size_type  numElements,
+               ALLOCATOR  allocator,
+               bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
 
     template <class ALLOCATOR>
     static void valueInititalizeN(
-                      Iterator                                    *toEnd,
-                      Iterator                                     fromEnd,
-                      size_type                                    numElements,
-                      ALLOCATOR                                    allocator,
-                      bsl::integral_constant<int, NON_NIL_TRAITS>);
+           Iterator  *toEnd,
+           Iterator   fromEnd,
+           size_type  numElements,
+           ALLOCATOR  allocator,
+           bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS>);
 };
 
                     // =======================================
@@ -2559,11 +2617,11 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(Iterator   begin,
                                                          ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-              ? BITWISE_COPYABLE_TRAITS
-              : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     return destruct(begin,
@@ -2575,10 +2633,10 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(Iterator   begin,
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(
-                          Iterator,
-                          Iterator,
-                          ALLOCATOR,
-                          bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+   Iterator,
+   Iterator,
+   ALLOCATOR,
+   bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     // No-op.
 }
@@ -2586,10 +2644,10 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
 void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::destruct(
-                             Iterator                                begin,
-                             Iterator                                end,
-                             ALLOCATOR                               allocator,
-                             bsl::integral_constant<int, NIL_TRAITS>)
+      Iterator                                                       begin,
+      Iterator                                                       end,
+      ALLOCATOR                                                      allocator,
+      bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     for (; !(begin == end); ++begin) {
         bsl::allocator_traits<ALLOCATOR>::destroy(allocator,
@@ -2611,11 +2669,11 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(Iterator  *toBegin,
                                                  ALLOCATOR  allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-              ? BITWISE_COPYABLE_TRAITS
-              : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     return erase(toBegin,
@@ -2630,17 +2688,16 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(Iterator  *toBegin,
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-typename
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::Iterator
+typename DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::Iterator
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(
-                            Iterator                                *toBegin,
-                            Iterator                                *toEnd,
-                            Iterator                                 fromBegin,
-                            Iterator                                 first,
-                            Iterator                                 last,
-                            Iterator                                 fromEnd,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>)
+     Iterator                                                       *toBegin,
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromBegin,
+     Iterator                                                        first,
+     Iterator                                                        last,
+     Iterator                                                        fromEnd,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     if (first == last) {  // Nothing to delete, bail out fast
         *toBegin = fromBegin;
@@ -2676,17 +2733,17 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-typename
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::Iterator
+typename DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::Iterator
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::erase(
-               Iterator                                             *toBegin,
-               Iterator                                             *toEnd,
-               Iterator                                              fromBegin,
-               Iterator                                              first,
-               Iterator                                              last,
-               Iterator                                              fromEnd,
-               ALLOCATOR,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+        Iterator *toBegin,
+        Iterator *toEnd,
+        Iterator  fromBegin,
+        Iterator  first,
+        Iterator  last,
+        Iterator  fromEnd,
+        ALLOCATOR,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     size_type frontSize = first - fromBegin;
     size_type backSize  = fromEnd - last;
@@ -2721,12 +2778,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                                ALLOCATOR          allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
-        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
+        IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-              ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-              ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     insertAndMoveToBack(toEnd,
@@ -2740,15 +2799,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
-             Iterator                                             *toEnd,
-             Iterator                                              fromEnd,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
+        Iterator          *toEnd,
+        Iterator           fromEnd,
+        Iterator           position,
+        size_type          numElements,
+        const VALUE_TYPE&  value,
+        ALLOCATOR          allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     size_type backSize = fromEnd - position;
     Iterator  end      = fromEnd;
@@ -2779,15 +2838,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
-             Iterator                                             *toEnd,
-             Iterator                                              fromEnd,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
+        Iterator          *toEnd,
+        Iterator           fromEnd,
+        Iterator           position,
+        size_type          numElements,
+        const VALUE_TYPE&  value,
+        ALLOCATOR          allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>)
 {
     typedef DequePrimitives_ExternalDequeElementGuard<VALUE_TYPE,
                                                       BLOCK_LENGTH,
@@ -2834,15 +2893,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
-                          Iterator                                *toEnd,
-                          Iterator                                 fromEnd,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
+   Iterator                                                       *toEnd,
+   Iterator                                                        fromEnd,
+   Iterator                                                        position,
+   size_type                                                       numElements,
+   const VALUE_TYPE&                                               value,
+   ALLOCATOR                                                       allocator,
+   bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -2994,8 +3052,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     VALUE_TYPE& lvalue = value;
@@ -3010,14 +3070,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
+        Iterator                      *toEnd,
+        Iterator                       fromEnd,
+        Iterator                       position,
+        bslmf::MovableRef<VALUE_TYPE>  value,
+        ALLOCATOR                      allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -3039,14 +3099,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
+        Iterator                      *toEnd,
+        Iterator                       fromEnd,
+        Iterator                       position,
+        bslmf::MovableRef<VALUE_TYPE>  value,
+        ALLOCATOR                      allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -3072,14 +3132,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
-                                      Iterator                      *toEnd,
-                                      Iterator                       fromEnd,
-                                      Iterator                       position,
-                                      bslmf::MovableRef<VALUE_TYPE>  value,
-                                      ALLOCATOR                      allocator,
-                                      bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToBack(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     bslmf::MovableRef<VALUE_TYPE>                                   value,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -3134,12 +3193,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                     ALLOCATOR          allocator)
 {
     enum {
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
-        IS_BITWISEMOVEABLE  = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
+        IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-              ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-              ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     insertAndMoveToFront(toBegin,
@@ -3153,15 +3214,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
-             Iterator                                             *toBegin,
-             Iterator                                              fromBegin,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
+        Iterator          *toBegin,
+        Iterator           fromBegin,
+        Iterator           position,
+        size_type          numElements,
+        const VALUE_TYPE&  value,
+        ALLOCATOR          allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     size_type frontSize = position - fromBegin;
     Iterator  begin     = fromBegin;
@@ -3192,15 +3253,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
-             Iterator                                             *toBegin,
-             Iterator                                              fromBegin,
-             Iterator                                              position,
-             size_type                                             numElements,
-             const VALUE_TYPE&                                     value,
-             ALLOCATOR                                             allocator,
-             bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
+        Iterator          *toBegin,
+        Iterator           fromBegin,
+        Iterator           position,
+        size_type          numElements,
+        const VALUE_TYPE&  value,
+        ALLOCATOR          allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>)
 {
     typedef DequePrimitives_ExternalDequeElementGuard<VALUE_TYPE,
                                                       BLOCK_LENGTH,
@@ -3245,15 +3306,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
-                          Iterator                                *toBegin,
-                          Iterator                                 fromBegin,
-                          Iterator                                 position,
-                          size_type                                numElements,
-                          const VALUE_TYPE&                        value,
-                          ALLOCATOR                                allocator,
-                          bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
+   Iterator                                                       *toBegin,
+   Iterator                                                        fromBegin,
+   Iterator                                                        position,
+   size_type                                                       numElements,
+   const VALUE_TYPE&                                               value,
+   ALLOCATOR                                                       allocator,
+   bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -3388,8 +3448,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     VALUE_TYPE& lvalue = value;
@@ -3404,14 +3466,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
+        Iterator                      *toBegin,
+        Iterator                       fromBegin,
+        Iterator                       position,
+        bslmf::MovableRef<VALUE_TYPE>  value,
+        ALLOCATOR                      allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -3432,14 +3494,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               bslmf::MovableRef<VALUE_TYPE>                         value,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
+        Iterator                      *toBegin,
+        Iterator                       fromBegin,
+        Iterator                       position,
+        bslmf::MovableRef<VALUE_TYPE>  value,
+        ALLOCATOR                      allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -3464,14 +3526,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
-                                      Iterator                      *toBegin,
-                                      Iterator                       fromBegin,
-                                      Iterator                       position,
-                                      bslmf::MovableRef<VALUE_TYPE>  value,
-                                      ALLOCATOR                      allocator,
-                                      bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::moveInsertAndMoveToFront(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     bslmf::MovableRef<VALUE_TYPE>                                   value,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -3536,8 +3597,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3566,8 +3629,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3599,8 +3664,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3635,8 +3702,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3674,8 +3743,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3716,8 +3787,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3761,8 +3834,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3809,8 +3884,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3860,8 +3937,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3914,8 +3993,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3971,8 +4052,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -3998,13 +4081,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 0
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4025,14 +4108,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 1
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4055,15 +4138,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4088,16 +4171,16 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4124,17 +4207,17 @@ template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03,
                            class Args_04>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4163,18 +4246,18 @@ template <class ALLOCATOR, class Args_01,
                            class Args_03,
                            class Args_04,
                            class Args_05>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4205,19 +4288,19 @@ template <class ALLOCATOR, class Args_01,
                            class Args_04,
                            class Args_05,
                            class Args_06>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4250,20 +4333,20 @@ template <class ALLOCATOR, class Args_01,
                            class Args_05,
                            class Args_06,
                            class Args_07>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4298,21 +4381,21 @@ template <class ALLOCATOR, class Args_01,
                            class Args_06,
                            class Args_07,
                            class Args_08>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4349,22 +4432,22 @@ template <class ALLOCATOR, class Args_01,
                            class Args_07,
                            class Args_08,
                            class Args_09>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4403,23 +4486,23 @@ template <class ALLOCATOR, class Args_01,
                            class Args_08,
                            class Args_09,
                            class Args_10>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4451,13 +4534,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 0
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4482,14 +4565,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 1
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4516,15 +4599,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4553,16 +4636,16 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4593,17 +4676,17 @@ template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03,
                            class Args_04>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4636,18 +4719,18 @@ template <class ALLOCATOR, class Args_01,
                            class Args_03,
                            class Args_04,
                            class Args_05>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4682,19 +4765,19 @@ template <class ALLOCATOR, class Args_01,
                            class Args_04,
                            class Args_05,
                            class Args_06>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4731,20 +4814,20 @@ template <class ALLOCATOR, class Args_01,
                            class Args_05,
                            class Args_06,
                            class Args_07>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4783,21 +4866,21 @@ template <class ALLOCATOR, class Args_01,
                            class Args_06,
                            class Args_07,
                            class Args_08>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4838,22 +4921,22 @@ template <class ALLOCATOR, class Args_01,
                            class Args_07,
                            class Args_08,
                            class Args_09>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4896,23 +4979,23 @@ template <class ALLOCATOR, class Args_01,
                            class Args_08,
                            class Args_09,
                            class Args_10>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -4948,13 +5031,12 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 0
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5011,14 +5093,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 1
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5077,15 +5158,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5146,16 +5226,15 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5218,17 +5297,16 @@ template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03,
                            class Args_04>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5293,18 +5371,17 @@ template <class ALLOCATOR, class Args_01,
                            class Args_03,
                            class Args_04,
                            class Args_05>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5371,19 +5448,18 @@ template <class ALLOCATOR, class Args_01,
                            class Args_04,
                            class Args_05,
                            class Args_06>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5452,20 +5528,19 @@ template <class ALLOCATOR, class Args_01,
                            class Args_05,
                            class Args_06,
                            class Args_07>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5536,21 +5611,20 @@ template <class ALLOCATOR, class Args_01,
                            class Args_06,
                            class Args_07,
                            class Args_08>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5623,22 +5697,21 @@ template <class ALLOCATOR, class Args_01,
                            class Args_07,
                            class Args_08,
                            class Args_09>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5713,23 +5786,22 @@ template <class ALLOCATOR, class Args_01,
                            class Args_08,
                            class Args_09,
                            class Args_10>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -5810,8 +5882,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -5840,8 +5914,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -5873,8 +5949,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -5909,8 +5987,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -5948,8 +6028,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -5990,8 +6072,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -6035,8 +6119,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -6083,8 +6169,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -6134,8 +6222,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -6188,8 +6278,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -6245,8 +6337,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -6272,13 +6366,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 0
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6298,14 +6392,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 1
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6327,15 +6421,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6359,16 +6453,16 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6394,17 +6488,17 @@ template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03,
                            class Args_04>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6432,18 +6526,18 @@ template <class ALLOCATOR, class Args_01,
                            class Args_03,
                            class Args_04,
                            class Args_05>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6473,19 +6567,19 @@ template <class ALLOCATOR, class Args_01,
                            class Args_04,
                            class Args_05,
                            class Args_06>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6517,20 +6611,20 @@ template <class ALLOCATOR, class Args_01,
                            class Args_05,
                            class Args_06,
                            class Args_07>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6564,21 +6658,21 @@ template <class ALLOCATOR, class Args_01,
                            class Args_06,
                            class Args_07,
                            class Args_08>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6614,22 +6708,22 @@ template <class ALLOCATOR, class Args_01,
                            class Args_07,
                            class Args_08,
                            class Args_09>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6667,23 +6761,23 @@ template <class ALLOCATOR, class Args_01,
                            class Args_08,
                            class Args_09,
                            class Args_10>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6714,13 +6808,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 0
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6744,14 +6838,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 1
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6777,15 +6871,15 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6813,16 +6907,16 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6852,17 +6946,17 @@ template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03,
                            class Args_04>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6894,18 +6988,18 @@ template <class ALLOCATOR, class Args_01,
                            class Args_03,
                            class Args_04,
                            class Args_05>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6939,19 +7033,19 @@ template <class ALLOCATOR, class Args_01,
                            class Args_04,
                            class Args_05,
                            class Args_06>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -6987,20 +7081,20 @@ template <class ALLOCATOR, class Args_01,
                            class Args_05,
                            class Args_06,
                            class Args_07>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -7038,21 +7132,21 @@ template <class ALLOCATOR, class Args_01,
                            class Args_06,
                            class Args_07,
                            class Args_08>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -7092,22 +7186,22 @@ template <class ALLOCATOR, class Args_01,
                            class Args_07,
                            class Args_08,
                            class Args_09>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -7149,23 +7243,23 @@ template <class ALLOCATOR, class Args_01,
                            class Args_08,
                            class Args_09,
                            class Args_10>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -7200,13 +7294,12 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 0
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7261,14 +7354,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 #if BSLALG_DEQUEPRIMITIVES_VARIADIC_LIMIT_B >= 1
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7325,15 +7417,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7392,16 +7483,15 @@ template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7462,17 +7552,16 @@ template <class ALLOCATOR, class Args_01,
                            class Args_02,
                            class Args_03,
                            class Args_04>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7535,18 +7624,17 @@ template <class ALLOCATOR, class Args_01,
                            class Args_03,
                            class Args_04,
                            class Args_05>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7611,19 +7699,18 @@ template <class ALLOCATOR, class Args_01,
                            class Args_04,
                            class Args_05,
                            class Args_06>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7690,20 +7777,19 @@ template <class ALLOCATOR, class Args_01,
                            class Args_05,
                            class Args_06,
                            class Args_07>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7772,21 +7858,20 @@ template <class ALLOCATOR, class Args_01,
                            class Args_06,
                            class Args_07,
                            class Args_08>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7857,22 +7942,21 @@ template <class ALLOCATOR, class Args_01,
                            class Args_07,
                            class Args_08,
                            class Args_09>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -7945,23 +8029,22 @@ template <class ALLOCATOR, class Args_01,
                            class Args_08,
                            class Args_09,
                            class Args_10>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
-                       BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) arguments_01,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) arguments_02,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) arguments_03,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) arguments_04,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) arguments_05,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) arguments_06,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) arguments_07,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) arguments_08,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) arguments_09,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) arguments_10)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -8042,8 +8125,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToBackDispatch(
@@ -8057,14 +8142,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBack(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -8084,14 +8169,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-               Iterator                                             *toEnd,
-               Iterator                                              fromEnd,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+        Iterator  *toEnd,
+        Iterator   fromEnd,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     const size_type backSize = fromEnd - position;
     Iterator        end      = fromEnd;
@@ -8115,14 +8200,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
-                            Iterator                                *toEnd,
-                            Iterator                                 fromEnd,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToBackDispatch(
+     Iterator                                                       *toEnd,
+     Iterator                                                        fromEnd,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -8192,8 +8276,10 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
         IS_BITWISEMOVEABLE = bslmf::IsBitwiseMoveable<VALUE_TYPE>::value,
 
         VALUE = IS_BITWISECOPYABLE
-                ? BITWISE_COPYABLE_TRAITS : IS_BITWISEMOVEABLE
-                ? BITWISE_MOVEABLE_TRAITS : NIL_TRAITS
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS
+                : IS_BITWISEMOVEABLE
+                    ? BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     emplaceAndMoveToFrontDispatch(
@@ -8207,14 +8293,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFront(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_COPYABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_COPYABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -8233,14 +8319,14 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-               Iterator                                             *toBegin,
-               Iterator                                              fromBegin,
-               Iterator                                              position,
-               ALLOCATOR                                             allocator,
-               bsl::integral_constant<int, BITWISE_MOVEABLE_TRAITS>,
-               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+        Iterator  *toBegin,
+        Iterator   fromBegin,
+        Iterator   position,
+        ALLOCATOR  allocator,
+        bsl::integral_constant<int,
+                               BSLALG_DEQUEPRIMITIVES_BITWISE_MOVEABLE_TRAITS>,
+        BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     const size_type frontSize = position - fromBegin;
     Iterator        begin     = fromBegin;
@@ -8263,14 +8349,13 @@ DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
 template <class ALLOCATOR, class... Args>
-void
-DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
-                            Iterator                                *toBegin,
-                            Iterator                                 fromBegin,
-                            Iterator                                 position,
-                            ALLOCATOR                                allocator,
-                            bsl::integral_constant<int, NIL_TRAITS>,
-                          BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
+void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::emplaceAndMoveToFrontDispatch(
+     Iterator                                                       *toBegin,
+     Iterator                                                        fromBegin,
+     Iterator                                                        position,
+     ALLOCATOR                                                       allocator,
+     bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>,
+     BSLS_COMPILERFEATURES_FORWARD_REF(Args)... arguments)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               BLOCK_LENGTH,
@@ -9061,9 +9146,9 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
 
         IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
-        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
-                NON_NIL_TRAITS
-              : NIL_TRAITS
+        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE
+                    ? BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     uninitializedFillNFront(toBegin,
@@ -9076,14 +9161,13 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
-                                       Iterator                   *toBegin,
-                                       Iterator                    fromBegin,
-                                       size_type                   numElements,
-                                       const VALUE_TYPE&           value,
-                                       ALLOCATOR                   allocator,
-                                       bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
+   Iterator                                                       *toBegin,
+   Iterator                                                        fromBegin,
+   size_type                                                       numElements,
+   const VALUE_TYPE&                                               value,
+   ALLOCATOR                                                       allocator,
+   bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               1,
@@ -9103,14 +9187,13 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
-                                   Iterator                       *toBegin,
-                                   Iterator                        fromBegin,
-                                   size_type                       numElements,
-                                   const VALUE_TYPE&               value,
-                                   ALLOCATOR                       allocator,
-                                   bsl::integral_constant<int, NON_NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNFront(
+            Iterator          *toBegin,
+            Iterator           fromBegin,
+            size_type          numElements,
+            const VALUE_TYPE&  value,
+            ALLOCATOR          allocator,
+            bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS>)
 {
     *toBegin = fromBegin;  // necessary in case 'numElements = 0'
     for ( ; 0 < numElements; --numElements) {
@@ -9142,11 +9225,11 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
-        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
-                NON_NIL_TRAITS
-              : NIL_TRAITS
+        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE
+                    ? BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     uninitializedFillNBack(toEnd,
@@ -9159,14 +9242,13 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
-                                       Iterator                   *toEnd,
-                                       Iterator                    fromEnd,
-                                       size_type                   numElements,
-                                       const VALUE_TYPE&           value,
-                                       ALLOCATOR                   allocator,
-                                       bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
+   Iterator                                                       *toEnd,
+   Iterator                                                        fromEnd,
+   size_type                                                       numElements,
+   const VALUE_TYPE&                                               value,
+   ALLOCATOR                                                       allocator,
+   bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               1,
@@ -9186,14 +9268,13 @@ DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
-                                   Iterator                       *toEnd,
-                                   Iterator                        fromEnd,
-                                   size_type                       numElements,
-                                   const VALUE_TYPE&               value,
-                                   ALLOCATOR                       allocator,
-                                   bsl::integral_constant<int, NON_NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, 1>::uninitializedFillNBack(
+            Iterator          *toEnd,
+            Iterator           fromEnd,
+            size_type          numElements,
+            const VALUE_TYPE&  value,
+            ALLOCATOR          allocator,
+            bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS>)
 {
     *toEnd = fromEnd;  // necessary in case 'numElements = 0'
     for ( ; 0 < numElements; --numElements) {
@@ -9223,11 +9304,11 @@ DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
         IS_FUNDAMENTAL_OR_POINTER = IS_FUNDAMENTAL ||
                                     (IS_POINTER && !IS_FUNCTION_POINTER),
 
-        IS_BITWISECOPYABLE  = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
+        IS_BITWISECOPYABLE = bslmf::IsBitwiseCopyable<VALUE_TYPE>::value,
 
-        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE ?
-                NON_NIL_TRAITS
-              : NIL_TRAITS
+        VALUE = IS_FUNDAMENTAL_OR_POINTER || IS_BITWISECOPYABLE
+                    ? BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS
+                    : BSLALG_DEQUEPRIMITIVES_NIL_TRAITS
     };
 
     valueInititalizeN(toEnd,
@@ -9239,13 +9320,12 @@ DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(Iterator  *toEnd,
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
-                          Iterator                                *toEnd,
-                          Iterator                                 fromEnd,
-                          size_type                                numElements,
-                          ALLOCATOR                                allocator,
-                          bsl::integral_constant<int, NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
+   Iterator                                                       *toEnd,
+   Iterator                                                        fromEnd,
+   size_type                                                       numElements,
+   ALLOCATOR                                                       allocator,
+   bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>)
 {
     typedef DequePrimitives_DequeElementGuard<VALUE_TYPE,
                                               1,
@@ -9264,13 +9344,12 @@ DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
 
 template <class VALUE_TYPE>
 template <class ALLOCATOR>
-void
-DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
-                      Iterator                                    *toEnd,
-                      Iterator                                     fromEnd,
-                      size_type                                    numElements,
-                      ALLOCATOR                                    allocator,
-                      bsl::integral_constant<int, NON_NIL_TRAITS>)
+void DequePrimitives<VALUE_TYPE, 1>::valueInititalizeN(
+            Iterator  *toEnd,
+            Iterator   fromEnd,
+            size_type  numElements,
+            ALLOCATOR  allocator,
+            bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NON_NIL_TRAITS>)
 {
     *toEnd = fromEnd;  // necessary in case 'numElements = 0'
     for ( ; 0 < numElements; --numElements) {
@@ -9461,18 +9540,6 @@ void DequePrimitives_DequeEndpointProctor<VALUE_TYPE, BLOCK_LENGTH>::release()
 }
 
 }  // close package namespace
-
-#ifndef BDE_OPENSOURCE_PUBLICATION  // BACKWARD_COMPATIBILITY
-// ============================================================================
-//                           BACKWARD COMPATIBILITY
-// ============================================================================
-
-#ifdef bslalg_DequePrimitives
-#undef bslalg_DequePrimitives
-#endif
-/// This alias is defined for backward compatibility.
-#define bslalg_DequePrimitives bslalg::DequePrimitives
-#endif  // BDE_OPENSOURCE_PUBLICATION -- BACKWARD_COMPATIBILITY
 
 }  // close enterprise namespace
 

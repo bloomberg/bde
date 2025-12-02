@@ -1,3 +1,4 @@
---tool bde-tidy
+--tool bde-validation
 --tool clang-tidy
---tool bde-format
+--tool bde-tidy
+--tool fix-your-includes

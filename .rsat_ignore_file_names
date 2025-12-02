@@ -1,0 +1,5 @@
+thirdparty/.*
+benchmarks/.*
+tools/.*
+samples/.*
+groups/.*\.t\.cpp

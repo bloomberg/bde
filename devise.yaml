@@ -5,7 +5,6 @@ verify:
   cmake:
     archs:
     - linux
-    - sundev1
     bitness:
     - 64
     build_type: RelWithDebInfo

@@ -1652,6 +1652,9 @@ bool TestUtil_UnixImpUtil::isBigtimeSupportAvailable(
     tmw.tm_isdst = -1;           // Daylight saving is unknown
 
     bsl::time_t writeModTime = timegm(&tmw);  // utc conversion
+    if (-1 == writeModTime) {
+        return false;                                                 // RETURN
+    }
 
     // Update the file modification time to `writeModTime`.
     struct timespec times[2] = {};
