@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Dec  1 13:56:58 2025
+// Generated on Wed Dec  3 13:44:16 2025
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -9064,7 +9064,9 @@ void ArrayPrimitives_Imp::shiftAndInsert(
 #endif
 
     // shift
-    std::memmove(begin + 1, begin, (end - begin) * sizeof(ValueType));
+    std::memmove(static_cast<void *>(begin + 1),
+                 begin,
+                 (end - begin) * sizeof(ValueType));
 
     // insert
     bsl::allocator_traits<ALLOCATOR>::construct(

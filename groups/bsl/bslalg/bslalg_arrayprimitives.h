@@ -4787,7 +4787,9 @@ void ArrayPrimitives_Imp::shiftAndInsert(
 #endif
 
     // shift
-    std::memmove(begin + 1, begin, (end - begin) * sizeof(ValueType));
+    std::memmove(static_cast<void *>(begin + 1),
+                 begin,
+                 (end - begin) * sizeof(ValueType));
 
     // insert
     bsl::allocator_traits<ALLOCATOR>::construct(
