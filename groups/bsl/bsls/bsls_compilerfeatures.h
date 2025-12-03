@@ -769,7 +769,7 @@ BSLS_IDENT("$Id: $")
 //
 ///`BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS`
 ///- - - - - - - - - - - - - - - - - - - -
-// This macro is defined if the concepts core language feature is fully
+// This macro is defined if the Concepts core language feature is fully
 // supported, as defined by ISO C++20.
 //
 // This macro is defined if the standard `__cpp_concepts` feature-test macro
@@ -777,12 +777,8 @@ BSLS_IDENT("$Id: $")
 //
 // * Compiler support:
 //   - GCC 12.1
-//   - Visual Studio 2022 version 17.2.2 (<u>MSC</u>VER 1932)
-//
-// Note that clang 16.0 still has a bug that prevents it declaring C++20
-// concepts support. (At the time of writing (2023.Jun.01) clang `trunk` does
-// not yet declare C++20 concepts to be available, `_cpp_concepts` is
-// 201907LL).
+//   - Visual Studio 2022 version 17.2.2 (`_MSC_VER` 1932)
+//   - Clang 19.1
 //
 ///`BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR`
 ///- - - - - - - - - - - - - - - - - - - - -

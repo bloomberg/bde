@@ -21,10 +21,12 @@
     #include <initializer_list>
 #endif
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+    #include <type_traits>
+#endif
+
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_COROUTINE)
     #include <coroutine>
-
-    #include <type_traits>  // For testing only
 #endif
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
@@ -1574,6 +1576,27 @@ template <class T, class U>
 concept Addable = requires (T v, U u) {
         v + u;
     };
+
+template <typename t_DERIVED>
+struct CRTP {
+   void callFoo() requires requires (t_DERIVED& v) { v.foo(); }
+   {
+       static_cast<t_DERIVED*>(this)->foo();
+   }
+};
+
+struct Test : public CRTP<Test> {
+   void foo() { }
+};
+
+template <class t_TYPE>
+constexpr bool canCallFoo = requires (t_TYPE x) { x.callFoo(); };
+
+template <class t_TYPE>
+struct S {
+    ~S() {}
+    ~S() requires (sizeof(t_TYPE) == 1) = default;
+};
 }  // close namespace test_case_38
 #endif
 
@@ -2635,16 +2658,11 @@ int main(int argc, char *argv[])
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
         static_assert(__cpp_concepts >= 202002L);
-#ifdef BSLS_PLATFORM_CMP_CLANG
+#if defined(BSLS_PLATFORM_CMP_CLANG) && defined(__apple_build_version__)
         const unsigned long clangVersion = BSLS_PLATFORM_CMP_CLANG;
-        const char *whichClang =
-  #ifndef __apple_build_version__
-            "LLVM";
-  #else
-            "Apple";
-  #endif
-        ASSERTV(__cpp_concepts, whichClang, clangVersion,
-                "clang now appears to support core language C++20 concepts.  "
+        ASSERTV(__cpp_concepts, clangVersion,
+                "Apple Clang now appears to support core language C++20 "
+                "concepts.  "
                 "Please update `BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS` "
                 "Compiler support and its clang-related note in "
                 "`bsls_compilerfeatures.h` to reflect the current known "
@@ -2660,6 +2678,14 @@ int main(int argc, char *argv[])
         static_assert( Addable<int*, int>);
         static_assert(!Addable<int*, int*>);
         static_assert(!Addable<void, void>);
+
+        /// Verify that deferred instantiation of constraints has been
+        /// implemented (LLVM bug 44178)
+        ASSERT(canCallFoo<Test>);
+
+        /// Verify that conditional triviality is supported (P0848R3)
+        ASSERT(std::is_trivially_destructible_v<S<char>>);
+        ASSERT(!std::is_trivially_destructible_v<S<char[2]>>);
 #else
         if (verbose) printf(
                            "concepts are not supported in this configuration. "
