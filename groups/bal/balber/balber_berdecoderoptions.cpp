@@ -9,7 +9,6 @@ BSLS_IDENT_RCSID(balber_berdecoderoptions_cpp,"$Id$ $CSID$")
 #include <bdlb_chartype.h>
 #include <bdlb_print.h>
 #include <bdlb_printmethods.h>
-#include <bdlb_string.h>
 
 #include <bsls_assert.h>
 

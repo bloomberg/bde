@@ -5215,6 +5215,7 @@ inline
 DatumMutableArrayRef::DatumMutableArrayRef()
 : d_data_p(0)
 , d_length_p(0)
+, d_capacity(0)
 {
 }
 
@@ -5358,6 +5359,7 @@ inline
 DatumMutableMapOwningKeysRef::DatumMutableMapOwningKeysRef()
 : d_data_p(0)
 , d_size_p(0)
+, d_allocatedSize(0)
 , d_keys_p(0)
 , d_sorted_p(0)
 {

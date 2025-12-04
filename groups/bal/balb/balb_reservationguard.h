@@ -37,7 +37,7 @@ BSLS_IDENT("$Id: $")
 // `balb::LeakyBucket` object.  We send data buffer over a network interface
 // using the `mySendData` function:
 // ```
-// /// Send a specified 'dataSize' amount of data over the network.  Return the
+// /// Send a specified `dataSize` amount of data over the network.  Return the
 // /// amount of data actually sent.  Throw an exception if a network failure
 // /// is detected.
 // bsls::Types::Uint64 mySendData(size_t dataSize);

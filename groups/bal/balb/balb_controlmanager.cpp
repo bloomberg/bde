@@ -8,7 +8,6 @@
 
 #include <bdlf_bind.h>
 
-#include <bdlb_string.h>
 #include <bdlb_stringviewutil.h>
 
 #include <bslma_default.h>
@@ -19,7 +18,6 @@
 #include <bsl_functional.h>
 #include <bsl_iostream.h>
 #include <bsl_memory.h>
-#include <bsl_sstream.h>
 #include <bsl_utility.h>
 
 namespace BloombergLP {

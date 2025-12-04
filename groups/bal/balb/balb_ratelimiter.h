@@ -180,7 +180,7 @@ BSLS_IDENT("$Id: $")
 // * The peak resource usage (i.e., the peak rate) should not exceed 2048
 //   bytes/s (`Rp`).
 // * The period over which to monitor the peak resource usage should be
-//:   0.0625s (Wp).
+//   0.0625s (Wp).
 //
 // This is shown in Figure 2 below.
 // ```
@@ -204,18 +204,18 @@ BSLS_IDENT("$Id: $")
 // graphically as the maximum area above the respective lines, `Rp` and `Rs`,
 // that the usage curve to allowed to achieve.  In the example above:
 //
-//  o The area above the sustained rate `Rs` (e.g., `A1` or `A2+B`) should
-//    contain no more than 512 bytes (Rs * Ws).
+// * The area above the sustained rate `Rs` (e.g., `A1` or `A2+B`) should
+//   contain no more than 512 bytes (Rs * Ws).
 //
-//  o The area above the peak rate `Rp` should contain no more than 128 bytes
-//    (Rp * Wp).
+// * The area above the peak rate `Rp` should contain no more than 128 bytes
+//   (Rp * Wp).
 //
 // Further suppose that we have a function, `sendData`, that transmits a
 // specified amount of data over that network:
 // ```
+// /// Send a specified `dataSize` amount of data over the network.
+// /// Return `true` if data was sent successfully and `false` otherwise.
 // bool sendData(bsl::size_t dataSize);
-//     // Send a specified 'dataSize' amount of data over the network.
-//     // Return 'true' if data was sent successfully and 'false' otherwise.
 // ```
 // First, we create a `balb::RateLimiter` object having a sustained rate of
 // 1024 bytes/s, a sustained-rate time-window of 0.5s

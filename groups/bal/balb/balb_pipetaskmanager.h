@@ -104,8 +104,8 @@ BSLS_IDENT("$Id: $")
 ///Message Requirements
 ///--------------------
 // Each message consists of a sequence of fields separated by blanks and/or
-// tabs and terminated by a newline ('\n') character.  The terminating newline
-// is not passed to the message handler.
+// tabs and terminated by a newline (``\n``) character.  The terminating
+// newline is not passed to the message handler.
 //
 // The first field is called the message "prefix" and is used to find a
 // previously registered handler for the message.  The handler lookup is case
