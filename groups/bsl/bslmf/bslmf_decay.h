@@ -90,6 +90,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslmf_addpointer.h>
 #include <bslmf_assert.h>
 #include <bslmf_isarray.h>
 #include <bslmf_isfunction.h>
@@ -153,7 +154,7 @@ struct decay_imp<t_TYPE, true /* t_IS_ARRAY */, false /* t_IS_FUNC */> {
 
 template <class t_TYPE>
 struct decay_imp<t_TYPE, false /* t_IS_ARRAY */, true /* t_IS_FUNC */> {
-    typedef t_TYPE *type;
+    typedef typename add_pointer<t_TYPE>::type type;
 };
 
 }  // close namespace bsl

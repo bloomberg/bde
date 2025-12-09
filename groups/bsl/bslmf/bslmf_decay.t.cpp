@@ -209,7 +209,8 @@ int main(int argc, char *argv[])
         //  7. Cv-qualification on array elements is preserved.
         //
         //  8. If `TYPE` is a function type `F`, then `bsl::decay<TYPE>::type`
-        //     is `F*`.
+        //     is `F*`, except when `F` has cv-qualifiers or a ref-qualifier,
+        //     in which case it is `F`.
         //
         //  9. if `TYPE` is a pointer-to-function type or pointer-to-array type
         //     then `bsl::decay<TYPE>::type` is `TYPE` except with top-level
@@ -275,6 +276,19 @@ int main(int argc, char *argv[])
         TEST(volatile char[][20]    , volatile char(*)[20]);
         TEST(const long[10][30]     , const long(*)[30]   );
         TEST(void (double)          , void (*)(double)    ); // 8
+#ifndef BSLS_PLATFORM_CMP_SUN
+        // SunCC bug: we should detect that adding a pointer to an abominable
+        // function type fails, and fall back to not adding a pointer.  But on
+        // SunCC, `void (*)(double) const` is not treated as an invalid type,
+        // and since we can't use variadic templates or expression SFINAE in
+        // C++03 to detect abominable function types, we can't make this test
+        // pass on that compiler.
+        TEST(void (double) const    , void (double) const );
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+        TEST(void (double) &        , void (double) &     );
+        TEST(void (double) &&       , void (double) &&    );
+# endif
+#endif
         TEST(short (* const)(int)   , short (*)(int)      ); // 9
         TEST(char (* volatile)[2]   , char (*)[2]         );
         TEST(int&                   , int                 ); // 10
