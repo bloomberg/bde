@@ -163,8 +163,8 @@ using bdldfp::Decimal64;
 //                              // class Datum
 //                              // -----------
 // TYPES
-// [27] enum DataType { ... };
-// [27] enum { k_NUM_TYPES = ... };
+// [28] enum DataType { ... };
+// [28] enum { k_NUM_TYPES = ... };
 //
 // CREATORS
 // [ 3] Datum() = default;
@@ -203,17 +203,18 @@ using bdldfp::Decimal64;
 // [18] void createUninitializedMap(DatumMutableMapRef*, SizeType, ...);
 // [18] void createUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
 // [19] char *createUninitializedString(Datum&, SizeType, Allocator *);
-// [29] const char *dataTypeToAscii(Datum::DataType);
+// [20] void *createUninitializedBinary(Datum&, SizeType, Allocator *);
+// [30] const char *dataTypeToAscii(Datum::DataType);
 // [ 3] void destroy(const Datum&, bslma::Allocator *);
-// [27] void disposeUninitializedArray(Datum *, AllocatorType);
-// [28] void disposeUninitializedMap(DatumMutableMapRef *, ...);
-// [28] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
+// [28] void disposeUninitializedArray(Datum *, AllocatorType);
+// [29] void disposeUninitializedMap(DatumMutableMapRef *, ...);
+// [29] void disposeUninitializedMap(DatumMutableMapOwningKeysRef *, ...);
 //
 // MANIPULATORS
 // [ 7] Datum& operator=(const Datum& rhs) = default;
 //
 // ACCESSORS
-// [23] Datum clone(AllocatorType) const;
+// [24] Datum clone(AllocatorType) const;
 // [16] bool isArray() const;
 // [ 3] bool isBoolean() const;
 // [ 3] bool isBinary() const;
@@ -223,7 +224,7 @@ using bdldfp::Decimal64;
 // [ 3] bool isDecimal64() const;
 // [ 3] bool isDouble() const;
 // [ 3] bool isError() const;
-// [21] bool isExternalReference() const;
+// [22] bool isExternalReference() const;
 // [ 3] bool isInteger() const;
 // [ 3] bool isInteger64() const;
 // [17] bool isIntMap() const;
@@ -248,20 +249,20 @@ using bdldfp::Decimal64;
 // [ 3] DatumUdt theUdt() const;
 // [17] DatumIntMapRef theIntMap() const;
 // [18] DatumMapRef theMap() const;
-// [22] DataType::Enum type() const;
-// [23] template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
+// [23] DataType::Enum type() const;
+// [24] template <class BDLD_VISITOR> void apply(BDLD_VISITOR&) const;
 // [ 4] bsl::ostream& print(ostream&, int, int) const; // non-aggregate
-// [20] bsl::ostream& print(ostream&, int, int) const; // aggregate
+// [21] bsl::ostream& print(ostream&, int, int) const; // aggregate
 //
 // FREE OPERATORS
 // [ 6] bool operator==(const Datum&, const Datum&);  // non-aggregate
 // [ 6] bool operator!=(const Datum&, const Datum&);  // non-aggregate
-// [26] bool operator==(const Datum&, const Datum&);  // aggregate
-// [26] bool operator!=(const Datum&, const Datum&);  // aggregate
+// [27] bool operator==(const Datum&, const Datum&);  // aggregate
+// [27] bool operator!=(const Datum&, const Datum&);  // aggregate
 // [ 4] bsl::ostream& operator<<(ostream&, const Datum&); // non-aggregate
-// [20] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
-// [30] bsl::ostream& operator<<(ostream&, const Datum::DataType);
-// [34] void hashAppend(hashAlgorithm, datum);
+// [21] bsl::ostream& operator<<(ostream&, const Datum&); // aggregate
+// [31] bsl::ostream& operator<<(ostream&, const Datum::DataType);
+// [35] void hashAppend(hashAlgorithm, datum);
 //
 //                            // -------------------
 //                            // class DatumMapEntry
@@ -498,12 +499,12 @@ using bdldfp::Decimal64;
 // [15] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [36] USAGE EXAMPLE
-// [35] VECTOR OF NULLS TEST
-// [25] Datum_ArrayProctor
-// [33] DATETIME ALLOCATION TESTS
-// [32] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
-// [31] COMPRESSIBILITY OF DECIMAL64
+// [37] USAGE EXAMPLE
+// [36] VECTOR OF NULLS TEST
+// [26] Datum_ArrayProctor
+// [34] DATETIME ALLOCATION TESTS
+// [33] MISALIGNED MEMORY ACCESS TEST (only on SUN machines)
+// [32] COMPRESSIBILITY OF DECIMAL64
 // [-2] EFFICIENCY TEST
 
 // ============================================================================
@@ -1590,6 +1591,29 @@ void BenchmarkSuite::run(int   iterations,
         cout << "\n";
     }
 
+    if (next()) {
+        bdlma::BufferedSequentialAllocator alloc(d_buf.begin(), k_ALLOC_SIZE);
+        Stopwatch                          csw;
+        for (int j = 0; j < d_iterations; ++j) {
+            bdlma::BufferedSequentialAllocator alloc(d_buf.begin(),
+                                                     k_ALLOC_SIZE);
+            csw.start(true);
+            static void *p[k_DATUMS];  (void)p;
+            for (int i = 0; i < k_DATUMS; ++i) {
+                p[i] = Datum::createUninitializedBinary(datums + i,
+                                                        80,
+                                                        &alloc);
+            }
+
+            csw.stop();
+        }
+
+        write(d_current,
+               "createUninitializedBinary",
+               csw.accumulatedUserTime() / d_scale);
+        cout << "\n";
+    }
+
     bdlt::Date aDate(2010, 1, 5);
     BENCHMARK(createDate(aDate), isDate(), theDate(), bdlt::Date);
 
@@ -2427,7 +2451,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 36: {
+      case 37: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2718,7 +2742,7 @@ int main(int argc, char *argv[])
 // ```
 // Note, that the bytes have been copied.
       } break;
-      case 35: {
+      case 36: {
         // --------------------------------------------------------------------
         // VECTOR OF NULLS TEST
         //  This test became necessary as of December 2022, when someone
@@ -2767,7 +2791,7 @@ int main(int argc, char *argv[])
         ASSERT(v3[2].isNull());
 
       } break;
-      case 34: {
+      case 35: {
         // --------------------------------------------------------------------
         // BSLH HASHING TESTS
         //
@@ -4046,7 +4070,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &oa);
         }
       } break;
-      case 33: {
+      case 34: {
         // --------------------------------------------------------------------
         // DATETIME ALLOCATION TESTS
         //
@@ -4133,7 +4157,7 @@ int main(int argc, char *argv[])
         if (verbose) cout << "\nDatetime allocation tests are 32 bit only\n";
 #endif  // end - 64 bit
       } break;
-      case 32: {
+      case 33: {
         // --------------------------------------------------------------------
         // MISALIGNED MEMORY ACCESS TEST
         //
@@ -4171,7 +4195,7 @@ int main(int argc, char *argv[])
               cout << "\nMisaligned memory access test are 32 bit only\n";
 #endif  // end - 64 bit
       } break;
-      case 31: {
+      case 32: {
         // --------------------------------------------------------------------
         // TESTING COMPRESSIBILITY OF DECIMAL64
         //    Check that `Decimal64` fit in 6 bytes or not (as expected).
@@ -4207,7 +4231,7 @@ int main(int argc, char *argv[])
                                                 BDLDFP_DECIMAL_DD(12.3456789));
         ASSERT(variable2 > buffer + 6);
       } break;
-      case 30: {
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING OUTPUT (`<<`) OPERATOR
         //
@@ -4324,7 +4348,7 @@ int main(int argc, char *argv[])
             const FuncPtr FP = &operator<<;  (void)FP;
         }
       } break;
-      case 29: {
+      case 30: {
         // -------------------------------------------------------------------
         // TESTING ENUMERATIONS AND `dataTypeToAscii`
         //
@@ -4441,7 +4465,7 @@ int main(int argc, char *argv[])
             const FuncPtr FP = &Datum::dataTypeToAscii;  (void)FP;
         }
       } break;
-      case 28: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING `disposeUninitializedMap`
         //
@@ -4497,7 +4521,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.numBytesInUse());
         }
       } break;
-      case 27: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING `disposeUninitializedArray`
         //
@@ -4537,7 +4561,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.numBytesInUse());
         }
       } break;
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // EQUALITY-COMPARISON OPERATORS
         //   Ensure that `==` and `!=` are the operational definition of value.
@@ -4780,7 +4804,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == oa.status());
         }
       } break;
-      case 25: {
+      case 26: {
         // --------------------------------------------------------------------
         // TESTING PROCTOR
         //
@@ -4982,7 +5006,7 @@ int main(int argc, char *argv[])
             Datum::destroy(D, &ta);
         }
       } break;
-      case 24: {
+      case 25: {
         // --------------------------------------------------------------------
         // TESTING `clone` METHOD
         //
@@ -6271,7 +6295,7 @@ int main(int argc, char *argv[])
             ASSERT(0 == ca.status());
         }
       } break;
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // TESTING `apply` METHOD
         //
@@ -6526,7 +6550,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 22: {
+      case 23: {
         // --------------------------------------------------------------------
         // TESTING `type` METHOD
         //
@@ -6721,7 +6745,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING `isExternalReference` METHOD
         //
@@ -6905,7 +6929,7 @@ int main(int argc, char *argv[])
             ASSERT( 0 == oa.status());
         }
       } break;
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING PRINT AND OPERATOR<<
         //   Ensure that the value of the `Datum` holding an aggregate value
@@ -7444,6 +7468,119 @@ int main(int argc, char *argv[])
             Datum::destroy(DM3, &oa);
             Datum::destroy(DM4, &oa);
         }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING BINARY CONSTRUCTION
+        //    Verify that user can construct `Datum` holding uninitialized
+        //    binary data and fill the buffer pointed by the created `Datum`
+        //    object later.
+        //
+        // Concerns:
+        // 1. Can create `Datum` object holding an uninitialized binary buffer.
+        //
+        // 2. All object memory comes from the supplied allocator.
+        //
+        // 3. All allocated memory is released when the `Datum` object is
+        //    destroyed.
+        //
+        // Plan:
+        // 1. Create `Datum` object holding uninitialized binary buffer.
+        //    Verify the type and the value of the created `Datum` object.
+        //    (C-1..3)
+        //
+        // 2. Verify that all object memory is released when the object is
+        //    destroyed.  (C-4)
+        //
+        // Testing:
+        //   void *createUninitializedBinary(Datum&, SizeType, Allocator *);
+        // --------------------------------------------------------------------
+        if (verbose) cout << "\nTESTING BINARY CONSTRUCTION"
+                             "\n===========================\n";
+
+        bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        if (verbose)
+            cout << "\nTesting `createUninitializedBinary()`.\n";
+        {
+            const char BUFFER[] = "0123456789abcdef";
+
+            for (size_t i = 0; i < sizeof(BUFFER); ++i) {
+                const StringRef REF(BUFFER, static_cast<int>(i));
+
+                if (veryVerbose) { T_ P_(i) P(REF) }
+
+                bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+                Datum         mD;
+                const Datum&  D = mD;
+                void         *data = Datum::createUninitializedBinary(&mD,
+                                                                      i,
+                                                                      &oa);
+                char *buffer = static_cast<char *>(data);
+                bsl::memcpy(buffer, BUFFER, i);
+
+                ASSERT(0 == da.numBlocksInUse());
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+                // No data is stored inline
+                if (false) {
+#else   // end - 32 bit / begin - 64 bit
+                // Up to size 13 the data is stored inline
+                if (i <= 13) {
+#endif  // end - 64 bit
+                    ASSERT(0 == oa.numBlocksInUse());
+                } else {
+                    ASSERT(0 != oa.numBlocksInUse());
+                }
+
+                ASSERT(!D.isArray());
+                ASSERT(!D.isBoolean());
+                ASSERT(D.isBinary());                // *
+                ASSERT(!D.isDate());
+                ASSERT(!D.isDatetime());
+                ASSERT(!D.isDatetimeInterval());
+                ASSERT(!D.isDecimal64());
+                ASSERT(!D.isDouble());
+                ASSERT(!D.isError());
+                ASSERT(!D.isInteger());
+                ASSERT(!D.isInteger64());
+                ASSERT(!D.isIntMap());
+                ASSERT(!D.isMap());
+                ASSERT(!D.isNull());
+                ASSERT(!D.isString());
+                ASSERT(!D.isTime());
+                ASSERT(!D.isUdt());
+                ASSERT(!D.isExternalReference());
+
+                ASSERT(0 == bsl::memcmp(D.theBinary().data(),
+                                        REF.data(),
+                                        D.theBinary().size()));
+
+                Datum::destroy(D, &oa);
+
+                ASSERT(0 == da.status());
+                ASSERT(0 == oa.status());
+            }
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        if (verbose) cout << "\nNegative Testing.\n";
+        {
+            bslma::TestAllocator         oa("object", veryVeryVeryVerbose);
+            bsls::AssertTestHandlerGuard hG;
+
+            Datum  mD;
+            Datum *nullDatumPtr = static_cast<Datum *>(0);  (void)nullDatumPtr;
+
+            ASSERT_FAIL(Datum::createUninitializedBinary(nullDatumPtr,
+                                                         0,
+                                                         &oa));
+            ASSERT_PASS(Datum::createUninitializedBinary(&mD, 0, &oa));
+
+            Datum::destroy(mD, &oa);
+        }
+#endif  // Exceptions supported
       } break;
       case 19: {
         // --------------------------------------------------------------------

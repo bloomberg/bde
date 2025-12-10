@@ -1367,7 +1367,7 @@ class Datum {
     /// supply memory (if needed).  `array` is not copied, and is not freed
     /// when the returned object is destroyed with `Datum::destroy`.  The
     /// behavior is undefined unless `array` contains at least `length`
-    /// elements.  The behavior is also undefined unless `length <
+    /// elements.  The behavior is also undefined unless `length <=
     /// UINT_MAX`.
     static Datum createArrayReference(const Datum          *array,
                                       SizeType              length,
@@ -1377,7 +1377,7 @@ class Datum {
     /// specified `allocator` to supply memory (if needed).  The array
     /// referenced by `value` is not copied, and is not freed if
     /// `Datum::destroy` is called on the returned object.  The behavior is
-    /// undefined unless `value.length() < UINT_MAX`.
+    /// undefined unless `value.length() <= UINT_MAX`.
     static Datum createArrayReference(const DatumArrayRef& value,
                                       const AllocatorType& allocator);
 
@@ -1439,7 +1439,7 @@ class Datum {
     /// having the specified `length`, using the specified `allocator` to
     /// supply memory (if needed).  The behavior is undefined unless
     /// `0 != string || 0 == length`.  The behavior is also undefined
-    /// unless `length < UINT_MAX`.  Note that `string` is not copied, and
+    /// unless `length <= UINT_MAX`.  Note that `string` is not copied, and
     /// is not freed if `Datum::destroy` is called on the returned object.
     static Datum createStringRef(const char           *string,
                                  SizeType              length,
@@ -1448,7 +1448,7 @@ class Datum {
     /// Return, by value, a datum that refers to the specified `string`,
     /// using the specified `allocator` to supply memory (if needed).  The
     /// behavior is undefined unless `string` points to a UTF-8 encoded
-    /// c-string.  The behavior is also undefined unless 'strlen(string) <
+    /// c-string.  The behavior is also undefined unless 'strlen(string) <=
     /// UINT_MAX'.  Note that `string` is not copied, and is not freed if
     /// `Datum::destroy` is called on the returned object.
     static Datum createStringRef(const char           *string,
@@ -1456,7 +1456,7 @@ class Datum {
 
     /// Return, by value, a datum having the specified `StringRef` `value`,
     /// using the specified `allocator` to supply memory (if needed).  The
-    /// behavior is undefined unless `value.length() < UINT_MAX`.  Note that
+    /// behavior is undefined unless `value.length() <= UINT_MAX`.  Note that
     /// `string` is not copied, and is not freed if `Datum::destroy` is
     /// called on the returned object.
     static Datum createStringRef(const bslstl::StringRef& value,
@@ -1475,7 +1475,7 @@ class Datum {
     /// Return, by value, a datum referring to the copy of the specified
     /// `value` of the specified `size`, using the specified
     /// `allocator` to supply memory (if needed).  The behavior is undefined
-    /// unless `size < UINT_MAX`.  Note that the copy of the binary data is
+    /// unless `size <= UINT_MAX`.  Note that the copy of the binary data is
     /// owned and will be freed if `Datum::destroy` is called on the
     /// returned object.
     static Datum copyBinary(const void           *value,
@@ -1486,7 +1486,7 @@ class Datum {
     /// `string` having the specified `length`, using the specified
     /// `allocator` to supply memory (if needed).  The behavior is undefined
     /// unless `0 != string || 0 == length`.  The behavior is also undefined
-    /// unless `length < UINT_MAX`.  Note that the copied string is owned
+    /// unless `length <= UINT_MAX`.  Note that the copied string is owned
     /// and will be freed if `Datum::destroy` is called on the returned
     /// object.
     static Datum copyString(const char           *string,
@@ -1496,7 +1496,7 @@ class Datum {
     /// Return, by value, a datum having the copy of the specified
     /// `StringRef` `value`, using the specified `allocator` to supply
     /// memory (if needed).  The behavior is undefined unless
-    /// `value.length() < UINT_MAX`.  Note that the copied string is owned,
+    /// `value.length() <= UINT_MAX`.  Note that the copied string is owned,
     /// and will be freed if `Datum::destroy` is called on the returned
     /// object.
     static Datum copyString(const bslstl::StringRef& value,
@@ -1599,12 +1599,21 @@ class Datum {
 
     /// Load the specified `result` with a reference to a newly created
     /// character buffer of the specified `length`, using the specified
-    /// `allocator` to supply memory, and return the address of this buffer
-    /// The behavior is undefined unless `length < UINT_MAX`.  Note that the
+    /// `allocator` to supply memory, and return the address of this buffer.
+    /// The behavior is undefined unless `length <= UINT_MAX`.  Note that the
     /// caller is responsible for initializing the returned buffer with a
     /// UTF-8 encoded string.
     static char *createUninitializedString(Datum                *result,
                                            SizeType              length,
+                                           const AllocatorType&  allocator);
+
+    /// Load the specified `result` with a reference to a newly created binary
+    /// buffer of the specified `size`, using the specified `allocator` to
+    /// supply memory, and return the address of this buffer.  The behavior is
+    /// undefined unless `size <= UINT_MAX`.  Note that the caller is
+    /// responsible for initializing the returned buffer with binary data.
+    static void *createUninitializedBinary(Datum                *result,
+                                           SizeType              size,
                                            const AllocatorType&  allocator);
 
     /// Return the non-modifiable string representation corresponding to the

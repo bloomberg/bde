@@ -768,8 +768,7 @@ Datum Datum::copyBinary(const void            *value,
     }
 
     BSLS_ASSERT(size <= static_cast<SizeType>(
-                                             bsl::numeric_limits<int>::max()));
-    size = static_cast<int>(size);
+                                    bsl::numeric_limits<unsigned int>::max()));
 
     result.d_as.d_type  = e_INTERNAL_BINARY_ALLOC;
     result.d_as.d_int32 = static_cast<int>(size);
@@ -1012,6 +1011,43 @@ char *Datum::createUninitializedString(Datum                *result,
     result->d_as.d_int32 = static_cast<int>(length);
     result->d_as.d_ptr = AllocUtil::allocateBytes(allocator, length);
     return static_cast<char *>(result->d_as.d_ptr);
+#endif  // end - 64 bit
+}
+
+void *Datum::createUninitializedBinary(Datum                *result,
+                                       SizeType              size,
+                                       const AllocatorType&  allocator)
+{
+    BSLS_ASSERT(result);
+
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    result->d_double = 0;  // zero the whole of 'result->d_data'
+
+    const SizeType sizeSize = sizeof(double);
+    void *mem = AllocUtil::allocateBytes(allocator, sizeSize + size);
+    new (mem) SizeType(size);
+    result->d_exp.d_value = (k_DOUBLE_MASK | e_INTERNAL_EXTENDED)
+                                << k_TYPE_MASK_BITS |
+                            e_EXTENDED_INTERNAL_BINARY_ALLOC;
+    result->d_as.d_cvp = mem;
+
+    return static_cast<char *>(mem) + sizeSize;                       // RETURN
+#else   // end - 32 bit / begin - 64 bit
+    if (static_cast<unsigned>(size) <= k_SMALLBINARY_SIZE) {
+        result->d_as.d_type = e_INTERNAL_BINARY;
+        result->d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET] =
+                                                       static_cast<char>(size);
+        return result->d_data.buffer();                               // RETURN
+    }
+
+    BSLS_ASSERT(size <= static_cast<SizeType>(
+                                    bsl::numeric_limits<unsigned int>::max()));
+
+    result->d_as.d_type  = e_INTERNAL_BINARY_ALLOC;
+    result->d_as.d_int32 = static_cast<int>(size);
+    result->d_as.d_ptr   = AllocUtil::allocateBytes(allocator, size);
+
+    return result->d_as.d_ptr;                                        // RETURN
 #endif  // end - 64 bit
 }
 
