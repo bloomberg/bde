@@ -352,12 +352,11 @@ bool isValidEnvironmentVariableName(
     }
 
     bsl::string_view::const_iterator it = environmentVariableName.cbegin();
-    unsigned char c;    // this '::is*' methods expect an 'unsigned char' arg.
-    if (!::isalpha((c = *it)) && '_' != *it) {
+    if (!::isalpha(*it) && '_' != *it) {
         return false;                                                 // RETURN
     }
     for (++it; it < environmentVariableName.cend(); ++it) {
-        if (!::isalnum((c = *it)) && '_' != *it) {
+        if (!::isalnum(*it) && '_' != *it) {
             return false;                                             // RETURN
         }
     }
@@ -370,8 +369,7 @@ bool isValidEnvironmentVariableName(
 /// documentation.  Return 0 if `options` are valid, and a non-zero value
 /// otherwise.  If `options` is invalid, a descriptive message is written to
 /// the specified `errorStream`.
-int validate(const bsl::vector<Option>& options,
-             bsl::ostream&              errorStream)
+int validate(const bsl::vector<Option>& options, bsl::ostream& errorStream)
 {
     int status = 0;
 
