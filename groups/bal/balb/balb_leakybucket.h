@@ -473,7 +473,7 @@ class LeakyBucket {
 
     /// Reserve the specified `numUnits` for future use by this leaky
     /// bucket.  The behavior is undefined unless 'unitsReserved() +
-    /// unitsInBucket() + numOfUnits' can be represented by a 64-bit
+    /// unitsInBucket() + numUnits' can be represented by a 64-bit
     /// unsigned integral type.  Note that after this operation, this bucket
     /// may overflow.  Also note that the time interval between the
     /// invocations of `reserve` and `submitReserved` or `cancelReserved`
