@@ -72,6 +72,15 @@ node('WINDOWS') {
                                  '-o:a':  '*:dependency_user_channel=test/unstable',
                                  '-pr:h': profile)
 
+                    //writeFile(file:"groups/CMakeLists.txt", text: "")
+                    //writeFile(file:"standalones/CMakeLists.txt", text: "add_subdirectory(s_baltst)")
+                    //conan.create(name: 'libs-baltst-dev',
+                    //             user:    user,
+                    //             channel: channel,
+                    //             '-o:a':  '*:dependency_user_channel=test/unstable',
+                    //             '-pr:h': profile)
+                    //writeFile(file:"standalones/CMakeLists.txt", text: "")
+
                     writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bal)")
                     conan.create(name: 'libbal-dev',
                                  user:    user,
@@ -100,6 +109,7 @@ node('WINDOWS') {
                     remote.upload(dryRun: dryRun, pattern: 'libpcre2-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbsl-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbdl-dev')
+                    //remote.upload(dryRun: dryRun, pattern: 'libs-baltst-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbal-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbbl-dev')
                 }

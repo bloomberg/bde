@@ -65,6 +65,11 @@ Description: BSL
  groups/bsl development files
 
 
+Package: libs-baltst-dev
+Depends: libbsl-dev, libbdl-dev
+Architecture: any
+Description: bal test suite
+ standalone/s_baltst development files
 
 Package: libinteldfp-dev-extra
 Depends: libinteldfp-dev
