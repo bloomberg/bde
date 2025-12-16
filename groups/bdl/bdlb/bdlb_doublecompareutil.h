@@ -137,6 +137,7 @@ BSLS_IDENT("$Id: $")
 // 100.0  101.0   0.009   0.999   0   1   1   1   0   0    0.00995  1.00000
 // 100.0  101.0   0.009   1.000   1   0   0   1   0   1    0.00995  1.00000
 // ```
+//
 ///Valid Use, Limitations, and Caveats
 ///------------------------------------
 // Each of the functions implemented in this component are well behaved for all
@@ -249,10 +250,10 @@ struct DoubleCompareUtil {
     /// "a ~eq b") between `a` and `b` is defined in terms of the relative
     /// tolerance `relTol` and the absolute tolerance `absTol` such that the
     /// expression:
-    ///```
-    ///  a == b || fabs(a - b)                       <= absTol
-    ///         || fabs(a - b) / fabs((a + b) / 2.0) <= relTol
-    ///```
+    /// ```
+    /// a == b || fabs(a - b)                       <= absTol
+    ///        || fabs(a - b) / fabs((a + b) / 2.0) <= relTol
+    /// ```
     /// is `true`; however, in the special case where `a != 0 && a == -b`
     /// is `true`, the actual relative difference is effectively infinite,
     /// and no value of `relTol` can imply fuzzy equality (although a
@@ -274,9 +275,9 @@ struct DoubleCompareUtil {
 
     /// Return `true` if the specified `a` and `b` satisfy the fuzzy
     /// equality relation (denoted "a ~eq b") as defined by the expression:
-    ///```
-    ///  fuzzyCompare(a, b, relTol, absTol) == e_EQUAL
-    ///```
+    /// ```
+    /// fuzzyCompare(a, b, relTol, absTol) == e_EQUAL
+    /// ```
     /// and `false` otherwise.  Optionally specify the relative tolerance
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy equality.  If an optional tolerance argument is
@@ -293,9 +294,9 @@ struct DoubleCompareUtil {
     /// Return `true` if the specified `a` and `b` satisfy the fuzzy
     /// inequality relation (denoted "a ~ne b") as defined by the
     /// expression:
-    ///```
-    ///  fuzzyCompare(a, b, relTol, absTol) != e_EQUAL
-    ///```
+    /// ```
+    /// fuzzyCompare(a, b, relTol, absTol) != e_EQUAL
+    /// ```
     /// and `false` otherwise.  Optionally specify the relative tolerance
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy inequality.  If an optional tolerance argument is
@@ -311,9 +312,9 @@ struct DoubleCompareUtil {
 
     /// Return `true` if the specified `a` and `b` satisfy the fuzzy
     /// less-than relation (denoted "a ~lt b") as defined by the expression:
-    ///```
-    ///  fuzzyCompare(a, b, relTol, absTol) == e_LESS_THAN
-    ///```
+    /// ```
+    /// fuzzyCompare(a, b, relTol, absTol) == e_LESS_THAN
+    /// ```
     /// and `false` otherwise.  Optionally specify the relative tolerance
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy less-than.  If an optional tolerance argument is
@@ -330,9 +331,9 @@ struct DoubleCompareUtil {
     /// Return `true` if the specified `a` and `b` satisfy the fuzzy
     /// less-equal relation (denoted "a ~le b") as defined by the
     /// expression:
-    ///```
-    ///  fuzzyCompare(a, b, relTol, absTol) == e_LESS_THAN or == e_EQUAL
-    ///```
+    /// ```
+    /// fuzzyCompare(a, b, relTol, absTol) == e_LESS_THAN or == e_EQUAL
+    /// ```
     /// and `false` otherwise.  Optionally specify the relative tolerance
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy less-equal.  If an optional tolerance argument is
@@ -349,9 +350,9 @@ struct DoubleCompareUtil {
     /// Return `true` if the specified `a` and `b` satisfy the fuzzy
     /// greater-than relation (denoted "a ~lt b") as defined by the
     /// expression:
-    ///```
-    ///  fuzzyCompare(a, b, relTol, absTol) == e_GREATER_THAN
-    ///```
+    /// ```
+    /// fuzzyCompare(a, b, relTol, absTol) == e_GREATER_THAN
+    /// ```
     /// and `false` otherwise.  Optionally specify the relative tolerance
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy greater-than.  If an optional tolerance argument is
@@ -368,9 +369,9 @@ struct DoubleCompareUtil {
     /// Return `true` if the specified `a` and `b` satisfy the fuzzy
     /// greater-equal relation (denoted "a ~ge b") as defined by the
     /// expression:
-    ///..
-    ///  fuzzyCompare(a, b, relTol, absTol) == e_GREATER_THAN or == e_EQUAL
-    ///..
+    /// ```
+    /// fuzzyCompare(a, b, relTol, absTol) == e_GREATER_THAN or == e_EQUAL
+    /// ```
     /// and `false` otherwise.  Optionally specify the relative tolerance
     /// `relTol`, or `relTol` and the absolute tolerance `absTol`, used to
     /// determine fuzzy greater-equal.  If an optional tolerance argument
