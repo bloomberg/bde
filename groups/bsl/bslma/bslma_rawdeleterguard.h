@@ -50,13 +50,13 @@ BSLS_IDENT("$Id: $")
 // // my_queue.h
 // // ...
 //
+// /// This class is a container that uses an "out-of-place"
+// /// representation to manage objects of parameterized `TYPE`.  Note
+// /// that this class is implemented with the native version of `deque`,
+// /// instead of the version provided in `bslstl_Deque`.  This is so that
+// /// a circular dependency in the physical hierarchy will not be created.
 // template <class TYPE>
 // class my_Queue {
-//     // This class is a container that uses an "out-of-place"
-//     // representation to manage objects of parameterized 'TYPE'.  Note
-//     // that this class is implemented with the native version of 'deque',
-//     // instead of the version provided in 'bslstl_Deque'.  This is so that
-//     // a circular dependency in the physical hierarchy will not be created.
 //
 //     // DATA
 //     std::deque<TYPE *>   d_objects;      // objects stored in the queue
@@ -64,28 +64,28 @@ BSLS_IDENT("$Id: $")
 //
 //   public:
 //     // CREATORS
+//
+//     /// Create a `my_Queue` object.  Optionally specify a
+//     /// `basicAllocator` used to supply memory.  If `basicAllocator` is
+//     /// 0, the currently installed default allocator is used.
 //     my_Queue(bslma::Allocator *basicAllocator = 0);
-//         // Create a 'my_Queue' object.  Optionally specify a
-//         // 'basicAllocator' used to supply memory.  If 'basicAllocator' is
-//         // 0, the currently installed default allocator is used.
 //
 //     // ...
 //
+//     /// Destroy this `my_Queue` object and all elements currently stored.
 //     ~my_Queue();
-//         // Destroy this 'my_Queue' object and all elements currently
-//         // stored.
 //
 //     // MANIPULATORS
 //
 //     // ...
 //
+//     /// Push the value of the specified `object` of parameterized `TYPE`
+//     /// onto the back of this queue.
 //     void pushBack(const TYPE& object);
-//         // Push the value of the specified 'object' of parameterized 'TYPE'
-//         // onto the back of this queue.
 //
+//     /// Remove and return (by value) the object of parameterized `TYPE`
+//     /// that is currently at the front of this queue.
 //     TYPE popFront();
-//         // Remove and return (by value) the object of parameterized 'TYPE'
-//         // that is currently at the front of this queue.
 //
 //     // ...
 // };

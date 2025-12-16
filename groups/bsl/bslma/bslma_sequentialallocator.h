@@ -97,11 +97,11 @@ BSLS_IDENT("$Id: $")
 // current buffer cannot satisfy an allocation request.  It does so by one of
 // two growth strategies:
 //
-//: Constant Growth: The new buffer is always of the same size as the current
-//:   buffer (possibly supplied at construction).
-//:
-//: Geometric Growth: The new buffer will be geometrically larger than the
-//:   current buffer up to an optionally-specified maximum limit.
+// * Constant Growth: The new buffer is always of the same size as the current
+//   buffer (possibly supplied at construction).
+//
+// * Geometric Growth: The new buffer will be geometrically larger than the
+//   current buffer up to an optionally-specified maximum limit.
 //
 // If a `bufferSize` (and corresponding `buffer`) or `initialSize` is supplied
 // at construction, the sign of its value implicitly specifies which growth
@@ -138,8 +138,9 @@ BSLS_IDENT("$Id: $")
 //
 //   private:
 //     // PRIVATE MANIPULATORS
+//
+//     /// Increase the capacity of this stack by at least one element.
 //     void increaseSize();
-//         // Increase the capacity of this stack by at least one element.
 //
 //   public:
 //     // CREATORS
@@ -220,15 +221,15 @@ BSLS_IDENT("$Id: $")
 // relegated to the `.cpp` file.  Subsequent use of the allocator is
 // demonstrated by the following file-scope static reallocation function:
 // ```
+// /// Reallocate memory in the specified `array` to have the specified
+// /// `newSize` using the specified `basicAllocator`.  The specified
+// /// `length` number of leading elements are preserved.  Given that the
+// /// internal policy of class `my_DoubleStack` requires that the physical
+// /// capacity of the container may grow but never shrink, the behavior is
+// /// undefined unless `length <= newSize`.
 // static
 // void reallocate(double **array, int newSize, int length,
 //                 bslma::Allocator *basicAllocator)
-//     // Reallocate memory in the specified 'array' to have the specified
-//     // 'newSize' using the specified 'basicAllocator'.  The specified
-//     // 'length' number of leading elements are preserved.  Given that the
-//     // internal policy of class 'my_DoubleStack' requires that the physical
-//     // capacity of the container may grow but never shrink, the behavior is
-//     // undefined unless length <= newSize.
 // {
 //     assert(array);
 //     assert(1 <= newSize);
