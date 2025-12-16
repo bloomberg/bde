@@ -1,26 +1,23 @@
-// bsl_ranges.h                                                       -*-C++-*-
-#ifndef INCLUDED_BSL_RANGES
-#define INCLUDED_BSL_RANGES
-
-#include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
-
-//@PURPOSE: Provide functionality of the corresponding C++ Standard header.
-//
-//@SEE_ALSO: bsls_libraryfeatures
-//
-//@DESCRIPTION: Provide types, in the `bsl` namespace, equivalent to those
-// defined in the corresponding C++ standard header.  Include the native
-// compiler-provided standard header, and also directly include Bloomberg's
-// implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the `std` namespace (if any) into the `bsl` namespace.
-
+// bslstl_ranges.cpp                                                  -*-C++-*-
 #include <bslstl_ranges.h>
 
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bslstl_ranges_cpp,"$Id$ $CSID$")
+
+//#ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+#if !(defined(__cpp_lib_containers_ranges) && \
+              __cpp_lib_containers_ranges >= 202202L)
+namespace bsl {
+
+#if !defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
+const from_range_t from_range = from_range_t();
+#endif
+
+}  // close namespace bsl
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

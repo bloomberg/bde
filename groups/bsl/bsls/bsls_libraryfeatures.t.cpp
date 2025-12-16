@@ -2232,7 +2232,10 @@ int main(int argc, char *argv[])
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
-        (void)std::chrono::tzdb{};
+        (void)[]{
+            const std::chrono::tzdb& tz = std::chrono::get_tzdb();
+            (void)tz;
+        };
 #endif
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV

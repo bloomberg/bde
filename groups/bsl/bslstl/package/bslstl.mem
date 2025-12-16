@@ -73,6 +73,7 @@ bslstl_priorityqueue_cpp03
 bslstl_queue
 bslstl_queue_cpp03
 bslstl_randomaccessiterator
+bslstl_ranges
 bslstl_ratio
 bslstl_referencewrapper
 bslstl_set
