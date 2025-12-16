@@ -62,11 +62,11 @@ void *Allocator::do_allocate(std::size_t bytes, std::size_t align)
         // Allocate extra memory to hold an aligned sub-block preceded by a
         // 'int' header representing the offset from the start of the allocated
         // block to the start of the aligned sub-block:
-        //```
+        // ```
         //   <------ allocated block --------->
         //   <- offset -->
         //  |    | header | returned block |   |
-        //```
+        // ```
 
         bytes += sizeof(int) + align - 1;
         char *block = static_cast<char *>(this->allocate(bytes));

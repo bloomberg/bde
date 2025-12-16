@@ -38,33 +38,33 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define the type with a streaming operator, but without a formatter
 // specialization:
-//```
+// ```
 //  class StreamableType {};
 //
 //  std::ostream& operator<<(std::ostream& os, const StreamableType&)
 //  {
 //      return os << "The printout";
 //  }
-//```
+// ```
 // Then, we enable formatting of this type using `bslfmt::StreamedFormatter` as
 // its implementation:
-//```
+// ```
 // namespace bsl {
 // template <>
 // struct formatter<StreamableType, char> :
 // BloombergLP::bslfmt::StreamedFormatter<StreamableType> {
 // };
 // }  // close namespace bsl
-//```
+// ```
 // Next, we create an instance of this type and use `bsl::format` to format it:
-//```
+// ```
 // const StreamableType obj;
 // bsl::string s = bsl::format("{}", obj);
-//```
+// ```
 // Finally, we verify the output is correct:
-//```
+// ```
 // assert(s == "The printout");
-//```
+// ```
 
 #include <bslscm_version.h>
 

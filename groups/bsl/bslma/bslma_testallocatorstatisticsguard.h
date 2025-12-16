@@ -71,39 +71,34 @@ BSLS_IDENT("$Id: $")
 // as if we had never reset them.
 //
 // First, we define our `TestAllocator` that we will use throughout:
-//
-//```
+// ```
 // bslma::TestAllocator testAllocator, *ta = &testAllocator;
-//```
-//
+// ```
 // Then, we perform the test-preparation operation that may allocate and then
 // release a lot of memory, therefore skewing later statistics:
-//
-//```
+// ```
 // someOperation(ta);
 //
 // assert(ta->numBlocksMax() - ta->numBlocksInUse() > 4);
-//```
-//
+// ```
 // Next, we prepare the local statistics by creating a scope and declaring a
 // guard variable:
-//```
+// ```
 // {
 //     bslma::TestAllocatorStatisticsGuard tasg(ta);
 //     assert(ta->numBlocksInUse() == tasg.originalNumBlocksInUse());
-//```
+// ```
 // Now, we run the measured operation and verify that it has not allocated more
 // than 4 blocks (in addition to what was already allocated before):
-//```
+// ```
 //     measuredOperation(ta);
 //     assert(ta->numBlocksMax() - tasg.originalNumBlocksInUse() <= 4);
 // }
-//```
-//
+// ```
 // Finally, we demonstrate that the guard restores the statistics:
-//```
+// ```
 // assert(ta->numBlocksMax() - ta->numBlocksInUse() > 4);
-//```
+// ```
 
 #include <bslscm_version.h>
 
