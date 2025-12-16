@@ -39,42 +39,42 @@ BSLS_IDENT("$Id: $")
 //
 // First, we introduce a type with a streaming operator but without a formatter
 // that enables `bsl::format` use:
-//```
-//  class NonFormattableType {};
+// ```
+// class NonFormattableType {};
 //
-//  std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
-//  {
-//      return os << "The printout";
-//  }
+// std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
+// {
+//     return os << "The printout";
+// }
 //
-//  // The following would not compile:
-//  //
-//  // const NonFormattableType noFormatObj;
-//  // bsl::string s = bsl::format("{}", noFormatObj);
-//```
+// // The following would not compile:
+// //
+// // const NonFormattableType noFormatObj;
+// // bsl::string s = bsl::format("{}", noFormatObj);
+// ```
 // Then, we enable formatting using the trait (notice the type name changed):
-//```
-//  class NowFormattableType {
-//    public:
-//      // TRAITS
-//      BSLMF_NESTED_TRAIT_DECLARATION(NowFormattableType,
-//                                     bslfmt::EnableStreamedFormatter);
-//  };
+// ```
+// class NowFormattableType {
+//   public:
+//     // TRAITS
+//     BSLMF_NESTED_TRAIT_DECLARATION(NowFormattableType,
+//                                    bslfmt::EnableStreamedFormatter);
+// };
 //
-//  std::ostream& operator<<(std::ostream& os, const NowFormattableType&)
-//  {
-//      return os << "The printout";
-//  }
-//```
+// std::ostream& operator<<(std::ostream& os, const NowFormattableType&)
+// {
+//     return os << "The printout";
+// }
+// ```
 // Next, we create an instance of this type and use `bsl::format` to format it:
-//```
-//  const NowFormattableType obj;
-//  bsl::string s = bsl::format("{}", obj);
-//```
+// ```
+// const NowFormattableType obj;
+// bsl::string s = bsl::format("{}", obj);
+// ```
 // Finally, we verify the output is correct:
-//```
-//  assert(s == "The printout");
-//```
+// ```
+// assert(s == "The printout");
+// ```
 
 #include <bslscm_version.h>
 
