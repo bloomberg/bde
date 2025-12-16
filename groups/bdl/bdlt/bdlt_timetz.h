@@ -447,7 +447,7 @@ STREAM& TimeTz::bdexStreamIn(STREAM& stream, int version)
             Time time;
             time.bdexStreamIn(stream, version);
 
-            int offset;
+            int offset = 0;
             stream.getInt32(offset);
 
             if (stream && isValid(time, offset)) {

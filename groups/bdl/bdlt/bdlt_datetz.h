@@ -422,7 +422,7 @@ STREAM& DateTz::bdexStreamIn(STREAM& stream, int version)
             Date localDate;
             localDate.bdexStreamIn(stream, 1);
 
-            int offset;
+            int offset = 0;
             stream.getInt32(offset);
 
             if (stream && isValid(localDate, offset)) {
