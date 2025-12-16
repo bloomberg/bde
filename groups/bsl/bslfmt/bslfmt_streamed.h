@@ -16,9 +16,9 @@ BSLS_IDENT("$Id: $")
 // values that offer an `ostream` insert `operator<<`.  This wrapper is also
 // compatible with `std::format` on platforms where it is provided.
 //
-//```
+// ```
 // bsl::format("Example: {}", bslfmt::streamed(ATypeWithoutAFormatter(42)));
-//```
+// ```
 //
 // Using the `bslfmt::streamed` free function may be preferred to using the
 // `bslfmt::Streamed` type directly because the `bslfmt::streamed`
@@ -39,28 +39,28 @@ BSLS_IDENT("$Id: $")
 //
 // First, we define a type with a streaming operator but without a formatter
 // specialization:
-//```
-//  class NonFormattableType {};
+// ```
+// class NonFormattableType {};
 //
-//  std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
-//  {
-//      return os << "The printout";
-//  }
-//```
+// std::ostream& operator<<(std::ostream& os, const NonFormattableType&)
+// {
+//     return os << "The printout";
+// }
+// ```
 // Then we create an instance of this type and use bsl::streamed to allow us to
 // format it:
-//```
-//  const NonFormattableType obj;
-//```
+// ```
+// const NonFormattableType obj;
+// ```
 // Next, we format the "value" using `bsl::format` with the wrapper-creator
 // function:
-//```
+// ```
 // bsl::string s = bsl::format("{}", bslfmt::streamed(obj));
-//```
+// ```
 // Finally, we verify the output is correct:
-//```
+// ```
 // assert(s == "The printout");
-//```
+// ```
 
 #include <bslscm_version.h>
 
