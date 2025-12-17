@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Sat Aug 16 14:23:27 2025
+// Generated on Wed Dec 17 16:51:01 2025
 // Command line: sim_cpp11_features.pl bslmf_invokeresult.xt.cpp
 
 // Expanded test driver only when compiling bslmf_invokeresult.cpp
@@ -34,6 +34,7 @@
 #endif
 
 using namespace BloombergLP;
+using BloombergLP::bsls::NameOf;
 
 // ============================================================================
 //                                 TEST PLAN
@@ -2272,8 +2273,15 @@ PREINSTANTIATE_APR(PtrToMemFuncTest<MyClass>, Ic02 (MyClass::*)(int));
 /// are not the same will result in a compile-time error that, on most
 /// compilers, will print `T1` and `T2` as well as a trace of the
 /// instantiation stack.
+#if defined(BSLS_PLATFORM_CMP_MSVC)
+template <class T1, class T2>
+struct AssertSame : bsl::false_type
+{
+};
+#else
 template <class T1, class T2>
 struct AssertSame;
+#endif
 
 /// Specialization of `AssertSame` when instantiated with two parameters of
 /// the same type yields a successful compilation.
@@ -2488,7 +2496,14 @@ struct PtrToMemObjTest {
 #else  // MSVC_2015_PTR_TO_ARRAY_MEMBER_QUALIFIER_PROPAGATION_BUG
         typedef typename PropagateCVQRef<EFFECTIVE_ARG, RT>::type CvqR;
 #endif  // no MSVC_2015_PTR_TO_ARRAY_MEMBER_QUALIFIER_PROPAGATION_BUG
-        AssertSame<CvqR, typename bsl::invoke_result<Mp , T1>::type>();
+        typedef typename bsl::invoke_result<Mp, T1>::type InvokeResultType;
+        ASSERTV(LINE,
+                NameOf<CvqR>(),
+                NameOf<InvokeResultType>(),
+                NameOf<Mp>(),
+                NameOf<T1>(),
+               (AssertSame<CvqR, InvokeResultType>::value)
+               );
 
         ASSERTV(LINE, (IsInvokeResult<CvqR, Mp, T1>::value));
         ASSERTV(LINE, (IsInvokeResult<CvqR, Mp&, T1>::value));
