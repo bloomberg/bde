@@ -326,7 +326,7 @@ void testPutValue(int            line,
             mX.addMemberName("name");
             ASSERT(!mX.isNameNeeded());
 
-            exp << "\"name\"" << spaceOrNot << ":" << spaceOrNot;
+            exp << "\"name\":" << spaceOrNot;
         }
         else {
             mX.openArray();
@@ -434,18 +434,18 @@ int main(int argc, char *argv[])
 {
     const bsl::string EXPECTED =
         "{\n"
-        "  \"Stocks\" : [\n"
+        "  \"Stocks\": [\n"
         "    {\n"
-        "      \"Name\" : \"International Business Machines Corp\",\n"
-        "      \"Ticker\" : \"IBM US Equity\",\n"
-        "      \"Last Price\" : 149.3,\n"
-        "      \"Dividend Yield\" : 3.95\n"
+        "      \"Name\": \"International Business Machines Corp\",\n"
+        "      \"Ticker\": \"IBM US Equity\",\n"
+        "      \"Last Price\": 149.3,\n"
+        "      \"Dividend Yield\": 3.95\n"
         "    },\n"
         "    {\n"
-        "      \"Name\" : \"Apple Inc\",\n"
-        "      \"Ticker\" : \"AAPL US Equity\",\n"
-        "      \"Last Price\" : 205.8,\n"
-        "      \"Dividend Yield\" : 1.4\n"
+        "      \"Name\": \"Apple Inc\",\n"
+        "      \"Ticker\": \"AAPL US Equity\",\n"
+        "      \"Last Price\": 205.8,\n"
+        "      \"Dividend Yield\": 1.4\n"
         "    }\n"
         "  ]\n"
         "}";
@@ -593,12 +593,12 @@ int main(int argc, char *argv[])
             "["                                                              NL
             "    \"\\/\","                                                   NL
             "    {"                                                          NL
-            "        \"1\\/\" : \"\\/\","                                    NL
-            "        \"2\\/\" : ["                                           NL
+            "        \"1\\/\": \"\\/\","                                     NL
+            "        \"2\\/\": ["                                            NL
             "        ],"                                                     NL
-            "        \"3\\/\" : {"                                           NL
+            "        \"3\\/\": {"                                            NL
             "        },"                                                     NL
-            "        \"4\\/\" : null"                                        NL
+            "        \"4\\/\": null"                                         NL
             "    }"                                                          NL
             "]";
 
@@ -606,12 +606,12 @@ int main(int argc, char *argv[])
             "["                                                              NL
             "    \"/\","                                                     NL
             "    {"                                                          NL
-            "        \"1/\" : \"/\","                                        NL
-            "        \"2/\" : ["                                             NL
+            "        \"1/\": \"/\","                                         NL
+            "        \"2/\": ["                                              NL
             "        ],"                                                     NL
-            "        \"3/\" : {"                                             NL
+            "        \"3/\": {"                                              NL
             "        },"                                                     NL
-            "        \"4/\" : null"                                          NL
+            "        \"4/\": null"                                           NL
             "    }"                                                          NL
             "]";
 #undef NL
@@ -722,7 +722,7 @@ int main(int argc, char *argv[])
         {   L_,    -1,     -1,   -1,  "{a]}",          "{\"a\":[]}"          },
         {   L_,     0,     -1,   -1,  "{a]}",          "{\"a\":[]}"          },
         {   L_,     1,      1,    2,  "{a]}",          "  {"             NL
-                                                       "    \"a\" : ["   NL
+                                                       "    \"a\": ["    NL
                                                        "    ]"           NL
                                                        "  }"                 },
 
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
         {   L_,    -1,     -1,   -1,  "{a{}]}",        "{\"a\":[{}]}"        },
         {   L_,     0,     -1,   -1,  "{a{}]}",        "{\"a\":[{}]}"        },
         {   L_,     1,      1,    2,  "{a{}]}",        "  {"             NL
-                                                       "    \"a\" : ["   NL
+                                                       "    \"a\": ["    NL
                                                        "      {"         NL
                                                        "      }"         NL
                                                        "    ]"           NL
@@ -745,9 +745,9 @@ int main(int argc, char *argv[])
         {   L_,    -1,     -1,   -1,  "{a{a]}]}",      "{\"a\":[{\"a\":[]}]}"},
         {   L_,     0,     -1,   -1,  "{a{a]}]}",      "{\"a\":[{\"a\":[]}]}"},
         {   L_,     1,      1,    2,  "{a{a]}]}",      "  {"             NL
-                                                       "    \"a\" : ["   NL
+                                                       "    \"a\": ["    NL
                                                        "      {"         NL
-                                                       "        \"a\" : ["
+                                                       "        \"a\": ["
                                                                          NL
                                                        "        ]"       NL
                                                        "      }"         NL
@@ -759,9 +759,9 @@ int main(int argc, char *argv[])
         {   L_,     0,     -1,   -1,  "{a{a{}]}]}",    "{\"a\":[{\"a\":[{}]}]}"
                                                                              },
         {   L_,     1,      1,    2,  "{a{a{}]}]}",    "  {"             NL
-                                                       "    \"a\" : ["   NL
+                                                       "    \"a\": ["    NL
                                                        "      {"         NL
-                                                       "        \"a\" : ["
+                                                       "        \"a\": ["
                                                                          NL
                                                        "          {"     NL
                                                        "          }"     NL
@@ -1004,7 +1004,7 @@ int main(int argc, char *argv[])
                         }
 
                         mX.addMemberName("name");
-                        exp << "\"name\"" << spaceOrNot << ":" << spaceOrNot;
+                        exp << "\"name\":" << spaceOrNot;
                     }
                     else {
                         mX.openArray();
@@ -1516,9 +1516,9 @@ int main(int argc, char *argv[])
             {   L_,     0,     -1,   -1,  3,  "{\"a\":{\"a\":{\"a\":{"       },
 
             {   L_,     1,      1,    2,  3,  "  {"                   NL
-                                              "    \"a\" : {"         NL
-                                              "      \"a\" : {"       NL
-                                              "        \"a\" : {"     NL     },
+                                              "    \"a\": {"          NL
+                                              "      \"a\": {"        NL
+                                              "        \"a\": {"      NL     },
         };
         const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
@@ -1636,8 +1636,8 @@ int main(int argc, char *argv[])
         // Specify only encoding style
         {   L_,     0,     -1,   -1,   "{\"A\":1,\"B\":[2]}"                 },
         {   L_,     1,     -1,   -1,   "{"                               NL
-                                       "\"A\" : 1,"                      NL
-                                       "\"B\" : ["                       NL
+                                       "\"A\": 1,"                       NL
+                                       "\"B\": ["                        NL
                                        "2"                               NL
                                        "]"                               NL
                                        "}"                                   },
@@ -1646,8 +1646,8 @@ int main(int argc, char *argv[])
         {   L_,     0,      1,   -1,   "{\"A\":1,\"B\":[2]}"                 },
         {   L_,     0,      5,   -1,   "{\"A\":1,\"B\":[2]}"                 },
         {   L_,     1,      1,   -1,   "{"                               NL
-                                       "\"A\" : 1,"                      NL
-                                       "\"B\" : ["                       NL
+                                       "\"A\": 1,"                       NL
+                                       "\"B\": ["                        NL
                                        "2"                               NL
                                        "]"                               NL
                                        "}"                                   },
@@ -1656,14 +1656,14 @@ int main(int argc, char *argv[])
         {   L_,     0,      1,    2,   "{\"A\":1,\"B\":[2]}"                 },
         {   L_,     0,      5,   10,   "{\"A\":1,\"B\":[2]}"                 },
         {   L_,     1,      1,    2,   "  {"                             NL
-                                       "    \"A\" : 1,"                  NL
-                                       "    \"B\" : ["                   NL
+                                       "    \"A\": 1,"                   NL
+                                       "    \"B\": ["                    NL
                                        "      2"                         NL
                                        "    ]"                           NL
                                        "  }"                                 },
         {   L_,     1,      3,    5,   "               {"                NL
-                                       "                    \"A\" : 1,"  NL
-                                       "                    \"B\" : ["   NL
+                                       "                    \"A\": 1,"   NL
+                                       "                    \"B\": ["    NL
                                        "                         2"      NL
                                        "                    ]"           NL
                                        "               }"                    },

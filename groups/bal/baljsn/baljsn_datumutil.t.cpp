@@ -24,17 +24,6 @@
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
 
-#include <bsl_climits.h>
-#include <bsl_cstddef.h>
-#include <bsl_cstdlib.h>
-#include <bsl_cstring.h>
-#include <bsl_iostream.h>
-#include <bsl_limits.h>
-#include <bsl_list.h>
-#include <bsl_ostream.h>
-#include <bsl_string.h>
-#include <bsl_unordered_set.h>
-
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -47,6 +36,17 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+
+#include <bsl_climits.h>
+#include <bsl_cstddef.h>
+#include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
+#include <bsl_iostream.h>
+#include <bsl_limits.h>
+#include <bsl_list.h>
+#include <bsl_ostream.h>
+#include <bsl_string.h>
+#include <bsl_unordered_set.h>
 
 using namespace BloombergLP;
 using namespace bsl;
@@ -1238,12 +1238,12 @@ int main(int argc, char *argv[])
 // ```
     const bsl::string EXPECTED_BOOKS_JSON = "[\n"
         "    {\n"
-        "        \"Author\" : \"Ann Leckie\",\n"
-        "        \"Title\" : \"Ancillary Justice\"\n"
+        "        \"Author\": \"Ann Leckie\",\n"
+        "        \"Title\": \"Ancillary Justice\"\n"
         "    },\n"
         "    {\n"
-        "        \"Author\" : \"John Scalzi\",\n"
-        "        \"Title\" : \"Redshirts\"\n"
+        "        \"Author\": \"John Scalzi\",\n"
+        "        \"Title\": \"Redshirts\"\n"
         "    }\n"
         "]";
 
@@ -1285,24 +1285,24 @@ int main(int argc, char *argv[])
     const bsl::string formattedFamilyJSON =
                                         "[\n"
                                         "    {\n"
-                                        "        \"firstName\" : \"Homer\",\n"
-                                        "        \"age\" : 34\n"
+                                        "        \"firstName\": \"Homer\",\n"
+                                        "        \"age\": 34\n"
                                         "    },\n"
                                         "    {\n"
-                                        "        \"firstName\" : \"Marge\",\n"
-                                        "        \"age\" : 34\n"
+                                        "        \"firstName\": \"Marge\",\n"
+                                        "        \"age\": 34\n"
                                         "    },\n"
                                         "    {\n"
-                                        "        \"firstName\" : \"Bart\",\n"
-                                        "        \"age\" : 10\n"
+                                        "        \"firstName\": \"Bart\",\n"
+                                        "        \"age\": 10\n"
                                         "    },\n"
                                         "    {\n"
-                                        "        \"firstName\" : \"Lisa\",\n"
-                                        "        \"age\" : 8\n"
+                                        "        \"firstName\": \"Lisa\",\n"
+                                        "        \"age\": 8\n"
                                         "    },\n"
                                         "    {\n"
-                                        "        \"firstName\" : \"Maggie\",\n"
-                                        "        \"age\" : 1\n"
+                                        "        \"firstName\": \"Maggie\",\n"
+                                        "        \"age\": 1\n"
                                         "    }\n"
                                         "]";
 // ```
@@ -2684,44 +2684,44 @@ int main(int argc, char *argv[])
             { L, m.m("a", m.a()),
                             CO,  0,  0,  "{\"a\":[]}",               0,    0 },
             { L, m.m("a", m.a()),
-                            PR,  0,  0,  "{\n\"a\" : []\n}",         0,    0 },
+                            PR,  0,  0,  "{\n\"a\": []\n}",         0,    0 },
             { L, m.m("a", m.a()),
-                            PR,  1,  0,  "{\n\"a\" : []\n}",         0,    0 },
+                            PR,  1,  0,  "{\n\"a\": []\n}",         0,    0 },
             { L, m.m("a", m.a()),
-                            PR,  0,  1,  "{\n \"a\" : []\n}",        0,    0 },
+                            PR,  0,  1,  "{\n \"a\": []\n}",        0,    0 },
             { L, m.m("a", m.a()),
-                            PR,  1,  1,  " {\n  \"a\" : []\n }",     0,    0 },
+                            PR,  1,  1,  " {\n  \"a\": []\n }",     0,    0 },
 
            // e_MAP of e_INTEGER
             { L, m.m("a", 1, "b", 2),
                             CO,  0,  0,  "{\"a\":1,\"b\":2}",        0,    1 },
             { L, m.m("a", 1, "b", 2),
-                            PR,  0,  0,  "{\n\"a\" : 1,\n\"b\" : 2\n}",
+                            PR,  0,  0,  "{\n\"a\": 1,\n\"b\": 2\n}",
                                                                      0,    1 },
             { L, m.m("a", 1, "b", 2),
-                            PR,  1,  0,  "{\n\"a\" : 1,\n\"b\" : 2\n}",
+                            PR,  1,  0,  "{\n\"a\": 1,\n\"b\": 2\n}",
                                                                      0,    1 },
             { L, m.m("a", 1, "b", 2),
-                            PR,  0,  1,  "{\n \"a\" : 1,\n \"b\" : 2\n}",
+                            PR,  0,  1,  "{\n \"a\": 1,\n \"b\": 2\n}",
                                                                      0,    1 },
             { L, m.m("a", 1, "b", 2),
-                            PR,  1,  1,  " {\n  \"a\" : 1,\n  \"b\" : 2\n }",
+                            PR,  1,  1,  " {\n  \"a\": 1,\n  \"b\": 2\n }",
                                                                      0,    1 },
 
            // e_MAP of e_DOUBLE
             { L, m.m("a", 1.0, "b", 2.0),
                             CO,  0,  0,  "{\"a\":1,\"b\":2}",        0,    0 },
             { L, m.m("a", 1.0, "b", 2.0),
-                            PR,  0,  0,  "{\n\"a\" : 1,\n\"b\" : 2\n}",
+                            PR,  0,  0,  "{\n\"a\": 1,\n\"b\": 2\n}",
                                                                      0,    0 },
             { L, m.m("a", 1.0, "b", 2.0),
-                            PR,  1,  0,  "{\n\"a\" : 1,\n\"b\" : 2\n}",
+                            PR,  1,  0,  "{\n\"a\": 1,\n\"b\": 2\n}",
                                                                      0,    0 },
             { L, m.m("a", 1.0, "b", 2.0),
-                            PR,  0,  1,  "{\n \"a\" : 1,\n \"b\" : 2\n}",
+                            PR,  0,  1,  "{\n \"a\": 1,\n \"b\": 2\n}",
                                                                      0,    0 },
             { L, m.m("a", 1.0, "b", 2.0),
-                            PR,  1,  1,  " {\n  \"a\" : 1,\n  \"b\" : 2\n }",
+                            PR,  1,  1,  " {\n  \"a\": 1,\n  \"b\": 2\n }",
                                                                      0,    0 },
 
            // e_MAP of e_ARRAY of e_DOUBLE
@@ -2729,19 +2729,19 @@ int main(int argc, char *argv[])
                             CO,  0,  0,  "{\"a\":[1],\"b\":[2]}",    0,    0 },
             { L, m.m("a", m.a(1.0), "b", m.a(2.0)),
                             PR,  0,  0,
-                                     "{\n\"a\" : [\n1\n],\n\"b\" : [\n2\n]\n}",
+                                     "{\n\"a\": [\n1\n],\n\"b\": [\n2\n]\n}",
                                                                      0,    0 },
             { L, m.m("a", m.a(1.0), "b", m.a(2.0)),
                             PR,  1,  0,
-                                     "{\n\"a\" : [\n1\n],\n\"b\" : [\n2\n]\n}",
+                                     "{\n\"a\": [\n1\n],\n\"b\": [\n2\n]\n}",
                                                                      0,    0 },
             { L, m.m("a", m.a(1.0), "b", m.a(2.0)),
                             PR,  0,  1,
-                             "{\n \"a\" : [\n  1\n ],\n \"b\" : [\n  2\n ]\n}",
+                             "{\n \"a\": [\n  1\n ],\n \"b\": [\n  2\n ]\n}",
                                                                      0,    0 },
             { L, m.m("a", m.a(1.0), "b", m.a(2.0)),
                             PR,  1,  1,
-                   " {\n  \"a\" : [\n   1\n  ],\n  \"b\" : [\n   2\n  ]\n }",
+                   " {\n  \"a\": [\n   1\n  ],\n  \"b\": [\n   2\n  ]\n }",
                                                                      0,    0 },
 
            // e_MAP of e_MAP of e_DOUBLE
@@ -2750,34 +2750,34 @@ int main(int argc, char *argv[])
                                                                      0,    0 },
             { L, m.m("a",m.m("a", 1.0, "b", 2.0)),
                             PR,  0,  0,
-                                   "{\n\"a\" : {\n\"a\" : 1,\n\"b\" : 2\n}\n}",
+                                   "{\n\"a\": {\n\"a\": 1,\n\"b\": 2\n}\n}",
                                                                      0,    0 },
             { L, m.m("a",m.m("a", 1.0, "b", 2.0)),
                             PR,  1,  0,
-                                   "{\n\"a\" : {\n\"a\" : 1,\n\"b\" : 2\n}\n}",
+                                   "{\n\"a\": {\n\"a\": 1,\n\"b\": 2\n}\n}",
                                                                      0,    0 },
             { L, m.m("a",m.m("a", 1.0, "b", 2.0)),
                             PR,  0,  1,
-                             "{\n \"a\" : {\n  \"a\" : 1,\n  \"b\" : 2\n }\n}",
+                             "{\n \"a\": {\n  \"a\": 1,\n  \"b\": 2\n }\n}",
                                                                      0,    0 },
             { L, m.m("a",m.m("a", 1.0, "b", 2.0)),
                             PR,  1,  1,
-                       " {\n  \"a\" : {\n   \"a\" : 1,\n   \"b\" : 2\n  }\n }",
+                       " {\n  \"a\": {\n   \"a\": 1,\n   \"b\": 2\n  }\n }",
                                                                      0,    0 },
            // e_MAP of e_INTEGER with duplicate keys
             { L, m.m("a", 1, "a", 2),
                             CO,  0,  0,  "{\"a\":1,\"a\":2}",        0,    1 },
             { L, m.m("a", 1, "a", 2),
-                            PR,  0,  0,  "{\n\"a\" : 1,\n\"a\" : 2\n}",
+                            PR,  0,  0,  "{\n\"a\": 1,\n\"a\": 2\n}",
                                                                      0,    1 },
             { L, m.m("a", 1, "a", 2),
-                            PR,  1,  0,  "{\n\"a\" : 1,\n\"a\" : 2\n}",
+                            PR,  1,  0,  "{\n\"a\": 1,\n\"a\": 2\n}",
                                                                      0,    1 },
             { L, m.m("a", 1, "a", 2),
-                            PR,  0,  1,  "{\n \"a\" : 1,\n \"a\" : 2\n}",
+                            PR,  0,  1,  "{\n \"a\": 1,\n \"a\": 2\n}",
                                                                      0,    1 },
             { L, m.m("a", 1, "a", 2),
-                            PR,  1,  1,  " {\n  \"a\" : 1,\n  \"a\" : 2\n }",
+                            PR,  1,  1,  " {\n  \"a\": 1,\n  \"a\": 2\n }",
                                                                      0,    1 },
 
         };

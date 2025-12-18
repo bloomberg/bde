@@ -36,10 +36,10 @@ BSLS_IDENT("$Id: $")
 // ```
 // {
 //   "Object" : {
-//     "Field 1" : 1,
-//     "Field 2" : null
+//     "Field 1": 1,
+//     "Field 2": null
 //   },
-//   "Array" : [
+//   "Array": [
 //     1,
 //     "string",
 //     [],
@@ -147,18 +147,18 @@ BSLS_IDENT("$Id: $")
 // {
 //   const bsl::string EXPECTED =
 //       "{\n"
-//       "  \"Stocks\" : [\n"
+//       "  \"Stocks\": [\n"
 //       "    {\n"
-//       "      \"Name\" : \"International Business Machines Corp\",\n"
-//       "      \"Ticker\" : \"IBM US Equity\",\n"
-//       "      \"Last Price\" : 149.3,\n"
-//       "      \"Dividend Yield\" : 3.95\n"
+//       "      \"Name\": \"International Business Machines Corp\",\n"
+//       "      \"Ticker\": \"IBM US Equity\",\n"
+//       "      \"Last Price\": 149.3,\n"
+//       "      \"Dividend Yield\": 3.95\n"
 //       "    },\n"
 //       "    {\n"
-//       "      \"Name\" : \"Apple Inc\",\n"
-//       "      \"Ticker\" : \"AAPL US Equity\",\n"
-//       "      \"Last Price\" : 205.8,\n"
-//       "      \"Dividend Yield\" : 1.4\n"
+//       "      \"Name\": \"Apple Inc\",\n"
+//       "      \"Ticker\": \"AAPL US Equity\",\n"
+//       "      \"Last Price\": 205.8,\n"
+//       "      \"Dividend Yield\": 1.4\n"
 //       "    }\n"
 //       "  ]\n"
 //       "}";
@@ -617,7 +617,7 @@ void SimpleFormatter::printName(const bsl::string_view& name)
         return;                                                       // RETURN
     }
 
-    d_outputStream << (usePrettyStyle() ? " : " : ":");
+    d_outputStream << (usePrettyStyle() ? ": " : ":");
 }
 
 // PRIVATE ACCESSORS
