@@ -827,8 +827,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numVariables` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// sign-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be sign-extended.
     GenericInStream& getArrayInt64(bsls::Types::Int64 *variables,
                                    int                 numVariables);
 
@@ -841,8 +841,8 @@ class GenericInStream {
     /// If this function otherwise fails to extract a valid value, this
     /// stream is marked invalid and the value of `variables` is undefined.
     /// The behavior is undefined unless `0 <= numVariables` and `variables`
-    /// has sufficient capacity.  Note that each of the values will be
-    /// zero-extended.
+    /// has sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint64(bsls::Types::Uint64 *variables,
                                     int                  numVariables);
 
@@ -855,8 +855,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numVariables` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// sign-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be sign-extended.
     GenericInStream& getArrayInt56(bsls::Types::Int64 *variables,
                                    int                 numVariables);
 
@@ -869,7 +869,7 @@ class GenericInStream {
     /// If this function otherwise fails to extract a valid value, this
     /// stream is marked invalid and the value of `variables` is undefined.
     /// The behavior is undefined unless `0 <= numVariables` and `variables`
-    /// has sufficient capacity.  Note that each of the values will be
+    /// has sufficient capacity, or `0 == numVariables && nullptr == variables`.
     /// zero-extended.
     GenericInStream& getArrayUint56(bsls::Types::Uint64 *variables,
                                     int                  numVariables);
@@ -883,7 +883,8 @@ class GenericInStream {
     /// otherwise fails to extract a valid value, this stream is marked
     /// invalid and the value of `variables` is undefined.  The behavior is
     /// undefined unless `0 <= numVariables` and `variables` has sufficient
-    /// capacity.  Note that each of the values will be sign-extended.
+    /// capacity, or `0 == numVariables && nullptr == variables`.  Note that
+    /// each of the values will be sign-extended.
     GenericInStream& getArrayInt48(bsls::Types::Int64 *variables,
                                    int                 numVariables);
 
@@ -896,8 +897,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numVariables` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// zero-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint48(bsls::Types::Uint64 *variables,
                                     int                  numVariables);
 
@@ -910,7 +911,8 @@ class GenericInStream {
     /// otherwise fails to extract a valid value, this stream is marked
     /// invalid and the value of `variables` is undefined.  The behavior is
     /// undefined unless `0 <= numVariables` and `variables` has sufficient
-    /// capacity.  Note that each of the values will be sign-extended.
+    /// capacity, or `0 == numVariables && nullptr == variables`.  Note that
+    /// each of the values will be sign-extended.
     GenericInStream& getArrayInt40(bsls::Types::Int64 *variables,
                                    int                 numVariables);
 
@@ -923,8 +925,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numVariables` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// zero-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint40(bsls::Types::Uint64 *variables,
                                     int                  numVariables);
 
@@ -937,7 +939,8 @@ class GenericInStream {
     /// otherwise fails to extract a valid value, this stream is marked
     /// invalid and the value of `variables` is undefined.  The behavior is
     /// undefined unless `0 <= numVariables` and `variables` has sufficient
-    /// capacity.  Note that each of the values will be sign-extended.
+    /// capacity, or `0 == numVariables && nullptr == variables`.  Note that
+    /// each of the values will be sign-extended.
     GenericInStream& getArrayInt32(int *variables, int numVariables);
 
     /// Assign to the specified `variables` the consecutive four-byte, two's
@@ -949,8 +952,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numVariables` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// zero-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint32(unsigned int *variables, int numVariables);
 
     /// Assign to the specified `variables` the consecutive three-byte,
@@ -962,8 +965,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numValues` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// sign-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be sign-extended.
     GenericInStream& getArrayInt24(int *variables, int numVariables);
 
     /// Assign to the specified `variables` the consecutive three-byte,
@@ -975,8 +978,8 @@ class GenericInStream {
     /// If this function otherwise fails to extract a valid value, this
     /// stream is marked invalid and the value of `variables` is undefined.
     /// The behavior is undefined unless `0 <= numVariables` and `variables`
-    /// has sufficient capacity.  Note that each of the values will be
-    /// zero-extended.
+    /// has sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint24(unsigned int *variables, int numVariables);
 
     /// Assign to the specified `variables` the consecutive two-byte, two's
@@ -988,7 +991,8 @@ class GenericInStream {
     /// otherwise fails to extract a valid value, this stream is marked
     /// invalid and the value of `variables` is undefined.  The behavior is
     /// undefined unless `0 <= numVariables` and `variables` has sufficient
-    /// capacity.  Note that each of the values will be sign-extended.
+    /// capacity, or `0 == numVariables && nullptr == variables`.  Note that
+    /// each of the values will be sign-extended.
     GenericInStream& getArrayInt16(short *variables, int numVariables);
 
     /// Assign to the specified `variables` the consecutive two-byte, two's
@@ -1000,8 +1004,8 @@ class GenericInStream {
     /// function otherwise fails to extract a valid value, this stream is
     /// marked invalid and the value of `variables` is undefined.  The
     /// behavior is undefined unless `0 <= numVariables` and `variables` has
-    /// sufficient capacity.  Note that each of the values will be
-    /// zero-extended.
+    /// sufficient capacity, or `0 == numVariables && nullptr == variables`.
+    /// Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint16(unsigned short *variables,
                                     int             numVariables);
 
@@ -1013,8 +1017,8 @@ class GenericInStream {
     /// has no effect.  If this function otherwise fails to extract a valid
     /// value, this stream is marked invalid and the value of `variables` is
     /// undefined.  The behavior is undefined unless `0 <= numVariables` and
-    /// `variables` has sufficient capacity.  Note that each of the values
-    /// will be sign-extended.
+    /// `variables` has sufficient capacity, or `0 == numVariables && nullptr ==
+    /// variables`.  Note that each of the values will be sign-extended.
     GenericInStream& getArrayInt8(char *variables, int numVariables);
     GenericInStream& getArrayInt8(signed char *variables, int numVariables);
 
@@ -1026,8 +1030,8 @@ class GenericInStream {
     /// has no effect.  If this function otherwise fails to extract a valid
     /// value, this stream is marked invalid and the value of `variables` is
     /// undefined.  The behavior is undefined unless `0 <= numVariables` and
-    /// `variables` has sufficient capacity.  Note that each of the values
-    /// will be zero-extended.
+    /// `variables` has sufficient capacity, or `0 == numVariables && nullptr ==
+    /// variables`.  Note that each of the values will be zero-extended.
     GenericInStream& getArrayUint8(char *variables, int numVariables);
     GenericInStream& getArrayUint8(unsigned char *variables, int numVariables);
 
@@ -1909,7 +1913,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt64(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -1931,7 +1935,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint64(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -1953,7 +1957,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt56(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -1975,7 +1979,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint56(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -1997,7 +2001,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt48(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2019,7 +2023,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint48(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2041,7 +2045,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt40(bsls::Types::Int64 *variables,
                                           int                 numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2063,7 +2067,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint40(bsls::Types::Uint64 *variables,
                                            int                  numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2084,7 +2088,7 @@ template <class STREAMBUF>
 GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt32(int *variables, int numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2106,7 +2110,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint32(unsigned int *variables,
                                            int           numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2127,7 +2131,7 @@ template <class STREAMBUF>
 GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt24(int *variables, int numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2149,7 +2153,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint24(unsigned int *variables,
                                            int           numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2171,7 +2175,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt16(short *variables,
                                           int    numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2193,7 +2197,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint16(unsigned short *variables,
                                            int             numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2215,7 +2219,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt8(char *variables,
                                          int   numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2238,7 +2242,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayInt8(signed char *variables,
                                          int          numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
+    BSLS_ASSERT_SAFE(variables || 0 == numVariables);
     BSLS_ASSERT_SAFE(0 <= numVariables);
 
     return getArrayInt8(reinterpret_cast<char *>(variables), numVariables);
@@ -2250,7 +2254,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint8(char *variables,
                                           int   numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
+    BSLS_ASSERT_SAFE(variables || 0 == numVariables);
     BSLS_ASSERT_SAFE(0 <= numVariables);
 
     return getArrayInt8(variables, numVariables);
@@ -2262,7 +2266,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayUint8(unsigned char *variables,
                                           int            numVariables)
 {
-    BSLS_ASSERT_SAFE(variables);
+    BSLS_ASSERT_SAFE(variables || 0 == numVariables);
     BSLS_ASSERT_SAFE(0 <= numVariables);
 
     return getArrayInt8(reinterpret_cast<char *>(variables), numVariables);
@@ -2275,7 +2279,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayFloat64(double *variables,
                                             int     numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
@@ -2297,7 +2301,7 @@ GenericInStream<STREAMBUF>&
 GenericInStream<STREAMBUF>::getArrayFloat32(float *variables,
                                             int    numVariables)
 {
-    BSLS_ASSERT(variables);
+    BSLS_ASSERT(variables || 0 == numVariables);
     BSLS_ASSERT(0 <= numVariables);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(   !isValid()
