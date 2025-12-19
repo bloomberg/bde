@@ -747,13 +747,12 @@ void Allocator::deleteObjectRaw(bsl::nullptr_t)
 //                           BACKWARD COMPATIBILITY
 // ============================================================================
 
-/// This alias is defined for backward compatibility.
+/// These aliases are defined for backward compatibility.
 typedef bslma::Allocator bslma_Allocator;
 
-#ifndef bdema_Allocator
-#define bdema_Allocator bslma::Allocator
-#endif
-#endif
+typedef bslma::Allocator bdema_Allocator;
+
+#endif  // BDE_OPENSOURCE_PUBLICATION
 
 }  // close enterprise namespace
 
