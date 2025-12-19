@@ -4030,13 +4030,23 @@ bool Datum::isBinary() const
 inline
 bool Datum::isBoolean() const
 {
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return d_exp.d_value == (k_DOUBLE_MASK | e_INTERNAL_BOOLEAN)
+                            << k_TYPE_MASK_BITS;
+#else  // end - 32 bit / begin - 64 bit
     return (e_BOOLEAN == type());
+#endif // end - 64 bit
 }
 
 inline
 bool Datum::isDate() const
 {
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return d_exp.d_value == (k_DOUBLE_MASK | e_INTERNAL_DATE)
+                            << k_TYPE_MASK_BITS;
+#else  // end - 32 bit / begin - 64 bit
     return (e_DATE == type());
+#endif // end - 64 bit
 }
 
 inline
@@ -4108,7 +4118,12 @@ bool Datum::isExternalReference() const
 inline
 bool Datum::isInteger() const
 {
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return d_exp.d_value == (k_DOUBLE_MASK | e_INTERNAL_INTEGER)
+                            << k_TYPE_MASK_BITS;
+#else   // end - 32 bit / begin - 64 bit
     return (e_INTEGER == type());
+#endif  // end - 64 bit
 }
 
 inline
@@ -4132,7 +4147,12 @@ bool Datum::isMap() const
 inline
 bool Datum::isNull() const
 {
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return d_exp.d_value == (((k_DOUBLE_MASK | Datum::e_INTERNAL_EXTENDED) << k_TYPE_MASK_BITS)
+                            | e_EXTENDED_INTERNAL_NIL);
+#else   // end - 32 bit / begin - 64 bit
     return (e_NIL == type());
+#endif  // end - 64 bit
 }
 
 inline
