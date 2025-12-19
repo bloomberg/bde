@@ -1,5 +1,28 @@
-bsl-internal (4.32.0.0) unstable; urgency=low
+bsl-internal (4.33.0.0) unstable; urgency=low
 
+  * de226fd56 Bumped version to 4.33.0.0
+  * 9537c35ae fix bsls_compilerfeatures.t case 43 for optimized builds (DRQS 181854060) (#5683)
+  * 6c7227734 Match the pretty printing in baljsn_simpleformatter (#5685)
+  * 13a016a67 DRQS 182024465: Allow `getArray*` calls with 0 pointer and length (#5690)
+  * 5e42061a9 Force compile rather than link fail for AssertSame (#5653)
+  * e5d31f824 Add bsl::from_range (DRQS 181866969) (#5681)
+  * 32ba87474 Suppress maybe uninitialized warnings. (#5688)
+  * be16ed00d Add dpkg for s_baltst (#4899)
+  * 4218a8c6c Fix clang-tidy warning (#5684)
+  * c63d440d1 bdld::Datum: Add 'createUninitializedBinary' (#5679)
+  * 2f7486377 Fix bsl::decay for abominable function types (DRQS 181871698) (#5680)
+  * b434524a5 Devise checks cleanup (#5678)
+  * fd95499ce fix bdem_rowlatout warning (#5677)
+  * 7300aebcf bsls_compilerfeatures: clang 19 fully supports C++20 core language concepts (#5675)
+  * c0adda5c6 Fix RSAT checks (#5673)
+  * 9c44ef019 reduce clang-20 warnings (#5672)
+  * 436cd303f Fix bdls_filesystemutil TD (#5667)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Dec 2025 16:36:39 +0000
+
+bsl-internal (4.32.0.0) git; urgency=low
+
+  * 894420312 Changelog for version 4.32.0.0
   * 30c893887 Fix Datum array deallocation size (#5669)
   * 1075895f5 Bumped version to 4.32.0.0
   * 17a7be16a Add ability to use kernel thread ids for logging on Linux and Solaris. (#5625)
@@ -13,7 +36,7 @@ bsl-internal (4.32.0.0) unstable; urgency=low
   * 0490e07b7 [DRQS 180888864] Enforce consistency of library features macros (#5587)
   * 612d0123b Fixing long double to_string and to_wstring. (#5638)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 27 Nov 2025 12:37:44 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 27 Nov 2025 12:45:26 -0500
 
 bsl-internal (4.31.0.0) git; urgency=low
 
