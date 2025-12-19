@@ -349,6 +349,13 @@ struct ThreadUtil {
     /// Prototype for thread-specific key destructors.
     typedef bslmt_KeyDestructorFunction            Destructor;
 
+    /// Counts down the limit counter set by `ThreadUtil::setThreadLimit`.
+    /// Returns `true` if current thread creation attempt should be failed.
+    /// Note that if the thread limit is reached, all future thread creation
+    /// attempts will fail, unless the limit is reset by a call to
+    /// `setThreadLimit`.
+    static bool isThreadLimitReached();
+
   public:
     // PUBLIC CLASS METHODS
                 // *** Thread Management ***
@@ -751,6 +758,13 @@ struct ThreadUtil {
     /// Return a *hint* at the number of concurrent threads supported by
     /// this platform on success, and 0 otherwise.
     static unsigned int hardwareConcurrency();
+
+    /// Enable a thread creation limit. If set to non-zero value `n`'th thread
+    /// creation will fail. The limit is disabled by setting the limit to 0.
+    /// Only intended to be used in tests to inject thread creation errors.
+    /// Note that this can be called multiple times to reset the thread limit,
+    /// e.g. between subtests for example.
+    static void setThreadLimit(unsigned int n);
 };
 
 // ============================================================================
@@ -770,6 +784,10 @@ int ThreadUtil::create(Handle         *handle,
                        void           *userData)
 {
     BSLS_ASSERT_SAFE(handle);
+
+    if (isThreadLimitReached()) {
+        return -1;
+    }
 
     return Imp::create(handle, function, userData);
 }
@@ -810,6 +828,10 @@ int ThreadUtil::createWithAllocator(
     BSLS_ASSERT_SAFE(handle);
     BSLS_ASSERT_OPT(allocator);
 
+    if (isThreadLimitReached()) {
+        return -1;
+    }
+
     // 'allocator' is unused in this function, which is provided for symmetry
     // and in case this function comes to need an allocator at sometime in the
     // future.
@@ -826,6 +848,10 @@ int ThreadUtil::createWithAllocator(Handle                  *handle,
 {
     BSLS_ASSERT_SAFE(handle);
     BSLS_ASSERT_OPT(allocator);
+
+    if (isThreadLimitReached()) {
+        return -1;
+    }
 
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
     EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,
@@ -851,6 +877,10 @@ int ThreadUtil::createWithAllocator(Handle           *handle,
 {
     BSLS_ASSERT_SAFE(handle);
     BSLS_ASSERT_OPT(allocator);
+
+    if (isThreadLimitReached()) {
+        return -1;
+    }
 
     bslma::ManagedPtr<EntryPointFunctorAdapter<INVOKABLE> > threadData;
     EntryPointFunctorAdapterUtil::allocateAdapter(&threadData,

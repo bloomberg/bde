@@ -451,6 +451,15 @@ class Mutex {
 //                               All Create Test
 //-----------------------------------------------------------------------------
 
+namespace BSLMT_THREADUTIL_SET_THREAD_LIMIT_TEST {
+
+extern "C" void *noopThreadFunc(void *)
+{
+    return 0;
+}
+
+}  // close namespace BSLMT_THREADUTIL_SET_THREAD_LIMIT_TEST
+
 namespace BSLMT_THREADUTIL_ALL_CREATE_TEST {
 
 enum CreateMode {
@@ -1635,7 +1644,7 @@ int main(int argc, char *argv[])
 #endif
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 20: {
+      case 21: {
         // --------------------------------------------------------------------
         // THREAD LIBRARY CONSISTENCY
         //
@@ -1645,7 +1654,6 @@ int main(int argc, char *argv[])
         // Plan:
         // 1. Assert the native types for thread handles match.  (C-1)
         // --------------------------------------------------------------------
-
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
           BSLMF_ASSERT(
@@ -1653,6 +1661,69 @@ int main(int argc, char *argv[])
                                   std::thread::native_handle_type>::value));
 
 #endif
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // THREAD CREATION LIMITS
+        //
+        // Concern:
+        // 1. User can set the number of threads that can be created.
+        //
+        // Plan:
+        // 1. Set the thread creation limit and verify that no threads can be
+        //    created when this limit is reached.  (C-1)
+        //
+        // Testing:
+        //   void setThreadLimit(unsigned int n);
+        // --------------------------------------------------------------------
+
+        namespace TC = BSLMT_THREADUTIL_SET_THREAD_LIMIT_TEST;
+
+        {
+            const unsigned int THREAD_LIMIT = 5;
+
+            Obj::setThreadLimit(THREAD_LIMIT);
+
+            Obj::Handle handles[THREAD_LIMIT-1];
+            for (unsigned int i = 0; i < THREAD_LIMIT - 1; ++i) {
+                int rc = Obj::create(&handles[i], &TC::noopThreadFunc, 0);
+                ASSERTV(i, 0 == rc);
+            }
+
+            // Now we have reached the thread limit, any further attempts to
+            // create threads should fail.
+
+            Obj::Handle extraHandle;
+            int rc = Obj::create(&extraHandle, &TC::noopThreadFunc, 0);
+            ASSERT(rc != 0);
+
+            // And another attempt.
+            rc = Obj::create(&extraHandle, &TC::noopThreadFunc, 0);
+            ASSERT(rc != 0);
+
+            // Clean up.
+
+            for (unsigned int i = 0; i < THREAD_LIMIT - 1; ++i) {
+                rc = Obj::join(handles[i]);
+                ASSERT(0 == rc);
+            }
+
+            // Set no limits
+            Obj::setThreadLimit(0);
+            rc = Obj::create(&extraHandle, &TC::noopThreadFunc, 0);
+            ASSERT(rc == 0);
+            rc = Obj::join(extraHandle);
+            ASSERT(0 == rc);
+
+            // Special case: set limit to 1, which means only the current thread
+            // can exist.
+            Obj::setThreadLimit(1);
+            rc = Obj::create(&extraHandle, &TC::noopThreadFunc, 0);
+            ASSERT(rc != 0);
+
+            // Set no limits
+            Obj::setThreadLimit(0);
+        }
       } break;
       case 19: {
         // --------------------------------------------------------------------

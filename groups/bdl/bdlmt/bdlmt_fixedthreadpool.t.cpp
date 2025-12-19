@@ -1481,23 +1481,19 @@ int main(int argc, char *argv[])
                           << "`start` FAILURE BEHAVIOR" << endl
                           << "========================" << endl;
 
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || \
-    defined(BSLS_PLATFORM_OS_SOLARIS) || \
-    defined(BSLS_PLATFORM_OS_DARWIN)
+        const int k_NUM_THREADS = 100;
+        const int k_CAPACITY    = 32;
 
-        // Causing thread creation on Windows and Sun to fail can not be done
-        // with the available parameters.  Do not run this test on those
-        // platforms.
-
-        if (verbose) cout << "test not run" << endl;
-#else
-        const int k_NUM_THREADS = 1000000;
-        const int k_CAPACITY    =      32;
+        // force failure at 10th ThreadUtil::create() call
+        bslmt::ThreadUtil::setThreadLimit(10);
 
         bdlmt::FixedThreadPool mX(k_NUM_THREADS, k_CAPACITY);
 
         ASSERT(0 != mX.start());
-#endif
+
+        // disable the limit in case we haven't reached it but something else
+        // has failed
+        bslmt::ThreadUtil::setThreadLimit(0);
       } break;
       case 15: {
         // --------------------------------------------------------------------

@@ -8,6 +8,7 @@ BSLS_IDENT_RCSID(bslmt_threadutil_cpp,"$Id$ $CSID$")
 #include <bslma_default.h>
 #include <bslma_managedptr.h>
 
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 
 #include <bsl_cmath.h>
@@ -28,21 +29,20 @@ namespace u {
 using namespace BloombergLP;
 
 /// This `struct` stores the information necessary to call the `extern "C"`
-/// function `d_threadFunction` passing it `void *` `d_userData` after
-/// a thread is created and named `d_threadName`.
+/// function `d_threadFunction` passing it `void *` `d_userData` after a thread
+/// is created and named `d_threadName`.
 struct NamedFuncPtrRecord {
-
     // DATA
-    bslmt_ThreadFunction  d_threadFunction;    // extern "C" func ptr
-    void                 *d_userData;          // 'void *' to be passed to func
-    bsl::string           d_threadName;        // thread name
+    bslmt_ThreadFunction  d_threadFunction;  // extern "C" func ptr
+    void                 *d_userData;        // 'void *' to be passed to func
+    bsl::string           d_threadName;      // thread name
 
   public:
     // CREATOR
 
     /// Create a `NamedFuncPtrRecord` containing the specified
-    /// `threadFunction`, `userData`, and `threadName`, and using the
-    /// specified `allocator` to supply memory.
+    /// `threadFunction`, `userData`, and `threadName`, and using the specified
+    /// `allocator` to supply memory.
     NamedFuncPtrRecord(bslmt_ThreadFunction      threadFunction,
                        void                     *userData,
                        const bslstl::StringRef&  threadName,
@@ -55,6 +55,10 @@ struct NamedFuncPtrRecord {
 };
 
 }  // close namespace u
+
+// Thread limit used to inject thread creation failures in testing.
+BloombergLP::bsls::AtomicUint g_threadLimit = 0;
+
 }  // close unnamed namespace
 
 namespace BloombergLP {
@@ -68,36 +72,49 @@ void *bslmt_threadutil_namedFuncPtrThunk(void *arg)
 {
     u::NamedFuncPtrRecord *nfpr_p = static_cast<u::NamedFuncPtrRecord *>(arg);
 
-    BSLS_ASSERT(! nfpr_p->d_threadName.empty());  // This function should never
-                                                  // be called unless the
-                                                  // thread is named.
+    BSLS_ASSERT(!nfpr_p->d_threadName.empty());  // This function should never
+                                                 // be called unless the
+                                                 // thread is named.
 
     bslmt::ThreadUtil::setThreadName(nfpr_p->d_threadName);
 
-    bslma::Allocator      *alloc_p =
+    bslma::Allocator *alloc_p =
                               nfpr_p->d_threadName.get_allocator().mechanism();
-    bslmt_ThreadFunction   threadFunction = nfpr_p->d_threadFunction;
-    void                  *userData       = nfpr_p->d_userData;
+    bslmt_ThreadFunction  threadFunction = nfpr_p->d_threadFunction;
+    void                 *userData       = nfpr_p->d_userData;
 
-    alloc_p->deleteObjectRaw(nfpr_p);   // Release 'NameFuncPtrRecord's
-                                        // memory, particularly important if
-                                        // thread is detached and may outlive
-                                        // allocator '*alloc_p'.
+    alloc_p->deleteObjectRaw(nfpr_p);  // Release 'NameFuncPtrRecord's
+                                       // memory, particularly important if
+                                       // thread is detached and may outlive
+                                       // allocator '*alloc_p'.
 
     return (*threadFunction)(userData);
 }
 
-                            // -----------------
-                            // struct ThreadUtil
-                            // -----------------
+                             // -----------------
+                             // struct ThreadUtil
+                             // -----------------
 
 // CLASS METHODS
+
+bool bslmt::ThreadUtil::isThreadLimitReached() {
+    unsigned int limit = g_threadLimit.loadRelaxed();
+    while (limit > 1) {
+            if (limit == g_threadLimit.testAndSwap(limit, limit - 1)) {
+                return false;  // limit not reached yet
+            }
+            // Failed to decrement, retry
+            limit = g_threadLimit.loadRelaxed();
+    }
+    return limit == 0 ?  false : true;
+}
+
 int bslmt::ThreadUtil::convertToSchedulingPriority(
                ThreadAttributes::SchedulingPolicy policy,
                double                             normalizedSchedulingPriority)
 {
-    BSLS_ASSERT_OPT((int) policy >= ThreadAttributes::e_SCHED_MIN);
-    BSLS_ASSERT_OPT((int) policy <= ThreadAttributes::e_SCHED_MAX);
+    BSLS_ASSERT_OPT((int)policy >= ThreadAttributes::e_SCHED_MIN);
+    BSLS_ASSERT_OPT((int)policy <= ThreadAttributes::e_SCHED_MAX);
 
     BSLS_ASSERT_OPT(normalizedSchedulingPriority >= 0.0);
     BSLS_ASSERT_OPT(normalizedSchedulingPriority <= 1.0);
@@ -111,14 +128,14 @@ int bslmt::ThreadUtil::convertToSchedulingPriority(
     }
 
 #if !defined(BSLS_PLATFORM_OS_CYGWIN)
-    double ret = (maxPri - minPri) * normalizedSchedulingPriority +
-                                                                  minPri + 0.5;
+    double ret = (maxPri - minPri) * normalizedSchedulingPriority + minPri +
+                 0.5;
 #else
     // On Cygwin, a lower numerical value implies a higher thread priority:
     //   minSchedPriority = 15, maxSchedPriority = -14
 
-    double ret = - ((minPri - maxPri) * normalizedSchedulingPriority - minPri)
-                                                                         + 0.5;
+    double ret = -((minPri - maxPri) * normalizedSchedulingPriority - minPri) +
+                 0.5;
 #endif
 
     return static_cast<int>(bsl::floor(ret));
@@ -131,14 +148,19 @@ int bslmt::ThreadUtil::create(Handle                  *handle,
 {
     BSLS_ASSERT(handle);
 
+    if (isThreadLimitReached()) {
+        return -1;
+    }
+
     if (false == attributes.threadName().isEmpty()) {
         // Named thread.  Only 'createWithAllocator' can name threads.
 
-        return createWithAllocator(handle,
-                                   attributes,
-                                   function,
-                                   userData,
-                                   bslma::Default::globalAllocator());// RETURN
+        return createWithAllocator(
+                                 handle,
+                                 attributes,
+                                 function,
+                                 userData,
+                                 bslma::Default::globalAllocator());  // RETURN
     }
 
     // Unnamed thread.
@@ -154,6 +176,10 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
 {
     BSLS_ASSERT(handle);
     BSLS_ASSERT_OPT(allocator);
+
+    if (isThreadLimitReached()) {
+        return -1;
+    }
 
     if (false == attributes.threadName().isEmpty()) {
         // Named thread.
@@ -179,6 +205,10 @@ int bslmt::ThreadUtil::createWithAllocator(Handle                  *handle,
     // Unnamed thread.
 
     return Imp::create(handle, attributes, function, userData);
+}
+
+void bslmt::ThreadUtil::setThreadLimit(unsigned int n) {
+    g_threadLimit.store(n);
 }
 
 }  // close enterprise namespace
