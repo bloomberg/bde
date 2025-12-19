@@ -252,7 +252,8 @@ static std::size_t g_sizeOfLastDeletedArray  = 13;
 // Install sized deallocation functions with telemetry for test case 43.
 // Note that these deallocation functions are installed for all test cases, not
 // just test case 43.  Note that these functions must be installed in the
-// global namespace, thety cannot be static nor declared in unnamed namespace.
+// global namespace; they cannot be static nor declared in unnamed namespace.
+
 void operator delete(void *p, std::size_t n) noexcept {
     g_sizeOfLastDeletedObject = n;
     ::operator delete(p);
@@ -263,15 +264,21 @@ void operator delete[](void *p, std::size_t n) noexcept {
     ::operator delete[](p);
 }
 
-// Installing size deallocation functions is deprecated unless we install
-// replacement functions for the unsized new and delete operators.
-void *operator new(std::size_t n) {
+// Define custom placement new operators to ensure that the compiler cannot
+// elide the allocation in optimized builds.
+
+struct PlacementTag {};
+
+void *operator new(std::size_t n, PlacementTag) {
     return malloc(n);
 }
 
-void *operator new[](std::size_t n) {
+void *operator new[](std::size_t n, PlacementTag) {
     return malloc(n);
 }
+
+// The standard requires that if we replace the sized deallocation functions,
+// we also replace the corresponding unsized overloads.
 
 void operator delete(void *p) noexcept {
     free(p);
@@ -279,6 +286,18 @@ void operator delete(void *p) noexcept {
 
 void operator delete[](void *p) noexcept {
     free(p);
+}
+
+// Since we've replaced the unsized global deallocation functions, we also need
+// to replace the allocation functions, because it would be UB to call `free`
+// on memory that hasn't been `malloc`ed.
+
+void *operator new(std::size_t n) {
+    return malloc(n);
+}
+
+void *operator new[](std::size_t n) {
+    return malloc(n);
 }
 #endif // BDE_BUILD_TARGET_TSAN
 
@@ -2448,11 +2467,13 @@ int main(int argc, char *argv[])
 #elif defined(BDE_BUILD_TARGET_TSAN)
         VERBOSE_PUTS("This feature test is incompatible with tsan.");
 #else
+        PlacementTag tag;
+
         {
             g_sizeOfLastDeletedObject = 0;
             g_sizeOfLastDeletedArray = 0;
 
-            int *pX = new int(12);
+            int *pX = new (tag) int(12);
             delete pX;
 
             // Cache values in case `ASSERTV` performs unexpected memory management.
@@ -2467,7 +2488,7 @@ int main(int argc, char *argv[])
             g_sizeOfLastDeletedObject = 0;
             g_sizeOfLastDeletedArray = 0;
 
-            NonTrivial *pA = new NonTrivial[5];
+            NonTrivial *pA = new (tag) NonTrivial[5];
             delete[] pA;
 
             // Cache values in case `ASSERTV` performs unexpected memory management.
