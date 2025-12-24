@@ -23,6 +23,7 @@
 #include <bsl_fstream.h>
 #include <bsl_iomanip.h>
 #include <bsl_string.h>
+#include <cstddef>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -76,26 +77,26 @@ using bsl::flush;
 //
 // [14] advanceToEndNodeRawBare()
 //
-// [16] MiniReader(basicAllocator)
-// [16] MiniReader(bufSize, basicAllocator)
-// [16] ~MiniReader()
-// [16] setPrefixStack(balxml::PrefixStack *prefixes)
-// [16] prefixStack()
-// [16] open()
-// [16] isOpen()
-// [16] documentEncoding()
-// [16] nodeType()
-// [16] nodeName()
-// [16] nodeHasValue()
-// [16] nodeValue()
-// [16] nodeDepth()
-// [16] numAttributes()
-// [16] isEmptyElement()
-// [16] advanceToNextNode()
-// [16] lookupAttribute(ElemAtt a, int index)
-// [16] lookupAttribute(ElemAtt a, char *qname)
-// [16] lookupAttribute(ElemAtt a, char *localname, char *nsUri)
-// [16] lookupAttribute(ElemAtt a, char *localname, int nsId)
+// [18] MiniReader(basicAllocator)
+// [18] MiniReader(bufSize, basicAllocator)
+// [18] ~MiniReader()
+// [18] setPrefixStack(balxml::PrefixStack *prefixes)
+// [18] prefixStack()
+// [18] open()
+// [18] isOpen()
+// [18] documentEncoding()
+// [18] nodeType()
+// [18] nodeName()
+// [18] nodeHasValue()
+// [18] nodeValue()
+// [18] nodeDepth()
+// [18] numAttributes()
+// [18] isEmptyElement()
+// [18] advanceToNextNode()
+// [18] lookupAttribute(ElemAtt a, int index)
+// [18] lookupAttribute(ElemAtt a, char *qname)
+// [18] lookupAttribute(ElemAtt a, char *localname, char *nsUri)
+// [18] lookupAttribute(ElemAtt a, char *localname, int nsId)
 // [15] getCurrentPosition();
 // [15] ErrorInfo::lineNumber();
 // [15] ErrorInfo::columnNumber();
@@ -104,7 +105,8 @@ using bsl::flush;
 // [ 1] BREATHING TEST
 // [15] UNEXPECTED EOF TEST
 // [16] FUZZ TEST
-// [17] USAGE EXAMPLE
+// [17] BOM Handling
+// [18] USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 
 // ============================================================================
@@ -520,6 +522,156 @@ int usageExample()
 // ```
 // End of usage example, extract to the `balxml::Reader` header file.
 
+// This function checks whether the presence of any BOM at the start of the
+// specified `xml` document is handled correctly.  It returns 0 on success, and
+// a non-zero value otherwise.
+int bomCheckTest(const char *xml, std::size_t xmlSize, bool expectFailure)
+{
+    balxml::NamespaceRegistry namespaces;
+    balxml::PrefixStack prefixStack(&namespaces);
+    balxml::MiniReader miniReader; balxml::Reader& reader = miniReader;
+
+    reader.setPrefixStack(&prefixStack);
+    ASSERT(reader.prefixStack());
+    ASSERT(reader.prefixStack() == &prefixStack);
+
+    int rc = reader.open(xml, xmlSize, 0, "UTF-8");
+
+    if (expectFailure) {
+        ASSERT(rc != 0);
+        return 0 == rc;                                               // RETURN
+    }
+
+    ASSERT( reader.isOpen());
+    ASSERT(!bsl::strncmp(reader.documentEncoding(), "UTF-8", 5));
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_NONE);
+    ASSERT(!reader.nodeName());
+    ASSERT(!reader.nodeHasValue());
+    ASSERT(!reader.nodeValue());
+    ASSERT(!reader.nodeDepth());
+    ASSERT(!reader.numAttributes());
+    ASSERT(!reader.isEmptyElement());
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() ==
+                              balxml::Reader::e_NODE_TYPE_XML_DECLARATION);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "xml"));
+    ASSERT( reader.nodeHasValue());
+    ASSERT(!bsl::strcmp(reader.nodeValue(), "version='1.0' encoding='UTF-8'"));
+    ASSERT( reader.nodeDepth() == 1);
+    ASSERT(!reader.numAttributes());
+    ASSERT(!reader.isEmptyElement());
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeDepth() == 1);
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 1);
+    ASSERT( reader.numAttributes() == 1);
+    ASSERT(!reader.isEmptyElement());
+
+    ASSERT(!bsl::strcmp(prefixStack.lookupNamespacePrefix("dir"), "dir"));
+    ASSERT(prefixStack.lookupNamespaceId("dir") == 0);
+    ASSERT(!bsl::strcmp(prefixStack.lookupNamespaceUri("dir"),
+                        "http://bloomberg.com/schemas/directory"));
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 2);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT(!reader.isEmptyElement());
+
+    rc = reader.advanceToNextNode();
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeHasValue());
+    ASSERT(!bsl::strcmp(reader.nodeValue(), "John Smith"));
+    ASSERT( reader.nodeDepth() == 3);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT(!reader.isEmptyElement());
+
+    rc = reader.advanceToNextNode();
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "name"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 2);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT(!reader.isEmptyElement());
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 2);
+    ASSERT( reader.numAttributes() == 1);
+    ASSERT(!reader.isEmptyElement());
+
+    balxml::ElementAttribute elemAttr;
+
+    rc = reader.lookupAttribute(&elemAttr, 0);
+    ASSERT( 0 == rc);
+    ASSERT(!elemAttr.isNull());
+    ASSERT(!bsl::strcmp(elemAttr.qualifiedName(), "dir:phonetype"));
+    ASSERT(!bsl::strcmp(elemAttr.value(), "cell"));
+    ASSERT(!bsl::strcmp(elemAttr.prefix(), "dir"));
+    ASSERT(!bsl::strcmp(elemAttr.localName(), "phonetype"));
+    ASSERT(!bsl::strcmp(elemAttr.namespaceUri(),
+                        "http://bloomberg.com/schemas/directory"));
+    ASSERT( elemAttr.namespaceId() == 0);
+
+    ASSERT(!bsl::strcmp(prefixStack.lookupNamespaceUri(elemAttr.prefix()),
+                        elemAttr.namespaceUri()));
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_TEXT);
+    ASSERT( reader.nodeHasValue());
+    ASSERT(!bsl::strcmp(reader.nodeValue(), "212-318-2000"));
+    ASSERT( reader.nodeDepth() == 3);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT(!reader.isEmptyElement());
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "phone"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 2);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT(!reader.isEmptyElement());
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "address"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 2);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT( reader.isEmptyElement());
+
+    rc = advancePastWhiteSpace(reader);
+    ASSERT( 0 == rc);
+    ASSERT( reader.nodeType() == balxml::Reader::e_NODE_TYPE_END_ELEMENT);
+    ASSERT(!bsl::strcmp(reader.nodeName(), "directory-entry"));
+    ASSERT(!reader.nodeHasValue());
+    ASSERT( reader.nodeDepth() == 1);
+    ASSERT( reader.numAttributes() == 0);
+    ASSERT(!reader.isEmptyElement());
+
+    reader.close();
+    ASSERT(!reader.isOpen());
+
+    return 0;
+}
 // ============================================================================
 //  Let make numElements and numElements static
 //  to be accessible out of scope parse () function for future analysis.
@@ -905,7 +1057,7 @@ int main(int argc, char *argv[])
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -947,6 +1099,74 @@ int main(int argc, char *argv[])
 
         usageExample();
 
+      } break;
+
+      case 17: {
+        // --------------------------------------------------------------------
+        // BOM TEST
+        //
+        // Concerns:
+        // 1. The presence of a BOM at the start of an XML document is
+        //    handled correctly.
+        //    See `{DRQS 181991464}`.
+        //
+        // Plan:
+        // 1. Generate XML input similar to the usage example with allowed and
+        //    disallowed BOMs and verify correct behavior. (C-1)
+        //
+        // Testing:
+        //   BOM TEST
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            bsl::cout << "\nBOM TEST"
+                      << "\n========" << bsl::endl;
+
+        static const bsl::string_view TEST_XML_STRING =
+                       "<?xml version='1.0' encoding='UTF-8'?>\n"
+                       "<directory-entry "
+                       "xmlns:dir='http://bloomberg.com/schemas/directory'>\n"
+                       "    <name>John Smith</name>\n"
+                       "    <phone dir:phonetype='cell'>212-318-2000</phone>\n"
+                       "    <address/>\n"
+                       "</directory-entry>\n";
+
+        static const struct {
+            int                d_lineNum;
+            const char        *d_description;
+            const char        *d_bom;
+            const std::size_t  d_bomSize;
+            bool               d_expectFailure;
+        } DATA[] = {
+            //LINE  DESCRIPTION         BOM BYTES           LEN  EXPECT
+            //----  ------------------- ------------------- ---  ------
+            {L_,    "No BOM",           "",                   0, false},
+            {L_,    "UTF-8 BOM",        "\xEF\xBB\xBF",       3, false},
+            {L_,    "UTF-16 BE BOM",    "\xFE\xFF",           2, true},
+            {L_,    "UTF-16 LE BOM",    "\xFF\xFE",           2, true},
+            {L_,    "UTF-32 BE BOM",    "\x00\x00\xFE\xFF",   4, true},
+            {L_,    "UTF-32 LE BOM",    "\xFF\xFE\x00\x00",   4, true},
+        };
+        const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+        for (int idx = 0; idx < NUM_DATA; ++idx) {
+            const int          LINE       = DATA[idx].d_lineNum;
+            const char        *DESC       = DATA[idx].d_description;
+            const char        *BOM        = DATA[idx].d_bom;
+            const std::size_t  BOM_SIZE   = DATA[idx].d_bomSize;
+            const bool         EXPECTFAIL = DATA[idx].d_expectFailure;
+
+            if (verbose) {
+                bsl::cout << "\n"
+                          << DESC << " (line " << LINE << ")\n"
+                          << bsl::string(80, '-') << bsl::endl;
+            }
+
+            const bsl::string xml = bsl::string(BOM, BOM_SIZE) +
+                                    TEST_XML_STRING;
+            const int rc = bomCheckTest(xml.c_str(), xml.length(), EXPECTFAIL);
+            ASSERTV(LINE, DESC, EXPECTFAIL, rc, rc == 0);
+        }
       } break;
 
       case 16: {

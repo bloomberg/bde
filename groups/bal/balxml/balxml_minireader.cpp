@@ -57,7 +57,7 @@ BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 //          |                  |                                   ST_TAG_END |
 //          |                  |                                              |
 //          |                  | default                                      |
-//  INITIAL | scanOpenTag -----+----->----- scanStartElement ------->---------+
+// BomCheck | scanOpenTag -----+----->----- scanStartElement ------->---------+
 //     |    |     |            |            - set type ELEMENT                |
 //     |    |     |            |            - set nodeName                    |
 //     |    |     |            |              (ex 'Request')                  |
@@ -65,8 +65,8 @@ BSLS_IDENT_RCSID(balxml_minireader_cpp,"$Id$ $CSID$")
 //     |    |     |            |            - check for empty element         |
 //     |    |     |            |               - set flags to EMPTY           |
 //     |    |     |            v            - set state to ST_TAG_END         |
-//     |    |     |            |                                              |
-//     |    |     |            |                                              |
+//     v    |     |            |                                              |
+//  INITIAL |     |            |                                              |
 //     |    |     | '<'        |  '/'                                         |
 //     |    |     |            +------->--- scanEndElement ---------->--------+
 //     |    |     |                         - END_ELEMENT
@@ -554,6 +554,66 @@ void MiniReader::close()
     d_state     = ST_CLOSED;
 }
 
+int MiniReader::bomCheck()
+{
+    // If the first byte is in the range 0x01-0xEE, there is no BOM present.
+    if (d_endPtr - d_startPtr >= 1) {
+        const unsigned char firstChar =
+            static_cast<unsigned char>(d_startPtr[0]);
+        if (firstChar > 0x00U && firstChar < 0xEFU) {
+            // No BOM present.
+            return 0;                                                 // RETURN
+        }   
+    }
+
+    // Check for UTF-8 BOM (0xEF,0xBB,0xBF) at start of document.
+    if (   (d_endPtr - d_startPtr >= 3)
+        && (0xEFU == static_cast<unsigned char>(d_startPtr[0]))
+        && (0xBBU == static_cast<unsigned char>(d_startPtr[1]))
+        && (0xBFU == static_cast<unsigned char>(d_startPtr[2]))) {
+
+        // Valid UTF-8 BOM found; skip it.
+        d_startPtr += 3;
+        d_scanPtr  += 3;
+
+        return 0;                                                     // RETURN
+    }
+
+    if ((d_endPtr - d_startPtr >= 2) &&
+             (
+              // UTF-16 BOMs are not supported, check both endiannesses
+              (0xFEU == static_cast<unsigned char>(d_startPtr[0]) &&
+               0xFFU == static_cast<unsigned char>(d_startPtr[1])) ||
+              (0xFFU == static_cast<unsigned char>(d_startPtr[0]) &&
+               0xFEU == static_cast<unsigned char>(d_startPtr[1])))) {
+        // Invalid BOM found; set error state.
+        return setParseError(
+                           "Unsupported UTF-16 BOM found at start of document",
+                           d_startPtr,
+                           d_startPtr + 3);                           // RETURN
+    }
+
+    if ((d_endPtr - d_startPtr >= 4) &&
+        (
+            // UTF-32 BOMs are not supported, check both endiannesses
+            (0x00U == static_cast<unsigned char>(d_startPtr[0]) &&
+             0x00U == static_cast<unsigned char>(d_startPtr[1]) &&
+             0xFEU == static_cast<unsigned char>(d_startPtr[2]) &&
+             0xFFU == static_cast<unsigned char>(d_startPtr[3])) ||
+            (0xFFU == static_cast<unsigned char>(d_startPtr[0]) &&
+             0xFEU == static_cast<unsigned char>(d_startPtr[1]) &&
+             0x00U == static_cast<unsigned char>(d_startPtr[2]) &&
+             0x00U == static_cast<unsigned char>(d_startPtr[3])))) {
+        // Invalid BOM found; set error state.
+        return setParseError(
+                           "Unsupported UTF-32 BOM found at start of document",
+                           d_startPtr,
+                           d_startPtr + 3);                           // RETURN
+    }
+
+    return 0;
+}
+
 int MiniReader::doOpen(const char *url, const char *encoding)
 {
     // reset active nodes stack
@@ -585,7 +645,15 @@ int MiniReader::doOpen(const char *url, const char *encoding)
     d_baseURL  = nonNullStr(url);
     d_encoding = nonNullStr(encoding);
 
-    return (readInput() > 0) ? 0 : -1;
+    if (readInput() == 0) {
+        return -1;                                                    // RETURN
+    }
+
+    if (bomCheck() != 0) {
+        return -1;                                                    // RETURN
+    }
+
+    return 0;
 }
 
 int MiniReader::open(const char *buffer,

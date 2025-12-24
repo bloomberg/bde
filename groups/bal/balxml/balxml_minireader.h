@@ -443,6 +443,13 @@ class MiniReader :  public Reader {
     /// Push the `currentNode()`s data onto the `d_activeNodes` stack.
     void pushElementName();
 
+    /// Validate that if a BOM is present at the start of the document, it is
+    /// the UTF-8 BOM.  If a valid or no BOM is present, adjust `d_scanPtr`,
+    /// `d_startPtr`, and `d_endPtr` accordingly.  If an invalid BOM is
+    /// present, set the reader to the error state.  Returns 0 on success, and
+    /// a non-zero value otherwise.
+    int bomCheck();
+
     /// Scan the node at the current position.
     int   scanNode();
     int   updateAttributes();
@@ -595,7 +602,9 @@ class MiniReader :  public Reader {
     /// and `encoding` is null or a blank string is passed, then set the
     /// encoding to the default "UTF-8".  It is an error to `open` a reader
     /// that is already open.  Note that the reader will not be on a valid
-    /// node until `advanceToNextNode` is called.
+    /// node until `advanceToNextNode` is called.  Also note that if a Byte
+    /// Order Mark (BOM) is present at the start of the document, it must be
+    /// the UTF-8 BOM, or else an error will be returned.
     int open(const char *filename,
              const char *encoding = 0) BSLS_KEYWORD_OVERRIDE;
 
