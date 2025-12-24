@@ -2887,10 +2887,16 @@ swap(std::optional<t_TYPE>& lhs, bsl::optional<t_TYPE>& rhs);
 /// `bsl::optional`'s value type is not allocator-aware.
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator==(const std::optional<t_LHS_TYPE>& lhs,
-                          const bsl::optional<t_RHS_TYPE>& rhs);
+                          const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs == *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator==(const bsl::optional<t_LHS_TYPE>& lhs,
-                          const std::optional<t_RHS_TYPE>& rhs);
+                          const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs == *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 
 /// Return `true` if the specified `lhs` and `rhs` optional objects do not
 /// have the same value, and `false` otherwise.  Two optional objects do not
@@ -2902,10 +2908,16 @@ constexpr bool operator==(const bsl::optional<t_LHS_TYPE>& lhs,
 /// not allocator-aware.
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator!=(const bsl::optional<t_LHS_TYPE>& lhs,
-                          const std::optional<t_RHS_TYPE>& rhs);
+                          const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs != *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator!=(const std::optional<t_LHS_TYPE>& lhs,
-                          const bsl::optional<t_RHS_TYPE>& rhs);
+                          const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs != *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 
 /// Return `true` if the specified `lhs` optional object is ordered before
 /// the specified `rhs` optional object, and `false` otherwise.  `lhs` is
@@ -2917,10 +2929,16 @@ constexpr bool operator!=(const std::optional<t_LHS_TYPE>& lhs,
 /// allocator-aware.
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator<(const bsl::optional<t_LHS_TYPE>& lhs,
-                         const std::optional<t_RHS_TYPE>& rhs);
+                         const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs < *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator<(const std::optional<t_LHS_TYPE>& lhs,
-                         const bsl::optional<t_RHS_TYPE>& rhs);
+                         const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs < *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 
 /// Return `true` if the specified `lhs` optional object is ordered after
 /// the specified `rhs` optional object, and `false` otherwise.  `lhs` is
@@ -2931,10 +2949,16 @@ constexpr bool operator<(const std::optional<t_LHS_TYPE>& lhs,
 /// only if the `bsl::optional`'s value type is not allocator-aware.
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator>(const bsl::optional<t_LHS_TYPE>& lhs,
-                         const std::optional<t_RHS_TYPE>& rhs);
+                         const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs > *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator>(const std::optional<t_LHS_TYPE>& lhs,
-                         const bsl::optional<t_RHS_TYPE>& rhs);
+                         const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs > *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 
 /// Return `true` if the specified `lhs` is ordered before the specified
 /// `rhs` optional object or `lhs` and `rhs` have the same value, and
@@ -2944,10 +2968,16 @@ constexpr bool operator>(const std::optional<t_LHS_TYPE>& lhs,
 /// the `bsl::optional`'s value type is not allocator-aware.
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator<=(const bsl::optional<t_LHS_TYPE>& lhs,
-                          const std::optional<t_RHS_TYPE>& rhs);
+                          const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs <= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator<=(const std::optional<t_LHS_TYPE>& lhs,
-                          const bsl::optional<t_RHS_TYPE>& rhs);
+                          const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs <= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 
 /// Return `true` if the specified `lhs` optional object is ordered after
 /// the specified `rhs` optional object or `lhs` and `rhs` have the same
@@ -2957,10 +2987,16 @@ constexpr bool operator<=(const std::optional<t_LHS_TYPE>& lhs,
 /// only if the `bsl::optional`'s value type is not allocator-aware.
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator>=(const bsl::optional<t_LHS_TYPE>& lhs,
-                          const std::optional<t_RHS_TYPE>& rhs);
+                          const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs >= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr bool operator>=(const std::optional<t_LHS_TYPE>& lhs,
-                          const bsl::optional<t_RHS_TYPE>& rhs);
+                          const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs >= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    });
 #endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 /// Return an `optional` object containing a `t_TYPE` object created by
@@ -5727,6 +5763,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator==(const bsl::optional<t_LHS_TYPE>& lhs,
                 const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs == *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (lhs.has_value() && rhs.has_value()) {
         return *lhs == *rhs;
@@ -5738,6 +5777,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator==(const std::optional<t_LHS_TYPE>& lhs,
                 const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs == *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (lhs.has_value() && rhs.has_value()) {
         return *lhs == *rhs;
@@ -5749,6 +5791,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator!=(const bsl::optional<t_LHS_TYPE>& lhs,
                 const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs != *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (lhs.has_value() && rhs.has_value()) {
         return *lhs != *rhs;
@@ -5761,6 +5806,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator!=(const std::optional<t_LHS_TYPE>& lhs,
                 const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs != *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (lhs.has_value() && rhs.has_value()) {
         return *lhs != *rhs;
@@ -5773,6 +5821,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator<(const bsl::optional<t_LHS_TYPE>& lhs,
                const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs < *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!rhs.has_value()) {
         return false;                                                 // RETURN
@@ -5785,6 +5836,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator<(const std::optional<t_LHS_TYPE>& lhs,
                const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs < *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!rhs.has_value()) {
         return false;                                                 // RETURN
@@ -5797,6 +5851,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator>(const bsl::optional<t_LHS_TYPE>& lhs,
                const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs > *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!lhs.has_value()) {
         return false;                                                 // RETURN
@@ -5809,6 +5866,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator>(const std::optional<t_LHS_TYPE>& lhs,
                const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs > *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!lhs.has_value()) {
         return false;                                                 // RETURN
@@ -5821,6 +5881,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator<=(const bsl::optional<t_LHS_TYPE>& lhs,
                 const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs <= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!lhs.has_value()) {
         return true;                                                  // RETURN
@@ -5833,6 +5896,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator<=(const std::optional<t_LHS_TYPE>& lhs,
                 const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs <= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!lhs.has_value()) {
         return true;                                                  // RETURN
@@ -5845,6 +5911,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator>=(const bsl::optional<t_LHS_TYPE>& lhs,
                 const std::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs >= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!rhs.has_value()) {
         return true;                                                  // RETURN
@@ -5856,6 +5925,9 @@ template <class t_LHS_TYPE, class t_RHS_TYPE>
 constexpr
 bool operator>=(const std::optional<t_LHS_TYPE>& lhs,
                 const bsl::optional<t_RHS_TYPE>& rhs)
+    BSLSTL_OPTIONAL_REQUIRES(requires {
+        { *lhs >= *rhs } -> BloombergLP::bslstl::Optional_ConvertibleToBool;
+    })
 {
     if (!rhs.has_value()) {
         return true;                                                  // RETURN
