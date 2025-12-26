@@ -13,6 +13,10 @@
 #pragma error_messages(off, hidevf)
 #endif
 
+// Avoid implicitly-defined namespace warning on some Darwin builds
+namespace std {
+} // close namespace std
+
 using namespace BloombergLP;
 using namespace std;
 
