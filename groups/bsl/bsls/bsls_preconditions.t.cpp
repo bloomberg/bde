@@ -9,7 +9,6 @@
 #include <stdlib.h>               // atoi(), rand()
 
 using namespace BloombergLP;
-using namespace std;
 
 // ============================================================================
 //                              TEST PLAN

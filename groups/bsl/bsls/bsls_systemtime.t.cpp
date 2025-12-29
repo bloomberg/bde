@@ -17,7 +17,6 @@
 #include <time.h>
 
 using namespace BloombergLP;
-using namespace std;
 
 // ============================================================================
 //                                  TEST PLAN

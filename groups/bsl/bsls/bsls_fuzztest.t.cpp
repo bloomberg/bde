@@ -13,7 +13,6 @@
 #include <string.h>             // strcmp()
 
 using namespace BloombergLP;
-using namespace std;
 
 // ============================================================================
 //                             TEST PLAN
