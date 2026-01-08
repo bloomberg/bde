@@ -184,7 +184,7 @@ bool operator!=(const NonTypicalOverloadsTestType& lhs,
 inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t size)
 {
-    BSLS_ASSERT_OPT(0);
+    BSLS_ASSERT_INVOKE_NORETURN("Should not call this new operator.");
 
     return ::operator new(size);
 }
@@ -192,7 +192,7 @@ void* NonTypicalOverloadsTestType::operator new(std::size_t size)
 inline
 void* NonTypicalOverloadsTestType::operator new(std::size_t, void *ptr)
 {
-    BSLS_ASSERT_OPT(0);
+    BSLS_ASSERT_INVOKE_NORETURN("Should not call this placement new operator.");
 
     return ptr;
 }
@@ -205,7 +205,7 @@ void NonTypicalOverloadsTestType::operator delete(void *)
                                      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 #endif
 {
-    BSLS_ASSERT_OPT(0);
+    BSLS_ASSERT_INVOKE_NORETURN("Should not call this delete operator.");
 }
 
 inline
@@ -216,7 +216,8 @@ void NonTypicalOverloadsTestType::operator delete(void *, void *)
                                      BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
 #endif
 {
-    BSLS_ASSERT_OPT(0);
+    BSLS_ASSERT_INVOKE_NORETURN("Should not call placement delete operator.");
+
 }
 
 // CREATORS
@@ -270,7 +271,7 @@ void NonTypicalOverloadsTestType::setData(int value)
 inline
 NonTypicalOverloadsTestType* NonTypicalOverloadsTestType::operator&()
 {
-    BSLS_ASSERT_OPT(0);
+    BSLS_ASSERT_INVOKE_NORETURN("Should not call this address-of operator.");
 
     return 0;
 }
