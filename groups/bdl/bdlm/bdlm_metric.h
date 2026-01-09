@@ -7,8 +7,6 @@ BSLS_IDENT("$Id$")
 
 //@PURPOSE: Provide a class to store metric values of different types.
 //
-//@DEPRECATED: This component is not ready for public use.
-//
 //@CLASSES:
 //  bdlm::Metric: variant of metric values
 //

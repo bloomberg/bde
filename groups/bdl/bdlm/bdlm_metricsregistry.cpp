@@ -189,8 +189,8 @@ class MetricsRegistry_Impl {
     /// destruction, or due to a call to `removeMetricsAdapter` or
     /// `setMetricsAdapter`).  Furthermore, metrics collection can be disable
     /// with `disableMetricsCollection` and enabled with
-    /// `enableMetricsCollection`.  In this way, a `MetricsRegistry` serves as an
-    /// intermediary between users of `bdlm` that register metrics and the
+    /// `enableMetricsCollection`.  In this way, a `MetricsRegistry` serves as
+    /// an intermediary between users of `bdlm` that register metrics and the
     /// subsystem for collecting and publishing metrics being adapted by a
     /// concrete instance of `bdlm::MetricAdapter`.
     CallbackHandle registerCollectionCallback(

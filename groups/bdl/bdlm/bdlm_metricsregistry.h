@@ -8,8 +8,6 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide a transferable registry of metric registrations.
 //
-//@DEPRECATED: This component is not ready for public use.
-//
 //@CLASSES:
 // bdlm::MetricsRegistry: transferable registry of metric registrations
 // bdlm::MetricsRegistryRegistrationHandle: registration handle providing RAII
@@ -34,8 +32,8 @@ BSLS_IDENT("$Id: $")
 //
 ///Thread Safety
 ///-------------
-// The class `bdlm::MetricsRegistry` is *thread-aware* (see
-// {`bsldoc_glossary`|Thread-Aware}), and
+// The class `bdlm::MetricsRegistry` is *fully thread-safe* (see
+// {`bsldoc_glossary`|Fully Thread-Safe}), and
 // `bdlm::MetricsRegistryRegistrationHandle` is *minimally thread-safe* (see
 // {`bsldoc_glossary`|Minimally Thread-Safe}).
 //
@@ -216,8 +214,8 @@ class MetricsRegistry {
     /// destruction, or due to a call to `removeMetricsAdapter` or
     /// `setMetricsAdapter`).  Furthermore, metrics collection can be disable
     /// with `disableMetricsCollection` and enabled with
-    /// `enableMetricsCollection`.  In this way, a `MetricsRegistry` serves as an
-    /// intermediary between users of `bdlm` that register metrics and the
+    /// `enableMetricsCollection`.  In this way, a `MetricsRegistry` serves as
+    /// an intermediary between users of `bdlm` that register metrics and the
     /// subsystem for collecting and publishing metrics being adapted by a
     /// concrete instance of `bdlm::MetricAdapter`.
     int registerCollectionCallback(

@@ -4,8 +4,6 @@
 
 //@PURPOSE: Provide a type specific instance count.
 //
-//@DEPRECATED: This component is not ready for public use.
-//
 //@CLASSES:
 // bdlm::InstanceCount: type specific instance count
 //
@@ -14,7 +12,8 @@
 //
 ///Thread Safety
 ///-------------
-// This class is *thread-safe* (see {`bsldoc_glossary`|Thread-Safe}).
+// This class is *fully thread-safe*
+// (see {`bsldoc_glossary`|Fully Thread-Safe}).
 //
 ///Usage
 ///-----
