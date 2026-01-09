@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 126 components having 10 levels of physical
+ The 'bslstl' package currently has 127 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -123,6 +123,7 @@
       bslstl_iserrorconditionenum
       bslstl_iterator
       bslstl_monostate
+      bslstl_ranges
       bslstl_ratio
       bslstl_referencewrapper
       bslstl_sharedptrallocateinplacerep
@@ -385,6 +386,9 @@
 :
 : 'bslstl_randomaccessiterator':
 :      Provide a template to create STL-compliant random access iterators.
+:
+: 'bslstl_ranges':
+:      Provide functionality of the corresponding C++ Standard header.
 :
 : 'bslstl_ratio':
 :      Provide functionality of the corresponding C++ Standard header.
