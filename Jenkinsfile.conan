@@ -17,6 +17,7 @@ jobInfo.failIfBranchIndexing()
 node('WINDOWS') {
     try {
         stage('Checkout') {
+            sourceDir = pwd()
             checkout scm
         }
 
@@ -31,69 +32,24 @@ node('WINDOWS') {
                 }
 
                 conan.getReleaseProfiles().each { profile ->
-                    writeFile(file:"standalones/CMakeLists.txt", text: "")
-                    writeFile(file:"groups/CMakeLists.txt", text: "")
+                    dir("build_${profile}") {
+                        Map args = [
+                            user:    user,
+                            channel: channel,
+                            '-o:a':  '*:dependency_user_channel=test/unstable',
+                            '-pr:h': profile,
+                            '-of':   '.',
+                            path:    sourceDir
+                        ]
 
-                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(bbryu)")
-                    conan.create(name: 'libbbryu-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
+                        conan.build(args.clone())
 
-
-                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(inteldfp/LIBRARY)")
-                    conan.create(name: 'libinteldfp-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
-
-                    writeFile(file:"thirdparty/CMakeLists.txt", text: "add_subdirectory(pcre2)")
-                    conan.create(name: 'libpcre2-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
-
-                    writeFile(file:"thirdparty/CMakeLists.txt", text: "")
-
-                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bsl)")
-                    conan.create(name: 'libbsl-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
-
-                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bdl)")
-                    conan.create(name: 'libbdl-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
-
-                    //writeFile(file:"groups/CMakeLists.txt", text: "")
-                    //writeFile(file:"standalones/CMakeLists.txt", text: "add_subdirectory(s_baltst)")
-                    //conan.create(name: 'libs-baltst-dev',
-                    //             user:    user,
-                    //             channel: channel,
-                    //             '-o:a':  '*:dependency_user_channel=test/unstable',
-                    //             '-pr:h': profile)
-                    //writeFile(file:"standalones/CMakeLists.txt", text: "")
-
-                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bal)")
-                    conan.create(name: 'libbal-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
-
-                    writeFile(file:"groups/CMakeLists.txt", text: "add_subdirectory(bbl)")
-                    conan.create(name: 'libbbl-dev',
-                                 user:    user,
-                                 channel: channel,
-                                 '-o:a':  '*:dependency_user_channel=test/unstable',
-                                 '-pr:h': profile)
+                        ['libbbryu-dev', 'libinteldfp-dev', 'libpcre2-dev',
+                         'libbsl-dev', 'libbdl-dev',
+                         'libs-baltst-dev', 'libbal-dev', 'libbbl-dev'].each { name ->
+                            conan.exportPkg(args.clone() + [name: name])
+                        }
+                    }
                 }
             }
             stage('Publish package(s)') {
@@ -109,7 +65,7 @@ node('WINDOWS') {
                     remote.upload(dryRun: dryRun, pattern: 'libpcre2-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbsl-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbdl-dev')
-                    //remote.upload(dryRun: dryRun, pattern: 'libs-baltst-dev')
+                    remote.upload(dryRun: dryRun, pattern: 'libs-baltst-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbal-dev')
                     remote.upload(dryRun: dryRun, pattern: 'libbbl-dev')
                 }

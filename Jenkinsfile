@@ -1,6 +1,6 @@
 pipeline {
 
-    agent {           
+    agent {
         label 'BDEBLL'                          //pick a build agent with label
     }
     options {
@@ -28,10 +28,10 @@ pipeline {
                 branch "PR-*"               // a stage only runs for pull requests
             }
             steps{
-		echo 'Running BDE CI Bot'
-                sh """             
-		/opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/bdecibot.py --verbose --nolint --url ${CHANGE_URL} --create-checkout ${WORKSPACE}
-                """                
+        echo 'Running BDE CI Bot'
+                sh """
+        /opt/bb/bin/python3.8 /bb/bde/bbshr/bde-ci-tools/bin/bdecibot.py --verbose --nolint --url ${CHANGE_URL} --create-checkout ${WORKSPACE}
+                """
             }
         }
     }
