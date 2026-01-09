@@ -447,7 +447,7 @@ int encodeValue(baljsn::SimpleFormatter    *formatter,
         result = 0;
       } break;
       case bdld::Datum::e_INTEGER64: {
-        formatter->addValue(static_cast<double>(datum.theInteger64()));
+        formatter->addValue(datum.theInteger64());
         *strictTypesCheckStatus   = 1;
         result = 0;
       } break;
