@@ -1,5 +1,22 @@
-bsl-internal (4.33.0.0) unstable; urgency=low
+bsl-internal (4.34.0.0) unstable; urgency=low
 
+  * 04d7cb6ab Bumped version to 4.34.0.0
+  * 1ba9ebaac Enable s-baltst for Conan (#5700)
+  * 61c9f8d5d fixed doc issues; removed deprecation and correct thread-safety (#5699)
+  * 23e75dd0e baljsn_datumutil: when encoding Int64, stop casting through 'double' (#5701)
+  * 1de2bb022 Directly invoke the violation handler for evil test type operators (#5697)
+  * 4ddf9c3e1 DRQS 182144710 Remove `using namespace std;` (#5694)
+  * c93470379 bsls_keyword.t.cpp: suppress implicitly-defined std warning (#5693)
+  * 408821382 DRQS181991464: balxml_decoder parse bom (#5691)
+  * 4e701f904 Constrained comparisons with std::optional (#5692)
+  * 7bcc19726 Add bslmt::ThreadUtil::setThreadLimit test helper (#5689)
+  * bd01d7d44 `bdld::Datum`: Use the `ExponentAccess` in 32 bit to speed up `isBoolean/Date/Integer/Null` (#5682)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Jan 2026 15:10:16 -0500
+
+bsl-internal (4.33.0.0) git; urgency=low
+
+  * 255a8850c Changelog for version 4.33.0.0
   * de226fd56 Bumped version to 4.33.0.0
   * 9537c35ae fix bsls_compilerfeatures.t case 43 for optimized builds (DRQS 181854060) (#5683)
   * 6c7227734 Match the pretty printing in baljsn_simpleformatter (#5685)
@@ -18,7 +35,7 @@ bsl-internal (4.33.0.0) unstable; urgency=low
   * 9c44ef019 reduce clang-20 warnings (#5672)
   * 436cd303f Fix bdls_filesystemutil TD (#5667)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Dec 2025 16:36:39 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 19 Dec 2025 16:42:27 +0000
 
 bsl-internal (4.32.0.0) git; urgency=low
 
