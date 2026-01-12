@@ -17,8 +17,10 @@ jobInfo.failIfBranchIndexing()
 node('WINDOWS') {
     try {
         stage('Checkout') {
-            sourceDir = pwd()
-            checkout scm
+            dir("src") {
+                sourceDir = pwd()
+                checkout scm
+            }
         }
 
         withConan { conan ->
