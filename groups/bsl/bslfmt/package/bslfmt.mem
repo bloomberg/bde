@@ -26,6 +26,7 @@ bslfmt_formattertestutil
 bslfmt_formatterunicodedata
 bslfmt_mockformatcontext
 bslfmt_mockparsecontext
+bslfmt_padutil
 bslfmt_standardformatspecification
 bslfmt_streamed
 bslfmt_streamedformatter

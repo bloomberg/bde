@@ -65,6 +65,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
+#include <bslfmt_padutil.h>
 #include <bslfmt_standardformatspecification.h>
 
 #include <bslalg_numericformatterutil.h>
@@ -567,6 +568,9 @@ FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::formatImpl(
        const bsl::basic_string_view<t_CHAR, t_CHAR_TRAITS> value,
        t_FORMAT_CONTEXT&                                   formatContext) const
 {
+    typedef bsl::basic_string_view<t_CHAR> StringView;
+    typedef PadUtil<t_CHAR>                PadUtil;
+
     Specification finalSpec(d_spec);
 
     finalSpec.postprocess(formatContext);
@@ -596,73 +600,41 @@ FormatterString_Imp<t_CHAR, t_CHAR_TRAITS>::formatImpl(
     // Only do an analysis of the string if there is a possibility of
     // truncation or padding.
     if ((maxDisplayWidth < static_cast<int>(value.size()) * 2) ||
-        (finalWidth.category() != NumericValue::e_DEFAULT)) {
+                          (finalWidth.category() != NumericValue::e_DEFAULT)) {
         findPrecisionLimitedString(&charactersOfInputUsed,
                                    &displayWidthUsedByInputString,
                                    value,
                                    maxDisplayWidth);
     }
+    displayWidthUsedByInputString = bsl::max(0, displayWidthUsedByInputString);
 
-    int totalPadDisplayWidth = 0;
+    BSLS_ASSERT(NumericValue::e_DEFAULT == finalWidth.category() ||
+                NumericValue::e_VALUE   == finalWidth.category());
 
-    switch (finalWidth.category()) {
-      case NumericValue::e_DEFAULT: {
-        totalPadDisplayWidth = 0;
-      } break;
-      case NumericValue::e_VALUE: {
-        totalPadDisplayWidth =
-               bsl::max(0, finalWidth.value() - displayWidthUsedByInputString);
-      } break;
-      default: {
-        BSLS_THROW(bsl::format_error("Invalid precision specifier"));
-      }
-    }
-
-    BSLS_ASSERT(totalPadDisplayWidth >= 0);
-
-    int leftPadFillerCopies  = 0;
-    int rightPadFillerCopies = 0;
+    std::ptrdiff_t leftPadFillerCopies  = 0;
+    std::ptrdiff_t rightPadFillerCopies = 0;
 
     // Note that, per the C++ spec, the fill character is always assumed to
     // have a field width of one, regardless of its actual field width.
-    switch (d_spec.alignment()) {
-      case Specification::e_ALIGN_DEFAULT:
-      case Specification::e_ALIGN_LEFT: {
-        leftPadFillerCopies  = 0;
-        rightPadFillerCopies = totalPadDisplayWidth;
-      } break;
-      case Specification::e_ALIGN_MIDDLE: {
-        leftPadFillerCopies  = (totalPadDisplayWidth / 2);
-        rightPadFillerCopies = ((totalPadDisplayWidth + 1) / 2);
-      } break;
-      case Specification::e_ALIGN_RIGHT: {
-        leftPadFillerCopies  = totalPadDisplayWidth;
-        rightPadFillerCopies = 0;
-      } break;
-      default: {
-        BSLS_THROW(bsl::format_error("Invalid alignment"));
-      }
-    }
+
+
+    PadUtil::computePadding(&leftPadFillerCopies,
+                            &rightPadFillerCopies,
+                            finalWidth,
+                            displayWidthUsedByInputString,
+                            d_spec.alignment(),
+                            Specification::e_ALIGN_LEFT);
 
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
-    for (int i = 0; i < leftPadFillerCopies; ++i) {
-        outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-    }
+    const StringView pad(finalSpec.filler(), finalSpec.numFillerCharacters());
+    outIterator = PadUtil::pad(outIterator, leftPadFillerCopies, pad);
 
     outIterator = bsl::copy(value.begin(),
                             value.begin() + charactersOfInputUsed,
                             outIterator);
 
-    for (int i = 0; i < rightPadFillerCopies; ++i) {
-        outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-    }
+    outIterator = PadUtil::pad(outIterator, rightPadFillerCopies, pad);
 
     return outIterator;
 }

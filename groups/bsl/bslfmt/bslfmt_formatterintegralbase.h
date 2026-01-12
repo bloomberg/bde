@@ -26,6 +26,7 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formattercharutil.h>
+#include <bslfmt_padutil.h>
 #include <bslfmt_standardformatspecification.h>
 
 #include <bslalg_numericformatterutil.h>
@@ -503,6 +504,8 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
                                         t_FORMAT_CONTEXT&  formatContext) const
 {
     typedef FormatterSpecificationNumericValue NumericValue;
+    typedef bsl::basic_string_view<t_CHAR>     StringView;
+    typedef PadUtil<t_CHAR>                    PadUtil;
 
     const Specification& parsedSpec = this->specification();
     Specification        spec(parsedSpec);
@@ -513,64 +516,46 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
     bool representAsChar = Specification::e_INTEGRAL_CHARACTER ==
                            d_spec.formatType();
 
-    int leftPadFillerCopiesNum  = 0;
-    int rightPadFillerCopiesNum = 0;
-    int zeroPadFillerCopiesNum  = 0;
 
-    int commonLength = representAsChar
-                           ? static_cast<int>(1 + (prefixEnd - prefixBegin))
-                           : static_cast<int>((valueEnd - valueBegin) +
-                                              (prefixEnd - prefixBegin));
+    std::ptrdiff_t leftPadFillerCopiesNum  = 0;
+    std::ptrdiff_t rightPadFillerCopiesNum = 0;
+    std::ptrdiff_t zeroPadFillerCopiesNum  = 0;
+
+    std::ptrdiff_t commonLength = representAsChar
+                                                ? 1 + (prefixEnd - prefixBegin)
+                                                : (valueEnd - valueBegin) +
+                                                  (prefixEnd - prefixBegin);
 
     // Filling the remaining space.
     if (finalWidth.category() != NumericValue::e_DEFAULT &&
         commonLength < finalWidth.value()) {
         // We need to fill the remaining space.
 
-        int totalPadDisplayWidth = finalWidth.value() - commonLength;
+        typedef StandardFormatSpecification<t_CHAR> Spec;
+        typedef typename Spec::FormatType           FormatType;
 
-        if (Specification::e_ALIGN_DEFAULT == spec.alignment() &&
-            spec.zeroPaddingFlag()) {
+        typename Spec::Alignment alignment = spec.alignment();
+
+        if (Spec::e_ALIGN_DEFAULT == alignment && spec.zeroPaddingFlag()) {
             // Space will be filled with zeros.
 
-            zeroPadFillerCopiesNum = totalPadDisplayWidth;
+            zeroPadFillerCopiesNum = finalWidth.value() - commonLength;
         }
         else {
             // Alignment with appropriate symbol is required.
 
-            switch (spec.alignment()) {
-              case Specification::e_ALIGN_LEFT: {
-                leftPadFillerCopiesNum  = 0;
-                rightPadFillerCopiesNum = totalPadDisplayWidth;
-              } break;
-              case Specification::e_ALIGN_MIDDLE: {
-                leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
-                rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
-              } break;
-              case Specification::e_ALIGN_DEFAULT: {
-                // Left alignment is default for non-arithmetic presentation
-                // types.
+            const FormatType fType = d_spec.formatType();
 
-                typedef StandardFormatSpecification<t_CHAR> Spec;
-                if (Spec::e_INTEGRAL_CHARACTER == d_spec.formatType() ||
-                    Spec::e_CHARACTER_CHARACTER == d_spec.formatType() ||
-                    Spec::e_BOOLEAN_STRING == d_spec.formatType()) {
-                    leftPadFillerCopiesNum  = 0;
-                    rightPadFillerCopiesNum = totalPadDisplayWidth;
-                }
-                else {
-                    leftPadFillerCopiesNum  = totalPadDisplayWidth;
-                    rightPadFillerCopiesNum = 0;
-                }
-              } break;
-              case Specification::e_ALIGN_RIGHT: {
-                leftPadFillerCopiesNum  = totalPadDisplayWidth;
-                rightPadFillerCopiesNum = 0;
-              } break;
-              default: {
-                BSLS_THROW(bsl::format_error("Invalid alignment"));
-              }
-            }
+            PadUtil::computePadding(&leftPadFillerCopiesNum,
+                                    &rightPadFillerCopiesNum,
+                                    finalWidth,
+                                    commonLength,
+                                    alignment,
+                                    (Spec::e_INTEGRAL_CHARACTER  == fType ||
+                                     Spec::e_CHARACTER_CHARACTER == fType ||
+                                     Spec::e_BOOLEAN_STRING      == fType)
+                                    ? Spec::e_ALIGN_LEFT
+                                    : Spec::e_ALIGN_RIGHT);
         }
     }
 
@@ -579,38 +564,27 @@ FormatterIntegralBase<t_VALUE, t_CHAR>::outputValue(
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
     // left padding
-    for (int i = 0; i < leftPadFillerCopiesNum; ++i) {
-        outIterator = bsl::copy(spec.filler(),
-                                spec.filler() + spec.numFillerCharacters(),
-                                outIterator);
-    }
 
-    // perfix
-    outIterator =
-                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
-                    prefixBegin,
-                    prefixEnd,
-                    outIterator);
+    const StringView pad(spec.filler(), spec.numFillerCharacters());
+    outIterator = PadUtil::pad(outIterator, leftPadFillerCopiesNum, pad);
+
+    // prefix
+
+    outIterator = FormatterCharUtil<t_CHAR>::outputFromChar(prefixBegin,
+                                                            prefixEnd,
+                                                            outIterator);
 
     // zero filler
-    for (int i = 0; i < zeroPadFillerCopiesNum; ++i) {
-        const char *zeroFiller = "0";
-        outIterator =
-                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
-                    zeroFiller,
-                    zeroFiller + 1,
-                    outIterator);
-    }
+
+    outIterator = PadUtil::pad(outIterator, zeroPadFillerCopiesNum, '0');
 
     // value
+
     outIterator = bsl::copy(valueBegin, valueEnd, outIterator);
 
     // right padding
-    for (int i = 0; i < rightPadFillerCopiesNum; ++i) {
-        outIterator = bsl::copy(spec.filler(),
-                                spec.filler() + spec.numFillerCharacters(),
-                                outIterator);
-    }
+
+    outIterator = PadUtil::pad(outIterator, rightPadFillerCopiesNum, pad);
 
     return outIterator;
 }

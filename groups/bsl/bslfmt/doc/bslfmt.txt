@@ -36,6 +36,7 @@ bslfmt.txt
       bslfmt_mockformatcontext
 
    5. bslfmt_format_context                                           !PRIVATE!
+      bslfmt_padutil
       bslfmt_standardformatspecification
 
    4. bslfmt_format_args                                              !PRIVATE!

@@ -614,6 +614,7 @@ BSLS_IDENT("$Id$")
 #include <bslfmt_formatspecificationparser.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formattercharutil.h>
+#include <bslfmt_padutil.h>
 
 #include <bslma_deallocatebytesproctor.h>
 #include <bslma_default.h>
@@ -6958,12 +6959,14 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
 {
     typedef bslfmt::FormatterSpecificationNumericValue NumericValue;
     typedef bslfmt::FormatSpecificationParser<t_CHAR>  Parser;
+    typedef bslfmt::PadUtil<t_CHAR>                    PadUtil;
+    typedef bslfmt::FormatterCharUtil<t_CHAR>          FormatterCharUtil;
 
     NumericValue finalWidth(finalSpec.postprocessedWidth());
 
-    ptrdiff_t leftPadFillerCopiesNum  = 0;
-    ptrdiff_t rightPadFillerCopiesNum = 0;
-    ptrdiff_t zeroPadFillerCopiesNum  = 0;
+    std::ptrdiff_t leftPadFillerCopiesNum  = 0;
+    std::ptrdiff_t rightPadFillerCopiesNum = 0;
+    std::ptrdiff_t zeroPadFillerCopiesNum  = 0;
 
     const char signChar = *numberBuffer == '-'
                            ? *numberBuffer
@@ -6991,73 +6994,46 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::alignAndCopy(
          static_cast<size_t>(finalWidth.value()))) {
         // We need to fill the remaining space.
 
-        const ptrdiff_t totalPadDisplayWidth =
-                             finalWidth.value() - (numberLength + hasSignChar);
-
         if (!specialValue &&
-            Parser::e_ALIGN_DEFAULT == finalSpec.alignment() &&
-            finalSpec.zeroPaddingFlag()) {
+                    Parser::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+                                                 finalSpec.zeroPaddingFlag()) {
             // Space will be filled with zeros.
 
-            zeroPadFillerCopiesNum = totalPadDisplayWidth;
+            zeroPadFillerCopiesNum =
+                             finalWidth.value() - (numberLength + hasSignChar);
         }
         else {
             // Alignment with appropriate symbol is required.
 
-            switch (d_spec.alignment()) {
-              case Parser::e_ALIGN_LEFT: {
-                leftPadFillerCopiesNum  = 0;
-                rightPadFillerCopiesNum = totalPadDisplayWidth;
-              } break;
-              case Parser::e_ALIGN_MIDDLE: {
-                leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
-                rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
-              } break;
-              case Parser::e_ALIGN_DEFAULT:
-              case Parser::e_ALIGN_RIGHT: {
-                leftPadFillerCopiesNum  = totalPadDisplayWidth;
-                rightPadFillerCopiesNum = 0;
-              } break;
-              default: {
-                BSLS_THROW(bsl::format_error("Invalid alignment"));
-              } break;
-            }
+            PadUtil::computePadding(&leftPadFillerCopiesNum,
+                                    &rightPadFillerCopiesNum,
+                                    finalWidth,
+                                    numberLength + hasSignChar,
+                                    d_spec.alignment(),
+                                    Parser::e_ALIGN_RIGHT);
         }
     }
 
     // Assembling the final string.
 
-    typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
+    typename t_FORMAT_CONTEXT::iterator  outIterator = formatContext.out();
+    const bsl::basic_string_view<t_CHAR> filler(finalSpec.filler(),
+                                                finalSpec.fillerCharacters());
 
-    for (ptrdiff_t i = 0; i < leftPadFillerCopiesNum; ++i) {
-        outIterator = bsl::copy(
-                            finalSpec.filler(),
-                            finalSpec.filler() + finalSpec.fillerCharacters(),
-                            outIterator);
-    }
+    outIterator = PadUtil::pad(outIterator, leftPadFillerCopiesNum, filler);
 
     if (hasSignChar) {
-        outIterator = BloombergLP::bslfmt::FormatterCharUtil<
-                             t_CHAR>::outputFromChar(signChar, outIterator);
+        outIterator = FormatterCharUtil::outputFromChar(signChar, outIterator);
     }
 
-    for (ptrdiff_t i = 0; i < zeroPadFillerCopiesNum; ++i) {
-        outIterator = BloombergLP::bslfmt::FormatterCharUtil<
-                                    t_CHAR>::outputFromChar('0', outIterator);
-    }
+    outIterator = PadUtil::pad(outIterator, zeroPadFillerCopiesNum, '0');
 
-    outIterator =
-            BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
+    outIterator = FormatterCharUtil::outputFromChar(
                                                    numberBuffer,
                                                    numberBuffer + numberLength,
                                                    outIterator);
 
-    for (ptrdiff_t i = 0; i < rightPadFillerCopiesNum; ++i) {
-        outIterator = bsl::copy(
-                             finalSpec.filler(),
-                             finalSpec.filler() + finalSpec.fillerCharacters(),
-                             outIterator);
-    }
+    outIterator = PadUtil::pad(outIterator, rightPadFillerCopiesNum, filler);
 
     return outIterator;
 }
@@ -7092,10 +7068,8 @@ Decimal_BslFmtFormatterImpl<t_VALUE, t_CHAR>::format(
     Specification finalSpec(d_spec);
     finalSpec.postprocess(formatContext);
 
-    const bool isDefaultPrecision =
-                                 NumericValue::e_DEFAULT ==
-                                 finalSpec.postprocessedPrecision().category();
-    const int precision = isDefaultPrecision
+    const int precision = NumericValue::e_DEFAULT ==
+                                  finalSpec.postprocessedPrecision().category()
                         ? -1
                         : finalSpec.postprocessedPrecision().value();
 

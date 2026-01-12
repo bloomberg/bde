@@ -74,6 +74,7 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formaterror.h>
 #include <bslfmt_formatterbase.h>
 #include <bslfmt_formattercharutil.h>
+#include <bslfmt_padutil.h>
 #include <bslfmt_standardformatspecification.h>
 
 #include <bsla_annotations.h>
@@ -482,12 +483,14 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
                                          const Specification&  finalSpec) const
 {
     typedef FormatterSpecificationNumericValue NumericValue;
+    typedef bsl::basic_string_view<t_CHAR>     StringView;
+    typedef PadUtil<t_CHAR>                    PadUtil;
 
     NumericValue finalWidth(finalSpec.postprocessedWidth());
 
-    ptrdiff_t leftPadFillerCopiesNum  = 0;
-    ptrdiff_t rightPadFillerCopiesNum = 0;
-    ptrdiff_t zeroPadFillerCopiesNum  = 0;
+    std::ptrdiff_t leftPadFillerCopiesNum  = 0;
+    std::ptrdiff_t rightPadFillerCopiesNum = 0;
+    std::ptrdiff_t zeroPadFillerCopiesNum  = 0;
 
     const char addSignChar = *numberBuffer == '-'
                            ? '-'
@@ -513,37 +516,23 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
         numberLength + hasSignChar < static_cast<size_t>(finalWidth.value())) {
         // We need to fill the remaining space.
 
-        const ptrdiff_t totalPadDisplayWidth =
-                             finalWidth.value() - (numberLength + hasSignChar);
-
         if (!specialValue &&
-            Specification::e_ALIGN_DEFAULT == finalSpec.alignment() &&
-            finalSpec.zeroPaddingFlag()) {
+                     Specification::e_ALIGN_DEFAULT == finalSpec.alignment() &&
+                                                 finalSpec.zeroPaddingFlag()) {
             // Space will be filled with zeros.
 
-            zeroPadFillerCopiesNum = totalPadDisplayWidth;
+            zeroPadFillerCopiesNum = finalWidth.value() -
+                                                  (numberLength + hasSignChar);
         }
         else {
             // Alignment with appropriate symbol is required.
 
-            switch (d_spec.alignment()) {
-              case Specification::e_ALIGN_LEFT: {
-                leftPadFillerCopiesNum  = 0;
-                rightPadFillerCopiesNum = totalPadDisplayWidth;
-              } break;
-              case Specification::e_ALIGN_MIDDLE: {
-                leftPadFillerCopiesNum  = (totalPadDisplayWidth / 2);
-                rightPadFillerCopiesNum = ((totalPadDisplayWidth + 1) / 2);
-              } break;
-              case Specification::e_ALIGN_DEFAULT:
-              case Specification::e_ALIGN_RIGHT: {
-                leftPadFillerCopiesNum  = totalPadDisplayWidth;
-                rightPadFillerCopiesNum = 0;
-              } break;
-              default: {
-                BSLS_THROW(bsl::format_error("Invalid alignment"));
-              } break;
-            }
+            PadUtil::computePadding(&leftPadFillerCopiesNum,
+                                    &rightPadFillerCopiesNum,
+                                    finalWidth,
+                                    numberLength + hasSignChar,
+                                    d_spec.alignment(),
+                                    Specification::e_ALIGN_RIGHT);
         }
     }
 
@@ -551,39 +540,22 @@ FormatterFloating_Base<t_VALUE, t_CHAR>::alignAndCopy(
 
     typename t_FORMAT_CONTEXT::iterator outIterator = formatContext.out();
 
-    for (ptrdiff_t i = 0; i < leftPadFillerCopiesNum; ++i) {
-        outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-    }
+    const StringView pad(finalSpec.filler(), finalSpec.numFillerCharacters());
+    outIterator = PadUtil::pad(outIterator, leftPadFillerCopiesNum, pad);
 
     if (addSignChar) {
-        outIterator =
-                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
-                    addSignChar,
-                    outIterator);
+        outIterator = FormatterCharUtil<t_CHAR>::outputFromChar(
+                                                     addSignChar, outIterator);
     }
 
-    for (ptrdiff_t i = 0; i < zeroPadFillerCopiesNum; ++i) {
-        outIterator =
-                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
-                    '0',
-                    outIterator);
-    }
+    outIterator = PadUtil::pad(outIterator, zeroPadFillerCopiesNum, '0');
 
-    outIterator =
-                BloombergLP::bslfmt::FormatterCharUtil<t_CHAR>::outputFromChar(
-                    numberBuffer,
-                    numberBuffer + numberLength,
-                    outIterator);
+    outIterator = FormatterCharUtil<t_CHAR>::outputFromChar(
+                                                   numberBuffer,
+                                                   numberBuffer + numberLength,
+                                                   outIterator);
 
-    for (ptrdiff_t i = 0; i < rightPadFillerCopiesNum; ++i) {
-        outIterator = bsl::copy(
-                          finalSpec.filler(),
-                          finalSpec.filler() + finalSpec.numFillerCharacters(),
-                          outIterator);
-    }
+    outIterator = PadUtil::pad(outIterator, rightPadFillerCopiesNum, pad);
 
     return outIterator;
 }
