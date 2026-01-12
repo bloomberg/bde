@@ -33,22 +33,25 @@ node('WINDOWS') {
 
                 conan.getReleaseProfiles().each { profile ->
                     dir("build_${profile}") {
-                        Map args = [
+
+                        conan.buildAndExportPkg(
+                            packages: [
+                                       'libbbryu-dev',
+                                       'libinteldfp-dev',
+                                       'libpcre2-dev',
+                                       'libbsl-dev',
+                                       'libbdl-dev',
+                                       'libs-baltst-dev',
+                                       'libbal-dev',
+                                       'libbbl-dev'
+                                       ],
                             user:    user,
                             channel: channel,
                             '-o:a':  '*:dependency_user_channel=test/unstable',
                             '-pr:h': profile,
                             '-of':   '.',
                             path:    sourceDir
-                        ]
-
-                        conan.build(args.clone())
-
-                        ['libbbryu-dev', 'libinteldfp-dev', 'libpcre2-dev',
-                         'libbsl-dev', 'libbdl-dev',
-                         'libs-baltst-dev', 'libbal-dev', 'libbbl-dev'].each { name ->
-                            conan.exportPkg(args.clone() + [name: name])
-                        }
+                        )
                     }
                 }
             }
