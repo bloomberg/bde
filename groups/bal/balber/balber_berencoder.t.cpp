@@ -710,7 +710,7 @@ static void usageExample()
 // ```
 // Now, we create a `balber::Encoder` object and use it to encode our `bob`
 // object.  Here, to facilitate the examination of our results, the BER
-// encoding data is delivered to a `bslsb::MemOutStreamBuf` object:
+// encoding data is delivered to a `bdlsb::MemOutStreamBuf` object:
 // ```
     bdlsb::MemOutStreamBuf osb;
     balber::BerEncoder     encoder;
