@@ -455,6 +455,8 @@ BSLS_IDENT("$Id: $")
 #include <bslma_deleterhelper.h>
 #include <bslma_memoryresource.h>
 
+#include <bsla_deprecated.h>
+
 #include <bslmf_assert.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
@@ -748,8 +750,11 @@ void Allocator::deleteObjectRaw(bsl::nullptr_t)
 // ============================================================================
 
 /// These aliases are defined for backward compatibility.
+
+BSLA_DEPRECATED_MESSAGE("Use 'bslma::Allocator' name instead")
 typedef bslma::Allocator bslma_Allocator;
 
+BSLA_DEPRECATED_MESSAGE("Use bslma_allocator component instead")
 typedef bslma::Allocator bdema_Allocator;
 
 #endif  // BDE_OPENSOURCE_PUBLICATION
