@@ -137,9 +137,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsla_nodiscard.h>
 
+#include <bslma_bslallocator.h>
 #include <bslma_constructionutil.h>
 #include <bslma_destructionutil.h>
-#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_movableref.h>

@@ -157,8 +157,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlma_localsequentialallocator.h>
 
 #include <bslma_allocatorutil.h>
+#include <bslma_bslallocator.h>
 #include <bslma_constructionutil.h>
-#include <bslma_stdallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
