@@ -19,7 +19,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nativestd.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
+#include <bsl_string.h>
+
 #include <filesystem>
+#include <type_traits>
 
 #include <bslh_filesystem.h>
 
@@ -86,6 +89,77 @@ namespace filesystem {
     using std::filesystem::is_symlink;
     using std::filesystem::status_known;
 }  // close namespace filesystem
+
+template <class t_FS_PATH,
+          class t_STRING,
+          class = std::enable_if_t<std::conjunction_v<
+             std::is_base_of<filesystem::path, t_FS_PATH>,
+             std::is_base_of<bsl::string, t_STRING>>>>
+inline
+filesystem::path& operator/=(t_FS_PATH& p, const t_STRING& s)
+{
+    return p.append(&*s.begin(), &*s.end());
+}
+
+template <class t_FS_PATH,
+          class t_STRING,
+          class = std::enable_if_t<std::conjunction_v<
+             std::is_base_of<filesystem::path, t_FS_PATH>,
+             std::is_base_of<bsl::string, t_STRING>>>>
+inline
+filesystem::path operator/(t_FS_PATH p, const t_STRING& s)
+{
+    p /= s;
+    return p;
+}
+
+template <class t_FS_PATH,
+          class t_STRING,
+          class = std::enable_if_t<std::conjunction_v<
+             std::is_base_of<filesystem::path, t_FS_PATH>,
+             std::is_base_of<bsl::string, t_STRING>>>>
+inline
+filesystem::path operator/(const t_STRING& s, const t_FS_PATH& p)
+{
+    return filesystem::path{&*s.begin(), &*s.end()} / p;
+}
+
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+template <class t_FS_PATH,
+          class t_STRING_VIEW,
+          class = std::enable_if_t<std::conjunction_v<
+             std::is_base_of<filesystem::path, t_FS_PATH>,
+             std::is_base_of<bsl::string_view, t_STRING_VIEW>>>>
+inline
+filesystem::path& operator/=(t_FS_PATH& p, const t_STRING_VIEW& s)
+{
+    return p.append(s.begin(), s.end());
+}
+
+template <class t_FS_PATH,
+          class t_STRING_VIEW,
+          class = std::enable_if_t<std::conjunction_v<
+             std::is_base_of<filesystem::path, t_FS_PATH>,
+             std::is_base_of<bsl::string_view, t_STRING_VIEW>>>>
+inline
+filesystem::path operator/(t_FS_PATH p, const t_STRING_VIEW& s)
+{
+    p /= s;
+    return p;
+}
+
+template <class t_FS_PATH,
+          class t_STRING_VIEW,
+          class = std::enable_if_t<std::conjunction_v<
+             std::is_base_of<filesystem::path, t_FS_PATH>,
+             std::is_base_of<bsl::string_view, t_STRING_VIEW>>>>
+inline
+filesystem::path operator/(const t_STRING_VIEW& s, const t_FS_PATH& p)
+{
+    return filesystem::path{s.begin(), s.end()} / p;
+}
+#endif
+
 }  // close package namespace
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY

@@ -4457,6 +4457,47 @@ int main(int argc, char *argv[])
 
         testMap[P1] = 2;
         ASSERT(2 == testMap[P1]);
+
+        // Verify `operator/` and `operator/=`
+        {
+            bsl::filesystem::path path("/a",
+                                       bsl::filesystem::path::generic_format);
+
+            ASSERT((path / bsl::string{"b"}).generic_string() == "/a/b");
+
+            path /= bsl::string{"b"};
+            ASSERT(path.generic_string() == "/a/b");
+        }
+        {
+            bsl::filesystem::path path("b",
+                                       bsl::filesystem::path::generic_format);
+
+            ASSERT((bsl::string{"/a"} / path).generic_string() == "/a/b");
+        }
+        // bsl::string_view
+        {
+            bsl::filesystem::path path("/a",
+                                       bsl::filesystem::path::generic_format);
+
+            ASSERT((path / bsl::string_view{"b"}).generic_string() == "/a/b");
+
+            path /= bsl::string_view{"b"};
+            ASSERT(path.generic_string() == "/a/b");
+        }
+        {
+            bsl::filesystem::path path("b",
+                                       bsl::filesystem::path::generic_format);
+
+            ASSERT((bsl::string_view{"/a"} / path).generic_string() == "/a/b");
+        }
+        {
+            struct DerivedPath : bsl::filesystem::path {};
+            DerivedPath path;
+
+            path /= bsl::string{};
+            path /= bsl::string_view{};
+            path /= "string literal";
+        }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
       } break;
       case 18: {
