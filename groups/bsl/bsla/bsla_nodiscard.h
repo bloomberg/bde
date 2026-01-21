@@ -31,7 +31,7 @@ BSLS_IDENT("$Id: $")
 //:     problem or always a bug, such as with the `realloc` function.
 //:     The annotation cannot be used portably on constructors if C++03 support
 //:     is required because the GNU compiler reuses their C (language)
-//:     implementation for compatibility and that does not understand that
+//:     implementation for compatibility and that does not understand
 //:     constructors.  Attempt to apply `BSLA_NODISCARD` to a constructor will
 //:     result in a warning from gcc:
 // ```
