@@ -64,7 +64,7 @@
 #include <bsl_vector.h>
 #include <bsl_unordered_map.h>
 
-#ifdef BSLS_PLATFORM_CMP_AIX
+#ifdef BSLS_PLATFORM_CMP_IBM
 #pragma report(disable, "1540-0306")
 #endif
 

@@ -3370,7 +3370,7 @@ int main(int argc, char *argv[])
         {   L_,  "ABC\"",                                 e_FALSE            },
         {   L_,  "ABCD\"",                                e_FALSE            },
 
-#if !defined(BSLS_PLATFORM_CMP_AIX)
+#if !defined(BSLS_PLATFORM_CMP_IBM)
         // AIX
 
         {   L_,  "12345678A\"",                           e_FALSE            },

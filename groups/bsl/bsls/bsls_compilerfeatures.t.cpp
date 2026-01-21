@@ -2996,7 +2996,7 @@ int main(int argc, char *argv[])
         // `double` has exacts tests as much of BDE code depends on it being
         // IEEE 754 binary64.
 
-#ifdef BSLS_PLATFORM_CMP_AIX
+#ifdef BSLS_PLATFORM_CMP_IBM
         // AIX xlC 16.1.0 (BSLS_PLATFORM_CMP_VER == 0x1001) mistakenly compiles
         // literals less than `0x0.8000000000000p-1022` into zero.  These
         // additional tests to kick in when the compiler version is raised, and

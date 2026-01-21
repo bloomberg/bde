@@ -1822,7 +1822,7 @@ int main(int argc, char *argv[]) {
 
         bool caught = false;
         try {
-#ifdef BSLS_PLATFORM_CMP_AIX
+#ifdef BSLS_PLATFORM_CMP_IBM
             // avoid infinite loop warning
             for (int i = 0; i < 2000000000; ++i) {
 #else

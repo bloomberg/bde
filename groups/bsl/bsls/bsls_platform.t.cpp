@@ -2786,7 +2786,7 @@ int main(int argc, char *argv[])
                                 STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)
                                 "\"\n");
 
-        #if (defined(BSLS_PLATFORM_CMP_AIX) || defined(BSLS_PLATFORM_CMP_SUN))\
+        #if (defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN))\
             || defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
         ASSERT(0 == strlen(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)));
         #else
