@@ -5,7 +5,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslfmt_formatterstring_cpp, "$Id$ $CSID$")
 
+#include <bslfmt_formattertestutil.h>           // for testing only
 #include <bslfmt_formatterunicodedata.h>
+#include <bslfmt_testspecificationgenerator.h>  // for testing only
 
 namespace BloombergLP {
 

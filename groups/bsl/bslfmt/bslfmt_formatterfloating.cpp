@@ -5,6 +5,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslfmt_formatterfloating_cpp, "$Id$ $CSID$")
 
+#include <bslfmt_format_args.h>         // for testing only
+#include <bslfmt_formattertestutil.h>   // for testing only
+
 // ----------------------------------------------------------------------------
 // Copyright 2023 Bloomberg Finance L.P.
 //
