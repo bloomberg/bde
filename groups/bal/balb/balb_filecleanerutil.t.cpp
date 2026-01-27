@@ -414,6 +414,93 @@ int main(int argc, char *argv[])
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
         }
 
+        if (verbose) cout << "\tTesting removal on time, min & max." << endl;
+        {
+            bdls::TempDirectoryGuard tempDirGuard("balb_");
+            bsl::string              baseName(tempDirGuard.getTempDirName());
+            bdls::PathUtil::appendRaw(&baseName, "logFile");
+
+            static const struct LocalData {
+                int d_line;
+                int d_seconds;
+                int d_min;
+                int d_max;
+                int d_expRemaining;
+            } LOCAL_DATA[] = {
+                { L_,  50, 0, INT_MAX, 4 },
+                { L_,  50, 0, 1,       1 },
+                { L_,  50, 0, 2,       2 },
+                { L_,  50, 0, 3,       3 },
+                { L_,  50, 0, 4,       4 },
+                { L_,  50, 0, 1,       1 },
+                { L_,  50, 1, 2,       2 },
+                { L_,  50, 2, 3,       3 },
+                { L_,  50, 3, 4,       4 },
+                { L_,  50, 1, 1,       1 },
+                { L_,  50, 2, 2,       2 },
+                { L_,  50, 3, 3,       3 },
+                { L_,  50, 4, 4,       4 },
+                { L_,   0, 0, INT_MAX, 0 },
+                { L_,   0, 1, INT_MAX, 1 },
+                { L_,   0, 2, INT_MAX, 2 },
+                { L_,   0, 3, INT_MAX, 3 },
+                { L_,   0, 4, INT_MAX, 4 },
+                { L_,   0, 0, 0,       0 },
+                { L_,   0, 1, 1,       1 },
+                { L_,   0, 2, 2,       2 },
+                { L_,   0, 3, 3,       3 },
+                { L_,   0, 4, 4,       4 },
+                { L_,   0, 0, 2,       0 },
+                { L_,   0, 1, 2,       1 },
+                { L_,   0, 2, 3,       2 },
+                { L_,   0, 3, 4,       3 },
+                { L_,   0, 4, 5,       4 },
+                { L_,  25, 0, INT_MAX, 2 },
+                { L_,  25, 3, INT_MAX, 3 },
+                { L_,  15, 0, INT_MAX, 1 },
+            };
+            enum { k_NUM_LOCAL_DATA = sizeof LOCAL_DATA / sizeof *LOCAL_DATA };
+
+            for (int tt = 0; tt < k_NUM_LOCAL_DATA; ++tt) {
+                const LocalData& data          = LOCAL_DATA[tt];
+                const int        LINE          = data.d_line;
+                const int        SECONDS       = data.d_seconds;
+                const int        MINFILES      = data.d_min;
+                const int        MAXFILES      = data.d_max;
+                const int        EXP           = data.d_expRemaining;
+
+                if (veryVerbose) P_(LINE);
+                if (veryVeryVerbose) {
+                    P_(SECONDS)    P_(MINFILES)    P_(MAXFILES)    P_(EXP);
+                }
+
+                for (int ii = 1; ii <= 4; ++ii) {
+                    bsl::string fn = baseName + char('0' + ii);
+
+                    bdls::FilesystemUtil::remove(fn);
+                    createFile(fn);
+                    changeModificationTime(fn, -10 * ii);
+                }
+
+                const ObjConfig config((baseName + "*").c_str(),
+                                       bsls::TimeInterval(SECONDS),
+                                       MINFILES,
+                                       MAXFILES);
+                Obj::removeFiles(config);
+
+                for (int ii = 1; ii <= 4; ++ii) {
+                    const bsl::string fn = baseName + char('0' + ii);
+
+                    const bool exists = bdls::FilesystemUtil::exists(fn);
+                    ASSERTV(LINE, ii, EXP, exists, (ii <= EXP) == exists);
+
+                    if (veryVerbose) cout << (exists ? " 1" : " 0");
+                }
+
+                if (veryVerbose) cout << endl;
+            }
+        }
+
         if (verbose)
             cout << "\tTesting removal of files with mod time in future."
                  << endl;

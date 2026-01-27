@@ -64,6 +64,7 @@ BSLS_IDENT("$Id: $")
 // assert("/var/log/myApp/log*" == config.filePattern());
 // assert(bsls::TimeInterval(60*60*24) == config.maxFileAge());
 // assert(4 == config.minNumFiles());
+// assert(INT_MAX == config.maxNumFiles());
 // ```
 // Finally, we print the configuration value to `cout` and return:
 // ```
@@ -89,6 +90,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_review.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_climits.h>
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
 
@@ -122,6 +124,8 @@ class FileCleanerConfiguration {
 
     int                 d_minNumFiles;  // minimum number of files to keep
 
+    int                 d_maxNumFiles;  // maximum number of files to keep
+
     // FRIENDS
     friend bool operator==(const FileCleanerConfiguration&,
                            const FileCleanerConfiguration&);
@@ -140,12 +144,19 @@ class FileCleanerConfiguration {
     explicit FileCleanerConfiguration(bslma::Allocator *basicAllocator = 0);
 
     /// Create a file cleaner configuration object having the specified
-    /// `filePattern`, `maxAge`, and `minNumber` attribute values.  Optionally
-    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
-    /// is 0, the currently installed default allocator is used.
+    /// `filePattern`, `maxAge`, `minNumber`, `maxNumber` attribute values.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is 0, the currently installed default allocator is
+    /// used.  The behavior is undefined unless `0 <= maxNumber` and
+    /// `minNumber <= maxNumber`.
     FileCleanerConfiguration(const bsl::string_view&    filePattern,
                              const bsls::TimeInterval&  maxAge,
                              int                        minNumber,
+                             bslma::Allocator          *basicAllocator = 0);
+    FileCleanerConfiguration(const bsl::string_view&    filePattern,
+                             const bsls::TimeInterval&  maxAge,
+                             int                        minNumber,
+                             int                        maxNumber,
                              bslma::Allocator          *basicAllocator = 0);
 
     /// Create a file cleaner configuration object having the in-core value of
@@ -178,6 +189,10 @@ class FileCleanerConfiguration {
     /// specified `minNumber`.
     void setMinNumFiles(int minNumber);
 
+    /// Set the maximum number of files to keep attribute of this object to the
+    /// specified `maxNumber`.
+    void setMaxNumFiles(int maxNumber);
+
     // ACCESSORS
 
     /// Return a `const` reference to the file pattern attribute of this
@@ -189,6 +204,9 @@ class FileCleanerConfiguration {
 
     /// Return the minimum number of files to keep attribute of this object.
     int minNumFiles() const;
+
+    /// Return the maximum number of files to keep attribute of this object.
+    int maxNumFiles() const;
 
     /// Format a reasonable representation of this object to the specified
     /// output `stream` at the (absolute value of) the optionally specified
@@ -240,6 +258,7 @@ FileCleanerConfiguration::FileCleanerConfiguration(
 : d_filePattern(basicAllocator)
 , d_maxFileAge(0, 0)
 , d_minNumFiles(0)
+, d_maxNumFiles(INT_MAX)
 {
 }
 
@@ -252,7 +271,24 @@ FileCleanerConfiguration::FileCleanerConfiguration(
 : d_filePattern(filePattern, basicAllocator)
 , d_maxFileAge(maxAge)
 , d_minNumFiles(minNumber)
+, d_maxNumFiles(INT_MAX)
 {
+}
+
+inline
+FileCleanerConfiguration::FileCleanerConfiguration(
+                                     const bsl::string_view&    filePattern,
+                                     const bsls::TimeInterval&  maxAge,
+                                     int                        minNumber,
+                                     int                        maxNumber,
+                                     bslma::Allocator          *basicAllocator)
+: d_filePattern(filePattern, basicAllocator)
+, d_maxFileAge(maxAge)
+, d_minNumFiles(minNumber)
+, d_maxNumFiles(maxNumber)
+{
+    BSLS_ASSERT(0 <= maxNumber);
+    BSLS_ASSERT(minNumber <= maxNumber);
 }
 
 inline
@@ -262,6 +298,7 @@ FileCleanerConfiguration::FileCleanerConfiguration(
 : d_filePattern(original.d_filePattern, basicAllocator)
 , d_maxFileAge(original.d_maxFileAge)
 , d_minNumFiles(original.d_minNumFiles)
+, d_maxNumFiles(original.d_maxNumFiles)
 {
 }
 
@@ -273,6 +310,7 @@ FileCleanerConfiguration::operator=(const FileCleanerConfiguration& rhs)
     d_filePattern = rhs.d_filePattern;
     d_maxFileAge  = rhs.d_maxFileAge;
     d_minNumFiles = rhs.d_minNumFiles;
+    d_maxNumFiles = rhs.d_maxNumFiles;
 
     return *this;
 }
@@ -297,6 +335,13 @@ void FileCleanerConfiguration::setMinNumFiles(int minNumber)
     d_minNumFiles = minNumber;
 }
 
+inline
+void FileCleanerConfiguration::setMaxNumFiles(int maxNumber)
+{
+    BSLS_ASSERT(0 <= maxNumber);
+    d_maxNumFiles = maxNumber;
+}
+
 // ACCESSORS
 inline
 const bsl::string& FileCleanerConfiguration::filePattern() const
@@ -316,6 +361,12 @@ int FileCleanerConfiguration::minNumFiles() const
     return d_minNumFiles;
 }
 
+inline
+int FileCleanerConfiguration::maxNumFiles() const
+{
+    return d_maxNumFiles;
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -325,7 +376,8 @@ bool balb::operator==(const balb::FileCleanerConfiguration& lhs,
 {
     return lhs.d_filePattern == rhs.d_filePattern
         && lhs.d_maxFileAge  == rhs.d_maxFileAge
-        && lhs.d_minNumFiles == rhs.d_minNumFiles;
+        && lhs.d_minNumFiles == rhs.d_minNumFiles
+        && lhs.d_maxNumFiles == rhs.d_maxNumFiles;
 }
 
 inline

@@ -31,9 +31,7 @@ namespace balb {
 // CLASS METHODS
 void FileCleanerUtil::removeFiles(const FileCleanerConfiguration& config)
 {
-    typedef bsl::multimap<bdlt::Datetime,
-                          bsl::string,
-                          bsl::greater<bdlt::Datetime> > RemoveMap;
+    typedef bsl::multimap<bdlt::Datetime, bsl::string> RemoveMap;
 
     const bdlt::Datetime thresholdDatetime =
         bdlt::EpochUtil::convertFromTimeInterval(
@@ -64,12 +62,15 @@ void FileCleanerUtil::removeFiles(const FileCleanerConfiguration& config)
         }
     }
 
-    RemoveMap::const_reverse_iterator it          = removeMap.crbegin();
-    RemoveMap::size_type              numFiles    = removeMap.size();
-    const RemoveMap::size_type        minNumFiles = config.minNumFiles();
+    // Iterate through the files, oldest first.
 
-    while (it != removeMap.crend() && numFiles > minNumFiles
-           && it->first < thresholdDatetime) {
+    RemoveMap::const_iterator     it          = removeMap.cbegin();
+    RemoveMap::size_type          numFiles    = removeMap.size();
+    const RemoveMap::size_type    minNumFiles = config.minNumFiles();
+    const RemoveMap::size_type    maxNumFiles = config.maxNumFiles();
+
+    while (it != removeMap.cend() && numFiles > minNumFiles
+           && (maxNumFiles < numFiles || it->first < thresholdDatetime)) {
         bdls::FilesystemUtil::remove(it->second);
 
         --numFiles;

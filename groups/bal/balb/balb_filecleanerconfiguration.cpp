@@ -26,6 +26,7 @@ FileCleanerConfiguration::print(bsl::ostream& stream,
     printer.printAttribute("FilePattern", d_filePattern);
     printer.printAttribute("MaxFileAge",  d_maxFileAge);
     printer.printAttribute("MinNumFiles", d_minNumFiles);
+    printer.printAttribute("MaxNumFiles", d_maxNumFiles);
     printer.end();
 
     return stream;

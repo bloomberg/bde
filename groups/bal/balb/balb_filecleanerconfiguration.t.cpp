@@ -133,70 +133,70 @@ struct DefaultDataRow {
 static const DefaultDataRow DEFAULT_DATA[] = {
     //line  spec
     //----  -----
-    { L_,   "AAA"  },    // equivalent to default
-    { L_,   "AAB"  },
-    { L_,   "AAC"  },
-    { L_,   "AAD"  },
-    { L_,   "ABA"  },
-    { L_,   "ABB"  },
-    { L_,   "ABC"  },
-    { L_,   "ABD"  },
-    { L_,   "ACA"  },
-    { L_,   "ACB"  },
-    { L_,   "ACC"  },
-    { L_,   "ACD"  },
-    { L_,   "ADA"  },
-    { L_,   "ADB"  },
-    { L_,   "ADC"  },
-    { L_,   "ADD"  },
-    { L_,   "BAA"  },
-    { L_,   "BAB"  },
-    { L_,   "BAC"  },
-    { L_,   "BAD"  },
-    { L_,   "BBA"  },
-    { L_,   "BBB"  },
-    { L_,   "BBC"  },
-    { L_,   "BBD"  },
-    { L_,   "BCA"  },
-    { L_,   "BCB"  },
-    { L_,   "BCC"  },
-    { L_,   "BCD"  },
-    { L_,   "BDA"  },
-    { L_,   "BDB"  },
-    { L_,   "BDC"  },
-    { L_,   "BDD"  },
-    { L_,   "CAA"  },
-    { L_,   "CAB"  },
-    { L_,   "CAC"  },
-    { L_,   "CAD"  },
-    { L_,   "CBA"  },
-    { L_,   "CBB"  },
-    { L_,   "CBC"  },
-    { L_,   "CBD"  },
-    { L_,   "CCA"  },
-    { L_,   "CCB"  },
-    { L_,   "CCC"  },
-    { L_,   "CCD"  },
-    { L_,   "CDA"  },
-    { L_,   "CDB"  },
-    { L_,   "CDC"  },
-    { L_,   "CDD"  },
-    { L_,   "DAA"  },
-    { L_,   "DAB"  },
-    { L_,   "DAC"  },
-    { L_,   "DAD"  },
-    { L_,   "DBA"  },
-    { L_,   "DBB"  },
-    { L_,   "DBC"  },
-    { L_,   "DBD"  },
-    { L_,   "DCA"  },
-    { L_,   "DCB"  },
-    { L_,   "DCC"  },
-    { L_,   "DCD"  },
-    { L_,   "DDA"  },
-    { L_,   "DDB"  },
-    { L_,   "DDC"  },
-    { L_,   "DDD"  },
+    { L_,   "AAA*"  },    // equivalent to default
+    { L_,   "AAB*"  },
+    { L_,   "AAC*"  },
+    { L_,   "AAD*"  },
+    { L_,   "ABA*"  },
+    { L_,   "ABB*"  },
+    { L_,   "ABC*"  },
+    { L_,   "ABD*"  },
+    { L_,   "ACA*"  },
+    { L_,   "ACB*"  },
+    { L_,   "ACC*"  },
+    { L_,   "ACD*"  },
+    { L_,   "ADA*"  },
+    { L_,   "ADB*"  },
+    { L_,   "ADC*"  },
+    { L_,   "ADD*"  },
+    { L_,   "BAA*"  },
+    { L_,   "BAB*"  },
+    { L_,   "BAC*"  },
+    { L_,   "BAD*"  },
+    { L_,   "BBA*"  },
+    { L_,   "BBB*"  },
+    { L_,   "BBC*"  },
+    { L_,   "BBD*"  },
+    { L_,   "BCA*"  },
+    { L_,   "BCB*"  },
+    { L_,   "BCC*"  },
+    { L_,   "BCD*"  },
+    { L_,   "BDA*"  },
+    { L_,   "BDB*"  },
+    { L_,   "BDC*"  },
+    { L_,   "BDD*"  },
+    { L_,   "CAA*"  },
+    { L_,   "CAB*"  },
+    { L_,   "CAC*"  },
+    { L_,   "CAD*"  },
+    { L_,   "CBA*"  },
+    { L_,   "CBB*"  },
+    { L_,   "CBC*"  },
+    { L_,   "CBD*"  },
+    { L_,   "CCA*"  },
+    { L_,   "CCB*"  },
+    { L_,   "CCC*"  },
+    { L_,   "CCD*"  },
+    { L_,   "CDA*"  },
+    { L_,   "CDB*"  },
+    { L_,   "CDC*"  },
+    { L_,   "CDD*"  },
+    { L_,   "DAA*"  },
+    { L_,   "DAB*"  },
+    { L_,   "DAC*"  },
+    { L_,   "DAD*"  },
+    { L_,   "DBA*"  },
+    { L_,   "DBB*"  },
+    { L_,   "DBC*"  },
+    { L_,   "DBD*"  },
+    { L_,   "DCA*"  },
+    { L_,   "DCB*"  },
+    { L_,   "DCC*"  },
+    { L_,   "DCD*"  },
+    { L_,   "DDA*"  },
+    { L_,   "DDB*"  },
+    { L_,   "DDC*"  },
+    { L_,   "DDD*"  },
 };
 
 enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
@@ -219,7 +219,7 @@ int ggg(Obj *object, const char *spec, int verbose)
 {
     enum { SUCCESS = -1 };
 
-    if (strlen(spec) != 3) {
+    if (strlen(spec) != 4) {
         if (verbose) {
             cout << "Error, bad spec length: " << strlen(spec) << endl;
         }
@@ -302,6 +302,29 @@ int ggg(Obj *object, const char *spec, int verbose)
       }
     }
 
+    ++idx;
+
+    switch (spec[idx]) {
+      case 'A':
+      case 'B':
+      case 'C':
+      case 'D':
+      case 'Z': {
+        object->setMaxNumFiles(spec[idx] - 'A');
+      } break;
+      case '*': {
+        object->setMaxNumFiles(INT_MAX);
+      } break;
+      default: {
+        if (verbose) {
+            cout << "Error, bad character (" << spec[idx] << ") "
+                 << "in spec \"" << spec << "%s\""
+                 << "at position " << idx << endl;
+        }
+        return idx;                                                   // RETURN
+      }
+    }
+
     return SUCCESS;
 }
 
@@ -373,7 +396,8 @@ int main(int argc, char *argv[])
 // ```
     ASSERT("/var/log/myApp/log*" == config.filePattern());
     ASSERT(bsls::TimeInterval(60*60*24) == config.maxFileAge());
-    ASSERT(4 == config.minNumFiles());
+    ASSERT(4       == config.minNumFiles());
+    ASSERT(INT_MAX == config.maxNumFiles());
 // ```
 // Finally, we print the configuration value to `stdout` and return:
 // ```
@@ -709,16 +733,17 @@ int main(int argc, char *argv[])
             const char         *d_filePattern_p;
             bsls::TimeInterval  d_interval;
             int                 d_minNumFiles;
+            int                 d_maxNumFiles;
         } DATA [] = {
-        //LINE   FILEPATTERN  INTERVAL                  MIN_NUM_FILES
-        //----   -----------  ---------------------     -------------
-        { L_,    "",          bsls::TimeInterval(),     0             },
-        { L_,    "filepat*",  bsls::TimeInterval(),     0             },
-        { L_,    "fIlepat*",  bsls::TimeInterval(),     0             },
-        { L_,    "filepatt*", bsls::TimeInterval(1),    0             },
-        { L_,    "filepatt*", bsls::TimeInterval(2),    0             },
-        { L_,    "Filepatt*", bsls::TimeInterval(2),    1             },
-        { L_,    "Filepatt*", bsls::TimeInterval(2),    2             },
+        //LINE   FILEPATTERN  INTERVAL                  MIN MAX
+        //----   -----------  ---------------------     --- ---
+        { L_,    "",          bsls::TimeInterval(),     0,  1 },
+        { L_,    "filepat*",  bsls::TimeInterval(),     0,  5 },
+        { L_,    "fIlepat*",  bsls::TimeInterval(),     0,  7 },
+        { L_,    "filepatt*", bsls::TimeInterval(1),    0, 10 },
+        { L_,    "filepatt*", bsls::TimeInterval(2),    0, 10 },
+        { L_,    "Filepatt*", bsls::TimeInterval(2),    1, INT_MAX },
+        { L_,    "Filepatt*", bsls::TimeInterval(2),    2, 10 },
         };
 
         enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
@@ -728,6 +753,7 @@ int main(int argc, char *argv[])
                 const int         LINE    = DATA[ti].d_line;
                 const char *FILE_PATTERN  = DATA[ti].d_filePattern_p;
                 const int   MIN_NUM_FILES = DATA[ti].d_minNumFiles;
+                const int   MAX_NUM_FILES = DATA[ti].d_maxNumFiles;
 
                 const bsls::TimeInterval INTERVAL = DATA[ti].d_interval;
 
@@ -736,7 +762,7 @@ int main(int argc, char *argv[])
                     P_(LINE) P_(FILE_PATTERN) P_(INTERVAL) P(MIN_NUM_FILES);
                 }
 
-                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                for (char cfg = 'a'; cfg <= 'd'; ++cfg) {
                     const char CONFIG = cfg;  // how we specify the allocator
 
                     if (veryVerbose) { T_ T_ P(CONFIG) }
@@ -752,6 +778,7 @@ int main(int argc, char *argv[])
                     Obj                 *objPtr = 0;
                     bslma::TestAllocator *objAllocatorPtr = 0;
 
+                    int expMax = INT_MAX;
                     switch (CONFIG) {
                       case 'a': {
                           objPtr = new (fa) Obj(FILE_PATTERN,
@@ -772,6 +799,15 @@ int main(int argc, char *argv[])
                                                 MIN_NUM_FILES,
                                                 &sa);
                           objAllocatorPtr = &sa;
+                      } break;
+                      case 'd': {
+                          objPtr = new (fa) Obj(FILE_PATTERN,
+                                                INTERVAL,
+                                                MIN_NUM_FILES,
+                                                MAX_NUM_FILES,
+                                                &sa);
+                          objAllocatorPtr = &sa;
+                          expMax = MAX_NUM_FILES;
                       } break;
                       default: {
                           ASSERTV(LINE, CONFIG, 0 == "Bad allocator config.");
@@ -808,6 +844,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, FILE_PATTERN  == X.filePattern());
                     ASSERTV(LINE, INTERVAL      == X.maxFileAge());
                     ASSERTV(LINE, MIN_NUM_FILES == X.minNumFiles());
+                    ASSERTV(LINE, expMax        == X.maxNumFiles());
 
                     // Verify any attribute allocators are installed properly.
 
@@ -948,7 +985,7 @@ int main(int argc, char *argv[])
                     ASSERTV(SPEC, W == Y1);
                     ASSERTV(SPEC, X == Y1);
 
-                    gg(&Y1, "ZZZ");
+                    gg(&Y1, "ZZZ*");
 
                     if (veryVeryVerbose) {
                         cout << "\t\t\t\tAfter modification : "; P(Y1);
@@ -978,7 +1015,7 @@ int main(int argc, char *argv[])
                         cout << "\t\t\t\tBefore modification: "; P(Y2);
                     }
 
-                    gg(&Y2, "ZZZ");
+                    gg(&Y2, "ZZZ*");
 
                     if (veryVeryVerbose) {
                         cout << "\t\t\t\tAfter modification : "; P(Y2);
@@ -1024,7 +1061,8 @@ int main(int argc, char *argv[])
         //
         // 11. The equality operator's signature and return type are standard.
         //
-        // 12. The inequality operator's signature and return type are standard.
+        // 12. The inequality operator's signature and return type are
+        //     standard.
         //
         // Plan:
         // 1. Use the respective addresses of `operator==` and `operator!=` to
@@ -1225,13 +1263,14 @@ int main(int argc, char *argv[])
             const char         *d_filePattern_p;
             bsls::TimeInterval  d_interval;
             int                 d_minNumFiles;
+            int                 d_maxNumFiles;
         } DATA [] = {
-        //LINE   FILE_PATTERN  INTERVAL                  MIN_NUM_FILES
-        //----   ------------  ---------------------     -------------
-        { L_,    "",           bsls::TimeInterval(),     0             },
-        { L_,    "filepat*",   bsls::TimeInterval(),     0             },
-        { L_,    "filepatt*",  bsls::TimeInterval(1),    0             },
-        { L_,    "Filepatt*",  bsls::TimeInterval(2),    1             },
+            //LINE   FILE_PATTERN  INTERVAL                  MIN  MAX
+            //----   ------------  ---------------------     ---  ---
+            { L_,    "",           bsls::TimeInterval(),     0,   3  },
+            { L_,    "filepat*",   bsls::TimeInterval(),     0,   10 },
+            { L_,    "filepatt*",  bsls::TimeInterval(1),    0,   5  },
+            { L_,    "Filepatt*",  bsls::TimeInterval(2),    1,   1  },
         };
 
         enum { DATA_LEN = sizeof(DATA) / sizeof(*DATA) };
@@ -1240,19 +1279,21 @@ int main(int argc, char *argv[])
             const int                 LINE          = DATA[ti].d_line;
             const char               *FILE_PATTERN  = DATA[ti].d_filePattern_p;
             const bsls::TimeInterval  INTERVAL      = DATA[ti].d_interval;
-            const int                 MIN_NUM_FILES = DATA[ti].d_minNumFiles;
+            const int                 MINFILES      = DATA[ti].d_minNumFiles;
+            const int                 MAXFILES      = DATA[ti].d_maxNumFiles;
 
-            const Obj X(FILE_PATTERN, INTERVAL, MIN_NUM_FILES);
+            const Obj X(FILE_PATTERN, INTERVAL, MINFILES, MAXFILES);
 
             if (veryVerbose) {
-                T_ P_(FILE_PATTERN) P_(INTERVAL) P(MIN_NUM_FILES)
+                T_ P_(FILE_PATTERN) P_(INTERVAL) P_(MINFILES) P(MAXFILES);
             }
 
             // Verify the expected attributes values.
 
             ASSERTV(LINE, FILE_PATTERN  == X.filePattern());
             ASSERTV(LINE, INTERVAL      == X.maxFileAge());
-            ASSERTV(LINE, MIN_NUM_FILES == X.minNumFiles());
+            ASSERTV(LINE, MINFILES      == X.minNumFiles());
+            ASSERTV(LINE, MAXFILES      == X.maxNumFiles());
         }
       } break;
       case 3: {
@@ -1345,13 +1386,34 @@ int main(int argc, char *argv[])
                 { L_,   "~!",      0,   },
                 { L_,   "  ",      0,   },
 
-                { L_,   "ABC",    -1,   },  // valid
-                { L_,   "ZZZ",    -1,   },  // valid
+                { L_,   "ABC",     0,   },
+                { L_,   "ZZZ",     0,   },
                 { L_,   " BC",     0,   },
-                { L_,   "A C",     1,   },
-                { L_,   "AB ",     2,   },
+                { L_,   "A C",     0,   },
+                { L_,   "AB ",     0,   },
                 { L_,   "?#:",     0,   },
                 { L_,   "   ",     0,   },
+
+                { L_,   "ABC*",   -1,   },  // valid
+                { L_,   "ZZZ*",   -1,   },  // valid
+                { L_,   "ABCC",   -1,   },  // valid
+                { L_,   "ABCD",   -1,   },  // valid
+                { L_,   "ABCZ",   -1,   },  // valid
+                { L_,   "ZZZZ",   -1,   },  // valid
+
+                { L_,   " BCC",    0,   },
+                { L_,   "A C*",    1,   },
+                { L_,   "AB *",    2,   },
+                { L_,   "?#:*",    0,   },
+                { L_,   "   *",    0,   },
+
+                { L_,   " BCC",    0,   },
+                { L_,   "A CC",    1,   },
+                { L_,   "AB C",    2,   },
+                { L_,   "?#:C",    0,   },
+                { L_,   "   C",    0,   },
+                { L_,   "AAB+",    3,   },
+                { L_,   "ABCQ",    3,   },
 
                 { L_,   "ABCDE",   0,   },
                 { L_,   "aBCDE",   0,   },
@@ -1531,13 +1593,15 @@ int main(int argc, char *argv[])
                 const char               *d_filePattern_p; // file pattern
                 const bsls::TimeInterval  d_maxAge;        // file age
                 int                       d_minNumber;     // min files
+                int                       d_maxNumber;     // min files
             } DATA[] = {
-                //line  filePattern  maxAge                      minNumber
-                //----  -----------  --------------------------  ---------
-                { L_,   "",          bsls::TimeInterval(),       0           },
-                { L_,   "file1",     bsls::TimeInterval(),       0           },
-                { L_,   "file1",     bsls::TimeInterval(10, 0),  0           },
-                { L_,   "file1",     bsls::TimeInterval(10, 0),  4           },
+                //line  filePattern  maxAge                      min  max
+                //----  -----------  --------------------------  ---
+                { L_,   "",          bsls::TimeInterval(),       0,   0  },
+                { L_,   "",          bsls::TimeInterval(),       0,   10 },
+                { L_,   "file1",     bsls::TimeInterval(),       0,   10 },
+                { L_,   "file1",     bsls::TimeInterval(10, 0),  0,   10 },
+                { L_,   "file1",     bsls::TimeInterval(10, 0),  4,   10 },
             };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -1546,6 +1610,7 @@ int main(int argc, char *argv[])
                 const char *const         PATTERN   = DATA[ti].d_filePattern_p;
                 const bsls::TimeInterval& MAXAGE    = DATA[ti].d_maxAge;
                 int                       MINNUMBER = DATA[ti].d_minNumber;
+                int                       MAXNUMBER = DATA[ti].d_maxNumber;
 
                 Obj mX;  const Obj& X = mX;
 
@@ -1566,8 +1631,10 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, X.maxFileAge(), MAXAGE == X.maxFileAge());
 
                 mX.setMinNumFiles(MINNUMBER);
-                ASSERTV(LINE, X.minNumFiles(),
-                        MINNUMBER == X.minNumFiles());
+                ASSERTV(LINE, X.minNumFiles(), MINNUMBER == X.minNumFiles());
+
+                mX.setMaxNumFiles(MAXNUMBER);
+                ASSERTV(LINE, X.maxNumFiles(), MAXNUMBER == X.maxNumFiles());
             }
         }
       } break;
