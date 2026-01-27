@@ -695,10 +695,20 @@ class SkipListPairHandle {
     ///  `true`.
     DATA& data() const;
 
+    /// Load into the specified `value` the "data" value of the pair referred
+    /// to by this object.  The behavior is undefined unless `isValid` returns
+    /// `true`.
+    void data(DATA *value) const;
+
     /// Return a reference to the non-modifiable "key" value of the pair
     /// referred to by this object.  The behavior is undefined unless
     /// `isValid` returns `true`.
     const KEY& key() const;
+
+    /// Load into the specified `value` the "key" value of the pair referred to
+    /// by this object.  The behavior is undefined unless `isValid` returns
+    /// `true`.
+    void key(KEY *value) const;
 
     /// Return `true` if this PairHandle currently refers to a pair, and
     /// `false` otherwise.
@@ -1397,6 +1407,10 @@ class SkipList {
     /// the list is empty, the value of `*back` is undefined.
     int backRaw(Pair **back) const;
 
+    /// Load into the specified `value` the "data" value of the pair identified
+    /// by the `reference`.
+    void data(DATA *value, const Pair *reference) const;
+
     /// Return `true` if there is a pair in the list with the specified
     /// `key`, and `false` otherwise.
     bool exists(const KEY& key) const;
@@ -1414,6 +1428,10 @@ class SkipList {
 
     /// Return `true` if this list is empty, and `false` otherwise.
     bool isEmpty() const;
+
+    /// Load into the specified `value` the "key" value of the pair identified
+    /// by the `reference`.
+    void key(KEY *value, const Pair *reference) const;
 
     /// Return the number of items in this list.
     int length() const;
@@ -1829,6 +1847,15 @@ DATA& SkipListPairHandle<KEY, DATA>::data() const
 
 template <class KEY, class DATA>
 inline
+void SkipListPairHandle<KEY, DATA>::data(DATA *value) const
+{
+    BSLS_ASSERT_SAFE(isValid());
+
+    d_list_p->data(value, d_node_p);
+}
+
+template <class KEY, class DATA>
+inline
 bool SkipListPairHandle<KEY, DATA>::isValid() const
 {
     return d_node_p != 0 && d_list_p != 0;
@@ -1841,6 +1868,15 @@ const KEY& SkipListPairHandle<KEY, DATA>::key() const
     BSLS_ASSERT_SAFE(isValid());
 
     return SkipList<KEY, DATA>::key(d_node_p);
+}
+
+template <class KEY, class DATA>
+inline
+void SkipListPairHandle<KEY, DATA>::key(KEY *value) const
+{
+    BSLS_ASSERT_SAFE(isValid());
+
+    d_list_p->key(value, d_node_p);
 }
 
 }  // close package namespace
@@ -1973,7 +2009,6 @@ const KEY& SkipList<KEY, DATA>::key(const Pair *reference)
                                          static_cast<const void *>(reference));
     return node->d_key;
 }
-
 
 template<class KEY, class DATA>
 inline
@@ -3300,6 +3335,19 @@ int SkipList<KEY, DATA>::backRaw(Pair **back) const
 }
 
 template<class KEY, class DATA>
+inline
+void SkipList<KEY, DATA>::data(DATA *value, const Pair *reference) const
+{
+    BSLS_ASSERT(reference);
+
+    LockGuard guard(&d_lock);
+
+    const Node *node = static_cast<const Node *>(
+                                         static_cast<const void *>(reference));
+    *value = node->d_data;
+}
+
+template<class KEY, class DATA>
 bool SkipList<KEY, DATA>::exists(const KEY& key) const
 {
     Node *locator[k_MAX_NUM_LEVELS];
@@ -3346,6 +3394,19 @@ bool SkipList<KEY, DATA>::isEmpty() const
     LockGuard guard(&d_lock);
 
     return d_tail_p == d_head_p->d_ptrs[0].d_next_p;
+}
+
+template<class KEY, class DATA>
+inline
+void SkipList<KEY, DATA>::key(KEY *value, const Pair *reference) const
+{
+    BSLS_ASSERT(reference);
+
+    LockGuard guard(&d_lock);
+
+    const Node *node = static_cast<const Node *>(
+                                         static_cast<const void *>(reference));
+    *value = node->d_key;
 }
 
 template<class KEY, class DATA>

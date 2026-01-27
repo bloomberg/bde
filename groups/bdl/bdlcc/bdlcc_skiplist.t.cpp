@@ -5108,7 +5108,7 @@ u::RandGenMod<ContainerMinorMode, e_CONTAINER_MINOR_MOD> containMinorRand;
 
 bsls::AtomicInt    maxLevel(0);
 bsls::AtomicBool   doneFlag(false);
-double             totalIterations(0);
+bsls::AtomicInt64  totalIterations(0);
 bsls::AtomicInt    masterRandSeed(0);
 
 class ThrashFunctor {
@@ -5123,12 +5123,15 @@ class ThrashFunctor {
     /// Return the expected value of `data` for the specified `key`.
     int dataForKey(int key);
 
-    /// For the element `*h`, check that the `data` field is appropriate
-    /// given its `key` field and return its key.  If the specified `key` is
-    /// non-negative, then assert that `h->key() == key`.  If `flatten` is
-    /// `true`, return `key` with the toggle bit masked out, otherwise
-    /// return `h->key()`.
-    int cmpKeyAndData(const Pair *h, int key = -1, bool flatten = false);
+    /// For the specified `list` and element `*h`, check that the `data` field
+    /// is appropriate given its `key` field and return its key.  If the
+    /// specified `key` is non-negative, then assert that `h->key() == key`.
+    /// If `flatten` is `true`, return `key` with the toggle bit masked out,
+    /// otherwise return `h->key()`.
+    int cmpKeyAndData(Obj        *list,
+                      const Pair *h,
+                      int         key = -1,
+                      bool        flatten = false);
 
     /// For the element referred to by `ph`, check that the `data` field is
     /// appropriate given its `key` field and return its key.  If the
@@ -5195,14 +5198,25 @@ int ThrashFunctor::dataForKey(int key)
 }
 
 inline
-int ThrashFunctor::cmpKeyAndData(const Pair *h, int key, bool flatten)
+int ThrashFunctor::cmpKeyAndData(Obj        *list,
+                                 const Pair *h,
+                                 int         key,
+                                 bool        flatten)
 {
-    int readKey = h->key();
+    int readKey = 0;
+
+    list->key(&readKey, h);
+
     if (-1 != key) {
         ASSERT((readKey & ~k_VALUES_UPDATE_TOGGLE) ==
                                           (key & ~k_VALUES_UPDATE_TOGGLE));
     }
-    ASSERT(h->data() == dataForKey(readKey));
+
+    int data = 0;
+
+    list->data(&data, h);
+
+    ASSERT(data == dataForKey(readKey));
 
     return flatten ? (readKey & ~k_VALUES_UPDATE_TOGGLE)
                    :  readKey;
@@ -5211,12 +5225,20 @@ int ThrashFunctor::cmpKeyAndData(const Pair *h, int key, bool flatten)
 inline
 int ThrashFunctor::cmpKeyAndData(const PairHandle ph, int key, bool flatten)
 {
-    int readKey = ph.key();
+    int readKey = 0;
+
+    ph.key(&readKey);
+
     if (-1 != key) {
         ASSERT((readKey & ~k_VALUES_UPDATE_TOGGLE) ==
                                           (key & ~k_VALUES_UPDATE_TOGGLE));
     }
-    ASSERT(ph.data() == dataForKey(readKey));
+
+    int data = 0;
+
+    ph.data(&data);
+
+    ASSERT(data == dataForKey(readKey));
 
     return flatten ? (readKey & ~k_VALUES_UPDATE_TOGGLE)
                    :  readKey;
@@ -5232,7 +5254,7 @@ int ThrashFunctor::addRand()
     int         key   = -1;
     int         level;
     int         data;
-     u::AddMode mode;
+    u::AddMode  mode;
     int         oldMaxLevel;
 
     int ii;
@@ -5381,7 +5403,7 @@ int ThrashFunctor::addRand()
         }
     }
     else if (h) {
-        cmpKeyAndData(h, key);
+        cmpKeyAndData(&d_list, h, key);
 
         if (0 <= level) {
             if (level <= oldMaxLevel) {
@@ -5444,7 +5466,7 @@ void ThrashFunctor::changeMajor()
             for (unsigned uu = 0; uu < removeVec.size(); ++uu, key = readKey) {
                 h = removeVec[uu];
 
-                readKey = cmpKeyAndData(h);
+                readKey = cmpKeyAndData(&d_list, h);
                 ASSERT(key <= readKey);
 
                 d_list.releaseReferenceRaw(h);
@@ -5805,12 +5827,12 @@ void ThrashFunctor::findChangeMinorRaw(int key)
                 continue;
             }
 
-            key = cmpKeyAndData(h);
+            key = cmpKeyAndData(&d_list, h);
         }
         BSLS_ASSERT(0 == rc);
         numMisses = 0;
 
-        cmpKeyAndData(h, key);
+        cmpKeyAndData(&d_list, h, key);
         key = -1;
 
         const SkipMode skipMode = skipRand(&d_rand);
@@ -5853,7 +5875,7 @@ void ThrashFunctor::findChangeMinorRaw(int key)
           } break;
         }
 
-        key = cmpKeyAndData(h);
+        key = cmpKeyAndData(&d_list, h);
 
         const int exactKey = key;
 
@@ -5886,7 +5908,7 @@ void ThrashFunctor::findChangeMinorRaw(int key)
 
         ASSERT(!newFront || 0 == rc);
 
-        key = cmpKeyAndData(h);
+        key = cmpKeyAndData(&d_list, h);
         ASSERT(0 == ((exactKey ^ key) & ~k_VALUES_UPDATE_TOGGLE));
 
         d_list.releaseReferenceRaw(h);
@@ -5983,7 +6005,7 @@ void ThrashFunctor::operator()()
         key = addRand();
     }
 
-    totalIterations += static_cast<double>(ti);
+    totalIterations += ti;
 
     d_barrier.wait();
 }
@@ -6584,11 +6606,11 @@ int main(int argc, char *argv[])
             const double userPlusSysTime = sw.accumulatedUserTime() +
                                                     sw.accumulatedSystemTime();
             const double nsUSPerIteration = 1e9 * userPlusSysTime /
-                                                           TC::totalIterations;
+                                      static_cast<double>(TC::totalIterations);
 
             const double nsWallPerIterationPerThread =
                                   1e9 * sw.accumulatedWallTime() * numThreads /
-                                                           TC::totalIterations;
+                                      static_cast<double>(TC::totalIterations);
             P_(TC::totalIterations);    P(TC::maxLevel);
             P_(userPlusSysTime);        P(sw.accumulatedWallTime());
             P_(nsUSPerIteration);       P(nsWallPerIterationPerThread);
