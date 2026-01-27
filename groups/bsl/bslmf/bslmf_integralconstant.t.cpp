@@ -48,6 +48,7 @@ using namespace BloombergLP;
 // TYPES:
 // [ 3] type
 // [ 3] value_type
+// [ 5] bsl::bool_constant
 // [ 4] bsl::false_type
 // [ 4] bsl::true_type
 //
@@ -61,9 +62,10 @@ using namespace BloombergLP;
 //
 // ACCESSORS
 // [ 3] operator TYPE() const;
+// [ 3] operator()() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 5] USAGE EXAMPLE
+// [ 6] USAGE EXAMPLE
 // [ 3] CONCERN: The template can be instantiated with different integer types.
 // [ 3] CONCERN: The template can be instantiated with different integer
 //      values, including min and max values for the instance type.
@@ -103,15 +105,6 @@ void aSsErT(bool condition, const char *message, int line)
 
 #define ASSERT       BSLS_BSLTESTUTIL_ASSERT
 #define ASSERTV      BSLS_BSLTESTUTIL_ASSERTV
-
-#define LOOP_ASSERT  BSLS_BSLTESTUTIL_LOOP_ASSERT
-#define LOOP0_ASSERT BSLS_BSLTESTUTIL_LOOP0_ASSERT
-#define LOOP1_ASSERT BSLS_BSLTESTUTIL_LOOP1_ASSERT
-#define LOOP2_ASSERT BSLS_BSLTESTUTIL_LOOP2_ASSERT
-#define LOOP3_ASSERT BSLS_BSLTESTUTIL_LOOP3_ASSERT
-#define LOOP4_ASSERT BSLS_BSLTESTUTIL_LOOP4_ASSERT
-#define LOOP5_ASSERT BSLS_BSLTESTUTIL_LOOP5_ASSERT
-#define LOOP6_ASSERT BSLS_BSLTESTUTIL_LOOP6_ASSERT
 
 #define Q            BSLS_BSLTESTUTIL_Q   // Quote identifier literally.
 #define P            BSLS_BSLTESTUTIL_P   // Print identifier and value.
@@ -299,36 +292,40 @@ void fullTest(const char TYPENAME[])
 
     typedef bsl::integral_constant<TYPE, VAL> Obj;
 
-    if (verbose) printf("\tTest `value` static member constant\n");
-    LOOP2_ASSERT(TYPENAME, VAL, isConst(Obj::value));
+    if (verbose) puts("\tTest `value` static member constant");
+    ASSERTV(TYPENAME, VAL, isConst(Obj::value));
     const TYPE* p = &Obj::value; (void) p;  // Test that address can be taken
-    LOOP2_ASSERT(TYPENAME, VAL, VAL == Obj::value);
+    ASSERTV(TYPENAME, VAL, VAL == Obj::value);
 
-    if (verbose) printf("\tTest `type` and `value_type` member types\n");
-    LOOP2_ASSERT(TYPENAME, VAL, VAL == Obj::type::value);
-    LOOP2_ASSERT(TYPENAME, VAL, (IsSameType<Obj, typename Obj::type>::VALUE));
-    LOOP2_ASSERT(TYPENAME, VAL,
+    if (verbose) puts("\tTest `type` and `value_type` member types");
+    ASSERTV(TYPENAME, VAL, VAL == Obj::type::value);
+    ASSERTV(TYPENAME, VAL, (IsSameType<Obj, typename Obj::type>::VALUE));
+    ASSERTV(TYPENAME, VAL,
                  (IsSameType<TYPE, typename Obj::value_type>::VALUE));
 
-    if (verbose) printf("\tTest default constructor\n");
+    if (verbose) puts("\tTest default constructor");
     Obj x; const Obj& X = x;
 
-    if (verbose) printf("\tTest conversion to `TYPE`\n");
+    if (verbose) puts("\tTest conversion to `TYPE`");
     TYPE v = X;
-    LOOP2_ASSERT(TYPENAME, VAL, VAL == v);
+    ASSERTV(TYPENAME, VAL, VAL == v);
 
-    if (verbose) printf("\tTest copy constructor\n");
+    if (verbose) puts("\tTest function call operator");
+    TYPE v2 = X();
+    ASSERTV(TYPENAME, VAL, VAL == v2);
+
+    if (verbose) puts("\tTest copy constructor");
     // Result of copy constructor is same as result of default constructor.
     Obj x2(x); const Obj& X2 = x2;
     v = X2;
-    LOOP2_ASSERT(TYPENAME, VAL, VAL == v);
+    ASSERTV(TYPENAME, VAL, VAL == v);
 
-    if (verbose) printf("\tTest assignment operator\n");
+    if (verbose) puts("\tTest assignment operator");
     // Assignment has no effect
     Obj x3; const Obj& X3 = x3;
     x3 = x;
     v = X3;
-    LOOP2_ASSERT(TYPENAME, VAL, VAL == v);
+    ASSERTV(TYPENAME, VAL, VAL == v);
 }
 
 //=============================================================================
@@ -352,7 +349,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -368,33 +365,63 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
 
         usageExample1();
         usageExample2();
 
+      } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // TESTING `bool_constant`
+        //
+        // Concerns:
+        // 1. `bool_constant` is defined when compiling as C++11 or later.
+        //
+        // 2. `bool_constant<VALUE>` is identical to
+        //    `integral_constant<bool, VALUE>`.
+        //
+        // Plan:
+        // 1. Use `IsSameType` to verify the type of `bool_constant<false>` and
+        //    `bool_constant<true>`.  (C-1..2)
+        //
+        // Testing:
+        //   bsl::bool_constant
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nTESTING TESTING `bool_constant`"
+                          "\n===============================");
+
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+        ASSERT((IsSameType<bsl::bool_constant<false>,
+                           bsl::integral_constant<bool, false> >::VALUE));
+        ASSERT((IsSameType<bsl::bool_constant<true>,
+                           bsl::integral_constant<bool, true> >::VALUE));
+#else
+        if (verbose) puts("This feature requires C++11 or better.");
+#endif
       } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING `false_type` AND `true_type`
         //
         // Concerns:
-        //: 1 'false_type' is identical to 'integral_constant<bool, false>'.
+        //: 1 `false_type` is identical to `integral_constant<bool, false>`.
         //:
-        //: 2 'true_type' is identical to 'integral_constant<bool, true>'.
+        //: 2 `true_type` is identical to `integral_constant<bool, true>`.
         //
         // Plan:
-        //: 1 Use 'IsSameType' to verify the type of 'false_type' and
-        //:   'true_type'.  (C-1..2)
+        //: 1 Use `IsSameType` to verify the type of `false_type` and
+        //:   `true_type`.  (C-1..2)
         //
         // Testing:
         //   bsl::false_type
         //   bsl::true_type
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `false_type` AND `true_type`"
-                            "\n====================================\n");
+        if (verbose) puts("\nTESTING `false_type` AND `true_type`"
+                          "\n====================================");
 
         ASSERT((IsSameType<bsl::false_type,
                            bsl::integral_constant<bool, false> >::VALUE));
@@ -413,23 +440,26 @@ int main(int argc, char *argv[])
         // 3. `value_type` member is the same as `TYPE`
         //
         // 4. An `integral_constant<TYPE, VAL>` object is convertible to an
-        //    object of type `TYPE` with a `value` of 'VAL.
+        //    object of type `TYPE` with a `value` of `VAL`.
         //
-        // 5. `integral_constant<TYPE, VAL>` is default constructible.
+        // 5. An `integral_constant<TYPE, VAL>` object is callable as a
+        //    function with no arguments and that returns a copy of `value`.
         //
-        // 6. `integral_constant<TYPE, VAL>` is copy constructible such that
+        // 6. `integral_constant<TYPE, VAL>` is default constructible.
+        //
+        // 7. `integral_constant<TYPE, VAL>` is copy constructible such that
         //    the copy constructor has exactly the same behavior as the default
         //    constructor (i.e., the argument to the copy constructor is
         //    ignored).
         //
-        // 7. `integral_constant<TYPE, VAL>` is assignable, though the
+        // 8. `integral_constant<TYPE, VAL>` is assignable, though the
         //    assignment operator has no effect.
         //
-        // 8. `integral_constant<TYPE, VAL>` is destructible.
+        // 9. `integral_constant<TYPE, VAL>` is destructible.
         //
-        // 9. All of the above concerns apply to each built-in integer type.
+        // 10. All of the above concerns apply to each built-in integer type.
         //
-        // 10. All of the above concerns apply to multiple values, including
+        // 11. All of the above concerns apply to multiple values, including
         //     the minimum and maximum values of `TYPE`.
         //
         // Plan:
@@ -445,29 +475,31 @@ int main(int argc, char *argv[])
         //
         // 4. Default construct, copy construct, and assign objects of type
         //    `integral_constant<TYPE, VAL>`.  In each case, verify that
-        //    converting the result to `TYPE` yields `VAL`.  (C5..7)
+        //    converting the result to `TYPE` yields `VAL`, and the object
+        //    can be called as a function returning `VAL`.  (C5..8)
         //
         // 5. The destructor is tested automatically when the objects created
-        //    in step 4 go out of scope. (C-8)
+        //    in step 4 go out of scope. (C-9)
         //
         // 6. Instantiate the entire test in a template function, `fullTest`,
         //    instantiate `fullTest` with each C++ integer type and with
         //    several different values, including the minimum and maximum
-        //    values for the type.  (C-9..10)
+        //    values for the type.  (C-10..11)
         //
         // Testing:
         //   value
         //   type
         //   value_type
         //   operator TYPE() const;
+        //   TYPE operator() const;
         //   compiler-generated default constructor
         //   compiler-generated copy constructor
         //   compiler-generated assignment operator
         //   compiler-generated destructor
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nFULL TEST"
-                            "\n=========\n");
+        if (verbose) puts("\nFULL TEST"
+                          "\n=========");
 
         fullTest<bool, false>("bool");
         fullTest<bool, true>("bool");
@@ -550,8 +582,8 @@ int main(int argc, char *argv[])
         //
         // Plan:
         // 1. Instantiate `IsSameType` with every combination of types `int`,
-        //    `char`, `DummyType`; with every combination of `int`, 'const
-        //    int', `volatile int`, and with every combination of `int`
+        //    `char`, `DummyType`; with every combination of `int`, `const
+        //    int`, `volatile int`, and with every combination of `int`
         //    `int&` and `const int&`.  Verify that its `VALUE` member is
         //    true only when the types are identically the same.  (C-1..5)
         //
@@ -563,10 +595,10 @@ int main(int argc, char *argv[])
         //   bool isConst(T&);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING TEST APPARATUS"
-                            "\n======================\n");
+        if (verbose) puts("\nTESTING TEST APPARATUS"
+                          "\n======================");
 
-        if (verbose) printf("Testing IsSameType<A, B>\n");
+        if (verbose) puts("Testing IsSameType<A, B>");
         ASSERT((  IsSameType<int,       int>::VALUE));
         ASSERT((! IsSameType<int,       char>::VALUE));
         ASSERT((! IsSameType<int,       DummyType>::VALUE));
@@ -604,7 +636,7 @@ int main(int argc, char *argv[])
         ASSERT((! IsSameType<const int&,       int&>::VALUE));
         ASSERT((  IsSameType<const int&, const int&>::VALUE));
 
-        if (verbose) printf("Testing isConst(T&)\n");
+        if (verbose) puts("Testing isConst(T&)");
         int                i;
         const int          ci = 0;
         volatile int       vi;
@@ -643,12 +675,12 @@ int main(int argc, char *argv[])
         //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose) puts("\nBREATHING TEST"
+                          "\n==============");
 
         using namespace bsl;
 
-        if (verbose) printf("... With `bool` type\n");
+        if (verbose) puts("... With `bool` type");
         {
             typedef integral_constant<bool, false> TypeFalse;
             typedef integral_constant<bool, true>  TypeTrue;
@@ -668,7 +700,7 @@ int main(int argc, char *argv[])
             ASSERT(true == vTrue);
         }
 
-        if (verbose) printf("... With `int` type\n");
+        if (verbose) puts("... With `int` type");
         {
             typedef integral_constant<int, 0>  Type0;
             typedef integral_constant<int, 99> Type99;
@@ -688,7 +720,7 @@ int main(int argc, char *argv[])
             ASSERT(99 == v99);
         }
 
-        if (verbose) printf("... With `unsigned char` type\n");
+        if (verbose) puts("... With `unsigned char` type");
         {
             typedef integral_constant<unsigned char, 0>  Type0;
             typedef integral_constant<unsigned char, 99> Type99;
@@ -709,7 +741,6 @@ int main(int argc, char *argv[])
         }
 
       } break;
-
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
         testStatus = -1;

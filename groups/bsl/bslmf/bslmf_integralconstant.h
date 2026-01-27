@@ -9,6 +9,7 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 // bsl::integral_constant: A type representing a specific integer value
+//     bsl::bool_constant: An alias template for `integral_constant<bool>`
 //        bsl::false_type: `typedef` for `integral_constant<bool, false>`
 //         bsl::true_type: `typedef` for `integral_constant<bool, true>`
 //
@@ -16,8 +17,8 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component describes a simple class template,
 // `bsl::integral_constant`, that is used to map an integer constant to a C++
-// type.  `integral_constant<t_TYPE, t_VAL>` generates a unique type for each
-// distinct compile-time integral `t_TYPE` and constant integer `t_VAL`
+// type.  `integral_constant<t_TYPE, t_VALUE>` generates a unique type for each
+// distinct compile-time integral `t_TYPE` and constant integer `t_VALUE`
 // parameter.  That is, instantiations with different integer types and values
 // form distinct types, so that `integral_constant<int, 0>` is a different type
 // from `integral_constant<int, 1>`, which is also distinct from
@@ -147,46 +148,27 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_libraryfeatures.h>
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
 # include <type_traits>
-#endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
+# include <bsls_libraryfeatures.h>
+# include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
 namespace bsl {
 
                         // ================================
                         // class template integral_constant
                         // ================================
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-template <class t_TYPE, t_TYPE t_VAL>
-struct integral_constant : ::std::integral_constant<t_TYPE, t_VAL> {
-    typedef integral_constant type;
-};
-
-template <>
-struct integral_constant<bool, false> : ::std::false_type
-{
-    typedef integral_constant type;
-};
-
-template <>
-struct integral_constant<bool, true> : ::std::true_type
-{
-    typedef integral_constant type;
-};
-
-#else
-/// Generate a unique type for the given `t_TYPE` and `t_VAL`.  This
-/// `struct` is used for compile-time dispatch of overloaded functions and
-/// as the base class for many metafunctions.
-template <class t_TYPE, t_TYPE t_VAL>
-struct integral_constant {
+template <class t_TYPE, t_TYPE t_VALUE>
+struct integral_constant : ::std::integral_constant<t_TYPE, t_VALUE> {
+    // PUBLIC TYPES
+    using type = integral_constant;
 
   public:
     // CREATORS
@@ -196,21 +178,51 @@ struct integral_constant {
     //! integral_constant operator=(const integral_constant&) = default;
     //! ~integral_constant() = default;
 
+    // ACCESSORS
+
+    /// Return a copy of the template argument `t_VALUE`.
+    constexpr t_TYPE operator()() const noexcept;
+};
+
+                        // ============================
+                        // alias template bool_constant
+                        // ============================
+
+template <bool t_VALUE>
+using bool_constant = integral_constant<bool, t_VALUE>;
+
+                        // ===============
+                        // type false_type
+                        // ===============
+
+using false_type = bool_constant<false>;
+
+                        // ===============
+                        // type true_type
+                        // ===============
+
+using true_type = bool_constant<true>;
+
+}  // close namespace bsl
+#else   // BSLS_COMPILERFEATURES_FULL_CPP11
+namespace bsl {
+
+                        // ================================
+                        // class template integral_constant
+                        // ================================
+
+/// Generate a unique type for the given `t_TYPE` and `t_VALUE`.  This
+/// `struct` is used for compile-time dispatch of overloaded functions and
+/// as the base class for many metafunctions.
+template <class t_TYPE, t_TYPE t_VALUE>
+struct integral_constant {
     // PUBLIC TYPES
     typedef t_TYPE            value_type;
     typedef integral_constant type;
 
     // PUBLIC CLASS DATA
-    static const t_TYPE value = t_VAL;
+    static const t_TYPE value = t_VALUE;
 
-    // ACCESSORS
-
-    /// Return `t_VAL`.
-    BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
-};
-
-template <bool t_VAL>
-struct integral_constant<bool, t_VAL> {
   public:
     // CREATORS
 
@@ -219,20 +231,14 @@ struct integral_constant<bool, t_VAL> {
     //! integral_constant operator=(const integral_constant&) = default;
     //! ~integral_constant() = default;
 
-    // PUBLIC TYPES
-    typedef bool              value_type;
-    typedef integral_constant type;
-
-    // PUBLIC CLASS DATA
-    static const bool value = t_VAL;
-
     // ACCESSORS
 
-    /// Return `t_VAL`.
-    BSLS_KEYWORD_CONSTEXPR operator value_type() const BSLS_KEYWORD_NOEXCEPT;
+    /// Return a copy of the template argument `t_VALUE`.
+    operator value_type() const;
 
+    /// Return a copy of the template argument `t_VALUE`.
+    value_type operator()() const;
 };
-#endif //   defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
 
                         // ===============
                         // type false_type
@@ -246,52 +252,41 @@ typedef integral_constant<bool, false> false_type;
 
 typedef integral_constant<bool, true> true_type;
 
-                        // ======================
-                        // template bool_constant
-                        // ======================
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-template <bool t_VALUE>
-using bool_constant = integral_constant<bool, t_VALUE>;
-
-# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
-#   define BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT          1
-# endif
-#endif
-
 }  // close namespace bsl
+#endif // ! defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
 // ============================================================================
-// STATIC MEMBER VARIABLE DEFINITIONS
-// Note that these definitions are deprecated under C++17, when `constexpr`
-// data members are implicitly `inline`.
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-// This variable will be supplied by the platform header, when available.
-template <class t_TYPE, t_TYPE t_VAL>
-const t_TYPE bsl::integral_constant<t_TYPE, t_VAL>::value;
-
-template <bool t_VAL>
-const bool bsl::integral_constant<bool, t_VAL>::value;
 
 // ACCESSORS
-template <class t_TYPE, t_TYPE t_VAL>
-inline
-BSLS_KEYWORD_CONSTEXPR bsl::integral_constant<t_TYPE, t_VAL>::operator t_TYPE()
-    const BSLS_KEYWORD_NOEXCEPT
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+template <class t_TYPE, t_TYPE t_VALUE>
+inline constexpr
+t_TYPE bsl::integral_constant<t_TYPE, t_VALUE>::operator()() const noexcept
 {
-    return t_VAL;
+    return t_VALUE;
 }
 
-template <bool t_VAL>
+#else   // BSLS_COMPILERFEATURES_FULL_CPP11
+template <class t_TYPE, t_TYPE t_VALUE>
 inline
-BSLS_KEYWORD_CONSTEXPR bsl::integral_constant<bool, t_VAL>::operator bool()
-    const BSLS_KEYWORD_NOEXCEPT
+t_TYPE bsl::integral_constant<t_TYPE, t_VALUE>::operator()() const
 {
-    return t_VAL;
+    return t_VALUE;
 }
-#endif // ! defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+
+template <class t_TYPE, t_TYPE t_VALUE>
+inline
+bsl::integral_constant<t_TYPE, t_VALUE>::operator t_TYPE() const
+{
+    return t_VALUE;
+}
+
+// STATIC MEMBER VARIABLE DEFINITIONS
+template <class t_TYPE, t_TYPE t_VALUE>
+const t_TYPE bsl::integral_constant<t_TYPE, t_VALUE>::value;
+#endif // ! defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 #endif // ! defined(INCLUDED_BSLMF_INTEGRALCONSTANT)
 
