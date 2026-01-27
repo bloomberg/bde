@@ -4325,6 +4325,46 @@ namespace USAGE {
 }  // close namespace USAGE
 
 // ============================================================================
+//                         CASE 33 DRQS 181710914
+// ----------------------------------------------------------------------------
+
+namespace SKIPLIST_REPRODUCE_DRQS_181710914 {
+
+void release(bdlcc::SkipListPairHandle<int, int> *handle)
+{
+    handle->release();
+}
+
+void test()
+{
+    bdlcc::SkipList<int, int>             mX;
+    bdlcc::SkipList<int, int>::PairHandle handle;
+    bslmt::ThreadUtil::Handle             thread;
+
+    int count = 0;  // anti-optimization
+
+    mX.add(0, 0);
+    mX.front(&handle);
+
+    ASSERT(handle.isValid());
+
+    bslmt::ThreadUtil::create(&thread, bdlf::BindUtil::bind(&release,
+                                                            &handle));
+
+    while (handle.isValid()) {
+        ++count;
+    }
+
+    bslmt::ThreadUtil::join(thread);
+
+    mX.removeAll();
+
+    if (veryVeryVeryVerbose) P(count);  // anti-optimization
+}
+
+}  // close namespace SKIPLIST_TEST_CASE_DRQS_181710914
+
+// ============================================================================
 //             CASE 29 REPRODUCE BUG / VERIFY FIX OF DRQS 145745492
 // ----------------------------------------------------------------------------
 
@@ -6291,6 +6331,24 @@ int main(int argc, char *argv[])
                                       bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 33: {
+        // --------------------------------------------------------------------
+        // Reproduce data race in DRQS 181710914
+        //
+        // Concern:
+        // 1. DRQS 181710914 identified a data race between `release` and
+        //    `isValid` on `SkipListPairHandle`.  This test case was to
+        //    reproduce the bug, and then verify the fix.
+        //
+        // Plan:
+        // 1. Create a thread to run `release` while the main thread is
+        //    repeatedly invoking `isValid` and check for TSAN errors.
+        // --------------------------------------------------------------------
+
+        namespace TC = SKIPLIST_REPRODUCE_DRQS_181710914;
+
+        TC::test();
+      } break;
       case 32: {
         // --------------------------------------------------------------------
         // DELIBERATELY LEAK A NODE

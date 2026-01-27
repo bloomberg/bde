@@ -632,8 +632,8 @@ class SkipListPairHandle {
     typedef SkipListPair<KEY, DATA> Pair;
 
     // DATA
-    SkipList<KEY, DATA> *d_list_p;
-    Pair                *d_node_p;
+    SkipList<KEY, DATA>       *d_list_p;
+    bsls::AtomicPointer<Pair>  d_node_p;
 
     // FRIENDS
     friend class SkipList<KEY, DATA>;

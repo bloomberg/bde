@@ -2,7 +2,6 @@
 #include <bdlcc_fixedqueue.h>
 
 #include <bdlcc_queue.h>
-#include <bdlcc_skiplist.h>
 
 #include <bdlb_random.h>
 
