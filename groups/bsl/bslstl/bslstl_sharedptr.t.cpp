@@ -673,27 +673,22 @@ void aSsErT(bool condition, const char *message, int line)
 # define ASSERT_NOEXCEPT(...)
 #endif
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
-/// This leading branch is the preferred version for C++17, but the feature
-/// test macro is (currently) for documentation purposes only, and never
-/// defined.  This is the ideal (simplest) form for such declarations:
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    const BSLS_KEYWORD_CONSTEXPR bsl::bool_constant<EXPRESSION> NAME{}
-#elif defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    constexpr bsl::integral_constant<bool, EXPRESSION> NAME{}
-    // This is the preferred C++11 form for the definition of integral constant
-    // variables.  It assumes the presence of `constexpr` in the compiler as an
-    // indication that brace-initialization and traits are available, as it has
-    // historically been one of the last C++11 features to ship.
+/// The macro `DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)` provides a compact
+/// syntax that can fit on one line of a test table to define a local variable
+/// with the specified `NAME` of type `bsl::bool_constant<VALUE>` where `VALUE`
+/// is the result of the specified `EXPRESSION`.
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
+    /// The BDE type traits library provides `bool_constant` in C++11 mode as
+    /// well as the Standard C++17.
+    #define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                           \
+        constexpr bsl::bool_constant<EXPRESSION> NAME{}
 #else
-# define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                              \
-    static const bsl::integral_constant<bool, EXPRESSION> NAME =              \
-                 bsl::integral_constant<bool, EXPRESSION>()
-    // `bsl::integral_constant` is not an aggregate prior to C++17 extending
-    // the rules, so a C++03 compiler must explicitly initialize integral
-    // constant variables in a way that is unambiguously not a vexing parse
-    // that declares a function instead.
+    /// Without C++11 we must use `bsl::integral_constant<bool, VALUE>` by name
+    /// and intialize the variable in a way that unambiguously is not a vexing
+    /// parse that would declare a function instead.
+    #define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                           \
+        static const bsl::integral_constant<bool, EXPRESSION> NAME =          \
+                     bsl::integral_constant<bool, EXPRESSION>()
 #endif
 
 #if defined(BSLSTL_SHAREDPTR_SUPPORTS_SFINAE_CHECKS)

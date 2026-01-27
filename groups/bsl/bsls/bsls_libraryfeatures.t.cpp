@@ -205,7 +205,6 @@
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
 // [15] BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
 // [14] BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-// [  ] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
 // [16] BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 // [ 8] BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS
 // [13] BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
@@ -244,7 +243,6 @@
 // [ 7] bool std::isblank(char, const std::locale&);
 // ----------------------------------------------------------------------------
 // [25] USAGE EXAMPLE
-// [-1] BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: not defined
 // ----------------------------------------------------------------------------
 
 // ============================================================================
@@ -319,14 +317,6 @@ bool   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES_defined =
 static const
 bool   BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined =
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
                                                                           true;
 #else
                                                                          false;
@@ -3523,39 +3513,6 @@ int main(int argc, char *argv[])
         #pragma GCC diagnostic pop
     #endif
 #endif
-        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
-      } break;
-      case -1: {
-        // --------------------------------------------------------------------
-        // `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT`
-        //
-        // Concerns:
-        // 1. The `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT` must never be
-        //    defined.
-        //
-        // Plan:
-        // 1. Confirm the value of the conditionally compiled global variable
-        //    `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined` is
-        //    `false`.
-        //
-        // Testing:
-        //   BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: obsolescent: never
-        //   defined
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\n'BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT'"
-                          "\n==============================================");
-
-        if (verbose) {
-            P(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined);
-        }
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT
-        ASSERT(true == std::bool_constant<true>());
-#endif
-
-        ASSERT(!BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT_defined);
-
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;
       default: {

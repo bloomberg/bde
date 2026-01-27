@@ -31,7 +31,6 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE: `integer_sequence` defined
 //  BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS: range functions extension
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY: C++17 base lib provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT: !NOT DEFINED! see below
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_EXCEPTION_HANDLING: except handling provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS: searcher function objects
@@ -933,22 +932,6 @@ BSLS_IDENT("$Id: $")
 // * GCC 4.8
 // * clang 3.0 using at least GCC 4.8 GNU C++ Library
 // * Microsoft Visual Studio 2015 / MSVC 19.00
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT`: !NOT DEFINED!
-///-------------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT` macro is never defined
-// and is mentioned in this component as documentation until its appearance in
-// several BDE test drivers is removed.
-//
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT` macro was intended to
-// indicate whether or not the `bool_constant` alias template (defined in
-// `<type_traits>`) is provided by the native standard library.  It has since
-// been discovered that, as `bsl::integral_constant` is actually a distinct
-// class template derived from `std::integral_constant`, there must always be a
-// distinct `bsl` alias template, which will be provided in a future BDE
-// release.  Given this new direction, the need for a macro for the native type
-// is obviated so `BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT` is being
-// removed.
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS`
 ///------------------------------------------------
@@ -2132,8 +2115,6 @@ BSLS_IDENT("$Id: $")
     #define BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE                              1
 
     // Early access to C++17 features
-    #define BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT                      1
-
     #undef BSLS_LIBRARYFEATURES_HAS_C90_GETS
 
     // C++14 support reported
