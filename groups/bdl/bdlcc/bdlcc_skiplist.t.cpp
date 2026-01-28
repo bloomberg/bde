@@ -7986,7 +7986,7 @@ if (veryVerbose) cout << "Elapsed: " << elapsed << " seconds\n";
         cout << " AIX";
 #elif defined(BSLS_PLATFORM_OS_LINUX)
         cout << " Linux";
-#elif defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
         cout << " Solaris";
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         cout << " Windows";

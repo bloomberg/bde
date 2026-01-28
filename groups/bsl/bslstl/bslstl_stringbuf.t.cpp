@@ -15,6 +15,7 @@
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
 #include <bsltf_stdstatefulallocator.h>
@@ -733,12 +734,12 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         &da == RESULT_S.get_allocator());
                 ASSERTV(LINE, CONFIG, initialString == RESULT_V);
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-        // These calls are not supported on SunOS, because the std::allocator
-        // there does not support rebind.  This limitation can be lifted once
-        // we fully support C++20, where rebind is removed, and always goes
-        // through `allocator_traits`.  See {DRQS 168075157} and
-        // https://github.com/bloomberg/bde/pull/268
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
+        // These calls are not supported by the classic Sun standard library,
+        // because the `std::allocator` there does not support `rebind`.  This
+        // limitation can be lifted once we fully support C++20, where `rebind`
+        // is removed and rebind requests are made through `allocator_traits`.
+        // See {DRQS 168075157} and https://github.com/bloomberg/bde/pull/268
                     // test `str(otherAllocator)`
                 const bsl::basic_string<
                           TYPE,
@@ -945,12 +946,12 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
             }
         }
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-        // These calls are not supported on SunOS, because the std::allocator
-        // there does not support rebind.  This limitation can be lifted once
-        // we fully support C++20, where rebind is removed, and always goes
-        // through `allocator_traits`.  See {DRQS 168075157} and
-        // https://github.com/bloomberg/bde/pull/268
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
+        // These calls are not supported by the classic Sun standard library,
+        // because the `std::allocator` there does not support `rebind`.  This
+        // limitation can be lifted once we fully support C++20, where `rebind`
+        // is removed and rebind requests are made through `allocator_traits`.
+        // See {DRQS 168075157} and https://github.com/bloomberg/bde/pull/268
         {
             // test `str(String with different Allocator)`
             bslma::TestAllocator ta("test allocator");

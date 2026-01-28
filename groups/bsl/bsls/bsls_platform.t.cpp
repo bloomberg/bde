@@ -768,12 +768,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_OS_SOLARIS);
 #endif
 
-#if defined(BSLS_PLATFORM_OS_SUNOS)
-    P_MACRO(BSLS_PLATFORM_OS_SUNOS);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_SUNOS);
-#endif
-
 #if defined(BSLS_PLATFORM_OS_UNIX)
     P_MACRO(BSLS_PLATFORM_OS_UNIX);
 #else
@@ -1028,12 +1022,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__OS_SOLARIS);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_SUNOS)
-    P_MACRO(BSLS_PLATFORM__OS_SUNOS);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_SUNOS);
-#endif
-
 #if defined(BSLS_PLATFORM__OS_UNIX)
     P_MACRO(BSLS_PLATFORM__OS_UNIX);
 #else
@@ -1122,12 +1110,6 @@ static void printFlags()
     P_MACRO(BDES_PLATFORM__OS_SOLARIS);
 #else
     D_MACRO(BDES_PLATFORM__OS_SOLARIS);
-#endif
-
-#if defined(BDES_PLATFORM__OS_SUNOS)
-    P_MACRO(BDES_PLATFORM__OS_SUNOS);
-#else
-    D_MACRO(BDES_PLATFORM__OS_SUNOS);
 #endif
 
 #if defined(BDES_PLATFORM__OS_UNIX)
@@ -1909,24 +1891,6 @@ static void printFlags()
     D_MACRO(__SunOS_5_11);
 #endif
 
-#if defined(__SunOS_5_7)
-    P_MACRO(__SunOS_5_7);
-#else
-    D_MACRO(__SunOS_5_7);
-#endif
-
-#if defined(__SunOS_5_8)
-    P_MACRO(__SunOS_5_8);
-#else
-    D_MACRO(__SunOS_5_8);
-#endif
-
-#if defined(__SunOS_5_9)
-    P_MACRO(__SunOS_5_9);
-#else
-    D_MACRO(__SunOS_5_9);
-#endif
-
 #if defined(__WCHAR_UNSIGNED__)
     P_MACRO(__WCHAR_UNSIGNED__);
 #else
@@ -2683,9 +2647,6 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_OS_SOLARIS)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_SOLARIS, 1);
-        #endif
-        #if defined(BSLS_PLATFORM_OS_SUNOS)
-            MACRO_TESTEQ(BSLS_PLATFORM_OS_SUNOS, 1);
         #endif
         #if defined(BSLS_PLATFORM_OS_WINDOWS)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_WINDOWS, 1);

@@ -922,7 +922,7 @@ int u_removeContentsOfTree(
     }
     bslma::ManagedPtr<DIR> dirGuard(dir, 0, &invokeCloseDir);
 
-#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
     // There is no constant 'NAME_MAX' upper limit on file name lengths on
     // Solaris, so we have to query the directory with '::fpathconf' to
     // determine it and potentially allocate our 'dirent' object.
@@ -1029,7 +1029,7 @@ int u_removeContentsOfTree(
 
         // update 'prevName'
 
-#if defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
         if (prevName.capacity() < name.length()) {
             BSLS_ASSERT(prevName.capacity() == k_MIN_NAME_MAX);
             BSLS_ASSERT(name.length() <= nameMax);

@@ -21,8 +21,7 @@
 using namespace BloombergLP;
 using namespace bsl;
 
-#if defined(BSLS_PLATFORM_OS_SUNOS)   ||     \
-    defined(BSLS_PLATFORM_OS_SOLARIS) ||     \
+#if defined(BSLS_PLATFORM_OS_SOLARIS) ||     \
     defined(BSLS_PLATFORM_OS_LINUX)
 
 //=============================================================================

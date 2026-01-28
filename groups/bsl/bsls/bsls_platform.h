@@ -42,7 +42,6 @@ BSLS_IDENT("$Id: $")
 //                     @_OS_LINUX              @_OS_VER_MINOR
 //                     @_OS_FREEBSD
 //                     @_OS_SOLARIS
-//                     @_OS_SUNOS
 //                     @_OS_CYGWIN
 //                     @_OS_DARWIN
 //
@@ -491,8 +490,6 @@ struct bsls_Platform_Assert;
     #elif defined(sun) || defined(__sun)
         #if defined(__SVR4) || defined(__svr4__)
             #define BSLS_PLATFORM_OS_SOLARIS                                  1
-        #else
-            #define BSLS_PLATFORM_OS_SUNOS                                    1
         #endif
     #elif defined(_WIN32) || defined(__WIN32__) &&                            \
           !(defined(cygwin) || defined(__cygwin))
@@ -609,16 +606,7 @@ struct bsls_Platform_Assert;
     #if defined(sun) || defined(__sun)
         #define BSLS_PLATFORM_OS_SOLARIS                                      1
         #if defined(__SVR4) || defined(__svr4__)
-            #if defined(__SunOS_5_7)
-                #define BSLS_PLATFORM_OS_VER_MAJOR 7
-                #define BSLS_PLATFORM_OS_VER_MINOR 0
-            #elif defined(__SunOS_5_8)
-                #define BSLS_PLATFORM_OS_VER_MAJOR 8
-                #define BSLS_PLATFORM_OS_VER_MINOR 0
-            #elif defined(__SunOS_5_9)
-                #define BSLS_PLATFORM_OS_VER_MAJOR 9
-                #define BSLS_PLATFORM_OS_VER_MINOR 0
-            #elif defined(__SunOS_5_10)
+            #if defined(__SunOS_5_10)
                 #define BSLS_PLATFORM_OS_VER_MAJOR 10
                 #define BSLS_PLATFORM_OS_VER_MINOR 0
             #elif defined(__SunOS_5_11)
@@ -629,22 +617,8 @@ struct bsls_Platform_Assert;
                 #define BSLS_PLATFORM_OS_VER_MINOR 0
             #endif
         #else
-            #error "Unable to determine SUN OS version."
+            #error "Unable to determine Solaris OS version."
             BSLS_PLATFORM_COMPILER_ERROR;
-        #endif
-    #elif defined(__SVR4) || defined(__svr4__)
-        #define BSLS_PLATFORM_OS_SUNOS                                        1
-        #if defined(__SunOS_5_7)
-            #define BSLS_PLATFORM_OS_VER_MAJOR 7
-            #define BSLS_PLATFORM_OS_VER_MINOR 0
-        #elif defined(__SunOS_5_8)
-            #define BSLS_PLATFORM_OS_VER_MAJOR 8
-            #define BSLS_PLATFORM_OS_VER_MINOR 0
-        #elif defined(__SunOS_5_9)
-            #define BSLS_PLATFORM_OS_VER_MAJOR 9
-            #define BSLS_PLATFORM_OS_VER_MINOR 0
-        #else
-            #define BSLS_PLATFORM_OS_VER_MAJOR 1
         #endif
     #else
         #error "Unable to determine SUN OS version."
@@ -700,7 +674,7 @@ struct bsls_Platform_Assert;
     #endif
 
 // Sun/Solaris
-#elif defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)
+#elif defined(BSLS_PLATFORM_OS_SOLARIS)
     #include <sys/isa_defs.h>
     #if defined(_LITTLE_ENDIAN)
         #define BSLS_PLATFORM_IS_LITTLE_ENDIAN                                1
@@ -894,7 +868,6 @@ struct bsls_Platform_Assert;
   + BSLS_PLATFORM_OS_LINUX                                                    \
   + BSLS_PLATFORM_OS_FREEBSD                                                  \
   + BSLS_PLATFORM_OS_SOLARIS                                                  \
-  + BSLS_PLATFORM_OS_SUNOS                                                    \
   + BSLS_PLATFORM_OS_CYGWIN                                                   \
   + BSLS_PLATFORM_OS_WIN9X                                                    \
   + BSLS_PLATFORM_OS_WINNT                                                    \
@@ -1170,9 +1143,6 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_OS_SOLARIS
 # define BDES_PLATFORM__OS_SOLARIS BSLS_PLATFORM_OS_SOLARIS
 #endif
-#ifdef BSLS_PLATFORM_OS_SUNOS
-# define BDES_PLATFORM__OS_SUNOS BSLS_PLATFORM_OS_SUNOS
-#endif
 #ifdef BSLS_PLATFORM_OS_UNIX
 # define BDES_PLATFORM__OS_UNIX BSLS_PLATFORM_OS_UNIX
 #endif
@@ -1265,9 +1235,6 @@ typedef bsls::Platform bsls_Platform;
 #endif
 #ifdef BSLS_PLATFORM_OS_SOLARIS
 # define BSLS_PLATFORM__OS_SOLARIS BSLS_PLATFORM_OS_SOLARIS
-#endif
-#ifdef BSLS_PLATFORM_OS_SUNOS
-# define BSLS_PLATFORM__OS_SUNOS BSLS_PLATFORM_OS_SUNOS
 #endif
 #ifdef BSLS_PLATFORM_OS_UNIX
 # define BSLS_PLATFORM__OS_UNIX BSLS_PLATFORM_OS_UNIX

@@ -11,7 +11,7 @@
     #include <sys/times.h> // struct tms, times()
     #include <time.h>      // NOTE: <ctime> conflicts with <sys/time.h>
     #include <unistd.h>    // `sleep`
-#ifdef BSLS_PLATFORM_OS_SOLARIS   // Solaris OR late SunOS!
+#ifdef BSLS_PLATFORM_OS_SOLARIS
     #include <limits.h>    // `CLK_TCK`, for Sun (on FreeBSD, in <sys/time.h>)
 #endif
 #endif

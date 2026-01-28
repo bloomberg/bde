@@ -1013,11 +1013,12 @@ void testCase4()
             ASSERT(X.view() == T);
         }
 
-#ifndef BSLS_PLATFORM_CMP_SUN
-        // The call 'str(OtherAllocator) is not supported on SunOS, because the
-        // std::allocator there does not support rebind.  This limitation can
-        // be lifted once we fully support C++20, where rebind is removed, and
-        // always goes through `allocator_traits`.  See {DRQS 168075157} and
+#ifndef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
+        // The call `str(OtherAllocator)` is not supported by the classic Sun
+        // standard library, because the `std::allocator` there does not
+        // support `rebind`.  This limitation can be lifted once we fully
+        // support C++20, where `rebind` is removed and rebind requests are
+        // made through `allocator_traits`.  See {DRQS 168075157} and
         // https://github.com/bloomberg/bde/pull/268
         for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
             typedef std::allocator<CharT> OtherAllocator;

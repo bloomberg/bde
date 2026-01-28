@@ -321,10 +321,10 @@ int PerformanceMonitor_LinuxProcStatistics::parseProcStatString(
 }
 
 /// Provide a specialization of the `Collector` class template for the Linux
-/// platform.  SunOS, AIX, and Linux all support the /proc filesystem, from
+/// platform.  Solaris, AIX, and Linux all support the /proc filesystem, from
 /// which we extract the performance measures for the monitored pid.  On
 /// Linux, the layout and content of this file system differs from the
-/// layout and content of the file system on SunOS or AIX, hence this
+/// layout and content of the file system on Solaris or AIX, hence this
 /// `Collector` class template specialization.
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsLinux> {
@@ -567,10 +567,10 @@ int PerformanceMonitor::Collector<bsls::Platform::OsLinux>
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsFreeBsd> {
     // Provide a specialization of the 'Collector' class template for the Linux
-    // platform.  SunOS, AIX, and Linux all support the /proc filesystem, from
+    // platform.  Solaris, AIX, and Linux all support the /proc filesystem, from
     // which we extract the performance measures for the monitored pid.  On
     // Linux, the layout and content of this file system differs from the
-    // layout and content of the file system on SunOS or AIX, hence this
+    // layout and content of the file system on Solaris or AIX, hence this
     // 'Collector' class template specialization.
 
     // Note that the FreeBSD implementation is stateless.  However, the
@@ -944,7 +944,7 @@ int PerformanceMonitor::Collector<bsls::Platform::OsDarwin>
 template <>
 class PerformanceMonitor::Collector<bsls::Platform::OsUnix> {
     // Provide a specialization of the 'Collector' class template for
-    // UNIX-based platforms.  SunOS, AIX, and Linux all support the /proc
+    // UNIX-based platforms.  Solaris, AIX, and Linux all support the /proc
     // filesystem, from which we extract the performance measures for the
     // monitored pid.
 

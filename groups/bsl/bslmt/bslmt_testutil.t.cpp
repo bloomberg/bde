@@ -1386,8 +1386,6 @@ int main(int argc, char *argv[])
         const char *platform = "linux";
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
         const char *platform = "solaris";
-#elif defined(BSLS_PLATFORM_OS_SUNOS)
-        const char *platform = "sunos";
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         const char *platform = "windows";
 #else

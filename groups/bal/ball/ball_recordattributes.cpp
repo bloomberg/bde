@@ -147,7 +147,7 @@ bslstl::StringRef RecordAttributes::messageRef() const
 {
     const bsl::size_t length = d_messageStreamBuf.length();
     const char *str = d_messageStreamBuf.data();
-#if defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_OS_SUNOS)
+#if defined(BSLS_PLATFORM_OS_SOLARIS)
     if (0 == str) {
         // There are some places where observers call
         // 'std::fstream::write(ref.data(), ref.length())' where 'ref'

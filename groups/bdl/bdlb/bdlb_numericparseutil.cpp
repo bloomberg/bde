@@ -52,8 +52,7 @@ BSLS_IDENT_RCSID(bdlb_numericparseutil_cpp, "$Id$ $CSID$")
 // The Solaris 'strtod' linked by us somehow does not parse hexadecimal floats,
 // but the one (also Solaris) we link when using gcc on Solaris links to a
 // different C standard library that has an 'strtod' with hexfloat parsing.
-#if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS)) ||\
-    defined(BSLS_PLATFORM_CMP_GNU)
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) || defined(BSLS_PLATFORM_CMP_GNU)
   #define BDLB_NUMERICPARSEUTIL_STRTOD_PARSES_HEXFLOAT                        1
 #endif
 

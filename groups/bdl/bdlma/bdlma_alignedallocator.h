@@ -46,8 +46,8 @@ BSLS_IDENT("$Id$")
 // supply a concrete allocator that implements it.
 //
 // In this example, we demonstrate how to adapt `posix_memalign` on Linux and
-// AIX, `memalign` on SunOS and `_aligned_malloc` on Windows, to this protocol
-// base class:
+// AIX, `memalign` on Solaris and `_aligned_malloc` on Windows, to this
+// protocol base class:
 //
 // First, we specify the interface of the concrete implementation of
 // 'MyAlignedAllocator:
@@ -58,7 +58,7 @@ BSLS_IDENT("$Id$")
 // /// This class is a sample concrete implementation of the
 // /// `bdlma::AlignedAllocator` protocol that provides direct access to
 // /// the system-supplied `posix_memalign` and `free` on Linux and AIX
-// /// platforms, `memalign` and `free` on SunOS, or `_aligned_malloc` and
+// /// platforms, `memalign` and `free` on Solaris, or `_aligned_malloc` and
 // /// `_aligned_free` on Windows.
 // class MyAlignedAllocator: public bdlma::AlignedAllocator {
 //

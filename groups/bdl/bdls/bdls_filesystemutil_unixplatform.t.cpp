@@ -8,10 +8,9 @@
 
 #include <bsls_platform.h>
 
-#include <bsl_deque.h>
-
 #include <bsl_cstddef.h>
 #include <bsl_cstdlib.h>
+#include <bsl_deque.h>
 #include <bsl_iostream.h>
 #include <bsl_limits.h>
 
@@ -194,12 +193,11 @@ struct OperatingSystem {
         e_FREEBSD,
         e_LINUX,
         e_SOLARIS,
-        e_SUNOS,
         e_WINDOWS
     };
 
     enum {
-        k_NUM_ENUMERATORS = 8
+        k_NUM_ENUMERATORS = 7
     };
 
     BSLMF_ASSERT(k_NUM_ENUMERATORS == e_WINDOWS + 1);
@@ -243,10 +241,6 @@ struct PlatformUtil {
         LargeFileMode::e_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
         LargeFileMode::e_NOT_DEFINED;
-#elif defined(BSLS_PLATFORM_OS_SUNOS) && defined(_LARGEFILE64_SOURCE)
-        LargeFileMode::e_DEFINED;
-#elif defined(BSLS_PLATFORM_OS_SUNOS)
-        LargeFileMode::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         LargeFileMode::e_NOT_DEFINED;
 #elif
@@ -273,12 +267,6 @@ struct PlatformUtil {
         FileOffsetBits::e_64;
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
         FileOffsetBits::e_NOT_DEFINED;
-#elif defined(BSLS_PLATFORM_OS_SUNOS) \
-   && defined(_FILE_OFFSET_BITS)      \
-   && _FILE_OFFSET_BITS == 64
-        FileOffsetBits::e_64;
-#elif defined(BSLS_PLATFORM_OS_SUNOS)
-        FileOffsetBits::e_NOT_DEFINED;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         FileOffsetBits::e_NOT_DEFINED;
 #else
@@ -298,8 +286,6 @@ struct PlatformUtil {
         OperatingSystem::e_LINUX;
 #elif defined(BSLS_PLATFORM_OS_SOLARIS)
         OperatingSystem::e_SOLARIS;
-#elif defined(BSLS_PLATFORM_OS_SUNOS)
-        OperatingSystem::e_SUNOS;
 #elif defined(BSLS_PLATFORM_OS_WINDOWS)
         OperatingSystem::e_WINDOWS;
 #else
@@ -522,7 +508,6 @@ int main(int argc, char *argv[])
         static const OPS FRE = u::OperatingSystem::e_FREEBSD;
         static const OPS LIN = u::OperatingSystem::e_LINUX;
         static const OPS SOL = u::OperatingSystem::e_SOLARIS;
-        static const OPS SUN = u::OperatingSystem::e_SUNOS;
         static const OPS WIN = u::OperatingSystem::e_WINDOWS;
 
         const struct {
@@ -605,15 +590,6 @@ int main(int argc, char *argv[])
               {  L_  , SOL,     B64,        F__,        LDF, 1, 0, 0 },
               {  L_  , SOL,     B64,        F64,        L__, 1, 0, 0 },
               {  L_  , SOL,     B64,        F64,        LDF, 1, 0, 0 },
-
-              {  L_  , SUN,     B32,        F__,        L__, 0, 0, 1 },
-              {  L_  , SUN,     B32,        F__,        LDF, 0, 1, 0 },
-              {  L_  , SUN,     B32,        F64,        L__, 1, 0, 0 },
-              {  L_  , SUN,     B32,        F64,        LDF, 1, 0, 0 },
-              {  L_  , SUN,     B64,        F__,        L__, 1, 0, 0 },
-              {  L_  , SUN,     B64,        F__,        LDF, 1, 0, 0 },
-              {  L_  , SUN,     B64,        F64,        L__, 1, 0, 0 },
-              {  L_  , SUN,     B64,        F64,        LDF, 1, 0, 0 },
 
               {  L_  , WIN,     B32,        F__,        L__, 0, 0, 0 },
               {  L_  , WIN,     B32,        F__,        LDF, 0, 0, 0 },

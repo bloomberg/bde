@@ -5333,8 +5333,7 @@ void TestDriver::testCase4()
     // the behavior for `int` and `double`.  Note that the bug does not exist
     // when using stlport.
 
-#if (!defined(BSLS_PLATFORM_OS_SUNOS) &&                                      \
-     !defined(BSLS_PLATFORM_OS_SOLARIS)) ||                                   \
+#if !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                    \
     defined(BDE_BUILD_TARGET_STLPORT)
 
     {

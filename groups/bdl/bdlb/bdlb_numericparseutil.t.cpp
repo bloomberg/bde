@@ -161,10 +161,10 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
-    // SunOS/Solaris iostreams are broken as in they can crash in various
-    // fashion if used with a null stream buffer pointer, especially
-    // bsl::cout', that just crashes on any output after a `bsl::cout.rdbuf(0)`
-    // call if using in any `operator<<` from it.
+    // Solaris iostreams are broken, as in they can crash in a variety of ways
+    // if used with a null pointer for the stream buffer pointer, notably when
+    // writing to `bsl::cout' that just crashes on any output after a
+    // `bsl::cout.rdbuf(0)` call, typically by `operator<<`.
     #define u_NULL_STREAMBUFPTR_CRASHES_IOSTREAMS                             1
 #endif
 

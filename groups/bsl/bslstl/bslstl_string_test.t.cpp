@@ -23262,7 +23262,7 @@ int main(int argc, char *argv[])
                 { L_,   "10e",              2,    10    },
                 { L_,   "10e1",             4,    1e2   },
                 { L_,   "10p2",             2,    10    },
-#if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS))
+#if !defined(BSLS_PLATFORM_OS_SOLARIS)
                 { L_,   "0xf.f",            5,    15.937500},
 #endif
 #if __cplusplus >= 201103L
@@ -23492,7 +23492,7 @@ int main(int argc, char *argv[])
                 { L_,   L"10e",             2,    10    },
                 { L_,   L"10e1",            4,    1e2   },
                 { L_,   L"10p2",            2,    10    },
-#if !(defined(BSLS_PLATFORM_OS_SUNOS) || defined(BSLS_PLATFORM_OS_SOLARIS))
+#if !defined(BSLS_PLATFORM_OS_SOLARIS)
                 { L_,   L"0xf.f",           5,    15.937500},
 #endif
 #if __cplusplus >= 201103L

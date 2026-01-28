@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 // `<stdio.h>` **must** be included before anything else that may
-// `#include <cstdio>`, otherwise, on SunOS, the headers in `/usr/include` will
-// hide `popen`/`pclose` (as well as any name that is not in C++03).  Due
+// `#include <cstdio>`, otherwise, on Solaris, the headers in `/usr/include`
+// will hide `popen`/`pclose` (as well as any name that is not in C++03).  Due
 // already existing type definitions it is not even possible to bring those
 // names in using header even if we undefined guard macros.
 

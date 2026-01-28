@@ -116,9 +116,8 @@ struct Platform {
 
     #ifdef BSLS_PLATFORM_OS_UNIX
 
-    #if defined(BSLS_PLATFORM_OS_SUNOS)   || \
-        defined(BSLS_PLATFORM_OS_SOLARIS) || \
-        defined(BSLS_PLATFORM_OS_LINUX)      \
+    #if defined(BSLS_PLATFORM_OS_SOLARIS) || \
+        defined(BSLS_PLATFORM_OS_LINUX)
 
     typedef PosixAdvTimedSemaphore TimedSemaphorePolicy;
     #define BSLMT_PLATFORM_POSIXADV_TIMEDSEMAPHORE 1
