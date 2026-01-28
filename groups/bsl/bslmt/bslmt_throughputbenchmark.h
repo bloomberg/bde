@@ -219,7 +219,7 @@ class ThroughputBenchmark {
 
   private:
     // CLASS DATA
-    static unsigned int       s_antiOptimization; // Used by 'busyWork' to
+    static bsls::AtomicUint   s_antiOptimization; // Used by 'busyWork' to
                                                   // prevent optimization.
 
     // DATA

@@ -43,7 +43,7 @@ void ThroughputBenchmark::busyWork(bsls::Types::Int64 busyWorkAmount)
     s_antiOptimization += j;
 }
 
-unsigned int ThroughputBenchmark::s_antiOptimization = 0;
+bsls::AtomicUint ThroughputBenchmark::s_antiOptimization = 0;
 
 bsls::Types::Int64 ThroughputBenchmark::estimateBusyWorkAmount(
                                                    bsls::TimeInterval duration)

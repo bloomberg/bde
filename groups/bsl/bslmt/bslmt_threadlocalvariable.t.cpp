@@ -15,6 +15,7 @@
 #include <bslma_testallocator.h>
 
 #include <bsls_assert.h>
+#include <bsls_atomic.h>
 #include <bsls_platform.h>
 
 #include <bsl_cstdlib.h>
@@ -456,10 +457,10 @@ void my_Barrier::wait()
 // ---------------------------  my_Barrier Test  ------------------------------
 
 struct BarrierTestArgs {
-    my_Barrier *d_barrier;
-    my_Mutex    d_mutex;
-    int         d_numThreads;
-    int         d_count;
+    my_Barrier      *d_barrier;
+    my_Mutex         d_mutex;
+    int              d_numThreads;
+    bsls::AtomicInt  d_count;
 
 };
 
