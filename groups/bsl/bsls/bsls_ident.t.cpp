@@ -13,11 +13,12 @@
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// This component does not have any easy way to do runtime checks.
+// This component does not have any easy way to do runtime checks.  We provide
+// a breathing test that does nothing, and the there is no test case for the
+// usage example for which a compile test must suffice.
 //
 //-----------------------------------------------------------------------------
 // [ 1] Breathing Test (nothing)
-//-----------------------------------------------------------------------------
 
 //=============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -74,12 +75,6 @@ static void aSsErT(int c, const char *s, int i) {
 #define T_ std::cout << "\t" << flush;             // Print a tab (w/o newline)
 
 //=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
-
-//=============================================================================
 //                        TESTING USAGE EXAMPLE
 //-----------------------------------------------------------------------------
 ///Usage
@@ -88,7 +83,7 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 // use the `BSLS_IDENT` macro.  For header (`.h`) files this macro should be
 // placed directly after the include guards, e.g., `bsls_somefile.h`:
 // ```
-    // bsls_somefile.h            -*-C++-*-
+    // bsls_somefile.h                                                -*-C++-*-
     #ifndef INCLUDED_BSLS_SOMEFILE
     #define INCLUDED_BSLS_SOMEFILE
 
@@ -99,35 +94,16 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
     #endif // INCLUDED_BSLS_SOMEFILE
 // ```
-//  (For BDE-style headers, which make use of redundant includes guards,
-//  see below.)
-//
 // For implementation (`.cpp`) files the `BSLS_IDENT` macro should be placed
-// directly after the comment line for the file name and the language, e.g.,
-// `bsls_somefile.cpp`:
+// directly after the comment line for the file name and the language, and
+// the include for the component header e.g., `bsls_somefile.cpp`:
 // ```
-    // bsls_somefile.cpp          -*-C++-*-
+    // bsls_somefile.cpp                                              -*-C++-*-
+//  #include <bsls_somefile.h>
 
     #include <bsls_ident.h>
     BSLS_IDENT("$Id: $")
 // ```
-// Note that BDE-style components use *redundant* `#include` guards (see
-// "HERE" below) in their header files, e.g., `bsls_somefile.h`:
-// ```
-    // bsls_somefile.h            -*-C++-*-
-    #ifndef INCLUDED_BSLS_SOMEFILE
-    #define INCLUDED_BSLS_SOMEFILE
-
-    #ifndef INCLUDED_BSLS_IDENT                         // <- HERE
-    #include <bsls_ident.h>
-    #endif                                              // <- HERE
-    BSLS_IDENT("$Id: $")
-
-    // ...
-
-    #endif // INCLUDED_BSLS_SOMEFILE
-// ```
-
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -135,18 +111,24 @@ enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? std::atoi(argv[1]) : 0;
-    int verbose = argc > 2;
-//    int veryVerbose = argc > 3;
-//    int veryVeryVerbose = argc > 4;
+    int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;
+    bool veryVeryVeryVerbose = argc > 5;
+
+    (void)    veryVeryVerbose;
+    (void)veryVeryVeryVerbose;
 
     std::cout << "TEST " << __FILE__ << " CASE " << test << std::endl;
     switch (test) { case 0:  // Zero is always the leading case.
       case 1: {
         // --------------------------------------------------------------------
         // BREATHING TEST
+        //  There is no real runtime test for this component as it functions
+        //  entirely at link time.
         //
-        // Concerns: That there is no real runtime test for this component.
+        // Concerns:
         //
         // Plan:
         //   Do nothing.
@@ -157,8 +139,9 @@ int main(int argc, char *argv[])
 
         ASSERT(true);  // Reference assert implementation
 
-        std::cout << "\nThere is no real runtime test for this component"
-                  << std::endl;
+        if (veryVerbose) std::cout
+                        << "\nThere is no real runtime test for this component"
+                        << std::endl;
 
       } break;
       default: {
