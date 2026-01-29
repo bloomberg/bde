@@ -70,6 +70,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslalg_numericformatterutil.h>
 
+#include <bsls_assert.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 

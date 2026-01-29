@@ -32,19 +32,15 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_enableif.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 
 #include <bslstl_iterator.h>
 #include <bslstl_monostate.h>
 
-#include <locale>     // for 'std::ctype', 'locale'
-#include <string>     // for 'std::char_traits'
-
-#include <stdio.h>    // for 'snprintf'
-
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-#include <format>     // for 'std::visit_format_arg'
+# include <format>     // for 'std::visit_format_arg'
 #endif
 
 namespace BloombergLP {

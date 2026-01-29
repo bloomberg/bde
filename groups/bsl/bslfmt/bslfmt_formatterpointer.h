@@ -61,12 +61,15 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 
+#include <bsls_exceptionutil.h>
 #include <bsls_nullptr.h>
 #include <bsls_types.h>
 
 #include <bslstl_iterator.h>
 
-#include <locale>     // for `std::ctype`, `locale`
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# include <locale>
+#endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 namespace BloombergLP {
 namespace bslfmt {

@@ -93,24 +93,27 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_issame.h>
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
 
-#include <locale>     // for 'std::ctype', 'locale'
-#include <string>     // for 'std::char_traits'
+#include <locale>       // for 'std::ctype', 'locale'
+#include <utility>      // for `std::forward'
 
-#include <stdio.h>    // for 'snprintf'
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
+# include <type_traits>     // for 'is_constant_evaluated'
+#endif
 
 using namespace BloombergLP;
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
+# define BSLFMT_FORMATTER_TEST_CONSTEVAL consteval
 #else
-#define BSLFMT_FORMATTER_TEST_CONSTEVAL
+# define BSLFMT_FORMATTER_TEST_CONSTEVAL
 #endif
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
@@ -741,7 +744,7 @@ bool FormatterTestUtil_Impl<t_CHAR>::evaluateBslfmtResult(
         mpc.advance_to(mpc.begin() + 1);
         if (fmtStr.size() == 0) {
             if (message)
-            *message = "Format string too short";
+                *message = "Format string too short";
             return false;                                             // RETURN
         }
         if (fmtStr.front() != ':' && fmtStr.front() != '}') {
@@ -921,7 +924,7 @@ FormatterTestUtil_Impl<t_CHAR>::testParseFormatImpl(
         mpc.advance_to(mpc.begin() + 1);
         if (fmtStr.size() == 0) {
             if (message)
-            *message = "Format string too short";
+                *message = "Format string too short";
             return false;                                             // RETURN
         }
         if (fmtStr.front() != ':' && fmtStr.front() != '}') {

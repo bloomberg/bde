@@ -419,6 +419,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bsls_libraryfeatures.h>
+
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
   #include <bslfmt_format_arg.h>
   #include <bslfmt_format_args.h>
@@ -442,19 +444,20 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formatterstring.h>
 
 #include <bsls_exceptionutil.h>
-#include <bsls_libraryfeatures.h>
 
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
-  #include <bslstl_utility.h>
-#endif
+#include <bslstl_utility.h>
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
   #include <format>
+  #include <iterator>
   #include <locale>
   #include <string_view>
+  #include <type_traits>
 #endif
 
-#include <stdexcept>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# include <stdexcept>
+#endif
 
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 
@@ -496,6 +499,7 @@ using std::basic_format_args;
 using std::basic_format_context;
 using std::basic_format_parse_context;
 using std::basic_format_string;
+//using std::format;
 using std::format_args;
 using std::format_context;
 using std::format_error;
@@ -505,6 +509,9 @@ using std::format_to;
 using std::format_to_n;
 using std::format_to_n_result;
 using std::formatted_size;
+//using std::make_format_args;
+//using std::make_wformat_args;
+//using std::vformat;
 using std::vformat_to;
 using std::visit_format_arg;
 using std::wformat_args;

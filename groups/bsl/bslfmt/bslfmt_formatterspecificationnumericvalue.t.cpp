@@ -1,18 +1,29 @@
 // bslfmt_formatterspecificationnumericvalue.t.cpp                    -*-C++-*-
 #include <bslfmt_formatterspecificationnumericvalue.h>
 
-#include <bslfmt_format_arg.h>          // Testing only
-#include <bslfmt_format_args.h>         // Testing only
-#include <bslfmt_formatparsecontext.h>  // Testing only
+#include <bslfmt_format_arg.h>
+#include <bslfmt_format_args.h>
+#include <bslfmt_formatparsecontext.h>
+
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
     #include <format>
 #endif
 
+#include <locale>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE
+    #include <string_view>
+#endif
+
 #include <limits.h>
-#include <stdio.h>
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>
 
 using namespace BloombergLP;
@@ -879,12 +890,27 @@ void verifyBadArgumentTypeReferenced()
 
 int main(int argc, char** argv)
 {
-    const int  test = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
-    const bool veryVerbose = argc > 3;
-    const bool veryVeryVerbose = argc > 4;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
-    printf("TEST %s CASE %d \n", __FILE__, test);
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    // CONCERN: No global memory is allocated after `main` starts.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) { case 0:
     case 3: {
@@ -1201,6 +1227,11 @@ int main(int argc, char** argv)
         testStatus = -1;
     }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         printf("Error, non-zero test status = %d .\n", testStatus);

@@ -3,6 +3,7 @@
 
 #include <bslfmt_standardformatspecification.h>
 
+#include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
@@ -11,12 +12,11 @@
 #include <bslstl_string.h>
 #include <bslstl_vector.h>
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-  #include <locale>
-#endif
+#include <locale>   // for C++20 tests
 
 #include <limits.h>
-#include <stdio.h>
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>
 #include <wchar.h>
 
@@ -1365,12 +1365,14 @@ static bool veryVeryVeryVerbose;
 //                        TEST HELPERS FOR VFORMAT
 //-----------------------------------------------------------------------------
 
+static bslma::TestAllocator ga("global scope");
+
 //-------------------------------------------------------------------
 // Global variables that collect usage information for `DelimitedInt`
 static int                      g_numCtorInvocations;
 static int                      g_numParseInvocations;
 static int                      g_numFormatInvocations;
-static bsl::vector<int>         g_values;
+static bsl::vector<int>         g_values(&ga);
 
 // Contexts have to be collected separately for `char` and `wchar_t`
 template <class t_CHAR>
@@ -1381,14 +1383,14 @@ struct ParseContextContents<char>{
     typedef bsl::string             value_type;
     static bsl::vector<bsl::string> s_vector;
 };
-bsl::vector<bsl::string> ParseContextContents<char>::s_vector;
+bsl::vector<bsl::string> ParseContextContents<char>::s_vector(&ga);
 
 template <>
 struct ParseContextContents<wchar_t> {
     typedef bsl::wstring             value_type;
     static bsl::vector<bsl::wstring> s_vector;
 };
-bsl::vector<bsl::wstring> ParseContextContents<wchar_t>::s_vector;
+bsl::vector<bsl::wstring> ParseContextContents<wchar_t>::s_vector(&ga);
 
 //--------------------------------------------------------------
 // Access and reset global "spying" variables for `DelimitedInt`
@@ -1461,9 +1463,6 @@ struct DelimitedIntFormatter {
   // DATA
   bool   d_isDefaultDelimiter;
   t_CHAR d_delimiters[2];
-
-  // CLASS DATA
-  static const t_CHAR s_defaultDelimiters[2];
 
   public:
     // CREATORS
@@ -1581,13 +1580,6 @@ struct DelimitedIntFormatter {
         return outIterator;
     }
 };
-
-template <>
-const char DelimitedIntFormatter<char>::s_defaultDelimiters[2] = { '<', '>' };
-
-template <>
-const wchar_t DelimitedIntFormatter<wchar_t>::s_defaultDelimiters[2] = {L'<',
-                                                                        L'>'};
 
 // Partial specialization of `bsl::formatter` for `DelimitedInt`.
 namespace bsl {
@@ -3235,7 +3227,21 @@ int main(int argc, char **argv)
         veryVeryVerbose = argc > 4;  (void) veryVeryVerbose;
     veryVeryVeryVerbose = argc > 5;
 
-    printf("TEST %s CASE %d \n", __FILE__, test);
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    // CONCERN: No global memory is allocated after `main` starts.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) {  case 0:
       case 14: {
@@ -3876,7 +3882,7 @@ int main(int argc, char **argv)
             const bsl::string V2("Test 2");
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-#if !defined(_GLIBCXX_RELEASE) || _GLIBCXX_RELEASE >= 14
+# if !defined(_GLIBCXX_RELEASE) || _GLIBCXX_RELEASE >= 14
              const char8_t *fmt = u8"{0:\U0001F600<4}";
 
              int intValue = 42;
@@ -3884,12 +3890,12 @@ int main(int argc, char **argv)
              std::string rv1 = std::vformat((const char *)fmt,
                                             std::make_format_args(intValue));
 
-             bsl::string rv2 = bslfmt::vformat((const char *)fmt,
-                                         bslfmt::make_format_args(intValue));
+             bsl::string rv2 = bsl::vformat((const char *)fmt,
+                                              bsl::make_format_args(intValue));
 
              ASSERT(rv1 == rv2);
              ASSERT(rv1 == (const char *)u8"42\U0001F600\U0001F600");
-#endif  // not GNU C++ Library, or 14.0 or newer release GNU C++ Library
+# endif // not GNU C++ Library, or 14.0 or newer release GNU C++ Library
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
@@ -4111,6 +4117,11 @@ int main(int argc, char **argv)
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         printf("Error, non-zero test status = %d .\n", testStatus);

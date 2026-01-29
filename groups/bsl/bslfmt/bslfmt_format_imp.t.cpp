@@ -1,14 +1,18 @@
 // bslfmt_format_imp.t.cpp                                            -*-C++-*-
 #include <bslfmt_format_imp.h>
 
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_bsltestutil.h>
-#include <bsls_stopwatch.h>  // Testing only
+#include <bsls_stopwatch.h>
 
-#include <bslstl_iomanip.h>  // Testing only
+#include <bslstl_iomanip.h>
 #include <bslstl_string.h>
-#include <bslstl_stringstream.h>  // Testing only
+#include <bslstl_stringstream.h>
 
-#include <stdio.h>
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>   // `strcmp`
 
 using namespace BloombergLP;
@@ -335,10 +339,27 @@ int main(int argc, char **argv)
     (void)aaa;
     (void)bbb;
 
-    const int  test    = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;  (void)    veryVerbose;
+    const bool     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
+    const bool veryVeryVeryVerbose = argc > 5;
 
-    printf("TEST %s CASE %d \n", __FILE__, test);
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    // CONCERN: No global memory is allocated after `main` starts.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) {  case 0:
       case 1: {
@@ -779,6 +800,10 @@ int main(int argc, char **argv)
       }
     }
 
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         printf("Error, non-zero test status = %d .\n", testStatus);

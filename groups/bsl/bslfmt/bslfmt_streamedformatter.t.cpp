@@ -4,22 +4,27 @@
 #include <bslfmt_format.h>
 #include <bslfmt_formattertestutil.h>
 
+#include <bslma_default.h>
+#include <bslma_testallocator.h>
+
 #include <bsls_bsltestutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <bslstl_algorithm.h>
 #include <bslstl_iterator.h>
 #include <bslstl_ostringstream.h>
 #include <bslstl_string.h>
 
-#include <limits.h>
-#include <stdio.h>
-
 #include <iostream>
+#include <string>
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #include <format>
-  #include <string>
 #endif
+
+#include <limits.h>
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 
 using namespace BloombergLP;
 
@@ -453,11 +458,27 @@ void calculateResult(bsl::string                     *formatString,
 
 int main(int argc, char **argv)
 {
-    int  test        = argc > 1 ? atoi(argv[1]) : 0;
-    bool verbose     = argc > 2;
-    bool veryVerbose = argc > 3;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
+    const bool veryVeryVeryVerbose = argc > 5;
 
-    printf("TEST %s CASE %d \n", __FILE__, test);
+    printf("TEST " __FILE__ " CASE %d\n", test);
+
+    // CONCERN: No global memory is allocated after `main` starts.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) {  case 0:
       case 8: {
@@ -1043,6 +1064,11 @@ int main(int argc, char **argv)
         testStatus = -1;
       }
     }
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERTV(globalAllocator.numBlocksTotal(),
+            0 == globalAllocator.numBlocksTotal());
 
     if (testStatus > 0) {
         printf("Error, non-zero test status = %d .\n", testStatus);

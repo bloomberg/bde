@@ -83,6 +83,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslma_deallocatebytesproctor.h>
 
+#include <bsls_assert.h>
+#include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 
 namespace BloombergLP {

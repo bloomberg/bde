@@ -2,10 +2,11 @@
 #include <bslfmt_formatterfloating.h>
 
 #include <bslfmt_format_args.h>
-#include <bslfmt_formattertestutil.h>    // Testing only
+#include <bslfmt_formattertestutil.h>
 
-#include <bslma_testallocator.h>         // Testing only
-#include <bslma_defaultallocatorguard.h> // Testing only
+#include <bslma_default.h>
+#include <bslma_defaultallocatorguard.h>
+#include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
@@ -15,7 +16,8 @@
 
 #include <limits>
 
-#include <stdio.h>
+#include <stdio.h>   // `printf`
+#include <stdlib.h>  // `atoi`
 #include <string.h>
 
 #ifdef BDE_BUILD_TARGET_ASAN
@@ -239,20 +241,27 @@ bool testRuntimeFormat(int           line,
 
 int main(int argc, char **argv)
 {
-    const int  test                = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose             = argc > 2;
-    const bool veryVerbose         = argc > 3;
-    const bool veryVeryVerbose     = argc > 4;
-    const bool veryVeryVeryVerbose = argc > 4;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
 
-    printf("TEST %s CASE %d \n", __FILE__, test);
+    printf("TEST " __FILE__ " CASE %d\n", test);
 
-    // CONCERN: No memory is leaked from the default allocator.
-    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
-    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+    // CONCERN: No global memory is allocated after `main` starts.
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
+
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
 
     switch (test) {  case 0:
       case 10: {

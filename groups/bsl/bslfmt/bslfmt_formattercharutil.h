@@ -74,6 +74,8 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
+#include <bsls_assert.h>
+
 #include <bslstl_algorithm.h>
 #include <bslstl_iterator.h>
 

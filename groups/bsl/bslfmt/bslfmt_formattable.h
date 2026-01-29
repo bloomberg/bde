@@ -119,22 +119,22 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_format.h>
 
 #include <bsls_compilerfeatures.h>
+#include <bsls_libraryfeatures.h>
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
+# define BSL_FORMATTABLE_DEFINED                                            1
 
-#define BSL_FORMATTABLE_DEFINED                                            1
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT
 // In C++23 we just use the `std`-defined concept directly
 namespace bsl {
     using std::formattable;
 }
-#else
+# else
 
-#include <concepts>
-#include <type_traits>
+#   include <concepts>
+#   include <type_traits>
 
-#include <stddef.h>
+#   include <stddef.h>
 
 namespace BloombergLP {
 namespace bslfmt {
@@ -217,7 +217,7 @@ concept formattable = BloombergLP::bslfmt::Formattable_With<
         t_CHAR> >;
 }  // close namespace bsl
 
-#endif  // else of - BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT
+# endif  // else of - BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
 
 #endif  // INCLUDED_BSLFMT_FORMATTABLE

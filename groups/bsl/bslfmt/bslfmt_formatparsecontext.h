@@ -27,6 +27,7 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_formaterror.h>
 
 #include <bsls_exceptionutil.h>
+#include <bsls_keyword.h>
 
 #include <bslstl_stringview.h>
 

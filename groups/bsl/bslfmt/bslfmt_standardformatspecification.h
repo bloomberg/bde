@@ -25,6 +25,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 
+#include <bsls_exceptionutil.h>
 #include <bsls_keyword.h>
 
 namespace BloombergLP {

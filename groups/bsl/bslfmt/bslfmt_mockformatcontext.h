@@ -89,8 +89,10 @@ BSLS_IDENT("$Id: $")
 #include <bslfmt_format_context.h>
 #include <bslfmt_formatterbase.h>
 
-#include <bsls_keyword.h>
+#include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_keyword.h>
 
 #include <bslstl_array.h>
 #include <bslstl_stringview.h>

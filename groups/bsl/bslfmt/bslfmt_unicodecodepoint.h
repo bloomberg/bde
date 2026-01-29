@@ -23,7 +23,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 
-#include <string.h>  // `std::size_t`
+#include <string.h>  // `size_t`
 
 namespace BloombergLP {
 namespace bslfmt {
