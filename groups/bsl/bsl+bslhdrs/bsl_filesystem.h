@@ -95,38 +95,109 @@ namespace filesystem {
 /// directory separator if appropriate.  Return a reference to `path`.
 template <class t_PATH,
           class t_STRING,
-          class = std::enable_if_t<
+          std::enable_if_t<
               std::conjunction_v<std::is_base_of<filesystem::path, t_PATH>,
-                                 std::is_base_of<bsl::string, t_STRING> > > >
-inline
-filesystem::path& operator/=(t_PATH& path, const t_STRING& string)
-{
-    return path.append(string.begin(), string.end());
-}
+                                 std::is_base_of<bsl::string, t_STRING> >,
+              int> = 0>
+filesystem::path& operator/=(t_PATH& path, const t_STRING& string);
 
 /// Return the concatenation of the specified `path` and the specified `string`
 /// using the preferred directory separator if appropriate.
 template <class t_PATH,
           class t_STRING,
-          class = std::enable_if_t<
+          std::enable_if_t<
               std::conjunction_v<std::is_base_of<filesystem::path, t_PATH>,
-                                 std::is_base_of<bsl::string, t_STRING> > > >
-inline
-filesystem::path operator/(t_PATH path, const t_STRING& string)
-{
-    path /= string;
-    return path;
-}
+                                 std::is_base_of<bsl::string, t_STRING> >,
+              int> = 0>
+filesystem::path operator/(t_PATH path, const t_STRING& string);
 
 /// Return the concatenation of the specified `string` and the specified `path`
 /// using the preferred directory separator if appropriate.
 template <class t_PATH,
           class t_STRING,
-          class = std::enable_if_t<
+          std::enable_if_t<
               std::conjunction_v<std::is_base_of<filesystem::path, t_PATH>,
-                                 std::is_base_of<bsl::string, t_STRING> > > >
+                                 std::is_base_of<bsl::string, t_STRING> >,
+              int> = 0>
+filesystem::path operator/(const t_STRING& string, const t_PATH& path);
+
+#ifndef BSLSTL_STRING_VIEW_IS_ALIASED
+/// Append the specified `string` to the specified `path` using the preferred
+/// directory separator if appropriate.  Return a reference to `path`.
+template <
+    class t_PATH,
+    class t_STRING_VIEW,
+    std::enable_if_t<
+        std::conjunction_v<std::is_base_of<filesystem::path, t_PATH>,
+                           std::is_base_of<bsl::string_view, t_STRING_VIEW> >,
+        int> = 0>
+filesystem::path& operator/=(t_PATH& path, const t_STRING_VIEW& string);
+
+/// Return the concatenation of the specified `path` and the specified `string`
+/// using the preferred directory separator if appropriate.
+template <
+    class t_PATH,
+    class t_STRING_VIEW,
+    std::enable_if_t<
+        std::conjunction_v<std::is_base_of<filesystem::path, t_PATH>,
+                           std::is_base_of<bsl::string_view, t_STRING_VIEW> >,
+        int> = 0>
+filesystem::path operator/(t_PATH path, const t_STRING_VIEW& string);
+
+/// Return the concatenation of the specified `string` and the specified `path`
+/// using the preferred directory separator if appropriate.
+template <
+    class t_PATH,
+    class t_STRING_VIEW,
+    std::enable_if_t<
+        std::conjunction_v<std::is_base_of<filesystem::path, t_PATH>,
+                           std::is_base_of<bsl::string_view, t_STRING_VIEW> >,
+        int> = 0>
+filesystem::path operator/(const t_STRING_VIEW& string, const t_PATH& path);
+#endif  // BSLSTL_STRING_VIEW_IS_ALIASED
+
+}  // close package namespace
+
+// ============================================================================
+//                           INLINE DEFINITIONS
+// ============================================================================
+
+template <class t_PATH,
+          class t_STRING,
+          std::enable_if_t<std::conjunction_v<
+                               std::is_base_of<bsl::filesystem::path, t_PATH>,
+                               std::is_base_of<bsl::string, t_STRING> >,
+                           int> >
 inline
-filesystem::path operator/(const t_STRING& string, const t_PATH& path)
+bsl::filesystem::path&
+bsl::operator/=(t_PATH& path, const t_STRING& string)
+{
+    return path.append(string.begin(), string.end());
+}
+
+template <class t_PATH,
+          class t_STRING,
+          std::enable_if_t<std::conjunction_v<
+                               std::is_base_of<bsl::filesystem::path, t_PATH>,
+                               std::is_base_of<bsl::string, t_STRING> >,
+                           int> >
+inline
+bsl::filesystem::path
+bsl::operator/(t_PATH path, const t_STRING& string)
+{
+    path /= string;
+    return path;
+}
+
+template <class t_PATH,
+          class t_STRING,
+          std::enable_if_t<std::conjunction_v<
+                               std::is_base_of<bsl::filesystem::path, t_PATH>,
+                               std::is_base_of<bsl::string, t_STRING> >,
+                           int> >
+inline
+bsl::filesystem::path
+bsl::operator/(const t_STRING& string, const t_PATH& path)
 {
     filesystem::path result{string.begin(), string.end()};
     result /= path;
@@ -134,50 +205,51 @@ filesystem::path operator/(const t_STRING& string, const t_PATH& path)
 }
 
 #ifndef BSLSTL_STRING_VIEW_IS_ALIASED
-/// Append the specified `string` to the specified `path` using the preferred
-/// directory separator if appropriate.  Return a reference to `path`.
-template <class t_PATH,
-          class t_STRING_VIEW,
-          class = std::enable_if_t<std::conjunction_v<
-              std::is_base_of<filesystem::path, t_PATH>,
-              std::is_base_of<bsl::string_view, t_STRING_VIEW> > > >
+template <
+    class t_PATH,
+    class t_STRING_VIEW,
+    std::enable_if_t<
+        std::conjunction_v<std::is_base_of<bsl::filesystem::path, t_PATH>,
+                           std::is_base_of<bsl::string_view, t_STRING_VIEW> >,
+        int> >
 inline
-filesystem::path& operator/=(t_PATH& path, const t_STRING_VIEW& string)
+bsl::filesystem::path&
+bsl::operator/=(t_PATH& path, const t_STRING_VIEW& string)
 {
     return path.append(string.begin(), string.end());
 }
 
-/// Return the concatenation of the specified `path` and the specified `string`
-/// using the preferred directory separator if appropriate.
-template <class t_PATH,
-          class t_STRING_VIEW,
-          class = std::enable_if_t<std::conjunction_v<
-              std::is_base_of<filesystem::path, t_PATH>,
-              std::is_base_of<bsl::string_view, t_STRING_VIEW> > > >
+template <
+    class t_PATH,
+    class t_STRING_VIEW,
+    std::enable_if_t<
+        std::conjunction_v<std::is_base_of<bsl::filesystem::path, t_PATH>,
+                           std::is_base_of<bsl::string_view, t_STRING_VIEW> >,
+        int> >
 inline
-filesystem::path operator/(t_PATH path, const t_STRING_VIEW& string)
+bsl::filesystem::path
+bsl::operator/(t_PATH path, const t_STRING_VIEW& string)
 {
     path /= string;
     return path;
 }
 
-/// Return the concatenation of the specified `string` and the specified `path`
-/// using the preferred directory separator if appropriate.
-template <class t_PATH,
-          class t_STRING_VIEW,
-          class = std::enable_if_t<std::conjunction_v<
-              std::is_base_of<filesystem::path, t_PATH>,
-              std::is_base_of<bsl::string_view, t_STRING_VIEW> > > >
+template <
+    class t_PATH,
+    class t_STRING_VIEW,
+    std::enable_if_t<
+        std::conjunction_v<std::is_base_of<bsl::filesystem::path, t_PATH>,
+                           std::is_base_of<bsl::string_view, t_STRING_VIEW> >,
+        int> >
 inline
-filesystem::path operator/(const t_STRING_VIEW& string, const t_PATH& path)
+bsl::filesystem::path
+bsl::operator/(const t_STRING_VIEW& string, const t_PATH& path)
 {
     filesystem::path result{string.begin(), string.end()};
     result /= path;
     return result;
 }
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
-
-}  // close package namespace
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
