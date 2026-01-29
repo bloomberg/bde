@@ -6561,7 +6561,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase21()
     //    assignment, and swap.
     //
     // Plan:
-    //   TDB
+    //   TBD
     //
     // Testing:
     //   hasher hash_function() const;
@@ -7673,7 +7673,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase13()
     //    the default allocator.
     //
     // Plan:
-    //   TDB
+    //   TBD
     //
     // Testing:
     //   bool contains(const key_type& key);

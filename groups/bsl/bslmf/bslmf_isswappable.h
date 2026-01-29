@@ -93,10 +93,6 @@ BSLS_IDENT("$Id: $")
 # include <type_traits>
 #endif // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
 // Forward declaration for C++11 and C++14 non-MSVC
 #if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&              \
     !defined(BSLS_PLATFORM_CMP_MSVC)                          &&              \
@@ -168,13 +164,13 @@ struct is_swappable
     // to do so given compiler support, with the notable exception of MSVC.
 };
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_swappable_v = is_swappable<TYPE>::value;
     // This template variable represents the result value of the
     // 'bsl::is_swappable' metafunction.
-#endif
+# endif
 
 #endif
 
@@ -185,11 +181,9 @@ constexpr bool is_swappable_v = is_swappable<TYPE>::value;
 // ============================================================================
 
 // Template implementation only for C++11 and C++14 non-MSVC
-#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&              \
-    !defined(BSLS_PLATFORM_CMP_MSVC)                          &&              \
-     defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)         &&              \
-     defined(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT)          &&              \
-     defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)                &&               \
+   !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) &&               \
+   !defined(BSLS_PLATFORM_CMP_MSVC)
 namespace BloombergLP {
 namespace bslmf {
 namespace bslmf_is_swappable_impl_ns

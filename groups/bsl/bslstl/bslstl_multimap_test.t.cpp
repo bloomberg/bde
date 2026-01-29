@@ -3195,7 +3195,7 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase32()
     //   tested functionality.
     //
     // Plan:
-    //   TDB
+    //   TBD
     //
     // Testing:
     //   multimap(initializer_list<value_type>, const C& comp, const A& alloc);

@@ -1,6 +1,6 @@
 // bslstl_pair.t.cpp                                                  -*-C++-*-
 
-#include <bsls_platform.h>
+#include <bsls_platform.h>  //  Precedes component header to suppress warnings
 
 // the following suppresses warnings from `#include` inlined functions
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
@@ -63,39 +63,8 @@
 
 #include <algorithm>    // `std::swap`
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 # include <type_traits>  // No `bslmf` support for `is_constructible`
-#endif
-
-#ifdef BDE_BUILD_TARGET_ASAN
-# ifdef BSLS_PLATFORM_CMP_GNU
-#   pragma GCC diagnostic ignored "-Wlarger-than="
-# endif
-#endif
-
-// Local macros to detect and work around compiler defects.
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
-// We don't have a specific macro asserting that `std::swap` implements array
-// support, so proxy off the baseline macro until we prove we need more.
-# define BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS 1
-#endif
-
-#if !defined(BSLSTL_PAIR_DO_NOT_DEFAULT_THE_DEFAULT_CONSTRUCTOR)              \
-  && defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
-// The presence of a default constructor of a pair is determined by the
-// default-constructibility of its constituent parts on sufficiently complete
-// C++11 or later compilers (in C++11 or later mode).  We need the presence of
-// the `is_default_constructible` type trait to be able to test the
-// conditional presence of the `pair` default constructor.  We should have
-// checked for `BSLS_LIBRARYFEATURES_HAS_IS_DEFAULT_CONSTRUCTIBLE` instead of
-// `BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER`, but there is no such thing.
-// So if you are trying to build this on a new C++11 compiler (like an AIX or
-// a Solaris) and you get that `std::is_default_constructible` does not exist,
-// you will need to add some more conditions above.  On all C++11 compilers we
-// support in 2020, if `<type_traits>` exists it does define the required
-// `is_default_constructible` trait and it is sufficiently functional.
-# define BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR 1
 #endif
 
 using namespace BloombergLP;
@@ -133,10 +102,16 @@ using bsls::NameOf;
 // [ 2] pair(bslma::Allocator *basicAllocator);
 // [ 2] pair(const T1& a, const T2& b);
 // [ 2] pair(const T1& a, const T2& b, bslma::Allocator *basicAllocator);
+// [11] pair(const T1& a, const T2& b);                         // repeat of 2?
+// [11] pair(const T1& a, const T2& b, Alloc *a);               // repeat of 2?
+// [11] pair(const T1& a, T2&& b);
+// [11] pair(const T1& a, T2&& b, Alloc *a);
+// [11] pair(T1&& a, const T2& b);
+// [11] pair(T1&& a, const T2& b, Alloc *a);
+// [10] pair(T1&& a, T2&& b);
+// [10] pair(T1&& a, T2&& b, bslma::Allocator *a);
 // [10] template <class U1, class U2> pair(U1&& a, U2&& b);
 // [10] template <class U1, class U2> pair(U1&& a, U2&& b, Alloc *a);
-// [10] pair(first_type&& a, second_type&& b);
-// [10] pair(first_type&& a, second_type&& b, bslma::Allocator *a);
 // [11] template <class U1, class U2> pair(U1&& a, const U2& b);
 // [11] template <class U1, class U2> pair(const U1& a, U2&& b);
 // [11] template <class U1, class U2> pair(const U1& a, const U2& b);
@@ -145,27 +120,29 @@ using bsls::NameOf;
 // [11] template <class U1, class U2> pair(const U1& a, const U2& b, A *a);
 // [11] template <class U1, class U2> pair(const pair<U1, U2>& pr);
 // [11] template <class U1, class U2> pair(const pair<U1, U2>& pr, Alloc *a);
-// [11] pair(first_type&& a, const second_type& b);
-// [11] pair(const first_type& a, second_type&& b);
-// [11] pair(const first_type& a, const second_type& b);
-// [11] pair(const first_type& a, second_type&& b, Alloc *a);
-// [11] pair(first_type&& a, const second_type& b, Alloc *a);
-// [11] pair(const first_type& a, const second_type& b, A *a);
-// [11] pair(const pair<first_type, second_type>& pr);
-// [11] pair(const pair<first_type, second_type>& pr, Alloc *a);
+// [19] template <class U1, class U2> pair(U1& a, const U2& b);
+// [19] template <class U1, class U2> pair(const U1& a, U2& b);
+// [19] template <class U1, class U2> pair(U1& a, U2& b);
+// [19] template <class U1, class U2> pair(const U1& a, U2& b, Alloc *a);
+// [19] template <class U1, class U2> pair(U1& a, const U2& b, Alloc *a);
+// [19] template <class U1, class U2> pair(U1& a, U2& b, A *a);
+// [11] pair(const pair& pr);                              // repeat of 2 && 9?
+// [11] pair(const pair& pr, Alloc *a);                    // repeat of 2 && 9?
 // [13] pair(piecewise_construct_t, tuple, tuple)
 // [13] pair(piecewise_construct_t, tuple, tuple, basicAllocator)
 // [14] pair(std::pair<*>, bool>)
 // [ 2] pair(const pair& original);
 // [ 2] pair(const pair& original, bslma::Allocator *basicAllocator);
-// [ 4] pair(const pair<U1, U2>& rhs);
-// [ 4] pair(const pair<U1, U2>& rhs, bslma::Allocator *basicAllocator);
+// [ 4] pair(const pair<U1, U2>& rhs);                          // repeat of 2?
+// [ 4] pair(const pair<U1, U2>& rhs, bslma::Allocator *basicAllocator);  // 2?
 // [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other)
 // [ 9] template <class U1, class U2> pair(pair<U1, U2>&& other, Allocator*)
 // [ 9] pair(pair&& original)
 // [ 9] pair(pair&& original, bslma::Allocator *basicAllocator)
 // [  ] pair(const std::pair<U1, U2>& rhs);
 // [  ] pair(const std::pair<U1, U2>&, bslma::Allocator *basicAllocator);
+// [  ] pair(std::pair<U1, U2>&& rhs);
+// [  ] pair(std::pair<U1, U2>&&, bslma::Allocator *basicAllocator);
 // [ 2] ~pair();
 // [12] pair& operator=(const pair& rhs);
 // [12] pair& operator=(pair&& rhs);
@@ -302,7 +279,7 @@ class Base {
     Base(int data) : d_data(data) {}
     Base(const Base& original) :d_data(original.d_data) {}
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
     /// Destroy this object.
     ~Base() = default;
 
@@ -379,7 +356,7 @@ class AlBase {
     bslma::Allocator *allocator() const { return d_allocator_p; }
 };
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 /// This class is to test conversions from `Node` to `Base`, which are
 /// implicit, but less implicit than conversions from `Derived` to `Base`.
@@ -400,10 +377,7 @@ class Node {
     Node(const Node& original) :d_data(original.d_data) {}
 
     //! ~Node() = default;
-#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
     Node& operator=(const Node&) = default;
-#endif
-
 
     // ACCESSORS
     int data() const { return d_data; }
@@ -613,7 +587,7 @@ int valueOf(const std::pair<U, V>& pr)
     return f + k_VALUE_SHIFT == s ? f : -1;
 }
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 template <>
 int valueOf<Node>(const Node& node)
@@ -1127,7 +1101,7 @@ bool isRefConstant(T&)
     return false;
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 /// This utility class template provides functions for testing tuple-like
 /// APIs.
 template<class T>
@@ -1499,7 +1473,6 @@ struct TupleApiTestDriver
     /// index as a template parameter and rvalue reference as a parameter.
     static void getByIndexMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         // Testing first element extraction.
@@ -1570,7 +1543,6 @@ struct TupleApiTestDriver
             ASSERT(MoveState::e_MOVED     == crt1.movedFrom());
             ASSERT(MoveState::e_MOVED     == crt2.movedFrom());
         }
-#endif
     }
 
     /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
@@ -1578,7 +1550,6 @@ struct TupleApiTestDriver
     /// having at least one volatile element, as a parameter.
     static void getByIndexVolatileMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         // Testing first element extraction.
@@ -1608,7 +1579,6 @@ struct TupleApiTestDriver
             ASSERT(ORIG_VT                          == ivtpCopy);
             ASSERT(VolatileMovableType::e_MOVED     == crvt.movedFrom());
         }
-#endif
     }
 
     /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
@@ -1722,7 +1692,6 @@ struct TupleApiTestDriver
     /// reference as a parameter.
     static void getByTypeMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         // Testing first element extraction.
@@ -1810,7 +1779,6 @@ struct TupleApiTestDriver
             ASSERT(1 == bsl::get<int>(MoveUtil::move(ictp )));
             ASSERT(1 == bsl::get<int>(MoveUtil::move(ictpc)));
         }
-#endif
     }
 
     /// Test `bsl::get(bsl::pair<T1, T2>)` function, that accepts element
@@ -1818,7 +1786,6 @@ struct TupleApiTestDriver
     /// having at least one volatile element, as a parameter.
     static void getByTypeVolatileMoveTest()
     {
-#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (veryVeryVerbose) printf("\t\twith %s\n", NameOf<T>().name());
 
         typedef VolatileMovableType VMT;
@@ -1872,7 +1839,6 @@ struct TupleApiTestDriver
             ASSERT(1 == bsl::get<int>(MoveUtil::move(ivtp )));
             ASSERT(1 == bsl::get<int>(MoveUtil::move(ivtpc)));
         }
-#endif
     }
 };
 #endif
@@ -1906,7 +1872,7 @@ void debugprint(const bsl::pair<FIRST, SECOND>& p)
     printf(")");
 }
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 BSLA_MAYBE_UNUSED inline
 void debugprint(const u::Node& node)
@@ -2408,7 +2374,7 @@ class my_NoAllocString : public my_AllocArgString<bsl::allocator<char> >
     my_NoAllocString(const my_NoAllocString&  original,
                      bslma::Allocator        *alloc);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
     /// Destroy this object.
     ~my_NoAllocString() = default;
 
@@ -2658,7 +2624,7 @@ struct TypeWithoutSwap {
     : d_data(d)
     {}
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
     // Nothrow moves needed so that std::swap doesn't get SFINAEd out.
 
     TypeWithoutSwap(const TypeWithoutSwap& original) noexcept = default;
@@ -3245,7 +3211,7 @@ void testFunctionality()
         ASSERT(! (P2 <= P1));
         ASSERT(! (P1 >= P2));
 
-#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+#if defined(BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE)
         ASSERT(P2 <=> P3 == 0);
         ASSERT(P1 <=> P2 != 0);
         ASSERT(P1 <=> P2 <  0);
@@ -3286,7 +3252,7 @@ void testFunctionality()
     ASSERT(0 == ta3.numBlocksInUse());
 }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
                          // ===========================
                          // class CloneDisabledTestType
@@ -3601,23 +3567,21 @@ void TupleTestDriver::runTestAllocImpl()
     checkArgs(name, NUM_FIRST_ARGS,  NF1, NF2, NF3,
                     NUM_SECOND_ARGS, NS1, NS2, NS3);
 
-    // In C++17, these become the simpler-to-name `bool_constant`.
-
-    static const bsl::integral_constant<bool, NF1 == 1> MOVE_F1 = {};
-    static const bsl::integral_constant<bool, NF2 == 1> MOVE_F2 = {};
-    static const bsl::integral_constant<bool, NF3 == 1> MOVE_F3 = {};
-    static const bsl::integral_constant<bool, NS1 == 1> MOVE_S1 = {};
-    static const bsl::integral_constant<bool, NS2 == 1> MOVE_S2 = {};
-    static const bsl::integral_constant<bool, NS3 == 1> MOVE_S3 = {};
+    static const bsl::bool_constant<NF1 == 1> MOVE_F1 = {};
+    static const bsl::bool_constant<NF2 == 1> MOVE_F2 = {};
+    static const bsl::bool_constant<NF3 == 1> MOVE_F3 = {};
+    static const bsl::bool_constant<NS1 == 1> MOVE_S1 = {};
+    static const bsl::bool_constant<NS2 == 1> MOVE_S2 = {};
+    static const bsl::bool_constant<NS3 == 1> MOVE_S3 = {};
 
     bslma::TestAllocator aa("args",    veryVeryVeryVerbose);
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
 
     BSLA_MAYBE_UNUSED bool silenceVeryVerbose = veryVeryVerbose;
-#   define veryVerbose silenceVeryVerbose
+# define veryVerbose silenceVeryVerbose
     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(aa) {
-#   undef  veryVerbose
+# undef  veryVerbose
         u::ArgHolder<FArg1> AF1(1,  FirstUsesAllocator(), &aa);
         u::ArgHolder<FArg2> AF2(20, FirstUsesAllocator(), &aa);
         u::ArgHolder<FArg3> AF3(23, FirstUsesAllocator(), &aa);
@@ -3911,12 +3875,12 @@ void TupleTestDriver::runTestNoAlloc()
 
     // In C++17, these become the simpler-to-name `bool_constant`.
 
-    static const bsl::integral_constant<bool, NF1 == 1> MOVE_F1 = {};
-    static const bsl::integral_constant<bool, NF2 == 1> MOVE_F2 = {};
-    static const bsl::integral_constant<bool, NF3 == 1> MOVE_F3 = {};
-    static const bsl::integral_constant<bool, NS1 == 1> MOVE_S1 = {};
-    static const bsl::integral_constant<bool, NS2 == 1> MOVE_S2 = {};
-    static const bsl::integral_constant<bool, NS3 == 1> MOVE_S3 = {};
+    static const bsl::bool_constant<NF1 == 1> MOVE_F1 = {};
+    static const bsl::bool_constant<NF2 == 1> MOVE_F2 = {};
+    static const bsl::bool_constant<NF3 == 1> MOVE_F3 = {};
+    static const bsl::bool_constant<NS1 == 1> MOVE_S1 = {};
+    static const bsl::bool_constant<NS2 == 1> MOVE_S2 = {};
+    static const bsl::bool_constant<NS3 == 1> MOVE_S3 = {};
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
@@ -4117,8 +4081,8 @@ void TupleTestDriver::runTestInplaceMemberConstruction()
 
     // In C++17, these become the simpler-to-name `bool_constant`.
 
-    static const bsl::integral_constant<bool, NF == 1> MOVE_F = {};
-    static const bsl::integral_constant<bool, NS == 1> MOVE_S = {};
+    static const bsl::bool_constant<NF == 1> MOVE_F = {};
+    static const bsl::bool_constant<NS == 1> MOVE_S = {};
 
     bslma::TestAllocator da("default", veryVeryVeryVerbose);
     bslma::DefaultAllocatorGuard daGuard(&da);
@@ -4929,6 +4893,8 @@ void TestDriver<TO_FIRST, TO_SECOND, FROM_FIRST, FROM_SECOND>::testCase11(
     bslma::DefaultAllocatorGuard daGuard(&da);
 
     for (int useDa = 0; useDa < 2; ++useDa) {
+        // The test allocator is used only to track (the lack) of memory
+        // allocation in the source test object that is moved from.
         bslma::TestAllocator& TA = useDa ? da : ta;
 
         bsls::ObjectBuffer<FromPair> ofp;
@@ -5538,7 +5504,7 @@ struct MetaTestDriver {
     typedef TestDriver<u::AlBase, TYPE,      u::AlDerived, TYPE        > Dra0;
     typedef TestDriver<u::AlBase, u::AlBase, u::AlDerived, u::AlDerived> Draa;
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
     typedef TestDriver<TYPE,    u::Base, TYPE,       u::Node   > Dr0n;
     typedef TestDriver<u::Base, TYPE,    u::Node,    TYPE      > Drn0;
@@ -5554,11 +5520,11 @@ struct MetaTestDriver {
     static void testCase9();
 };
 
-#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 // Define our function to call the test driver, including using `u::Node`.
 
-#define u_META_FUNCTION(funcName)                                             \
+# define u_META_FUNCTION(funcName)                                            \
 template <class TYPE>                                                         \
 void MetaTestDriver<TYPE>::funcName()                                         \
 {                                                                             \
@@ -5584,7 +5550,7 @@ void MetaTestDriver<TYPE>::funcName()                                         \
 
 // Define our function to call the test driver, but don't use `u::Node`.
 
-#define u_META_FUNCTION(funcName)                                             \
+# define u_META_FUNCTION(funcName)                                            \
 template <class TYPE>                                                         \
 void MetaTestDriver<TYPE>::funcName()                                         \
 {                                                                             \
@@ -5613,7 +5579,7 @@ u_META_FUNCTION(testCase9)
 
 #undef u_META_FUNCTION
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 /// This utility class template provides functions for testing conversion to
 /// `std::tuple` operator.
 
@@ -5729,20 +5695,18 @@ struct TupleConversionDriver
 };
 #endif
 
-#if defined(BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
 namespace IsDefaultConstructibleTestTypes {
 
                 // Types to Test Default Constructibility
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
     struct DeletedDefault {
         DeletedDefault() = delete;
     };
 
     struct DeletedDefault2 : DeletedDefault {
     };
-#endif
 
     struct NoDefault {
         NoDefault(int);
@@ -5769,7 +5733,7 @@ namespace IsDefaultConstructibleTestTypes {
 }  // close namespace IsDefaultConstructibleTestTypes
 #endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CTAD)
 /// This struct provides a namespace for functions testing deduction guides.
 /// The tests are compile-time only; it is not necessary that these routines
 /// be called at run-time.  Note that the following constructors do not have
@@ -5784,7 +5748,7 @@ namespace IsDefaultConstructibleTestTypes {
 /// ```
 struct TestDeductionGuides {
 
-#define ASSERT_SAME_TYPE(...) \
+# define ASSERT_SAME_TYPE(...) \
  static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
 
     /// Test that constructing a `bsl::pair` from a `bsl::pair` and
@@ -5856,11 +5820,11 @@ struct TestDeductionGuides {
         // Compile-fail tests
 
 //#define BSLSTL_PAIR_COMPILE_FAIL_NOT_AN_ALLOCATOR
-#if defined(BSLSTL_PAIR_COMPILE_FAIL_NOT_AN_ALLOCATOR)
+# if defined(BSLSTL_PAIR_COMPILE_FAIL_NOT_AN_ALLOCATOR)
         my_String *ps = nullptr;
         bsl::pair  p99(s, 42, ps);
         // this should fail to compile
-#endif
+# endif
     }
 
     /// Test that constructing a `bsl::pair` from a `std::pair` and
@@ -5904,11 +5868,11 @@ struct TestDeductionGuides {
                                               std::pair<double, long>>);
     }
 
-#undef ASSERT_SAME_TYPE
+# undef ASSERT_SAME_TYPE
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 struct NotConstructibleFromAnything {
     NotConstructibleFromAnything(NotConstructibleFromAnything&) = delete;
 };
@@ -6024,7 +5988,7 @@ int main(int argc, char *argv[])
               "\nTESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)"
               "\n=========================================================\n");
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_CTAD)
         // This is a compile-time only test case.
         TestDeductionGuides test;
         (void) test; // This variable only exists for ease of IDE navigation.
@@ -6175,7 +6139,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONCERN: CONSTRUCTOR SFINAE"
                             "\n===================================\n");
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER)
+#if !defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (verbose) printf("Test not supported without native type traits\n");
 #else
 
@@ -6207,12 +6171,12 @@ int main(int argc, char *argv[])
 // Using macros here to make the tests more readable and verifiable.  Using `F`
 // for false, and `TT` for true (double to make it stand out visually in the
 // grid.
-#if defined(TT) || defined(F)
-#error TT or F is already a macro
-#endif
-#define TT(a,b,c,d) ASSERTV( #a #b #c #d, \
+# if defined(TT) || defined(F)
+#   error TT or F is already a macro
+# endif
+# define TT(a,b,c,d) ASSERTV( #a #b #c #d, \
                                      (true == constructibilityTest<a,b,c,d>()))
-#define F(a,b,c,d) ASSERTV( #a #b #c #d, \
+# define F(a,b,c,d) ASSERTV( #a #b #c #d, \
                                     (false == constructibilityTest<a,b,c,d>()))
 
             F(N,N,N,N);  F(N,N,N,B);  F(N,N,N,T);  F(N,N,N,V);
@@ -6282,8 +6246,8 @@ int main(int argc, char *argv[])
             F(V,V,B,N);  F(V,V,B,B);  F(V,V,B,T);  F(V,V,B,V);
             F(V,V,T,N);  F(V,V,T,B);  F(V,V,T,T);  F(V,V,T,V);
             F(V,V,V,N);  F(V,V,V,B);  F(V,V,V,T); TT(V,V,V,V);
-#undef TT
-#undef F
+# undef TT
+# undef F
 
             // Ensure that all (4x4x4x4) instances were invoked
             ASSERTV(constructibilityTestCount(),
@@ -6384,7 +6348,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.first,  42 == F.first);
             ASSERTV(F.second,  3 == F.second);
 #endif
-            // TDB Piecewise construction from native tuple of references
+            // TBD Piecewise construction from native tuple of references
 
             if (veryVerbose) printf("\t\tassign from `pair`\n");
 
@@ -6476,7 +6440,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.first,  0 == F.first);
             ASSERTV(F.second, 0 == F.second);
 #endif
-            // TDB Piecewise construction from native tuple of references
+            // TBD Piecewise construction from native tuple of references
 
             if (veryVerbose) printf("\t\tassign from `pair`\n");
 
@@ -6566,7 +6530,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.first,  0 == F.first);
             ASSERTV(F.second, 0 == F.second);
 #endif
-            // TDB Piecewise construction from native tuple of references
+            // TBD Piecewise construction from native tuple of references
 
             if (veryVerbose) printf("\t\tassign from `pair`\n");
 
@@ -6927,9 +6891,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, A.first[i], C.first[i], A.first[i] == C.first[i]);
             }
             ASSERTV(A.second, C.second, A.second == C.second);
-#endif
 
-#if defined(BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS)
             mB.first[0] = 13;
             mB.first[1] = 14;
             mB.first[2] = 15;
@@ -6997,9 +6959,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, A.second[i],   C.second[i],
                            A.second[i] == C.second[i]);
             }
-#endif
 
-#if defined(BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS)
             mB.first     = 42;
             mB.second[0] = 13;
             mB.second[1] = 14;
@@ -7076,9 +7036,7 @@ int main(int argc, char *argv[])
                 ASSERTV(i, A.second[i],   C.second[i],
                            A.second[i] == C.second[i]);
             }
-#endif
 
-#if defined(BSLSTL_PAIR_SWAP_SUPPORTS_ARRAYS)
             mB.first[0]  =  3;
             mB.first[1]  =  4;
             mB.first[2]  =  5;
@@ -7374,7 +7332,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.first,  0 == F.first);
             ASSERTV(F.second, 0 == F.second);
 
-            // TDB Piecewise construction from native tuple of references
+            // TBD Piecewise construction from native tuple of references
 
             if (veryVerbose) printf("\t\tassign from `pair`\n");
 
@@ -7461,7 +7419,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.first,  0 == F.first);
             ASSERTV(F.second, 0 == F.second);
 
-            // TDB Piecewise construction from native tuple of references
+            // TBD Piecewise construction from native tuple of references
 
             if (veryVerbose) printf("\t\tassign from `pair`\n");
 
@@ -7548,7 +7506,7 @@ int main(int argc, char *argv[])
             ASSERTV(F.first,  0 == F.first);
             ASSERTV(F.second, 0 == F.second);
 
-            // TDB Piecewise construction from native tuple of references
+            // TBD Piecewise construction from native tuple of references
 
             if (veryVerbose) printf("\t\tassign from `pair`\n");
 
@@ -8088,15 +8046,15 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING CONVERSION TO `std::tuple`"
                             "\n==================================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-
-# if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
+#if !defined(BSLS_COMPILERFEATURES_FULL_CPP11)
+    if (verbose) printf(
+         "\tThis test is disabled because compiler does not support tuples\n");
+#elif defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
     // MSVC 2015 compler incorrectly handles tuple assigment so this test
     // compiling fails.  MSVC 2013 does not support tuples, so this test is
     // disabled for it anyway.  MSVC 2017 handles this test correctly.
     if (verbose) printf("\tThis test is disabled for MSVC 2015\n");
-
-# else
+#else
         RUN_EACH_TYPE(TupleConversionDriver,
                       operatorTest,
                       bsltf::SimpleTestType,
@@ -8116,10 +8074,6 @@ int main(int argc, char *argv[])
                       bsltf::BitwiseMoveableTestType,
                       bsltf::AllocBitwiseMoveableTestType,
                       bsltf::NonTypicalOverloadsTestType);
-# endif
-#else
-    if (verbose) printf(
-         "\tThis test is disabled because compiler does not support tuples\n");
 #endif
       } break;
       case 16: {
@@ -8167,12 +8121,9 @@ int main(int argc, char *argv[])
             const bsl::pair<int, long>&   X = mX;
 
             ASSERT(noexcept(mX = MoveUtil::move(mP)));
-# if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
             ASSERT(noexcept(mX.swap(mP)));
             ASSERT(noexcept(bsl::swap(mX, mP)));
-# endif
 
-# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
             ASSERT(noexcept(bsl::get<0>(mX)));
             ASSERT(noexcept(bsl::get<0>( X)));
             ASSERT(noexcept(bsl::get<0>(std::move(mX))));
@@ -8192,7 +8143,6 @@ int main(int argc, char *argv[])
             ASSERT(noexcept(bsl::get<long>( X)));
             ASSERT(noexcept(bsl::get<long>(std::move(mX))));
             ASSERT(noexcept(bsl::get<long>(std::move( X))));
-# endif
         }
 #endif
       } break;
@@ -8246,7 +8196,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TUPLE-LIKE API"
                             "\n======================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         if (verbose) printf(
                 "\tTesting meta-functions `tuple_element` and `tuple_size`\n");
 
@@ -8431,7 +8381,7 @@ int main(int argc, char *argv[])
         if (verbose) printf("\nTESTING TUPLE-BASED CONSTRUCTION"
                             "\n================================\n");
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
         typedef TupleTestDriver TTD;
 
         // These series were machine generated to generate all possible
@@ -8965,22 +8915,22 @@ int main(int argc, char *argv[])
         // 5. Call the constructor taking a const ref to a pair.
         //
         // Testing:
-        //   template <class U1, class U2> pair(U1&& a, const U2& b);
-        //   template <class U1, class U2> pair(const U1& a, U2&& b);
         //   template <class U1, class U2> pair(const U1& a, const U2& b);
-        //   template <class U1, class U2> pair(const U1& a, U2&& b, Alloc a);
-        //   template <class U1, class U2> pair(U1&& a, const U2& b, Alloc a);
         //   template <class U1, class U2> pair(const U1& a, const U2& b, A a);
+        //   template <class U1, class U2> pair(const U1& a, U2&& b);
+        //   template <class U1, class U2> pair(const U1& a, U2&& b, Alloc a);
+        //   template <class U1, class U2> pair(U1&& a, const U2& b);
+        //   template <class U1, class U2> pair(U1&& a, const U2& b, Alloc a);
         //   template <class U1, class U2> pair(const pair<U1, U2>& pr);
         //   template <class U1, class U2> pair(const pair<U1, U2>& pr, A a);
-        //   pair(first_type&& a, const second_type& b);
-        //   pair(const first_type& a, second_type&& b);
-        //   pair(const first_type& a, const second_type& b);
-        //   pair(const first_type& a, second_type&& b, Alloc a);
-        //   pair(first_type&& a, const second_type& b, Alloc a);
-        //   pair(const first_type& a, const second_type& b, A a);
-        //   pair(const pair<first_type, second_type>& pr);
-        //   pair(const pair<first_type, second_type>& pr, Alloc a);
+        //   pair(const T1& a, const T2& b);        // repeat?
+        //   pair(const T1& a, const T2& b, A a);   // repeat?
+        //   pair(const T1& a, T2&& b);
+        //   pair(const T1& a, T2&& b, Alloc a);
+        //   pair(T1&& a, const T2& b);
+        //   pair(T1&& a, const T2& b, Alloc a);
+        //   pair(const pair& pr);                  // repeat?
+        //   pair(const pair& pr, Alloc a);         // repreat?
         // --------------------------------------------------------------------
 
         if (verbose) printf(
@@ -9917,7 +9867,7 @@ int main(int argc, char *argv[])
         ASSERT(  (bslmf::IsPair<                          Pair13>::value));
 #undef U_DECLARE_CONST_VARIANTS
 
-#if defined(BSLSTL_PAIR_TEST_CONDITIONAL_DEFAULT_CTOR)
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
 
         if (verbose)
             printf("Testing various pair's default constructibility\n");
@@ -9927,16 +9877,14 @@ int main(int argc, char *argv[])
         if (veryVerbose)
             printf("Testing components (first/second) constructibility\n");
 
-#define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                                \
+# define ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(TYPE)                                \
         ASSERT(false == std::is_default_constructible<TYPE>::value)
 
-#define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
+# define ASSERT_DEFAULT_CONSTRUCTIBLE(TYPE)                                    \
         ASSERT(true == std::is_default_constructible<TYPE>::value)
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2);
-#endif
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault);
@@ -9947,10 +9895,8 @@ int main(int argc, char *argv[])
         ASSERT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef);
         ASSERT_DEFAULT_CONSTRUCTIBLE(int);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault&);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2&);
-#endif
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault&);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2&);
 
@@ -9959,13 +9905,13 @@ int main(int argc, char *argv[])
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&);
         ASSERT_NOT_DEFAULT_CONSTRUCTIBLE(int&);
 
-#undef ASSERT_NOT_DEFAULT_CONSTRUCTIBLE
-#undef ASSERT_DEFAULT_CONSTRUCTIBLE
+# undef ASSERT_NOT_DEFAULT_CONSTRUCTIBLE
+# undef ASSERT_DEFAULT_CONSTRUCTIBLE
 
         if (veryVerbose)
             printf("All default constructible pair combinations.\n");
 
-#define ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                       \
+# define ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                      \
         ASSERT((true == std::is_default_constructible<                        \
                                               bsl::pair<TYPE1, TYPE2>>::value))
 
@@ -9989,22 +9935,20 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(int, ExpDefArgDef);
         ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE(int, int);
 
-#undef ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE
+# undef ASSERT_PAIR_DEFAULT_CONSTRUCTIBLE
 
         if (veryVerbose)
             printf("All not default constructible pair combinations.\n");
 
-#define ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                   \
+# define ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(TYPE1, TYPE2)                  \
         ASSERT((false == std::is_default_constructible<                       \
                                               bsl::pair<TYPE1, TYPE2>>::value))
 
         if (veryVeryVerbose)
             printf("pair<..>::second is not default constructible.\n");
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, PrivDefault);
@@ -10014,10 +9958,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, PrivDefault);
@@ -10027,10 +9969,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, PrivDefault);
@@ -10040,10 +9980,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int, PrivDefault);
@@ -10056,10 +9994,8 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose)
             printf("pair<..>::first is not default constructible.\n");
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , Empty);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, Empty);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , Empty);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , Empty);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , Empty);
@@ -10069,10 +10005,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , Empty);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , Empty);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , DefArgDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DefArgDefault);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , DefArgDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , DefArgDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , DefArgDefault);
@@ -10082,10 +10016,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , DefArgDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , DefArgDefault);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , ExpDefArgDef);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, ExpDefArgDef);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , ExpDefArgDef);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , ExpDefArgDef);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , ExpDefArgDef);
@@ -10095,10 +10027,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&  , ExpDefArgDef);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&           , ExpDefArgDef);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault , int);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, int);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault      , int);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2     , int);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(PrivDefault    , int);
@@ -10111,7 +10041,6 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose)
             printf("Neither `first` or `second` is default constructible.\n");
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DeletedDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, NoDefault);
@@ -10122,9 +10051,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, DefArgDefault&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault, int&);
-#endif
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2,DeletedDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, NoDefault);
@@ -10135,12 +10062,9 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, DefArgDefault&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DeletedDefault2, int&);
-#endif
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, PrivDefault);
@@ -10150,10 +10074,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, PrivDefault);
@@ -10163,10 +10085,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(NoDefault2, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, PrivDefault);
@@ -10176,10 +10096,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, PrivDefault);
@@ -10189,10 +10107,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(Empty&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, PrivDefault);
@@ -10202,10 +10118,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(DefArgDefault&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, PrivDefault);
@@ -10215,10 +10129,8 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(ExpDefArgDef&, int&);
 
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DeletedDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, DeletedDefault2);
-#endif
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, NoDefault);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, NoDefault2);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, PrivDefault);
@@ -10228,7 +10140,7 @@ int main(int argc, char *argv[])
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, ExpDefArgDef&);
         ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE(int&, int&);
 
-#undef ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE
+# undef ASSERT_PAIR_NOT_DEFAULT_CONSTRUCTIBLE
 #endif
       } break;
 
@@ -10379,10 +10291,10 @@ int main(int argc, char *argv[])
         static_assert(!(pairII >  pairII), "Operator > is not `constexpr`.");
         static_assert(!(pairII <  pairII), "Operator < is not `constexpr`.");
 
-#ifdef BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE
+# if defined(BSLALG_SYNTHTHREEWAYUTIL_AVAILABLE)
         static_assert(pairII <=> pairII == 0,
                       "Operator <=> is not `constexpr`.");
-#endif
+# endif
 
         // Rvalue constructors
 
@@ -10461,14 +10373,14 @@ int main(int argc, char *argv[])
 
         static_assert(pair<int&&, int&&>(1, 2).second == 2,
                       "Constructor is not `constexpr`.");
-#if 0
+# if 0
         static_assert(pair<int&&, int&&>(f, 2).second == 2,
                       "Constructor is not `constexpr`.");
         static_assert(pair<int&&, int&&>(1, s).second == 2,
                       "Constructor is not `constexpr`.");
         static_assert(pair<int&&, int&&>(f, s).second == 2,
                       "Constructor is not `constexpr`.");
-#endif
+# endif
 
         static_assert(pair<short, short>(1, 2).second == 2,
                       "Constructor is not `constexpr`.");
@@ -10486,7 +10398,7 @@ int main(int argc, char *argv[])
   "Move constructor is not `constexpr`.");
 
         // Copying constructors
-#if 0   // TBD Need further investigation why ref-binding is not constexpr
+# if 0  // TBD Need further investigation why ref-binding is not constexpr
 
         constexpr pair<const int, const int> paircc(f, s);
         constexpr pair<const int&, const int&> pairrr = paircc;
@@ -10496,7 +10408,7 @@ int main(int argc, char *argv[])
 
         static_assert(pair<const int&, const int&>(pairrr).second == 2,
                       "Copy constructor is not `constexpr`.");
-#endif
+# endif
 
 #endif // BSLS_COMPILERFEATURES_FULL_CPP11
 

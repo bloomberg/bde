@@ -352,16 +352,18 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 
-#include <algorithm>
-
 #include <stddef.h>  // for 'size_t'
 #include <stdint.h>  // for 'uint64_t'
 #include <string.h>  // for 'memcpy'
 
 #if defined(_MSC_VER) && defined(_M_X64)
-#include <intrin.h>
-#pragma intrinsic(_umul128)
+# include <intrin.h>
+# pragma intrinsic(_umul128)
 #endif
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# include <algorithm>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 // protections that produce different results:
 
@@ -503,10 +505,21 @@ class WyHashIncrementalAlgorithm {
     /// `k_SEED_LENGTH` bytes of data starting at the specified `seed`.
     explicit WyHashIncrementalAlgorithm(const char *seed);
 
+    /// Create a `WyHashIncrementalAlgorithm` object having the same
+    /// accumulated state as the specified `original`.
+    //! WyHashIncrementalAlgorithm(const WyHashIncrementalAlgorithm &original)
+    //                                                               = default;
+
+    /// Destroy this object.
     //! ~WyHashIncrementalAlgorithm() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign to this object the value of the accumulates state of the
+    /// specified `rhs`, and return a reference providing modifiable access to
+    /// this object.
+    //! WyHashIncrementalAlgorithm& operator=(
+    //                                  const WyHashIncrementalAlgorithm& rhs);
 
     /// Incorporate the specified `data`, of at least the specified
     /// `numBytes`, into the internal state of the hashing algorithm.  Every
@@ -701,7 +714,7 @@ WyHashIncrementalAlgorithm::WyHashIncrementalAlgorithm()
     BSLMF_ASSERT(sizeof(*this) == 13 * sizeof(uint64_t) ||
                  sizeof(*this) == 12 * sizeof(uint64_t) + sizeof(size_t));
 
-    d_seed = d_initialSeed ^ s_secret0;
+    d_see1 = d_see2 = d_seed = d_initialSeed ^ s_secret0;
 }
 
 inline
@@ -711,7 +724,7 @@ WyHashIncrementalAlgorithm::WyHashIncrementalAlgorithm(uint64_t seed)
 , d_totalLen(0)
 {
     BSLMF_ASSERT(sizeof(d_initialSeed) == sizeof(seed));
-    d_seed = d_initialSeed ^ s_secret0;
+    d_see1 = d_see2 = d_seed = d_initialSeed ^ s_secret0;
 }
 
 inline
@@ -723,7 +736,7 @@ WyHashIncrementalAlgorithm::WyHashIncrementalAlgorithm(const char *seed)
 
     memcpy(&d_initialSeed, seed, sizeof(d_initialSeed));
 
-    d_seed = d_initialSeed ^ s_secret0;
+    d_see1 = d_see2 = d_seed = d_initialSeed ^ s_secret0;
 }
 
 // MANIPULATORS
@@ -770,10 +783,6 @@ void WyHashIncrementalAlgorithm::operator()(const void *data, size_t numBytes)
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
 
-            if (origLen <= k_REPEAT_LENGTH) {
-                d_see1 = d_see2 = d_seed;
-            }
-
             memcpy(repeatBufferBegin() + repeatBufNumBytes,
                    p,
                    remainingSpaceInBuf);
@@ -787,10 +796,6 @@ void WyHashIncrementalAlgorithm::operator()(const void *data, size_t numBytes)
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(k_REPEAT_LENGTH < end - p)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-        if (0 == origLen) {
-            d_see1 = d_see2 = d_seed;
-        }
 
         do {
             process48ByteSection(p);
