@@ -4285,7 +4285,7 @@ int main(int argc, char *argv[])
         //    `bsl::string_view`, `bslstl::StringRefData` or
         //    `bslstl::StringRef` types as a parameter.
         //
-        // 2. Call special fuctions, that implicitly or explicitly invoke
+        // 2. Call special functions, that implicitly or explicitly invoke
         //    `bsl::string` constructors and pass objects of
         //    `bsl::string_view`, `bslstl::StringRefData` or
         //    `bslstl::StringRef` types as a parameter.  (C-1..2)

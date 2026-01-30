@@ -2505,7 +2505,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         // 1. `BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR` is defined
-        //    only when the compiler implements `static` fuction call
+        //    only when the compiler implements `static` function call
         //    operators.
         //
         // Plan:
@@ -3348,7 +3348,7 @@ int main(int argc, char *argv[])
         // Note that in C++03 builds, the gcc preprocessor emits a warning that
         // cannot be silenced on any use of raw string literals, even when the
         // code is excluded by a `#if` directive.  The preprocessor must parse
-        // the exluded code to find the matching `#endif`.
+        // the excluded code to find the matching `#endif`.
 
         const char rawStringLiteral[] = R"RAW(
 This is a raw string.  It is not, however, an "uncooked" string - baking it

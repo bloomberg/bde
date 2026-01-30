@@ -553,7 +553,7 @@ int main(int argc, char *argv[])
         // Note that in C++03 builds, the gcc preprocessor emits a warning that
         // cannot be silenced on any use of raw string literals, even when the
         // code is excluded by a `#if` directive.  The preprocessor must parse
-        // the exluded code to find the matching `#endif`.
+        // the excluded code to find the matching `#endif`.
 
         // The text is deliberately a long line.
         const char * JSON =

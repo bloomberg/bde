@@ -11,10 +11,10 @@ BSLS_IDENT("$Id: $")
 //  BSLS_COMPILERFEATURES_CPLUSPLUS: portable version of `__cplusplus`
 //  BSLS_COMPILERFEATURES_FORWARD_REF(T): argument of type `T` to be forwarded
 //  BSLS_COMPILERFEATURES_FORWARD(T, V): forward argument `V` of type `T`
-//  BSLS_COMPILERFEATURES_FULL_CPP11: indiates all c++11 features available
-//  BSLS_COMPILERFEATURES_FULL_CPP14: indiates all c++14 features available
-//  BSLS_COMPILERFEATURES_FULL_CPP17: indiates all c++17 features available
-//  BSLS_COMPILERFEATURES_FULL_CPP20: indiates all c++20 features available
+//  BSLS_COMPILERFEATURES_FULL_CPP11: indicates all c++11 features available
+//  BSLS_COMPILERFEATURES_FULL_CPP14: indicates all c++14 features available
+//  BSLS_COMPILERFEATURES_FULL_CPP17: indicates all c++17 features available
+//  BSLS_COMPILERFEATURES_FULL_CPP20: indicates all c++20 features available
 //  BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION: flag for return optimization
 //  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: compiler bug
 //  BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST: `__LINE__` value for multi-line
@@ -1331,7 +1331,7 @@ BSLS_IDENT("$Id: $")
   #endif
 #endif
 
-// The following feaure support macros have additional dependencies on library
+// The following feature support macros have additional dependencies on library
 // feature support in the `<version>` header.
 
 #if defined(__cpp_impl_three_way_comparison) &&                               \
@@ -1926,7 +1926,7 @@ BSLS_IDENT("$Id: $")
       #endif
     #elif !defined(BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS)
         // The test driver verifies if the offending hexfloat literals now
-        // compile to their propers values on this newer compiler version.  If
+        // compile to their proper values on this newer compiler version.  If
         // not update the version check above to include this version as well.
       #define BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS                 1
     #endif  // standard feature test macro may have already defined this

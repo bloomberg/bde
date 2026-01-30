@@ -991,7 +991,7 @@ template <class A1, class A2, class A3, class A4, class A5, class A6, class A7,
     struct Bind_ArgTuple14;
         // 'Bind_ArgTuple ## N' is used by a call to a bound function to
         // contain 'N' objects (or references to objects) of independent types
-        // being passed to a call to a bound fuction, to be forwarded to the
+        // being passed to a call to a bound function, to be forwarded to the
         // place holder arguments.
 
 template <class t_BOUND_TUPLE>                   struct Bind_CalcParameterMask;

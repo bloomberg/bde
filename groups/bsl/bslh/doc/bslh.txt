@@ -265,7 +265,7 @@
   } // close package namespace
   } // close enterprise namespace
 ..
- A few key features of the 'hashAppend' fuction:
+ A few key features of the 'hashAppend' function:
 
 : 1 'hashAppend' is a free function that can be picked up through argument
 :   dependent look-up (ADL).

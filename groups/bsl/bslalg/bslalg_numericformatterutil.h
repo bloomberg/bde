@@ -751,7 +751,7 @@ struct NumericFormatterUtil {
     /// Metafunction that provides access to `float` and `double` variation of
     /// the `value` class method that returns the maximum required buffer size
     /// to for the textual representation (`toChars`) for a specified format
-    /// and precision value.  The metafuction provides a single class method
+    /// and precision value.  The metafunction provides a single class method
     /// `value` with the signature `size_t value(Format format, int precision)`
     /// that returns the maximum required buffer size for the specified
     /// `format` and `precision`.
