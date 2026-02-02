@@ -1760,6 +1760,10 @@ int main(int argc, char *argv[])
         x.deallocate(p1);
         void *p6 = x.allocate(SB);
         ASSERT (p1 == p6);
+
+        x.deallocate(p4);
+        x.deallocate(p5);
+        x.deallocate(p6);
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
