@@ -32,6 +32,10 @@ namespace balb {
 void FileCleanerUtil::removeFiles(const FileCleanerConfiguration& config)
 {
     typedef bsl::multimap<bdlt::Datetime, bsl::string> RemoveMap;
+    typedef bsl::vector<bsl::string>                   FileVec;
+    typedef RemoveMap::const_iterator                  MCIter;
+    typedef FileVec::const_iterator                    VCIter;
+    typedef bsl::ptrdiff_t                             ptrdiff_t;
 
     const bdlt::Datetime thresholdDatetime =
         bdlt::EpochUtil::convertFromTimeInterval(
@@ -39,7 +43,7 @@ void FileCleanerUtil::removeFiles(const FileCleanerConfiguration& config)
 
     bdlma::LocalSequentialAllocator<4 * 1024> localAllocator;
 
-    bsl::vector<bsl::string> files(&localAllocator);
+    FileVec files(&localAllocator);
     bdls::FilesystemUtil::findMatchingPaths(&files,
                                             config.filePattern().data());
 
@@ -48,12 +52,9 @@ void FileCleanerUtil::removeFiles(const FileCleanerConfiguration& config)
     }
 
     bdlt::Datetime modificationTime;
+    RemoveMap      removeMap(&localAllocator);
 
-    RemoveMap removeMap(&localAllocator);
-
-    for (bsl::vector<bsl::string>::const_iterator it = files.cbegin();
-         it != files.cend();
-         ++it) {
+    for (VCIter it = files.cbegin(); files.cend() != it; ++it) {
         if (bdls::FilesystemUtil::isRegularFile(*it) &&
             0 == bdls::FilesystemUtil::getLastModificationTime(
                                                              &modificationTime,
@@ -64,17 +65,18 @@ void FileCleanerUtil::removeFiles(const FileCleanerConfiguration& config)
 
     // Iterate through the files, oldest first.
 
-    RemoveMap::const_iterator     it          = removeMap.cbegin();
-    RemoveMap::size_type          numFiles    = removeMap.size();
-    const RemoveMap::size_type    minNumFiles = config.minNumFiles();
-    const RemoveMap::size_type    maxNumFiles = config.maxNumFiles();
+    ptrdiff_t       numFiles    = removeMap.size();
+    const ptrdiff_t minNumFiles = config.minNumFiles();
+    const ptrdiff_t maxNumFiles = config.maxNumFiles();
 
-    while (it != removeMap.cend() && numFiles > minNumFiles
-           && (maxNumFiles < numFiles || it->first < thresholdDatetime)) {
+    BSLS_ASSERT_OPT(0 <= minNumFiles);
+    BSLS_ASSERT_OPT(minNumFiles <= maxNumFiles);
+
+    for (MCIter it = removeMap.cbegin();
+         removeMap.cend() != it && (maxNumFiles < numFiles ||
+                    (minNumFiles < numFiles && it->first < thresholdDatetime));
+         ++it, --numFiles) {
         bdls::FilesystemUtil::remove(it->second);
-
-        --numFiles;
-        ++it;
     }
 }
 

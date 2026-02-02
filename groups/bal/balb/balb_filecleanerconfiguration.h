@@ -23,12 +23,16 @@ BSLS_IDENT("$Id: $")
 // --------------  ------------------  --------------  ------------------
 // filePattern     bsl::string         ""              none
 // maxFileAge      bsls::TimeInterval  TimeInterval()  none
-// minNumFiles     int                 0               [0 .. INT_MAX]
+// minNumFiles     int                 0               [0 .. maxNumFiles]
+// maxNumFiles     int                 INT_MAX         [minNumFiles .. INT_MAX]
+
 // ```
-// * `filePattern`: filesystem pattern used for file matching.
-// * `maxFileAge` : maximum file age (since last modification).
-// * `minNumFiles`: minumum number of (newest) files, matching the pattern,
+// * `filePattern` : filesystem pattern used for file matching.
+// * `maxFileAge`  : maximum file age (since last modification).
+// * `minNumFiles` : minumum number of (newest) files, matching the pattern,
 //   that must be kept by the file cleaner.
+// * `maxNumFiles` : maxumum number of (newest) files, matching the pattern,
+//   that are to be kept by the file cleaner.
 //
 ///Thread Safety
 ///-------------
@@ -144,19 +148,19 @@ class FileCleanerConfiguration {
     explicit FileCleanerConfiguration(bslma::Allocator *basicAllocator = 0);
 
     /// Create a file cleaner configuration object having the specified
-    /// `filePattern`, `maxAge`, `minNumber`, `maxNumber` attribute values.
+    /// `filePattern`, `maxAge`, `minNumFiles`, `maxNumFiles` attribute values.
     /// Optionally specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.  The behavior is undefined unless `0 <= maxNumber` and
-    /// `minNumber <= maxNumber`.
+    /// used.  The behavior is undefined unless `0 <= minNumFiles`, and
+    /// `minNumFiles <= maxNumFiles`.
     FileCleanerConfiguration(const bsl::string_view&    filePattern,
                              const bsls::TimeInterval&  maxAge,
-                             int                        minNumber,
+                             int                        minNumFiles,
                              bslma::Allocator          *basicAllocator = 0);
     FileCleanerConfiguration(const bsl::string_view&    filePattern,
                              const bsls::TimeInterval&  maxAge,
-                             int                        minNumber,
-                             int                        maxNumber,
+                             int                        minNumFiles,
+                             int                        maxNumFiles,
                              bslma::Allocator          *basicAllocator = 0);
 
     /// Create a file cleaner configuration object having the in-core value of
@@ -186,12 +190,14 @@ class FileCleanerConfiguration {
     void setMaxFileAge(const bsls::TimeInterval& maxAge);
 
     /// Set the minimum number of files to keep attribute of this object to the
-    /// specified `minNumber`.
-    void setMinNumFiles(int minNumber);
+    /// specified `minNumFiles`.  The behavior is undefined if
+    /// `minNumFiles < 0` or `maxNumFiles() < minNumFiles`.
+    void setMinNumFiles(int minNumFiles);
 
     /// Set the maximum number of files to keep attribute of this object to the
-    /// specified `maxNumber`.
-    void setMaxNumFiles(int maxNumber);
+    /// specified `maxNumFiles`.  The behavior is undefined if
+    /// `maxNumFiles < 0` or `maxNumFiles < minNumFiles()`.
+    void setMaxNumFiles(int maxNumFiles);
 
     // ACCESSORS
 
@@ -266,29 +272,30 @@ inline
 FileCleanerConfiguration::FileCleanerConfiguration(
                                      const bsl::string_view&    filePattern,
                                      const bsls::TimeInterval&  maxAge,
-                                     int                        minNumber,
+                                     int                        minNumFiles,
                                      bslma::Allocator          *basicAllocator)
 : d_filePattern(filePattern, basicAllocator)
 , d_maxFileAge(maxAge)
-, d_minNumFiles(minNumber)
+, d_minNumFiles(minNumFiles)
 , d_maxNumFiles(INT_MAX)
 {
+    BSLS_ASSERT_OPT(0 <= minNumFiles);
 }
 
 inline
 FileCleanerConfiguration::FileCleanerConfiguration(
                                      const bsl::string_view&    filePattern,
                                      const bsls::TimeInterval&  maxAge,
-                                     int                        minNumber,
-                                     int                        maxNumber,
+                                     int                        minNumFiles,
+                                     int                        maxNumFiles,
                                      bslma::Allocator          *basicAllocator)
 : d_filePattern(filePattern, basicAllocator)
 , d_maxFileAge(maxAge)
-, d_minNumFiles(minNumber)
-, d_maxNumFiles(maxNumber)
+, d_minNumFiles(minNumFiles)
+, d_maxNumFiles(maxNumFiles)
 {
-    BSLS_ASSERT(0 <= maxNumber);
-    BSLS_ASSERT(minNumber <= maxNumber);
+    BSLS_ASSERT_OPT(0 <= minNumFiles);
+    BSLS_ASSERT_OPT(minNumFiles <= maxNumFiles);
 }
 
 inline
@@ -329,17 +336,20 @@ void FileCleanerConfiguration::setMaxFileAge(const bsls::TimeInterval& maxAge)
 }
 
 inline
-void FileCleanerConfiguration::setMinNumFiles(int minNumber)
+void FileCleanerConfiguration::setMinNumFiles(int minNumFiles)
 {
-    BSLS_ASSERT(0 <= minNumber);
-    d_minNumFiles = minNumber;
+    BSLS_ASSERT_OPT(0 <= minNumFiles);
+    BSLS_ASSERT_OPT(minNumFiles <= d_maxNumFiles);
+
+    d_minNumFiles = minNumFiles;
 }
 
 inline
-void FileCleanerConfiguration::setMaxNumFiles(int maxNumber)
+void FileCleanerConfiguration::setMaxNumFiles(int maxNumFiles)
 {
-    BSLS_ASSERT(0 <= maxNumber);
-    d_maxNumFiles = maxNumber;
+    BSLS_ASSERT_OPT(d_minNumFiles <= maxNumFiles);
+
+    d_maxNumFiles = maxNumFiles;
 }
 
 // ACCESSORS
@@ -414,3 +424,4 @@ bsl::ostream& balb::operator<<(
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+

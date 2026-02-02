@@ -72,7 +72,9 @@ struct FileCleanerUtil {
     /// Remove files based on the criteria given by the specified `config`.
     /// Only those files for which `bdls::FilesystemUtil::isRegularFile`
     /// returns `true` are considered for removal (symbolic links are not
-    /// followed).
+    /// followed).  The behavior is undefined unless
+    /// `0 <= config.minNumFiles()`, `0 <= config.maxNumFiles()`, and
+    /// `config.minNumFiles() <= config.maxNumFiles()`.
     static
     void removeFiles(const FileCleanerConfiguration& config);
 };

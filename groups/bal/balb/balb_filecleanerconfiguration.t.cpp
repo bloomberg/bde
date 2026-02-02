@@ -11,6 +11,7 @@
 #include <bslim_testutil.h>
 
 #include <bsls_assert.h>
+#include <bsls_asserttest.h>
 #include <bsls_review.h>
 
 #include <bsl_iostream.h>
@@ -354,7 +355,7 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -413,6 +414,66 @@ int main(int argc, char *argv[])
 //      MinNumFiles = 4
 //  ]
 // ```
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // NEGATIVE TESTING
+        //
+        // Concerns:
+        // 1 Test every type of undefined behavior for the type under test.
+        //
+        // Plan:
+        // 1 Use `ASSERT_OPT_FAIL` to confirm that undefined behavior is
+        //   detected whenever:
+        //   a: `minNumFiles < 0`
+        //
+        //   b: `maxNumFiles < 0`
+        //
+        //   c: `maxNumFiles < minNumFiles`.
+        //
+        // Testing:
+        //   NEGATIVE TESTING
+        // --------------------------------------------------------------------
+
+        bsls::AssertTestHandlerGuard hG;
+
+        ASSERT_OPT_PASS(Obj());
+        ASSERT_OPT_PASS(Obj("", bsls::TimeInterval(0),  0));
+        ASSERT_OPT_PASS(Obj("", bsls::TimeInterval(0), 10));
+        ASSERT_OPT_PASS(Obj("", bsls::TimeInterval(0),  0,  0));
+        ASSERT_OPT_PASS(Obj("", bsls::TimeInterval(0),  0,  5));
+        ASSERT_OPT_PASS(Obj("", bsls::TimeInterval(0), 10, 10));
+
+        ASSERT_OPT_FAIL(Obj("", bsls::TimeInterval(0), -1));
+        ASSERT_OPT_FAIL(Obj("", bsls::TimeInterval(0), INT_MIN));
+        ASSERT_OPT_FAIL(Obj("", bsls::TimeInterval(0),  0, -1));
+        ASSERT_OPT_FAIL(Obj("", bsls::TimeInterval(0),  0, INT_MIN));
+        ASSERT_OPT_FAIL(Obj("", bsls::TimeInterval(0),  5,  0));
+        ASSERT_OPT_FAIL(Obj("", bsls::TimeInterval(0), 10,  9));
+
+        Obj mX;    const Obj& X = mX;
+
+        ASSERT_OPT_PASS(mX.setMinNumFiles(5));
+        ASSERT_OPT_FAIL(mX.setMinNumFiles(-1));
+        ASSERT_OPT_FAIL(mX.setMinNumFiles(INT_MIN));
+        ASSERT(5 == X.minNumFiles());
+        ASSERT_OPT_PASS(mX.setMinNumFiles(0));
+        ASSERT(0 == X.minNumFiles());
+
+        ASSERT_OPT_FAIL(mX.setMaxNumFiles(-1));
+        ASSERT_OPT_FAIL(mX.setMaxNumFiles(INT_MIN));
+        ASSERT(INT_MAX == X.maxNumFiles());
+        ASSERT_OPT_PASS(mX.setMaxNumFiles(0));
+        ASSERT(0 == X.minNumFiles());
+
+        ASSERT_OPT_PASS(mX.setMaxNumFiles(0));
+        ASSERT_OPT_PASS(mX.setMaxNumFiles(5));
+        ASSERT(5 == X.maxNumFiles());
+        ASSERT(0 == X.minNumFiles());
+        ASSERT_OPT_PASS(mX.setMinNumFiles(5));
+        ASSERT(5 == X.minNumFiles());
+        ASSERT_OPT_FAIL(mX.setMaxNumFiles(0));
+        ASSERT_OPT_FAIL(mX.setMaxNumFiles(4));
       } break;
       case 9: {
         // --------------------------------------------------------------------
