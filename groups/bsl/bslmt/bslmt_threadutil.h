@@ -278,6 +278,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_default.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_systemclocktype.h>
 #include <bsls_systemtime.h>
@@ -1091,7 +1092,12 @@ bsls::Types::Uint64 ThreadUtil::selfIdAsUint64()
 inline
 bsls::Types::Uint64 ThreadUtil::selfKernelIdAsUint64()
 {
-    return Imp::selfKernelIdAsUint64();
+    static BSLS_KEYWORD_THREAD_LOCAL bsls::Types::Uint64 ktid = 0;
+    if (!ktid) {
+        // Obtaining kernel ID can be relatively expensive; cache it
+        ktid = Imp::selfKernelIdAsUint64();
+    }
+    return ktid;
 }
 
             // *** Thread-Specific (Local) Storage (TSS or TLS) ***
