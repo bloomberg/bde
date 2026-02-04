@@ -239,7 +239,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_integralconstant.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_mutex.h>
 
@@ -377,6 +377,10 @@ class TimetableCache {
     TimetableCache& operator=(const TimetableCache&);
 
   public:
+    // TRAITS
+
+    BSLMF_NESTED_TRAIT_DECLARATION(TimetableCache, bslma::UsesBslmaAllocator);
+
     // CREATORS
 
     /// Create an empty timetable cache that uses the specified `loader` to
@@ -465,17 +469,6 @@ class TimetableCache {
 // ============================================================================
 
 }  // close package namespace
-}  // close enterprise namespace
-
-// TRAITS
-
-namespace BloombergLP {
-namespace bslma {
-
-template <>
-struct UsesBslmaAllocator<bdlt::TimetableCache> : bsl::true_type {};
-
-}  // close namespace bslma
 }  // close enterprise namespace
 
 #endif
