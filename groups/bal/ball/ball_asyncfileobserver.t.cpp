@@ -1541,7 +1541,7 @@ int main(int argc, char *argv[])
             }
 
             // Wait some time for async writing to complete.
-            waitEmptyRecordQueue(X.ptr());
+            waitEmptyRecordQueue(X.get());
 
             fflush(stderr);
             bsl::fstream stderrFs;

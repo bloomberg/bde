@@ -151,8 +151,8 @@ int main(int argc, char* argv[])
         // Testing:
         //   FORWARD DECLARATIONS
         // --------------------------------------------------------------------
-        if (verbose) puts("\nFORWARD DECLARATIONS"
-                          "\n====================");
+        if (verbose) cout << "\nFORWARD DECLARATIONS"
+                             "\n====================\n";
 
         ASSERT(u::isIncomplete<bdldfp::Decimal32>(0));
         ASSERT(u::isIncomplete<bdldfp::Decimal64>(0));

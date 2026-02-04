@@ -17,6 +17,7 @@
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>
 #include <bsl_c_stdlib.h>
+#include <bsl_c_stdio.h>
 #include <bsl_iostream.h>
 #include <bsl_string_view.h>
 

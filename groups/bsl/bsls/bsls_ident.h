@@ -107,15 +107,39 @@
 /// fundamental component header necessarily included before all other BDE
 /// headers.
 
-#undef BDE_OMIT_INTERNAL_DEPRECATED
-#ifdef BDE_FORCE_OMIT_INTERNAL_DEPRECATED
-  #define BDE_OMIT_INTERNAL_DEPRECATED
-#endif
-
+/// This macro contributes towards enforcing the principle that components
+/// include the header for components that they depend on.  As component
+/// headers evolve, sometimes dependencies are removed.  When that happens
+/// the `#include` for the dependency could be safely removed, but might
+/// break code above that was erroneously depending on that transitive
+/// `#include`.  To avoid breaking code above, we retain the `#include`
+/// directive, but guard it in group that is disabled we the test
+/// `#ifdef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES`.  To confirm that we have
+/// a clean build that does not rely on such known transitive `#includes`,
+/// recompile with the `BDE_FORCE_DONT_ALLOW_TRANSITIVE_INCLUDES` macro
+/// predefined.
 #undef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #ifdef BDE_FORCE_DONT_ALLOW_TRANSITIVE_INCLUDES
   #define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #endif
+
+/// This macro controls whether we allow features which we must continue to
+/// support for our clients but do not want to rely on in our own code base.
+/// Clients who want to continue using these features need take no special
+/// steps.  In order to make sure an entire code base does not rely on these
+/// features, recompile with the `BDE_FORCE_OMIT_INTERNAL_DEPRECATED` macro
+/// predefined.  Examples of such features are: including `<stdheader>` as
+/// opposed to `<bsl_stdheader.h>`, or using `DEBUG` instead of `e_DEBUG`.
+#undef BDE_OMIT_INTERNAL_DEPRECATED
+#ifdef BDE_FORCE_OMIT_INTERNAL_DEPRECATED
+  #define BDE_OMIT_INTERNAL_DEPRECATED
+  #if !defined(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES)
+    #define BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+    // When we don't want to rely on legacy features, we also want to make sure
+    // we are not picking up macros or type aliases via (direct or transitive)
+    // includes of headers that have migrated from 'bde' to 'bsl' libraries.
+  #endif
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 /// Ensure that either `BSLS_IDENT_ON` or `BSLS_IDENT_OFF` is defined according
 /// to the command line configuration.  Enabling `BSLS_IDENT` by default causes
@@ -127,15 +151,6 @@
 #elif defined(BSLS_IDENT_OFF)
   #error Command line cannot define both `BSLS_IDENT_ON` and `BSLS_IDENT_OFF`
 #endif      // `ifndef BSLS_IDENT_ON`
-
-// ident string intentionally omitted for this header (do not add to binaries)
-// Its use is expected to be so extensive that the cost outweighs benefit
-// of including an ident string for every file that includes this header
-// (present here so that programs like update_rcsid do not accidentally add).
-#if 0
-  #define BSLS_IDENT_RCSID(tag,str)
-BSLS_IDENT_RCSID(sysutil_ident_h,"$Id: $")
-#endif
 
 // ============================================================================
 //                  COMPONENT-SPECIFIC IMPLEMENTATION MACROS

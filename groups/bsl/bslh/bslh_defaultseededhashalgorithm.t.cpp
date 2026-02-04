@@ -11,6 +11,8 @@
 #include <bsls_platform.h>
 #include <bsls_bsltestutil.h>
 
+#include <algorithm>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -3,6 +3,7 @@
 
 #include <bslim_testutil.h>
 
+#include <bsl_climits.h>
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;

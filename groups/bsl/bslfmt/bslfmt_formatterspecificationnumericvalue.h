@@ -39,6 +39,12 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iterator.h>
 #include <bslstl_monostate.h>
 
+#include <locale>     // for 'std::ctype', 'locale'
+#include <string>     // for 'std::char_traits'
+
+#include <limits.h>   // `INT_MAX`
+#include <stdio.h>    // for 'snprintf'
+
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 # include <format>     // for 'std::visit_format_arg'
 #endif

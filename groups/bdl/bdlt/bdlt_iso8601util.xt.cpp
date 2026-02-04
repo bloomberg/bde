@@ -170,16 +170,10 @@ using bsl::flush;
 // [15] int parse(TimeOrTimeTz *result, const StringRef& string);
 // [17] int parse(DatetimeOrDatetimeTz *, const char *, int);
 // [17] int parse(DatetimeOrDatetimeTz *result, const StringRef& string);
-// [17] int parseRelaxed(DatetimeOrDatetimeTz *, const char *, int);
-// [17] int parseRelaxed(DatetimeOrDatetimeTz *, const bsl::string_view&);
 // [11] int parse(Datetime *, const char *, int);
 // [11] int parse(DatetimeTz *, const char *, int);
 // [11] int parse(Datetime *result, const StringRef& string);
 // [11] int parse(DatetimeTz *result, const StringRef& string);
-// [11] int parseRelaxed(Datetime *, const char *, int);
-// [11] int parseRelaxed(DatetimeTz *, const char *, int);
-// [11] int parseRelaxed(Datetime *, const bsl::string_view&);
-// [11] int parseRelaxed(DatetimeTz *, const bsl::string_view&);
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 // [ 2] int generate(char *, const Date&, int);
 // [ 3] int generate(char *, const Time&, int);
@@ -196,6 +190,12 @@ using bsl::flush;
 // [ 5] int generateRaw(char *, const DateTz&, bool useZ);
 // [ 6] int generateRaw(char *, const TimeTz&, bool useZ);
 // [ 7] int generateRaw(char *, const DatetimeTz&, bool useZ);
+// [17] int parseRelaxed(DatetimeOrDatetimeTz *, const char *, int);
+// [17] int parseRelaxed(DatetimeOrDatetimeTz *, const bsl::string_view&);
+// [11] int parseRelaxed(Datetime *, const char *, int);
+// [11] int parseRelaxed(DatetimeTz *, const char *, int);
+// [11] int parseRelaxed(Datetime *, const bsl::string_view&);
+// [11] int parseRelaxed(DatetimeTz *, const bsl::string_view&);
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
 //-----------------------------------------------------------------------------
 // [18] USAGE EXAMPLE
@@ -1599,8 +1599,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   int parse(DatetimeOrDatetimeTz *, const char *, int);
         //   int parse(DatetimeOrDatetimeTz *result, const StringRef& string);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int parseRelaxed(DatetimeOrDatetimeTz *, const char *, int);
         //   int parseRelaxed(DatetimeOrDatetimeTz *, const bsl::string_view&);
+#endif
         // --------------------------------------------------------------------
 
         if (verbose) cout << "PARSE `DatetimeOrDatetimeTz`\n"
@@ -1853,6 +1855,7 @@ int main(int argc, char *argv[])
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIME == X.the<bdlt::Datetime>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                             // parseRelaxed() on the same string
 
                             mX.reset();
@@ -2022,6 +2025,7 @@ int main(int argc, char *argv[])
                                     X.is<bdlt::Datetime>());
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIME == X.the<bdlt::Datetime>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                         }
 
 //@bdetdsplit CODE SLICING BREAK
@@ -2633,6 +2637,7 @@ int main(int argc, char *argv[])
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ == X.the<bdlt::DatetimeTz>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                             // parseRelaxed() on the same string
 
                             mX.reset();
@@ -2809,6 +2814,7 @@ int main(int argc, char *argv[])
                                     X.is<bdlt::DatetimeTz>());
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ == X.the<bdlt::DatetimeTz>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                         }
 
 // @bdetdsplit CODE SLICING BREAK
@@ -3395,6 +3401,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX.reset();
@@ -3517,6 +3524,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             const int              NUM_TIME_DATA =         NUM_BAD_TIME_DATA;
@@ -3634,6 +3642,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX.reset();
@@ -3756,6 +3765,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             const int              NUM_ZONE_DATA =         NUM_BAD_ZONE_DATA;
@@ -3794,6 +3804,7 @@ int main(int argc, char *argv[])
                     ASSERT(mX.is<bdlt::Datetime>());
                     ASSERT(XX != mX.the<bdlt::Datetime>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     // parseRelaxed() on the same string
 
                     mX = XX;
@@ -3827,6 +3838,7 @@ int main(int argc, char *argv[])
                     ASSERT( 0 == Util::parseRelaxed(&mX, StrView(relaxed)));
                     ASSERT(mX.is<bdlt::Datetime>());
                     ASSERT(XX != mX.the<bdlt::Datetime>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                 }
 
                 // If `ZONE_DATA[tk].d_invalid` contains nothing but digits,
@@ -3922,6 +3934,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX.reset();
@@ -4044,6 +4057,7 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, STRING, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, STRING, ZZ == X.the<bdlt::DatetimeTz>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 
@@ -5372,6 +5386,7 @@ int main(int argc, char *argv[])
                             EXPECTED_DT == X.the<bdlt::Datetime>());
                 }
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX.reset();
@@ -5447,6 +5462,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE, INPUT, LENGTH,
                             EXPECTED_DT == X.the<bdlt::Datetime>());
                 }
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             // basic
@@ -5750,6 +5766,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT, LENGTH,
                         EXPECTED == X.the<bdlt::DatetimeTz>());
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX.reset();
@@ -5799,6 +5816,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT, LENGTH, X.is<bdlt::DatetimeTz>());
                 ASSERTV(LINE, INPUT, LENGTH,
                         EXPECTED == X.the<bdlt::DatetimeTz>());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 
@@ -5838,11 +5856,13 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::parse(&mX, STRING_REF));
                 ASSERT_FAIL(Util::parse(&mX,   NULL_REF));
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 ASSERT_PASS(Util::parseRelaxed(&mX,    INPUT, LENGTH));
                 ASSERT_FAIL(Util::parseRelaxed(&mX, NULL_PTR, LENGTH));
 
                 ASSERT_PASS(Util::parseRelaxed(&mX, STRING_REF));
                 ASSERT_FAIL(Util::parseRelaxed(&mX,   NULL_REF));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             if (veryVerbose) cout << "\t'Invalid length'" << endl;
@@ -5851,9 +5871,11 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::parse(&mX, INPUT,      0));
                 ASSERT_FAIL(Util::parse(&mX, INPUT,     -1));
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 ASSERT_PASS(Util::parseRelaxed(&mX, INPUT, LENGTH));
                 ASSERT_PASS(Util::parseRelaxed(&mX, INPUT,      0));
                 ASSERT_FAIL(Util::parseRelaxed(&mX, INPUT,     -1));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 //@bdetdsplit CODE SLICING END
@@ -10133,10 +10155,12 @@ int main(int argc, char *argv[])
         //   int parse(DatetimeTz *, const char *, int);
         //   int parse(Datetime *result, const StringRef& string);
         //   int parse(DatetimeTz *result, const StringRef& string);
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         //   int parseRelaxed(Datetime *, const char *, int);
         //   int parseRelaxed(DatetimeTz *, const char *, int);
         //   int parseRelaxed(Datetime *, const bsl::string_view&);
         //   int parseRelaxed(DatetimeTz *, const bsl::string_view&);
+#endif
         // --------------------------------------------------------------------
 
         if (verbose) cout << "PARSE: DATETIME & DATETIMETZ\n"
@@ -10306,7 +10330,8 @@ int main(int argc, char *argv[])
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                            0 == Z.offset());
 
-                            // parseRelaxed() on the same string
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+                           // parseRelaxed() on the same string
 
                             mX = XX;
                             mZ = ZZ;
@@ -10386,6 +10411,7 @@ int main(int argc, char *argv[])
                                     DATETIME == Z.localDatetime());
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                            0 == Z.offset());
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                         }
 
                         // without zone designator in parsed string - basic
@@ -10687,6 +10713,7 @@ int main(int argc, char *argv[])
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                             // parseRelaxed() on the same string
 
                             mX = XX;
@@ -10783,6 +10810,7 @@ int main(int argc, char *argv[])
                                                             relaxed.c_str()));
                             ASSERTV(ILINE, JLINE, KLINE, CLINE,
                                     DATETIMETZ               == Z);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                         }
 
                         // with zone designator in parsed string - basic
@@ -11044,6 +11072,7 @@ int main(int argc, char *argv[])
                         0 != Util::parse(&mZ, bad.c_str()));
                 ASSERTV(LINE, STRING, ZZ == Z);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 ASSERTV(LINE, STRING,
@@ -11085,6 +11114,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, STRING,
                         0 != Util::parseRelaxed(&mZ, StrView(relaxed)));
                 ASSERTV(LINE, STRING, ZZ == Z);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 
@@ -11388,6 +11418,7 @@ int main(int argc, char *argv[])
                     ASSERT( 0 == Util::parse(&mD, bad.c_str()));
                     ASSERT(XX != D);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                     // parseRelaxed() on the same string
 
                     mD = XX;
@@ -11417,6 +11448,7 @@ int main(int argc, char *argv[])
 
                     ASSERT( 0 == Util::parseRelaxed(&mD, StrView(relaxed)));
                     ASSERT(XX != D);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
                 }
 
                 // If `ZONE_DATA[tk].d_invalid` contains nothing but digits,
@@ -11456,6 +11488,7 @@ int main(int argc, char *argv[])
                         0 != Util::parse(&mZ, bad.c_str()));
                 ASSERTV(LINE, STRING, ZZ == Z);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 ASSERTV(LINE, STRING,
@@ -11497,6 +11530,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, STRING,
                         0 != Util::parseRelaxed(&mZ, StrView(relaxed)));
                 ASSERTV(LINE, STRING, ZZ == Z);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             for (int tk = 0; tk < NUM_ZONE_DATA; ++tk) {
@@ -11810,6 +11844,7 @@ int main(int argc, char *argv[])
                         0 == Util::parse(&mZ, str.c_str()));
                 ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX = XX;
@@ -11890,6 +11925,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT, LENGTH,
                         0 == Util::parseRelaxed(&mZ, relaxed.c_str()));
                 ASSERTV(LINE, EXPECTED, Z, EXPECTED == Z);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 
@@ -12224,6 +12260,7 @@ int main(int argc, char *argv[])
                         0 == Util::parse(&mZ, str.c_str()));
                 ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 // parseRelaxed() on the same string
 
                 mX = XX;
@@ -12309,6 +12346,7 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT,
                         0 == Util::parseRelaxed(&mZ, StrView(relaxed)));
                 ASSERTV(LINE, INPUT, EXPECTED, Z, EXPECTED == Z);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 
@@ -12590,6 +12628,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::parse(&resultTz, stringRef));
                 ASSERT_FAIL(Util::parse(    badTz, stringRef));
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 ASSERT_PASS(Util::parseRelaxed(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parseRelaxed(      bad, INPUT, LENGTH));
 
@@ -12601,6 +12640,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_PASS(Util::parseRelaxed(&resultTz, stringRef));
                 ASSERT_FAIL(Util::parseRelaxed(    badTz, stringRef));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             if (veryVerbose) cout << "\t'Invalid input'" << endl;
@@ -12617,6 +12657,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::parse(&resultTz, stringRef));
                 ASSERT_FAIL(Util::parse(&resultTz, nullRef));
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 ASSERT_PASS(Util::parseRelaxed(  &result, INPUT, LENGTH));
                 ASSERT_FAIL(Util::parseRelaxed(  &result,     0, LENGTH));
 
@@ -12628,6 +12669,7 @@ int main(int argc, char *argv[])
 
                 ASSERT_PASS(Util::parseRelaxed(&resultTz, stringRef));
                 ASSERT_FAIL(Util::parseRelaxed(&resultTz, nullRef));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
 
             if (veryVerbose) cout << "\t'Invalid length'" << endl;
@@ -12640,6 +12682,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::parse(&resultTz, INPUT,      0));
                 ASSERT_FAIL(Util::parse(&resultTz, INPUT,     -1));
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
                 ASSERT_PASS(Util::parseRelaxed(  &result, INPUT, LENGTH));
                 ASSERT_PASS(Util::parseRelaxed(  &result, INPUT,      0));
                 ASSERT_FAIL(Util::parseRelaxed(  &result, INPUT,     -1));
@@ -12647,6 +12690,7 @@ int main(int argc, char *argv[])
                 ASSERT_PASS(Util::parseRelaxed(&resultTz, INPUT, LENGTH));
                 ASSERT_PASS(Util::parseRelaxed(&resultTz, INPUT,      0));
                 ASSERT_FAIL(Util::parseRelaxed(&resultTz, INPUT,     -1));
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
             }
         }
 

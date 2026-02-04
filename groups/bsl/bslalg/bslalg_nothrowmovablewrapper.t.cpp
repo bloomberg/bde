@@ -17,6 +17,7 @@
 #include <bsltf_templatetestfacility.h>
 #include <bsltf_testvaluesarray.h>
 
+#include <limits.h>  // `INT_MAX`
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
 

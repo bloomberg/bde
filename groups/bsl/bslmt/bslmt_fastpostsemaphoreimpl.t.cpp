@@ -17,6 +17,7 @@
 #include <bsls_systemtime.h>
 #include <bsls_timeinterval.h>
 
+#include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_deque.h>
 #include <bsl_iostream.h>

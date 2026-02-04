@@ -6,6 +6,7 @@
 
 #include <bsls_bsltestutil.h>
 
+#include <limits.h>   // `CHAR_MAX`
 #include <stdio.h>    // `printf`
 #include <stdlib.h>   // `atoi`
 #include <string.h>   // `strlen`, `strcmp`, `memset`

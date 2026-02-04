@@ -19,6 +19,7 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_objectbuffer.h>
 
+#include <climits>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>

@@ -13,6 +13,7 @@
 
 #include <bsltf_templatetestfacility.h>
 
+#include <limits.h>  // `INT_MIN`
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
 
