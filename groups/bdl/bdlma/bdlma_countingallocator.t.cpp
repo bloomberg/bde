@@ -453,6 +453,15 @@ int main(int argc, char *argv[])
     bslma::TestAllocator globalAllocator("global", veryVeryVerbose);
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
+    // Confirm no static initialization locked the global allocator
+    ASSERT(&globalAllocator == bslma::Default::globalAllocator());
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+
+    // Confirm no static initialization locked the default allocator
+    ASSERT(&defaultAllocator == bslma::Default::defaultAllocator());
+
     switch (test) { case 0:
       case 7: {
         // --------------------------------------------------------------------
@@ -1394,6 +1403,9 @@ if (veryVerbose)
                          0 == noa.numBlocksTotal());
         }
 
+#if !defined(BDE_BUILD_TARGET_ASAN)
+    // This part checks error reporting by the destructor for a deliberate
+    // memory leak, which would produce a non-ignorable asan diagnostic.
         if (verbose) cout << "\nTesting destructor." << endl;
         {
             bslma::TestAllocator da("default",  veryVeryVeryVerbose);
@@ -1425,6 +1437,7 @@ if (veryVerbose)
 
             sa.setQuiet(true);
         }
+#endif
 
       } break;
       case 1: {
