@@ -17,10 +17,9 @@
  The order of packages within each level is not architecturally significant,
  just alphabetical.
 ..
-  9. bdlar
-     bdlmt
+  9. bdlmt
 
-  8. bdlat
+  8. bdlar
      bdlbb
      bdlcc
      bdld
@@ -44,7 +43,8 @@
   2. bdlf
      bdlsb
 
-  1. bdlscm
+  1. bdlat
+     bdlscm
 ..
 
 /Package Synopsis

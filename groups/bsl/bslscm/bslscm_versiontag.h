@@ -63,7 +63,7 @@ BSLS_IDENT("$Id: $")
 #define BSL_VERSION_MAJOR    4
 
 /// Provide the minor version number of the current (latest) BSL release.
-#define BSL_VERSION_MINOR    34
+#define BSL_VERSION_MINOR    35
 
 /// Construct a composite version number from the specified `major` and
 /// `minor` version numbers.  The result is unique for each combination of

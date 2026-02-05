@@ -9,43 +9,46 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 33 components having 11 levels of physical
+ The 'bslfmt' package currently has 34 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  11. bslfmt_enablestreamedformatter
+  14. bslfmt_enablestreamedformatter
       bslfmt_streamed
 
-  10. bslfmt_formattable
+  13. bslfmt_formattable
       bslfmt_streamedformatter
 
-   9. bslfmt_format
+  12. bslfmt_format
 
-   8. bslfmt_format_imp                                               !PRIVATE!
+  11. bslfmt_format_imp                                               !PRIVATE!
 
-   7. bslfmt_formatterbool
+  10. bslfmt_formatterbool
       bslfmt_formattercharacter
       bslfmt_formatterintegral
       bslfmt_formatterpointer
-      bslfmt_formattertestutil
 
-   6. bslfmt_formatterfloating
+   9. bslfmt_formatterfloating
       bslfmt_formatterintegralbase
       bslfmt_formatterstring
-      bslfmt_mockformatcontext
 
-   5. bslfmt_format_context                                           !PRIVATE!
-      bslfmt_padutil
+   8. bslfmt_padutil
       bslfmt_standardformatspecification
 
+   7. bslfmt_formatspecificationparser
+      bslfmt_formattertestutil
+
+   6. bslfmt_mockformatcontext
+      bslfmt_mockparsecontext
+
+   5. bslfmt_format_context                                           !PRIVATE!
+      bslfmt_formatterspecificationnumericvalue
+
    4. bslfmt_format_args                                              !PRIVATE!
-      bslfmt_formatspecificationparser
 
    3. bslfmt_format_arg                                               !PRIVATE!
       bslfmt_formatparsecontext
-      bslfmt_formatterspecificationnumericvalue
-      bslfmt_mockparsecontext
       bslfmt_unicodecodepoint
 
    2. bslfmt_format_string                                            !PRIVATE!
@@ -145,6 +148,9 @@ bslfmt.txt
 :
 : 'bslfmt_mockparsecontext':
 :      Provide mock context to test formatter specializations
+:
+: 'bslfmt_padutil':
+:      Provide padding utilities for the `bslfmt` package and clients.
 :
 : 'bslfmt_standardformatspecification':
 :      Private utility for use within BSL `format` standard spec parsers
