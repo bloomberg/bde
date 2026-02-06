@@ -139,7 +139,7 @@ struct PadUtil {
 
     // PRIVATE CLASS METHODS
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#ifdef BSLS_ASSERT_IS_USED
     /// Return `true` if the specified `filler` is a valid filler character for
     /// padding, and `false` otherwise.
     static bool fillerIsOK(t_CHAR filler);
@@ -222,7 +222,7 @@ struct PadUtil {
 
 // PRIVATE CLASS METHODS
 
-#ifdef BSLS_ASSERT_IS_ACTIVE
+#ifdef BSLS_ASSERT_IS_USED
 template <class t_CHAR>
 inline
 bool PadUtil<t_CHAR>::fillerIsOK(t_CHAR)
