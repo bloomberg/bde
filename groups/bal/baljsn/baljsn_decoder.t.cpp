@@ -4103,6 +4103,42 @@ int main(int argc, char *argv[])
 
                 ASSERTV(LINE, DEPTH, options.maxDepth(), rc, 0 == rc);
             }
+
+            // Set depth too low, expect failure, then set depth correctly
+            // on same decoder and expect success.
+            {
+                int depth = DEPTH - 1;
+
+                json_stream.str(json_payload);
+                baljsn::DecoderOptions options;
+
+                options.setMaxDepth(depth);
+                options.setSkipUnknownElements(false);
+
+                baljsn::Decoder decoder;
+
+                int rc = decoder.decode(json_stream.rdbuf(),
+                                        &object,
+                                        &options);
+
+                ASSERTV(LINE, DEPTH, depth, DEPTH - depth, 0 != rc);
+
+                options.setMaxDepth(DEPTH);
+
+                json_stream.str(json_payload);
+                rc = decoder.decode(json_stream.rdbuf(),
+                                        &object,
+                                        &options);
+                if (0 != rc) {
+                    cout << "Unexpectedly failed to decode from\n"
+                         << json_payload
+                         << "initialization data (i="
+                         << i << ", LINE=" << LINE
+                         << "): " << decoder.loggedMessages() << endl;
+                }
+
+                ASSERTV(LINE, DEPTH, options.maxDepth(), rc, 0 == rc);
+            }
         }
       } break;
       case 16: {

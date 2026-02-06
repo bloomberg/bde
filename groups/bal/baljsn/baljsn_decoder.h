@@ -1083,6 +1083,7 @@ int Decoder::decode(bsl::streambuf        *streamBuf,
     d_logStream.clear();
     d_logStream.str("");
 
+    d_currentDepth              = 0;
     d_maxDepth                  = options.maxDepth();
     d_skipUnknownElements       = options.skipUnknownElements();
     d_numUnknownElementsSkipped = 0;
