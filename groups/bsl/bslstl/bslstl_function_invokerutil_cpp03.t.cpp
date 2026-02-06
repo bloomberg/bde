@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Sat Aug 16 21:17:54 2025
+// Generated on Thu Feb  5 19:42:35 2026
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
@@ -102,37 +102,37 @@ static bool veryVeryVeryVerbose;
 // ----------------------------------------------------------------------------
 
 #if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-#define CPP_20 1
+# define CPP_20 1
 #else
-#define CPP_20 0
+# define CPP_20 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
-#define MSVC 1
+# define MSVC 1
 #else
-#define MSVC 0
+# define MSVC 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION == 1900
-#define MSVC_2015 1
+# define MSVC_2015 1
 #else
-#define MSVC_2015 0
+# define MSVC_2015 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)   \
  && BSLS_PLATFORM_CMP_VERSION >= 1910 \
  && BSLS_PLATFORM_CMP_VERSION <= 1916
-#define MSVC_2017 1
+# define MSVC_2017 1
 #else
-#define MSVC_2017 0
+# define MSVC_2017 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)   \
  && BSLS_PLATFORM_CMP_VERSION >= 1920 \
  && BSLS_PLATFORM_CMP_VERSION <  1929
-#define MSVC_2019 1
+# define MSVC_2019 1
 #else
-#define MSVC_2019 0
+# define MSVC_2019 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC) &&                                        \
@@ -140,22 +140,28 @@ static bool veryVeryVeryVerbose;
      BSLS_PLATFORM_CMP_VERSION <= 1929)
     // MSVC displays inconsistent behavior with reference parameters. This was
     // fixed in MSVC 1930 (VS 2022) but only in C++20 mode.
-#define MS_REF_BUG 1
+# define MS_REF_BUG 1
 #else
-#define MS_REF_BUG 0
+# define MS_REF_BUG 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG)
-#define CLANG 1
+# define CLANG 1
 #else
-#define CLANG 0
+# define CLANG 0
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_GNU)      \
  && BSLS_PLATFORM_CMP_VERSION >= 100000
-#define GNU_10PLUS 1
+# define GNU_10PLUS 1
 #else
-#define GNU_10PLUS 0
+# define GNU_10PLUS 0
+#endif
+
+#if defined(__cpp_aggregatee_paren_init)
+# define PAR_INIT 1
+#else
+# define PAR_INIT 0
 #endif
 
 typedef bslstl::Function_InvokerUtil             Util;
@@ -3190,11 +3196,11 @@ int main(int argc, char *argv[])
           TEST.run<rrcD (     ),    rrB      (     )  >(L_, YES);
           TEST.run<rrcD (     ),   rrcB      (     )  >(L_, YES);
 
-          TEST.run<   DA(     ),      BA     (     )  >(L_, CPP_20 && !CLANG);
-          TEST.run<   DA(     ),     rBA     (     )  >(L_, CPP_20 && !CLANG);
-          TEST.run<   DA(     ),    rcBA     (     )  >(L_, CPP_20 && !CLANG);
-          TEST.run<   DA(     ),    rrBA     (     )  >(L_, CPP_20 && !CLANG);
-          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, CPP_20 && !CLANG);
+          TEST.run<   DA(     ),      BA     (     )  >(L_, !PAR_INIT);
+          TEST.run<   DA(     ),     rBA     (     )  >(L_, !PAR_INIT);
+          TEST.run<   DA(     ),    rcBA     (     )  >(L_, !PAR_INIT);
+          TEST.run<   DA(     ),    rrBA     (     )  >(L_, !PAR_INIT);
+          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, !PAR_INIT);
           TEST.run<  rDA(     ),      BA     (     )  >(L_, MS_REF_BUG);
           TEST.run<  rDA(     ),     rBA     (     )  >(L_, YES);
           TEST.run<  rDA(     ),    rcBA     (     )  >(L_, NO );
