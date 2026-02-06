@@ -1,5 +1,40 @@
-bsl-internal (4.34.0.0) unstable; urgency=low
+bsl-internal (4.35.0.0) unstable; urgency=low
 
+  * 298cac7f1 Bumped version to 4.35.0.0
+  * 5e23227ed Fix test driver for bslstl_function_invokerutil on Clang (#5738)
+  * 0b1474e31 Fix builds with no transitive includes (#5736)
+  * 02cba2d38 Use nested traits (#5656)
+  * 35f4c2fbd Do not perform leak-test when running asan (#5730)
+  * 07ffb1049 Fix BALL performance regression caused by syscall to get thread ID on every log record (#5734)
+  * 232faeadb balb_filecleaner*: add asserts 'minFiles <= maxFiles', clean up 'remo… (#5723)
+  * 73d63c96e Fix memory leak in breathing test (#5729)
+  * 68f5a73b6 Fix typos in a few components (#5727)
+  * fa871d5a5 [DRQS 181142667] Apply test allocator pattern to `bslfmt` test driver `main` functions (#5621)
+  * 7ac9f6f65 bsl_filesystem operator fix (DRQS 182493015) (#5721)
+  * ab09ebf0d Merge pair refactoring from C++23 integration branch (#5717)
+  * a8608d934 Revivify bsls_ident (#5715)
+  * cd4c5dbc7 Remove support for legacy SunOS that preceded Solaris (#5716)
+  * 02a71aa8f correct TSAN issues (#5722)
+  * 5f17c7f2d Remove last traces of BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT (#5709)
+  * 0f2d2abc4 balb_filecleanerutil: added `maxNumFiles` attribute (#5719)
+  * e19d481cf fix TSAN issues (#5720)
+  * 6ca71e1e6 Drqs 181710914/bdlcc skiplist tsan d node p 20260126 (#5718)
+  * ef9494fdd Modernize integral constant (#5710)
+  * 6c3f4f064 Add testing-only dependencies to bslfmt package (#5643)
+  * 9963218e8 Part 2. please create an overloaded operator/ for filesystem::path (DRQS 179614313) (#5712)
+  * fa04fbe05 Replace deprecated ...CMP_AIX macro with ...CMP_IBM (#5711)
+  * 5a5b0f7a9 Remove extra `that` from doc (#5713)
+  * 0a131552d please create an overloaded operator/ for filesystem::path (DRQS 179614313) (#5706)
+  * fca36f766 Replace include of deprecated bslma_stdallocator.h (#5695)
+  * dae3bf797 Fix conan recipe. (#5705)
+  * 4aa5613c7 bslfmt_padutil: create component (#5649)
+  * 5844b4f62 Simplify Jenkins.conan (#5703)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 5 Feb 2026 23:56:39 +0000
+
+bsl-internal (4.34.0.0) git; urgency=low
+
+  * 4cc80e5e4 Changelog for version 4.34.0.0
   * 04d7cb6ab Bumped version to 4.34.0.0
   * 1ba9ebaac Enable s-baltst for Conan (#5700)
   * 61c9f8d5d fixed doc issues; removed deprecation and correct thread-safety (#5699)
@@ -12,7 +47,7 @@ bsl-internal (4.34.0.0) unstable; urgency=low
   * 7bcc19726 Add bslmt::ThreadUtil::setThreadLimit test helper (#5689)
   * bd01d7d44 `bdld::Datum`: Use the `ExponentAccess` in 32 bit to speed up `isBoolean/Date/Integer/Null` (#5682)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Jan 2026 15:10:16 -0500
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 9 Jan 2026 15:12:27 -0500
 
 bsl-internal (4.33.0.0) git; urgency=low
 
