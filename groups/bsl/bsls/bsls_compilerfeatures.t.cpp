@@ -1629,46 +1629,66 @@ struct S {
 /// some report even if all of the flags are undefined.
 static void printFlags()
 {
-    puts("printFlags: Enter");
+    puts("printFlags:\tEnter");
+    puts("printFlags:\tbsls_compilerfeatures Macros");
 
-    puts("\n==printFlags: bsls_compilerfeatures Macros==");
-
-    fputs("\n  BSLS_COMPILERFEATURES_CPLUSPLUS: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_CPLUSPLUS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_CPLUSPLUS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_CPLUSPLUS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_FILLT(n): ", stdout);
-#ifdef BSLS_COMPILERFEATURES_FILLT
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_FILLT(n)));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_FILLV(n): ", stdout);
-#ifdef BSLS_COMPILERFEATURES_FILLV
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_FILLV(n)));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_FORWARD(T,V): ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_FORWARD(T,V): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FORWARD
     puts(STRINGIFY(BSLS_COMPILERFEATURES_FORWARD(T,V)));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_FORWARD_REF(T): ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_FORWARD_REF(T): ", stdout);
 #ifdef BSLS_COMPILERFEATURES_FORWARD_REF
     puts(STRINGIFY(BSLS_COMPILERFEATURES_FORWARD_REF(T)));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: ",
+    fputs("\tBSLS_COMPILERFEATURES_FULL_CPP11: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FULL_CPP11));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_FULL_CPP14: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP14
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FULL_CPP14));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_FULL_CPP17: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP17
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FULL_CPP17));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_FULL_CPP20: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP20
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FULL_CPP20));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS: ",
           stdout);
 #ifdef BSLS_COMPILERFEATURES_INITIALIZER_LIST_LEAKS_ON_EXCEPTIONS
     puts(STRINGIFY(
@@ -1677,77 +1697,35 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_NILT: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_NILT
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILT));
+    fputs("\tBSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_PP_LINE_IS_ON_FIRST));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_NILTR(n): ", stdout);
-#ifdef BSLS_COMPILERFEATURES_NILTR
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILTR(n)));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_NILV: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_NILV
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILV));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_NILVR(n): ", stdout);
-#ifdef BSLS_COMPILERFEATURES_NILVR
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILVR(n)));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ALIGNAS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIGNAS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ",
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ",
           stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED));
@@ -1755,119 +1733,126 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CONCEPTS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEVAL_CPP20));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP17));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP20));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_COROUTINE: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_COROUTINE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_COROUTINE));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_CTAD: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CTAD));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_DECLTYPE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULT_TEMPLATE_ARGS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DEFAULTED_FUNCTIONS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ENUM_CLASS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_FINAL: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_FINAL: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_FINAL));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: ",
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS: ",
           stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS));
@@ -1875,423 +1860,1058 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  **deprecated** alias:", stdout);
-    fputs("\n    BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_NULLPTR: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_CTAD: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CTAD));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HARDWARE_INTERFERENCE));
 #else
     puts("UNDEFINED");
 #endif
 
-    puts("\n\n==printFlags: bsls_compilerfeatures Referenced Macros==");
-
-    fputs("\n  BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HAS_INCLUDE));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_HEXFLOAT_LITERALS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE: ", stdout);
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE
-    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_EXTERN_TEMPLATE));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INCLUDE_NEXT));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ", stdout);
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_IN_FNC_TYPE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t**deprecated** alias:", stdout);
+    fputs("\t  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT_TYPES));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_NULLPTR: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_NULLPTR
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NULLPTR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES: ", stdout);
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_PLATFORM_CMP_CLANG: ", stdout);
-#ifdef BSLS_PLATFORM_CMP_CLANG
-    puts(STRINGIFY(BSLS_PLATFORM_CMP_CLANG));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_ASSERT));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_PLATFORM_CMP_GNU: ", stdout);
-#ifdef BSLS_PLATFORM_CMP_GNU
-    puts(STRINGIFY(BSLS_PLATFORM_CMP_GNU));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_PLATFORM_CMP_IBM: ", stdout);
-#ifdef BSLS_PLATFORM_CMP_IBM
-    puts(STRINGIFY(BSLS_PLATFORM_CMP_IBM));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_PLATFORM_CMP_MSVC: ", stdout);
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    puts(STRINGIFY(BSLS_PLATFORM_CMP_MSVC));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_THROW_SPECIFICATIONS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_PLATFORM_CMP_SUN: ", stdout);
-#ifdef BSLS_PLATFORM_CMP_SUN
-    puts(STRINGIFY(BSLS_PLATFORM_CMP_SUN));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  BSLS_PLATFORM_CMP_VERSION: ", stdout);
-#ifdef BSLS_PLATFORM_CMP_VERSION
-    puts(STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __APPLE_CC__: ", stdout);
-#ifdef __APPLE_CC__
-    puts(STRINGIFY(__APPLE_CC__));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_USER_DEFINED_LITERALS));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __apple_build_version__: ", stdout);
-#ifdef __apple_build_version__
-    puts(STRINGIFY(__apple_build_version__));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __GXX_EXPERIMENTAL_CXX0X__: ", stdout);
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-    puts(STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_CONSTEXPR: ", stdout);
-#ifdef __IBMCPP_CONSTEXPR
-    puts(STRINGIFY(__IBMCPP_CONSTEXPR));
+    fputs("\tBSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_DECLTYPE: ", stdout);
-#ifdef __IBMCPP_DECLTYPE
-    puts(STRINGIFY(__IBMCPP_DECLTYPE));
+    // List all the implementation-detail macros used to define facilities such
+    // as the C++03 variadic template emulator.
+    puts("\nprintFlags:\tImplementation-detail Macros");
+
+    fputs("\tBSLS_COMPILERFEATURES_FILLT(n): ", stdout);
+#ifdef BSLS_COMPILERFEATURES_FILLT
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FILLT(n)));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS: ", stdout);
-#ifdef __IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS
-    puts(STRINGIFY(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS));
+    fputs("\tBSLS_COMPILERFEATURES_FILLV(n): ", stdout);
+#ifdef BSLS_COMPILERFEATURES_FILLV
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_FILLV(n)));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_EXPLICIT: ", stdout);
-#ifdef __IBMCPP_EXPLICIT
-    puts(STRINGIFY(__IBMCPP_EXPLICIT));
+    fputs("\tBSLS_COMPILERFEATURES_NILT: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_NILT
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILT));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_EXTERN_TEMPLATE: ", stdout);
-#ifdef __IBMCPP_EXTERN_TEMPLATE
-    puts(STRINGIFY(__IBMCPP_EXTERN_TEMPLATE));
+    fputs("\tBSLS_COMPILERFEATURES_NILTR(n): ", stdout);
+#ifdef BSLS_COMPILERFEATURES_NILTR
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILTR(n)));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_INLINE_NAMESPACE: ", stdout);
-#ifdef __IBMCPP_INLINE_NAMESPACE
-    puts(STRINGIFY(__IBMCPP_INLINE_NAMESPACE));
+    fputs("\tBSLS_COMPILERFEATURES_NILV: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_NILV
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILV));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_NULLPTR: ", stdout);
-#ifdef __IBMCPP_NULLPTR
-    puts(STRINGIFY(__IBMCPP_NULLPTR));
+    fputs("\tBSLS_COMPILERFEATURES_NILVR(n): ", stdout);
+#ifdef BSLS_COMPILERFEATURES_NILVR
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_NILVR(n)));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_OVERRIDE: ", stdout);
-#ifdef __IBMCPP_OVERRIDE
-    puts(STRINGIFY(__IBMCPP_OVERRIDE));
+    fputs("\tBSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_RVALUE_REFERENCES: ", stdout);
-#ifdef __IBMCPP_RVALUE_REFERENCES
-    puts(STRINGIFY(__IBMCPP_RVALUE_REFERENCES));
+    fputs("\tBSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_FORWARD_WORKAROUND));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_STATIC_ASSERT: ", stdout);
-#ifdef __IBMCPP_STATIC_ASSERT
-    puts(STRINGIFY(__IBMCPP_STATIC_ASSERT));
+    fputs("\tBSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES: ", stdout);
+#ifdef BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+    puts(STRINGIFY(BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __IBMCPP_VARIADIC_TEMPLATES: ", stdout);
-#ifdef __IBMCPP_VARIADIC_TEMPLATES
-    puts(STRINGIFY(__IBMCPP_VARIADIC_TEMPLATES));
-#else
-    puts("UNDEFINED");
-#endif
+    // List all the feature macros from the latest ISO Standard draft.
+    // Note that this list needs updating only when a new macro is addded and
+    // not when an existing macro updates its value.  Note that this list
+    // follows ISO SD-6, which contains a few additional macros that are not
+    // published in the C++ Standard, but are still expected to apply.
+    puts("\nprintFlags:\tISO Standard compiler feature macros (Kona 2025)");
 
-    fputs("\n  __IBMC_NORETURN: ", stdout);
-#ifdef __IBMC_NORETURN
-    puts(STRINGIFY(__IBMC_NORETURN));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  __IBM_INCLUDE_NEXT: ", stdout);
-#ifdef __IBM_INCLUDE_NEXT
-    puts(STRINGIFY(__IBM_INCLUDE_NEXT));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  __C99_HEX_FLOAT_CONST: ", stdout);
-#ifdef __C99_HEX_FLOAT_CONST
-    puts(STRINGIFY(__C99_HEX_FLOAT_CONST));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  __STRICT_ANSI__: ", stdout);
-#ifdef __STRICT_ANSI__
-    puts(STRINGIFY(__STRICT_ANSI__));
-#else
-    puts("UNDEFINED");
-#endif
-
-    fputs("\n  __cplusplus: ", stdout);
+    fputs("\t__cplusplus: ", stdout);
 #ifdef __cplusplus
     puts(STRINGIFY(__cplusplus));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __cpp_concepts: ", stdout);
-#ifdef __cpp_concepts
-    puts(STRINGIFY(__cpp_concepts));
+
+    puts("\n\tC++98");
+
+    fputs("\t__cpp_exceptions: ", stdout);
+#ifdef __cpp_exceptions
+    puts(STRINGIFY(__cpp_exceptions));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __cpp_hex_float: ", stdout);
-#ifdef __cpp_hex_float
-    puts(STRINGIFY(__cpp_hex_float));
+    fputs("\t__cpp_rtti: ", stdout);
+#ifdef __cpp_rtti
+    puts(STRINGIFY(__cpp_rtti));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __cpp_unicode_characters: ", stdout);
+
+    puts("\n\tC++11");
+
+    fputs("\t__cpp_alias_templates: ", stdout);
+#ifdef __cpp_alias_templates
+    puts(STRINGIFY(__cpp_alias_templates));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_attributes: ", stdout);
+#ifdef __cpp_attributes
+    puts(STRINGIFY(__cpp_attributes));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_constexpr: ", stdout);
+#ifdef __cpp_constexpr
+    puts(STRINGIFY(__cpp_constexpr));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_decltype: ", stdout);
+#ifdef __cpp_decltype
+    puts(STRINGIFY(__cpp_decltype));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_delegating_constructors: ", stdout);
+#ifdef __cpp_delegating_constructors
+    puts(STRINGIFY(__cpp_delegating_constructors));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_inheriting_constructors: ", stdout);
+#ifdef __cpp_inheriting_constructors
+    puts(STRINGIFY(__cpp_inheriting_constructors));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_initializer_lists: ", stdout);
+#ifdef __cpp_initializer_lists
+    puts(STRINGIFY(__cpp_initializer_lists));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_lambdas: ", stdout);
+#ifdef __cpp_lambdas
+    puts(STRINGIFY(__cpp_lambdas));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_nsdmi: ", stdout);
+#ifdef __cpp_nsdmi
+    puts(STRINGIFY(__cpp_nsdmi));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_range_based_for: ", stdout);
+#ifdef __cpp_range_based_for
+    puts(STRINGIFY(__cpp_range_based_for));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_raw_strings: ", stdout);
+#ifdef __cpp_raw_strings
+    puts(STRINGIFY(__cpp_raw_strings));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_ref_qualifiers: ", stdout);
+#ifdef __cpp_ref_qualifiers
+    puts(STRINGIFY(__cpp_ref_qualifiers));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_rvalue_references: ", stdout);
+#ifdef __cpp_rvalue_references
+    puts(STRINGIFY(__cpp_rvalue_references));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_static_assert: ", stdout);
+#ifdef __cpp_static_assert
+    puts(STRINGIFY(__cpp_static_assert));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_threadsafe_static_init: ", stdout);
+#ifdef __cpp_threadsafe_static_init
+    puts(STRINGIFY(__cpp_threadsafe_static_init));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_unicode_characters: ", stdout);
 #ifdef __cpp_unicode_characters
     puts(STRINGIFY(__cpp_unicode_characters));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __cpp_unicode_literals: ", stdout);
+    fputs("\t__cpp_unicode_literals: ", stdout);
 #ifdef __cpp_unicode_literals
     puts(STRINGIFY(__cpp_unicode_literals));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __has_cpp_attribute: ", stdout);
-#ifdef __has_cpp_attribute
-    puts("DEFINED");
+    fputs("\t__cpp_user_defined_literals: ", stdout);
+#ifdef __cpp_user_defined_literals
+    puts(STRINGIFY(__cpp_user_defined_literals));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __cpp_impl_coroutine: ", stdout);
+    fputs("\t__cpp_variadic_templates: ", stdout);
+#ifdef __cpp_variadic_templates
+    puts(STRINGIFY(__cpp_variadic_templates));
+#else
+    puts("UNDEFINED");
+#endif
+
+
+    puts("\n\tC++14");
+
+    fputs("\t__cpp_aggregate_nsdmi: ", stdout);
+#ifdef __cpp_aggregate_nsdmi
+    puts(STRINGIFY(__cpp_aggregate_nsdmi));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_binary_literals: ", stdout);
+#ifdef __cpp_binary_literals
+    puts(STRINGIFY(__cpp_binary_literals));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_decltype_auto: ", stdout);
+#ifdef __cpp_decltype_auto
+    puts(STRINGIFY(__cpp_decltype_auto));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_variable_templates: ", stdout);
+#ifdef __cpp_variable_templates
+    puts(STRINGIFY(__cpp_variable_templates));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_generic_lambdas: ", stdout);
+#ifdef __cpp_generic_lambdas
+    puts(STRINGIFY(__cpp_generic_lambdas));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_init_captures: ", stdout);
+#ifdef __cpp_init_captures
+    puts(STRINGIFY(__cpp_init_captures));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_return_type_deduction: ", stdout);
+#ifdef __cpp_return_type_deduction
+    puts(STRINGIFY(__cpp_return_type_deduction));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_sized_deallocation: ", stdout);
+#ifdef __cpp_sized_deallocation
+    puts(STRINGIFY(__cpp_sized_deallocation));
+#else
+    puts("UNDEFINED");
+#endif
+
+
+    puts("\n\tC++17");
+
+    fputs("\t__cpp_aggregate_bases: ", stdout);
+#ifdef __cpp_aggregate_bases
+    puts(STRINGIFY(__cpp_aggregate_bases));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_aligned_new: ", stdout);
+#ifdef __cpp_aligned_new
+    puts(STRINGIFY(__cpp_aligned_new));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_capture_star_this: ", stdout);
+#ifdef __cpp_capture_star_this
+    puts(STRINGIFY(__cpp_capture_star_this));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_deduction_guides: ", stdout);
+#ifdef __cpp_deduction_guides
+    puts(STRINGIFY(__cpp_deduction_guides));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_enumerator_attributes: ", stdout);
+#ifdef __cpp_enumerator_attributes
+    puts(STRINGIFY(__cpp_enumerator_attributes));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_fold_expressions: ", stdout);
+#ifdef __cpp_fold_expressions
+    puts(STRINGIFY(__cpp_fold_expressions));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_guaranteed_copy_elision: ", stdout);
+#ifdef __cpp_guaranteed_copy_elision
+    puts(STRINGIFY(__cpp_guaranteed_copy_elision));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_hex_float: ", stdout);
+#ifdef __cpp_hex_float
+    puts(STRINGIFY(__cpp_hex_float));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_if_constexpr: ", stdout);
+#ifdef __cpp_if_constexpr
+    puts(STRINGIFY(__cpp_if_constexpr));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_inline_variables: ", stdout);
+#ifdef __cpp_inline_variables
+    puts(STRINGIFY(__cpp_inline_variables));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_namespace_attributes: ", stdout);
+#ifdef __cpp_namespace_attributes
+    puts(STRINGIFY(__cpp_namespace_attributes));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_noexcept_function_type: ", stdout);
+#ifdef __cpp_noexcept_function_type
+    puts(STRINGIFY(__cpp_noexcept_function_type));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_nontype_template_args: ", stdout);
+#ifdef __cpp_nontype_template_args
+    puts(STRINGIFY(__cpp_nontype_template_args));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_nontype_template_parameter_auto: ", stdout);
+#ifdef __cpp_nontype_template_parameter_auto
+    puts(STRINGIFY(__cpp_nontype_template_parameter_auto));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_structured_bindings: ", stdout);
+#ifdef __cpp_structured_bindings
+    puts(STRINGIFY(__cpp_structured_bindings));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_template_template_args: ", stdout);
+#ifdef __cpp_template_template_args
+    puts(STRINGIFY(__cpp_template_template_args));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_variadic_using: ", stdout);
+#ifdef __cpp_variadic_using
+    puts(STRINGIFY(__cpp_variadic_using));
+#else
+    puts("UNDEFINED");
+#endif
+
+
+    puts("\n\tC++20");
+
+    fputs("\t__cpp_aggregate_paren_init: ", stdout);
+#ifdef __cpp_aggregate_paren_init
+    puts(STRINGIFY(__cpp_aggregate_paren_init));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_char8_t: ", stdout);
+#ifdef __cpp_char8_t
+    puts(STRINGIFY(__cpp_char8_t));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_concepts: ", stdout);
+#ifdef __cpp_concepts
+    puts(STRINGIFY(__cpp_concepts));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_conditional_explicit: ", stdout);
+#ifdef __cpp_conditional_explicit
+    puts(STRINGIFY(__cpp_conditional_explicit));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_consteval: ", stdout);
+#ifdef __cpp_consteval
+    puts(STRINGIFY(__cpp_consteval));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_constexpr_dynamic_alloc: ", stdout);
+#ifdef __cpp_constexpr_dynamic_alloc
+    puts(STRINGIFY(__cpp_constexpr_dynamic_alloc));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_constinit: ", stdout);
+#ifdef __cpp_constinit
+    puts(STRINGIFY(__cpp_constinit));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_designated_initializers: ", stdout);
+#ifdef __cpp_designated_initializers
+    puts(STRINGIFY(__cpp_designated_initializers));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_impl_coroutine: ", stdout);
 #ifdef __cpp_impl_coroutine
     puts(STRINGIFY(__cpp_impl_coroutine));
 #else
     puts("UNDEFINED");
 #endif
 
-    fputs("\n  __cpp_lib_coroutine: ", stdout);
+    fputs("\t__cpp_impl_destroying_delete: ", stdout);
+#ifdef __cpp_impl_destroying_delete
+    puts(STRINGIFY(__cpp_impl_destroying_delete));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_impl_three_way_comparison: ", stdout);
+#ifdef __cpp_impl_three_way_comparison
+    puts(STRINGIFY(__cpp_impl_three_way_comparison));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_modules: ", stdout);
+#ifdef __cpp_modules
+    puts(STRINGIFY(__cpp_modules));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_using_enum: ", stdout);
+#ifdef __cpp_using_enum
+    puts(STRINGIFY(__cpp_using_enum));
+#else
+    puts("UNDEFINED");
+#endif
+
+
+    puts("\n\tC++23");
+
+    fputs("\t__cpp_auto_cast: ", stdout);
+#ifdef __cpp_auto_cast
+    puts(STRINGIFY(__cpp_auto_cast));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_constexpr_in_decltype: ", stdout);
+#ifdef __cpp_constexpr_in_decltype
+    puts(STRINGIFY(__cpp_constexpr_in_decltype));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_explicit_this_parameter: ", stdout);
+#ifdef __cpp_explicit_this_parameter
+    puts(STRINGIFY(__cpp_explicit_this_parameter));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_if_consteval: ", stdout);
+#ifdef __cpp_if_consteval
+    puts(STRINGIFY(__cpp_if_consteval));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_implicit_move: ", stdout);
+#ifdef __cpp_implicit_move
+    puts(STRINGIFY(__cpp_implicit_move));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_multidimensional_subscript: ", stdout);
+#ifdef __cpp_multidimensional_subscript
+    puts(STRINGIFY(__cpp_multidimensional_subscript));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_named_character_escapes: ", stdout);
+#ifdef __cpp_named_character_escapes
+    puts(STRINGIFY(__cpp_named_character_escapes));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_static_call_operator: ", stdout);
+#ifdef __cpp_static_call_operator
+    puts(STRINGIFY(__cpp_static_call_operator));
+#else
+    puts("UNDEFINED");
+#endif
+
+
+    puts("\n\tC++26");
+
+    fputs("\t__cpp_constexpr_exceptions: ", stdout);
+#ifdef __cpp_constexpr_exceptions
+    puts(STRINGIFY(__cpp_constexpr_exceptions));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_constexpr_virtual_inheritance: ", stdout);
+#ifdef __cpp_constexpr_virtual_inheritance
+    puts(STRINGIFY(__cpp_constexpr_virtual_inheritance));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_contracts: ", stdout);
+#ifdef __cpp_contracts
+    puts(STRINGIFY(__cpp_contracts));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_deleted_function: ", stdout);
+#ifdef __cpp_deleted_function
+    puts(STRINGIFY(__cpp_deleted_function));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_expansion_statements: ", stdout);
+#ifdef __cpp_expansion_statements
+    puts(STRINGIFY(__cpp_expansion_statements));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_impl_reflection: ", stdout);
+#ifdef __cpp_impl_reflection
+    puts(STRINGIFY(__cpp_impl_reflection));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_pack_indexing: ", stdout);
+#ifdef __cpp_pack_indexing
+    puts(STRINGIFY(__cpp_pack_indexing));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_placeholder_variables: ", stdout);
+#ifdef __cpp_placeholder_variables
+    puts(STRINGIFY(__cpp_placeholder_variables));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_pp_embed: ", stdout);
+#ifdef __cpp_pp_embed
+    puts(STRINGIFY(__cpp_pp_embed));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_template_parameters: ", stdout);
+#ifdef __cpp_template_parameters
+    puts(STRINGIFY(__cpp_template_parameters));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_trivial_union: ", stdout);
+#ifdef __cpp_trivial_union
+    puts(STRINGIFY(__cpp_trivial_union));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__cpp_variadic_friend: ", stdout);
+#ifdef __cpp_variadic_friend
+    puts(STRINGIFY(__cpp_variadic_friend));
+#else
+    puts("UNDEFINED");
+#endif
+
+    // List additional macros defined by the ISO C++ Standard that may be
+    // useful to know.  Note that we take special to detect library support
+    // for coroutines without introducing a dependency on the bsl library
+    // features component/
+    puts("\nprintFlags:\tAdditional ISO Standard Macros");
+
+    fputs("\t__cpp_lib_coroutine: ", stdout);
 #ifdef __cpp_lib_coroutine
     puts(STRINGIFY(__cpp_lib_coroutine));
 #else
     puts("UNDEFINED");
 #endif
 
-    puts("\n\nprintFlags: Leave\n");
+    fputs("\t__has_cpp_attribute: ", stdout);
+#ifdef __has_cpp_attribute
+    puts("DEFINED");
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__has_embed: ", stdout);
+#ifdef __has_embed
+    puts("DEFINED");
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__has_include: ", stdout);
+#ifdef __has_include
+    puts("DEFINED");
+#else
+    puts("UNDEFINED");
+#endif
+
+    // List all the non-standard platform specific macros that are tested in
+    // any supported configuration.
+    puts("\nprintFlags:\tPlatform Macros Referenced by bsls_compilerfeatures");
+
+    fputs("\tBSLS_PLATFORM_CMP_CLANG: ", stdout);
+#ifdef BSLS_PLATFORM_CMP_CLANG
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_CLANG));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_PLATFORM_CMP_GNU: ", stdout);
+#ifdef BSLS_PLATFORM_CMP_GNU
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_GNU));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_PLATFORM_CMP_IBM: ", stdout);
+#ifdef BSLS_PLATFORM_CMP_IBM
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_IBM));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_PLATFORM_CMP_MSVC: ", stdout);
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_MSVC));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_PLATFORM_CMP_SUN: ", stdout);
+#ifdef BSLS_PLATFORM_CMP_SUN
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_SUN));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\tBSLS_PLATFORM_CMP_VERSION: ", stdout);
+#ifdef BSLS_PLATFORM_CMP_VERSION
+    puts(STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__apple_build_version__: ", stdout);
+#ifdef __apple_build_version__
+    puts(STRINGIFY(__apple_build_version__));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__APPLE_CC__: ", stdout);
+#ifdef __APPLE_CC__
+    puts(STRINGIFY(__APPLE_CC__));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__C99_HEX_FLOAT_CONST: ", stdout);
+#ifdef __C99_HEX_FLOAT_CONST
+    puts(STRINGIFY(__C99_HEX_FLOAT_CONST));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__GXX_EXPERIMENTAL_CXX0X__: ", stdout);
+#ifdef __GXX_EXPERIMENTAL_CXX0X__
+    puts(STRINGIFY(__GXX_EXPERIMENTAL_CXX0X__));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBM_INCLUDE_NEXT: ", stdout);
+#ifdef __IBM_INCLUDE_NEXT
+    puts(STRINGIFY(__IBM_INCLUDE_NEXT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMC_NORETURN: ", stdout);
+#ifdef __IBMC_NORETURN
+    puts(STRINGIFY(__IBMC_NORETURN));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_CONSTEXPR: ", stdout);
+#ifdef __IBMCPP_CONSTEXPR
+    puts(STRINGIFY(__IBMCPP_CONSTEXPR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_DECLTYPE: ", stdout);
+#ifdef __IBMCPP_DECLTYPE
+    puts(STRINGIFY(__IBMCPP_DECLTYPE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS: ", stdout);
+#ifdef __IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS
+    puts(STRINGIFY(__IBMCPP_DEFAULTED_AND_DELETED_FUNCTIONS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_EXPLICIT: ", stdout);
+#ifdef __IBMCPP_EXPLICIT
+    puts(STRINGIFY(__IBMCPP_EXPLICIT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_EXTERN_TEMPLATE: ", stdout);
+#ifdef __IBMCPP_EXTERN_TEMPLATE
+    puts(STRINGIFY(__IBMCPP_EXTERN_TEMPLATE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_INLINE_NAMESPACE: ", stdout);
+#ifdef __IBMCPP_INLINE_NAMESPACE
+    puts(STRINGIFY(__IBMCPP_INLINE_NAMESPACE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_NULLPTR: ", stdout);
+#ifdef __IBMCPP_NULLPTR
+    puts(STRINGIFY(__IBMCPP_NULLPTR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_OVERRIDE: ", stdout);
+#ifdef __IBMCPP_OVERRIDE
+    puts(STRINGIFY(__IBMCPP_OVERRIDE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_RVALUE_REFERENCES: ", stdout);
+#ifdef __IBMCPP_RVALUE_REFERENCES
+    puts(STRINGIFY(__IBMCPP_RVALUE_REFERENCES));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_STATIC_ASSERT: ", stdout);
+#ifdef __IBMCPP_STATIC_ASSERT
+    puts(STRINGIFY(__IBMCPP_STATIC_ASSERT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__IBMCPP_VARIADIC_TEMPLATES: ", stdout);
+#ifdef __IBMCPP_VARIADIC_TEMPLATES
+    puts(STRINGIFY(__IBMCPP_VARIADIC_TEMPLATES));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t_MSC_FULL_VER: ", stdout);
+#ifdef _MSC_FULL_VER
+    puts(STRINGIFY(_MSC_FULL_VER));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t_MSVC_LANG: ", stdout);
+#ifdef _MSVC_LANG
+    puts(STRINGIFY(_MSVC_LANG));
+#else
+    puts("UNDEFINED");
+#endif
+
+    fputs("\t__STRICT_ANSI__: ", stdout);
+#ifdef __STRICT_ANSI__
+    puts(STRINGIFY(__STRICT_ANSI__));
+#else
+    puts("UNDEFINED");
+#endif
+
+    puts("\nprintFlags:\tLeave\n");
 }
 
 //=============================================================================
