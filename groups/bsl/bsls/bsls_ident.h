@@ -144,13 +144,11 @@
 /// Ensure that either `BSLS_IDENT_ON` or `BSLS_IDENT_OFF` is defined according
 /// to the command line configuration.  Enabling `BSLS_IDENT` by default causes
 /// significant bloat - see internal ticket D29644737.
-#if defined(BSLS_IDENT_ON)
-  #if !defined(BSLS_IDENT_OFF)
-    #define BSLS_IDENT_OFF
-  #endif    // `ifndef BSLS_IDENT_OFF`
-#elif defined(BSLS_IDENT_OFF)
+#if !defined(BSLS_IDENT_ON) && !defined(BSLS_IDENT_OFF)
+  #define BSLS_IDENT_OFF
+#elif defined(BSLS_IDENT_ON) && defined(BSLS_IDENT_OFF)
   #error Command line cannot define both `BSLS_IDENT_ON` and `BSLS_IDENT_OFF`
-#endif      // `ifndef BSLS_IDENT_ON`
+#endif
 
 // ============================================================================
 //                  COMPONENT-SPECIFIC IMPLEMENTATION MACROS
