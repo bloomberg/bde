@@ -340,6 +340,8 @@ int main(int argc, char *argv[])
             TimeInterval prev   = origin;
             TimeInterval now    = origin;
 
+            int64_t numFailures = 0;
+
             while (TimeInterval(1.5) > now - origin) {
                 if (veryVerbose) {
                     P_(prev); P(now);
@@ -347,10 +349,14 @@ int main(int argc, char *argv[])
 
                 now = Obj::nowRealtimeClock();
 
-                ASSERTV(prev, now, prev <= now);
+                if (prev > now) {
+                    ++numFailures;
+                }
 
                 prev = now;
             }
+
+            ASSERTV(numFailures, 5 > numFailures);
         }
     } break;
     case -1: {

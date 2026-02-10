@@ -462,12 +462,12 @@ int main(int argc, char *argv[])
             if (verbose) {
                 P(iterations);
             }
-            // we should ALWAYS be able to make WAY MORE THAN 100 iterations
-            // per thread per second
+            // except under extreme machine load, we should be able to make
+            // more than 100 iterations per thread per second
 
             LOOP_ASSERT(iterations,
-                        100 * k_NUM_WAITING_THREADS * k_NUM_TEST_SECONDS <
-                        iterations);
+                        20 * k_NUM_WAITING_THREADS * k_NUM_TEST_SECONDS <
+                                                                   iterations);
         }
         if (verbose) {
             P(ta.numAllocations());

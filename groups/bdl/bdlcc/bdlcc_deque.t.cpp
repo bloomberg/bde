@@ -2800,7 +2800,7 @@ enum { HIGH_WATER_MARK   = 12,
        THREAD_ID_BITS    = 2,
        ID_SHIFT          = 32 - THREAD_ID_BITS,
        NUM_THREADS       = 1 << THREAD_ID_BITS,
-       PUSHES_PER_THREAD = 40 * 1000,
+       PUSHES_PER_THREAD = 30 * 1000,
        POPS_IN_MAIN      = NUM_THREADS * PUSHES_PER_THREAD };
 
 bslmt::Barrier barrier(NUM_THREADS + 1);

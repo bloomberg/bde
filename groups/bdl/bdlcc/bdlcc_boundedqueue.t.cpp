@@ -1200,6 +1200,9 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         bslmt::ThreadUtil::Handle              handle;
 
         Obj mX(128);
