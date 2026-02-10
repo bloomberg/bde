@@ -151,6 +151,8 @@ using namespace bsl;
 // [31] TESTING `scheduleRecurringEventRaw` WITH CHRONO CLOCKS
 // [32] CONCERN: `EventData` and `RecurringEventData` are allocator-aware.
 // [33] CONCERN: THREAD NAMES
+// [35] CONCERN: DESTROY THE CALLBACK AFTER EXECUTION
+// [36] CONCERN: CANCELING EVENT FROM THE CALLBACK
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1185,6 +1187,77 @@ void signalLatchCallback(bslmt::Latch& done)
     }
     done.arrive();
 }
+
+                         // ========================
+                         // struct CircularReference
+                         // ========================
+
+struct CircularReference {
+    // DATA
+    bdlmt::EventScheduler::EventHandle d_handle;
+};
+
+                         // ===============================
+                         // class CircularReferenceCallback
+                         // ===============================
+
+class CircularReferenceCallback {
+    // DATA
+    bsl::shared_ptr<CircularReference> circularRef;
+public:
+    // CREATORS
+    explicit CircularReferenceCallback(
+                            const bsl::shared_ptr<CircularReference>& p)
+    : circularRef(p) {}
+
+    // ACCESSORS
+    void operator()() const {}
+};
+
+                         // ===========================
+                         // class SelfCancelingCallback
+                         // ===========================
+
+class SelfCancelingCallback {
+    // DATA
+    Obj &d_scheduler;
+    Obj::EventHandle *d_handle_p;
+
+  public:
+    // PUBLIC CLASS DATA
+    static bsls::AtomicInt s_objectsCount;
+
+    // CREATORS
+    SelfCancelingCallback(Obj &scheduler, Obj::EventHandle *handle_p)
+    : d_scheduler(scheduler)
+    , d_handle_p(handle_p)
+    {
+        ++s_objectsCount;
+    }
+
+    SelfCancelingCallback(const SelfCancelingCallback& original)
+    : d_scheduler(original.d_scheduler)
+    , d_handle_p(original.d_handle_p)
+    {
+        ++s_objectsCount;
+    }
+
+    ~SelfCancelingCallback() { --s_objectsCount; }
+
+    // ACCESSORS
+    void operator()() const
+    {
+        const int count = s_objectsCount;
+        ASSERTV(count, count > 0);
+
+        d_scheduler.cancelEvent(*d_handle_p);
+
+        int newCount = s_objectsCount;
+        ASSERTV(count, newCount, newCount == count);
+    }
+};
+
+bsls::AtomicInt SelfCancelingCallback::s_objectsCount(0);
 
 // ============================================================================
 //                      USAGE EXAMPLE RELATED ENTITIES
@@ -2933,6 +3006,127 @@ int main(int argc, char *argv[])
                                       bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: CANCELING EVENT FROM THE CALLBACK
+        //
+        // Concerns:
+        // 1. Canceling event from the running handler does not immediately
+        //    destroy the callback object.
+        //
+        // Plan:
+        // 1. Create a callback that calls `cancelEvent`.  Also supply the
+        //    callback with an objects counter, which is incremented in the
+        //    constructors and decremented in the destructor.
+        //
+        // 2. In the event handler (callback):
+        //
+        //   1. Before calling `cancelEvent` save the current counter value.
+        //
+        //   2. After the call, verify that the counter has the same value.
+        //      (C-1)
+        //
+        // 3. Setup a scheduler, schedule an event with the callback, wait
+        //    until the event is run.
+        //
+        // Testing:
+        //   CONCERN: CANCELING EVENT FROM THE CALLBACK
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                        "\nCONCERN: CANCELING EVENT FROM THE CALLBACK"
+                        "\n==========================================" << endl;
+
+        Obj scheduler;
+        int rc = scheduler.start();
+        ASSERT(rc == 0);
+
+        Obj::EventHandle   handle;
+        bsls::TimeInterval when = scheduler.now() + bsls::TimeInterval(0);
+        scheduler.scheduleEvent(&handle,
+                                when,
+                                SelfCancelingCallback(scheduler, &handle));
+
+        // Wait until the event is run
+        while(scheduler.numEvents() != 0) {
+            bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
+        }
+
+        scheduler.stop();
+      } break;
+      case 35: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: DESTROY THE CALLBACK AFTER EXECUTION
+        //
+        // Concerns:
+        // 1. The event callback is explicitly destroyed after execution to
+        //    break potential circular references (DRQS 179819546).
+        //
+        // Plan:
+        // 1. Start a scheduler.  Create a callback with a `shared_ptr` that
+        //    references an object containing an `EventHandle`.
+        //
+        // 2. Schedule an event.  Wait a period of time that is long enough for
+        //    the event to be executed.
+        //
+        // 3. Stop the scheduler.  Verify that `use_count` of the `shared_ptr`
+        //    is 1, which means that the callback object was destroyed.
+        //
+        // 4. Repeat the same for a canceled event.
+        //
+        // Testing:
+        //   CONCERN: DESTROY THE CALLBACK AFTER EXECUTION
+        // --------------------------------------------------------------------
+
+        if (verbose) cout <<
+                     "\nCONCERN: DESTROY THE CALLBACK AFTER EXECUTION"
+                     "\n=============================================" << endl;
+
+        // Executed event
+        {
+            Obj scheduler;
+            int rc = scheduler.start();
+            ASSERT(rc == 0);
+
+            bsl::shared_ptr<CircularReference> circularRef =
+                                         bsl::make_shared<CircularReference>();
+            bsls::TimeInterval when = scheduler.now() + bsls::TimeInterval(0);
+            scheduler.scheduleEvent(&circularRef->d_handle,
+                                    when,
+                                    CircularReferenceCallback(circularRef));
+            //ASSERTV(scheduler.numEvents(), scheduler.numEvents() == 1);
+
+            // Wait until the event is run
+            while(scheduler.numEvents() != 0) {
+                bslmt::ThreadUtil::sleep(bsls::TimeInterval(0.1));
+            }
+
+            scheduler.stop();
+
+            ASSERT(circularRef.use_count() == 1);
+        }
+        // Canceled event
+        {
+            Obj scheduler;
+            int rc = scheduler.start();
+            ASSERT(rc == 0);
+
+            bsl::shared_ptr<CircularReference> circularRef =
+                                         bsl::make_shared<CircularReference>();
+            bsls::TimeInterval when = scheduler.now() + bsls::TimeInterval(60);
+            scheduler.scheduleEvent(&circularRef->d_handle,
+                                    when,
+                                    CircularReferenceCallback(circularRef));
+            //ASSERTV(scheduler.numEvents(), scheduler.numEvents() == 1);
+
+            rc = scheduler.cancelEvent(circularRef->d_handle);
+            ASSERT(rc == 0); // Make sure the event didn't run
+
+            scheduler.stop();
+
+            ASSERT(circularRef.use_count() == 1);
+        }
+      } break;
       case 34: {
         // --------------------------------------------------------------------
         // TESTING `nextPendingEventTime`
