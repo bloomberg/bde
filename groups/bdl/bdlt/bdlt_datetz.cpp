@@ -7,7 +7,7 @@ BSLS_IDENT_RCSID(bdlt_datetz_cpp,"$Id$ $CSID$")
 #include <bslim_printer.h>
 #include <bslmf_assert.h>
 
-#include <bsl_cstdio.h>    // 'sprintf'
+#include <bsl_cstdio.h>    // 'snprintf'
 #include <bsl_ostream.h>
 #include <bsl_sstream.h>
 

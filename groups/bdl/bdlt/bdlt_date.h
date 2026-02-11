@@ -164,7 +164,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // int ret = d1.setYearMonthDayIfValid(1900, 2, 29);
 //                          assert(   0 != ret);         // 1900 not leap year
-//                          assert(1776 == d1.year());   // no effect on 'd1'
+//                          assert(1776 == d1.year());   // no effect on `d1`
 //                          assert(   7 == d1.month());
 //                          assert(   4 == d1.day());
 // ```
@@ -210,7 +210,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlt_date_specifierformatter.h>
 #include <bdlt_dayofweek.h>
+#include <bdlt_formatter.h>
 #include <bdlt_monthofyear.h>
 #include <bdlt_serialdateimputil.h>
 
@@ -220,11 +222,11 @@ BSLS_IDENT("$Id: $")
 #include <bslh_hash.h>
 
 #include <bsls_assert.h>
+#include <bsls_keyword.h>
 #include <bsls_preconditions.h>
 #include <bsls_review.h>
 
 #include <bsl_iosfwd.h>
-
 
 namespace BloombergLP {
 namespace bdlt {
@@ -241,7 +243,6 @@ namespace bdlt {
 /// representation) or year/day-of-year (an alternate representation).  See
 /// [](#Valid Date Values and Their Representations) for details.
 class Date {
-
     // DATA
     int d_serialDate;  // absolute serial date (1 == 1/1/1, 2 == 1/1/2, ...)
 
@@ -569,7 +570,6 @@ class Date {
     int validateAndSetYearMonthDay(int year, int month, int day);
 
 #endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
-
 };
 
 // FREE OPERATORS
@@ -1123,6 +1123,50 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::Date> : bsl::true_type {
 }  // close namespace bslmf
 
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `Date` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::Date, t_CHAR>
+{
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::Date                         Date;
+    typedef BloombergLP::bdlt::Date_SpecifierFormatter_Cache<
+                          BloombergLP::bdlt::Date>          FormatCache;
+
+    // DATA
+    BloombergLP::bdlt::Formatter<
+               BloombergLP::bdlt::Date_SpecifierFormatter,
+               t_CHAR>                                      d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const Date&        value,
+                                        t_FORMAT_CONTEXT&  formatContext) const
+    {
+
+        return d_formatter.format(FormatCache(value), formatContext);
+    }
+};
+
+}  // close namespace bsl
 
 #endif
 

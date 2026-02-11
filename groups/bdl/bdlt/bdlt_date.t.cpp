@@ -1,6 +1,8 @@
 // bdlt_date.t.cpp                                                    -*-C++-*-
 #include <bdlt_date.h>
 
+#include <bdlt_formattestutil.h>
+
 #include <bslim_fuzzdataview.h>
 #include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
@@ -29,7 +31,12 @@
 #include <bsl_sstream.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
+using bsl::ends;
+using bsl::flush;
+using bsl::ostream;
 
 // ============================================================================
 //                             TEST PLAN
@@ -126,6 +133,8 @@ using namespace bsl;
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
 // [20] void hashAppend(HASHALG&, const Date&);
+// [21] string  bsl::format( "...", date);
+// [21] wstring bsl::format(L"...", date);
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [13] static bool isValid(int year, int dayOfYear);
@@ -216,9 +225,10 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
-typedef bdlt::Date          Obj;
-typedef bslx::TestInStream  In;
-typedef bslx::TestOutStream Out;
+typedef bdlt::Date           Obj;
+typedef bslx::TestInStream   In;
+typedef bslx::TestOutStream  Out;
+typedef bdlt::FormatTestUtil TU;
 
 #define VERSION_SELECTOR 20140601
 
@@ -334,6 +344,13 @@ const int ALT_NUM_DATA = static_cast<int>(sizeof ALT_DATA / sizeof *ALT_DATA);
 #define main test_driver_main
 #endif
 
+template <class t_CHAR>
+const t_CHAR *nullGuard(const t_CHAR *c_str)
+{
+    static t_CHAR zero = 0;
+    return c_str ? c_str : &zero;
+}
+
 extern "C"
 /// Use the specified `data` array of `size` bytes as input to methods of
 /// this component and return zero.
@@ -414,7 +431,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -511,6 +528,235 @@ if (verbose)
 // ```
 // on `stdout`.
 
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING: `bsl::format`
+        //
+        // Concerns:
+        // 1. By default, `bsl::format{"{}", ...)` produces output from a
+        //    `Date` identical to that produced by `operator<<`.
+        //
+        // 2. All the percent sequences that print output from a `Date`
+        //    produce correct output.
+        //
+        // 3. The `precision` argument works properly when printing entire
+        //    `Date`s by default or using '%i'.
+        //
+        // 4. The `width` argument works properly when printing entire `Date`s
+        //    by default or using '%i', we test left, right, and center
+        //    padding.
+        //
+        // Plans:
+        // 1. Use `BDLT_FORMATTESTUTIL_TEST_FORMAT` and
+        //    `BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG` to test that formatting
+        //    an object with a given string produces a given result.  Tests
+        //    on `char` and `wchat_t` strings.
+        //
+        // 2. Have a table `DEFAULT_DATA[]` driving different `Date` values.
+        //    Loop through the values, initializing `Date`s.
+        //
+        // 3. Verify that the default and '%i' output are as expected.
+        //
+        // 4. Verify using other format strings that produce output equivalent
+        //    to default and '%i' output, thereby exercising other '%'
+        //    sequences.
+        //
+        // 5. Test the rest of the more obscure '%' sequences.
+        //
+        // 6. For default output:
+        //    * Loop iterating through different values of `precision` to be
+        //      passed and verify output is as expected.
+        //    * Loop iterating through different values of `width` to be passed
+        //      and verify output is as expected, for right, left, and center
+        //      padding.
+        //
+        // 7. Repeat the steps of '6' for '%i' output.
+        //
+        // Testing:
+        //   bsl::string  bsl::format( "...", datetime);
+        //   bsl::wstring bsl::format(L"...", datetime);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING: `bsl::format`\n"
+                             "======================\n";
+
+#define U_TEST_FORMAT        BDLT_FORMATTESTUTIL_TEST_FORMAT
+#define U_TEST_FORMAT_ARG    BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG
+
+        bslma::TestAllocator da;
+        bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
+
+        for (int td = 0; td < DEFAULT_NUM_DATA; ++td) {
+            const DefaultDataRow& dData = DEFAULT_DATA[td];
+            const int             DLINE = dData.d_line;    (void) DLINE;
+            const int             YEAR  = dData.d_year;
+            const int             MONTH = dData.d_month;
+            const int             DAY   = dData.d_day;
+
+            const bdlt::Date  X(YEAR, MONTH, DAY);
+
+            if (veryVerbose) P(X);
+
+            bsl::ostringstream oss;
+            oss << X;
+
+            const bsl::string nakedDate = oss.str();
+            bsl::string  exps = nakedDate;   const bsl::string&  EXPS = exps;
+
+            U_TEST_FORMAT(EXPS, "{}", X);
+            U_TEST_FORMAT(EXPS, "{:%D}", X);
+            U_TEST_FORMAT(EXPS, "{:%d%b%Y}", X);
+            U_TEST_FORMAT(EXPS, "{:%d%h%C%y}", X);
+
+            exps = "% ";
+
+            U_TEST_FORMAT(EXPS, "{:%% }", X);
+
+            const bsl::string& fDate = bsl::format("{:04}-{:02}-{:02}",
+                                                             YEAR, MONTH, DAY);
+            exps = fDate;
+
+            U_TEST_FORMAT(EXPS, "{:%i}", X);
+            U_TEST_FORMAT(EXPS, "{:%F}", X);
+            U_TEST_FORMAT(EXPS, "{:%Y-%m-%d}", X);
+
+            oss.str("");
+            {
+                const size_t width = oss.width();
+                const char   fill  = oss.fill();
+                oss.width(3);
+                oss.fill('0');
+                oss << X.dayOfYear();
+                oss.width(width);
+                oss.fill(fill);
+            }
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%j}", X);    // 3-digit day of year
+
+            oss.str("");
+            oss << X.dayOfWeek();            // 3-letter weekday abbrev
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%a}", X);
+
+            int dow = X.dayOfWeek() - 1;     // Sunday is 0
+            oss.str("");
+            oss << dow;
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%w}", X);
+
+            dow = (dow + 7 - 1) % 7 + 1;        // Monday is 1
+            oss.str("");
+            oss << dow;
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%u}", X);
+
+            oss.str("");
+            {
+                const size_t width = oss.width();
+                const char   fill  = oss.fill();
+                oss.width(2);
+                oss.fill('0');
+                oss << (X.year() % 100);     // 2-digit year
+                oss.width(width);
+                oss.fill(fill);
+            }
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%y}", X);
+
+            oss.str("");
+            {
+                const size_t width = oss.width();
+                const char   fill  = oss.fill();
+                oss.width(2);
+                oss.fill('0');
+                oss << (X.year() / 100);     // 2-digit century
+                oss.width(width);
+                oss.fill(fill);
+            }
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%C}", X);
+
+            oss.str("");
+            oss << X.monthOfYear();          // 3-char month abbrev
+            oss << ',';
+            oss << X.monthOfYear();          // 3-char month abbrev
+            exps = oss.str();
+
+            U_TEST_FORMAT(EXPS, "{:%b,%h}", X);
+
+            size_t nakedWidth = nakedDate.length();
+
+            for (int rightPad = -2; rightPad < 10; ++rightPad) {
+                exps = nakedDate;
+                if (0 < rightPad) {
+                    exps.append(rightPad, '*');
+                }
+                U_TEST_FORMAT_ARG(EXPS, "{:*<{}}", X, nakedWidth + rightPad);
+            }
+
+            for (int leftPad = -2; leftPad < 10; ++leftPad) {
+                exps.clear();
+                if (0 < leftPad) {
+                    exps.append(leftPad, '*');
+                }
+                exps += nakedDate;
+                U_TEST_FORMAT_ARG(EXPS, "{:*>{}}", X, nakedWidth + leftPad);
+            }
+
+            for (int centerPad = -2; centerPad < 10; ++centerPad) {
+                exps.clear();
+                if (0 < centerPad / 2) {
+                    exps.append(centerPad / 2, '*');
+                }
+                exps += nakedDate;
+                int rightPad = centerPad - centerPad / 2;
+                if (0 < rightPad) {
+                    exps.append(rightPad, '*');
+                }
+                U_TEST_FORMAT_ARG(EXPS, "{:*^{}}", X, nakedWidth + centerPad);
+            }
+
+            nakedWidth = fDate.length();
+
+            for (int rightPad = -2; rightPad < 10; ++rightPad) {
+                exps = fDate;
+                if (0 < rightPad) {
+                    exps.append(rightPad, '*');
+                }
+                U_TEST_FORMAT_ARG(EXPS, "{:*<{}%i}", X, nakedWidth + rightPad);
+            }
+
+            for (int leftPad = -2; leftPad < 10; ++leftPad) {
+                exps.clear();
+                if (0 < leftPad) {
+                    exps.append(leftPad, '*');
+                }
+                exps += fDate;
+                U_TEST_FORMAT_ARG(EXPS, "{:*>{}%i}", X, nakedWidth + leftPad);
+            }
+
+            for (int centerPad = -2; centerPad < 10; ++centerPad) {
+                exps.clear();
+                if (0 < centerPad / 2) {
+                    exps.append(centerPad / 2, '*');
+                }
+                exps += fDate;
+                int rightPad = centerPad - centerPad / 2;
+                if (0 < rightPad) {
+                    exps.append(rightPad, '*');
+                }
+                U_TEST_FORMAT_ARG(EXPS, "{:*^{}%i}", X, nakedWidth+centerPad);
+            }
+        }
+#undef U_TEST_FORMAT
+#undef U_TEST_FORMAT_ARG
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -4267,6 +4513,9 @@ if (verbose)
         //
         // 8. The output `operator<<` returns the destination `ostream`.
         //
+        // 9. The `bsl::format` function performs properly on strings and wide
+        //    strings.
+        //
         // Plan:
         // 1. Use the addresses of the `print` member function and `operator<<`
         //    free function defined in this component to initialize,
@@ -4306,9 +4555,9 @@ if (verbose)
         // Testing:
         //   ostream& print(ostream& s, int level = 0, int sPL = 4) const;
         //   ostream& operator<<(ostream &os, const Date& object);
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED    // BDE2.22
         //   bsl::ostream& streamOut(bsl::ostream& stream) const;
-#endif // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
         // --------------------------------------------------------------------
 
         if (verbose) cout << endl
@@ -4334,15 +4583,17 @@ if (verbose)
              "\nCreate a table of distinct value/format combinations." << endl;
 
         static const struct {
-            int         d_line;            // source line number
-            int         d_level;
-            int         d_spacesPerLevel;
+            int           d_line;            // source line number
+            int           d_level;
+            int           d_spacesPerLevel;
 
-            int         d_year;
-            int         d_month;
-            int         d_day;
+            int           d_year;
+            int           d_month;
+            int           d_day;
 
-            const char *d_expected_p;
+            const char    *d_expected_p;
+            const wchar_t *d_expectedW_p;
+
         } DATA[] = {
 
 #define NL "\n"
@@ -4354,13 +4605,13 @@ if (verbose)
         //LINE L SPL      Y   M   D  EXP
         //---- - ---   ----  --  --  ---
 
-        { L_,  0,  0,  1914,  7, 28, "28JUL1914"              NL },
+        { L_,  0,  0,  1914,  7, 28, "28JUL1914" NL,          0 },
 
-        { L_,  0,  1,  1914,  7, 28, "28JUL1914"              NL },
+        { L_,  0,  1,  1914,  7, 28, "28JUL1914" NL,          0 },
 
-        { L_,  0, -1,  1914,  7, 28, "28JUL1914"                 },
+        { L_,  0, -1,  1914,  7, 28, "28JUL1914",             0 },
 
-        { L_,  0, -8,  1914,  7, 28, "28JUL1914"              NL },
+        { L_,  0, -8,  1914,  7, 28, "28JUL1914" NL,          0 },
 
         // ------------------------------------------------------------------
         // P-2.1.2: { A } x { 3, -3 } x { 0, 2, -2, -8 } -->  6 expected o/ps
@@ -4369,21 +4620,21 @@ if (verbose)
         //LINE L SPL      Y   M   D  EXP
         //---- - ---   ----  --  --  ---
 
-        { L_,  3,  0,  1914,  7, 28, "28JUL1914"              NL },
+        { L_,  3,  0,  1914,  7, 28, "28JUL1914" NL,          0 },
 
-        { L_,  3,  2,  1914,  7, 28, "      28JUL1914"        NL },
+        { L_,  3,  2,  1914,  7, 28, "      28JUL1914" NL,    0 },
 
-        { L_,  3, -2,  1914,  7, 28, "      28JUL1914"           },
+        { L_,  3, -2,  1914,  7, 28, "      28JUL1914",       0 },
 
-        { L_,  3, -8,  1914,  7, 28, "            28JUL1914"  NL },
+        { L_,  3, -8,  1914,  7, 28, "            28JUL1914" NL, 0 },
 
-        { L_, -3,  0,  1914,  7, 28, "28JUL1914"              NL },
+        { L_, -3,  0,  1914,  7, 28, "28JUL1914" NL,          0 },
 
-        { L_, -3,  2,  1914,  7, 28, "28JUL1914"              NL },
+        { L_, -3,  2,  1914,  7, 28, "28JUL1914" NL,          0 },
 
-        { L_, -3, -2,  1914,  7, 28, "28JUL1914"                 },
+        { L_, -3, -2,  1914,  7, 28, "28JUL1914",             0 },
 
-        { L_, -3, -8,  1914,  7, 28, "28JUL1914"              NL },
+        { L_, -3, -8,  1914,  7, 28, "28JUL1914" NL,          0 },
 
         // -----------------------------------------------------------------
         // P-2.1.3: { B } x { 2 }     x { 3 }            -->  1 expected o/p
@@ -4392,7 +4643,7 @@ if (verbose)
         //LINE L SPL      Y   M   D  EXP
         //---- - ---   ----  --  --  ---
 
-        { L_,  2,  3,   721, 12,  9, "      09DEC0721"        NL },
+        { L_,  2,  3,   721, 12,  9, "      09DEC0721" NL,    0 },
 
         // -----------------------------------------------------------------
         // P-2.1.4: { A B } x { -8 }   x { -8 }         -->  2 expected o/ps
@@ -4401,9 +4652,9 @@ if (verbose)
         //LINE L SPL      Y   M   D  EXP
         //---- - ---   ----  --  --  ---
 
-        { L_, -8, -8,  1914,  7, 28, "28JUL1914"              NL },
+        { L_, -8, -8,  1914,  7, 28, "28JUL1914" NL,          0 },
 
-        { L_, -8, -8,   721, 12,  9, "09DEC0721"              NL },
+        { L_, -8, -8,   721, 12,  9, "09DEC0721" NL,          0 },
 
         // -----------------------------------------------------------------
         // P-2.1.5: { A B } x { -9 }   x { -9 }         -->  2 expected o/ps
@@ -4412,26 +4663,32 @@ if (verbose)
         //LINE L SPL      Y   M   D  EXP
         //---- - ---   ----  --  --  ---
 
-        { L_, -9, -9,  1914,  7, 28, "28JUL1914"                 },
-
-        { L_, -9, -9,   721, 12,  9, "09DEC0721"                 },
+        { L_, -9, -9,  1914,  7, 28, "28JUL1914",  L"28JUL1914" },
+        { L_, -9, -9,  9999, 10, 14, "14OCT9999",  L"14OCT9999" },
+        { L_, -9, -9,     1,  1,  1, "01JAN0001",  L"01JAN0001" },
+        { L_, -9, -9,  9996,  2, 29, "29FEB9996",  L"29FEB9996" },
+        { L_, -9, -9,   721, 12,  9, "09DEC0721",  L"09DEC0721" },
 
 #undef NL
 
         };
         const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
+        bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard defaultAllocatorGuard(&ta);
+
         if (verbose) cout << "\nTesting with various print specifications."
                           << endl;
         {
             for (int ti = 0; ti < NUM_DATA; ++ti) {
-                const int         LINE  = DATA[ti].d_line;
-                const int         L     = DATA[ti].d_level;
-                const int         SPL   = DATA[ti].d_spacesPerLevel;
-                const int         YEAR  = DATA[ti].d_year;
-                const int         MONTH = DATA[ti].d_month;
-                const int         DAY   = DATA[ti].d_day;
-                const char *const EXP   = DATA[ti].d_expected_p;
+                const int          LINE  = DATA[ti].d_line;
+                const int          L     = DATA[ti].d_level;
+                const int          SPL   = DATA[ti].d_spacesPerLevel;
+                const int          YEAR  = DATA[ti].d_year;
+                const int          MONTH = DATA[ti].d_month;
+                const int          DAY   = DATA[ti].d_day;
+                const bsl::string  EXP   = nullGuard(DATA[ti].d_expected_p);
+                const bsl::wstring EXPW  = nullGuard(DATA[ti].d_expectedW_p);
 
                 if (veryVerbose) {
                     T_ P_(LINE) P_(L) P(SPL)
@@ -4444,7 +4701,7 @@ if (verbose)
 
                 bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-                ostringstream os(&oa);
+                bsl::ostringstream os(&oa);
 
                 // Verify supplied stream is returned by reference.
 
@@ -4490,8 +4747,8 @@ if (verbose)
 
             bslma::TestAllocator oa("object", veryVeryVeryVerbose);
 
-            ostringstream os1(&oa);  // use with `print`
-            ostringstream os2(&oa);  // use with `streamOut`
+            bsl::ostringstream os1(&oa);  // use with `print`
+            bsl::ostringstream os2(&oa);  // use with `streamOut`
 
             ASSERT(&os1 == &X.print(os1, 0, -1));
             ASSERT(&os2 == &X.streamOut(os2));

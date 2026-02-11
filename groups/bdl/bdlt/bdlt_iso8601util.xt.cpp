@@ -5,19 +5,28 @@
 #include <bdlt_datetime.h>
 #include <bdlt_datetimetz.h>
 #include <bdlt_datetz.h>
+#include <bdlt_formattestutil.h>
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
 #include <bdlb_chartype.h>
 
-#include <bsla_maybeunused.h>
-
 #include <bslim_testutil.h>
 
+#include <bslfmt_format.h>
+
+#include <bsla_maybeunused.h>
+
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_asserttest.h>
+#include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
+#include <bsls_stopwatch.h>
 
+#include <bsl_charconv.h>
 #include <bsl_climits.h>
 #include <bsl_cstdlib.h>
 #include <bsl_cstring.h>
@@ -51,7 +60,7 @@ using bsl::flush;
 //@# documentation can be found by running:
 //@#    bde_xt_cpp_splitter --help usage-guide
 //@
-//@  CASES: 1..9, 19
+//@  CASES: -1, 1..9, 19
 //@  CASES: 10, 11.SLICES, 12
 //@  CASES: 13..15
 //@  CASES: 16, 17.SLICES, 18
@@ -263,6 +272,7 @@ void aSsErT(bool condition, const char *message, int line)
 typedef bdlt::Iso8601Util              Util;
 typedef bdlt::Iso8601UtilConfiguration Config;
 typedef bsl::string_view               StrView;
+typedef bdlt::FormatTestUtil           TU;
 
 const int k_INTERVAL_MAX_PRECISION   = 9;
 const int k_DATE_MAX_PRECISION       = 3;
@@ -957,6 +967,88 @@ bool containsOnlyDigits(const char *string)
 
     return true;
 }
+
+//@bdetdsplit FOR 2..7 BEGIN
+
+/// Create a format string to print the specified `value` with
+/// `bsl::vformat_to` in Iso8601 format, with modifiers corresponding to the
+/// specified `config`.  After formatting, compare the result to the specified
+/// `expsv` in an `ASSERTV` and display the specified `line` as part of the
+/// message if that assert fails.
+template <class t_VALUE_TYPE>
+void checkFormatIso8601(const bdlt::Iso8601UtilConfiguration&  config,
+                        bsl::string_view                       expsv,
+                        int                                    line,
+                        const t_VALUE_TYPE&                    value)
+{
+    // This function works for all bdlt value types.  This assert is intended
+    // as a comment as much as it is code.
+
+    BSLMF_ASSERT((bsl::is_same<t_VALUE_TYPE, bdlt::Date>::value ||
+                  bsl::is_same<t_VALUE_TYPE, bdlt::Time>::value ||
+                  bsl::is_same<t_VALUE_TYPE, bdlt::Datetime>::value ||
+                  bsl::is_same<t_VALUE_TYPE, bdlt::DateTz>::value ||
+                  bsl::is_same<t_VALUE_TYPE, bdlt::TimeTz>::value ||
+                  bsl::is_same<t_VALUE_TYPE, bdlt::DatetimeTz>::value));
+
+    enum {
+        k_HAS_TIME = bsl::is_same<t_VALUE_TYPE, bdlt::Time>::value ||
+                     bsl::is_same<t_VALUE_TYPE, bdlt::Datetime>::value ||
+                     bsl::is_same<t_VALUE_TYPE, bdlt::TimeTz>::value ||
+                     bsl::is_same<t_VALUE_TYPE, bdlt::DatetimeTz>::value,
+        k_HAS_TZ   = bsl::is_same<t_VALUE_TYPE, bdlt::DateTz>::value ||
+                     bsl::is_same<t_VALUE_TYPE, bdlt::TimeTz>::value ||
+                     bsl::is_same<t_VALUE_TYPE, bdlt::DatetimeTz>::value };
+
+    const char *valueTypeName = bsls::NameOf<t_VALUE_TYPE>().name();
+
+    bsl::string formatString("{:");
+    const int precision = config.fractionalSecondPrecision();
+    if (3 != precision && k_HAS_TIME) {
+        formatString += '.';
+        formatString += bsl::to_string(precision);
+    }
+    if (config.omitColonInZoneDesignator() && k_HAS_TZ) {
+        formatString += '_';
+    }
+    if (config.useCommaForDecimalSign() && k_HAS_TIME) {
+        formatString += ',';
+    }
+    if (config.useZAbbreviationForUtc() && k_HAS_TZ) {
+        formatString += 'Z';
+    }
+    formatString += "%i}";
+
+    enum { k_BUF_LEN = 128 };
+    char outputCharBuf[k_BUF_LEN];
+
+    const char *endPc = bsl::vformat_to(outputCharBuf,
+                                        formatString.c_str(),
+                                        bsl::make_format_args(value));
+    bsl::string_view formatted(outputCharBuf + 0, endPc);
+    ASSERT(formatted.length() < k_BUF_LEN);
+    ASSERTV(line, valueTypeName, value, expsv, formatted, expsv == formatted);
+
+    // Now just copy our `char` strings to wide strings and repeat.
+
+    bsl::wstring wFormatString;
+    TU::widen(&wFormatString, formatString);
+
+    bsl::wstring expw;
+    TU::widen(&expw, expsv);
+
+    wchar_t outputWCharBuf[k_BUF_LEN];
+
+    wchar_t *pw = bsl::vformat_to(outputWCharBuf,
+                                  wFormatString.c_str(),
+                                  bsl::make_wformat_args(value));
+    bsl::wstring_view wFormatted(outputWCharBuf + 0, pw);
+    ASSERT(wFormatted.length() < k_BUF_LEN);
+    ASSERTV(line, valueTypeName, value, TU::narrow(expw),
+                                   TU::narrow(wFormatted), expw == wFormatted);
+}
+
+//@bdetdsplit FOR 2..7 END
 
 //@bdetdsplit FOR 11, 17 BEGIN
 
@@ -14665,6 +14757,9 @@ int main(int argc, char *argv[])
                                                      buffer + OUTLEN,
                                                      BUFLEN - OUTLEN));
                         }
+
+                        // `bsl::vformat_to`
+                        checkFormatIso8601(C, EXPECTED, __LINE__, X);
                     }  // loop over `CNFG_DATA`
 
                     for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -15245,6 +15340,9 @@ int main(int argc, char *argv[])
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
+
+                    // `bsl::vformat_to`
+                    checkFormatIso8601(C, EXPECTED, __LINE__, X);
                 }  // loop over `CNFG_DATA`
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -15806,6 +15904,9 @@ int main(int argc, char *argv[])
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
+
+                    // `bsl::vformat_to`
+                    checkFormatIso8601(C, EXPECTED, __LINE__, X);
                 }  // loop over `CNFG_DATA`
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -16376,6 +16477,9 @@ int main(int argc, char *argv[])
                                                  buffer + OUTLEN,
                                                  BUFLEN - OUTLEN));
                     }
+
+                    // `bsl::vformat_to`
+                    checkFormatIso8601(C, EXPECTED, __LINE__, X);
                 }  // loop over `CNFG_DATA`
 
                 for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -16812,6 +16916,9 @@ int main(int argc, char *argv[])
                                              buffer + OUTLEN,
                                              BUFLEN - OUTLEN));
                 }
+
+                // `bsl::vformat_to`
+                checkFormatIso8601(C, EXPECTED, __LINE__, X);
             }  // loop over `CNFG_DATA`
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -17244,6 +17351,9 @@ int main(int argc, char *argv[])
                                              buffer + OUTLEN,
                                              BUFLEN - OUTLEN));
                 }
+
+                // `bsl::vformat_to`
+                checkFormatIso8601(C, EXPECTED, __LINE__, X);
             }  // loop over `CNFG_DATA`
 
             for (int tc = 0; tc < NUM_CNFG_DATA; ++tc) {
@@ -17846,6 +17956,138 @@ int main(int argc, char *argv[])
                 ASSERT_FAIL(Util::generateRaw(    pc, X, C));
             }
         }
+      } break;
+      case -1: {
+        // --------------------------------------------------------------------
+        // bsl::format TIME TRIALS
+        //
+        // Concerns:
+        // 1. Assess how fast 'bsl::format' is compared with other forms of
+        //    output.
+        //
+        // Plan:
+        // 1. Time bsl::format.
+        //
+        // 2. Time bdlt::Iso8601Util.
+        //
+        // 3. Time sprintf.
+        //
+        // Testing:
+        //   bsl::format(format_string, DatetimeTz);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Time Comparison: bdlt::DatetimeTz\n"
+                             "=================================\n";
+
+        enum { k_ITERATIONS = 365 * 1000 };
+
+        double system, user, wall;
+        bdlt::DatetimeInterval inc(1, 3, 45, 23, 456, 789);
+        bdlt::Datetime startDatetime(1500, 1, 1, 12, 0, 0);
+        bdlt::DatetimeTz startDatetimeTz(startDatetime, 5 * 60);
+        bdlt::DatetimeTz datetimeTz;
+
+        bsls::Stopwatch sw;
+        sw.start(true);
+
+        int rc;
+
+        datetimeTz = startDatetimeTz;
+        sw.start(true);
+        for (int ii = k_ITERATIONS; 0 < ii--;) {
+            bsl::string result = bsl::format("{:%i}", datetimeTz);
+            ASSERT(!result.empty());
+
+            datetimeTz.setDatetimeTz(datetimeTz.localDatetime() + inc,
+                                     datetimeTz.offset());
+        }
+        sw.stop();
+        sw.accumulatedTimes(&system, &user, &wall);
+
+        cout.setf(bsl::ios_base::fixed, bsl::ios_base::floatfield);
+        cout << "Format:  system: " << system << ", user: " << user <<
+                                                    ", wall: " << wall << endl;
+
+        sw.reset();
+
+        datetimeTz = startDatetimeTz;
+        sw.start(true);
+        for (int ii = k_ITERATIONS; 0 < ii--; ) {
+            bsl::string result;
+            rc = bdlt::Iso8601Util::generate(&result, datetimeTz);
+            BSLS_ASSERT(0 < rc && !result.empty());    (void) rc;
+
+            datetimeTz.setDatetimeTz(datetimeTz.localDatetime() + inc,
+                                     datetimeTz.offset());
+        }
+        sw.stop();
+        sw.accumulatedTimes(&system, &user, &wall);
+
+        cout << "Iso8601: system: " << system << ", user: " <<
+                                            user << ", wall: " << wall << endl;
+
+        sw.reset();
+        volatile bool timeZoneZ = false, omitColon = false;
+
+        datetimeTz = startDatetimeTz;
+        sw.start(true);
+        for (int ii = k_ITERATIONS; 0 < ii--; ) {
+            bsl::string resultSprintf;
+            char buf[100];
+            int hour, minute, second, millisecond, microsecond;
+            datetimeTz.localDatetime().getTime(&hour,
+                                               &minute,
+                                               &second,
+                                               &millisecond,
+                                               &microsecond);
+            int offset = datetimeTz.offset();
+            bool isZ = timeZoneZ && 0 == offset;
+
+            rc = snprintf(buf,
+                          sizeof(buf),
+                          "%04d-%02d-%02dT%02d:%02d:%02d.%03d",
+                          datetimeTz.localDatetime().year(),
+                          datetimeTz.localDatetime().month(),
+                          datetimeTz.localDatetime().day(),
+                          hour,
+                          minute,
+                          second,
+                          millisecond);
+            ASSERT(0 < rc);
+            resultSprintf = buf;
+            if (isZ) {
+                resultSprintf += 'Z';
+            }
+            else {
+                char offsetSign;
+                if (offset < 0) {
+                    offsetSign = '-';
+                    offset = -offset;
+                }
+                else {
+                    offsetSign = '+';
+                }
+                int offsetHours = offset / 60;
+                offset %= 60;
+                rc = snprintf(buf,
+                              sizeof(buf),
+                              "%c%02d%s%02d",
+                              offsetSign,
+                              offsetHours,
+                              omitColon ? "" : ":",
+                              offset);
+                ASSERT(0 < rc);
+                resultSprintf += buf;
+            }
+
+            datetimeTz.setDatetimeTz(datetimeTz.localDatetime() + inc,
+                                     datetimeTz.offset());
+        }
+        sw.stop();
+        sw.accumulatedTimes(&system, &user, &wall);
+
+        cout << "sprintf: system: " << system << ", user: " <<
+                                            user << ", wall: " << wall << endl;
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

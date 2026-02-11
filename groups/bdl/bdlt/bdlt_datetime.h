@@ -235,9 +235,11 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_date.h>
+#include <bdlt_datetime_specifierformatter.h>
 #include <bdlt_datetimeimputil.h>
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_dayofweek.h>
+#include <bdlt_formatter.h>
 #include <bdlt_time.h>
 #include <bdlt_timeunitratio.h>
 
@@ -250,12 +252,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
-#include <bsls_log.h>
 #include <bsls_performancehint.h>
-#include <bsls_platform.h>
 #include <bsls_preconditions.h>
 #include <bsls_review.h>
-#include <bsls_stackaddressutil.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
@@ -279,13 +278,13 @@ namespace bdlt {
 /// `Datetime` objects whose "time" part has the same value as that of a
 /// default constructed `Time` object.
 class Datetime {
-
     // PRIVATE TYPES
     enum {
         k_NUM_TIME_BITS = 37,
         k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
     };
 
+  private:
     // CLASS DATA
     static const bsls::Types::Uint64 k_MAX_US_FROM_EPOCH;
 
@@ -411,8 +410,8 @@ class Datetime {
     /// `original` object.
     Datetime(const Datetime& original);
 
+    /// Destroy this `Datetime` object.
     //! ~Datetime() = default;
-        // Destroy this 'Datetime' object.
 
     // MANIPULATORS
 
@@ -1132,9 +1131,9 @@ bool Datetime::validateAndTraceLogRepresentation() const
         return true;                                                  // RETURN
     }
     BSLS_ASSERT_SAFE(
-                 0 && "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+                 0 && "detected invalid `bdlt::Datetime`; see TEAM 579660115");
     BSLS_REVIEW_INVOKE(
-                      "detected invalid 'bdlt::Datetime'; see TEAM 579660115");
+                      "detected invalid `bdlt::Datetime`; see TEAM 579660115");
 
     return false;
 }
@@ -1741,7 +1740,7 @@ Datetime& Datetime::addDays(int days)
     BSLS_ASSERT_SAFE(0 == Date(date()).addDaysIfValid(days));
 
     d_value = updatedRepresentation();  // needed to avoid double logging from
-                                        // 'date' and then 'setDate'
+                                        // `date` and then `setDate`
 
     setDate(date() + days);
 
@@ -1767,7 +1766,7 @@ Datetime& Datetime::addTime(bsls::Types::Int64 hours,
                             bsls::Types::Int64 milliseconds,
                             bsls::Types::Int64 microseconds)
 {
-    // Reduce the input parameters to 'days' and 'microseconds', without any
+    // Reduce the input parameters to `days` and `microseconds`, without any
     // constraints on the representation, without the possibility of overflow
     // or underflow.
 
@@ -1789,8 +1788,8 @@ Datetime& Datetime::addTime(bsls::Types::Int64 hours,
                  + milliseconds      * TimeUnitRatio::k_US_PER_MS
                  + microseconds;
 
-    // Modify the representation to ensure 'days' and 'microseconds' have the
-    // same sign (i.e., both are positive or both are negative or 'days == 0').
+    // Modify the representation to ensure `days` and `microseconds` have the
+    // same sign (i.e., both are positive or both are negative or `days == 0`).
 
     days         += microseconds / TimeUnitRatio::k_US_PER_D;
     microseconds %= TimeUnitRatio::k_US_PER_D;
@@ -1804,7 +1803,7 @@ Datetime& Datetime::addTime(bsls::Types::Int64 hours,
         microseconds -= TimeUnitRatio::k_US_PER_D;
     }
 
-    // Piecewise add the 'days' and 'microseconds' to this datetime.
+    // Piecewise add the `days` and `microseconds` to this datetime.
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
@@ -1839,7 +1838,7 @@ int Datetime::addTimeIfValid(bsls::Types::Int64 hours,
 {
     enum { k_SUCCESS = 0, k_FAILURE = -1 };
 
-    // Reduce the input parameters to 'days' and 'microseconds', without any
+    // Reduce the input parameters to `days` and `microseconds`, without any
     // constraints on the representation, without the possibility of overflow
     // or underflow.
 
@@ -1861,8 +1860,8 @@ int Datetime::addTimeIfValid(bsls::Types::Int64 hours,
                  + milliseconds      * TimeUnitRatio::k_US_PER_MS
                  + microseconds;
 
-    // Modify the representation to ensure 'days' and 'microseconds' have the
-    // same sign (i.e., both are positive or both are negative or 'days == 0').
+    // Modify the representation to ensure `days` and `microseconds` have the
+    // same sign (i.e., both are positive or both are negative or `days == 0`).
 
     days         += microseconds / TimeUnitRatio::k_US_PER_D;
     microseconds %= TimeUnitRatio::k_US_PER_D;
@@ -1876,7 +1875,7 @@ int Datetime::addTimeIfValid(bsls::Types::Int64 hours,
         microseconds -= TimeUnitRatio::k_US_PER_D;
     }
 
-    // Piecewise add the 'days' and 'microseconds' to this datetime.
+    // Piecewise add the `days` and `microseconds` to this datetime.
 
     bsls::Types::Uint64 totalMicroseconds = microsecondsFromEpoch();
 
@@ -2471,6 +2470,47 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::Datetime> : bsl::true_type {
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `Datetime` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::Datetime, t_CHAR> {
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::Datetime                            Datetime;
+    typedef BloombergLP::bdlt::Datetime_SpecifierFormatter_Cache   FormatCache;
+
+    // DATA
+    BloombergLP::bdlt::Formatter<
+          BloombergLP::bdlt::Datetime_SpecifierFormatter,
+          t_CHAR>                                          d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const Datetime&    value,
+                                        t_FORMAT_CONTEXT&  formatContext) const
+    {
+        return d_formatter.format(FormatCache(value), formatContext);
+    }
+};
+
+}  // close namespace bsl
 
 #endif
 

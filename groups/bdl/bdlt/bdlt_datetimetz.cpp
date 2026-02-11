@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(bdlt_datetimetz_cpp,"$Id$ $CSID$")
 
 #include <bsls_alignedbuffer.h>
 
-#include <bsl_cstdio.h>    // 'sprintf'
+#include <bsl_cstdio.h>    // 'snprintf'
 #include <bsl_ios.h>       // 'bsl::streamsize'
 #include <bsl_ostream.h>
 

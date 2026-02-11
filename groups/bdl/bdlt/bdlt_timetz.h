@@ -107,7 +107,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlt_formatter.h>
 #include <bdlt_time.h>
+#include <bdlt_timetz_specifierformatter.h>
 
 #include <bslh_hash.h>
 
@@ -124,9 +126,9 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                                // ============
-                                // class TimeTz
-                                // ============
+                                 // ============
+                                 // class TimeTz
+                                 // ============
 
 /// This value-semantic class describes a time value in a particular time
 /// zone, which is indicated using an offset from UTC (in minutes).  The
@@ -140,7 +142,6 @@ namespace bdlt {
 /// * supports BDEX streaming
 /// For terminology see `bsldoc_glossary`.
 class TimeTz {
-
     // PRIVATE TYPES
 
     /// This enumeration specifies the minimum and maximum time zone offset
@@ -152,7 +153,7 @@ class TimeTz {
     };
 
     // DATA
-    Time d_localTime;    // time value in timezone specified by 'd_offset'
+    Time d_localTime;    // time value in timezone specified by `d_offset`
     int  d_offset;       // offset from UTC (in minutes)
 
   public:
@@ -484,10 +485,10 @@ Time TimeTz::utcTime() const
     Time utc(d_localTime);
 
     if (d_offset) {
-        // N.B. adding -0 minutes to a default-constructed 'Time' object (with
-        // value '24:00:00.000') would convert it to a 'Time' object with value
-        // '00:00:00.000'.  The branch here preserves the 'localTime' attribute
-        // for a default-constructed 'TimeTz' object.
+        // N.B. adding -0 minutes to a default-constructed `Time` object (with
+        // value '24:00:00.000') would convert it to a `Time` object with value
+        // '00:00:00.000'.  The branch here preserves the `localTime` attribute
+        // for a default-constructed `TimeTz` object.
 
         utc.addMinutes(-d_offset);
     }
@@ -582,6 +583,48 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::TimeTz> : bsl::true_type {
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `TimeTz` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::TimeTz, t_CHAR> {
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::TimeTz                           TimeTz;
+    typedef BloombergLP::bdlt::TimeTz_SpecifierFormatter_Cache  FormatCache;
+
+    // DATA
+    BloombergLP::bdlt::Formatter<
+           BloombergLP::bdlt::TimeTz_SpecifierFormatter,
+           t_CHAR>                                          d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const TimeTz&      value,
+                                        t_FORMAT_CONTEXT&  formatContext) const
+    {
+        const FormatCache formatCache(value.localTime(), value.offset());
+        return d_formatter.format(formatCache, formatContext);
+    }
+};
+
+}  // close namespace bsl
 
 #endif
 

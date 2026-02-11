@@ -106,6 +106,8 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_datetimeinterval.h>
+#include <bdlt_formatter.h>
+#include <bdlt_time_specifierformatter.h>
 #include <bdlt_timeunitratio.h>
 
 #include <bdlb_bitutil.h>
@@ -117,25 +119,23 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
-#include <bsls_log.h>
 #include <bsls_performancehint.h>
-#include <bsls_platform.h>
 #include <bsls_review.h>
-#include <bsls_stackaddressutil.h>
 #include <bsls_types.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_cstring.h> // memset
 #include <bsl_sstream.h>
+#include <bsl_optional.h>
 
 namespace BloombergLP {
 namespace bdlt {
 
-                                 // ==========
-                                 // class Time
-                                 // ==========
+                                  // ==========
+                                  // class Time
+                                  // ==========
 
-/// This class implements a value-semantic type that represents the time of
+/// This `class` implements a value-semantic type that represents the time of
 /// day to a resolution of one microsecond.  Each object of this (almost)
 /// simply constrained attribute class *always* represents a valid time
 /// value to a resolution of one microsecond.  The valid range for times is
@@ -150,12 +150,15 @@ namespace bdlt {
 /// any attribute outside its valid range (or with an hour attribute value
 /// of 24 and any other attribute non-zero) has undefined behavior.
 class Time {
-
     // PRIVATE TYPES
     enum {
         k_DEFAULT_FRACTIONAL_SECOND_PRECISION = 6
     };
 
+  public:
+    // PUBLIC TYPES
+
+  private:
     // CLASS DATA
     static const bsls::Types::Int64 k_REP_MASK  = 0x0000004000000000ULL;
 
@@ -259,7 +262,7 @@ class Time {
     /// time.
     Time(const Time& original);
 
-    /// Destroy this 'Time' object.
+    /// Destroy this `Time` object.
     //! ~Time() = default;
 
     // MANIPULATORS
@@ -919,7 +922,7 @@ int Time::maxSupportedBdexVersion()
     return maxSupportedBdexVersion(0);
 }
 
-#endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
+#endif  // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE2.22
 inline
 int Time::maxSupportedVersion()
@@ -1078,6 +1081,47 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::Time> : bsl::true_type {
 
 }  // close namespace bslmf
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `Time` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::Time, t_CHAR> {
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::Time                               Time;
+    typedef BloombergLP::bdlt::Time_SpecifierFormatter_Cache      FormatCache;
+
+    // DATA
+    BloombergLP::bdlt::Formatter<
+             BloombergLP::bdlt::Time_SpecifierFormatter,
+             t_CHAR>                                        d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const Time&        value,
+                                        t_FORMAT_CONTEXT&  formatContext) const
+    {
+        return d_formatter.format(FormatCache(value), formatContext);
+    }
+};
+
+}  // close bsl namespace
 
 #endif
 

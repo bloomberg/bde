@@ -395,7 +395,20 @@ template <class t_CHAR>
 inline
 void Format_ContextOutputIteratorRef<t_CHAR>::operator=(t_CHAR x)
 {
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 150000
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Warray-bounds"
+
+    // A strange warning is issued by the GNU compiler here sometimes when code
+    // is heavily templated.  This was encountered when formatting bdlt
+    // objects.  Github Copilot attributes this to a compiler bug.
+#endif
+
     d_base_p->put(x);
+
+#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 150000
+#  pragma GCC diagnostic pop
+#endif
 }
 
 template <class t_CHAR>

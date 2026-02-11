@@ -12,7 +12,7 @@ BSLS_IDENT_RCSID(bdlt_time_cpp,"$Id$ $CSID$")
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <bsl_cstdio.h>
+#include <bsl_cstdio.h>    // `bsl::snprintf`
 #include <bsl_limits.h>
 #include <bsl_ostream.h>
 

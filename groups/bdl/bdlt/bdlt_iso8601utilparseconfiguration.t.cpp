@@ -9,6 +9,7 @@
 #include <bsls_asserttest.h>
 #include <bsls_review.h>
 
+#include <bsl_cstdio.h>      // `snprintf`
 #include <bsl_cstdlib.h>     // `atoi`
 #include <bsl_cstring.h>     // `memcmp`, `strcmp`
 #include <bsl_iostream.h>

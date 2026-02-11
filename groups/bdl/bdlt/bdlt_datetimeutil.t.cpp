@@ -9,7 +9,7 @@
 
 #include <bsl_algorithm.h> // `min`
 #include <bsl_climits.h>
-#include <bsl_cstdio.h>    // `sprintf`
+#include <bsl_cstdio.h>    // `snprintf`
 #include <bsl_cstdlib.h>   // `atoi`
 #include <bsl_cstring.h>   // `memset`
 #include <bsl_iostream.h>

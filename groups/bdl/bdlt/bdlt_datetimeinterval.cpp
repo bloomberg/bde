@@ -16,7 +16,7 @@ BSLS_IDENT_RCSID(bdlt_datetimeinterval_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 #include <bsl_cmath.h>     // 'modf, 'fabs', 'isinf', 'isnan'
-#include <bsl_cstdio.h>    // 'sprintf'
+#include <bsl_cstdio.h>
 
 namespace {
 namespace u {
