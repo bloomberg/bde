@@ -148,7 +148,6 @@ namespace bsl {
     using std::search_n;
     using std::set_difference;
     using std::set_intersection;
-    using std::set_new_handler;
     using std::set_symmetric_difference;
     using std::set_union;
     using std::sort;
@@ -371,16 +370,19 @@ namespace ranges {
     using std::bidirectional_iterator_tag;
     using std::forward_iterator_tag;
     using std::input_iterator_tag;
-#if !defined(BSLS_PLATFORM_CMP_MSVC) &&                                       \
-    (BSLS_COMPILERFEATURES_CPLUSPLUS <= 201703L)
+# ifndef BSLS_PLATFORM_CMP_MSVC
     using std::iterator;
-#endif
+# endif
+# ifndef BSLS_LIBRARYFEATURES_STDCPP_LLVM
     using std::new_handler;
+# endif
     using std::nothrow;
     using std::nothrow_t;
     using std::output_iterator_tag;
     using std::random_access_iterator_tag;
-
+# ifndef BSLS_LIBRARYFEATURES_STDCPP_LLVM
+    using std::set_new_handler;
+# endif
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
 #ifndef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES

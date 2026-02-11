@@ -623,6 +623,7 @@ BSLS_IDENT("$Id$")
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
 
+#include <bsls_annotation.h>
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
@@ -4850,6 +4851,7 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal32, DUMMY_TYPE> {
     static const bool has_signaling_NaN = true;
 
     /// `BloombergLP::bdldfp::Decimal32` may contain denormal values.
+    BSLS_ANNOTATION_DEPRECATED
     static const std::float_denorm_style has_denorm = std::denorm_present;
 
     /// `BloombergLP::bdldfp::Decimal32` is able to distinguish loss of
@@ -4968,6 +4970,7 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal64, DUMMY_TYPE> {
     static const bool has_signaling_NaN = true;
 
     /// `BloombergLP::bdldfp::Decimal64` may contain denormal values.
+    BSLS_ANNOTATION_DEPRECATED
     static const std::float_denorm_style has_denorm = std::denorm_present;
 
     /// `BloombergLP::bdldfp::Decimal64` is able to distinguish loss of
@@ -5085,6 +5088,7 @@ class faux_numeric_limits<BloombergLP::bdldfp::Decimal128, DUMMY_TYPE> {
     static const bool has_signaling_NaN = true;
 
     /// `BloombergLP::bdldfp::Decimal128` may contain denormal values.
+    BSLS_ANNOTATION_DEPRECATED
     static const std::float_denorm_style has_denorm = std::denorm_present;
 
     /// `BloombergLP::bdldfp::Decimal128` is able to distinguish loss of

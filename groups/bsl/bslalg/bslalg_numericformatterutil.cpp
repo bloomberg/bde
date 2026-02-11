@@ -364,6 +364,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <cctype>
 #include <climits>
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 
@@ -1402,7 +1403,7 @@ char *floatingToCharsGeneralImp(char       *first,
     }
 
     ++p; // Skip the e
-    const int scientificExponent = atoi(p);
+    const int scientificExponent = std::atoi(p);
 
     // C11 7.21.6.1 "The fprintf function"/8:
     // "Let P equal [...] 6 if the precision is omitted [...].
