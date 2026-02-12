@@ -750,7 +750,16 @@ void TestDriver<t_CHAR>::testCase4SingleValueType(
             ASSERTV(generator.formatSpec().c_str(), !rv);
         }
         else {
-            ASSERTV(generator.formatSpec().c_str(), message->c_str(), rv);
+            // the following test vector has a tendancy to spew
+            if (!rv) {
+                static int failures = 0;
+                ++failures;
+                if (verbose || failures < 50) {
+                    ASSERTV(generator.formatSpec().c_str(),
+                            message->c_str(),
+                            rv);
+                }
+            }
         }
     }
     else {
