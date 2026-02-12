@@ -318,6 +318,20 @@ void checkType(const RECEIVED&)
     ASSERT(typeid(EXPECT) == typeid(RECEIVED));
 }
 
+
+template <class RECEIVED>
+void checkType_float_denorm_style(const RECEIVED&)
+{
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+    ASSERT(typeid(bsl::float_denorm_style) == typeid(RECEIVED));
+#if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+# pragma pop
+#endif
+}
+
                           // Stream buffer helpers
 
 template <int SIZE>
@@ -6689,7 +6703,7 @@ void TestDriver::testCase3()
     checkType<bool>(d128_limits::has_infinity);
     checkType<bool>(d128_limits::has_quiet_NaN);
     checkType<bool>(d128_limits::has_signaling_NaN);
-    checkType<bsl::float_denorm_style>(d128_limits::has_denorm);
+    checkType_float_denorm_style(d128_limits::has_denorm);
     checkType<bool>(d128_limits::has_denorm_loss);
     checkType<BDEC::Decimal128>(d128_limits::infinity());
     checkType<BDEC::Decimal128>(d128_limits::quiet_NaN());
@@ -7896,7 +7910,7 @@ void TestDriver::testCase2()
     checkType<bool>(d64_limits::has_infinity);
     checkType<bool>(d64_limits::has_quiet_NaN);
     checkType<bool>(d64_limits::has_signaling_NaN);
-    checkType<bsl::float_denorm_style>(d64_limits::has_denorm);
+    checkType_float_denorm_style(d64_limits::has_denorm);
     checkType<bool>(d64_limits::has_denorm_loss);
     checkType<BDEC::Decimal64>(d64_limits::infinity());
     checkType<BDEC::Decimal64>(d64_limits::quiet_NaN());
@@ -9322,7 +9336,7 @@ void TestDriver::testCase1()
     checkType<bool>(d32_limits::has_infinity);
     checkType<bool>(d32_limits::has_quiet_NaN);
     checkType<bool>(d32_limits::has_signaling_NaN);
-    checkType<bsl::float_denorm_style>(d32_limits::has_denorm);
+    checkType_float_denorm_style(d32_limits::has_denorm);
     checkType<bool>(d32_limits::has_denorm_loss);
     checkType<BDEC::Decimal32>(d32_limits::infinity());
     checkType<BDEC::Decimal32>(d32_limits::quiet_NaN());
