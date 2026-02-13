@@ -6,6 +6,7 @@
 BSLS_IDENT_RCSID(bslmt_bslmt_throughputbenchmark_cpp,"$Id$ $CSID$")
 
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>  // for testing only
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>

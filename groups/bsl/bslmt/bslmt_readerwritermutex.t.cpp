@@ -6,6 +6,7 @@
 #include <bslmt_readlockguard.h>
 #include <bslmt_semaphore.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_writelockguard.h>
 
 #include <bsls_atomic.h>
@@ -362,6 +363,14 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:
       case 6: {

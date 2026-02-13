@@ -5,7 +5,6 @@
 BSLS_IDENT_RCSID(bslmt_sluice_cpp,"$Id$ $CSID$")
 
 #include <bslmt_semaphore.h>    // for testing only
-#include <bslmt_threadgroup.h>  // for testing only
 #include <bslmt_threadutil.h>   // for testing only
 
 #include <bslma_allocator.h>

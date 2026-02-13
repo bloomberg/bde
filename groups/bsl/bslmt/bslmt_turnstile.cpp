@@ -4,6 +4,7 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_turnstile_cpp,"$Id$ $CSID$")
 
+#include <bslmt_timedcompletionguard.h>  // for testing only
 #include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>

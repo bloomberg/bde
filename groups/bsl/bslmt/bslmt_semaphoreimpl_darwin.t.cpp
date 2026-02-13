@@ -3,10 +3,10 @@
 
 #if defined(BSLS_PLATFORM_OS_DARWIN)
 
-#include <bslmt_lockguard.h>   // for testing only
-#include <bslmt_mutex.h>       // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bslmt_platform.h>
-#include <bslmt_threadutil.h>  // for testing only
+#include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 

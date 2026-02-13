@@ -5,8 +5,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_readerwriterwmuteximpl_cpp,"$Id$ $CSID$")
 
-#include <bslmt_mutex.h>      // for testing only
-#include <bslmt_semaphore.h>  // for testing only
+#include <bslmt_mutex.h>                 // for testing only
+#include <bslmt_semaphore.h>             // for testing only
+#include <bslmt_timedcompletionguard.h>  // for testing only
 
 ///Implementation Note
 ///===================

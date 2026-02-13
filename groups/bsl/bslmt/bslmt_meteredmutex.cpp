@@ -4,7 +4,9 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_meteredmutex_cpp,"$Id$ $CSID$")
 
-#include <bslmt_barrier.h>  // for testing only
+#include <bslmt_barrier.h>               // for testing only
+#include <bslmt_threadutil.h>            // for testing only
+#include <bslmt_timedcompletionguard.h>  // for testing only
 
 #include <bsls_types.h>
 

@@ -2,6 +2,8 @@
 
 #include <bslmt_fastpostsemaphore.h>
 
+#include <bslmt_timedcompletionguard.h>
+
 #include <bslim_testutil.h>
 
 #include <bsls_atomic.h>
@@ -388,6 +390,14 @@ int main(int argc, char *argv[])
     int verbose = argc > 2;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 9: {

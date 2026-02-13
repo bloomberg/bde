@@ -1,10 +1,10 @@
 // bslmt_semaphoreimpl_win32.t.cpp                                    -*-C++-*-
 #include <bslmt_semaphoreimpl_win32.h>
 
-#include <bslmt_lockguard.h>   // for testing only
-#include <bslmt_mutex.h>       // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bslmt_platform.h>
-#include <bslmt_threadutil.h>  // for testing only
+#include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 

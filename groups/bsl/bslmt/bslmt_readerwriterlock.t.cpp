@@ -1,20 +1,21 @@
 // bslmt_readerwriterlock.t.cpp                                       -*-C++-*-
 #include <bslmt_readerwriterlock.h>
 
-#include <bslmt_barrier.h>           // for testing only
+#include <bslmt_barrier.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_threadattributes.h>
+#include <bslmt_timedcompletionguard.h>
 #include <bslmt_writelockguard.h>
 
 #include <bslim_testutil.h>
 
-#include <bsls_atomic.h>             // for testing only
-#include <bsls_timeinterval.h>       // for testing only
+#include <bsls_atomic.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_cstdio.h>
 #include <bsl_cstdlib.h>
 #include <bsl_iostream.h>
-#include <bsl_map.h>                 // for usage example
+#include <bsl_map.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
 #include <unistd.h>
@@ -890,6 +891,14 @@ int main(int argc, char *argv[])
     (void)verbose;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:
       case 13: {

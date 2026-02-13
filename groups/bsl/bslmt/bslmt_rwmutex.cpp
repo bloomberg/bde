@@ -4,9 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_rwmutex_cpp,"$Id$ $CSID$")
 
-#include <bslmt_barrier.h>          // for testing only
-#include <bslmt_semaphore.h>        // for testing only
-#include <bslmt_threadgroup.h>      // for testing only
+#include <bslmt_barrier.h>               // for testing only
+#include <bslmt_semaphore.h>             // for testing only
+#include <bslmt_threadgroup.h>           // for testing only
+#include <bslmt_timedcompletionguard.h>  // for testing only
 
 // ----------------------------------------------------------------------------
 // Copyright 2015 Bloomberg Finance L.P.

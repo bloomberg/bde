@@ -4,10 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_latch_cpp,"$Id$ $CSID$")
 
-#include <bslmt_barrier.h>        // for testing only
+#include <bslmt_barrier.h>               // for testing only
 #include <bslmt_lockguard.h>
-#include <bslmt_threadgroup.h>    // for testing only
-#include <bslmt_threadutil.h>     // for testing only
+#include <bslmt_threadgroup.h>           // for testing only
+#include <bslmt_threadutil.h>            // for testing only
+#include <bslmt_timedcompletionguard.h>  // for testing only
 
 namespace BloombergLP {
 namespace bslmt {

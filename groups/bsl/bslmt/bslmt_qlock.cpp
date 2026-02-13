@@ -4,13 +4,16 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_qlock_cpp,"$Id$ $CSID$")
 
+#include <bslmt_barrier.h>               // for testing only
+#include <bslmt_threadlocalvariable.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>  // for testing only
+#include <bslmt_semaphore.h>
+
 #include <bsla_maybeunused.h>
 #include <bslma_default.h>
 #include <bslma_newdeleteallocator.h>
-#include <bslmt_barrier.h> // for testing only
-#include <bslmt_threadlocalvariable.h>
-#include <bslmt_threadutil.h>
-#include <bslmt_semaphore.h>
+
 #include <bsls_assert.h>
 #include <bsls_atomicoperations.h>
 

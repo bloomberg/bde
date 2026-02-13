@@ -3,10 +3,11 @@
 
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bslim_testutil.h>
 
-#include <bsls_atomic.h>  // for testing only
+#include <bsls_atomic.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_spinlock.h>
@@ -819,6 +820,14 @@ int main(int argc, char *argv[])
     int veryVerbose = argc > 3;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:
       case 11: {

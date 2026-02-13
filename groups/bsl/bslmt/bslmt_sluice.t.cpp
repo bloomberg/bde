@@ -11,8 +11,8 @@
 
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
-#include <bslmt_semaphore.h>    // for testing only
-#include <bslmt_threadutil.h>   // for testing only
+#include <bslmt_semaphore.h>
+#include <bslmt_threadutil.h>
 
 #include <bsla_maybeunused.h>
 

@@ -26,24 +26,26 @@
       bslmt_readerwriterlockassert
       bslmt_rwmutex                                      !DEPRECATED!
 
-  16. bslmt_latch
+  16. bslmt_fastpostsemaphore
+      bslmt_latch
       bslmt_meteredmutex
       bslmt_qlock
       bslmt_readerwriterlock
+      bslmt_readerwritermutex
       bslmt_throughputbenchmark
 
   15. bslmt_barrier
-      bslmt_fastpostsemaphore
-      bslmt_timedcompletionguard
+      bslmt_fastpostsemaphoreimpl
+      bslmt_readerwritermuteximpl
+      bslmt_turnstile
 
-  14. bslmt_condition
+  14. bslmt_timedcompletionguard
 
-  13. bslmt_conditionimpl_win32                                       !PRIVATE!
+  13. bslmt_condition
 
-  12. bslmt_readerwritermutex
-      bslmt_sluice
+  12. bslmt_conditionimpl_win32                                       !PRIVATE!
 
-  11. bslmt_readerwritermuteximpl
+  11. bslmt_sluice
       bslmt_threadgroup
 
   10. bslmt_semaphore
@@ -57,13 +59,12 @@
       bslmt_semaphoreimpl_pthread                                     !PRIVATE!
       bslmt_semaphoreimpl_win32                                       !PRIVATE!
       bslmt_testutil
+      bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
+      bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
       bslmt_timedsemaphoreimpl_win32                                  !PRIVATE!
 
    7. bslmt_mutex
       bslmt_recursivemutex
-      bslmt_timedsemaphoreimpl_posixadv                               !PRIVATE!
-      bslmt_timedsemaphoreimpl_pthread                                !PRIVATE!
-      bslmt_turnstile
 
    6. bslmt_threadutil
 
@@ -75,8 +76,7 @@
    3. bslmt_configuration
       bslmt_recursivemuteximpl_win32                                  !PRIVATE!
 
-   2. bslmt_fastpostsemaphoreimpl
-      bslmt_muteximpl_pthread                                         !PRIVATE!
+   2. bslmt_muteximpl_pthread                                         !PRIVATE!
       bslmt_muteximpl_win32                                           !PRIVATE!
       bslmt_recursivemuteximpl_pthread                                !PRIVATE!
       bslmt_saturatedtimeconversionimputil

@@ -2,6 +2,14 @@
 
 #include <bslmt_throughputbenchmark.h>
 
+#include <bslmt_condition.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_semaphore.h>
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
+
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
@@ -9,13 +17,6 @@
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-
-#include <bslmt_condition.h>
-#include <bslmt_lockguard.h>
-#include <bslmt_mutex.h>
-#include <bslmt_semaphore.h>
-#include <bslmt_threadgroup.h>
-#include <bslmt_threadutil.h>
 
 #include <bslmf_assert.h>
 
@@ -507,6 +508,14 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
     bslma::Default::setDefaultAllocatorRaw(&defaultAllocator);
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 6: {

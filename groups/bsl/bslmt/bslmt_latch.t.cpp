@@ -1,10 +1,11 @@
 // bslmt_latch.t.cpp                                                  -*-C++-*-
 #include <bslmt_latch.h>
 
-#include <bslmt_barrier.h>        // for testing only
+#include <bslmt_barrier.h>
 #include <bslmt_lockguard.h>
-#include <bslmt_threadgroup.h>    // for testing only
-#include <bslmt_threadutil.h>     // for testing only
+#include <bslmt_threadgroup.h>
+#include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>
 
 #include <bslim_testutil.h>
 
@@ -984,6 +985,14 @@ int main(int argc, char *argv[])
     veryVeryVeryVerbose = argc > 5;
 
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
+
+    bslmt::TimedCompletionGuard completionGuard;
+    {
+        char s[1024];
+
+        snprintf(s, sizeof s, "case %i", test);
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(90, 0), s));
+    }
 
     switch (test) { case 0:
       case 15: {

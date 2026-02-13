@@ -4,8 +4,10 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_timedsemaphoreimpl_pthread_cpp,"$Id$ $CSID$")
 
+#include <bslmt_lockguard.h>   // for testing only
+#include <bslmt_mutex.h>       // for testing only
 #include <bslmt_saturatedtimeconversionimputil.h>
-#include <bslmt_threadutil.h>
+#include <bslmt_threadutil.h>  // for testing only
 
 #include <bsls_assert.h>
 #include <bsls_systemtime.h>

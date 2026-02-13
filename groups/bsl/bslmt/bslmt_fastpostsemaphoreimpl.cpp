@@ -2,6 +2,8 @@
 
 #include <bslmt_fastpostsemaphoreimpl.h>
 
+#include <bslmt_timedcompletionguard.h>  // for testing only
+
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslmt_fastpostsemaphoreimpl_cpp,"$Id$ $CSID$")
 

@@ -5,7 +5,9 @@
 BSLS_IDENT_RCSID(bslmt_barrier_cpp,"$Id$ $CSID$")
 
 #include <bslmt_lockguard.h>
-#include <bslmt_threadutil.h> // for yield
+#include <bslmt_threadattributes.h>      // for testing only
+#include <bslmt_threadutil.h>
+#include <bslmt_timedcompletionguard.h>  // for testing only
 
 #include <bsls_assert.h>
 

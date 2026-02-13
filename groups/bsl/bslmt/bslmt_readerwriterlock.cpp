@@ -18,7 +18,11 @@ BSLS_IDENT_RCSID(bslmt_readerwriterlock_cpp,"$Id$ $CSID$")
 //  +------------------------------------ Read broadcast count
 //..
 
-#include <bslmt_barrier.h>    // for testing only
+#include <bslmt_barrier.h>               // for testing only
+#include <bslmt_readlockguard.h>         // for testing only
+#include <bslmt_threadattributes.h>      // for testing only
+#include <bslmt_timedcompletionguard.h>  // for testing only
+#include <bslmt_writelockguard.h>        // for testing only
 
 #include <bsls_types.h>
 

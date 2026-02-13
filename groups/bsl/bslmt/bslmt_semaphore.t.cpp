@@ -1,8 +1,7 @@
 // bslmt_semaphore.t.cpp                                              -*-C++-*-
 #include <bslmt_semaphore.h>
 
-#include <bslmt_threadattributes.h>     // for testing only
-#include <bslmt_threadutil.h>           // for testing only
+#include <bslmt_threadutil.h>
 
 #include <bslim_testutil.h>
 

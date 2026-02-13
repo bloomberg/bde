@@ -3,9 +3,9 @@
 
 #include <bslim_testutil.h>
 
-#include <bslmt_lockguard.h>   // for testing only
-#include <bslmt_mutex.h>       // for testing only
-#include <bslmt_threadutil.h>  // for testing only
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_threadutil.h>
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
