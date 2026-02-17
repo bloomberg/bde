@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 ///Special Formatting Rules and Allowances
 ///---------------------------------------
 // This header is a large and complex mesh of fairly unrelated and deep
-// preprocessor conditionals with defining and undefining of many features
+// preprocessor conditionals with defining and undefining of many feature
 // macros.  It is hard for a human to scan this file and understand how and
 // where particular feature macros are set.  To make matter more difficult in
 // certain circumstances we also unset/undefine macros.  For this reason this

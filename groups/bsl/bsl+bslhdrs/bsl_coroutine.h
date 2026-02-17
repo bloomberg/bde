@@ -31,7 +31,7 @@ namespace bsl {
     using std::suspend_always;
 }  // close package namespace
 
-#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_COROUTINE
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
 
 #endif
 

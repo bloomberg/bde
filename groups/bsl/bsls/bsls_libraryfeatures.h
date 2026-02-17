@@ -30,50 +30,52 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY: C++14 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE: `integer_sequence` defined
 //  BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS: range functions extension
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC: `<cstdlib>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY: C++17 base lib provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_EXCEPTION_HANDLING: except handling provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS: searcher function objects
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD: searcher object overload
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: `ptr_fun` et al. gone
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV: `<charconv>` for integers only
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV: full `<charconv`> support w floats
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED: `ptr_fun` et al. gone
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM: `<filesystem>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV: `<charconv>` for integers only
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS: `<execution>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR: `<memory_resource>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING: `pmr::string`
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS: optional atomics
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS: `data`,`empty`,`size`
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS: searcher function objects
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD: searcher object overload
+//  BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS: more `<cmath>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET: `<ctime>`
-//  BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC: `<cstdlib>`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: `<version>`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY: C++20 base lib provided
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: `result_of` et al. gone
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS: `<concepts>`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: `<ranges>`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION: `<source_location>`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF: `atomic_ref`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES:
-//                                                `atomic_[un]signed_lock_free`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS:
-//                                           `bsl::atomic_flag_wait[_explicit]`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS:
 //                                           `bsl::atomic_flag_test[_explicit]`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: `*_for_overwrite`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES:
+//                                                `atomic_[un]signed_lock_free`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF: `atomic_ref`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS:
+//                                           `bsl::atomic_flag_wait[_explicit]`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY: C++20 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR: `<chrono>` calendar/TZ additions
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE: `<chrono>` subset of TZ features
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV: `mbrtoc8` & `c8rtomb`
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE: type trait
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
-//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS: `<concepts>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED: `result_of` et al. gone
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT: `<format>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER: type trait
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE: type trait
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE: type traits
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD: `std::jthread`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: `*_for_overwrite`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: `<ranges>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION: `<source_location>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY: `to_array` factory function
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE: `<chrono>` subset of TZ features
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: `<version>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY: C++23 base lib provided
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT: `std::format` of ranges
 //  BSLS_LIBRARYFEATURES_STDCPP_GNU: implementation is GNU libstdc++
 //  BSLS_LIBRARYFEATURES_STDCPP_IBM: implementation is IBM
 //  BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE: Intellisense is running
+//  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
 //  BSLS_LIBRARYFEATURES_STDCPP_LLVM: implementation is LLVM libc++
 //  BSLS_LIBRARYFEATURES_STDCPP_MSVC: implementation is MSVC
-//  BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD: implementation is Sun's (RogueWave)
 //  BSLS_LIBRARYFEATURES_STDCPP_STLPORT: implementation is STLPort
 //
 //@SEE_ALSO: bsls_platform, bsls_compilerfeatures
@@ -94,6 +96,29 @@ BSLS_IDENT("$Id: $")
 // The standard library version described by these macros always corresponds to
 // that used to build this component and is the source of the symbols found in
 // the `std` namespace.
+//
+///Special Formatting Rules and Allowances
+///---------------------------------------
+// This header is a large and complex mesh of fairly unrelated and deep
+// preprocessor conditionals with defining and undefining of many feature
+// macros.  It is hard for a human to scan this file and understand how and
+// where particular feature macros are set.  To make matter more difficult in
+// certain circumstances we also unset/undefine macros.  For this reason this
+// header file uses a few special formatting rules to allow faster scanning:
+//
+// 1. Only comments and the `1` (replacement text) of {Binary Macros} may be 79
+//    characters long (plus newline).  Line continuation characters in long
+//    preprocessor conditionals etc. must be placed onto column 78.  This is to
+//    allow a human to easily scan the file for places where feature macros are
+//    being defined.
+// 2. Feature macro definitions that are commented out (to indicate that for a
+//    given compiler + standard library combination the support does not exist)
+//    must not have the replacement text (the number 1) be present so as not to
+//    confuse a human reader not using syntax highlighting.
+// 3. Due to the depth of necessary conditional branches (`#if*`) and the
+//    unusually long feature macro names defined in this header we use 2 spaces
+//    indentation to ensure that most preprocessor directives don't wrap (and
+//    become hard to read).
 //
 ///Guarding Against Mixing C++ Versions
 ///------------------------------------
@@ -467,144 +492,6 @@ BSLS_IDENT("$Id: $")
 // Notice that the above list does *not* include `random_shuffle` as that is
 // deprecated in C++14 and will be removed in C++17.
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY`
-///-------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY` macro is used to
-// identify whether the current platform's standard library supports a baseline
-// set of C++14 library features (which are defined below).  This is especially
-// important in BSL when importing standard library functions and types into
-// the `bsl::` namespace, as is done in `bsl+bslhdrs`.
-//
-// This macro is defined if *all* of the listed conditions are true:
-//
-// * The compiler supports C++14 language features.
-// * The following functions and types are provided by the native standard
-//   library:
-//   - UDLs support for `<chrono>`
-//   - UDLs support for `<complex>`
-//   - Type defined in `<functional>`
-//     - bit_not
-//   - Function defined in `<iterator>`
-//     - make_reverse_iterator
-//   - Function defined in `<iomanip>`
-//     - quoted
-//   - Function defined in `<memory>`
-//     - `make_unique`
-//   - Function defined in `<type_traits>`
-//     - `is_null_pointer`
-//     - `is_final`
-//   - Function defined in `<utility>`
-//     - `exchange`
-// * The header `<shared_mutex>` is available providing the standard
-//   components.
-//
-// This macro is defined first for the following compiler versions:
-//
-// * GCC 4.9
-// * clang 3.4
-// * Microsoft Visual Studio 2015 / MSVC 19.00
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE`
-///-------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE` macro is defined if
-// *all* of the listed conditions are true:
-//
-// * The `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` macro is defined.
-// * The `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` macro is also
-//   defined.
-//
-// * The `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES` macro is also
-//   defined.
-//
-// Note that though `struct` `integer_sequence` was introduced in the C++14
-// standard, `bsl::integer_sequence` is supported by BDE when compiling in
-// C++11 mode.
-//
-// This macro is defined first for the following compiler versions:
-//
-// * GCC 4.8
-// * clang 3.0 using at least GCC 4.8 GNU C++ Library
-// * Microsoft Visual Studio 2015 / MSVC 19.00
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY`
-///-------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++17 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
-//
-// This macro is defined if all of the listed conditions are true:
-//
-// * The compiler supports C++17 language features.
-// * The following headers can be included:
-//   - `<any>`
-//   - `<optional>`
-//   - `<variant>`
-//   - `<string_view>`
-//
-// This macro is defined first for the following compiler versions:
-//
-// * GCC 7
-// * clang 7
-// * Microsoft Visual Studio 2019 / MSVC 19.20
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY`
-///-------------------------------------------------
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++20 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
-//
-// This macro is defined if all of the listed conditions are true:
-//
-// * The compiler supports C++20 language features.
-// * The following headers can be included:
-//   - `<barrier>`
-//   - `<bit>`
-//   - `<latch>`
-//   - `<numbers>`
-//   - `<semaphore>`
-//   - `<span>`
-//   - `<stop_token>`
-// * The `<type_traits>` header defines:
-//   - `std::remove_cvref`
-//   - `std::type_identify`
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 11.1
-//   - clang 15 when compiling against either:
-//       - libc++ version 15, or
-//       - libstdc++ version 11
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY`
-///-------------------------------------------------
-// Experimental support! Do not use
-// TODO: Complete C++23 baseline functionality validation.
-//
-// The information under this macro is subject to change!
-//
-// This macro is used to identify whether the current platform's standard
-// library supports a baseline set of C++23 library features (which are defined
-// below).  This is especially important in BSL when importing standard library
-// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
-//
-// This macro is defined if all of the listed conditions are true:
-//
-// * The compiler supports C++23 language features.
-// * The following headers can be included:
-//   - <expected>  TODO
-//   - TBD
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 14.0
-//   - clang 17 when compiling against either:
-//       - libc++ version 17, or
-//       - libstdc++ version 14
-//   - Microsoft Visual Studio N/A
-//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS`
 ///--------------------------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP11_DYNAMIC_EXCEPTION_SPECS` macro is
@@ -726,89 +613,6 @@ BSLS_IDENT("$Id: $")
 // * clang 3.0 using at least GCC 4.8 GNU C++ Library
 // * Microsoft Visual Studio 2015 / MSVC 19.00
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS`
-///---------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS` macro is
-// defined if *both* of the listed conditions are true: defined if the
-// `<atomic>` header provided by the native standard library provides type
-// aliases for all of the following precise bit-width atomic types:
-//
-// * The `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` macro is defined.
-// * The following type aliases are provided by the native standard library in
-//   the `<atomic>` header:
-//   - `atomic_int8_t`
-//   - `atomic_int16_t`
-//   - `atomic_int32_t`
-//   - `atomic_int64_t`
-//   - `atomic_uint8_t`
-//   - `atomic_uint16_t`
-//   - `atomic_uint32_t`
-//   - `atomic_uint64_t`
-//   - `atomic_intptr_t`
-//   - `atomic_uintptr_t`
-//
-// This macro is defined first for the following compiler versions:
-//
-// * GCC 7.0
-// * clang 3.0 using at least GCC 7.0 GNU C++ Library
-// * Microsoft Visual Studio 2015 / MSVC 19.00
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS`
-///------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS` macro is defined if the
-// native library supplies the following class templates in `<functional>`:
-//
-// * `default_searcher`
-// * `boyer_moore_searcher`
-// * `boyer_moore_horspool_searcher`
-//
-// Currently the following compilers define this function template in C++17 or
-// later modes:
-//
-// * GCC 8.3.0
-// * Microsoft Visual Studio 2019 / MSVC 19.20
-// * clang 3.0 with GNU library
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD`
-///------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD` macro is defined if
-// `<algorithm>` defines an overload for the `search` function template that
-// accepts instances of the searcher classes introduced in C++17.  See
-// [alg.search]:
-// ```
-// template<class ForwardIterator, class Searcher>
-// constexpr ForwardIterator std::search(ForwardIterator first,
-//                                       ForwardIterator last,
-//                                       const Searcher& searcher);
-// ```
-//
-// Currently the following compilers define this function template in C++17 or
-// later modes:
-//
-// * GCC 8.3.0
-// * Microsoft Visual Studio 2017 / MSVC 19.10
-// * clang above 3.0 with GNU library
-// * Apple clang all supported versions
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED`
-///---------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED` macro is defined for
-// libraries that do not export names removed in C++17, such as `std::ptr_fun`.
-// `BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED` is generally the
-// negation of `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR`.  Although the removal
-// of deprecated C++17 types is conceptually equivalent to
-// `__cplusplus >= 201703L`, standard library implementations often provide
-// configuration flags to expose the deprecated library features.
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED`
-///---------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED` macro is defined for
-// libraries that do not export names removed in C++20, such as
-// `std::uncaught_exception`.  Although the removal of deprecated C++20 types
-// is conceptually equivalent to `__cplusplus >= 202002L`, some standard
-// library implementations may continue to expose the features, and some may
-// provide configuration flags to expose the deprecated library features.
-//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION`
 ///----------------------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION` macro is defined if
@@ -829,8 +633,8 @@ BSLS_IDENT("$Id: $")
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS`
 ///------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS` is defined if the
-// following functions are provided by the native standard library in the
+// The `BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS` macro is defined if
+// the following functions are provided by the native standard library in the
 // `<iterator>` header:
 //
 // ```
@@ -848,44 +652,12 @@ BSLS_IDENT("$Id: $")
 // * clang 3.0
 // * Microsoft Visual Studio 2012 / MSVC 17.00
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS`
-///------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS` macro is defined if the
-// following functions are provided by the native standard library in the
-// `<iterator>` header:
-//
-// ```
-// template <class C> auto cbegin(const C& c) -> decltype(std::begin(c));
-// template <class C> auto cend(  const C& c) -> decltype(std::end(c));
-//
-// template <class C> auto rbegin(      C& c) -> decltype(c.rbegin());
-// template <class C> auto rbegin(const C& c) -> decltype(c.rbegin());
-//
-// template <class C> auto rend(      C& c)   -> decltype(c.rend());
-// template <class C> auto rend(const C& c)   -> decltype(c.rend());
-//
-// template <class T, size_t N> reverse_iterator<T*> rbegin(T (&array)[N]);
-// template <class T, size_t N> reverse_iterator<T*> rend(  T (&array)[N]);
-//
-// template <class E> reverse_iterator<const E*> rbegin(initializer_list<E>);
-// template <class E> reverse_iterator<const E*> rend(  initializer_list<E>);
-//
-// template <class C> auto crbegin(const C& c) -> decltype(std::rbegin(c));
-// template <class C> auto crend(  const C& c) -> decltype(std::rend(c));
-// ```
-//
-// This macro is defined first for the following compiler versions:
-//
-// * GCC 4.9
-// * clang 3.4
-// * Microsoft Visual Studio 2015 / MSVC 19.00
-//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE`
 ///--------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE` is defined if the standard
-// stream classes (`basic_istream`, `basic_ostream`, `basic_stream`) all have
-// the C++11 mandated move operations (constructor and assignment operator)
-// defined.  Notice that the this macro is separate from the macro
+// The `BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE` macro is defined if the
+// standard stream classes (`basic_istream`, `basic_ostream`, `basic_stream`)
+// all have the C++11 mandated move operations (constructor and assignment
+// operator) defined.  Notice that the this macro is separate from the macro
 // `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` as standard library
 // implementations exist that implement almost all of C++11 (which is detected
 // by the `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` macro) but not this
@@ -933,17 +705,96 @@ BSLS_IDENT("$Id: $")
 // * clang 3.0 using at least GCC 4.8 GNU C++ Library
 // * Microsoft Visual Studio 2015 / MSVC 19.00
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS`
+///`BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY`
+///-------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY` macro is used to
+// identify whether the current platform's standard library supports a baseline
+// set of C++14 library features (which are defined below).  This is especially
+// important in BSL when importing standard library functions and types into
+// the `bsl::` namespace, as is done in `bsl+bslhdrs`.
+//
+// This macro is defined if *all* of the listed conditions are true:
+//
+// * The compiler supports C++14 language features.
+// * The following functions and types are provided by the native standard
+//   library:
+//   - UDLs support for `<chrono>`
+//   - UDLs support for `<complex>`
+//   - Type defined in `<functional>`
+//     - bit_not
+//   - Function defined in `<iterator>`
+//     - make_reverse_iterator
+//   - Function defined in `<iomanip>`
+//     - quoted
+//   - Function defined in `<memory>`
+//     - `make_unique`
+//   - Function defined in `<type_traits>`
+//     - `is_null_pointer`
+//     - `is_final`
+//   - Function defined in `<utility>`
+//     - `exchange`
+// * The header `<shared_mutex>` is available providing the standard
+//   components.
+//
+// This macro is defined first for the following compiler versions:
+//
+// * GCC 4.9
+// * clang 3.4
+// * Microsoft Visual Studio 2015 / MSVC 19.00
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE`
+///-------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE` macro is defined if
+// *all* of the listed conditions are true:
+//
+// * The `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` macro is defined.
+// * The `BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES` macro is also
+//   defined.
+//
+// * The `BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES` macro is also
+//   defined.
+//
+// Note that though `struct` `integer_sequence` was introduced in the C++14
+// standard, `bsl::integer_sequence` is supported by BDE when compiling in
+// C++11 mode.
+//
+// This macro is defined first for the following compiler versions:
+//
+// * GCC 4.8
+// * clang 3.0 using at least GCC 4.8 GNU C++ Library
+// * Microsoft Visual Studio 2015 / MSVC 19.00
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS`
 ///------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS` macro is defined if the
+// The `BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS` macro is defined if the
 // following functions are provided by the native standard library in the
 // `<iterator>` header:
 //
 // ```
-// template <class C> auto empty(const C& c) -> decltype(c.empty());
-// template <class C> auto data( const C& c) -> decltype(c.data());
-// template <class C> auto size( const C& c) -> decltype(c.size());
+// template <class C> auto cbegin(const C& c) -> decltype(std::begin(c));
+// template <class C> auto cend(  const C& c) -> decltype(std::end(c));
+//
+// template <class C> auto rbegin(      C& c) -> decltype(c.rbegin());
+// template <class C> auto rbegin(const C& c) -> decltype(c.rbegin());
+//
+// template <class C> auto rend(      C& c)   -> decltype(c.rend());
+// template <class C> auto rend(const C& c)   -> decltype(c.rend());
+//
+// template <class T, size_t N> reverse_iterator<T*> rbegin(T (&array)[N]);
+// template <class T, size_t N> reverse_iterator<T*> rend(  T (&array)[N]);
+//
+// template <class E> reverse_iterator<const E*> rbegin(initializer_list<E>);
+// template <class E> reverse_iterator<const E*> rend(  initializer_list<E>);
+//
+// template <class C> auto crbegin(const C& c) -> decltype(std::rbegin(c));
+// template <class C> auto crend(  const C& c) -> decltype(std::rend(c));
 // ```
+//
+// This macro is defined first for the following compiler versions:
+//
+// * GCC 4.9
+// * clang 3.4
+// * Microsoft Visual Studio 2015 / MSVC 19.00
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC`
 ///----------------------------------------------
@@ -955,34 +806,27 @@ BSLS_IDENT("$Id: $")
 // version 7, for example, but not on RedHat 6.  Microsoft does not provide
 // this call.  See https://github.com/microsoft/STL/issues/2176
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET`
-///---------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET` macro is defined if the
-// native standard library provides `std::timespec_get`.
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY`
+///-------------------------------------------------
+// This macro is used to identify whether the current platform's standard
+// library supports a baseline set of C++17 library features (which are defined
+// below).  This is especially important in BSL when importing standard library
+// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
 //
-// Both libstdc++ and libc++ will provide this call if the underlying C library
-// provides the global call '::timespec_get.  This call is available on RedHat
-// version 7, for example, but not on RedHat 6.
+// This macro is defined if all of the listed conditions are true:
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS`
-///-------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS` is defined if
-// the special math functions such as `std::assoc_laguerre`, `std::beta` and
-// others are provided by the native standard library in the `<cmath>` header.
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV`
-///---------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV` macro is defined if the
-// native standard library provides the `<charconv>` header and implements both
-// `std::from_chars` and `std::to_chars` for all standard signed and unsigned
-// integer types and the `char` type, as well as the `std::to_chars_result` and
-// `std::from_chars_result` types.
+// * The compiler supports C++17 language features.
+// * The following headers can be included:
+//   - `<any>`
+//   - `<optional>`
+//   - `<variant>`
+//   - `<string_view>`
 //
 // This macro is defined first for the following compiler versions:
 //
-//   - GCC 8
-//   - clang using at least GCC 8 GNU C++ Library
-//   - Microsoft Visual Studio 2017 / MSVC 19.10
+// * GCC 7
+// * clang 7
+// * Microsoft Visual Studio 2019 / MSVC 19.20
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV`
 ///-----------------------------------------
@@ -1000,6 +844,16 @@ BSLS_IDENT("$Id: $")
 //   - clang using at least GCC 12 GNU C++ Library
 //   - Microsoft Visual Studio 2019 / MSVC 19.20
 //
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED`
+///---------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED` macro is defined for
+// libraries that do not export names removed in C++17, such as `std::ptr_fun`.
+// `BSLS_LIBRARYFEATURES_HAS_CPP17_DEPRECATED_REMOVED` is generally the
+// negation of `BSLS_LIBRARYFEATURES_HAS_CPP98_AUTO_PTR`.  Although the removal
+// of deprecated C++17 types is conceptually equivalent to
+// `__cplusplus >= 201703L`, standard library implementations often provide
+// configuration flags to expose the deprecated library features.
+//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM`
 ///-------------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM` macro is defined if the
@@ -1011,6 +865,27 @@ BSLS_IDENT("$Id: $")
 //   - GCC 9
 //   - clang 14, or clang using at least GCC 9 GNU C++ Library
 //   - Microsoft Visual Studio 2017 15.7 / MSVC 19.14
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV`
+///---------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV` macro is defined if the
+// native standard library provides the `<charconv>` header and implements both
+// `std::from_chars` and `std::to_chars` for all standard signed and unsigned
+// integer types and the `char` type, as well as the `std::to_chars_result` and
+// `std::from_chars_result` types.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 8
+//   - clang using at least GCC 8 GNU C++ Library
+//   - Microsoft Visual Studio 2017 / MSVC 19.10
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS`
+///----------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS` macro is defined if
+// the native standard library provides the `<execution>` header and implements
+// all the parallel algorithm overloads in the `<algorithm>` and <`numeric>`
+// headers with no major issues.
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP17_PMR`
 ///------------------------------------
@@ -1034,23 +909,228 @@ BSLS_IDENT("$Id: $")
 // libstdc++ doesn't provide it for the obsolete pre-C++11 CoW string
 // implemetation (`_GLIBCXX_USE_CXX11_ABI` == 0).
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION`
-///----------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION` macro is defined if the native
-// standard library provides the `<version>` header and implements all required
-// content with no major issues.
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS`
+///---------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_PRECISE_BITWIDTH_ATOMICS` macro is
+// defined if *both* of the listed conditions are true: defined if the
+// `<atomic>` header provided by the native standard library provides type
+// aliases for all of the following precise bit-width atomic types:
 //
-// A new header, `<version>`, that defines library feature-test macros has been
-// added in C++20.  For better compatibility with the standard library
-// `BSLS_LIBRARYFEATURES` macros should be based on the standard feature test
-// macro when it is appropriate.  See the "STANDARD FEATURE-DETECTION MACROS"
-// section below.
+// * The `BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY` macro is defined.
+// * The following type aliases are provided by the native standard library in
+//   the `<atomic>` header:
+//   - `atomic_int8_t`
+//   - `atomic_int16_t`
+//   - `atomic_int32_t`
+//   - `atomic_int64_t`
+//   - `atomic_uint8_t`
+//   - `atomic_uint16_t`
+//   - `atomic_uint32_t`
+//   - `atomic_uint64_t`
+//   - `atomic_intptr_t`
+//   - `atomic_uintptr_t`
 //
 // This macro is defined first for the following compiler versions:
 //
-//   - GCC 9
-//   - clang 7, or clang using at least GCC 9 GNU C++ Library
-//   - Microsoft Visual Studio 2019 16.2 / MSVC 19.22
+// * GCC 7.0
+// * clang 3.0 using at least GCC 7.0 GNU C++ Library
+// * Microsoft Visual Studio 2015 / MSVC 19.00
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS`
+///------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS` macro is defined if the
+// following functions are provided by the native standard library in the
+// `<iterator>` header:
+//
+// ```
+// template <class C> auto empty(const C& c) -> decltype(c.empty());
+// template <class C> auto data( const C& c) -> decltype(c.data());
+// template <class C> auto size( const C& c) -> decltype(c.size());
+// ```
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS`
+///------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS` macro is defined if the
+// native library supplies the following class templates in `<functional>`:
+//
+// * `default_searcher`
+// * `boyer_moore_searcher`
+// * `boyer_moore_horspool_searcher`
+//
+// Currently the following compilers define this function template in C++17 or
+// later modes:
+//
+// * GCC 8.3.0
+// * Microsoft Visual Studio 2019 / MSVC 19.20
+// * clang 3.0 with GNU library
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD`
+///------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD` macro is defined if
+// `<algorithm>` defines an overload for the `search` function template that
+// accepts instances of the searcher classes introduced in C++17.  See
+// [alg.search]:
+// ```
+// template<class ForwardIterator, class Searcher>
+// constexpr ForwardIterator std::search(ForwardIterator first,
+//                                       ForwardIterator last,
+//                                       const Searcher& searcher);
+// ```
+//
+// Currently the following compilers define this function template in C++17 or
+// later modes:
+//
+// * GCC 8.3.0
+// * Microsoft Visual Studio 2017 / MSVC 19.10
+// * clang above 3.0 with GNU library
+// * Apple clang all supported versions
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS`
+///-------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_SPECIAL_MATH_FUNCTIONS` macro is defined
+// if the special math functions such as `std::assoc_laguerre`, `std::beta` and
+// others are provided by the native standard library in the `<cmath>` header.
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET`
+///---------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET` macro is defined if the
+// native standard library provides `std::timespec_get`.
+//
+// Both libstdc++ and libc++ will provide this call if the underlying C library
+// provides the global call '::timespec_get.  This call is available on RedHat
+// version 7, for example, but not on RedHat 6.
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS`
+///----------------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS` is
+// defined if the `bsl::atomic_flag_test` and `bsl::atomic_flag_test_explicit`
+// functions are available with C++20 semantics.
+//
+// This macro is defined if the standard `__cpp_lib_atomic_flag_test`
+// feature-test macro is defined and has a value of at least 201907L.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - clang 15 when compiling against libc++ version 15, or
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of GCC supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES`
+///--------------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES` macro is
+// defined if `bsl::atomic_signed_lock_free` and
+// `bsl:atomic_unsigned_lock_free` types are available with C++20 semantics.
+//
+// This macro is defined if the standard
+// `__cpp_lib_atomic_lock_free_type_aliases` feature-test macro is defined.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 13.1
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no curent version of clang supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF`
+///--------------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF` macro is defined if the
+// `bsl::atomic_ref` type is available with C++20 semantics.
+//
+// This macro is defined if the standard `__cpp_lib_atomic_ref`
+// feature-test macro is defined and `__cpp_lib_atomic_ref >= 201806L`.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 11.1
+//   - clang 15 when compiling against libstdc++ version 11
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no curent version of libc++ supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS`
+///-----------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS` macro is
+// defined if the following free functions are available:
+// `bsl::atomic_flag_wait`, `bsl::atomic_flag_wait_explicit`,
+// `bsl::atomic_flag_notify_one`, `bsl::atomic_flag_notify_all` with C++20
+// semantics.
+//
+// This macro is defined if the standard `__cpp_lib_atomic_wait` feature-test
+// macro is defined and has a value of at least 201907L.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - clang 15 when compiling against libc++ version 15, or
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of GCC supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY`
+///-------------------------------------------------
+// This macro is used to identify whether the current platform's standard
+// library supports a baseline set of C++20 library features (which are defined
+// below).  This is especially important in BSL when importing standard library
+// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
+//
+// This macro is defined if all of the listed conditions are true:
+//
+// * The compiler supports C++20 language features.
+// * The following headers can be included:
+//   - `<barrier>`
+//   - `<bit>`
+//   - `<latch>`
+//   - `<numbers>`
+//   - `<semaphore>`
+//   - `<span>`
+//   - `<stop_token>`
+// * The `<type_traits>` header defines:
+//   - `std::remove_cvref`
+//   - `std::type_identify`
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 11.1
+//   - clang 15 when compiling against either:
+//       - libc++ version 15, or
+//       - libstdc++ version 11
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR`
+///-----------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR` macro is defined if the C++20
+// calendar/TZ features, except those guarded by the
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE` macro, are available in
+// `bsl::chrono` namespace.
+//
+// This macro is defined if the standard `__cpp_lib_chrono` feature-test macro
+// has at least `201907L` value.
+//
+// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
+// that release was shipped with the following important note:  "While the STL
+// generally provides all features on all supported versions of Windows, leap
+// seconds and time zones (which change over time) require OS support that was
+// added to Windows 10.  Specifically, updating the leap second database
+// requires Windows 10 version 1809 or later, and time zones require `icu.dll`
+// which is provided by Windows 10 version 1903/19H1 or later.  This applies to
+// both client and server OSes; note that Windows Server 2019 is based on
+// Windows 10 version 1809."  If the feature is used on a host that doesn't
+// provide `icu.dll`, an exception with "The specified module could not be
+// found." message will be thrown.  For this reason those features are disabled
+// by default on Windows.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//   - GCC 14+
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV`
+///----------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` macro is defined if the
+// `bsl::mbrtoc8` and `bsl::c8rtomb` functions are available with C++20
+// semantics.
+//
+// (no current version of GCC, clang or MSVC supports this feature
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS`
 ///-----------------------------------------
@@ -1068,6 +1148,105 @@ BSLS_IDENT("$Id: $")
 //       - libc++ version 15, or
 //       - libstdc++ version 11
 //   - Microsoft Visual Studio 2022 17.2 / MSVC 19.32
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED`
+///---------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED` macro is defined for
+// libraries that do not export names removed in C++20, such as
+// `std::uncaught_exception`.  Although the removal of deprecated C++20 types
+// is conceptually equivalent to `__cplusplus >= 202002L`, some standard
+// library implementations may continue to expose the features, and some may
+// provide configuration flags to expose the deprecated library features.
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT`
+///---------------------------------------
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` macro is defined if the `<format>`
+// header is available and supports P2216 and P2372 (which were defect reports
+// against C++20).
+//
+// This macro is defined first for the following compiler versions:
+//   - GCC 13.1
+//   - Clang 17.0 with either:
+//     - libc++ 17.0, or
+//     - libstdc++ 13.1
+//   - VS 16.11 / MSVC 19.29
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`
+///--------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER` macro is
+// defined if the `bsl::is_corresponding_member` meta function is available.
+//
+// Note that the standard feature test macro `__cpp_lib_is_layout_compatible`,
+// the macro that informs
+// `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`, is also defined.  See
+// the last sentence of `P0466R5`.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 12.1
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of clang supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`
+///-----------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE` macro is defined
+// if the `bsl::is_layout_compatible` meta function is available.
+//
+// Note that the standard feature test macro `__cpp_lib_is_layout_compatible`
+// is also defined and has a value of at least `201907L`.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 12.1
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of clang supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE`
+///------------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE` macro is
+// defined if the `bsl::is_pointer_interconvertible_base_of` and
+// `bsl::is_pointer_interconvertible_with_class` meta functions are available.
+//
+// Note that the standard feature test macro
+// `__cpp_lib_is_pointer_interconvertible` is also defined and has a value of
+// at least `201907L`.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 12.1
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
+//
+// (no current version of clang supports this feature)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD`
+///----------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` macro is defined if the C++20
+// `bsl::jthread` class in the `<bsl_thread.h>` header available.
+//
+// Note that the standard feature test macro `__cpp_lib_jthread` is also
+// defined and has a value of at least `201911L`.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 10.1
+//   - Microsoft Visual Studio 2019 Update 9 / _MSC_FULL_VER 192829913
+//   - clang 18.0 with -fexperimental-library
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE`
+///----------------------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE` macro is
+// defined if the `bsl::make_unique_for_overwrite` function is available with
+// C++20 semantics.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 11.1
+//   - clang 15 when compiling against either:
+//       - libc++ version 15, or
+//       - libstdc++ version 11
+//   - Microsoft Visual Studio 2022 / MSVC 19.30
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES`
 ///---------------------------------------
@@ -1108,117 +1287,19 @@ BSLS_IDENT("$Id: $")
 //       - libstdc++ version 11
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF`
-///--------------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF` macro is defined if the
-// `bsl::atomic_ref` type is available with C++20 semantics.
-//
-// This macro is defined if the standard `__cpp_lib_atomic_ref`
-// feature-test macro is defined and `__cpp_lib_atomic_ref >= 201806L`.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 11.1
-//   - clang 15 when compiling against libstdc++ version 11
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no curent version of libc++ supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES`
-///--------------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES` macro is
-// defined if `bsl::atomic_signed_lock_free` and
-// `bsl:atomic_unsigned_lock_free` types are available with C++20 semantics.
-//
-// This macro is defined if the standard
-// `__cpp_lib_atomic_lock_free_type_aliases` feature-test macro is defined.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 13.1
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no curent version of clang supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS`
-///-----------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS` is defined
-// if the following free functions are available: `bsl::atomic_flag_wait`,
-// `bsl::atomic_flag_wait_explicit`, `bsl::atomic_flag_notify_one`,
-// `bsl::atomic_flag_notify_all` with C++20 semantics.
-//
-// This macro is defined if the standard `__cpp_lib_atomic_wait` feature-test
-// macro is defined and has a value of at least 201907L.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - clang 15 when compiling against libc++ version 15, or
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no current version of GCC supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS`
-///----------------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS` is
-// defined if the `bsl::atomic_flag_test` and `bsl::atomic_flag_test_explicit`
-// functions are available with C++20 semantics.
-//
-// This macro is defined if the standard `__cpp_lib_atomic_flag_test`
-// feature-test macro is defined and has a value of at least 201907L.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - clang 15 when compiling against libc++ version 15, or
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no current version of GCC supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE`
-///----------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE` macro is
-// defined if the `bsl::make_unique_for_overwrite` function is available with
-// C++20 semantics.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 11.1
-//   - clang 15 when compiling against either:
-//       - libc++ version 15, or
-//       - libstdc++ version 11
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR`
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY`
 ///-----------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR` is defined if the C++20
-// calendar/TZ features, except those guarded by the
-// `BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE` macro, are available in
-// `bsl::chrono` namespace.
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY` macro is defined if the native
+// standard library implements the `to_array` factory function in the `<array>`
+// header correctly with no major issues..
 //
-// This macro is defined if the standard `__cpp_lib_chrono` feature-test macro
-// has at least `201907L` value.
-//
-// This feature has been provided by MSVC++ compiler since VS 2019 16.10.  But
-// that release was shipped with the following important note:  "While the STL
-// generally provides all features on all supported versions of Windows, leap
-// seconds and time zones (which change over time) require OS support that was
-// added to Windows 10.  Specifically, updating the leap second database
-// requires Windows 10 version 1809 or later, and time zones require `icu.dll`
-// which is provided by Windows 10 version 1903/19H1 or later.  This applies to
-// both client and server OSes; note that Windows Server 2019 is based on
-// Windows 10 version 1809."  If the feature is used on a host that doesn't
-// provide `icu.dll`, an exception with "The specified module could not be
-// found." message will be thrown.  For this reason those features are disabled
-// by default on Windows.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//   - GCC 14+
+// This macro is defined if the standard `__cpp_lib_ranges` feature-test macro
+// is defined and `__cpp_lib_to_array >= 201907L`.
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE`
 ///----------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE` is defined if the following
-// C++20 timezone features are available in `bsl::chrono` namespace:
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE` macro is defined if the
+// following C++20 timezone features are available in `bsl::chrono` namespace:
 //
 //   - tzdb
 //   - tzdb_list
@@ -1261,89 +1342,50 @@ BSLS_IDENT("$Id: $")
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
 //   - GCC 14+
 //
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV`
-///----------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV` macro is defined if the
-// `bsl::mbrtoc8` and `bsl::c8rtomb` functions are available with C++20
-// semantics.
-//
-// (no current version of GCC, clang or MSVC supports this feature
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`
-///-----------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE` is defined if the
-// `bsl::is_layout_compatible` meta function is available.
-//
-// Note that the standard feature test macro `__cpp_lib_is_layout_compatible`
-// is also defined and has a value of at least `201907L`.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 12.1
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no current version of clang supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`
-///--------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER` is defined if
-// the `bsl::is_corresponding_member` meta function is available.
-//
-// Note that the standard feature test macro `__cpp_lib_is_layout_compatible`,
-// the macro that informs
-// `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE`, is also defined.  See
-// the last sentence of `P0466R5`.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 12.1
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no current version of clang supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE`
-///------------------------------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE` is defined
-// if the `bsl::is_pointer_interconvertible_base_of` and
-// `bsl::is_pointer_interconvertible_with_class` meta functions are available.
-//
-// Note that the standard feature test macro
-// `__cpp_lib_is_pointer_interconvertible` is also defined and has a value of
-// at least `201907L`.
-//
-// This macro is defined first for the following compiler versions:
-//
-//   - GCC 12.1
-//   - Microsoft Visual Studio 2022 / MSVC 19.30
-//
-// (no current version of clang supports this feature)
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT`
-///---------------------------------------
-// `BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT` is defined if the `<format>` header
-// is available and supports P2216 and P2372 (which were defect reports against
-// C++20).
-//
-// This macro is defined first for the following compiler versions:
-//   - GCC 13.1
-//   - Clang 17.0 with either:
-//     - libc++ 17.0, or
-//     - libstdc++ 13.1
-//   - VS 16.11 / MSVC 19.29
-//
-///`BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD`
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION`
 ///----------------------------------------
-// The `BSLS_LIBRARYFEATURES_HAS_CPP20_JTHREAD` is defined if the C++20
-// `bsl::jthread` class in the `<bsl_thread.h>` header available.
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION` macro is defined if the native
+// standard library provides the `<version>` header and implements all required
+// content with no major issues.
 //
-// Note that the standard feature test macro `__cpp_lib_jthread` is also
-// defined and has a value of at least `201911L`.
+// A new header, `<version>`, that defines library feature-test macros has been
+// added in C++20.  For better compatibility with the standard library
+// `BSLS_LIBRARYFEATURES` macros should be based on the standard feature test
+// macro when it is appropriate.  See the "STANDARD FEATURE-DETECTION MACROS"
+// section below.
 //
 // This macro is defined first for the following compiler versions:
 //
-//   - GCC 10.1
-//   - Microsoft Visual Studio 2019 Update 9 / _MSC_FULL_VER 192829913
-//   - clang 18.0 with -fexperimental-library
+//   - GCC 9
+//   - clang 7, or clang using at least GCC 9 GNU C++ Library
+//   - Microsoft Visual Studio 2019 16.2 / MSVC 19.22
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY`
+///-------------------------------------------------
+// Experimental support! Do not use
+// TODO: Complete C++23 baseline functionality validation.
+//
+// The information under this macro is subject to change!
+//
+// This macro is used to identify whether the current platform's standard
+// library supports a baseline set of C++23 library features (which are defined
+// below).  This is especially important in BSL when importing standard library
+// functions and types into the `bsl::` namespace, as is done in `bsl+bslhdrs`.
+//
+// This macro is defined if all of the listed conditions are true:
+//
+// * The compiler supports C++23 language features.
+// * The following headers can be included:
+//   - <expected>  TODO
+//   - TBD
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 14.0
+//   - clang 17 when compiling against either:
+//       - libc++ version 17, or
+//       - libstdc++ version 14
+//   - Microsoft Visual Studio N/A
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT`
 ///---------------------------------------------
@@ -1370,6 +1412,11 @@ BSLS_IDENT("$Id: $")
 // clang and Visual Studio Code (also featuring Intellisense) may be used with
 // virtually any compiler.
 //
+///`BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD`
+///-------------------------------------
+// The `BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD` macro is defined if the C++
+// standard library implementation is a RogueWave implementation.
+//
 ///`BSLS_LIBRARYFEATURES_STDCPP_LLVM`
 ///----------------------------------
 // The `BSLS_LIBRARYFEATURES_STDCPP_LLVM_LIBCPP` macro is defined if the C++
@@ -1379,11 +1426,6 @@ BSLS_IDENT("$Id: $")
 ///----------------------------------
 // The `BSLS_LIBRARYFEATURES_STDCPP_MSVC` macro is defined if the C++ standard
 // library implementation is Microsoft's (Dinkumware based) implementation.
-//
-///`BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD`
-///-------------------------------------
-// The `BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD` macro is defined if the C++
-// standard library implementation is a RogueWave implementation.
 //
 ///`BSLS_LIBRARYFEATURES_STDCPP_STLPORT`
 ///-------------------------------------
@@ -1411,10 +1453,10 @@ BSLS_IDENT("$Id: $")
 // interface that returns a `std::tuple`.
 // ```
 // #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-//   #ifndef INCLUDED_TUPLE
-//     #include <tuple>
-//     #define INCLUDED_TUPLE
-//   #endif
+// # ifndef INCLUDED_TUPLE
+// #   include <tuple>
+// #   define INCLUDED_TUPLE
+// # endif
 // #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // ```
 // Then, we declare the methods that will be unconditionally provided by our
@@ -1449,10 +1491,25 @@ BSLS_IDENT("$Id: $")
 // Finally, we find that our code compiles when we build our code against
 // versions of the native standard library that provide a `tuple` type, *and*
 // those that do not.  Of course, in the later case the interface that returns
+//
+// ```
+//    ####################################################################
+//  ########################################################################
+// ##                                                                      ##
+// ##             THIS HEADER FILE HAS SPECIAL FORMATTING RULES!             ##
+// ##            ************************************************            ##
+// ##                                                                        ##
+// ##  Please follow the rules when updating it.  For specific reasons and   ##
+// ##  details please see {Special Formatting Rules and Allowances} above.   ##
+// ##                                                                      ##
+//  ########################################################################
+//    ####################################################################
+// ```
+
 
 #include <bsls_compilerfeatures.h>
-#include <bsls_platform.h>
 #include <bsls_linkcoercion.h>
+#include <bsls_platform.h>
 
 // ============================================================================
 //                        STANDARD LIBRARY DETECTION
