@@ -1184,6 +1184,13 @@ int main(int argc, char *argv[])
         //  threads by one on each iteration.
         // --------------------------------------------------------------------
 
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
+
         enum {
             k_MAX_SLOTS   = 1000,
             k_MAX_ITER    = 100000,
@@ -1280,6 +1287,13 @@ int main(int argc, char *argv[])
         //        post/signal/notify that synchronization object.
         //
         // --------------------------------------------------------------------
+
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0), s));
+        }
 
         if (verbose) cout << "Set-Wait Flags Test" << endl;
 

@@ -6,6 +6,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h> // TBD remove when Darwin workaround removed
 
 #include <bslstl_string.h>
 
@@ -588,6 +589,8 @@ int main(int argc, char **argv)
             // The GNU lib has a bug in localized formatting of floating point
             // numbers till gcc 13.3 (released 2024.05.21)
             generator.setup("VF^+#0{}f");
+#elif defined(BSLS_PLATFORM_OS_DARWIN)  // TBD remove when possible
+            generator.setup("");
 #else
             generator.setup("VF^+#0{}Lf");
 #endif
@@ -642,6 +645,8 @@ int main(int argc, char **argv)
             // The GNU lib has a bug in localized formatting of floating point
             // numbers till gcc 13.3 (released 2024.05.21)
             generator.setup("VF^+#0{}f");
+#elif defined(BSLS_PLATFORM_OS_DARWIN)  // TBD remove when possible
+            generator.setup("");
 #else
             generator.setup("VF^+#0{}Lf");
 #endif

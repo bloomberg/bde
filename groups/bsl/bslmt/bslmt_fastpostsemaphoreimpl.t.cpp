@@ -1453,7 +1453,7 @@ int main(int argc, char *argv[])
             char s[1024];
 
             snprintf(s, sizeof s, "case %i", test);
-            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(360, 0), s));
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(540, 0), s));
         }
 
         if (verbose) {

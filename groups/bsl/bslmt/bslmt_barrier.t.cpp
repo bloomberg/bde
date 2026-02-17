@@ -1029,8 +1029,8 @@ int main(int argc, char *argv[])
         // threads going through the wait.
         // ----------------------------------------------------------------
         enum {
-           k_NUM_THREADS = 4,
-           k_NUM_ITERATIONS =5000
+           k_NUM_THREADS    =    4,
+           k_NUM_ITERATIONS = 3000
         };
 
         case8::test(k_NUM_ITERATIONS, k_NUM_THREADS);

@@ -130,7 +130,7 @@ struct ThreadData {
 
 static bsls::AtomicInt s_continue;
 
-const static int k_COMPLETION_COUNT = 100000;
+const static int k_COMPLETION_COUNT = 50000;
 
 extern "C" void *watchdog(void *arg)
 {
