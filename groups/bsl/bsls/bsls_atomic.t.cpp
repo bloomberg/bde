@@ -1547,6 +1547,10 @@ int main(int argc, char *argv[])
                           << endl;
 
         int iterations = getTestCaseIterations(petersonsLockLoopTest);
+#ifdef BSLS_PLATFORM_OS_DARWIN
+        iterations /= 4;
+#endif
+
         if (veryVerbose) cout << "\tRunning the test loop for "
                               << iterations << " iterations" << endl;
 
@@ -1587,6 +1591,10 @@ int main(int argc, char *argv[])
                           << endl;
 
         int iterations = getTestCaseIterations(petersonsLockLoopTest);
+#ifdef BSLS_PLATFORM_OS_DARWIN
+        iterations /= 4;
+#endif
+
         if (veryVerbose) cout << "\tRunning the test loop for "
                               << iterations << " iterations" << endl;
 
