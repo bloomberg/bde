@@ -63,12 +63,12 @@ using bsl::ostream;
 //  ------------------------ --------------------
 //  balcl::OptionType::Enum  option types
 //  void *                   linked variable
-//  bsl::share_ptr<TypeInfo> constraint (functor)
+//  bsl::shared_ptr<TypeInfo> constraint (functor)
 // ```
 // As some of these are (process-dependent) addresses, this is categorized as
 // an in-core VST.
 //
-// The `constraint` attribute, managed via `bsl::share_ptr`, lends this class
+// The `constraint` attribute, managed via `bsl::shared_ptr`, lends this class
 // some interesting behaviors that are not typically seen in attribute classes.
 //
 //  - Two objects created from the same constituent attributes do not compare
