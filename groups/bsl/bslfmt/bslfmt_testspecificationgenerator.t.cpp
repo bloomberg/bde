@@ -6,7 +6,7 @@
 
 #include <bsls_bsltestutil.h>
 #include <bsls_libraryfeatures.h>
-#include <bsls_platform.h> // TBD remove when Darwin workaround removed
+#include <bsls_platform.h>
 
 #include <bslstl_string.h>
 
@@ -589,8 +589,11 @@ int main(int argc, char **argv)
             // The GNU lib has a bug in localized formatting of floating point
             // numbers till gcc 13.3 (released 2024.05.21)
             generator.setup("VF^+#0{}f");
-#elif defined(BSLS_PLATFORM_OS_DARWIN)  // TBD remove when possible
-            generator.setup("");
+#elif defined(BSLS_PLATFORM_OS_DARWIN) && defined(BSLS_PLATFORM_CMP_CLANG) \
+      && BSLS_PLATFORM_CMP_VERSION < 180000
+            // Reduce the test vector complexity since the runtime is
+            // unreasonably long.
+            generator.setup("VF^+#0{}f");
 #else
             generator.setup("VF^+#0{}Lf");
 #endif
@@ -645,8 +648,11 @@ int main(int argc, char **argv)
             // The GNU lib has a bug in localized formatting of floating point
             // numbers till gcc 13.3 (released 2024.05.21)
             generator.setup("VF^+#0{}f");
-#elif defined(BSLS_PLATFORM_OS_DARWIN)  // TBD remove when possible
-            generator.setup("");
+#elif defined(BSLS_PLATFORM_OS_DARWIN) && defined(BSLS_PLATFORM_CMP_CLANG) \
+      && BSLS_PLATFORM_CMP_VERSION < 180000
+            // Reduce the test vector complexity since the runtime is
+            // unreasonably long.
+            generator.setup("VF^+#0{}f");
 #else
             generator.setup("VF^+#0{}Lf");
 #endif
