@@ -3,8 +3,6 @@
 
 #include <bsla_maybeunused.h>
 
-#include <bslma_testallocator.h>
-
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -169,7 +167,7 @@ static bool veryVeryVeryVerbose;
 # define GNU_10PLUS 0
 #endif
 
-#if defined(__cpp_aggregatee_paren_init)
+#if defined(__cpp_aggregate_paren_init)
 # define PAR_INIT 1
 #else
 # define PAR_INIT 0
@@ -1781,11 +1779,11 @@ int main(int argc, char *argv[])
           TEST.run<rrcD (     ),    rrB      (     )  >(L_, YES);
           TEST.run<rrcD (     ),   rrcB      (     )  >(L_, YES);
 
-          TEST.run<   DA(     ),      BA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),     rBA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),    rcBA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),    rrBA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, !PAR_INIT);
+          TEST.run<   DA(     ),      BA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),     rBA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),    rcBA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),    rrBA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, PAR_INIT);
           TEST.run<  rDA(     ),      BA     (     )  >(L_, MS_REF_BUG);
           TEST.run<  rDA(     ),     rBA     (     )  >(L_, YES);
           TEST.run<  rDA(     ),    rcBA     (     )  >(L_, NO );

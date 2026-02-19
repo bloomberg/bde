@@ -15,7 +15,7 @@
 // delimited regions of C++11 code, then this test driver is a minimal 'main'
 // program that tests nothing and is not '#include'd in the original.
 //
-// Generated on Thu Feb  5 19:42:35 2026
+// Generated on Wed Feb 18 17:01:35 2026
 // Command line: sim_cpp11_features.pl bslstl_function_invokerutil.t.cpp
 
 // Expanded test driver only when compiling bslstl_function_invokerutil.cpp
@@ -158,7 +158,7 @@ static bool veryVeryVeryVerbose;
 # define GNU_10PLUS 0
 #endif
 
-#if defined(__cpp_aggregatee_paren_init)
+#if defined(__cpp_aggregate_paren_init)
 # define PAR_INIT 1
 #else
 # define PAR_INIT 0
@@ -3196,11 +3196,11 @@ int main(int argc, char *argv[])
           TEST.run<rrcD (     ),    rrB      (     )  >(L_, YES);
           TEST.run<rrcD (     ),   rrcB      (     )  >(L_, YES);
 
-          TEST.run<   DA(     ),      BA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),     rBA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),    rcBA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),    rrBA     (     )  >(L_, !PAR_INIT);
-          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, !PAR_INIT);
+          TEST.run<   DA(     ),      BA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),     rBA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),    rcBA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),    rrBA     (     )  >(L_, PAR_INIT);
+          TEST.run<   DA(     ),   rrcBA     (     )  >(L_, PAR_INIT);
           TEST.run<  rDA(     ),      BA     (     )  >(L_, MS_REF_BUG);
           TEST.run<  rDA(     ),     rBA     (     )  >(L_, YES);
           TEST.run<  rDA(     ),    rcBA     (     )  >(L_, NO );
