@@ -1869,6 +1869,7 @@ struct Variant_VTableId<t_RET,
               functionImpl)...};
 };
 
+# if !defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 // inline definitions of component-private function pointer maps
 template <class t_RET, class t_VISITOR, class t_VARIANT, size_t... t_INDICES>
 BSLS_KEYWORD_CONSTEXPR typename Variant_VTable<
@@ -1893,7 +1894,7 @@ BSLS_KEYWORD_CONSTEXPR typename Variant_VTableId<
                      t_VARIANT,
                      bslmf::IntegerSequence<std::size_t, t_INDICES...> >::
         s_mapId[sizeof...(t_INDICES)];
-
+# endif
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 
