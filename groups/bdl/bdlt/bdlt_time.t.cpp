@@ -196,6 +196,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_PASS(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPR)
 #define ASSERT_OPT_FAIL(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPR)
 
+// ============================================================================
+//                             FORMAT TEST MACROS
+// ----------------------------------------------------------------------------
+
+#define U_TEST_FORMAT(exp, format, value) do {                                \
+    bsl::string message;                                                      \
+    bool rc = bdlt::FormatTestUtil::testFormat(&message, exp, format, value); \
+    ASSERTV(message, rc);                                                     \
+} while (false)
+
+#define U_TEST_FORMAT_ARG(exp, format, value, arg) do {                       \
+    bsl::string message;                                                      \
+    bool rc = bdlt::FormatTestUtil::testFormatArg(                            \
+                                         &message, exp, format, value, arg);  \
+    ASSERTV(message, rc);                                                     \
+} while (false)
+
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
@@ -307,10 +324,9 @@ int main(int argc, char *argv[])
         //    Throughout the test, we further edit `exps` to be the expected
         //    result of each test.
         //
-        // 3. Use `BDLT_FORMATTESTUTIL_TEST_FORMAT` and
-        //    `BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG` to test that formatting
-        //    an object with a given string produces a given result.  Tests
-        //    on `char` and `wchat_t` strings.
+        // 3. Use `U_TEST_FORMAT` and `U_TEST_FORMAT_ARG` to test that
+        //    formatting an object with a given string produces a given result.
+        //    Tests on `char` and `wchar_t` strings.
         //
         // 4. Have a `trimPrecision` function that will trim one digit of
         //    precision (and the decimal point when it trims the last digit).
@@ -328,9 +344,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "TEST `bsl::format`\n"
                              "==================\n";
-
-#define U_TEST_FORMAT        BDLT_FORMATTESTUTIL_TEST_FORMAT
-#define U_TEST_FORMAT_ARG    BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG
 
         for (int ti = 0; ti < k_NUM_TDATA; ++ti) {
             const TData& tData  = TDATA[ti];

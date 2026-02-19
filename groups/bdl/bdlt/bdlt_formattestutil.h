@@ -10,19 +10,11 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::FormatTestUtil: namespace class for static functions
 //
-//@MACROS:
-//  BDLT_FORMATTESTUTIL_TEST_FORMAT
-//  BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG
-//
 //@SEE_ALSO: bslfmt::FormatterTestUtil
 //
-//@DESCRIPTION: This component provides a set of macros and functions that
-// support BDE-style testing of the formatting functionality for `bdlt` value
-// types.  It provides two macros that facilitate easy invocation of the
-// functions defined in the `bslfmt::FormatterTestUtil` utility `struct` for
-// both both `char` and `wchar_t`-based strings.  In addition, this component
-// provides functions facilitating conversions between `bsl::string` and
-// `bsl::wstring`.
+//@DESCRIPTION: This component provides a pair of functions that support
+// BDE-style testing of the formatting functionality for `bdlt` value types and
+// functions facilitating conversions between `bsl::string` and `bsl::wstring`.
 
 #include <bdlscm_version.h>
 
@@ -40,19 +32,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_string.h>
 
 namespace BloombergLP {
-
-#define BDLT_FORMATTESTUTIL_TEST_FORMAT(exp, format, value)                   \
-    if (!bdlt::FormatTestUtil::testFormat(                                    \
-                              __FILE__, __LINE__, exp, format, value)) {      \
-        testStatus += testStatus < 100;                                       \
-    }
-
-#define BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG(exp, format, value, arg)          \
-    if (!bdlt::FormatTestUtil::testFormatArg(                                 \
-                              __FILE__, __LINE__, exp, format, value, arg)) { \
-        testStatus += testStatus < 100;                                       \
-    }
-
 namespace bdlt {
 
                             // ====================
@@ -72,30 +51,26 @@ struct FormatTestUtil {
     /// are ascii.
     static bsl::string narrow(const bsl::wstring_view& viewIn);
 
-    /// Using the specified `format` and `value`, compare the string result of
-    /// calling `bsl::format(format, value)` to the specified `exp`.  If they
-    /// don't match, write an error message including the specified `fileName`,
-    /// `line`, the result of the call, and the specified `exp` to `cout` and
-    /// return `false`, otherwise convert the specified `format` and `exp` to
-    /// wide strings, and repeat the process with wide strings.  If both tests
-    /// passed, return `true`.
+    /// Compare the specified `exp` to the string result of calling
+    /// `bsl::format` with the specified `format` and `value`, and return
+    /// `true` if they match and `false` otherwise.  If they do not match, load
+    /// into the specified `message` a value describing the inputs and result
+    /// of the failed test.  Perform these tests for both `char`-based and
+    /// `wchar_t`-based strings.
     template <class t_VALUE_TYPE>
-    static bool testFormat(const char              *fileName,
-                           int                      line,
+    static bool testFormat(bsl::string             *message,
                            const bsl::string_view&  exp,
                            const bsl::string_view&  format,
                            const t_VALUE_TYPE&      value);
 
-    /// Using the specified `format`, `value`, and `arg`, compare the string
-    /// result of calling `bsl::format(format, value)` to the specified `exp`.
-    /// If they don't match, write an error message including `fileName`,
-    /// `line`, the result of the call, `exp`, and `arg` to `cout` and return
-    /// `false`, otherwise convert the specified `format` and `exp` to wide
-    /// strings, and repeat the process with wide strings.  If both tests
-    /// passed, return `true`.
+    /// Compare the specified `exp` to the string result of calling
+    /// `bsl::format` with the specified `format`, `value`, and `arg`, and
+    /// return `true` if they match and `false` otherwise.  If they do not
+    /// match, load into the specified `message` a value describing the inputs
+    /// and result of the failed test.  Perform these tests for both
+    /// `char`-based and `wchar_t`-based strings.
     template <class t_VALUE_TYPE, class t_ARG_TYPE>
-    static bool testFormatArg(const char              *fileName,
-                              int                      line,
+    static bool testFormatArg(bsl::string             *message,
                               const bsl::string_view&  exp,
                               const bsl::string_view&  format,
                               const t_VALUE_TYPE&      value,
@@ -112,68 +87,58 @@ struct FormatTestUtil {
                             // --------------------
 
 template <class t_VALUE_TYPE>
-bool FormatTestUtil::testFormat(const char              *fileName,
-                                int                      line,
+bool FormatTestUtil::testFormat(bsl::string             *message,
                                 const bsl::string_view&  exp,
                                 const bsl::string_view&  format,
                                 const t_VALUE_TYPE&      value)
 {
-    bsl::string message;
+    message->clear();
     bool rc = bslfmt::FormatterTestUtil<char>::testEvaluateVFormat(
-                                           &message, exp, true, format, value);
+                                            message, exp, true, format, value);
     if (!rc) {
-        bsl::cout << "Error " << fileName << "(" << line <<
-                                    "): <char>testEvaluateVFormat(\"" <<
-                 format << "\") failed, msg: \"" << message << "\"\n";
-        return false;                                                 // RETURN
+        message->insert(0, "<char> ");
+    }
+    else {
+        message->clear();
+        bsl::wstring wFormat, expw;
+        widen(&wFormat, format);
+        widen(&expw,    exp);
+        rc = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateVFormat(
+                                          message, expw, true, wFormat, value);
+        if (!rc) {
+            message->insert(0, "<wchar_t> ");
+        }
     }
 
-    bsl::wstring wFormat, expw;
-    widen(&wFormat, format);
-    widen(&expw,    exp);
-    rc = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateVFormat(
-                                         &message, expw, true, wFormat, value);
-    if (!rc) {
-        bsl::cout << "Error " << fileName << "(" << line <<
-                                    "): <wchar_t>testEvaluateVFormat(\"" <<
-                 format << "\") failed, msg: \"" << message << "\"\n";
-        return false;                                                 // RETURN
-    }
-
-    return true;
+    return rc;
 }
 
 template <class t_VALUE_TYPE, class t_ARG_TYPE>
-bool FormatTestUtil::testFormatArg(const char              *fileName,
-                                   int                      line,
+bool FormatTestUtil::testFormatArg(bsl::string             *message,
                                    const bsl::string_view&  exp,
                                    const bsl::string_view&  format,
                                    const t_VALUE_TYPE&      value,
                                    const t_ARG_TYPE&        arg)
 {
-    bsl::string message;
+    message->clear();
     bool rc = bslfmt::FormatterTestUtil<char>::testEvaluateVFormat(
-                                      &message, exp, true, format, value, arg);
+                                       message, exp, true, format, value, arg);
     if (!rc) {
-        bsl::cout << "Error " << fileName << "(" << line <<
-                                    "): <char>testEvaluateVFormat(\"" <<
-                 format << "\") failed, msg: \"" << message << "\"\n";
-        return false;                                                 // RETURN
+        message->insert(0, "<char> ");
+    }
+    else {
+        message->clear();
+        bsl::wstring wFormat, expw;
+        widen(&wFormat, format);
+        widen(&expw,    exp);
+        rc = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateVFormat(
+                                     message, expw, true, wFormat, value, arg);
+        if (!rc) {
+            message->insert(0, "<wchar_t> ");
+        }
     }
 
-    bsl::wstring wFormat, expw;
-    widen(&wFormat, format);
-    widen(&expw,    exp);
-    rc = bslfmt::FormatterTestUtil<wchar_t>::testEvaluateVFormat(
-                                    &message, expw, true, wFormat, value, arg);
-    if (!rc) {
-        bsl::cout << "Error " << fileName << "(" << line <<
-                                    "): <wchar_t>testEvaluateVFormat(\"" <<
-                 format << "\") failed, msg: \"" << message << "\"\n";
-        return false;                                                 // RETURN
-    }
-
-    return true;
+    return rc;
 }
 
 inline

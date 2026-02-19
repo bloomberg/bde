@@ -1,11 +1,11 @@
 // bdlt_formattestutil.t.cpp                                          -*-C++-*-
 #include <bdlt_formattestutil.h>
 
-#include <bdlt_datetime.h>
-
 #include <bdlsb_memoutstreambuf.h>
 
 #include <bslim_testutil.h>
+
+#include <bslfmt_format.h>
 
 #include <bslma_testallocator.h>
 
@@ -33,87 +33,74 @@ using bsl::ostream;
 //                              Overview
 //                              --------
 //
-// [ 3] BDLT_FORMATTESTUTIL_TEST_FORMAT(    exp, format, value);
-// [ 3] BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG(exp, format, value, arg);
+// [ 3] U_TEST_FORMAT(    exp, format, value);
+// [ 3] U_TEST_FORMAT_ARG(exp, format, value, arg);
 // [ 2] void widen(bsl::wstring *result, const bsl::string_view& in);
 // [ 2] bsl::string narrow(const bsl::wstring_view& in);
 // [ 1] BREATHING TEST
 // ----------------------------------------------------------------------------
 
-// ============================================================================
-//                     BDE ASSERT TEST FUNCTION ADAPTED TO `cerr`
-// ----------------------------------------------------------------------------
+//=========================================================================
+//                       STANDARD BDE ASSERT TEST MACRO
+//-------------------------------------------------------------------------
 
 namespace {
 
-int realTestStatus = 0;
+int testStatus = 0;
 
 void aSsErT(bool condition, const char *message, int line)
 {
     if (condition) {
-        cerr << "Error " __FILE__ "(" << line << "): " << message
+        cout << "Error " __FILE__ "(" << line << "): " << message
              << "    (failed)" << endl;
 
-        if (0 <= realTestStatus && realTestStatus <= 100) {
-            ++realTestStatus;
+        if (0 <= testStatus && testStatus <= 100) {
+            ++testStatus;
         }
     }
 }
 
 }  // close unnamed namespace
 
-// ============================================================================
-//               TEST DRIVER MACRO ABBREVIATIONS ADAPTED TO `cerr`
-// ----------------------------------------------------------------------------
+//=============================================================================
+//                       STANDARD BDE TEST DRIVER MACROS
+//-----------------------------------------------------------------------------
 
-// The macros `BDLT_FORMATTESTUTIL_TEST_FORMAT` and
-// `BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG`, which are the most important things
-// to test here, unavoidably do the output that we want to examine to `cout`.
-// So in this test driver, we capture `cout` to a `streambuf` and write our own
-// `ASSERT` macros that do their output to `cerr` rather than `cout`.
+#define ASSERT       BSLIM_TESTUTIL_ASSERT
+#define LOOP_ASSERT  BSLIM_TESTUTIL_LOOP_ASSERT
+#define LOOP0_ASSERT BSLIM_TESTUTIL_LOOP0_ASSERT
+#define LOOP1_ASSERT BSLIM_TESTUTIL_LOOP1_ASSERT
+#define LOOP2_ASSERT BSLIM_TESTUTIL_LOOP2_ASSERT
+#define LOOP3_ASSERT BSLIM_TESTUTIL_LOOP3_ASSERT
+#define LOOP4_ASSERT BSLIM_TESTUTIL_LOOP4_ASSERT
+#define LOOP5_ASSERT BSLIM_TESTUTIL_LOOP5_ASSERT
+#define LOOP6_ASSERT BSLIM_TESTUTIL_LOOP6_ASSERT
+#define LOOP7_ASSERT BSLIM_TESTUTIL_LOOP7_ASSERT
+#define LOOP8_ASSERT BSLIM_TESTUTIL_LOOP8_ASSERT
+#define ASSERTV      BSLIM_TESTUTIL_ASSERTV
 
-// The following macros are just copied from `bslim_testutil` with slight
-// modification.
-
-#define U_DEBUG_REP(X) BloombergLP::bslim::TestUtil::debugRep(X)
-
-#define ASSERT(X)                                                             \
-    aSsErT(!(X), #X, __LINE__);
-
-#define LOOP_ASSERT(I,X)                                                      \
-    if (!(X)) { bsl::cerr << #I ": " << U_DEBUG_REP(I) <<                     \
-                                                         "    (context)\n";   \
-                aSsErT(1, #X, __LINE__); }
-
-#define LOOP2_ASSERT(I,J,X)                                                   \
-    if (!(X)) { bsl::cerr << #I ": " << U_DEBUG_REP(I) << "\t"                \
-                          << #J ": " << U_DEBUG_REP(J) <<                     \
-                                                         "    (context)\n";   \
-                aSsErT(1, #X, __LINE__); }
-
-#define LOOP3_ASSERT(I,J,K,X)                                                 \
-    if (!(X)) { bsl::cerr << #I ": " << U_DEBUG_REP(I) << "\t"                \
-                          << #J ": " << U_DEBUG_REP(J) << "\t"                \
-                          << #K ": " << U_DEBUG_REP(K) <<                     \
-                                                         "    (context)\n";   \
-                aSsErT(1, #X, __LINE__); }
-
-#define LOOP4_ASSERT(I,J,K,L,X)                                               \
-    if (!(X)) { bsl::cerr << #I ": " << U_DEBUG_REP(I) << "\t"                \
-                          << #J ": " << U_DEBUG_REP(J) << "\t"                \
-                          << #K ": " << U_DEBUG_REP(K) << "\t"                \
-                          << #L ": " << U_DEBUG_REP(L) <<                     \
-                                                         "    (context)\n";   \
-                aSsErT(1, #X, __LINE__); }
-
-#define L_    __LINE__
+#define Q   BSLIM_TESTUTIL_Q       // Quote identifier literally.
+#define P   BSLIM_TESTUTIL_P       // Print identifier and value.
+#define P_  BSLIM_TESTUTIL_P_      // P(X) without '\n'.
+#define T_  BSLIM_TESTUTIL_T_      // Print a tab (w/o newline).
+#define L_  BSLIM_TESTUTIL_L_      // current Line number
 
 // ============================================================================
-//                         MACRO ABBREVIATIONS
+//                             FORMAT TEST MACROS
 // ----------------------------------------------------------------------------
 
-#define U_TEST_FORMAT     BDLT_FORMATTESTUTIL_TEST_FORMAT
-#define U_TEST_FORMAT_ARG BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG
+#define U_TEST_FORMAT(exp, format, value) do {                                \
+    bsl::string message;                                                      \
+    bool rc = bdlt::FormatTestUtil::testFormat(&message, exp, format, value); \
+    ASSERTV(message, rc);                                                     \
+} while (false)
+
+#define U_TEST_FORMAT_ARG(exp, format, value, arg) do {                       \
+    bsl::string message;                                                      \
+    bool rc = bdlt::FormatTestUtil::testFormatArg(                            \
+                                         &message, exp, format, value, arg);  \
+    ASSERTV(message, rc);                                                     \
+} while (false)
 
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
@@ -123,27 +110,9 @@ void aSsErT(bool condition, const char *message, int line)
 //                     GLOBAL FUNCTIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-namespace {
-namespace u {
-
-/// Return a string view containing the character representation of the
-/// specified `lineNum` written to the specified `buf`.
-template <int LEN>
-bsl::string_view writeLineNum(char (&buf)[LEN], int lineNum)
-{
-    bsl::to_chars_result result = bsl::to_chars(buf + 0, buf + LEN, lineNum);
-    BSLS_ASSERT(bsl::ErrcEnum() == result.ec);
-    return bsl::string_view(buf, result.ptr - buf);
-}
-
-}  // close namespace u
-}  // close unnamed namespace
-
 // ============================================================================
 //                             GLOBAL TEST DATA
 // ----------------------------------------------------------------------------
-
-const bsl::size_t npos = bsl::string::npos;
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -161,18 +130,13 @@ int main(int argc, char *argv[])
 
     bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
-    bdlsb::MemOutStreamBuf sb(&ta);
-    bsl::streambuf *saveCout = cout.rdbuf();
-    cout.rdbuf(&sb);
-
     switch (test) { case 0:
       case 3: {
         // --------------------------------------------------------------------
         // TESTING ..._TEST_FORMAT, ..._TEST_FORMAT_ARG
         //
         // Concerns:
-        // 1. That `BDLT_FORMATTESTUTIL_TEST_FORMAT` and
-        //    `BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG` function properly.
+        // 1. That `U_TEST_FORMAT` and `U_TEST_FORMAT_ARG` function properly.
         //
         // Plan:
         // 1. Declare fixed variables `VALUE` and `ARG` to be passed to
@@ -218,15 +182,15 @@ int main(int argc, char *argv[])
         //     and confirm that it contains all the expected substrings.
         //
         // Testing
-        //   BDLT_FORMATTESTUTIL_TEST_FORMAT(    exp, format, value);
-        //   BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG(exp, format, value, arg);
+        //   U_TEST_FORMAT(    exp, format, value);
+        //   U_TEST_FORMAT_ARG(exp, format, value, arg);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING ..._TEST_FORMAT, ..._TEST_FORMAT_ARG\n"
                              "============================================\n";
 
-        const bdlt::Datetime VALUE(2026, 1, 16, 12, 55, 26, 123, 456);
-        const int            ARG(20);
+        const double VALUE(3.1415926);
+        const int    ARG(5);
 
         static const struct Data {
             int         d_line;
@@ -234,19 +198,11 @@ int main(int argc, char *argv[])
             const char *d_exp;
             bool        d_argFlag;
         } DATA[] = {
-            { L_, "{}",           "16JAN2026_12:55:26.123456",     0 },
-            { L_, "{:.0}",        "16JAN2026_12:55:26",            0 },
-            { L_, "{:^22.0}",     "  16JAN2026_12:55:26  ",        0 },
-            { L_, "{:%Y}",        "2026",                          0 },
-            { L_, "{:*<10%d}",    "16********",                    0 },
-            { L_, "{:<16%D}",     "16JAN2026       ",              0 },
-            { L_, "{:>24.3%T}",   "            12:55:26.123",      0 },
-            { L_, "{:^{}.0%T}",   "      12:55:26      ",          1 },
-            { L_, "{:*<{}%d}",    "16******************",          1 },
-            { L_, "{:<{}%D}",     "16JAN2026           ",          1 },
-            { L_, "{:>{}.3%T}",   "        12:55:26.123",          1 },
-            { L_, "{:.{}%T}",     "12:55:26.12345600000000000000", 1 },
-            { L_, "{:->29.{}%S}", "------26.12345600000000000000", 1 },
+            { L_, "{}",           "3.1415926",                     0 },
+            { L_, "{:.0}",        "3",                             0 },
+            { L_, "{:_^22.0}",    "__________3___________",        0 },
+            { L_, "{:_^{}.0}",    "__3__",                         1 },
+            { L_, "{:.{}}",       "3.1416",                        1 },
         };
         enum { k_NUM_DATA = sizeof DATA / sizeof *DATA };
 
@@ -254,90 +210,41 @@ int main(int argc, char *argv[])
             const Data&            data     = DATA[ti];
             const int              LINE     = data.d_line;
             const bsl::string_view FORMAT   = data.d_format;
-            const bsl::string_view EXP      = data.d_exp;
+            bsl::string            exp      = data.d_exp;
             const bool             ARG_FLAG = data.d_argFlag;
 
             if (veryVerbose) {
-                cerr << LINE << ": \"" << EXP << "\", " << FORMAT << endl;
+                cout << LINE << ": \"" << exp << "\", " << FORMAT << endl;
             }
 
             // This is just to test that `EXP` is correct.
-
             const bsl::string& s = ARG_FLAG
                       ? bsl::vformat(FORMAT, bsl::make_format_args(VALUE, ARG))
                       : bsl::vformat(FORMAT, bsl::make_format_args(VALUE));
-            LOOP2_ASSERT(s, EXP, s == EXP);
-
-            sb.reset();
-
-            int testStatus = 0;
+            ASSERTV(s, exp, s == exp);
 
             if (ARG_FLAG) {
-                U_TEST_FORMAT_ARG(EXP, FORMAT, VALUE, ARG);
+                U_TEST_FORMAT_ARG(exp, FORMAT, VALUE, ARG);
             }
             else {
-                U_TEST_FORMAT(    EXP, FORMAT, VALUE);
+                U_TEST_FORMAT(    exp, FORMAT, VALUE);
             }
 
-            LOOP_ASSERT(LINE, 0 == testStatus);
-            LOOP_ASSERT(LINE, 0 == sb.length());
+            ASSERTV(testStatus, ti, ti == testStatus);
 
-            for (int tj = 0; tj < 4; ++tj) {
-                bsl::string badExp(EXP);
-                ASSERT(!badExp.empty());
+            exp += '_';
 
-                switch (tj) {
-                  case 0: {
-                    badExp += '_';
-                  } break;
-                  case 1: {
-                    badExp.resize(badExp.size() - 1);
-                  } break;
-                  case 2: {
-                    badExp = "*";
-                  } break;
-                  case 3: {
-                    badExp += EXP;
-                  }
-                }
-                ASSERT(EXP != badExp);
-
-                char        lineNumBuf[20];
-                bsl::string lineMatch("(");
-
-#define U_TEST_EITHER(exp, format, value, arg)                                \
-                if (ARG_FLAG) {                                               \
-                    U_TEST_FORMAT_ARG(exp, format, value, arg);               \
-                }                                                             \
-                else {                                                        \
-                    U_TEST_FORMAT(    exp, format, value);                    \
-                }
-
-                testStatus = 0;
-                sb.reset();
-                lineMatch += u::writeLineNum(lineNumBuf, __LINE__ + 2);
-                lineMatch += "): ";
-                U_TEST_EITHER(badExp, FORMAT, VALUE, ARG);
-
-                LOOP2_ASSERT(LINE, tj, 1 == testStatus);
-
-                bsl::string_view output(sb.data(), sb.length());
-                LOOP2_ASSERT(LINE, tj, !output.empty());
-                LOOP2_ASSERT(LINE, tj, 0 == output.find("Error "));
-                LOOP2_ASSERT(LINE, tj, bsl::strlen("Error ") ==
-                                                        output.find(__FILE__));
-                LOOP2_ASSERT(LINE, tj, npos != output.find(lineMatch));
-                LOOP2_ASSERT(LINE, tj, npos != output.find(
-                                                "<char>testEvaluateVFormat("));
-                LOOP2_ASSERT(LINE, tj, npos != output.find(FORMAT));
-                LOOP2_ASSERT(LINE, tj, npos != output.find(") failed, msg: "));
-                LOOP2_ASSERT(LINE, tj, npos != output.find(badExp));
-                LOOP2_ASSERT(LINE, tj, npos != output.find(EXP));
-                if (ARG_FLAG) {
-                    LOOP2_ASSERT(LINE, tj, npos != output.find("20"));
-                }
+            if (ARG_FLAG) {
+                U_TEST_FORMAT_ARG(exp, FORMAT, VALUE, ARG);
             }
+            else {
+                U_TEST_FORMAT(    exp, FORMAT, VALUE);
+            }
+
+            ASSERTV(testStatus, ti, ti + 1 == testStatus);
         }
+
+        testStatus -= k_NUM_DATA;
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -399,8 +306,6 @@ int main(int argc, char *argv[])
        /// Negative testing.  Restore `cout` to avoid the necessity of defining
        /// local `ASSERTTEST` macros that use `cerr`.
 
-        cout.rdbuf(saveCout);
-
         {
             bsls::AssertTestHandlerGuard guard;
 
@@ -434,19 +339,15 @@ int main(int argc, char *argv[])
 
       } break;
       default: {
-        cout.rdbuf(saveCout);
         cout << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        realTestStatus = -1;
+        testStatus = -1;
       }
     }
 
-    cout.rdbuf(saveCout);
-
-    if (realTestStatus > 0) {
-        cout << "Error, non-zero test status = " << realTestStatus << "." <<
-                                                                          endl;
+    if (testStatus > 0) {
+        cout << "Error, non-zero test status = " << testStatus << "." << endl;
     }
-    return realTestStatus;
+    return testStatus;
 }
 
 // ----------------------------------------------------------------------------

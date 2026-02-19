@@ -255,6 +255,23 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
+//                             FORMAT TEST MACROS
+// ----------------------------------------------------------------------------
+
+#define U_TEST_FORMAT(exp, format, value) do {                                \
+    bsl::string message;                                                      \
+    bool rc = bdlt::FormatTestUtil::testFormat(&message, exp, format, value); \
+    ASSERTV(message, rc);                                                     \
+} while (false)
+
+#define U_TEST_FORMAT_ARG(exp, format, value, arg) do {                       \
+    bsl::string message;                                                      \
+    bool rc = bdlt::FormatTestUtil::testFormatArg(                            \
+                                         &message, exp, format, value, arg);  \
+    ASSERTV(message, rc);                                                     \
+} while (false)
+
+// ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -465,10 +482,9 @@ int main(int argc, char *argv[])
         //    center padding.
         //
         // Plans:
-        // 1. Use `BDLT_FORMATTESTUTIL_TEST_FORMAT` and
-        //    `BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG` to test that formatting
-        //    an object with a given string produces a given result.  Tests
-        //    on `char` and `wchat_t` strings.
+        // 1. Use `U_TEST_FORMAT` and `U_TEST_FORMAT_ARG` to test that
+        //    formatting an object with a given string produces a given result.
+        //    Tests on `char` and `wchar_t` strings.
         //
         // 2. Have a table `DDATA[]` driving different `Date` values, and a
         //    table `TDATA[]` driving different `Time` values.  Have a loop
@@ -502,9 +518,6 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "TESTING `bsl::format`\n"
                              "=====================\n";
-
-#define U_TEST_FORMAT        BDLT_FORMATTESTUTIL_TEST_FORMAT
-#define U_TEST_FORMAT_ARG    BDLT_FORMATTESTUTIL_TEST_FORMAT_ARG
 
         for (int td = 0; td < u::k_NUM_DDATA; ++td) {
             const u::DData& dData = u::DDATA[td];
