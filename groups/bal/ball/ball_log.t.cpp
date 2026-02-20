@@ -2133,10 +2133,11 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect `stderr` to a temp file.
 
-    TempDirectoryGuard tempDirGuard("ball_");
+    TempDirectoryGuard tempDirGuard("ball_log_");
 
     bsl::string filename(tempDirGuard.getTempDirName());
-    BloombergLP::bdls::PathUtil::appendRaw(&filename, "stderrOut");
+    BloombergLP::bdls::PathUtil::appendRaw(&filename,
+                                            "test17_stderr");
 
     fflush(stderr);
     int fd = creat(filename.c_str(), 0777);
@@ -2702,10 +2703,10 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 #ifdef BSLS_PLATFORM_OS_UNIX
     // Temporarily redirect `stderr` to a temp file.
 
-    TempDirectoryGuard tempDirGuard("ball_");
+    TempDirectoryGuard tempDirGuard("ball_log_");
 
     bsl::string filename(tempDirGuard.getTempDirName());
-    BloombergLP::bdls::PathUtil::appendRaw(&filename, "stderrOut");
+    BloombergLP::bdls::PathUtil::appendRaw(&filename, "test5_stderr");
 
     fflush(stderr);
     int fd = creat(filename.c_str(), 0777);
@@ -3432,8 +3433,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         bsl::shared_ptr<StreamObserver> observer(
                                        new (ta) StreamObserver(&os, &ta), &ta);
 
-        observer->setRecordFormatFunctor(
-                             BloombergLP::ball::RecordStringFormatter("%m\n"));
+        observer->setFormat("text://%m\n");
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
         ASSERT(0 != manager.setCategory("Recursion",
@@ -7630,10 +7630,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-            TempDirectoryGuard tempDirGuard("ball_");
+            TempDirectoryGuard tempDirGuard("ball_log_");
 
             bsl::string filename(tempDirGuard.getTempDirName());
-            Blp::bdls::PathUtil::appendRaw(&filename, "stderrOut");
+            Blp::bdls::PathUtil::appendRaw(&filename,
+                                            "test18_stderr_1");
 
             fflush(stderr);
             int fd = creat(filename.c_str(), 0777);
@@ -7747,10 +7748,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       << bsl::endl;
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
-            TempDirectoryGuard tempDirGuard("ball_");
+            TempDirectoryGuard tempDirGuard("ball_log_");
 
             bsl::string filename(tempDirGuard.getTempDirName());
-            Blp::bdls::PathUtil::appendRaw(&filename, "stderrOut");
+            Blp::bdls::PathUtil::appendRaw(&filename,
+                                            "test18_stderr_2");
 
             fflush(stderr);
             int fd = creat(filename.c_str(), 0777);

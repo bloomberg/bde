@@ -32,9 +32,11 @@ BSLS_IDENT("$Id: $")
 //                        |              forceRotation
 //                        |              rotateOnSize
 //                        |              rotateOnTimeInterval
+//                        |              setFormat
 //                        |              setLogFileFunctor
 //                        |              setOnFileRotationCallback
 //                        |              suppressUniqueFileNameOnRotation
+//                        |              getFormat
 //                        |              isFileLoggingEnabled
 //                        |              isPublishInLocalTimeEnabled
 //                        |              isSuppressUniqueFileNameOnRotation
@@ -105,32 +107,51 @@ BSLS_IDENT("$Id: $")
 // ```
 // where `DATE` and `TIME` are of the form `DDMonYYYY` and `HH:MM:SS.mmm`,
 // respectively (`Mon` being the 3-letter abbreviation for the month).  For
-// example, assuming that no user-defined fields are present, a log record
-// will have the following appearance when the default format is in effect:
+// example, a log record will have the following appearance when the default
+// format is in effect (assuming that no user-defined fields are present):
 // ```
 // 18MAY2005_18:58:12.076 7959:1 WARN ball_fileobserver2.t.cpp:404 TEST hello!
 // ```
-// The default format can be overridden by supplying a suitable formatting
-// functor to `setLogFileFunctor`.  For example, an instance of
-// `ball::RecordStringFormatter` conveniently provides such a functor:
-// ```
-// fileObserver.setLogFileFunctor(
-//             ball::RecordStringFormatter("\n%I %p:%t %s %f:%l %c %m %u\n"));
-// ```
-// The above statement will cause subsequent records to be logged in a format
-// that is almost identical to the default format except that the timestamp
-// attribute will be written in ISO 8601 format.  See
-// {`ball_recordstringformatter`} for information on how format specifications
-// are defined and interpreted.
+// For additional flexibility, the `setFormat` method can be called to
+// configure the format of published records to the file.  The format
+// specifications can be either scheme-tagged (recommended) or legacy
+// `printf`-style format strings that results in a `RecordStringFormatter`
+// being used.
 //
-// Note that the observer emits newline characters at the beginning and at the
-// end of a log record by default, so the user needs to add them explicitly to
-// the format string to preserve this behavior.
+///Scheme-Based Format Specifications (Recommended)
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// The recommended way to specify log record formats is using URI-like
+// scheme-tagged format configuration strings.  A scheme-tagged format string
+// begins with a scheme identifier followed by `://` and then a
+// scheme-specific format specification:
+// ```
+// <scheme>://<format-specification>
+// ```
+// The scheme determines which formatter will be used and the syntax of the
+// format specification.  The following schemes are currently supported: text,
+// json, qjson.  See [Scheme-Based Formatters](ball#Scheme-Based Formatters)
+// for more details of the supported schemes and their accompanying format
+// specification syntaxes.
 //
-// Also note that in the sample message above the timestamp has millisecond
-// precision (`18MAY2005_18:58:12.076`).  If microsecond precision is desired
-// instead, consider using either the `%D` or `%O` format specification
-// supported by `ball_recordstringformatter`.
+// For example, to log records to a file in JSON format with printf-style
+// format specification:
+// ```
+// fileObserver2.setFormat("qjson://%d %p:%t %s %f:%l %c %m");
+// ```
+//
+///Legacy Format Specifications
+/// - - - - - - - - - - - - - - -
+// For backward compatibility, format specifications that do not begin with a
+// scheme tag are treated as legacy `printf`-style format strings.  Such
+// specifications are implicitly treated as if they had a `text://` prefix
+// and use `ball::RecordStringFormatter`.  For example, the following two
+// calls are equivalent:
+// ```
+// fileObserver2.setFormat("%d %p:%t %s %f:%l %c %m %a\n");
+// fileObserver2.setFormat("text://%d %p:%t %s %f:%l %c %m %a\n");
+// ```
+// These `%`-prefixed conversion specifications are defined in
+// {`ball_recordstringformatter`}.
 //
 ///Log Record Timestamps
 ///---------------------
@@ -345,13 +366,17 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <ball_observerformatterimp.h>
 #include <ball_observer.h>
+#include <ball_recordformatterfunctor.h>
 #include <ball_severity.h>
 
 #include <bdls_fdstreambuf.h>
 
 #include <bdlt_datetime.h>
 #include <bdlt_datetimeinterval.h>
+
+#include <bsla_deprecated.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -391,9 +416,9 @@ class FileObserver2 : public Observer {
   public:
     // PUBLIC TYPES
 
-    /// `LogRecordFunctor` is an alias for the type of the functor used for
+    /// `RecordFormatter` is an alias for the type of the functor used for
     /// formatting log records to a stream.
-    typedef bsl::function<void(bsl::ostream&, const Record&)> LogRecordFunctor;
+    typedef RecordFormatterFunctor::Type RecordFormatter;
 
     /// `OnFileRotationCallback` is an alias for a user-supplied callback
     /// function that is invoked after the file observer attempts to rotate
@@ -429,14 +454,9 @@ class FileObserver2 : public Observer {
                                                        // log file did not
                                                        // already exist)
 
-    LogRecordFunctor       d_logFileFunctor;           // formatting functor
-                                                       // used when writing to
-                                                       // log file
-
-    bool                   d_publishInLocalTime;       // `true` if timestamps
-                                                       // of records are output
-                                                       // in local time,
-                                                       // otherwise UTC time
+    ObserverFormatterImp   d_observerFormatterImp;     // formatter manager
+                                                       // that handles all
+                                                       // formatting operations
 
     bool                   d_suppressUniqueFileName;   // `false` if rotated
                                                        // log file has a unique
@@ -481,10 +501,6 @@ class FileObserver2 : public Observer {
 
   private:
     // PRIVATE MANIPULATORS
-
-    /// Write the specified log `record` to the specified output `stream`
-    /// using the default record format of this file observer.
-    void logRecordDefault(bsl::ostream& stream, const Record& record);
 
     /// Perform a log file rotation by closing the current log file of this
     /// file observer, renaming the closed log file if necessary, and
@@ -617,15 +633,10 @@ class FileObserver2 : public Observer {
     /// affects log filenames (see {Log Filename Patterns}).
     void enablePublishInLocalTime();
 
-    /// Process the specified log `record` having the specified publishing
-    /// `context` by writing `record` and `context` to the current log file
-    /// if file logging is enabled for this file observer.  The method has
-    /// no effect if file logging is not enabled, in which case `record` is
-    /// dropped.
-    ///
-    /// @DEPRECATED: Do not use.
-    void publish(const Record&  record,
-                 const Context& context) BSLS_KEYWORD_OVERRIDE;
+    using Observer::publish;
+    // Note that the `publish` method of this class is overloaded, it has an
+    // old, deprecated variant.  See the `publish` method below for details of
+    // the current, non-deprecated overload.
 
     /// Process the record referenced by the specified `record` shared
     /// pointer having the specified publishing `context` by writing the
@@ -679,16 +690,33 @@ class FileObserver2 : public Observer {
     void rotateOnTimeInterval(const bdlt::DatetimeInterval& interval,
                               const bdlt::Datetime&         startTime);
 
-    /// Set the formatting functor used when writing records to the log file
-    /// of this file observer to the specified `logFileFunctor`.  Note that
-    /// a default format ("\n%d %p:%t %s %f:%l %c %m %u\n") is in effect
-    /// until this method is called (see `ball_recordstringformatter`).
-    /// Also note that the observer emits newline characters at the
-    /// beginning and at the end of a log record by default, so the user
-    /// needs to add them explicitly to the format string to preserve this
-    /// behavior.
-    void setLogFileFunctor(const LogRecordFunctor& logFileFunctor);
+    /// Set the formatting functor used when writing records to the log file of
+    /// this file observer to the specified `logFileFunctor`.  Note that a
+    /// default format ("\n%d %p:%t %s %f:%l %c %m %u\n") is in effect until
+    /// this method or `setFormat` is called.  Also, notice that the observer
+    /// emits newline characters at the beginning and at the end of a log
+    /// record by default, so the user needs to add them explicitly to (text)
+    /// format strings to preserve that behavior.  Note
+    /// that this method exists for backwards compatibility and new code is
+    /// highly encouraged to make use of `setFormat` with the URI-scheme-like
+    /// tags to create different formatters.  (Currently string and JSON output
+    /// format is supported.)
+    void setLogFileFunctor(const RecordFormatter& logFileFunctor);
 
+    /// Set the formatting functor used when writing records to the log file
+    /// of this file observer to a log file functor created according to the
+    /// specified, possibly URI-like scheme tagged, `format`.  Return zero if
+    /// the setup with the specified arguments was successful and also save
+    /// the `format` to be later retrievable using `getFormat`.  Otherwise (if
+    /// no matching scheme could be found or the configuration is invalid)
+    /// return a non-zero value and do not change the log record formatter
+    /// used by this object.  Note that a default format
+    /// ("\n%d %p:%t %s %f:%l %c %m %u\n") is in effect until this method or
+    /// `setLogFileFunctor` is called.  Also, notice that the observer emits
+    /// newline characters at the beginning and at the end of a log record by
+    /// default, so the user needs to add them explicitly to (text) format
+    /// strings to preserve that behavior.
+    int setFormat(const bsl::string_view& format);
 
     /// Set the specified `onRotationCallback` to be invoked after each time
     /// this file observer attempts to perform a log file rotation.  The
@@ -735,6 +763,9 @@ class FileObserver2 : public Observer {
     /// suppressed, and false otherwise.
     bool isSuppressUniqueFileNameOnRotation() const;
 
+    /// Return the format config of the last successful `setFormat` call.
+    const bsl::string& getFormat() const;
+
     /// Return the lifetime of the log file that will trigger a file
     /// rotation by this file observer if rotation-on-lifetime is in effect,
     /// and a 0 time interval otherwise.
@@ -765,13 +796,6 @@ class FileObserver2 : public Observer {
                           // -------------------
 
 // MANIPULATORS
-inline
-void FileObserver2::publish(const bsl::shared_ptr<const Record>& record,
-                            const Context&                       context)
-{
-    publish(*record, context);
-}
-
 inline
 void FileObserver2::releaseRecords()
 {

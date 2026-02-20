@@ -1,4 +1,4 @@
-// ball_fileobserver2.cpp                                             -*-C++-*-
+﻿// ball_fileobserver2.cpp                                             -*-C++-*-
 #include <ball_fileobserver2.h>
 
 #include <bsls_ident.h>
@@ -76,37 +76,7 @@ enum {
 };
 
 enum {
-    // Enumeration defining a set of constants used to determine the size of
-    // character buffer large enough to hold the log message "preambula", i.e.,
-    // "\n<time stamp> <processId>:<threadId> <severity> <filename>:<line> "
-    k_TIMESTAMP_ID_LENGTH = 24,  // DD:MMM:YYYY_hh:mm:ss.sss
-    k_PROCESS_ID_LENGTH   = 7,
-    k_THREAD_ID_LENGTH    = 19,
-    k_SEVERITY_LENGTH     = 5,
-    // The max path constant is defined differently on different platforms:
-    //: Linux:   4096
-    //: Solaris: 1024
-    //: AIX:     1024
-    //: Windows:  260
-    // We choose a reasonably large value which is unlikely to be exceeded on
-    // all platforms.
-    k_MAX_PATH_LENGTH     = 1024,
-    k_LINE_NUM_LENGTH     = 6,
-    k_DELIMETER_LENGTH    = 1,
-    k_BUFFER_SIZE         = k_DELIMETER_LENGTH    // '\n'
-                          + k_TIMESTAMP_ID_LENGTH
-                          + k_DELIMETER_LENGTH    // ' '
-                          + k_PROCESS_ID_LENGTH
-                          + k_DELIMETER_LENGTH    // ':'
-                          + k_THREAD_ID_LENGTH
-                          + k_DELIMETER_LENGTH    // ' '
-                          + k_SEVERITY_LENGTH
-                          + k_DELIMETER_LENGTH    // ' '
-                          + k_MAX_PATH_LENGTH
-                          + k_DELIMETER_LENGTH    // ':'
-                          + k_LINE_NUM_LENGTH
-                          + k_DELIMETER_LENGTH,   // ' '
-    k_ERROR_BUFFER_SIZE   = k_MAX_PATH_LENGTH + 256
+    k_ERROR_BUFFER_SIZE   = 1280  // 1024 (max path) + 256
 };
 
 #define LOG_PLATFORM_MESSAGE(severity, formatStr, ...) \
@@ -386,61 +356,6 @@ static bdlt::Datetime computeNextRotationTime(
                           // -------------------
 
 // PRIVATE MANIPULATORS
-void FileObserver2::logRecordDefault(bsl::ostream& stream,
-                                     const Record& record)
-
-{
-    const RecordAttributes& fixedFields = record.fixedFields();
-
-    bdlt::Datetime timestamp = fixedFields.timestamp();
-    if (d_publishInLocalTime) {
-        bsls::Types::Int64 localTimeOffsetInSeconds  =
-            bdlt::LocalTimeOffset::localTimeOffset(timestamp).totalSeconds();
-        timestamp.addSeconds(localTimeOffsetInSeconds);
-    }
-
-    char  buffer[k_BUFFER_SIZE];
-    char *ptr = buffer;
-
-    *ptr = '\n';
-    ++ptr;
-
-    const int fractionalSecondPrecision = 3;
-
-    int length = timestamp.printToBuffer(ptr,
-                                         static_cast<int>(sizeof(buffer)) - 1,
-                                         fractionalSecondPrecision);
-
-    ptr += length;
-
-    snprintf(ptr,
-             sizeof(buffer) - length - 1,
-             " %d:%llu %s %s:%d ",
-             fixedFields.processID(),
-             fixedFields.threadID(),
-             Severity::toAscii((Severity::Level)fixedFields.severity()),
-             fixedFields.fileName(),
-             fixedFields.lineNumber());
-
-    stream << buffer;
-    stream << fixedFields.category();
-    stream << ' ';
-    bslstl::StringRef message = fixedFields.messageRef();
-    stream.write(message.data(), message.length());
-    stream << ' ';
-
-    const ball::UserFields& customFields    = record.customFields();
-    const int               numCustomFields = customFields.length();
-
-    for (int i = 0; i < numCustomFields; ++i) {
-        stream << customFields[i] << ' ';
-    }
-
-    stream << '\n';
-
-    stream.flush();
-}
-
 int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 {
     BSLS_ASSERT(rotatedLogFileName);
@@ -469,7 +384,8 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
     getLogFileName(&d_logFileName,
                    &d_logFileTimestampUtc,
                    d_logFilePattern.c_str(),
-                   d_publishInLocalTime);
+                   d_observerFormatterImp.getTimezoneDefault()
+                                          == RecordFormatterTimezone::e_LOCAL);
 
     // If the `d_suppressUniqueFileName` is `false`, the new log file must have
     // a unique name. Let's check the file existence and rename it if needed.
@@ -482,7 +398,8 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
         if (bdls::FilesystemUtil::exists(d_logFileName)) {
             bdlt::Datetime timeStampSuffix(oldLogFileTimestamp);
 
-            if (d_publishInLocalTime) {
+            if (d_observerFormatterImp.getTimezoneDefault()
+                                         == RecordFormatterTimezone::e_LOCAL) {
                 timeStampSuffix += bdlt::LocalTimeOffset::localTimeOffset(
                                                           oldLogFileTimestamp);
             }
@@ -520,10 +437,11 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
 
     if (0 < d_rotationInterval.totalSeconds()) {
         d_nextRotationTimeUtc = computeNextRotationTime(
-                                                       d_rotationReferenceTime,
-                                                       d_publishInLocalTime,
-                                                       d_rotationInterval,
-                                                       d_logFileTimestampUtc);
+                         d_rotationReferenceTime,
+                         d_observerFormatterImp.getTimezoneDefault()
+                                           == RecordFormatterTimezone::e_LOCAL,
+                         d_rotationInterval,
+                         d_logFileTimestampUtc);
     }
 
     // Open the new log file (under some conditions the new log file may be the
@@ -596,11 +514,9 @@ FileObserver2::FileObserver2(bslma::Allocator *basicAllocator)
 , d_logOutStream(&d_logStreamBuf)
 , d_logFilePattern(basicAllocator)
 , d_logFileName(basicAllocator)
-, d_logFileFunctor(
-            bsl::allocator_arg_t(),
-            bsl::allocator<LogRecordFunctor>(basicAllocator),
-            bdlf::MemFnUtil::memFn(&FileObserver2::logRecordDefault, this))
-, d_publishInLocalTime(false)
+, d_observerFormatterImp("\n%d %p:%t %s %f:%l %c %m %u\n",
+                         RecordFormatterTimezone::e_UTC,
+                         basicAllocator)
 , d_suppressUniqueFileName(false)
 , d_rotationSize(0)
 , d_rotationInterval(0)
@@ -636,8 +552,7 @@ void FileObserver2::disableLifetimeRotation()
 void FileObserver2::disablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-
-    d_publishInLocalTime = false;
+    d_observerFormatterImp.setTimezoneDefault(RecordFormatterTimezone::e_UTC);
 }
 
 void FileObserver2::disableSizeRotation()
@@ -669,7 +584,8 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
     getLogFileName(&d_logFileName,
                    &d_logFileTimestampUtc,
                    d_logFilePattern.c_str(),
-                   d_publishInLocalTime);
+                   d_observerFormatterImp.getTimezoneDefault()
+                                          == RecordFormatterTimezone::e_LOCAL);
 
     // Use the last modification time of the log file to calculate the next
     // rotation time if the log file already exists.  The
@@ -680,11 +596,12 @@ int FileObserver2::enableFileLogging(const char *logFilenamePattern)
                                                   d_logFileName);
 
     if (0 < d_rotationInterval.totalSeconds()) {
-        d_nextRotationTimeUtc =
-            computeNextRotationTime(d_rotationReferenceTime,
-                                    d_publishInLocalTime,
-                                    d_rotationInterval,
-                                    d_logFileTimestampUtc);
+        d_nextRotationTimeUtc = computeNextRotationTime(
+                         d_rotationReferenceTime,
+                         d_observerFormatterImp.getTimezoneDefault()
+                                           == RecordFormatterTimezone::e_LOCAL,
+                         d_rotationInterval,
+                         d_logFileTimestampUtc);
     }
 
     return openLogFile(&d_logOutStream, d_logFileName.c_str());
@@ -727,10 +644,12 @@ void FileObserver2::forceRotation()
 void FileObserver2::enablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    d_publishInLocalTime = true;
+    d_observerFormatterImp.setTimezoneDefault(
+                                           RecordFormatterTimezone::e_LOCAL);
 }
 
-void FileObserver2::publish(const Record& record, const Context&)
+void FileObserver2::publish(const bsl::shared_ptr<const Record>& record,
+                            const Context&)
 {
     bsl::string rotatedFileName;
     int         rotationStatus;
@@ -738,10 +657,10 @@ void FileObserver2::publish(const Record& record, const Context&)
     {
         bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
         rotationStatus = rotateIfNecessary(&rotatedFileName,
-                                           record.fixedFields().timestamp());
+                                           record->fixedFields().timestamp());
 
         if (d_logStreamBuf.isOpened()) {
-            d_logFileFunctor(d_logOutStream, record);
+            d_observerFormatterImp.formatLogRecord(d_logOutStream, record);
 
             if (!d_logOutStream) {
                 LOG_PLATFORM_MESSAGE(bsls::LogSeverity::e_ERROR,
@@ -780,8 +699,10 @@ void FileObserver2::rotateOnTimeInterval(
                                         const bdlt::DatetimeInterval& interval)
 {
     rotateOnTimeInterval(interval,
-                         d_publishInLocalTime ? bdlt::CurrentTime::local()
-                                              : bdlt::CurrentTime::utc());
+        d_observerFormatterImp.getTimezoneDefault()
+                                            == RecordFormatterTimezone::e_LOCAL
+      ? bdlt::CurrentTime::local()
+      : bdlt::CurrentTime::utc());
 }
 
 void FileObserver2::rotateOnTimeInterval(
@@ -803,10 +724,11 @@ void FileObserver2::rotateOnTimeInterval(
 
     if (d_logStreamBuf.isOpened()) {
         d_nextRotationTimeUtc = computeNextRotationTime(
-                                                  d_rotationReferenceTime,
-                                                  d_publishInLocalTime,
-                                                  d_rotationInterval,
-                                                  d_logFileTimestampUtc);
+                         d_rotationReferenceTime,
+                         d_observerFormatterImp.getTimezoneDefault()
+                                           == RecordFormatterTimezone::e_LOCAL,
+                         d_rotationInterval,
+                         d_logFileTimestampUtc);
     }
 }
 
@@ -818,10 +740,17 @@ void FileObserver2::rotateOnSize(int size)
     d_rotationSize = size;
 }
 
-void FileObserver2::setLogFileFunctor(const LogRecordFunctor& logFileFunctor)
+void FileObserver2::setLogFileFunctor(const RecordFormatter& logFileFunctor)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-    d_logFileFunctor = logFileFunctor;
+
+    d_observerFormatterImp.setFormatFunctor(logFileFunctor);
+}
+
+int FileObserver2::setFormat(const bsl::string_view& format)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    return d_observerFormatterImp.setFormat(format);
 }
 
 void FileObserver2::setOnFileRotationCallback(
@@ -860,7 +789,8 @@ bool FileObserver2::isPublishInLocalTimeEnabled() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    return d_publishInLocalTime;
+    return d_observerFormatterImp.getTimezoneDefault()
+                                           == RecordFormatterTimezone::e_LOCAL;
 }
 
 bool FileObserver2::isSuppressUniqueFileNameOnRotation() const
@@ -868,6 +798,11 @@ bool FileObserver2::isSuppressUniqueFileNameOnRotation() const
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     return d_suppressUniqueFileName;
+}
+
+const bsl::string& FileObserver2::getFormat() const
+{
+    return d_observerFormatterImp.getFormat();
 }
 
 bdlt::DatetimeInterval FileObserver2::localTimeOffset() const

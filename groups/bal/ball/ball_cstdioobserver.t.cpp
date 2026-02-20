@@ -1,5 +1,5 @@
-// ball_streamobserver.t.cpp                                          -*-C++-*-
-#include <ball_streamobserver.h>
+// ball_cstdioobserver.t.cpp                                          -*-C++-*-
+#include <ball_cstdioobserver.h>
 
 #include <ball_context.h>
 #include <ball_record.h>
@@ -8,10 +8,15 @@
 #include <ball_severity.h>
 #include <ball_userfields.h>
 
+#include <bdls_filesystemutil.h>
+#include <bdls_tempdirectoryguard.h>
+
 #include <bdlt_datetime.h>
 #include <bdlt_epochutil.h>
 
 #include <bslim_testutil.h>
+
+#include <bsla_maybeunused.h>
 
 #include <bslma_testallocator.h>
 
@@ -19,8 +24,9 @@
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
-#include <bsl_cstdlib.h>     // atoi()
-#include <bsl_cstring.h>     // strlen(), memset(), memcpy(), memcmp()
+#include <bsl_cstdlib.h>    // atoi()
+#include <bsl_cstring.h>    // strlen(), memset(), memcpy(), memcmp()
+#include <bsl_cstdio.h>     // fopen, fclose
 #include <bsl_ctime.h>
 #include <bsl_iostream.h>
 #include <bsl_sstream.h>
@@ -39,18 +45,18 @@ using namespace bsl;
 //                              Overview
 //                              --------
 // The component under the test is a simple observer that prints the log
-// records to the `bsl::ostream` supplied at construction.
+// records to a `FILE *` supplied at construction.
 //-----------------------------------------------------------------------------
 // CREATORS
-// [ 2] StreamObserver(bsl::ostream *stream)
-// [ 2] virtual ~StreamObserver()
+// [ 2] CstdioObserver(FILE *file, allocator)
+// [ 2] virtual ~CstdioObserver()
 //
 // MANIPULATORS
 // [ 2] virtual void publish(const shared_ptr<const Record>&, Context&);
 // [ 2] virtual void releaseRecords();
 // [ 3] void disablePublishInLocalTime();
 // [ 3] void enablePublishInLocalTime();
-// [ 2] void setRecordFormatFunctor(const RecordFormatFunctor& functor);
+// [ 2] void setFormatFunctor(const RecordFormatFunctor& functor);
 // [ 3] int setFormat(const bsl::string_view& format);
 //
 // ACCESSORS
@@ -126,7 +132,39 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef ball::StreamObserver Obj;
+typedef ball::CstdioObserver Obj;
+typedef bdls::FilesystemUtil FsUtil;
+
+//=============================================================================
+//                  HELPER FUNCTIONS FOR TESTING
+//-----------------------------------------------------------------------------
+
+bsl::string readPartialFile(bsl::string&   fileName,
+                            FsUtil::Offset startOffset)
+    // Read the contents of the specified 'fileName' starting from the
+    // specified 'startOffset' and return the result as a string.
+{
+    bsl::string result;
+    result.reserve(static_cast<bsl::string::size_type>(
+                             FsUtil::getFileSize(fileName) + 1 - startOffset));
+
+    FILE *fp = fopen(fileName.c_str(), "r");
+    BSLS_ASSERT_OPT(fp);
+
+    BSLA_MAYBE_UNUSED int rc = fseek(fp,
+                                     static_cast<long>(startOffset),
+                                     SEEK_SET);
+    BSLS_ASSERT_OPT(0 == rc);
+
+    int c;
+    while (EOF != (c = getc(fp))) {
+        result += static_cast<char>(c);
+    }
+
+    fclose(fp);
+
+    return result;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -179,7 +217,7 @@ int main(int argc, char *argv[])
         const bsl::shared_ptr<const ball::Record>
             record(new (ga) ball::Record(attributes, fieldValues, &ga), &ga);
 
-        ball::StreamObserver observer(&bsl::cout);
+        ball::CstdioObserver observer(stdout);
 
         observer.publish(record, context);
       } break;
@@ -197,9 +235,9 @@ int main(int argc, char *argv[])
         // 3. Invalid format specifications are rejected with a non-zero
         //    return code and the formatter is reset to the default.
         //
-        // 4. 'getFormat' returns the format string that was successfully set,
-        //    or an empty string if using the default formatter or after a
-        //    failed 'setFormat'.
+        // 4. 'getFormat' returns the format string that was
+        //    successfully set, or an empty string if using the default
+        //    formatter or after a failed 'setFormat'.
         //
         // 5. 'enablePublishInLocalTime' and 'disablePublishInLocalTime'
         //    control whether timestamps are published in local time or UTC.
@@ -235,11 +273,17 @@ int main(int argc, char *argv[])
 
         bslma::TestAllocator ta("test", veryVeryVeryVerbose);
 
+        // Open the temporary file we will be writing into
+        bdls::TempDirectoryGuard tempDirGuard("ball_cstdioobserver_");
+        bsl::string fileName = tempDirGuard.getTempDirName() + "/test3.log";
+        FILE *const file_p = fopen(fileName.c_str(), "w");
+
+        FsUtil::Offset fileOffset = FsUtil::getFileSize(fileName);
+
         // Test setFormat with datetime format
         if (verbose) cerr << "\ttesting `setFormat` with BDE timeformat.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
             const char *format = "%d %p:%t %s %f:%l %c %m";
             ASSERT(0 == mX.setFormat(format));
@@ -263,7 +307,8 @@ int main(int argc, char *argv[])
             mX.publish(record,
                        ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
 
-            const bsl::string& output = os.str();
+            const bsl::string& output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
 
             // Verify contains the message
             ASSERT(
@@ -276,8 +321,7 @@ int main(int argc, char *argv[])
         // Test setFormat with ISO format
         if (verbose) cerr << "\ttesting `setFormat` with ISO timeformat.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
             const char *format = "%i %p:%t %s %f:%l %c %m";
             ASSERT(0 == mX.setFormat(format));
@@ -301,7 +345,8 @@ int main(int argc, char *argv[])
             mX.publish(record,
                        ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
 
-            const bsl::string& output = os.str();
+            const bsl::string& output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
 
             // Verify contains the message
             ASSERT(bsl::string::npos != output.find("test setFormat ISO"));
@@ -313,8 +358,7 @@ int main(int argc, char *argv[])
         // Test setFormat with qjson format
         if (verbose) cerr << "\ttesting `setFormat` with qjson.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
             const char *format = "qjson://%s %m";
             ASSERT(0 == mX.setFormat(format));
@@ -338,7 +382,8 @@ int main(int argc, char *argv[])
             mX.publish(record,
                        ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
 
-            const bsl::string& output = os.str();
+            const bsl::string& output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
 
             // Verify contains the message
             ASSERT(bsl::string::npos != output.find("test setFormat qjson"));
@@ -351,8 +396,7 @@ int main(int argc, char *argv[])
         // Test setFormat with json format
         if (verbose) cerr << "\ttesting `setFormat` with json.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
             const char *format = "json://[\"severity\",\"message\"]";
             ASSERT(0 == mX.setFormat(format));
@@ -376,7 +420,8 @@ int main(int argc, char *argv[])
             mX.publish(record,
                        ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
 
-            const bsl::string& output = os.str();
+            const bsl::string& output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
 
             // Verify contains the message
             ASSERT(bsl::string::npos != output.find("test setFormat json"));
@@ -390,8 +435,7 @@ int main(int argc, char *argv[])
         // Test invalid format returns non-zero
         if (verbose) cerr << "\ttesting invalid format rejection.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
             // First set a valid format
             const char *validFormat = "%d %p:%t %s %f:%l %c %m";
@@ -401,17 +445,16 @@ int main(int argc, char *argv[])
             // Test invalid format returns non-zero and resets to default
             ASSERT(0 != mX.setFormat("invalid_scheme://test"));
 
-            // After failed `setFormat` the original format must remain
-            ASSERTV(X.getFormat(), X.getFormat() == validFormat);
+            // After failed `setFormat` should be unchanged.
+            ASSERT(X.getFormat() == validFormat);
         }
 
-        // Test that `getFormat` returns the default text:// format by default
+        // Test that `getFormat` returns default format by default
         if (verbose) cerr << "\ttesting default getFormat.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
-            // This string is part of the contract
+            // Should be the default format, it is part of the contract.
             ASSERT(X.getFormat() == "\n%d %p %t %s %f %l %c %m %u\n");
         }
 
@@ -419,8 +462,7 @@ int main(int argc, char *argv[])
         // disablePublishInLocalTime, isPublishInLocalTimeEnabled)
         if (verbose) cerr << "\ttesting `setFormat` with timezone.\n";
         {
-            bsl::ostringstream os;
-            Obj mX(&os, &ta);  const Obj& X = mX;
+            Obj mX(file_p, &ta);  const Obj& X = mX;
 
             // Verify default is UTC (local time disabled)
             ASSERT(!X.isPublishInLocalTimeEnabled());
@@ -452,7 +494,9 @@ int main(int argc, char *argv[])
             ball::Context context(ball::Transmission::e_PASSTHROUGH, 0, 1);
             mX.publish(record, context);
 
-            bsl::string output = os.str();
+            bsl::string output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
+
             if (veryVerbose) {
                 cout << "Local time output: " << output << endl;
             }
@@ -462,7 +506,6 @@ int main(int argc, char *argv[])
             ASSERT(output.find("15MAY2024") != bsl::string::npos);
 
             // Clear stream and switch to UTC
-            os.str("");
             mX.disablePublishInLocalTime();
 
             // Verify local time is now disabled
@@ -474,7 +517,9 @@ int main(int argc, char *argv[])
             record->setFixedFields(fixed);
             mX.publish(record, context);
 
-            output = os.str();
+            output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
+
             if (veryVerbose) {
                 cout << "UTC time output: " << output << endl;
             }
@@ -482,6 +527,8 @@ int main(int argc, char *argv[])
             // Verify output contains date
             ASSERT(output.find("15MAY2024") != bsl::string::npos);
         }
+
+        fclose(file_p);
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -492,12 +539,12 @@ int main(int argc, char *argv[])
         //
         // 2. Formatted log record is written to the output stream.
         //
-        // 3. `setRecordFormatFunctor` can change the format effectively.
+        // 3. `setFormatFunctor` can change the format effectively.
         //
         // Plan:
         // 1. Create the observer object and publish log record.
         //
-        // 2. Use `setRecordFormatFunctor` manipulator to affect output format
+        // 2. Use `setFormatFunctor` manipulator to affect output format
         //    and verify that it has changed where expected.
         //
         // Testing:
@@ -505,25 +552,31 @@ int main(int argc, char *argv[])
         //   virtual ~StreamObserver()
         //   virtual void publish(const shared_ptr<const Record>&, Context&);
         //   virtual void releaseRecords();
-        //   void setRecordFormatFunctor(const RecordFormatFunctor& functor);
+        //   void setFormatFunctor(const RecordFormatFunctor& functor);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "TESTING PRIMARY MANIPULATORS\n"
                              "============================\n";
 
         {
-            Obj mX(&bsl::cout);
+            Obj mX(stderr);
         }
 
         bslma::TestAllocator ta("ta", veryVeryVeryVerbose);
+
+        // Open the temporary file we will be writing into
+        bdls::TempDirectoryGuard tempDirGuard("ball_cstdioobserver_");
+        bsl::string fileName = tempDirGuard.getTempDirName() + "/test2.log";
+        FILE *const file_p = fopen(fileName.c_str(), "w");
+
+        FsUtil::Offset fileOffset = FsUtil::getFileSize(fileName);
 
         if (verbose) cout << "Publish a single message." << endl;
         {
             bslma::TestAllocator   testAllocator("objectAllocator",
                                                  veryVeryVeryVerbose);
-            bsl::ostringstream     os;
             Obj::allocator_type    oa(&testAllocator);
-            Obj                    mX(&os, oa);
+            Obj                    mX(file_p, oa);
             ball::RecordAttributes fixed(&testAllocator);
 
             bdlt::Datetime timestamp(2017, 4, 1);
@@ -542,9 +595,12 @@ int main(int argc, char *argv[])
             mX.publish(record,
                        ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
 
-            ASSERTV(os.str(),
+            bsl::string output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
+
+            ASSERTV(output,
                     "\n01APR2017_00:00:00.000 1 2 INFO test.cpp 189"
-                    "  Log Message \n" == os.str());
+                    "  Log Message \n" == output);
         }
 
         if (verbose) cout << "Publish formatted message." << endl;
@@ -553,7 +609,7 @@ int main(int argc, char *argv[])
                                                  veryVeryVeryVerbose);
             bsl::ostringstream     os;
             Obj::allocator_type    oa(&testAllocator);
-            Obj                    mX(&os, oa);
+            Obj                    mX(file_p, oa);
             ball::RecordAttributes fixed(&testAllocator);
 
             bdlt::Datetime timestamp(2017, 4, 1);
@@ -569,15 +625,19 @@ int main(int argc, char *argv[])
             record.createInplace();
             record->setFixedFields(fixed);
 
-            mX.setFormat("text://\n%d %p:%t %s %f:%l %c %m %a\n");
+            mX.setFormatFunctor(ball::RecordStringFormatter(
+                                            "\n%d %p:%t %s %f:%l %c %m %a\n"));
 
-            mX.publish(record,
-                       ball::Context(ball::Transmission::e_PASSTHROUGH, 0, 1));
+            mX.publish(record, ball::Context(ball::Transmission::e_PASSTHROUGH,
+                                             0,
+                                             1));
 
-            ASSERTV(os.str(),
+            bsl::string output = readPartialFile(fileName, fileOffset);
+            fileOffset = FsUtil::getFileSize(fileName);
+
+            ASSERTV(output,
                     "\n01APR2017_00:00:00.000 1:2 INFO test.cpp:189"
-                    "  Log Message \n"
-                    == os.str());
+                    "  Log Message \n" == output);
         }
 
         if (verbose) cout << "\nNegative Testing" << endl;
@@ -585,8 +645,8 @@ int main(int argc, char *argv[])
             bsls::AssertTestHandlerGuard hG;
 
             {
-                ASSERT_SAFE_PASS((Obj((&bsl::cout))));  // most vexing parse
-                ASSERT_SAFE_FAIL((Obj((         0))));
+                ASSERT_SAFE_PASS((Obj((stderr))));  // most vexing parse
+                ASSERT_SAFE_FAIL((Obj((     0))));
             }
 
             {
@@ -597,13 +657,17 @@ int main(int argc, char *argv[])
 
                 const ball::Context C;
 
-                Obj mX(&bsl::cout);
+                Obj mX(file_p);
 
                 ASSERT_PASS(mX.publish(mR, C));
                 mR.reset();
                 ASSERT_FAIL(mX.publish(mR, C));
+
+                fileOffset = FsUtil::getFileSize(fileName);
             }
         }
+
+        fclose(file_p);
       } break;
       case 1: {
         // --------------------------------------------------------------------
@@ -623,12 +687,16 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) cout << "BREATHING TEST\n"
-                             "==============\n";
+                          << "==============\n";
+
+        // Open the temporary file we will be writing into
+        bdls::TempDirectoryGuard tempDirGuard("ball_cstdioobserver_");
+        bsl::string fileName = tempDirGuard.getTempDirName() + "/test1.log";
+        FILE *const file_p = fopen(fileName.c_str(), "w");
 
         if (verbose) cout << "Publish a single message." << endl;
         {
-            bsl::ostringstream os;
-            Obj X(&os);
+            Obj X(file_p);
 
             ball::RecordAttributes fixed;
 
@@ -648,14 +716,13 @@ int main(int argc, char *argv[])
 
         if (verbose) cout << "Publish a sequence of three messages." << endl;
         {
-            bsl::ostringstream os;
-            Obj X(&os);
+            Obj X(file_p);
 
             ball::RecordAttributes fixed;
 
             const int NUM_MESSAGES = 3;
             for (int n = 0; n < NUM_MESSAGES; ++n) {
-                const bdlt::Datetime now =
+                bdlt::Datetime now =
                                     bdlt::EpochUtil::convertFromTimeT(time(0));
                 fixed.setTimestamp(now);
                 fixed.setProcessID(201 + n);
@@ -671,6 +738,8 @@ int main(int argc, char *argv[])
                                                 NUM_MESSAGES));
             }
         }
+
+        fclose(file_p);
     } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;

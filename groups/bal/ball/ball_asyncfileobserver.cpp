@@ -28,8 +28,8 @@ BSLS_IDENT_RCSID(ball_asyncfileobserver_cpp,"$Id$ $CSID$")
 ///IMPLEMENTATION NOTES
 ///--------------------
 // To communicate the last record to be published when 'stopThread' (or
-// 'stopPublicationThread') is called, a special record is enqueued (created using
-// 'createStopRecord') for which 'isStopRecord' is 'false'.
+// 'stopPublicationThread') is called, a special record is enqueued
+// (created using 'createStopRecord') for which 'isStopRecord' is 'false'.
 
 namespace BloombergLP {
 namespace ball {
@@ -57,7 +57,8 @@ bsl::shared_ptr<ball::Record> createEmptyRecord(
     record->fixedFields().setLineNumber(lineNumber);
     record->fixedFields().setTimestamp(bdlt::CurrentTime::utc());
     record->fixedFields().setThreadID(bslmt::ThreadUtil::selfIdAsUint64());
-    record->fixedFields().setKernelThreadID(bslmt::ThreadUtil::selfKernelIdAsUint64());
+    record->fixedFields().setKernelThreadID(
+                                    bslmt::ThreadUtil::selfKernelIdAsUint64());
 
     return record;
 }
@@ -207,7 +208,7 @@ void AsyncFileObserver::publishThreadEntryPoint()
 
         if (Status::e_FAILED == rc) {
             // This is likely a catastrophic unrecoverable error, and one which
-            // is very difficult to simular in testing.  There may be
+            // is very difficult to simulate in testing.  There may be
             // "stop-records" still in the queue, rather than adding a
             // complicated mechanism handle them, it is simpler to just empty
             // the queue.
@@ -310,7 +311,8 @@ void AsyncFileObserver::publish(const bsl::shared_ptr<const Record>& record,
     asyncRecord.d_record  = record;
     asyncRecord.d_context = context;
 
-    int rc = (record->fixedFields().severity() > d_dropRecordsOnFullQueueThreshold)
+    int rc = (record->fixedFields().severity()
+                                           > d_dropRecordsOnFullQueueThreshold)
       ? d_recordQueue.tryPushBack(asyncRecord)
       : d_recordQueue.pushBack(asyncRecord);
 
@@ -326,7 +328,7 @@ void AsyncFileObserver::releaseRecords()
     if (isPublicationThreadRunning()) {
         d_recordQueue.disablePopFront();
 
-        // If either destroying or creating the publicaiton thread fails, it is
+        // If either destroying or creating the publication thread fails, it is
         // a catastrophic error.
 
         int rc = bslmt::ThreadUtil::join(d_threadHandle);
@@ -410,7 +412,7 @@ int AsyncFileObserver::startPublicationThread()
         result = bslmt::ThreadUtil::create(&d_threadHandle,
                                            attr,
                                            d_publishThreadEntryPoint);
-                                                               // RETURN
+                                                                      // RETURN
     }
     return result;
 }
@@ -436,7 +438,7 @@ int AsyncFileObserver::stopPublicationThread()
         AsyncFileObserver_Record asyncRecord = createStopRecord();
         {
             // We use 'tryPushBack' because we do not want 'pushBack' to block
-            // if queue is full, particulary if the publication thread has
+            // if queue is full, particularly if the publication thread has
             // already observed 'e_SHUTTING_DOWN' and has stopped removing
             // records from the queue (DRQS 164688087), as may happen on a call
             // to 'shutdownThread'.

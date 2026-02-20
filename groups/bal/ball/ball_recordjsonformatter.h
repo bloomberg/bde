@@ -14,23 +14,89 @@ BSLS_IDENT("$Id: $")
 //@SEE_ALSO: ball_record, ball_recordattributes
 //
 //@DESCRIPTION: This component provides a function object class,
-// `ball::RecorJsonFormatter`, that formats a log record as JSON text elements
+// `ball::RecordJsonFormatter`, that formats a log record as JSON text elements
 // according to a format specification (see {`Record Format Specification`}).
 // `ball::RecordJsonFormatter` is designed to match the function signature
 // expected by many concrete `ball::Observer` implementations that publish log
 // records (for example, see `ball::FileObserver2::setLogFileFunctor`).
 //
-// NOTE: `ball::RecorJsonFormatter` renders individual log records as JSON,
+// NOTE: `ball::RecordJsonFormatter` renders individual log records as JSON,
 // but, for example, a resulting log file would contain a sequence of JSON
 // strings, which is not itself valid JSON text.
 //
-///Record Format Specification
-///---------------------------
-// A format specification is, itself, a JSON array, supplied to a
-// `RecordJsonFormatter` object by the `setFormat` function.  If no format is
-// specified, the default format is used.  Each array element specifies the
-// format of a log record field or a user-defined attribute.  Here is a simple
-// example:
+///Simplified Record Format Specification
+///---------------------------------------
+// `RecordJsonFormatter` supports a simplified format using `printf`-style
+// (`%`-prefixed) conversion specifications via the `setSimplifiedFormat`
+// method.  This format provides a more concise way to specify common logging
+// patterns without the verbosity of JSON arrays.
+//
+// Note: The `qjson://` scheme that uses this simplified format is registered
+// by `ball::RecordFormatterRegistryUtil`, not by this component.  Other
+// schemes could be registered to use the same simplified format syntax.
+//
+// The following table lists the `%`-prefixed conversion specifications that
+// are recognized within a simplified format specification:
+// ```
+// %d - timestamp in 'DDMonYYYY_HH:MM:SS.mmm' format (28AUG2020_14:43:50.375)
+// %i - timestamp in ISO 8601 format without fractional seconds
+// %I - timestamp in ISO 8601 format with millisecond precision
+// %T - thread Id in hexadecimal
+// %t - thread Id in decimal
+// %K - kernel thread Id in hexadecimal
+// %k - kernel thread Id in decimal
+// %p - process Id
+// %F - filename (basename of __FILE__ only)
+// %f - filename (full path from __FILE__)
+// %l - line number
+// %c - category name
+// %s - severity
+// %m - log message
+// %A - all user-defined attributes
+// %a[name] - specific user-defined attribute with the given name
+// ```
+// Field specifications may be separated by whitespace (spaces, tabs, newlines)
+// or commas, which are ignored by the parser.  For example, these format
+// specifications are equivalent:
+// ```
+// "%d %T %s %c %m"
+// "%d, %T, %s, %c, %m"
+// "%d,%T,%s,%c,%m"
+// ```
+// For example, the format specification:
+// ```
+// "%d %T %s %c %m"
+// ```
+// passed to `setSimplifiedFormat` would result in a log record like:
+// ```
+// { "timestamp": "28AUG2020_14:43:50.375",
+//   "tid": "0xA7654EFF3540",
+//   "severity": "INFO",
+//   "category": "MyCategory",
+//   "message": "Hello, world!"
+// }
+// ```
+// Each `%`-prefixed field is rendered as a JSON key-value pair with a default
+// field name (e.g., "timestamp", "tid", "severity").  Field names can be
+// customized by prefixing a format specifier with `<fieldName>:`, for example:
+// `myTime:%d` uses "myTime" as the field name instead of "timestamp".  For
+// more advanced formatting options, use the full JSON array format
+// specification described below.
+//
+///JSON Record Format Specification
+///---------------------------------
+// A full featured format specification is, itself, a JSON array, supplied to a
+// `RecordJsonFormatter` object by the `setJsonFormat` function.  If no format
+// is specified, the default format is used.  Each array element specifies the
+// format of a log record field or a user-defined attribute.
+//
+// Note: The `json://` scheme that uses this JSON array format is registered
+// by `ball::RecordFormatterRegistryUtil`, not by this component.  Other
+// schemes could be registered to use the same JSON output format, like how
+// `qjson://` is an additional format syntax also resulting in JSON log
+// records.
+//
+// Here is a simple example:
 // ```
 // [{"timestamp":{"format":"iso8601"}}, "pid", "tid", "severity", "message"]
 // ```
@@ -43,8 +109,8 @@ BSLS_IDENT("$Id: $")
 //   "message": "Hello, world!"
 //  }
 // ```
-// Again, the format specification is a JSON array, each element of which can
-// be one of the following:
+// The format specification is a JSON array, each element of which can be one
+// of the following:
 //
 // * A string containing the name of the fixed record field or the name of the
 //   user-defined attribute, in which case the field or attribute will be
@@ -79,13 +145,13 @@ BSLS_IDENT("$Id: $")
 // value in the JSON array with a JSON object having the same name and a set of
 // key-value pairs (attributes).
 //
-///Verifying the Format Specification for `setFormat`
-/// - - - - - - - - - - - - - - - - - - - - - - - - -
+///Verifying the Format Specification for `setJsonFormat`
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // The sections that follow describe the set of fields that can be provided in
-// the format specification supplied to `setFormat`.
-// `RecordJsonFormatter::setFormat` will ignore fields in the provided format
-// specification that are unknown, but will report an error if a known field
-// contains a property that is not supported.  For example: a format
+// the format specification supplied to `setJsonFormat`.
+// `RecordJsonFormatter::setJsonFormat` will ignore fields in the provided
+// format specification that are unknown, but will report an error if a known
+// field contains a property that is not supported.  For example: a format
 // specification '["pid", { "timestamp" : {"unknown field!": "value"} }] will
 // be accepted, but `["pid", {"timestamp": {"format": "unknown format" }}]`
 // will produce an error.
@@ -101,7 +167,7 @@ BSLS_IDENT("$Id: $")
 //   column "Value Constraint" in the tables below.  If the value does not
 //   match the string values specified in the tables, the format specification
 //   is considered to be inconsistent with the expected schema, and is
-//   rejected by the `RecordJsonFormatter::setFormat` method.
+//   rejected by the `RecordJsonFormatter::setJsonFormat` method.
 //
 ///The "timestamp" field format
 ///-  -  -  -  -  -  -  -  -  -
@@ -168,7 +234,7 @@ BSLS_IDENT("$Id: $")
 // ```
 //                                                    Value        Default
 //   Key                   Description                Constraint   Value
-// --------  -------------------------------------  -----------  ---------
+// --------  -------------------------------------  -----------  ------------
 // "name"    name by which "tid"/"ktid" will be     JSON string  "tid"/"ktid"
 //           published
 //
@@ -298,7 +364,7 @@ BSLS_IDENT("$Id: $")
 // ```
 //  [ "attributes" ]
 // ```
-// would (assuming their are two attributes "bas.requestid" and
+// would (assuming there are two attributes "bas.requestid" and
 // "mylib.security") result in a log record like:
 // ```
 //  { "bas.requestid": 12345, "mylib.security": "My Security" }
@@ -346,7 +412,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Next we set a format specification to the newly created `formatter`:
 // ```
-// int rc = formatter.setFormat("[\"tid\",\"message\"]");
+// const int rc = formatter.setJsonFormat("[\"tid\",\"message\"]");
 // assert(0 == rc);  (void)rc;
 // ```
 // The chosen format specification indicates that, when a record is formatted
@@ -372,7 +438,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Finally, we change the record separator and format the same record again:
 // ```
-// formatter.setFormat("\n\n");
+// formatter.setRecordSeparator("\n\n");
 // formatter(bsl::cout, record);
 // ```
 // The record is printed in the same format, but now terminated by two
@@ -384,13 +450,16 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <ball_recordformatterfunctor.h>
+#include <ball_recordformatteroptions.h>
+#include <ball_recordformattertimezone.h>
+
 #include <bslma_allocator.h>
 #include <bslma_bslallocator.h>
-#include <bslma_usesbslmaallocator.h>
 
-#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
-#include <bslmf_nestedtraitdeclaration.h>
+
+#include <bsla_deprecated.h>
 
 #include <bsls_keyword.h>
 
@@ -415,12 +484,15 @@ class RecordJsonFormatter_FieldFormatter;
 
 /// This class provides a function object that formats a log record as JSON
 /// text elements and renders them to an output stream.  The overloaded
-/// `operator()` provided by the class formats log record according to JSON
-/// message format specification supplied at construction (either by the
-/// `setFormat` manipulator or by default) and outputs the result to the
-/// stream.  This functor type is designed to match the function signature
-/// expected by many concrete `ball::Observer` implementations that publish
-/// log records (for example, see `ball::FileObserver2::setLogFileFunctor`).
+/// `operator()` provided by the class formats log record according to a
+/// message format specification supplied either by `setJsonFormat` or
+/// `setSimplifiedFormat` manipulator or the default format installed by the
+/// constructor) and outputs the result to the stream.  While this functor type
+/// is designed to match the function signature expected by many concrete
+/// `ball::Observer` implementations that publish log records (for example,
+///  see `ball::FileObserver2::setLogFileFunctor`) it is advised to use the
+/// more flexible scheme-based format selection provided now by every BDE-made
+/// observer.
 class RecordJsonFormatter {
 
     // PRIVATE TYPES
@@ -439,15 +511,33 @@ class RecordJsonFormatter {
 
     typedef bsl::allocator<> allocator_type;
 
+    /// Enumerator to determine the syntax of the specification string.
+    enum SpecSyntax {
+        e_JSON,
+        e_SIMPLIFIED
+    };
+
   private:
     // DATA
-    bsl::string     d_formatSpec;       // format specification (in JSON)
+    bsl::string     d_formatSpec;       // format specification (json or qjson)
+    SpecSyntax      d_specSyntax;       // how to interpret `d_formatSpec`
+
+    RecordFormatterTimezone::Enum
+                    d_timezoneDefault;  // `e_LOCAL` to publish in local time,
+                                        // `e_UTC` for UTC.
 
     bsl::string     d_recordSeparator;  // string to print after each record
 
     FieldFormatters d_fieldFormatters;  // field formatters configured
                                         // according to the format
                                         // specification
+
+    // PRIVATE MANIPULATORS
+
+    /// Apply the current format specification `d_formatSpec` according to the
+    /// syntax determined by `d_specSyntax` to reconfigure this formatter's
+    //  field formatters.
+    void applyCurrentFormat();
 
     // CLASS METHODS
 
@@ -457,6 +547,26 @@ class RecordJsonFormatter {
     void releaseFieldFormatters(FieldFormatters *formatters);
 
   public:
+    // CLASS METHODS
+
+    /// This class method configures a formatter for the "json" scheme using
+    /// the specified `format` and `formatOptions` and if successful loads it
+    /// into the specified `output` and returns zero. In case configuration
+    /// fails a non-zero value is returned and `output` is not modified.
+    static int loadJsonSchemeFormatter(
+                  RecordFormatterFunctor::Type         *output,
+                  const bsl::string_view&               format,
+                  const RecordFormatterOptions&         formatOptions);
+
+    /// This class method configures a formatter for the "qjson" scheme using
+    /// the specified `format` and `formatOptions` and if successful loads it
+    /// into the specified `output` and returns zero. In case configuration
+    /// fails a non-zero value is returned and `output` is not modified.
+    static int loadQjsonSchemeFormatter(
+                  RecordFormatterFunctor::Type         *output,
+                  const bsl::string_view&               format,
+                  const RecordFormatterOptions&         formatOptions);
+
     // CREATORS
 
     /// Create a record JSON formatter having a default format specification
@@ -514,12 +624,34 @@ class RecordJsonFormatter {
     /// `rhs` is left in a valid but unspecified state.
     RecordJsonFormatter& operator=(bslmf::MovableRef<RecordJsonFormatter> rhs);
 
-    /// Set the message format specification (see
-    /// {`Record Format Specification`}) of this record JSON formatter to
-    /// the specified `format`.  Return 0 on success, and a non-zero value
-    /// otherwise (if `format` is not valid JSON *or* not a JSON conforming
-    /// to the expected schema).
+    /// Set the message format specification (see {`Record Format
+    /// Specification`}) of this record JSON formatter to the specified
+    /// JSON-syntax `format`.  Return 0 on success, and a non-zero value
+    /// otherwise (if `format` is not valid JSON *or* not a JSON conforming to
+    /// the expected schema).  Note that this is the method used by the
+    /// `json://` scheme.
+    int setJsonFormat(const bsl::string_view& format);
+
+    /// @DEPRECATED: Use `setJsonFormat` instead.
+    ///
+    /// Set the message format specification (see {`Record Format
+    /// Specification`}) of this record JSON formatter to the specified
+    /// JSON-syntax `format`.  Return 0 on success, and a non-zero value
+    /// otherwise (if `format` is not valid JSON *or* not a JSON conforming to
+    /// the expected schema).
     int setFormat(const bsl::string_view& format);
+
+    /// Parse the simplified format specification (see {`Simplified Record
+    /// Format Specification`}) in the specified `format` and configure this
+    /// formatter accordingly. Return 0 on success, and a non-zero value
+    /// otherwise.
+    int setSimplifiedFormat(const bsl::string_view& format);
+
+    /// Set the time zone default for every "timestamp" output without a
+    /// timezone specified in the format string to the specified
+    /// `timezoneDefault`.  Note that this method reapplies the current format
+    /// specification to update all timestamp formatters.
+    void setTimezoneDefault(RecordFormatterTimezone::Enum timezoneDefault);
 
     /// Set the record separator for this record JSON formatter to the
     /// specified `recordSeparator`.  The `recordSeparator` will be printed
@@ -534,8 +666,16 @@ class RecordJsonFormatter {
     void operator()(bsl::ostream& stream, const Record& record) const;
 
     /// Return the message format specification of this record JSON
-    /// formatter.  See {`Record Format Specification`}.
+    /// formatter.  See {`Record Format Specification`}.  Note that the syntax
+    /// of this string depends on `formatSyntax()`.
     const bsl::string& format() const;
+
+    /// Return the message format specification syntax of this record JSON
+    /// formatter.  See {`Record Format Specification`}.
+    SpecSyntax formatSyntax() const;
+
+    /// Get the time zone default setting.
+    RecordFormatterTimezone::Enum timezoneDefault() const;
 
     /// Return the record separator of this record JSON formatter.
     const bsl::string& recordSeparator() const;
@@ -548,22 +688,21 @@ class RecordJsonFormatter {
 
     /// Return the allocator used by this object to supply memory.
     allocator_type get_allocator() const;
-
 };
 
 // FREE OPERATORS
 
 /// Return `true` if the specified `lhs` and `rhs` record formatters have
 /// the same value, and `false` otherwise.  Two record formatters have the
-/// same value if they have the same format specification and record
-/// separator.
+/// same value if they have the same format syntax, format specification,
+/// timezone default, and record separator.
 bool operator==(const RecordJsonFormatter& lhs,
                 const RecordJsonFormatter& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` record formatters do not
 /// have the same value, and `false` otherwise.  Two record formatters
-/// differ in value if their format specifications or record separators
-/// differ.
+/// differ in value if their format syntax, format specifications, timezone
+/// defaults, or record separators differ.
 bool operator!=(const RecordJsonFormatter& lhs,
                 const RecordJsonFormatter& rhs);
 
@@ -580,21 +719,24 @@ inline
 RecordJsonFormatter::RecordJsonFormatter(const RecordJsonFormatter& original,
                                          const allocator_type&      allocator)
 : d_formatSpec(original.d_formatSpec, allocator)
+, d_specSyntax(original.d_specSyntax)
+, d_timezoneDefault(original.d_timezoneDefault)
 , d_recordSeparator(original.d_recordSeparator, allocator)
 , d_fieldFormatters(allocator)
 {
-    int rc = setFormat(d_formatSpec);
-    (void) rc;
-    BSLS_ASSERT(0 == rc);
+    applyCurrentFormat();
 }
 
 inline
 RecordJsonFormatter::RecordJsonFormatter(
     bslmf::MovableRef<RecordJsonFormatter> original) BSLS_KEYWORD_NOEXCEPT
-: d_formatSpec(MoveUtil::move(MoveUtil::access(original).d_formatSpec)),
-  d_recordSeparator(
-      MoveUtil::move(MoveUtil::access(original).d_recordSeparator)),
-  d_fieldFormatters(
+: d_formatSpec(MoveUtil::move(MoveUtil::access(original).d_formatSpec))
+, d_specSyntax(MoveUtil::access(original).d_specSyntax)
+, d_timezoneDefault(
+      MoveUtil::move(MoveUtil::access(original).d_timezoneDefault))
+, d_recordSeparator(
+      MoveUtil::move(MoveUtil::access(original).d_recordSeparator))
+, d_fieldFormatters(
       MoveUtil::move(MoveUtil::access(original).d_fieldFormatters))
 {
 }
@@ -605,6 +747,9 @@ RecordJsonFormatter::RecordJsonFormatter(
     const allocator_type&                  allocator)
 : d_formatSpec(MoveUtil::move(MoveUtil::access(original).d_formatSpec),
                allocator)
+, d_specSyntax(e_JSON)
+, d_timezoneDefault(
+      MoveUtil::move(MoveUtil::access(original).d_timezoneDefault))
 , d_recordSeparator(
       MoveUtil::move(MoveUtil::access(original).d_recordSeparator),
       allocator)
@@ -613,11 +758,11 @@ RecordJsonFormatter::RecordJsonFormatter(
     if (MoveUtil::access(original).get_allocator() == allocator) {
         d_fieldFormatters = MoveUtil::move(
                                  MoveUtil::access(original).d_fieldFormatters);
+        d_specSyntax = MoveUtil::access(original).d_specSyntax;
     }
     else {
-        int rc = setFormat(d_formatSpec);
-        (void) rc;
-        BSLS_ASSERT(0 == rc);
+        d_specSyntax = MoveUtil::access(original).d_specSyntax;
+        applyCurrentFormat();
     }
 }
 
@@ -629,17 +774,21 @@ RecordJsonFormatter& RecordJsonFormatter::operator=(
     if (this != &MoveUtil::access(rhs)) {
         d_recordSeparator = MoveUtil::move(
                                   MoveUtil::access(rhs).d_recordSeparator);
+        d_timezoneDefault = MoveUtil::move(
+                                  MoveUtil::access(rhs).d_timezoneDefault);
+
         if (MoveUtil::access(rhs).get_allocator() == get_allocator()) {
             releaseFieldFormatters(&d_fieldFormatters);
             d_formatSpec      = MoveUtil::move(
                                       MoveUtil::access(rhs).d_formatSpec);
             d_fieldFormatters = MoveUtil::move(
                                       MoveUtil::access(rhs).d_fieldFormatters);
+            d_specSyntax = MoveUtil::access(rhs).d_specSyntax;
         }
         else {
-            int rc = setFormat(MoveUtil::access(rhs).d_formatSpec);
-            (void) rc;
-            BSLS_ASSERT(0 == rc);
+            d_formatSpec = MoveUtil::access(rhs).d_formatSpec;
+            d_specSyntax = MoveUtil::access(rhs).d_specSyntax;
+            applyCurrentFormat();
         }
     }
 
@@ -658,6 +807,19 @@ inline
 const bsl::string& RecordJsonFormatter::format() const
 {
     return d_formatSpec;
+}
+
+inline
+RecordJsonFormatter::SpecSyntax RecordJsonFormatter::formatSyntax() const
+{
+    return d_specSyntax;
+}
+
+inline
+RecordFormatterTimezone::Enum
+RecordJsonFormatter::timezoneDefault() const
+{
+    return d_timezoneDefault;
 }
 
 inline
@@ -681,6 +843,20 @@ RecordJsonFormatter::get_allocator() const
     return d_formatSpec.get_allocator();
 }
 
+// PRIVATE MANIPULATORS
+inline
+void RecordJsonFormatter::applyCurrentFormat()
+{
+    if (d_specSyntax == e_SIMPLIFIED) {
+        const int rc = setSimplifiedFormat(d_formatSpec);
+        BSLS_ASSERT(0 == rc);  (void) rc;
+    }
+    else {
+        const int rc = setJsonFormat(d_formatSpec);
+        BSLS_ASSERT(0 == rc);  (void) rc;
+    }
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -688,7 +864,9 @@ inline
 bool ball::operator==(const RecordJsonFormatter& lhs,
                       const RecordJsonFormatter& rhs)
 {
-    return lhs.format() == rhs.format() &&
+    return lhs.formatSyntax() == rhs.formatSyntax()       &&
+           lhs.format()          == rhs.format()          &&
+           lhs.timezoneDefault() == rhs.timezoneDefault() &&
            lhs.recordSeparator() == rhs.recordSeparator();
 }
 
@@ -701,7 +879,7 @@ bool ball::operator!=(const RecordJsonFormatter& lhs,
 
 }  // close enterprise namespace
 
-#endif
+#endif  // INCLUDED_BALL_RECORDJSONFORMATTER
 
 // ----------------------------------------------------------------------------
 // Copyright 2020 Bloomberg Finance L.P.

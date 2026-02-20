@@ -51,7 +51,7 @@ using namespace BloombergLP;
 // compile-time knowledge of the attributes being collected and make small
 // improvements in the overhead required, which may be important for
 // performance critical systems.
-//..
+// ```
 //  // serviceattributes.h
 //
 
@@ -131,10 +131,10 @@ using namespace BloombergLP;
         printer.end();
         return stream;
     }
-//..
+// ```
 // Then we create a guard to add and remove a 'ServiceAttributes' container
 // from the current logging attribute context:
-//..
+// ```
     class ServiceAttributesGuard {
         // DATA
 
@@ -157,10 +157,10 @@ using namespace BloombergLP;
             ball::AttributeContext::getContext()->removeAttributes(d_it);
         }
     };
-//..
+// ```
 // Now we use a 'ServiceAttributesGuard' in a critical infrastructure
 // function:
-//..
+// ```
     int processData(int  uuid, int luw, int firmId, const char *data)
     {
         BALL_LOG_SET_CATEGORY("MYLIBRARY.MYSUBSYSTEM");
@@ -177,14 +177,14 @@ using namespace BloombergLP;
         }
         return rc;
     }
-//..
+// ```
 // Notice that when 'processData' is called, attributes for 'uuid', 'luw', and
 // 'firmId' will be associated with each log message emitted during that
 // function call.
 //
 // Next, we create a callback function that will be used to associate
 // a hostname attribute to each log record for the lifetime of the process:
-//..
+// ```
     void loadHostnameAttribute(
         const ball::LoggerManager::AttributeVisitor& visitor)
     {
@@ -194,10 +194,10 @@ using namespace BloombergLP;
         }
         visitor(ball::Attribute("mylibrary.hostname", hostname));
     }
-//..
+// ```
 // Finally we demonstrate a function that registers the
 // 'loadHostnameAttribute' with the logger manager:
-//..
+// ```
     int configureLibrary()
     {
         ball::LoggerManager::singleton().registerAttributeCollector(
@@ -205,11 +205,11 @@ using namespace BloombergLP;
 
         // ...
     }
-//..
+// ```
 // Notice that the attribute "mylibrary.hostname" will now be associated with
 // every log message created (until "mylibrary.hostnamecollector" is unregistered
 // or the logger manager is destroyed).
-//..
+// ```
 
     int main()
     {
@@ -221,8 +221,7 @@ using namespace BloombergLP;
         bsl::shared_ptr<ball::StreamObserver> observer =
             bsl::allocate_shared<ball::StreamObserver>(alloc, &bsl::cout);
         ball::LoggerManager::singleton().registerObserver(observer, "default");
-        observer->setRecordFormatFunctor(ball::RecordStringFormatter(
-                                          "\n%d %p:%t %s %a %m\n"));
+        observer->setFormat("text://\n%d %p:%t %s %a %m\n");
         configureLibrary();
         processData(3114, 834314, 4, "data message");
         return 0;

@@ -73,9 +73,9 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 ///--------------------------
 // The category registry capacity is managed by the 'setMaxNumCategories' and
 // 'maxNumCategories' methods, and the following data member:
-//..
+// ```
 //  unsigned int ball::LoggerManager::d_maxNumCategoriesMinusOne;
-//..
+// ```
 // From the client's perspective, valid capacity values are in the range
 // '[0 .. INT_MAX]'.  A value of 0 implies that no limit is imposed.  Capacity
 // values stored internally in 'd_maxNumCategoriesMinusOne' are in the range
@@ -84,22 +84,22 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 // 1 from 'd_maxNumCategoriesMinusOne' and adding 1 to
 // 'd_maxNumCategoriesMinusOne', respectively.  This trick allows for more
 // efficient capacity testing, e.g.:
-//..
+// ```
 //  if (d_maxNumCategoriesMinusOne >= d_categoryManager.length()) {
 //      // there is sufficient capacity to add a new category
 //      // ...
 //  }
-//..
+// ```
 // as compared to something like the following if the registry capacity were
 // stored in a hypothetical 'int' data member
 // 'ball::LoggerManager::d_maxNumCategories' not biased by 1:
-//..
+// ```
 //  if (0 == d_maxNumCategories
 //   || d_maxNumCategories > d_categoryManager.length()) {
 //      // there is sufficient capacity to add a new category
 //      // ...
 //  }
-//..
+// ```
 // ----------------------------------------------------------------------------
 
 namespace BloombergLP {

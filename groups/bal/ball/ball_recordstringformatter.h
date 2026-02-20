@@ -114,7 +114,7 @@ BSLS_IDENT("$Id: $")
 // specification (but we accept the default timestamp offset since it will not
 // be used in this example):
 // ```
-// ball::RecordStringFormatter formatter("\n%t: %m\n");
+// ball::RecordStringFormatter formatter("%t: %m\n");
 // ```
 // The chosen format specification indicates that, when a record is formatted
 // using `formatter`, the thread Id attribute of the record will be output
@@ -141,6 +141,9 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <ball_recordformatterfunctor.h>
+#include <ball_recordformatteroptions.h>
+
 #include <bdlt_datetimeinterval.h>
 
 #include <bslma_allocator.h>
@@ -151,6 +154,7 @@ BSLS_IDENT("$Id: $")
 #include <bsl_functional.h>
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_set.h>
 #include <bsl_vector.h>
 
@@ -207,7 +211,6 @@ class RecordStringFormatter {
     BSLMF_NESTED_TRAIT_DECLARATION(RecordStringFormatter,
                                    bslma::UsesBslmaAllocator);
 
-
     // PUBLIC CONSTANTS
 
     /// The default log format specification used by `RecordStringFormatter`.
@@ -218,6 +221,21 @@ class RecordStringFormatter {
     /// default format, `k_DEFAULT_FORMAT`, for most applications (the default
     /// format is currently maintained for backwards compatibility).
     static const char *k_BASIC_ATTRIBUTE_FORMAT;
+
+    // CLASS METHODS
+
+    /// This class method configures a formatter for the "text" scheme using
+    /// the specified `format` and `formatOptions` and if successful loads it
+    /// into the specified `output` and returns zero. In case configuration
+    /// fails a non-zero value is returned and `output` is loaded with a
+    /// string formatter of the default format configuration
+    /// ```
+    /// "\n%d %p:%t %s %f:%l %c %m %u\n"
+    /// ```
+    static int loadTextSchemeFormatter(
+                  RecordFormatterFunctor::Type         *output,
+                  const bsl::string_view&               format,
+                  const RecordFormatterOptions&         formatOptions);
 
     // CREATORS
 
@@ -244,6 +262,9 @@ class RecordStringFormatter {
                           const allocator_type&  allocator = allocator_type());
     RecordStringFormatter(const char            *format,
                           bslma::Allocator      *basicAllocator);
+    explicit RecordStringFormatter(
+                         const bsl::string_view& format,
+                         const allocator_type&   allocator = allocator_type());
 
     /// Create a record formatter having a default format specification and
     /// the specified timestamp `offset`.  Optionally specify an `allocator`

@@ -91,13 +91,13 @@ using namespace bdlf::PlaceHolders;
 // ----------------------------------------------------------------------------
 //                              Overview
 //                              --------
-// The component under test is a logger manager that form the base of the BDE
+// The component under test is a logger manager that forms the base of the BDE
 // logging subsystem.  We must ensure that the component correctly handles
 // various configuration parameters supplied at construction or via
 // manipulators.  We also test that internal broadcast observer implemented in
 // this version of the logger manager correctly forwards published log messages
 // to all registered observers.  Finally, we test the logger manager scoped
-// guard that is used so simplify the initialization and destruction of the
+// guard that is used to simplify the initialization and destruction of the
 // logger manager singleton for client applications.
 //
 // ----------------------------------------------------------------------------
@@ -610,7 +610,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_2 {
 // ```
         ball::LoggerManagerScopedGuard guard(configuration);
 // ```
-// Note that application is now prepared to log messages using the `ball`
+// Note that the application is now prepared to log messages using the `ball`
 // logging subsystem, but until the application registers an observer, all log
 // messages will be discarded.
 //
@@ -810,7 +810,7 @@ namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4 {
 
 ///Example 4: Logging using a `ball::Logger`
 ///- - - - - - - - - - - - - - - - - - - - -
-// This example demonstrates using the a `ball::Logger` directly to log
+// This example demonstrates using a `ball::Logger` directly to log
 // messages.  In practice, clients are encouraged to use the logging macros
 // (see {`ball_log`}, which cannot be shown here for dependency reasons.  The
 // following example assumes logging has been correctly initialized (see prior
@@ -3453,9 +3453,9 @@ int main(int argc, char *argv[])
                                                "No Logger\0 Manager\0 6!", 22);
 
 #ifdef BSLS_PLATFORM_OS_UNIX
-        bdls::TempDirectoryGuard tempDirGuard("ball_");
+        bdls::TempDirectoryGuard tempDirGuard("ball_loggermanager_");
         bsl::string              fileName(tempDirGuard.getTempDirName());
-        bdls::PathUtil::appendRaw(&fileName, "stderrLog");
+        bdls::PathUtil::appendRaw(&fileName, "test2_stderr");
 
         fflush(stderr);
         int fd = creat(fileName.c_str(), 0777);

@@ -168,9 +168,10 @@
       bsl::shared_ptr<ball::FileObserver> observer =
           bsl::allocate_shared<ball::FileObserver>(alloc);
 
-      observer->setLogFormat(
-                      ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT,
-                      ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
+      observer->setFileLogFormat(
+                        ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
+      observer->setStdoutLogFormat(
+                        ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
 
       if (0 != observer->enableFileLogging("myapplication.log.%T")) {
           bsl::cout << "Failed to enable logging" << bsl::endl;
@@ -587,7 +588,9 @@
  containing the user-defined fields.  See the 'ball_record' component for more
  information about the use of 'ball::UserFields' in logging, and see the
  'ball_loggermanager' component for more information about installing a user
- populator callback.
+ populator callback.  Note that 'ball::UserFields' is deprecated; new code
+ should use 'ball::Attribute' and 'ball::ScopedAttribute' instead (see
+ {Log Attributes}).
 
 /Constraints on Message Encodings
 / - - - - - - - - - - - - - - - -
@@ -976,18 +979,21 @@ by observers:
 
 ..
   int initFileObserver() {
-     // 'ball::FileObserver' uses an internal record string formatter and
-     // is configured by supplying a format string via 'setLogFormat().
+     // For backwards compatibility 'ball::FileObserver' uses record string
+     // formatter (its default scheme is "text://") when it is configured by
+     // supplying format strings without a scheme (such as "qjson://) via
+     // 'setFileLogFormat()' and 'setStdoutLogFormat()'.
 
      bslma::Allocator *alloc = bslma::Default::globalAllocator(0);
 
      bsl::shared_ptr<ball::FileObserver> observer =
          bsl::allocate_shared<ball::FileObserver>(alloc);
 
-
      // Set the log format for file and console logs to "\n%d %p:%t %s %f:%l %c %a %m\n"
-     observer->setLogFormat(ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT,
-                            ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
+     observer->setFileLogFormat(
+                        ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
+     observer->setStdoutLogFormat(
+                        ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
 
      if (0 != observer->enableFileLogging("myapplication.log.%T")) {
          bsl::cout << "Failed to enable logging" << bsl::endl;
@@ -997,6 +1003,285 @@ by observers:
      return 0;
   }
 ..
+
+/Scheme-Based Formatters
+/- - - - - - - - - - - -
+The 'ball' logging toolkit supports scheme-based format specifications that
+allow you to select different log formatters and specify their configurations
+using a URI-like syntax.  This feature is available in the following observer
+components:
+
+: o 'ball::AsyncFileObserver'
+: o 'ball::CstdioObserver'
+: o 'ball::FileObserver'
+: o 'ball::FileObserver2'
+: o 'ball::StreamObserver'
+
+A scheme-based format specification has the following syntax:
+
+..
+  <scheme>://<format-specification>
+..
+
+The scheme determines which formatter will be used and the syntax of the
+format specification.  For backward compatibility, if no scheme is specified
+(i.e., the configuration doesn't contain '://'), the configuration is treated
+as a legacy 'printf'-style format specification for
+'ball::RecordStringFormatter' (equivalent to the 'text://' scheme).
+
+/Supported Schemes
+/ -  -  -  -  -  -
+
+The following table lists the currently supported schemes:
+
+..
+  +---------+--------------------------------------+-------------------------+
+  | Scheme  | Formatter Component                  | Description             |
+  +=========+======================================+=========================+
+  | text:// | ball::RecordStringFormatter          | Human-readable text     |
+  |         |                                      | format using            |
+  |         |                                      | 'printf'-style '%'      |
+  |         |                                      | format specifiers       |
+  +---------+--------------------------------------+-------------------------+
+  | qjson://| ball::RecordJsonFormatter            | JSON format using       |
+  |         | (simplified format)                  | simplified              |
+  |         |                                      | 'printf'-style '%'      |
+  |         |                                      | field specifiers        |
+  +---------+--------------------------------------+-------------------------+
+  | json:// | ball::RecordJsonFormatter            | JSON format using JSON  |
+  |         | (full JSON array format)             | array of field names    |
+  |         |                                      | and configurations      |
+  +---------+--------------------------------------+-------------------------+
+..
+
+/Scheme Format Specifications
+/-  -  -  -  -  -  -  -  -  -
+
+The following subsections describe the format specification syntax for each
+supported scheme.
+
+/text:// - Text Formatter
+/   -   -   -   -   -   -
+
+The 'text://' scheme uses 'ball::RecordStringFormatter' to produce
+human-readable text output.  The format specification after 'text://' is a
+'printf'-style format string using '%'-prefixed conversion specifications.
+
+Format specifiers:
+..
+  +-----------+------------------------------------------------------------+
+  | Specifier | Description                                                |
+  +===========+============================================================+
+  | %d        | timestamp in 'DDMonYYYY_HH:MM:SS.mmm' format               |
+  +-----------+------------------------------------------------------------+
+  | %D        | timestamp in 'DDMonYYYY_HH:MM:SS.mmmuuu' format            |
+  +-----------+------------------------------------------------------------+
+  | %i        | timestamp in ISO 8601 format (without fractional seconds)  |
+  +-----------+------------------------------------------------------------+
+  | %I        | timestamp in ISO 8601 format (with milliseconds)           |
+  +-----------+------------------------------------------------------------+
+  | %O        | timestamp in ISO 8601 format (with microseconds)           |
+  +-----------+------------------------------------------------------------+
+  | %p        | process Id                                                 |
+  +-----------+------------------------------------------------------------+
+  | %t        | thread Id (decimal)                                        |
+  +-----------+------------------------------------------------------------+
+  | %T        | thread Id (hexadecimal)                                    |
+  +-----------+------------------------------------------------------------+
+  | %k        | kernel thread Id (decimal)                                 |
+  +-----------+------------------------------------------------------------+
+  | %K        | kernel thread Id (hexadecimal)                             |
+  +-----------+------------------------------------------------------------+
+  | %s        | severity                                                   |
+  +-----------+------------------------------------------------------------+
+  | %f        | filename (as provided by '__FILE__')                       |
+  +-----------+------------------------------------------------------------+
+  | %F        | filename abbreviated (basename of '__FILE__' only)         |
+  +-----------+------------------------------------------------------------+
+  | %l        | line number (as provided by '__LINE__')                    |
+  +-----------+------------------------------------------------------------+
+  | %c        | category name                                              |
+  +-----------+------------------------------------------------------------+
+  | %m        | log message                                                |
+  +-----------+------------------------------------------------------------+
+  | %u        | user-defined fields (deprecated)                           |
+  +-----------+------------------------------------------------------------+
+  | %A        | all attributes of the record                               |
+  +-----------+------------------------------------------------------------+
+  | %a        | attributes not already logged by '%a[name]' or             |
+  |           | '%av[name]'                                                |
+  +-----------+------------------------------------------------------------+
+  | %a[name]  | attribute with specified 'name' as "name=value"            |
+  +-----------+------------------------------------------------------------+
+  | %av[name] | only the value of attribute with specified 'name'         |
+  +-----------+------------------------------------------------------------+
+..
+
+Example:
+..
+  observer->setLogFormat("text://\n%d %p:%t %s %f:%l %c %a %m\n");
+..
+
+/qjson:// - Simplified JSON Formatter
+/   -   -   -   -   -   -   -   -   -
+
+The 'qjson://' scheme uses 'ball::RecordJsonFormatter' with a simplified
+'printf'-style format specification.  Each '%'-prefixed field is rendered as
+a JSON key-value pair with a default field name.  Field names can be
+customized by prefixing a format specifier with '<fieldName>:', for example:
+'myTime:%d' uses "myTime" as the field name instead of "timestamp".
+
+Format specifiers:
+..
+  +-----------+-----------------+----------------------------------------+
+  | Specifier | JSON Field Name | Description                            |
+  +===========+=================+========================================+
+  | %d        | "timestamp"     | timestamp in 'DDMonYYYY_HH:MM:SS.mmm'  |
+  +-----------+-----------------+----------------------------------------+
+  | %i        | "timestamp"     | timestamp in ISO 8601 (no fractions)   |
+  +-----------+-----------------+----------------------------------------+
+  | %I        | "timestamp"     | timestamp in ISO 8601 (milliseconds)   |
+  +-----------+-----------------+----------------------------------------+
+  | %p        | "pid"           | process Id                             |
+  +-----------+-----------------+----------------------------------------+
+  | %t        | "tid"           | thread Id (decimal)                    |
+  +-----------+-----------------+----------------------------------------+
+  | %T        | "tid"           | thread Id (hexadecimal)                |
+  +-----------+-----------------+----------------------------------------+
+  | %k        | "ktid"          | kernel thread Id (decimal)             |
+  +-----------+-----------------+----------------------------------------+
+  | %K        | "ktid"          | kernel thread Id (hexadecimal)         |
+  +-----------+-----------------+----------------------------------------+
+  | %f        | "file"          | filename (full path from '__FILE__')   |
+  +-----------+-----------------+----------------------------------------+
+  | %F        | "file"          | filename (basename only)               |
+  +-----------+-----------------+----------------------------------------+
+  | %l        | "line"          | line number                            |
+  +-----------+-----------------+----------------------------------------+
+  | %c        | "category"      | category name                          |
+  +-----------+-----------------+----------------------------------------+
+  | %s        | "severity"      | severity                               |
+  +-----------+-----------------+----------------------------------------+
+  | %m        | "message"       | log message                            |
+  +-----------+-----------------+----------------------------------------+
+  | %A        | "attributes"    | all user-defined attributes            |
+  +-----------+-----------------+----------------------------------------+
+  | %a[name]  | (custom)        | specific attribute value               |
+  +-----------+-----------------+----------------------------------------+
+..
+
+Field specifications may be separated by whitespace or commas.  For example,
+these are equivalent: '%d %T %s %m' and '%d, %T, %s, %m'.
+
+Example:
+..
+  observer->setLogFormat("qjson://%d %T %s %c %m %A");
+..
+
+Output:
+..
+  {"timestamp":"28AUG2020_14:43:50.375","tid":"0xA7654EFF3540",
+   "severity":"INFO","category":"MyCategory","message":"Hello, world!"}
+..
+
+Example with custom field names:
+..
+  observer->setLogFormat("qjson://time:%I thread:%T level:%s msg:%m");
+..
+
+Output:
+..
+  {"time":"2020-08-28T14:43:50.375Z","thread":"0xA7654EFF3540",
+   "level":"INFO","msg":"Hello, world!"}
+..
+
+/json:// - Full JSON Formatter
+/ . . . . . . . . . . . . . . .
+
+The 'json://' scheme uses 'ball::RecordJsonFormatter' with a full JSON array
+format specification.  This provides the most flexibility, allowing
+customization of field names and formatting options.
+
+The format specification is a JSON array where each element can be:
+
+: o A string containing a field name (uses default format)
+: o A JSON object with field name and customization options
+
+Available fields:
+..
+  +--------------+------------------------------------------------------+
+  | Field        | Description                                          |
+  +==============+======================================================+
+  | "timestamp"  | creation date and time                               |
+  +--------------+------------------------------------------------------+
+  | "pid"        | process Id                                           |
+  +--------------+------------------------------------------------------+
+  | "tid"        | thread Id                                            |
+  +--------------+------------------------------------------------------+
+  | "ktid"       | kernel thread Id                                     |
+  +--------------+------------------------------------------------------+
+  | "file"       | filename (from '__FILE__')                           |
+  +--------------+------------------------------------------------------+
+  | "line"       | line number (from '__LINE__')                        |
+  +--------------+------------------------------------------------------+
+  | "category"   | category name                                        |
+  +--------------+------------------------------------------------------+
+  | "severity"   | severity level                                       |
+  +--------------+------------------------------------------------------+
+  | "message"    | log message text                                     |
+  +--------------+------------------------------------------------------+
+  | "attributes" | all user-defined attributes                          |
+  +--------------+------------------------------------------------------+
+  | <name>       | specific user-defined attribute (e.g., "bas.uuid")   |
+  +--------------+------------------------------------------------------+
+..
+
+Example (simple):
+..
+  observer->setLogFormat(
+      "json://[\"timestamp\",\"severity\",\"category\",\"message\"]");
+..
+
+Output:
+..
+  {"timestamp":"2020-08-28T14:43:50.375Z","severity":"INFO",
+   "category":"MyCategory","message":"Hello, world!"}
+..
+
+Example (customized):
+..
+  observer->setLogFormat(
+      "json://[{\"timestamp\":{\"name\":\"time\",\"format\":\"bdePrint\"}},"
+      "\"pid\",\"tid\",\"severity\",\"message\"]");
+..
+
+Output:
+..
+  {"time":"28AUG2020_14:43:50.375","pid":2313,"tid":12349388604,
+   "severity":"INFO","message":"Hello, world!"}
+..
+
+Customization options for "timestamp" field:
+..
+  +--------------------------+-------------+--------------------------------+
+  | Option                   | Values      | Description                    |
+  +==========================+=============+================================+
+  | "name"                   | string      | Custom field name              |
+  +--------------------------+-------------+--------------------------------+
+  | "format"                 | "iso8601"   | ISO 8601 format (default)      |
+  |                          | "bdePrint"  | DDMonYYYY_HH:MM:SS.mmm format  |
+  +--------------------------+-------------+--------------------------------+
+  | "fractionalSecPrecision" | "none"      | No fractional seconds          |
+  |                          | "millisec"  | Millisecond precision          |
+  |                          | "microsec"  | Microsecond precision (def.)   |
+  +--------------------------+-------------+--------------------------------+
+  | "timeZone"               | "utc"       | UTC time (default)             |
+  |                          | "local"     | Local time                     |
+  +--------------------------+-------------+--------------------------------+
+..
+
+For complete details on field customization options, see the documentation for
+{'ball_recordjsonformatter'}.
 
 /Suggested Log Record Format
 /- - - - - - - - - - - - - -

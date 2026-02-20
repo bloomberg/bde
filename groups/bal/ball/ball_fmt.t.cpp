@@ -187,7 +187,7 @@ static bool isRecordOkay(
 //
 // Suppose we have a type that (we do not own, and) is some sort of identifier
 // that is capable of "printing" itself to an `ostream`:
-//```
+// ```
    namespace abc {
    class Identifier {
      private:
@@ -208,7 +208,7 @@ static bool isRecordOkay(
    }
 
    }  // close namespace abc
-//```
+// ```
 // First, we initialize the log category within the context of this function.
 // The logging macros such as `BALL_FMT_ERROR` will not compile unless a
 // category has been specified in the current lexical scope:
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 //
 // Suppose we have a type that (we do not own, and) is some sort of identifier
 // that is capable of "printing" itself to an `ostream`:
-//```
+// ```
 // namespace abc {
 // class Identifier {
 //   private:
@@ -348,7 +348,7 @@ int main(int argc, char *argv[])
 // }
 //
 // }  // close namespace abc
-//```
+// ```
 // First, we initialize the log category within the context of this function.
 // The logging macros such as `BALL_FMT_ERROR` will not compile unless a
 // category has been specified in the current lexical scope:

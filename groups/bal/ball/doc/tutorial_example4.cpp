@@ -16,9 +16,9 @@
   }  // close enterprise namespace
 
   #endif
-//..
+// ```
 // Then the 'f_log.cpp' implementation file:
-//..
+// ```
   // f_log.cpp                                                        -*-C++-*-
 
   #include <ball_log.h>
@@ -37,9 +37,9 @@
   }
 
   }  // close enterprise namespace
-//..
+// ```
 // Finally, the 'logging.m.cpp' file that defines 'main':
-//..
+// ```
   // logging.m.cpp                                                    -*-C++-*-
 
   #include <ball_log.h>

@@ -51,19 +51,19 @@ BSLS_IDENT("$Id: $")
 // The code within any logging statement/code block must not produce any side
 // effects because it may or may not be executed based on run-time
 // configuration of the `ball` logging subsystem:
-//```
+// ```
 // BALL_FMT_INFO("Count: {}", ++i);    // (!) May or may not be incremented
-//```
+// ```
 // The following `BALL_FMT_*` macros, are the simplest mechanisms to format
 // (using a standard `format` specification) a single message to a log:
-//```
+// ```
 // BALL_FMT_TRACE(format_string_literal, ARG1, ARG2, ...);
 // BALL_FMT_DEBUG(format_string_literal, ARG1, ARG2, ...);
 // BALL_FMT_INFO( format_string_literal, ARG1, ARG2, ...);
 // BALL_FMT_WARN( format_string_literal, ARG1, ARG2, ...);
 // BALL_FMT_ERROR(format_string_literal, ARG1, ARG2, ...);
 // BALL_FMT_FATAL(format_string_literal, ARG1, ARG2, ...);
-//```
+// ```
 // where `ARG1`, `ARG2`, ... represents any sequence of values for which a
 // `bsl::format` formatter is defined.  The resulting formatted message string
 // is logged with the severity indicated by the name of the macro (e.g.,
@@ -74,21 +74,21 @@ BSLS_IDENT("$Id: $")
 // `ball_log` provides several kinds of macros to create potentially executed
 // code blocks from which more complicated logging can be performed.  As a
 // reminder the most commonly used such block macros are:
-//```
+// ```
 // BALL_LOG_TRACE_BLOCK { ... }
 // BALL_LOG_DEBUG_BLOCK { ... }
 // BALL_LOG_INFO_BLOCK  { ... }
 // BALL_LOG_WARN_BLOCK  { ... }
 // BALL_LOG_ERROR_BLOCK { ... }
 // BALL_LOG_FATAL_BLOCK { ... }
-//```
+// ```
 // Please see `ball_log` for the other such block macros.
 //
 // Within logging code blocks the special macro, `BALL_FMT` provides
 // standard `format`-style logging into the log record being built there.
-//```
+// ```
 // BALL_FMT(format-string-literal, X, Y, ...)
-//```
+// ```
 //
 ///Usage
 ///-----
@@ -102,23 +102,23 @@ BSLS_IDENT("$Id: $")
 // First, we initialize the log category within the context of this function.
 // The logging macros such as `BALL_FMT_ERROR` will not compile unless a
 // category has been specified in the current lexical scope:
-//```
+// ```
 // BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//```
+// ```
 // Then, we record messages at various levels of severity.  These messages will
 // be conditionally written to the log depending on the current logging
 // threshold of the category (configured using the `ball::LoggerManager`
 // singleton):
-//```
+// ```
 // BALL_FMT_FATAL("Write this message to the log if the log threshold "
 //                "is above 'ball::Severity::e_FATAL' (i.e., {}).", 32);
 //
 // BALL_FMT_TRACE("Write this message to the log if the log threshold "
 //                "is above 'ball::Severity::e_TRACE' (i.e., {}).", 192);
-//```
+// ```
 // Next, we demonstrate how to use proprietary code within logging macros.
 // Suppose you want to add the content of a vector to the log trace:
-//```
+// ```
 // bsl::vector<int> myVector(4, 328);
 // BALL_LOG_TRACE_BLOCK {
 //     BALL_FMT("myVector = [ ");
@@ -131,7 +131,7 @@ BSLS_IDENT("$Id: $")
 //     }
 //     BALL_FMT("]");
 // }
-//```
+// ```
 // Note that the code block will be conditionally executed depending on the
 // current logging threshold of the category.  The code within the block must
 // not produce any side effects, because its execution depends on the current
@@ -146,7 +146,7 @@ BSLS_IDENT("$Id: $")
 //
 // Suppose we have a type that (we do not own, and) is some sort of identifier
 // that is capable of "printing" itself to an `ostream`:
-//```
+// ```
 // namespace abc {
 // class Identifier {
 //   private:
@@ -167,19 +167,19 @@ BSLS_IDENT("$Id: $")
 // }
 //
 // }  // close namespace abc
-//```
+// ```
 // First, we initialize the log category within the context of this function.
 // The logging macros such as `BALL_FMT_ERROR` will not compile unless a
 // category has been specified in the current lexical scope:
-//```
+// ```
 // BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//```
+// ```
 // Then, we record a message containing identifiers using `bslfmt::streamed`:
-//```
+// ```
 // const abc::Identifier id(12345);
 // BALL_FMT_FATAL("Item {:>010} does not exist.", bslfmt::streamed(id));
 // // Logs: `Item 0000012345 does not exist.`
-//```
+// ```
 // Note that the wrapper created by `bslfmt::streamed` uses the `ostream`
 // insert `operator<<` of `abc::Identifier` to get the characters to print and
 // uses the syntax of string formatting for the format specification.

@@ -256,7 +256,7 @@ Log_Formatter::~Log_Formatter()
 ///IMPLEMENTATION NOTES
 ///--------------------
 // The stream-style logging macro (without a callback) is reproduced here:
-//..
+// ```
 //#define BALL_LOG_STREAM_BLOCK(SEVERITY)                                    \@
 //for (const BloombergLP::ball::CategoryHolder *ball_log_cAtEgOrYhOlDeR =    \@
 //                      ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER); \@
@@ -275,10 +275,10 @@ Log_Formatter::~Log_Formatter()
 //
 //#define BALL_LOG_STREAM(SEVERITY)                                          \@
 //    BALL_LOG_STREAM_BLOCK((SEVERITY)) BALL_LOG_OUTPUT_STREAM
-//..
+// ```
 // Note that '@' is appended to each line in the macro that ends with '\' to
 // quell a diagnostic from gcc ("warning: multi-line comment").
-//..
+// ```
 // This latest version of the macro, as well as the 'printf'-style macros, are
 // based on category holders ('ball::CategoryHolder').  The introduction of
 // category holders, and the factoring of the innards of the original macros
@@ -302,9 +302,9 @@ Log_Formatter::~Log_Formatter()
 // dynamic category holders never change from their initial value.
 //
 // The general idea is that the condition:
-//..
+// ```
 //    (ball_log_cAtEgOrYhOlDeR->threshold() >= SEVERITY)
-//..
+// ```
 // evaluates to 'true' if there is a *possibility* of a logging event based
 // simply on the current threshold of the corresponding category holder
 // ('ball_log_cAtEgOrYhOlDeR').  For static categories, this condition is
@@ -330,7 +330,7 @@ Log_Formatter::~Log_Formatter()
 // The following example recasts the 'snprintf'-based macro usage shown above
 // in terms of the 'ball::Log' utility functions.  Note, however, that direct
 // use of the utility functions is *strongly* discouraged:
-//..
+// ```
 //      static const BloombergLP::ball::Category *category =
 //                                  ball::Log::setCategory("EQUITY.NASD.SUNW");
 //      {
@@ -349,7 +349,7 @@ Log_Formatter::~Log_Formatter()
 //                                   record);
 //          }
 //      }
-//..
+// ```
 // Note that it is not necessary to set the filename in this usage scenario;
 // instead, '__FILE__' is used directly.  However, a category must still be
 // established (first time only), by calling 'ball::Log::setCategory'.  The
@@ -381,9 +381,9 @@ Log_Formatter::~Log_Formatter()
 //
 // Given that, note that all calls to 'ball_log_getCategoryHolder' that occur
 // in 'ball_log' macros are of the form:
-//..
+// ```
 //  ball_log_getCategoryHolder(BALL_LOG_CATEGORYHOLDER)
-//..
+// ```
 // There are two cases to consider.
 //
 // First suppose that 'ball_log_getCategoryHolder' is called from a free

@@ -11,6 +11,7 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 // is implemented by writing the formatted string to a buffer before inserting
 // to a stream.
 
+#include <ball_attribute.h>               // for testing only
 #include <ball_managedattribute.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
@@ -54,7 +55,7 @@ BSLS_IDENT_RCSID(ball_recordstringformatter_cpp,"$Id$ $CSID$")
 
 namespace {
 
-const char *const DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
+const char *const k_DEFAULT_FORMAT_SPEC = "\n%d %p:%t %s %f:%l %c %m %u\n";
 
 }  // close unnamed namespace
 
@@ -266,7 +267,7 @@ class AttributeFormatter {
     /// Create an attribute formatter object having the specified `key` of
     /// an attribute to be rendered.  If optionally specified `renderKey` is
     /// `true`, render attribute as "key=value", and render only the value
-    /// of the attribute otherwize.
+    /// of the attribute otherwise.
     explicit
     AttributeFormatter(const bsl::string_view& key, bool renderKey = true);
 
@@ -1041,9 +1042,10 @@ void RecordStringFormatter::parseFormatSpecification()
               } break;
               case 'k': {  // ---------------- Kernel Thread ID ---------------
                 d_fieldFormatters.emplace_back(
-                          bdlf::BindUtil::bind(&PrintUtil::appendKernelThreadId,
-                                               _1,
-                                               _2));
+                          bdlf::BindUtil::bind(
+                                              &PrintUtil::appendKernelThreadId,
+                                              _1,
+                                              _2));
               } break;
               case 'K': {  // ---------------- Kernel Thread ID hex -----------
                 d_fieldFormatters.emplace_back(
@@ -1162,9 +1164,27 @@ void RecordStringFormatter::parseFormatSpecification()
     }
 }
 
+// CLASS METHODS
+int RecordStringFormatter::loadTextSchemeFormatter(
+                   RecordFormatterFunctor::Type         *output,
+                   const bsl::string_view&               format,
+                   const RecordFormatterOptions&         formatOptions)
+{
+    RecordStringFormatter newFormatter(format, output->allocator());
+    if (formatOptions.timezoneDefault() == RecordFormatterTimezone::e_LOCAL) {
+        newFormatter.enablePublishInLocalTime();
+    }
+    RecordFormatterFunctor::Type newFunc(bsl::allocator_arg,
+                                         output->allocator(),
+                                         newFormatter);
+    output->swap(newFunc);
+
+    return 0;
+}
+
 // CREATORS
 RecordStringFormatter::RecordStringFormatter(const allocator_type& allocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, allocator)
+: d_formatSpec(k_DEFAULT_FORMAT_SPEC, allocator)
 , d_fieldFormatters(allocator)
 , d_skipAttributes(allocator)
 , d_timestampOffset(0)
@@ -1173,7 +1193,7 @@ RecordStringFormatter::RecordStringFormatter(const allocator_type& allocator)
 }
 
 RecordStringFormatter::RecordStringFormatter(bslma::Allocator *basicAllocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, basicAllocator)
+: d_formatSpec(k_DEFAULT_FORMAT_SPEC, basicAllocator)
 , d_fieldFormatters(basicAllocator)
 , d_skipAttributes(basicAllocator)
 , d_timestampOffset(0)
@@ -1201,11 +1221,20 @@ RecordStringFormatter::RecordStringFormatter(const char       *format,
     parseFormatSpecification();
 }
 
+RecordStringFormatter::RecordStringFormatter(const bsl::string_view& format,
+                                             const allocator_type&   allocator)
+: d_formatSpec(format, allocator)
+, d_fieldFormatters(allocator)
+, d_skipAttributes(allocator)
+, d_timestampOffset(0)
+{
+    parseFormatSpecification();
+}
 
 RecordStringFormatter::RecordStringFormatter(
                                       const bdlt::DatetimeInterval&  offset,
                                       const allocator_type&          allocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, allocator)
+: d_formatSpec(k_DEFAULT_FORMAT_SPEC, allocator)
 , d_fieldFormatters(allocator)
 , d_skipAttributes(allocator)
 , d_timestampOffset(offset)
@@ -1216,7 +1245,7 @@ RecordStringFormatter::RecordStringFormatter(
 RecordStringFormatter::RecordStringFormatter(
                                       bool                  publishInLocalTime,
                                       const allocator_type& allocator)
-: d_formatSpec(DEFAULT_FORMAT_SPEC, allocator)
+: d_formatSpec(k_DEFAULT_FORMAT_SPEC, allocator)
 , d_fieldFormatters(allocator)
 , d_skipAttributes(allocator)
 , d_timestampOffset(0,

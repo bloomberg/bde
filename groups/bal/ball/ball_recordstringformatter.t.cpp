@@ -4,6 +4,7 @@
 #include <ball_attribute.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
+#include <ball_recordformatterfunctor.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
 
@@ -69,11 +70,15 @@ using bsl::uppercase;
 // implemented class is a function object, the `operator()` method that
 // provides string-based formatting support is extensively tested.
 //
+// CLASS METHODS
+// [15] int loadTextSchemeFormatter(...)
+//
 // CREATORS
 // [ 2] ball::RecordStringFormatter(*ba = 0);
 // [10] ball::RecordStringFormatter(alloc);
 // [10] ball::RecordStringFormatter(*ba);
 // [10] ball::RecordStringFormatter(const char *, alloc);
+// [10] ball::RecordStringFormatter(const bsl::string_view&, alloc);
 // [10] ball::RecordStringFormatter(bdlt::DtI, alloc);
 // [10] ball::RecordStringFormatter(bool, alloc);
 // [10] ball::RecordStringFormatter(bool, *ba);
@@ -82,24 +87,27 @@ using bsl::uppercase;
 // [13] ball::RecordStringFormatter(const char *, bool, alloc);
 // [ 7] ball::RecordStringFormatter(const ball::RSF&, alloc);
 // [ 2] ~ball::RecordStringFormatter();
+//
 // MANIPULATORS
 // [ 9] const ball::RSF& operator=(const ball::RSF& other);
 // [13] void disablePublishInLocalTime();
 // [13] void enablePublishInLocalTime();
 // [ 2] void setFormat(const char *format);
 // [ 2] void setTimestampOffset(const bdlt::DatetimeInterval& offset);
+//
 // ACCESSORS
 // [ 2] const char *format() const;
 // [13] bool isPublishInLocalTimeEnabled() const;
 // [ 2] const bdlt::DatetimeInterval& timestampOffset() const;
 // [11] void operator()(bsl::ostream&, const ball::Record&) const;
+//
 // FREE OPERATORS
 // [ 6] bool operator==(const ball::RSF& lhs, const ball::RSF& rhs);
 // [ 6] bool operator!=(const ball::RSF& lhs, const ball::RSF& rhs);
 // [ 5] bsl::ostream& operator<<(bsl::ostream&, const ball::RSF&);
 // ----------------------------------------------------------------------------
 // [ 1] breathing test
-// [12] USAGE example
+// [16] USAGE example
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -289,7 +297,299 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
+      case 16: {
+        // --------------------------------------------------------------------
+        // TESTING USAGE EXAMPLE
+        //
+        // Concerns:
+        //   The usage example provided in the component header file must
+        //   compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        //   Incorporate usage example from header into driver, remove leading
+        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
+        //   all `cout` statements in non-verbose mode, and add streaming to
+        //   a buffer to test programmatically the printing examples.
+        //
+        // Testing:
+        //   USAGE EXAMPLE
+        // --------------------------------------------------------------------
+
+        bslma::TestAllocator da("usageExampleAllocator",
+                                veryVeryVeryVerbose);
+        bslma::DefaultAllocatorGuard guard(&da);
+
+        if (verbose) cout << endl<< "Testing Usage Example" << endl
+                                 << "=====================" << endl;
+
+///Usage
+///-----
+// The following snippets of code illustrate how to use an instance of
+// `ball::RecordStringFormatter` to format log records.
+//
+// First we instantiate a record formatter with an explicit format
+// specification (but we accept the default timestamp offset since it will not
+// be used in this example):
+// ```
+    ball::RecordStringFormatter formatter("%t: %m\n");
+// ```
+// The chosen format specification indicates that, when a record is formatted
+// using `formatter`, the thread Id attribute of the record will be output
+// followed by the message attribute of the record.
+//
+// Next we create a default `ball::Record` and set the thread Id and message
+// attributes of the record to dummy values:
+// ```
+    ball::Record record;
+//
+    record.fixedFields().setThreadID(6);
+    record.fixedFields().setMessage("Hello, World!");
+// ```
+// The following "invocation" of the `formatter` function object formats
+// `record` to `bsl::cout` according to the format specification supplied at
+// construction:
+// ```
+//  formatter(bsl::cout, record);
+// ```
+// As a result of this call, the following is printed to `stdout`:
+// ```
+//  6: Hello, World!
+// ```
+        ostringstream oss;
+        formatter(oss, record);
+        if (veryVerbose) cout << oss.str();
+      } break;
       case 15: {
+        // --------------------------------------------------------------------
+        // TESTING loadTextSchemeFormatter FACTORY FUNCTION
+        //
+        // Concerns:
+        // 1. loadTextSchemeFormatter correctly creates a RecordFormatter
+        //    functor that wraps a RecordStringFormatter.
+        // 2. The function respects the format parameter.
+        // 3. The function respects formatOptions.timezoneDefault().
+        // 4. The function uses the allocator from the output parameter.
+        // 5. Different format specs (%d, %i, %s, %m, etc.) work correctly.
+        // 6. The function always returns 0 (success).
+        //
+        // Plan:
+        // 1. Call loadTextSchemeFormatter with various format strings.
+        // 2. Invoke the resulting formatter on test records.
+        // 3. Verify output matches expected format.
+        // 4. Test UTC vs LOCAL timezone settings.
+        // 5. Verify allocator usage.
+        //
+        // Testing:
+        //   int loadTextSchemeFormatter(...)
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING loadTextSchemeFormatter\n"
+                             "===============================\n";
+
+        typedef ball::RecordFormatterFunctor::Type RecordFormatter;
+
+        bslma::TestAllocator ta("test",     veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+        // Create a test record
+        ball::RecordAttributes fixedFields(&sa);
+        ball::UserFields       customFields(&sa);
+
+        fixedFields.setTimestamp(bdlt::Datetime(2024,11,24, 15,30,45,123));
+        fixedFields.setProcessID(100);
+        fixedFields.setThreadID(200);
+        fixedFields.setSeverity(ball::Severity::e_WARN);
+        fixedFields.setFileName("test.cpp");
+        fixedFields.setLineNumber(42);
+        fixedFields.setCategory("TEST.CAT");
+        fixedFields.setMessage("Test message");
+
+        ball::Record record(fixedFields, customFields, &sa);
+
+        // Test 1: Basic format with datetime (%d)
+        if (verbose) cout << "\tTesting with %d format\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                  "%d %s %m\n",
+                                                  options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find(" WARN ")       != bsl::string::npos);
+            ASSERT(result.find("Test message") != bsl::string::npos);
+        }
+
+        // Test 2: ISO format (%i)
+        if (verbose) cout << "\tTesting with %i format\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                  "%i %s %m\n",
+                                                  options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find("T")    != bsl::string::npos);  // ISO has T
+            ASSERT(result.find("WARN") != bsl::string::npos);
+        }
+
+        // Test 3: Various field formatters
+        if (verbose) cout << "\tTesting with multiple fields\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                  "%p %t %s %f:%l %c %m\n",
+                                                  options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find("100")          != bsl::string::npos); // pid
+            ASSERT(result.find("200")          != bsl::string::npos); // tid
+            ASSERT(result.find("WARN")         != bsl::string::npos); // sever.
+            ASSERT(result.find("test.cpp")     != bsl::string::npos); // file
+            ASSERT(result.find(":42")          != bsl::string::npos); // line
+            ASSERT(result.find("TEST.CAT")     != bsl::string::npos); // cat
+            ASSERT(result.find("Test message") != bsl::string::npos);
+        }
+
+        // Test 4: Local time enabled
+        if (verbose) cout << "\tTesting with LOCAL timezone\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+            options.setTimezoneDefault(ball::RecordFormatterTimezone::e_LOCAL);
+
+            int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                  "%d\n",
+                                                  options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            // Verify it produced timestamp output (LOCAL may offset the time)
+            ASSERT(result.find("24NOV2024") != bsl::string::npos);
+        }
+
+        // Test 5: UTC time (default)
+        if (verbose) cout << "\tTesting with UTC timezone\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+            options.setTimezoneDefault(ball::RecordFormatterTimezone::e_UTC);
+
+            int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                  "%d\n",
+                                                  options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            // Verify exact UTC timestamp format
+            ASSERT(result == "24NOV2024_15:30:45.123\n");
+        }
+
+        // Test 6: Allocator usage
+        if (verbose) cout << "\tTesting allocator usage\n";
+        {
+            bslma::TestAllocator         fa("formatter", veryVeryVeryVerbose);
+            RecordFormatter         formatter(bsl::allocator_arg, &fa);
+            ball::RecordFormatterOptions options;
+
+            const bsls::Types::Int64 numAllocsBefore = fa.numAllocations();
+
+            int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                  "%d %s %m\n",
+                                                  options);
+            ASSERT(0 == rc);
+
+            // Should have allocated for the formatter functor
+            ASSERT(fa.numAllocations() > numAllocsBefore);
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        // Test 7: Exception safety
+        if (verbose) cout << "\tTesting exception safety\n";
+        {
+            bslma::TestAllocator         oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            ball::RecordFormatterOptions options;
+
+            // Test with various format strings that allocate
+            const char *FORMATS[] = {
+                "%d %s %m",
+                "%p:%t %s %f:%l %c %m %u",
+                "%I %p %t %s %f %l %c %m",
+                "%d %i %I %p %t %s %f %l %c %m"
+            };
+            const int NUM_FORMATS = sizeof(FORMATS) / sizeof(FORMATS[0]);
+
+            for (int i = 0; i < NUM_FORMATS; ++i) {
+                const char *FORMAT = FORMATS[i];
+
+                if (veryVerbose) {
+                    P_(i) P(FORMAT)
+                }
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    RecordFormatter formatter(bsl::allocator_arg, &oa);
+
+                    const int rc = Obj::loadTextSchemeFormatter(&formatter,
+                                                                FORMAT,
+                                                                options);
+                    ASSERTV(FORMAT, 0 == rc);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                // Verify no memory leaked to default allocator
+                ASSERTV(FORMAT, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            }
+
+            ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+        }
+#endif  // BDE_BUILD_TARGET_EXC
+      } break;
+      case 14: {
         // --------------------------------------------------------------------
         // TESTING: Overload resolution for `RecordStringFormatter` changed due
         //   to `allocator_type` (See {DRQS 165125904}).  The compiler prefers
@@ -445,7 +745,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 14: {
+      case 13: {
         // --------------------------------------------------------------------
         // TESTING: Records Show Calculated Local-Time Offset
         //   Per DRQS 13681097, records observe DST time transitions when
@@ -657,69 +957,6 @@ int main(int argc, char *argv[])
                 ASSERT((ossExpected.str() == ossActual.str()));
             }
         }
-
-      } break;
-      case 13: {
-        // --------------------------------------------------------------------
-        // TESTING USAGE EXAMPLE
-        //
-        // Concerns:
-        //   The usage example provided in the component header file must
-        //   compile, link, and run on all platforms as shown.
-        //
-        // Plan:
-        //   Incorporate usage example from header into driver, remove leading
-        //   comment characters, and replace `assert` with `ASSERT`.  Suppress
-        //   all `cout` statements in non-verbose mode, and add streaming to
-        //   a buffer to test programmatically the printing examples.
-        //
-        // Testing:
-        //   USAGE EXAMPLE
-        // --------------------------------------------------------------------
-
-        bslma::TestAllocator da("usageExampleAllocator",
-                                veryVeryVeryVerbose);
-        bslma::DefaultAllocatorGuard guard(&da);
-
-        if (verbose) cout << endl<< "Testing Usage Example" << endl
-                                 << "=====================" << endl;
-
-///Usage
-///-----
-// The following snippets of code illustrate how to use an instance of
-// `ball::RecordStringFormatter` to format log records.
-//
-// First we instantiate a record formatter with an explicit format
-// specification (but we accept the default timestamp offset since it will not
-// be used in this example):
-// ```
-    ball::RecordStringFormatter formatter("\n%t: %m\n");
-// ```
-// The chosen format specification indicates that, when a record is formatted
-// using `formatter`, the thread Id attribute of the record will be output
-// followed by the message attribute of the record.
-//
-// Next we create a default `ball::Record` and set the thread Id and message
-// attributes of the record to dummy values:
-// ```
-    ball::Record record;
-//
-    record.fixedFields().setThreadID(6);
-    record.fixedFields().setMessage("Hello, World!");
-// ```
-// The following "invocation" of the `formatter` function object formats
-// `record` to `bsl::cout` according to the format specification supplied at
-// construction:
-// ```
-//  formatter(bsl::cout, record);
-// ```
-// As a result of this call, the following is printed to `stdout`:
-// ```
-//  6: Hello, World!
-// ```
-        ostringstream oss;
-        formatter(oss, record);
-        if (veryVerbose) cout << oss.str();
 
       } break;
       case 12: {
@@ -1951,10 +2188,11 @@ int main(int argc, char *argv[])
       case 10: {
         // --------------------------------------------------------------------
         // TESTING INITIALIZATION CONSTRUCTORS:
-        //   The three constructors must initialize the value correctly.
+        //   The constructors must initialize the value correctly.
         //
         // Testing
         //   ball::RecordStringFormatter(const char *, alloc);
+        //   ball::RecordStringFormatter(const bsl::string_view&, alloc);
         //   ball::RecordStringFormatter(bdlt::DtI, alloc);
         //   ball::RecordStringFormatter(const char *, bdlt::DtI, alloc);
         // --------------------------------------------------------------------
@@ -2014,6 +2252,11 @@ int main(int argc, char *argv[])
 
             Obj y(FVALUES[i].d_format, oa); const Obj& Y = y;
             ASSERTV(FVALUES[i].d_lineNum, Y == X);
+
+            // Test string_view constructor
+            bsl::string_view sv(FVALUES[i].d_format);
+            Obj z(sv, oa); const Obj& Z = z;
+            ASSERTV(FVALUES[i].d_lineNum, Z == X);
         }
 
         for (int i = 0; i < NUM_TVALUES; ++i) {

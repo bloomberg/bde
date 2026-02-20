@@ -39,14 +39,19 @@ BSLS_IDENT("$Id: $")
 //                        |              forceRotation
 //                        |              rotateOnSize
 //                        |              rotateOnTimeInterval
+//                        |              setFileLogFormat
 //                        |              setLogFormat
+//                        |              setLogFormats
 //                        |              setOnFileRotationCallback
+//                        |              setStdoutLogFormat
 //                        |              setStdoutThreshold
 //                        |              shutdownPublicationThread
 //                        |              startPublicationThread
 //                        |              stopPublicationThread
 //                        |              suppressUniqueFileNameOnRotation
+//                        |              getFileLogFormat
 //                        |              getLogFormat
+//                        |              getStdoutLogFormat
 //                        |              isFileLoggingEnabled
 //                        |              isPublicationThreadRunning
 //                        |              isPublishInLocalTimeEnabled
@@ -189,34 +194,76 @@ BSLS_IDENT("$Id: $")
 // ```
 // WARN ball_asyncfileobserver.t.cpp:404 TEST hi
 // ```
-// For additional flexibility, the `setLogFormat` method can be called to
-// configure the format of published records.  This method takes two arguments:
-// one specifies the format of records logged to `stdout` and the other applies
-// to records that are logged to a file.  The respective formats are specified
-// using `printf`-style (`%`-prefixed) conversion specifications.  (See
-// {`ball_recordstringformatter`} for information on how format specifications
-// are defined and interpreted.)  For example, the following statement will
-// force subsequent records to be logged in a format that is almost identical
-// to the default long format except that the timestamp attribute will be
-// written in ISO 8601 format:
-// ```
-// asyncFileObserver.setLogFormat("\n%I %p:%t %s %f:%l %c %m %u\n",
-//                                "\n%I %p:%t %s %f:%l %c %m %u\n");
-// ```
-// Once a customized format is specified for `stdout`, calling
-// `disableStdoutLoggingPrefix` will switch to the default short format, i.e.,
-// "\n%s %f:%l %c %m %u\n".  If `enableStdoutLoggingPrefix` is subsequently
-// called, the customized format specified in the most recent call to
-// `setLogFormat` will be reinstated.
+// For additional flexibility, the `setFileLogFormat` and `setStdoutLogFormat`
+// methods can be called to independently configure the format of published
+// records to a file and to `stdout`, respectively.  The format specifications
+// can be either scheme-tagged (recommended) or legacy `printf`-style format
+// strings that results in a `RecordStringFormatter` being used.
 //
-// Note that the observer emits newline characters at the beginning and at the
-// end of a log record by default, so the user needs to add them explicitly to
-// the format string to preserve this behavior.
+///Scheme-Based Format Specifications (Recommended)
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// The recommended way to specify log record formats is using URI-like
+// scheme-tagged format configuration strings.  A scheme-tagged format string
+// begins with a scheme identifier followed by `://` and then a
+// scheme-specific format specification:
+// ```
+// <scheme>://<format-specification>
+// ```
+// The scheme determines which formatter will be used and the syntax of the
+// format specification.  The following schemes are currently supported: text,
+// json, qjson.  See [Scheme-Based Formatters](ball#Scheme-Based Formatters)
+// for more details of the supported schemes and their accompanying format
+// specification syntaxes.
 //
-// Also note that in the sample long-form message above the timestamp has
-// millisecond precision (`18MAY2005_18:58:12.076`).  If microsecond precision
-// is desired instead, consider using either the `%D` or `%O` format
-// specification supported by `ball_recordstringformatter`.
+// For example, to log records to a file in JSON format with printf-style
+// format specification, and to `stdout` using text format with ISO 8601
+// timestamps:
+// ```
+// asyncFileObserver.setFileLogFormat("qjson://%d %p:%t %s %f:%l %c %m");
+// asyncFileObserver.setStdoutLogFormat("text://\n%I %p:%t %s %f:%l %c %m\n");
+// ```
+// Note that both `text://` and `qjson://` schemes support `printf`-style `%`
+// specifications in their format strings, though with different output
+// structures (plain text vs. JSON).
+//
+///Legacy Format Specifications
+/// - - - - - - - - - - - - - - -
+// For backward compatibility, format specifications that do not begin with a
+// scheme tag are treated as legacy `printf`-style format strings.  Such
+// specifications are implicitly treated as if they had a `text://` prefix
+// and use `ball::RecordStringFormatter`.  For example, the following two
+// calls are equivalent:
+// ```
+// asyncFileObserver.setFileLogFormat("%d %p:%t %s %f:%l %c %m %a\n");
+// asyncFileObserver.setFileLogFormat("text://%d %p:%t %s %f:%l %c %m %a\n");
+// ```
+// These `%`-prefixed conversion specifications are defined in
+// {`ball_recordstringformatter`}.
+//
+///Legacy API: `setLogFormat`
+/// - - - - - - - - - - - - -
+// The `setLogFormat` method sets both file and stdout formats at once.
+// Using `setFileLogFormat` and `setStdoutLogFormat` is preferred to set
+// formats independently for file and `stdout` output:
+// ```
+// // Legacy:
+// asyncFileObserver.setLogFormat(fileFormat, stdoutFormat);
+//
+// // Preferred:
+// asyncFileObserver.setFileLogFormat(fileFormat);
+// asyncFileObserver.setStdoutLogFormat(stdoutFormat);
+// ```
+//
+///Interaction with `enableStdoutLoggingPrefix` & `disableStdoutLoggingPrefix`
+///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// When a format is set using `setLogFormat`, calling
+// `disableStdoutLoggingPrefix` will change the stdout format to the default
+// short format (i.e., "\n%s %f:%l %c %m %u\n"), regardless of whether the
+// original format was specified as a `printf`-style format string or a
+// scheme-based formatter.  If `enableStdoutLoggingPrefix` is subsequently
+// called, the format specified in the most recent call to `setLogFormat` will
+// be reinstated, preserving the original formatter type (string-based or
+// scheme-based).
 //
 ///Log Record Timestamps
 ///---------------------
@@ -406,13 +453,14 @@ BSLS_IDENT("$Id: $")
 // bsl::shared_ptr<ball::AsyncFileObserver> observer =
 //                                bsl::make_shared<ball::AsyncFileObserver>();
 // ```
-// Next, we set the required logging format by calling the `setLogFormat`
-// method.  The statement below outputs timestamps in ISO 8601 format to a log
-// file and in `bdlt`-style (default) format to `stdout`, where timestamps are
-// output with millisecond precision in both cases:
+// Next, we set the required logging format by calling the `setFileLogFormat`
+// and `setStdoutLogFormat` methods.  The statements below output timestamps
+// in ISO 8601 format to a log file and in `bdlt`-style (default) format to
+// `stdout`, where timestamps are output with millisecond precision in both
+// cases:
 // ```
-// observer->setLogFormat("%I %p:%t %s %f:%l %c %m\n",
-//                        "%d %p:%t %s %f:%l %c %m\n");
+// observer->setFileLogFormat("%I %p:%t %s %f:%l %c %m\n");
+// observer->setStdoutLogFormat("%d %p:%t %s %f:%l %c %m\n");
 // ```
 // Note that both of the above format specifications omit user fields (`%u`) in
 // the output.  Also note that, unlike the default, this format does not emit a
@@ -509,12 +557,14 @@ BSLS_IDENT("$Id: $")
 #include <ball_fileobserver2.h>
 #include <ball_observer.h>
 #include <ball_record.h>
-#include <ball_recordstringformatter.h>
+#include <ball_recordformatterregistryutil.h>
 #include <ball_severity.h>
 
 #include <bdlcc_boundedqueue.h>
 
 #include <bdlt_datetimeinterval.h>
+
+#include <bsla_deprecated.h>
 
 #include <bslma_allocator.h>
 
@@ -872,17 +922,29 @@ class AsyncFileObserver : public Observer {
     /// `stdoutFormat`, respectively.  If the default short output format is
     /// currently in effect for logging to `stdout`, this method has the
     /// effect of calling `enableStdoutLoggingPrefix` (see that method and
-    /// `disableStdoutLoggingPrefix`).  See {Log Record Formatting} for
-    /// details on the syntax of format specifications.  Note that default
-    /// formats are in effect following construction until this method is
-    /// called ("\n%d %p:%t %s %f:%l %c %m %u\n" for both file and `stdout`
-    /// logging).  Also note that the observer emits newline characters at
-    /// the beginning and at the end of a log record by default, so the user
-    /// needs to add them explicitly to the format string to preserve this
-    /// behavior.  Also note that this method affects records subsequently
-    /// received through the `publish` method as well as those that are
-    /// currently on the queue.
-    void setLogFormat(const char *logFileFormat, const char *stdoutFormat);
+    /// `disableStdoutLoggingPrefix`) and setting the format corresponding to
+    /// enabled `stdout` logging prefix to `stdoutFormat`.  See {Log Record
+    /// Formatting} for details on the syntax of format specifications.  Return
+    /// zero if both formats are valid and have been set.  Otherwise, if either
+    /// format is invalid return a non-zero value.  If one of the formats is
+    /// invalid it will not be set, but the valid format will. Note that
+    /// default formats are in effect following construction until a
+    /// format-setting method is called ("\n%d %p:%t %s %f:%l %c %m %u\n" for
+    /// both file and `stdout` logging).
+    ///
+    /// @DEPRECATED: Prefer `setFileLogFormat` and `setStdoutLogFormat`.
+    int setLogFormats(const char *logFileFormat, const char *stdoutFormat);
+    int setLogFormat( const char *logFileFormat, const char *stdoutFormat);
+
+    /// Set the format specifications for log records written to the log file
+    /// `logFileFormat`.  See {Log Record Formatting} for details on the syntax
+    /// of format specifications.  Return zero if the format is valid and the
+    /// corresponding formatter has been set.  Otherwise, if the format is
+    /// invalid, return a non-zero value and do not change the formatter.  Note
+    /// that default format is in effect following construction until a
+    /// format-setting method is called ("\n%d %p:%t %s %f:%l %c %m %u\n" for
+    /// both file and `stdout` logging).
+    int setFileLogFormat(const char *logFileFormat);
 
     /// Set the specified `onRotationCallback` to be invoked after each time
     /// this async file observer attempts to perform a log file rotation.
@@ -892,6 +954,20 @@ class AsyncFileObserver : public Observer {
     /// attempt to write to the `ball` log).
     void setOnFileRotationCallback(
                              const OnFileRotationCallback& onRotationCallback);
+
+    /// Set the format specifications for log records written to `stdout` to
+    /// the `stdoutFormat`.  If the default short output format is currently in
+    /// effect (for logging to `stdout`) this method has the effect of calling
+    /// `enableStdoutLoggingPrefix` (see that method and
+    /// `disableStdoutLoggingPrefix`) and setting the format corresponding to
+    /// enabled `stdout` logging prefix to `stdoutFormat`.  See {Log Record
+    /// Formatting} for details on the syntax of format specifications.  Return
+    /// zero if the format is valid and the corresponding formatter has been
+    /// set.  Otherwise, if the format is invalid, return a non-zero value and
+    /// do not change the formatter.  Note that default format is in effect
+    /// following construction until a format-setting method is called
+    /// ("\n%d %p:%t %s %f:%l %c %m %u\n" for both file and `stdout` logging).
+    int setStdoutLogFormat(const char *stdoutFormat);
 
     /// Set the minimum severity of records logged to `stdout` by this async
     /// file observer to the specified `stdoutThreshold` level.  Note that
@@ -942,6 +1018,16 @@ class AsyncFileObserver : public Observer {
     void getLogFormat(const char **logFileFormat,
                       const char **stdoutFormat) const;
 
+    /// Return the format specification for log records written to the log
+    /// file by this async file observer.  See {Log Record Formatting} for
+    /// details on the syntax of format specifications.
+    const bsl::string& getFileLogFormat() const;
+
+    /// Return the format specification for log records written to `stdout`
+    /// by this async file observer.  See {Log Record Formatting} for
+    /// details on the syntax of format specifications.
+    const bsl::string& getStdoutLogFormat() const;
+
     /// Return `true` if file logging is enabled for this async file
     /// observer, and `false` otherwise.  Load the optionally specified
     /// `result` with the name of the current log file if file logging is
@@ -989,6 +1075,7 @@ class AsyncFileObserver : public Observer {
     /// this async file observer, and `false` otherwise.
     ///
     /// @DEPRECATED: Do not use.
+    BSLA_DEPRECATED_MESSAGE("Use `setFormat` and attributes")
     bool isUserFieldsLoggingEnabled() const;
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1109,10 +1196,23 @@ void AsyncFileObserver::rotateOnTimeInterval(
 }
 
 inline
-void AsyncFileObserver::setLogFormat(const char *logFileFormat,
+int AsyncFileObserver::setLogFormats(const char *logFileFormat,
                                      const char *stdoutFormat)
 {
-    d_fileObserver.setLogFormat(logFileFormat, stdoutFormat);
+    return d_fileObserver.setLogFormats(logFileFormat, stdoutFormat);
+}
+
+inline
+int AsyncFileObserver::setLogFormat(const char *logFileFormat,
+                                    const char *stdoutFormat)
+{
+    return setLogFormats(logFileFormat, stdoutFormat);
+}
+
+inline
+int AsyncFileObserver::setFileLogFormat(const char* logFileFormat)
+{
+    return d_fileObserver.setFileLogFormat(logFileFormat);
 }
 
 inline
@@ -1120,6 +1220,12 @@ void AsyncFileObserver::setOnFileRotationCallback(
                               const OnFileRotationCallback& onRotationCallback)
 {
     d_fileObserver.setOnFileRotationCallback(onRotationCallback);
+}
+
+inline
+int AsyncFileObserver::setStdoutLogFormat(const char *stdoutFormat)
+{
+    return d_fileObserver.setStdoutLogFormat(stdoutFormat);
 }
 
 inline
@@ -1146,6 +1252,18 @@ inline
 bool AsyncFileObserver::isFileLoggingEnabled() const
 {
     return d_fileObserver.isFileLoggingEnabled();
+}
+
+inline
+const bsl::string& AsyncFileObserver::getFileLogFormat() const
+{
+    return d_fileObserver.getFileLogFormat();
+}
+
+inline
+const bsl::string& AsyncFileObserver::getStdoutLogFormat() const
+{
+    return d_fileObserver.getStdoutLogFormat();
 }
 
 inline
@@ -1195,7 +1313,22 @@ bool AsyncFileObserver::isSuppressUniqueFileNameOnRotation() const
 inline
 bool AsyncFileObserver::isUserFieldsLoggingEnabled() const
 {
+// Deprecated function implementation may use deprecated functions.
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
     return d_fileObserver.isUserFieldsLoggingEnabled();
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning(pop)
+#endif
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma GCC diagnostic pop
+#endif
 }
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED

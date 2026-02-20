@@ -13,7 +13,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 
 // The stream-style logging macro that throttles, all of whose arguments must
 // be compile-time constants, is reproduced here:
-//..
+// ```
 //#define BALL_LOGTHROTTLE_STREAM_CONST_IMP(SEVERITY,                        \@
 //                                          MAX_SIMULTANEOUS_MESSAGES,       \@
 //                                          NANOSECONDS_PER_MESSAGE)         \@
@@ -36,16 +36,16 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //                              (SEVERITY));                                 \@
 //     ball_logthrottle_cAtEgOrYhOlDeR;                                      \@
 //     ball_logthrottle_cAtEgOrYhOlDeR = 0)
-//..
+// ```
 // where this would be used, for example, by 'BALL_LOGTHROTTLE_TRACE':
-//..
+// ```
 //#define BALL_LOGTHROTTLE_TRACE(                                            \@
 //                       MAX_SIMULTANEOUS_MESSAGES, NANOSECONDS_PER_MESSAGE) \@
 //    BALL_LOGTHROTTLE_STREAM_CONST_IMP(BloombergLP::ball::Severity::e_TRACE,\@
 //                                      (MAX_SIMULTANEOUS_MESSAGES),         \@
 //                                      (NANOSECONDS_PER_MESSAGE))           \@
 //                                                       BALL_LOG_OUTPUT_STREAM
-//..
+// ```
 // Note that '@' is appended to each line in the macro that ends with '\' to
 // quell a diagnostic from gcc ("warning: multi-line comment").
 //
@@ -73,7 +73,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
                         // BALL_LOGTHROTTLE_STREAM_IMP
                         // ---------------------------
 
-//..
+// ```
 //#define BALL_LOGTHROTTLE_STREAM_IMP(SEVERITY,                              \@
 //                                    MAX_SIMULTANEOUS_MESSAGES,             \@
 //                                    NANOSECONDS_PER_MESSAGE)               \@
@@ -99,9 +99,9 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //                              (SEVERITY));                                 \@
 //     ball_logthrottle_cAtEgOrYhOlDeR;                                      \@
 //     ball_logthrottle_cAtEgOrYhOlDeR = 0)
-//..
+// ```
 // where this is only used for 'BALL_LOGTHROTTLE_STREAM':
-//..
+// ```
 //#define BALL_LOGTHROTTLE_STREAM(SEVERITY,                                  \@
 //                                MAX_SIMULTANEOUS_MESSAGES,                 \@
 //                                NANOSECONDS_PER_MESSAGE)                   \@
@@ -109,7 +109,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //                                (MAX_SIMULTANEOUS_MESSAGES),               \@
 //                                (NANOSECONDS_PER_MESSAGE))                 \@
 //                                                    BALL_LOG_OUTPUT_STREAM
-//..
+// ```
 // 'BALL_LOGTHROTTLE_STREAM_IMP' is equivalent to
 // 'BALL_LOGTHROTTLE_STREAM_CONST_IMP' except that the 'SEVERITY' argument does
 // not have to be a compile-time constant and may be a run-time expression.
@@ -127,7 +127,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 
 // The 'printf'-style throttling log macro whose specified 'SEVERITY' must be
 // a compile-time constant is reproduced here:
-//..
+// ```
 //#define BALL_LOGTHROTTLEVA_CONST_IMP(SEVERITY,                             \@
 //                                     MAX_SIMULTANEOUS_MESSAGES,            \@
 //                                     NANOSECONDS_PER_MESSAGE,              \@
@@ -153,9 +153,9 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //                             __VA_ARGS__);                                 \@
 //    }                                                                      \@
 //} while(0)
-//..
+// ```
 // This is used, for example, by:
-//..
+// ```
 //#define BALL_LOGTHROTTLEVA_TRACE(MAX_SIMULTANEOUS_MESSAGES,                \@
 //                                 NANOSECONDS_PER_MESSAGE,                  \@
 //                                 ...)                                      \@
@@ -163,7 +163,7 @@ BSLS_IDENT_RCSID(ball_logthrottle_cpp,"$Id$ $CSID$")
 //                                 (MAX_SIMULTANEOUS_MESSAGES),              \@
 //                                 (NANOSECONDS_PER_MESSAGE),                \@
 //                                 __VA_ARGS__)
-//..
+// ```
 // The specified 'SEVERITY' passed to 'BALL_LOGTHROTTLEVA_CONST_IMP' is from
 // the 'enum' 'ball::Severity::Level'.  This macro creates a static
 // 'bdlmt::Throttle' object configured with the specified

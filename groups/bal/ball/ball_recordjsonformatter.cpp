@@ -6,19 +6,21 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 
 ///Implementation Notes
 ///--------------------
-// A format specification is, itself, a JSON string supplied to a formatter
+// A format specification may be, itself, a JSON string supplied to a formatter
 // that defines the sequence and format in which a set of log record fields
-// will be published (as JSON).  The format specification is represented as
-// JSON array of JSON objects and values.  We decode the format specification
-// into a 'bdld::Datum' object and for each object and value in the array, we
-// create a formatter object that preserves the format specification for the
-// corresponding field in the log record.  When a log record is published,
-// these formatters are supplied with to the log record to render it as JSON.
+// will be published (as JSON).  That format specification syntax is
+// represented as JSON array of JSON objects and values.  We decode the format
+// specification into a 'bdld::Datum' object and for each object and value in
+// the array, we create a formatter object that preserves the format
+// specification for the corresponding field in the log record.  When a log
+// record is published, these formatters are supplied with to the log record to
+// render it as JSON.  Note that a simplified format syntax also exists that
+// uses `%`
 //
 ///Record JSON Formatter Schema
 /// - - - - - - - - - - - - - -
 // The following is a JSON schema of the Message Format Specification:
-//..
+// ```
 // {
 //     "$schema": "http://json-schema.org/draft-07/schema",
 //     "$id": "http://recordjsonformatter.json",
@@ -168,7 +170,7 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 //                 "This object type defines the format in which a fixed record
 //                  field or a user-defined attribute will be displayed as
 //                  JSON.",
-//             "examples": [{
+//             "examples": [
 //             {
 //                 "processId": {
 //                     "description": "Fixed record field",
@@ -231,12 +233,16 @@ BSLS_IDENT_RCSID(ball_recordjsonformatter_cpp,"$Id$ $CSID$")
 //         ]
 //     }
 // }
-//..
+// ```
 // TBD: verify the schema in a JSON schema validator
+
+#include <ball_attribute.h>               // for testing only
+#include <ball_userfields.h>              // for testing only
 
 #include <ball_managedattribute.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
+#include <ball_recordformattertimezone.h>
 #include <ball_severity.h>
 
 #include <baljsn_datumutil.h>
@@ -287,6 +293,7 @@ namespace {
 
 typedef BloombergLP::bslma::AllocatorUtil AllocUtil;
 
+// Keys *and* default field names for formatters
 const char *const k_KEY_TIMESTAMP        = "timestamp";
 const char *const k_KEY_PROCESS_ID       = "pid";
 const char *const k_KEY_THREAD_ID        = "tid";
@@ -296,6 +303,7 @@ const char *const k_KEY_FILE             = "file";
 const char *const k_KEY_LINE             = "line";
 const char *const k_KEY_CATEGORY         = "category";
 const char *const k_KEY_MESSAGE          = "message";
+
 const char *const k_KEY_ATTRIBUTES       = "attributes";
 
 const char *const k_KEY_NAME             = "name";
@@ -340,7 +348,51 @@ bsl::string_view getDefaultFormat()
     return buffer;
 }
 
-}  // close unnamed namespace within BloombergLP::ball
+/// Parse an optional field name override from the specified `remaining`
+/// format string.  A field name override is text followed by a colon, with
+/// optional whitespace after the colon.  If a field name override is
+/// successfully parsed, advance `remaining` to point past the field name,
+/// colon, and any trailing whitespace, and return the field name text.  If
+/// no field name override is found (no colon before '%'), return an empty
+/// optional without modifying `remaining`.  If a field name override is
+/// found but is malformed (orphan field name with no format spec after),
+/// return an empty optional without modifying `remaining`.
+bsl::optional<bsl::string_view>
+parseOptionalFieldName(bsl::string_view *remaining)
+{
+    BSLS_ASSERT(remaining);
+
+    if (remaining->empty()) {
+        return bsl::nullopt;                                          // RETURN
+    }
+
+    bsl::size_t pos = remaining->find_first_of(":%");
+    if (pos == bsl::string_view::npos || (*remaining)[pos] != ':') {
+        // No colon found before '%' or end of string
+        return bsl::nullopt;                                          // RETURN
+    }
+
+    // Extract field name
+    bsl::string_view fieldName = remaining->substr(0, pos);
+
+    // Create a temporary to check what follows
+    bsl::string_view temp = *remaining;
+    temp.remove_prefix(pos + 1);  // Skip field name and colon
+
+    // Skip whitespace after field name
+    pos = temp.find_first_not_of(" \t\n\r");
+    if (pos == bsl::string_view::npos) {
+        // Orphan field name or only whitespace remaining - parsing will fail
+        return bsl::nullopt;                                          // RETURN
+    }
+    temp.remove_prefix(pos);
+
+    // Success - commit the changes to remaining
+    *remaining = temp;
+    return fieldName;                                                 // RETURN
+}
+
+}  // close unnamed namespace
 
                    // ========================================
                    // class RecordJsonFormatter_FieldFormatter
@@ -387,7 +439,13 @@ namespace {
 /// This class implements JSON field formatter for the `timestamp` tag.
 class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
 
-    // PRIVATE TYPES
+  public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
+    // TYPES
+    typedef bsl::allocator<>  allocator_type;
+
     enum FractionalSecondPrecision {
         // Enumeration used to distinguish among different fractional second
         // precision.
@@ -396,38 +454,37 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
         e_FSP_MICROSECONDS = 6
     };
 
-    enum TimeZone {
-        // Enumeration used to distinguish among different time zones.
-        e_TZ_LOCAL = 0,
-        e_TZ_UTC   = 1
-    };
-
     enum Format {
         // Enumeration used to distinguish among different output formats.
         e_FORMAT_BDE_PRINT = 0,
         e_FORMAT_ISO_8601  = 1
     };
 
+  private:
     // DATA
-    bsl::string               d_name;
-    Format                    d_format;
-    TimeZone                  d_timeZone;
-    FractionalSecondPrecision d_precision;
+    bsl::string                   d_name;
+    Format                        d_format;
+    RecordFormatterTimezone::Enum d_timezone;
+    FractionalSecondPrecision     d_precision;
 
   public:
-    // TYPES
-    typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
 
-    /// Create the `timestamp` formatter object.  Use the specified
+    /// Create the `timestamp` formatter object with the specified
+    /// `nameOverride`, `format`, `precision`, and `timezoneDefault`.  If
+    /// `nameOverride` has no value, use `k_DEFAULT_NAME`.  Use the specified
     /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
     /// supply memory.
-    explicit TimestampFormatter(const allocator_type& allocator)
-    : d_name(k_KEY_TIMESTAMP, allocator)
-    , d_format(e_FORMAT_ISO_8601)
-    , d_timeZone(e_TZ_UTC)
-    , d_precision(e_FSP_MILLISECONDS)
+    TimestampFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                       Format                                 format,
+                       FractionalSecondPrecision              precision,
+                       RecordFormatterTimezone::Enum          timezoneDefault,
+                       const allocator_type&                  allocator)
+    : d_name(nameOverride.value_or(k_DEFAULT_NAME), allocator)
+    , d_format(format)
+    , d_timezone(timezoneDefault)
+    , d_precision(precision)
     {}
 
     // MANIPULATORS
@@ -455,7 +512,14 @@ class TimestampFormatter : public RecordJsonFormatter_FieldFormatter {
 /// This class implements JSON field formatter for the `tid`/`ktid` tag.
 class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
 
-    // PRIVATE TYPES
+  public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_TID_NAME;
+    static const char *const k_DEFAULT_KTID_NAME;
+
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
+
     enum Type {
         // Enumeration used to distinguish among different thread IDs.
         e_TID  = 0,
@@ -468,24 +532,45 @@ class ThreadIdFormatter : public RecordJsonFormatter_FieldFormatter {
         e_HEXADECIMAL = 1
     };
 
+  private:
     // DATA
     bsl::string d_name;
     Type        d_type;
     Format      d_format;
 
   public:
-    // TYPES
-    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
 
-    /// Create thread/kernel thread id formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    ThreadIdFormatter(const bsl::string& name, const allocator_type& allocator)
-    : d_name(name, allocator)
-    , d_type(k_KEY_THREAD_ID == name ? e_TID : e_KTID)
+    /// Create thread/kernel thread id formatter object with the specified
+    /// `nameOverride` and `type`.  If `nameOverride` has no value, use
+    /// `k_DEFAULT_TID_NAME` for `e_TID` or `k_DEFAULT_KTID_NAME` for
+    /// `e_KTID`.  Use the specified `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) to supply memory.
+    ThreadIdFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                      Type                                   type,
+                      const allocator_type&                  allocator)
+    : d_name(nameOverride.value_or(
+                     type == e_TID ? k_DEFAULT_TID_NAME : k_DEFAULT_KTID_NAME),
+             allocator)
+    , d_type(type)
     , d_format(e_DECIMAL)
+    {}
+
+    /// Create thread/kernel thread id formatter object with the specified
+    /// `nameOverride`, `type`, and `format`.  If `nameOverride` has no
+    /// value, use `k_DEFAULT_TID_NAME` for `e_TID` or `k_DEFAULT_KTID_NAME`
+    /// for `e_KTID`.  Use the specified `allocator` (e.g., the address of a
+    /// `bslma::Allocator` object) to supply memory.
+    ThreadIdFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                      Type                                   type,
+                      Format                                 format,
+                      const allocator_type&                  allocator)
+    : d_name(nameOverride.value_or(
+                     type == e_TID ? k_DEFAULT_TID_NAME : k_DEFAULT_KTID_NAME),
+             allocator)
+    , d_type(type)
+    , d_format(format)
     {}
 
     // MANIPULATORS
@@ -530,11 +615,11 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
 
     // CREATORS
 
-    /// Create fixed field formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    FixedFieldFormatter(const bsl::string&    name,
-                        const allocator_type& allocator)
+    /// Create fixed field formatter object with the specified `name`.  Use the
+    /// specified `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory.
+    FixedFieldFormatter(const bsl::string_view& name,
+                        const allocator_type&   allocator)
     : d_name(name, allocator)
     {}
 
@@ -558,16 +643,21 @@ class FixedFieldFormatter : public RecordJsonFormatter_FieldFormatter {
 class ProcessIdFormatter : public FixedFieldFormatter {
 
   public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
 
-    /// Create process id formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    explicit ProcessIdFormatter(const allocator_type& allocator)
-    : FixedFieldFormatter(k_KEY_PROCESS_ID, allocator)
+    /// Create process id formatter object with the specified `nameOverride`.
+    /// If `nameOverride` has no value, use `k_DEFAULT_NAME`.  Use the
+    /// specified `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory.
+    ProcessIdFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                       const allocator_type&                  allocator)
+    : FixedFieldFormatter(nameOverride.value_or(k_DEFAULT_NAME), allocator)
     {}
 
     // MANIPULATORS
@@ -591,16 +681,21 @@ class ProcessIdFormatter : public FixedFieldFormatter {
 class LineFormatter : public FixedFieldFormatter {
 
   public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
     // TYPES
     typedef bsl::allocator<>  allocator_type;
 
     // CREATORS
 
-    /// Create the `line` formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    explicit LineFormatter(const allocator_type& allocator)
-    : FixedFieldFormatter(k_KEY_LINE, allocator)
+    /// Create the `line` formatter object with the specified `nameOverride`.
+    /// If `nameOverride` has no value, use `k_DEFAULT_NAME`.  Use the
+    /// specified `allocator` (e.g., the address of a `bslma::Allocator`
+    /// object) to supply memory.
+    LineFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                  const allocator_type&                  allocator)
+    : FixedFieldFormatter(nameOverride.value_or(k_DEFAULT_NAME), allocator)
     {}
 
     // MANIPULATORS
@@ -624,16 +719,21 @@ class LineFormatter : public FixedFieldFormatter {
 class CategoryFormatter : public FixedFieldFormatter {
 
   public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
 
-    /// Create the `category` formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    explicit CategoryFormatter(const allocator_type& allocator)
-    : FixedFieldFormatter(k_KEY_CATEGORY, allocator)
+    /// Create the `category` formatter object with the specified
+    /// `nameOverride`.  If `nameOverride` has no value, use
+    /// `k_DEFAULT_NAME`.  Use the specified `allocator` (e.g., the address
+    /// of a `bslma::Allocator` object) to supply memory.
+    CategoryFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                      const allocator_type&                  allocator)
+    : FixedFieldFormatter(nameOverride.value_or(k_DEFAULT_NAME), allocator)
     {}
 
     // MANIPULATORS
@@ -657,16 +757,21 @@ class CategoryFormatter : public FixedFieldFormatter {
 class SeverityFormatter : public FixedFieldFormatter {
 
   public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
 
-    /// Create the `severity` formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    explicit SeverityFormatter(const allocator_type& allocator)
-    : FixedFieldFormatter(k_KEY_SEVERITY, allocator)
+    /// Create the `severity` formatter object with the specified
+    /// `nameOverride`.  If `nameOverride` has no value, use
+    /// `k_DEFAULT_NAME`.  Use the specified `allocator` (e.g., the address
+    /// of a `bslma::Allocator` object) to supply memory.
+    SeverityFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                      const allocator_type&                  allocator)
+    : FixedFieldFormatter(nameOverride.value_or(k_DEFAULT_NAME), allocator)
     {}
 
     // MANIPULATORS
@@ -690,16 +795,21 @@ class SeverityFormatter : public FixedFieldFormatter {
 class MessageFormatter : public FixedFieldFormatter {
 
   public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
     // TYPES
     typedef bsl::allocator<> allocator_type;
 
     // CREATORS
 
-    /// Create the `message` formatter object.  Use the specified
-    /// `allocator` (e.g., the address of a `bslma::Allocator` object) to
-    /// supply memory.
-    explicit MessageFormatter(const allocator_type& allocator)
-    : FixedFieldFormatter(k_KEY_MESSAGE, allocator)
+    /// Create the `message` formatter object with the specified
+    /// `nameOverride`.  If `nameOverride` has no value, use
+    /// `k_DEFAULT_NAME`.  Use the specified `allocator` (e.g., the address of
+    /// a `bslma::Allocator` object) to supply memory.
+    MessageFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                     const allocator_type&                  allocator)
+    : FixedFieldFormatter(nameOverride.value_or(k_DEFAULT_NAME), allocator)
     {}
 
     // MANIPULATORS
@@ -710,7 +820,7 @@ class MessageFormatter : public FixedFieldFormatter {
 
     int format(baljsn::SimpleFormatter *formatter, const Record& record)
                                                          BSLS_KEYWORD_OVERRIDE;
-        // Format the 'messaged' field of the specified 'record' and render it
+        // Format the 'message' field of the specified 'record' and render it
         // to the specified 'formatter'.  Return 0 on success, and a non-zero
         // value otherwise.
 };
@@ -722,28 +832,37 @@ class MessageFormatter : public FixedFieldFormatter {
 /// This class implements JSON field formatter for the `file` tag.
 class FileFormatter : public RecordJsonFormatter_FieldFormatter {
 
-    // PRIVATE TYPES
+  public:
+    // CLASS DATA
+    static const char *const k_DEFAULT_NAME;
+
+    // TYPES
+    typedef bsl::allocator<> allocator_type;
+
     enum Path {
         // Enumeration used to distinguish among different file paths.
         e_FILE = 0,
         e_FULL = 1
     };
 
+  private:
     // DATA
     bsl::string d_name;
     Path        d_path;
 
   public:
-    // TYPES
-    typedef bsl::allocator<> allocator_type;
 
     // CREATORS
 
-    /// Create the `file` formatter object.  Use the specified `allocator`
-    /// (e.g., the address of a `bslma::Allocator` object) to supply memory.
-    explicit FileFormatter(const allocator_type& allocator)
-    : d_name(k_KEY_FILE, allocator)
-    , d_path(e_FULL)
+    /// Create the `file` formatter object with the specified `nameOverride`
+    /// and `path` format.  If `nameOverride` has no value, use
+    /// `k_DEFAULT_NAME`.  Use the specified `allocator` (e.g., the address of
+    /// a `bslma::Allocator` object) to supply memory.
+    FileFormatter(const bsl::optional<bsl::string_view>& nameOverride,
+                  Path                                   path,
+                  const allocator_type&                  allocator)
+    : d_name(nameOverride.value_or(k_DEFAULT_NAME), allocator)
+    , d_path(path)
     {}
 
     // MANIPULATORS
@@ -775,7 +894,8 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
     enum { k_UNSET = -1 };  // Unspecified index
 
     // DATA
-    bsl::string d_key;    // attribute's key
+    bsl::string d_key;    // attribute's key (name to look up in record)
+    bsl::string d_name;   // JSON field name for output
     int         d_index;  // cached attribute's index
 
   public:
@@ -787,8 +907,21 @@ class AttributeFormatter : public RecordJsonFormatter_FieldFormatter {
                        const allocator_type&   allocator)
        // Create an attribute formatter object having the specified 'key' of an
        // attribute to be rendered.  Use the specified 'allocator' (e.g., the
-        // address of a 'bslma::Allocator' object) to supply memory.
+       // address of a 'bslma::Allocator' object) to supply memory.
     : d_key(key, allocator)
+    , d_name(key, allocator)
+    , d_index(k_UNSET)
+    {}
+
+    AttributeFormatter(const bsl::string_view& key,
+                       const bsl::string_view& name,
+                       const allocator_type&   allocator)
+       // Create an attribute formatter object having the specified 'key' of an
+       // attribute to be rendered and 'name' as the JSON field name.  Use the
+       // specified 'allocator' (e.g., the address of a 'bslma::Allocator'
+       // object) to supply memory.
+    : d_key(key, allocator)
+    , d_name(name, allocator)
     , d_index(k_UNSET)
     {}
 
@@ -849,8 +982,8 @@ class AttributesFormatter : public RecordJsonFormatter_FieldFormatter {
     typedef bsl::vector<bsl::pair<bsl::string, bool> > AttributeCache;
 
     // DATA
-    SkipAttributesSp      d_skipAttributes_sp;
-    AttributeCache        d_cache;                // cached attributes
+    SkipAttributesSp d_skipAttributes_sp;
+    AttributeCache   d_cache;                // cached attributes
 
   public:
     // CREATORS
@@ -909,8 +1042,9 @@ class DatumParser {
     typedef SkipAttributesSp::element_type        SkipAttributes;
 
     // DATA
-    SkipAttributesSp d_skipAttributes_sp;
-    bsl::allocator<> d_allocator;
+    SkipAttributesSp              d_skipAttributes_sp;
+    RecordFormatterTimezone::Enum d_timezoneDefault;
+    bsl::allocator<>              d_allocator;
 
     // CLASS METHODS
 
@@ -929,8 +1063,10 @@ class DatumParser {
 
     /// Create a datum parser object having the specified `allocator` (e.g.,
     /// the address of a `bslma::Allocator` object) to supply memory.
-    explicit DatumParser(const allocator_type& allocator)
+    explicit DatumParser(RecordFormatterTimezone::Enum timezoneDefault,
+                         const allocator_type&         allocator)
     : d_skipAttributes_sp()
+    , d_timezoneDefault(timezoneDefault)
     , d_allocator(allocator)
     {}
 
@@ -1000,6 +1136,9 @@ class FieldFormattersDestructor {
                    // class TimestampFormatter
                    // ------------------------
 
+// CLASS DATA
+const char *const TimestampFormatter::k_DEFAULT_NAME = k_KEY_TIMESTAMP;
+
 // MANIPULATORS
 void TimestampFormatter::deleteSelf(const bsl::allocator<> allocator)
 {
@@ -1011,7 +1150,7 @@ int TimestampFormatter::format(baljsn::SimpleFormatter *formatter,
 {
     bdlt::DatetimeInterval  offset;
 
-    if (e_TZ_LOCAL == d_timeZone) {
+    if (RecordFormatterTimezone::e_LOCAL == d_timezone) {
         bsls::Types::Int64 localTimeOffsetInSeconds =
             bdlt::LocalTimeOffset::localTimeOffset(
                               record.fixedFields().timestamp()).totalSeconds();
@@ -1086,10 +1225,10 @@ int TimestampFormatter::parse(bdld::DatumMapRef v)
         }
         else if (k_KEY_TIME_ZONE == v[i].key()) {
             if (k_VALUE_LOCAL == value) {
-                d_timeZone = e_TZ_LOCAL;
+                d_timezone = RecordFormatterTimezone::e_LOCAL;
             }
             else if (k_VALUE_UTC == value) {
-                d_timeZone = e_TZ_UTC;
+                d_timezone = RecordFormatterTimezone::e_UTC;
             }
             else {
                 return -1;                                            // RETURN
@@ -1109,9 +1248,14 @@ int TimestampFormatter::parse(bdld::DatumMapRef v)
     return 0;
 }
 
-                   // -----------------------
-                   // class ThreadIdFormatter
-                   // -----------------------
+                         // -----------------------
+                         // class ThreadIdFormatter
+                         // -----------------------
+
+// CLASS DATA
+const char *const ThreadIdFormatter::k_DEFAULT_TID_NAME = k_KEY_THREAD_ID;
+const char *const ThreadIdFormatter::k_DEFAULT_KTID_NAME =
+                                                        k_KEY_KERNEL_THREAD_ID;
 
 // MANIPULATORS
 void ThreadIdFormatter::deleteSelf(const bsl::allocator<> allocator)
@@ -1136,14 +1280,12 @@ int ThreadIdFormatter::format(baljsn::SimpleFormatter *formatter,
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #define snprintf _snprintf
 #endif
-
         snprintf(buffer,
                  sizeof(buffer),
                  "%llX",
                  e_TID == d_type
                      ? record.fixedFields().threadID()
                      : record.fixedFields().kernelThreadID());
-
 #if defined(BSLS_PLATFORM_CMP_MSVC)
 #undef snprintf
 #endif
@@ -1210,6 +1352,9 @@ const bsl::string& FixedFieldFormatter::name() const
                    // class ProcessIdFormatter
                    // ------------------------
 
+// CLASS DATA
+const char *const ProcessIdFormatter::k_DEFAULT_NAME = k_KEY_PROCESS_ID;
+
 // MANIPULATORS
 void ProcessIdFormatter::deleteSelf(const bsl::allocator<> allocator)
 {
@@ -1225,6 +1370,9 @@ int ProcessIdFormatter::format(baljsn::SimpleFormatter *formatter,
                    // -------------------
                    // class LineFormatter
                    // -------------------
+
+// CLASS DATA
+const char *const LineFormatter::k_DEFAULT_NAME = k_KEY_LINE;
 
 // MANIPULATORS
 void LineFormatter::deleteSelf(const bsl::allocator<> allocator)
@@ -1242,6 +1390,9 @@ int LineFormatter::format(baljsn::SimpleFormatter *formatter,
                    // class CategoryFormatter
                    // -----------------------
 
+// CLASS DATA
+const char *const CategoryFormatter::k_DEFAULT_NAME = k_KEY_CATEGORY;
+
 // MANIPULATORS
 void CategoryFormatter::deleteSelf(const bsl::allocator<> allocator)
 {
@@ -1258,6 +1409,10 @@ int CategoryFormatter::format(baljsn::SimpleFormatter *formatter,
                    // class SeverityFormatter
                    // -----------------------
 
+// CLASS DATA
+const char *const SeverityFormatter::k_DEFAULT_NAME = k_KEY_SEVERITY;
+
+// MANIPULATORS
 void SeverityFormatter::deleteSelf(const bsl::allocator<> allocator)
 {
     AllocUtil::deleteObject(allocator, this);
@@ -1276,6 +1431,9 @@ int SeverityFormatter::format(baljsn::SimpleFormatter *formatter,
                    // class MessageFormatter
                    // ----------------------
 
+// CLASS DATA
+const char *const MessageFormatter::k_DEFAULT_NAME = k_KEY_MESSAGE;
+
 // MANIPULATORS
 void MessageFormatter::deleteSelf(const bsl::allocator<> allocator)
 {
@@ -1291,6 +1449,9 @@ int MessageFormatter::format(baljsn::SimpleFormatter *formatter,
                    // -------------------
                    // class FileFormatter
                    // -------------------
+
+// CLASS DATA
+const char *const FileFormatter::k_DEFAULT_NAME = k_KEY_FILE;
 
 // MANIPULATORS
 void FileFormatter::deleteSelf(const bsl::allocator<> allocator)
@@ -1380,13 +1541,13 @@ int AttributeFormatter::format(baljsn::SimpleFormatter *formatter,
             }
         }
         if (k_UNSET == d_index) {
-            return formatter->addValue(d_key, "N/A");                 // RETURN
+            return formatter->addValue(d_name, "N/A");                // RETURN
         }
     }
 
     return FormatUtil::formatAttribute(formatter,
                                        attributes.at(d_index),
-                                       d_key);
+                                       d_name);
 }
 
 int AttributeFormatter::parse(bdld::DatumMapRef v)
@@ -1396,7 +1557,7 @@ int AttributeFormatter::parse(bdld::DatumMapRef v)
             return -1;                                                // RETURN
         }
         if (k_KEY_NAME == v[i].key()) {
-            d_key = v[i].value().theString();
+            d_name = v[i].value().theString();
         }
     }
     return 0;
@@ -1476,35 +1637,50 @@ DatumParser::make(const bslstl::StringRef& v)
 {
     RecordJsonFormatter_FieldFormatter *formatter = 0;
 
-    if (k_KEY_TIMESTAMP       == v) {
-        formatter = AllocUtil::newObject<TimestampFormatter>(d_allocator);
+    if (k_KEY_TIMESTAMP == v) {
+        formatter = AllocUtil::newObject<TimestampFormatter>(
+                                        d_allocator,
+                                        bsl::nullopt,
+                                        TimestampFormatter::e_FORMAT_ISO_8601,
+                                        TimestampFormatter::e_FSP_MILLISECONDS,
+                                        d_timezoneDefault);
     }
     else if (k_KEY_PROCESS_ID == v) {
-        formatter = AllocUtil::newObject<ProcessIdFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<ProcessIdFormatter>(d_allocator,
+                                                             bsl::nullopt);
     }
     else if (k_KEY_THREAD_ID  == v) {
-        formatter = AllocUtil::newObject<ThreadIdFormatter>(d_allocator,
-                                                            k_KEY_THREAD_ID);
+        formatter = AllocUtil::newObject<ThreadIdFormatter>(
+                                                     d_allocator,
+                                                     bsl::nullopt,
+                                                     ThreadIdFormatter::e_TID);
     }
     else if (k_KEY_KERNEL_THREAD_ID  == v) {
         formatter = AllocUtil::newObject<ThreadIdFormatter>(
-                                                       d_allocator,
-                                                       k_KEY_KERNEL_THREAD_ID);
+                                                    d_allocator,
+                                                    bsl::nullopt,
+                                                    ThreadIdFormatter::e_KTID);
     }
     else if (k_KEY_SEVERITY   == v) {
-        formatter = AllocUtil::newObject<SeverityFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<SeverityFormatter>(d_allocator,
+                                                            bsl::nullopt);
     }
     else if (k_KEY_FILE       == v) {
-        formatter = AllocUtil::newObject<FileFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<FileFormatter>(d_allocator,
+                                                        bsl::nullopt,
+                                                        FileFormatter::e_FULL);
     }
     else if (k_KEY_LINE       == v) {
-        formatter = AllocUtil::newObject<LineFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<LineFormatter>(d_allocator,
+                                                        bsl::nullopt);
     }
     else if (k_KEY_CATEGORY   == v) {
-        formatter = AllocUtil::newObject<CategoryFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<CategoryFormatter>(d_allocator,
+                                                            bsl::nullopt);
     }
     else if (k_KEY_MESSAGE    == v) {
-        formatter = AllocUtil::newObject<MessageFormatter>(d_allocator);
+        formatter = AllocUtil::newObject<MessageFormatter>(d_allocator,
+                                                           bsl::nullopt);
     }
     else if (k_KEY_ATTRIBUTES == v) {
         if (!d_skipAttributes_sp) {
@@ -1650,17 +1826,306 @@ void RecordJsonFormatter::releaseFieldFormatters(
     FieldFormattersDestructor destructor(formattersPtr);
 }
 
+
+// CLASS METHODS
+int RecordJsonFormatter::loadJsonSchemeFormatter(
+                   RecordFormatterFunctor::Type         *output,
+                   const bsl::string_view&               format,
+                   const RecordFormatterOptions&         formatOptions)
+{
+    RecordJsonFormatter theFormatter(output->allocator());
+
+    theFormatter.setTimezoneDefault(formatOptions.timezoneDefault());
+
+    const int rc = theFormatter.setJsonFormat(format);
+
+    *output = RecordFormatterFunctor::Type(bsl::allocator_arg,
+                                           output->allocator(),
+                                           theFormatter);
+    return rc;
+}
+
+int RecordJsonFormatter::loadQjsonSchemeFormatter(
+                   RecordFormatterFunctor::Type         *output,
+                   const bsl::string_view&               format,
+                   const RecordFormatterOptions&         formatOptions)
+{
+    RecordJsonFormatter theFormatter(output->allocator());
+
+    theFormatter.setTimezoneDefault(formatOptions.timezoneDefault());
+
+    const int rc = theFormatter.setSimplifiedFormat(format);
+
+    *output = RecordFormatterFunctor::Type(bsl::allocator_arg,
+                                           output->allocator(),
+                                           theFormatter);
+    return rc;
+}
+
+int RecordJsonFormatter::setSimplifiedFormat(const bsl::string_view& format)
+{
+    if (format.empty()) {
+        return -1;                                                    // RETURN
+    }
+
+    bslma::Allocator         *allocator = get_allocator().mechanism();
+    FieldFormatters           formatters(get_allocator());
+    FieldFormattersDestructor destructor(&formatters);
+
+    bsl::string_view remaining = format;
+    bool mayHaveComma = false;  // No leading comma is allowed, only whitespace
+
+    while (!remaining.empty()) {
+        // Skip whitespace
+        bsl::size_t pos = remaining.find_first_not_of(" \t\n\r");
+        if (pos == bsl::string_view::npos) {
+            break;  // Only whitespace remaining                       // BREAK
+        }
+        remaining.remove_prefix(pos);
+
+        // Check for comma separator
+        if (remaining[0] == ',') {
+            if (!mayHaveComma) {
+                // Leading comma
+                return -2;                                            // RETURN
+            }
+            remaining.remove_prefix(1);
+            mayHaveComma = false;  // Can have only one comma between specs
+
+            // Skip whitespace after comma
+            pos = remaining.find_first_not_of(" \t\n\r");
+            if (pos == bsl::string_view::npos) {
+                // Trailing comma
+                return -3;                                            // RETURN
+            }
+            remaining.remove_prefix(pos);
+            if (remaining[0] == ',') {
+                // Multiple consecutive commas
+                return -4;                                            // RETURN
+            }
+        }
+
+        // Try to parse optional field name override (fieldName:)
+        const bsl::optional<bsl::string_view> optionalFieldNameOverride =
+                                            parseOptionalFieldName(&remaining);
+
+        // Check for format specifier
+        if (!remaining.starts_with('%')) {
+            // Unexpected character
+            return -6;                                                // RETURN
+        }
+
+        bslma::ManagedPtr<RecordJsonFormatter_FieldFormatter> formatter_mp;
+
+        if (remaining.starts_with("%d")) {
+            // BDE print format timestamp with milliseconds
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<TimestampFormatter>(
+                                        allocator,
+                                        optionalFieldNameOverride,
+                                        TimestampFormatter::e_FORMAT_BDE_PRINT,
+                                        TimestampFormatter::e_FSP_MILLISECONDS,
+                                        d_timezoneDefault),
+                              allocator);
+        }
+        else if (remaining.starts_with("%i")) {
+            // ISO 8601 timestamp without fractional seconds
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<TimestampFormatter>(
+                                         allocator,
+                                         optionalFieldNameOverride,
+                                         TimestampFormatter::e_FORMAT_ISO_8601,
+                                         TimestampFormatter::e_FSP_NONE,
+                                         d_timezoneDefault),
+                              allocator);
+        }
+        else if (remaining.starts_with("%I")) {
+            // ISO 8601 timestamp with milliseconds
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<TimestampFormatter>(
+                                        allocator,
+                                        optionalFieldNameOverride,
+                                        TimestampFormatter::e_FORMAT_ISO_8601,
+                                        TimestampFormatter::e_FSP_MILLISECONDS,
+                                        d_timezoneDefault),
+                              allocator);
+        }
+        else if (remaining.starts_with("%p")) {
+            // Process ID
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<ProcessIdFormatter>(
+                                                    allocator,
+                                                    optionalFieldNameOverride),
+                              allocator);
+        }
+        else if (remaining.starts_with("%t")) {
+            // Thread ID (decimal)
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<ThreadIdFormatter>(
+                                                 allocator,
+                                                 optionalFieldNameOverride,
+                                                 ThreadIdFormatter::e_TID,
+                                                 ThreadIdFormatter::e_DECIMAL),
+                              allocator);
+        }
+        else if (remaining.starts_with("%T")) {
+            // Thread ID (hexadecimal)
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<ThreadIdFormatter>(
+                                             allocator,
+                                             optionalFieldNameOverride,
+                                             ThreadIdFormatter::e_TID,
+                                             ThreadIdFormatter::e_HEXADECIMAL),
+                              allocator);
+        }
+        else if (remaining.starts_with("%k")) {
+            // Kernel Thread ID (decimal)
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<ThreadIdFormatter>(
+                                                 allocator,
+                                                 optionalFieldNameOverride,
+                                                 ThreadIdFormatter::e_KTID,
+                                                 ThreadIdFormatter::e_DECIMAL),
+                              allocator);
+        }
+        else if (remaining.starts_with("%K")) {
+            // Kernel Thread ID (hexadecimal)
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<ThreadIdFormatter>(
+                                             allocator,
+                                             optionalFieldNameOverride,
+                                             ThreadIdFormatter::e_KTID,
+                                             ThreadIdFormatter::e_HEXADECIMAL),
+                              allocator);
+        }
+        else if (remaining.starts_with("%f")) {
+            // Full file path
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<FileFormatter>(
+                                                     allocator,
+                                                     optionalFieldNameOverride,
+                                                     FileFormatter::e_FULL),
+                              allocator);
+        }
+        else if (remaining.starts_with("%F")) {
+            // File name only (basename)
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<FileFormatter>(
+                                                     allocator,
+                                                     optionalFieldNameOverride,
+                                                     FileFormatter::e_FILE),
+                              allocator);
+        }
+        else if (remaining.starts_with("%l")) {
+            // Line number
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<LineFormatter>(
+                                                    allocator,
+                                                    optionalFieldNameOverride),
+                              allocator);
+        }
+        else if (remaining.starts_with("%c")) {
+            // Category
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<CategoryFormatter>(
+                                                    allocator,
+                                                    optionalFieldNameOverride),
+                              allocator);
+        }
+        else if (remaining.starts_with("%s")) {
+            // Severity
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<SeverityFormatter>(
+                                                    allocator,
+                                                    optionalFieldNameOverride),
+                              allocator);
+        }
+        else if (remaining.starts_with("%m")) {
+            // Message
+            remaining.remove_prefix(2);
+            formatter_mp.load(AllocUtil::newObject<MessageFormatter>(
+                                                    allocator,
+                                                    optionalFieldNameOverride),
+                              allocator);
+        }
+        else if (remaining.starts_with("%A")) {
+            // All attributes
+            remaining.remove_prefix(2);
+            if (optionalFieldNameOverride.has_value()) {
+                // Field name override not allowed for all attributes
+                return -8;                                            // RETURN
+            }
+            typedef bsl::shared_ptr<AttributesFormatter::SkipAttributes>
+                                                              SkipAttributesSp;
+            SkipAttributesSp skipAttributes =
+                bsl::allocate_shared<AttributesFormatter::SkipAttributes>(
+                                                                    allocator);
+            formatter_mp.load(AllocUtil::newObject<AttributesFormatter>(
+                                                               allocator,
+                                                               skipAttributes),
+                              allocator);
+        }
+        else if (remaining.starts_with("%a")) {
+            // Single attribute %a[name]
+            remaining.remove_prefix(2);
+            if (remaining.empty() || remaining[0] != '[') {
+                // Expected '['
+                return -9;                                            // RETURN
+            }
+            remaining.remove_prefix(1);  // Skip '['
+
+            pos = remaining.find(']');
+            if (pos == bsl::string_view::npos) {
+                // Missing ']'
+                return -10;                                           // RETURN
+            }
+
+            const bsl::string_view attrName = remaining.substr(0, pos);
+            if (attrName.empty()) {
+                // Empty attribute name
+                return -11;                                           // RETURN
+            }
+            remaining.remove_prefix(pos + 1);  // Skip name and ']'
+
+            const bsl::string_view& key = optionalFieldNameOverride.has_value()
+                                        ? optionalFieldNameOverride.value()
+                                        : attrName;
+            formatter_mp.load(AllocUtil::newObject<AttributeFormatter>(
+                                                                 allocator,
+                                                                 attrName,
+                                                                 key),
+                              allocator);
+        }
+        else {
+            // Unknown format specifier or trailing %
+            return -7;                                                // RETURN
+        }
+
+        formatters.push_back(formatter_mp.get());
+        formatter_mp.release();
+        mayHaveComma = true;  // After a spec, we may have a comma before next
+    }
+
+    // Success - commit the new format
+    d_formatSpec = format;
+    d_specSyntax = e_SIMPLIFIED;
+    d_fieldFormatters.swap(formatters);
+
+    return 0;
+}
+
 // CREATORS
 RecordJsonFormatter::RecordJsonFormatter(const allocator_type& allocator)
 : d_formatSpec(allocator)
+, d_specSyntax(e_JSON)
+, d_timezoneDefault(RecordFormatterTimezone::e_UTC)
 , d_recordSeparator("\n")
 , d_fieldFormatters(allocator)
 {
     static const bsl::string_view k_DEFAULT_FORMAT_SPEC = getDefaultFormat();
 
-    int rc = setFormat(k_DEFAULT_FORMAT_SPEC);
-    (void) rc;
-    BSLS_ASSERT(0 == rc);
+    int rc = setJsonFormat(k_DEFAULT_FORMAT_SPEC);
+    BSLS_ASSERT(0 == rc);  (void) rc;
 }
 
 RecordJsonFormatter::~RecordJsonFormatter()
@@ -1669,7 +2134,7 @@ RecordJsonFormatter::~RecordJsonFormatter()
 }
 
 // MANIPULATORS
-int RecordJsonFormatter::setFormat(const bsl::string_view& format)
+int RecordJsonFormatter::setJsonFormat(const bsl::string_view& format)
 {
     if (format.empty()) {
         return -1;                                                    // RETURN
@@ -1681,27 +2146,43 @@ int RecordJsonFormatter::setFormat(const bsl::string_view& format)
         return rc;                                                    // RETURN
     }
 
-    DatumParser               parser(get_allocator());
+    DatumParser               parser(d_timezoneDefault, get_allocator());
     FieldFormatters           formatters(get_allocator());
     FieldFormattersDestructor destructor(&formatters);
 
     rc = parser.parse(&formatters, datum.datum());
     if (0 == rc) {
         d_formatSpec = format;
+        d_specSyntax = e_JSON;
         d_fieldFormatters.swap(formatters);
     }
 
     return rc;
 }
 
+int RecordJsonFormatter::setFormat(const bsl::string_view& format)
+{
+    return setJsonFormat(format);
+}
+
+void RecordJsonFormatter::setTimezoneDefault(
+                                 RecordFormatterTimezone::Enum timezoneDefault)
+{
+    d_timezoneDefault = timezoneDefault;
+
+    // Unfortunately we need to reconfigure the formatters.
+    applyCurrentFormat();
+}
+
 RecordJsonFormatter& RecordJsonFormatter::operator=(
                                                 const RecordJsonFormatter& rhs)
 {
     if (this != &rhs) {
-        int rc = setFormat(rhs.d_formatSpec);
-        (void) rc;
-        BSLS_ASSERT(0 == rc);
+        d_formatSpec = rhs.d_formatSpec;
+        d_specSyntax = rhs.d_specSyntax;
+        d_timezoneDefault = rhs.d_timezoneDefault;
         d_recordSeparator = rhs.d_recordSeparator;
+        applyCurrentFormat();
     }
 
     return *this;
@@ -1751,3 +2232,4 @@ void RecordJsonFormatter::operator()(bsl::ostream& stream,
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+

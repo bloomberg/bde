@@ -19,7 +19,12 @@ BSLS_IDENT("$Id: $")
 //               ( ball::StreamObserver )
 //                `--------------------'
 //                          |              ctor
+//                          |              disablePublishInLocalTime
+//                          |              enablePublishInLocalTime
+//                          |              setFormat
 //                          |              setRecordFormatFunctor
+//                          |              getFormat
+//                          |              isPublishInLocalTimeEnabled
 //                          V
 //                   ,--------------.
 //                  ( ball::Observer )
@@ -39,36 +44,55 @@ BSLS_IDENT("$Id: $")
 ///---------------------
 // By default, the output format of published log records is:
 // ```
-// DATE_TIME PID THREAD-ID SEVERITY FILE LINE CATEGORY MESSAGE USER-FIELDS
+// DATE_TIME PID:THREAD-ID SEVERITY FILE:LINE CATEGORY MESSAGE USER-FIELDS
 // ```
 // where `DATE` and `TIME` are of the form `DDMonYYYY` and `HH:MM:SS.mmm`,
 // respectively (`Mon` being the 3-letter abbreviation for the month).  For
-// example, assuming that no user-defined fields are present, a log record
-// will have the following appearance when the default format is in effect:
+// example, a log record will have the following appearance when the default
+// format is in effect (assuming that no user-defined fields are present):
 // ```
-// 18MAY2005_18:58:12.076 7959 1 WARN ball_streamobserver2.t.cpp 404 TEST hi!
+// 18MAY2005_18:58:12.076 7959:1 WARN ball_streamobserver.t.cpp:404 TEST hello!
 // ```
-// The default format can be overridden by supplying a suitable formatting
-// functor to `setRecordFormatFunctor`.  For example, an instance of
-// `ball::RecordStringFormatter` conveniently provides such a functor:
-// ```
-// streamObserver.setRecordFormatFunctor(
-//             ball::RecordStringFormatter("\n%I %p:%t %s %f:%l %c %m %u\n"));
-// ```
-// The above statement will cause subsequent records to be logged in a format
-// that is almost identical to the default format except that the timestamp
-// attribute will be written in ISO 8601 format.  See
-// {`ball_recordstringformatter`} for information on how format specifications
-// are defined and interpreted.
+// For additional flexibility, the `setFormat` method can be called to
+// configure the format of published records to the stream.  The format
+// specifications can be either scheme-tagged (recommended) or legacy
+// `printf`-style format strings that results in a `RecordStringFormatter`
+// being used.
 //
-// Note that the observer emits newline characters at the beginning and at the
-// end of a log record by default, so the user needs to add them explicitly to
-// the format string to preserve this behavior.
+///Scheme-Based Format Specifications (Recommended)
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// The recommended way to specify log record formats is using URI-like
+// scheme-tagged format configuration strings.  A scheme-tagged format string
+// begins with a scheme identifier followed by `://` and then a
+// scheme-specific format specification:
+// ```
+// <scheme>://<format-specification>
+// ```
+// The scheme determines which formatter will be used and the syntax of the
+// format specification.  The following schemes are currently supported: text,
+// json, qjson.  See [Scheme-Based Formatters](ball#Scheme-Based Formatters)
+// for more details of the supported schemes and their accompanying format
+// specification syntaxes.
 //
-// Also note that in the sample message above the timestamp has millisecond
-// precision (`18MAY2005_18:58:12.076`).  If microsecond precision is desired
-// instead, consider using either the `%D` or `%O` format specification
-// supported by `ball_recordstringformatter`.
+// For example, to log records to a file in JSON format with printf-style
+// format specification:
+// ```
+// asyncFileObserver.setFormat("qjson://%d %p:%t %s %f:%l %c %m");
+// ```
+//
+///Legacy Format Specifications
+/// - - - - - - - - - - - - - - -
+// For backward compatibility, format specifications that do not begin with a
+// scheme tag are treated as legacy `printf`-style format strings.  Such
+// specifications are implicitly treated as if they had a `text://` prefix
+// and use `ball::RecordStringFormatter`.  For example, the following two
+// calls are equivalent:
+// ```
+// streamObserver.setFormat("%d %p:%t %s %f:%l %c %m %a\n");
+// streamObserver.setFormat("text://%d %p:%t %s %f:%l %c %m %a\n");
+// ```
+// These `%`-prefixed conversion specifications are defined in
+// {`ball_recordstringformatter`}.
 //
 ///Thread Safety
 ///-------------
@@ -112,13 +136,15 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <ball_observerformatterimp.h>
 #include <ball_observer.h>
+#include <ball_recordformatterfunctor.h>
+#include <ball_recordformattertimezone.h>
+
+#include <bsla_deprecated.h>
 
 #include <bslma_allocator.h>
 #include <bslma_bslallocator.h>
-#include <bslma_usesbslmaallocator.h>
-
-#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bslmt_mutex.h>
 
@@ -144,42 +170,37 @@ class Record;
 /// that it receives to an instance of `bsl::ostream` supplied at
 /// construction.
 class StreamObserver : public Observer {
-
   public:
     // TYPES
 
-    /// `RecordFormatFunctor` is an alias for the type of the functor used
-    /// for formatting log records to a stream.
-    typedef bsl::function<void(bsl::ostream&, const Record&)>
-                                                           RecordFormatFunctor;
+    /// `LogRecordFunctor` is an alias for the type of the functor used for
+    /// formatting log records to a stream.
+    typedef RecordFormatterFunctor::Type RecordFormatter;
 
     typedef bsl::allocator<char> allocator_type;
 
   private:
+    // PRIVATE TYPES
+    typedef RecordFormatterTimezone::Enum TimezoneEnum;
+
+  private:
     // DATA
-    bsl::ostream        *d_stream_p;   // output sink for log records
+    bsl::ostream             *d_stream_p;           // output sink for log
+                                                    // records
 
-    bslmt::Mutex         d_mutex;      // serializes concurrent calls to
-                                       // 'publish'
+    mutable bslmt::Mutex      d_mutex;              // serializes concurrent
+                                                    // calls to 'publish'
 
-    RecordFormatFunctor  d_formatter;  // formatting functor used when writing
-                                       // to log file
+    ObserverFormatterImp      d_observerFormatterImp;
+                                                    // formatter manager that
+                                                    // handles all formatting
+                                                    // operations
 
     // NOT IMPLEMENTED
     StreamObserver(const StreamObserver&);
     StreamObserver& operator=(const StreamObserver&);
 
-    // CLASS METHODS
-
-    /// Write the specified log `record` to the specified output `stream`
-    /// using the default record format of this stream observer.
-    static
-    void logRecordDefault(bsl::ostream& stream, const Record& record);
-
   public:
-    // TRAITS
-    BSLMF_NESTED_TRAIT_DECLARATION(StreamObserver, bslma::UsesBslmaAllocator);
-
     // CREATORS
 
     /// Create a stream observer that transmits log records to the specified
@@ -195,7 +216,8 @@ class StreamObserver : public Observer {
     ~StreamObserver() BSLS_KEYWORD_OVERRIDE;
 
     // MANIPULATORS
-    using Observer::publish;
+
+    using Observer::publish;  // Picks up the deprecated `publish` overload.
 
     /// Process the specified log `record` having the specified publishing
     /// `context`.  Print `record` and `context` to the `bsl::ostream`
@@ -208,22 +230,64 @@ class StreamObserver : public Observer {
     /// Discard any shared reference to a `Record` object that was supplied
     /// to the `publish` method, and is held by this observer.  Note that
     /// this operation should be called if resources underlying the
-    /// previously provided shared-pointers must be released.
+    /// previously provided shared-pointers must be released.  This method
+    /// intentionally does nothing as such resources are held, we publish all
+    /// records immediately.
     void releaseRecords() BSLS_KEYWORD_OVERRIDE;
 
-    /// Set the formatting functor used when writing records to the log file
-    /// of this file observer to the specified `formatter` functor.  Note
-    /// that a default format ("\n%d %p %t %s %f %l %c %m %u\n") is in
-    /// effect until this method is called (see
+    /// Disable publishing of the timestamp attribute of records in local
+    /// time by this stream observer; henceforth, timestamps will be in UTC
+    /// time.  This method has no effect if publishing in local time is not
+    /// enabled.
+    void disablePublishInLocalTime();
+
+    /// Enable publishing of the timestamp attribute of records in local
+    /// time by this stream observer.  By default, timestamps are published
+    /// in UTC time.  Note that this method also affects timestamps for
+    /// formatters that use them.
+    void enablePublishInLocalTime();
+
+    /// Set the formatting functor used when writing records to the stream of
+    /// this stream observer to the specified `formatter` functor.  Note that
+    /// a default format ("\n%d %p %t %s %f %l %c %m %u\n") is in effect until
+    /// this method or `setFormat` is called (see
     /// `ball_recordstringformatter`).  Also note that the observer emits
     /// newline characters at the beginning and at the end of a log record
     /// by default, so the user needs to add them explicitly to the format
-    /// string to preserve this behavior.
-    void setRecordFormatFunctor(const RecordFormatFunctor& formatter);
+    /// string to preserve this behavior.  Note that this method is not
+    /// able to communicate the timezone default settings to the
+    /// `formatter`, prefer `setFormat`.
+    void setRecordFormatFunctor(const RecordFormatter& formatter);
+
+    /// Set the formatting functor used when writing records to the stream of
+    /// this stream observer to a log file functor created according to the
+    /// specified, possibly URI-like scheme tagged, `format`.  Return zero if
+    /// the setup with the specified arguments was successful and also save
+    /// the `format` to be later retrievable using `getFormat`.  Otherwise (if
+    /// no matching scheme could be found or the configuration is invalid)
+    /// return a non-zero value and do not change the log record formatter
+    /// used by this object.  Note that a default format
+    /// ("\n%d %p %t %s %f %l %c %m %u\n") is in effect until this method or
+    /// `setRecordFormatFunctor` is called.  Also, notice that the observer
+    /// emits newline characters at the beginning and at the end of a log
+    /// record by (the) default (format), so the user needs to add them
+    /// explicitly to (text) format strings to preserve that behavior.
+    int setFormat(const bsl::string_view& format);
+
+    // ACCESSORS
+
+    /// Return `true` if this observer writes the timestamp attribute of
+    /// records that it publishes in local time by default, and `false`
+    /// otherwise (in which case timestamps are written by default in UTC
+    ///  time).
+    bool isPublishInLocalTimeEnabled() const;
+
+    /// Return the format config of the last successful `setFormat` call.
+    const bsl::string& getFormat() const;
 };
 
 // ============================================================================
-//                              INLINE DEFINITIONS
+//                             INLINE DEFINITIONS
 // ============================================================================
 
                            // --------------------

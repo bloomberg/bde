@@ -67,7 +67,7 @@ bool PatternUtil::isValidPattern(const char *pattern)
 //  automatically performed when the current input character is read to reach
 //  a new state).
 //-----------------------------------------------------------------------------
-//..
+// ```
 //
 //                            P != '\' && P != '*"
 //                           && P != '\0' && P == S
@@ -94,7 +94,7 @@ bool PatternUtil::isValidPattern(const char *pattern)
 //     |                                         ^
 //     |_________________________________________|
 //
-//..
+// ```
 // ----------------------------------------------------------------------------
 
 bool PatternUtil::isMatch(const char *inputString, const char *pattern)

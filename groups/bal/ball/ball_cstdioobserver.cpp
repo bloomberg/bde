@@ -1,8 +1,8 @@
-﻿// ball_streamobserver.cpp                                            -*-C++-*-
-#include <ball_streamobserver.h>
+﻿// ball_cstdioobserver.cpp                                            -*-C++-*-
+#include <ball_cstdioobserver.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(ball_streamobserver_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(ball_cstdioobserver_cpp,"$Id$ $CSID$")
 
 #include <ball_context.h>                // for testing only
 #include <ball_record.h>
@@ -26,63 +26,66 @@ namespace ball {
 
 namespace {
 
-static
-const bsl::string_view k_DEFAULT_FORMAT = "\n%d %p %t %s %f %l %c %m %u\n";
-
+static const bsl::string_view k_DEFAULT_FORMAT =
+                                              "\n%d %p %t %s %f %l %c %m %u\n";
 }  // close unnamed namespace
 
                            // --------------------
-                           // class StreamObserver
+                           // class CstdioObserver
                            // --------------------
 
 // CREATORS
-StreamObserver::StreamObserver(bsl::ostream          *stream,
-                               const allocator_type&  allocator)
-: d_stream_p(stream)
+CstdioObserver::CstdioObserver(FILE *stream, const allocator_type& allocator)
+: d_file_p(stream)
 , d_mutex()
 , d_observerFormatterImp(k_DEFAULT_FORMAT,
                          RecordFormatterTimezone::e_UTC,
                          allocator)
 {
-    BSLS_ASSERT(d_stream_p);
+    BSLS_ASSERT(d_file_p);
 }
 
-StreamObserver::~StreamObserver()
+CstdioObserver::~CstdioObserver()
 {
 }
 
 // MANIPULATORS
-void StreamObserver::publish(const bsl::shared_ptr<const Record>& record,
+void CstdioObserver::publish(const bsl::shared_ptr<const Record>& record,
                              const Context&)
 {
     BSLS_ASSERT(record);
 
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    d_observerFormatterImp.formatLogRecord(*d_stream_p, record);
-    d_stream_p->flush();
+    bsl::ostringstream oss;
+    d_observerFormatterImp.formatLogRecord(oss, record);
+
+    // Use 'fwrite' to specify the length to write.
+
+    bsl::fwrite(oss.str().c_str(), 1, oss.str().length(), d_file_p);
+    bsl::fflush(d_file_p);
 }
 
-void StreamObserver::setRecordFormatFunctor(const RecordFormatter& formatter)
+void CstdioObserver::setFormatFunctor(const RecordFormatter& formatter)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
     d_observerFormatterImp.setFormatFunctor(formatter);
 }
 
-int StreamObserver::setFormat(const bsl::string_view& format)
+int CstdioObserver::setFormat(const bsl::string_view& format)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_observerFormatterImp.setFormat(format);
 }
 
-void StreamObserver::disablePublishInLocalTime()
+void CstdioObserver::disablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_observerFormatterImp.setTimezoneDefault(RecordFormatterTimezone::e_UTC);
 }
 
-void StreamObserver::enablePublishInLocalTime()
+void CstdioObserver::enablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     d_observerFormatterImp.setTimezoneDefault(
@@ -90,14 +93,14 @@ void StreamObserver::enablePublishInLocalTime()
 }
 
 // ACCESSORS
-bool StreamObserver::isPublishInLocalTimeEnabled() const
+bool CstdioObserver::isPublishInLocalTimeEnabled() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return RecordFormatterTimezone::e_LOCAL ==
                                d_observerFormatterImp.getTimezoneDefault();
 }
 
-const bsl::string& StreamObserver::getFormat() const
+const bsl::string& CstdioObserver::getFormat() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
     return d_observerFormatterImp.getFormat();
@@ -107,7 +110,7 @@ const bsl::string& StreamObserver::getFormat() const
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2017 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

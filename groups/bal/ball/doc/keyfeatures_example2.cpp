@@ -27,22 +27,22 @@ using namespace BloombergLP;
 // 'configuration', and set the logging "pass-through" level -- the level at
 // which log records are published to registered observers -- to 'WARN' (see
 // {'Categories, Severities, and Threshold Levels'}):
-//..
+// ```
     // myApp.cpp
 //
     int main()
     {
         ball::LoggerManagerConfiguration configuration;
         configuration.setDefaultThresholdLevelsIfValid(ball::Severity::e_WARN);
-//..
+// ```
 // Next, create a 'ball::LoggerManagerScopedGuard' object whose constructor
 // takes the configuration object just created.  The guard will initialize the
 // logger manager singleton on creation and destroy the singleton upon
 // destruction.  This guarantees that any resources used by the logger manager
 // will be properly released when they are not needed:
-//..
+// ```
         ball::LoggerManagerScopedGuard guard(configuration);
-//..
+// ```
 // Note that the application is now prepared to log messages using the 'ball'
 // logging subsystem, but until the application registers an observer, all log
 // messages will be discarded.
@@ -52,15 +52,19 @@ using namespace BloombergLP;
 // configure the log format to publish log attributes (see
 // {Key Example 1: Write to a Log}, enable the logger to write to a log file,
 // and then register 'observer' with the logger manager.  Note that observers
-// must be registered by name; this example simply uses "default" for a name:
-//..
+// must be registered by name; this example simply uses "default" for a name.
+// Also note that for simplicity this example uses legacy 'setFileLogFormat' and
+// 'setStdoutLogFormat' format config string arguments that automatically use
+// the "text://" format specification (which results in the use of a
+// `RecordStringFormatter`).
         bslma::Allocator *alloc = bslma::Default::globalAllocator(0);
 //
         bsl::shared_ptr<ball::FileObserver> observer =
             bsl::allocate_shared<ball::FileObserver>(alloc);
 
-        observer->setLogFormat(
-                        ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT,
+        observer->setFileLogFormat(
+                        ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
+        observer->setStdoutLogFormat(
                         ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT);
 
         if (0 != observer->enableFileLogging("myapplication.log.%T")) {
@@ -68,10 +72,10 @@ using namespace BloombergLP;
             return -1;
         }
         ball::LoggerManager::singleton().registerObserver(observer, "default");
-//..
+// ```
 // The application is now prepared to log messages using the 'ball' logging
 // subsystem:
-//..
+// ```
         // ...
 //
         BALL_LOG_SET_CATEGORY("MYLIBRARY.MYSUBSYSTEM");
@@ -79,7 +83,7 @@ using namespace BloombergLP;
 
         return 0;
     }
-//..
+// ```
 // Note that concrete observers that can be configured after their creation
 // (e.g., as to whether log records are published in UTC or local time)
 // generally can have their configuration adjusted at any time, either before

@@ -254,9 +254,9 @@ int main(int argc, char *argv[])
 // The following snippets of code illustrate how the application can implement
 // automatic log file cleanup from the observer's file rotation callback.
 // ```
-    bdls::TempDirectoryGuard tempDirGuard("ball_");
+    bdls::TempDirectoryGuard tempDirGuard("ball_logfilecleanerutil_");
     bsl::string              baseName(tempDirGuard.getTempDirName());
-    bdls::PathUtil::appendRaw(&baseName, "logFile%T");
+    bdls::PathUtil::appendRaw(&baseName, "test5_logFile%T");
 // ```
 // Suppose that the application was set up to do its logging using one of the
 // `ball` file observers (see `ball_fileobserver2`) with the following log
@@ -355,9 +355,9 @@ int main(int argc, char *argv[])
                           << endl;
 
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bdls::TempDirectoryGuard tempDirGuard("ball_logfilecleanerutil_");
             bsl::string              baseName(tempDirGuard.getTempDirName());
-            bdls::PathUtil::appendRaw(&baseName, "logFile");
+            bdls::PathUtil::appendRaw(&baseName, "test3_1_logFile");
 
             createFile(baseName + "1");
             createFile(baseName + "2");
@@ -394,9 +394,9 @@ int main(int argc, char *argv[])
             ASSERT(false == bdls::FilesystemUtil::exists(baseName + "4"));
         }
         {
-            bdls::TempDirectoryGuard tempDirGuard("ball_");
+            bdls::TempDirectoryGuard tempDirGuard("ball_logfilecleanerutil_");
             bsl::string              baseName(tempDirGuard.getTempDirName());
-            bdls::PathUtil::appendRaw(&baseName, "logFile");
+            bdls::PathUtil::appendRaw(&baseName, "test3_2_logFile");
 
             createFile(baseName + "1");
             createFile(baseName + "2");

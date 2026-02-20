@@ -15,7 +15,7 @@ BSLS_IDENT_RCSID(ball_fileobserver_cpp,"$Id$ $CSID$")
 
 #include <bsl_cstdio.h>
 #include <bsl_cstring.h>                      // for 'bsl::strcmp'
-#include <bsl_sstream.h>
+#include <bsl_iostream.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -23,88 +23,103 @@ namespace ball {
 namespace {
 
 static const char *const k_DEFAULT_LONG_FORMAT =
-                                         "\n%d %p:%t %s %f:%l %c %m %u\n";
+                                              "\n%d %p:%t %s %f:%l %c %m %u\n";
 
 static const char *const k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS =
-                                         "\n%d %p:%t %s %f:%l %c %m\n";
+                                              "\n%d %p:%t %s %f:%l %c %m\n";
 
 static const char *const k_DEFAULT_SHORT_FORMAT =
-                                         "\n%s %f:%l %c %m %u\n";
+                                              "\n%s %f:%l %c %m %u\n";
 
 static const char *const k_DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS =
-                                         "\n%s %f:%l %c %m\n";
-
+                                              "\n%s %f:%l %c %m\n";
 }  // close unnamed namespace
 
                           // ------------------
                           // class FileObserver
                           // ------------------
 
+// PRIVATE MANIPULATORS
+int FileObserver::setFileLogFormatUnlocked(const char *logFileFormat)
+{
+    return d_fileObserver2.setFormat(logFileFormat);
+}
+
+int FileObserver::setStdoutLogFormatUnlocked(const char *stdoutFormat)
+{
+    const int rc = d_stdoutObserver.setFormat(stdoutFormat);
+
+    // If the short format is in use, make this format the long format and
+    // indicate that the long format is in use.  See contract.
+    if (0 == rc && !d_stdoutUsesLongFormat) {
+        // this is the long format now
+        d_stdoutLongFormat = stdoutFormat;
+
+        // enable prefix
+        d_stdoutUsesLongFormat = true;
+    }
+
+    return rc;
+}
+
 // CREATORS
 FileObserver::FileObserver()
-: d_logFileFormatter(k_DEFAULT_LONG_FORMAT, bdlt::DatetimeInterval(0))
-, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT, bdlt::DatetimeInterval(0))
+: d_userFieldsLoggingFlag(true)
 , d_stdoutThreshold(Severity::e_WARN)
-, d_useRegularFormatOnStdoutFlag(true)
-, d_publishInLocalTime(false)
-, d_userFieldsLoggingFlag(true)
+, d_stdoutUsesLongFormat(true)
 , d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT)
 , d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT)
+, d_stdoutObserver(stdout)
 , d_fileObserver2()
 {
+    d_fileObserver2.setFormat(k_DEFAULT_LONG_FORMAT);
+    d_stdoutObserver.setFormat(k_DEFAULT_LONG_FORMAT);
 }
 
 FileObserver::FileObserver(bslma::Allocator *basicAllocator)
-: d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
-                     bdlt::DatetimeInterval(0),
-                     basicAllocator)
-, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
-                    bdlt::DatetimeInterval(0),
-                    basicAllocator)
+: d_userFieldsLoggingFlag(true)
 , d_stdoutThreshold(Severity::e_WARN)
-, d_useRegularFormatOnStdoutFlag(true)
-, d_publishInLocalTime(false)
-, d_userFieldsLoggingFlag(true)
+, d_stdoutUsesLongFormat(true)
 , d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
 , d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_stdoutObserver(stdout, basicAllocator)
 , d_fileObserver2(basicAllocator)
 {
+    d_stdoutObserver.setFormat(k_DEFAULT_LONG_FORMAT);
+    d_fileObserver2.setFormat(k_DEFAULT_LONG_FORMAT);
 }
 
 FileObserver::FileObserver(Severity::Level   stdoutThreshold,
                            bslma::Allocator *basicAllocator)
-: d_logFileFormatter(k_DEFAULT_LONG_FORMAT,
-                     bdlt::DatetimeInterval(0),
-                     basicAllocator)
-, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT,
-                    bdlt::DatetimeInterval(0),
-                    basicAllocator)
+: d_userFieldsLoggingFlag(true)
 , d_stdoutThreshold(stdoutThreshold)
-, d_useRegularFormatOnStdoutFlag(true)
-, d_publishInLocalTime(false)
-, d_userFieldsLoggingFlag(true)
+, d_stdoutUsesLongFormat(true)
 , d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
 , d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_stdoutObserver(stdout, basicAllocator)
 , d_fileObserver2(basicAllocator)
 {
+    d_stdoutObserver.setFormat(k_DEFAULT_LONG_FORMAT);
+    d_fileObserver2.setFormat(k_DEFAULT_LONG_FORMAT);
 }
 
 FileObserver::FileObserver(Severity::Level   stdoutThreshold,
                            bool              publishInLocalTime,
                            bslma::Allocator *basicAllocator)
-: d_logFileFormatter(k_DEFAULT_LONG_FORMAT, publishInLocalTime, basicAllocator)
-, d_stdoutFormatter(k_DEFAULT_LONG_FORMAT, publishInLocalTime, basicAllocator)
+: d_userFieldsLoggingFlag(true)
 , d_stdoutThreshold(stdoutThreshold)
-, d_useRegularFormatOnStdoutFlag(true)
-, d_publishInLocalTime(publishInLocalTime)
-, d_userFieldsLoggingFlag(true)
+, d_stdoutUsesLongFormat(true)
 , d_stdoutLongFormat(k_DEFAULT_LONG_FORMAT, basicAllocator)
 , d_stdoutShortFormat(k_DEFAULT_SHORT_FORMAT, basicAllocator)
+, d_stdoutObserver(stdout, basicAllocator)
 , d_fileObserver2(basicAllocator)
 {
-    if (d_publishInLocalTime) {
+    if (publishInLocalTime) {
+        d_stdoutObserver.enablePublishInLocalTime();
         d_fileObserver2.enablePublishInLocalTime();
     }
+    d_stdoutObserver.setFormat(k_DEFAULT_LONG_FORMAT);
+    d_fileObserver2.setFormat(k_DEFAULT_LONG_FORMAT);
 }
 
 FileObserver::~FileObserver()
@@ -116,12 +131,13 @@ void FileObserver::disableStdoutLoggingPrefix()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    if (false == d_useRegularFormatOnStdoutFlag) {
+    if (false == d_stdoutUsesLongFormat) {
         return;                                                       // RETURN
     }
 
-    d_useRegularFormatOnStdoutFlag = false;
-    d_stdoutFormatter.setFormat(d_stdoutShortFormat.c_str());
+    if (0 == d_stdoutObserver.setFormat(d_stdoutShortFormat.c_str())) {
+        d_stdoutUsesLongFormat = false;
+    }
 }
 
 void FileObserver::disableUserFieldsLogging()
@@ -134,19 +150,18 @@ void FileObserver::disableUserFieldsLogging()
 
     d_userFieldsLoggingFlag = false;
 
-    if (0 == bsl::strcmp(
-                    d_stdoutFormatter.format(),
-                    d_useRegularFormatOnStdoutFlag ? k_DEFAULT_LONG_FORMAT
-                                                   : k_DEFAULT_SHORT_FORMAT)) {
-        d_stdoutFormatter.setFormat(
-                              d_useRegularFormatOnStdoutFlag
+    if (d_stdoutObserver.getFormat() ==
+                   (d_stdoutUsesLongFormat ? k_DEFAULT_LONG_FORMAT
+                                           : k_DEFAULT_SHORT_FORMAT)) {
+        (void)d_stdoutObserver.setFormat(
+                                  d_stdoutUsesLongFormat
                                   ? k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS
                                   : k_DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS);
     }
 
-    if (0 == bsl::strcmp(d_logFileFormatter.format(), k_DEFAULT_LONG_FORMAT)) {
-        d_logFileFormatter.setFormat(k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS);
-        d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
+    if (d_fileObserver2.getFormat() == k_DEFAULT_LONG_FORMAT) {
+        (void)d_fileObserver2.setFormat(
+                                     k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS);
     }
 }
 
@@ -154,27 +169,21 @@ void FileObserver::disablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    d_publishInLocalTime = false;
-    d_stdoutFormatter.disablePublishInLocalTime();
-    d_logFileFormatter.disablePublishInLocalTime();
+    d_stdoutObserver.disablePublishInLocalTime();
     d_fileObserver2.disablePublishInLocalTime();
-
-    // Unfortunately, this is necessary because 'd_fileObserver2' has a *copy*
-    // of the log file formatter.
-
-    d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
 void FileObserver::enableStdoutLoggingPrefix()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    if (true == d_useRegularFormatOnStdoutFlag) {
+    if (true == d_stdoutUsesLongFormat) {
         return;                                                       // RETURN
     }
 
-    d_useRegularFormatOnStdoutFlag = true;
-    d_stdoutFormatter.setFormat(d_stdoutLongFormat.c_str());
+    d_stdoutUsesLongFormat = true;
+    // We need to recreate the formatter to enable the new format
+    d_stdoutObserver.setFormat(d_stdoutLongFormat.c_str());
 }
 
 void FileObserver::enableUserFieldsLogging()
@@ -187,20 +196,18 @@ void FileObserver::enableUserFieldsLogging()
 
     d_userFieldsLoggingFlag = true;
 
-    if (0 == bsl::strcmp(d_stdoutFormatter.format(),
-                         d_useRegularFormatOnStdoutFlag
+    if (d_stdoutObserver.getFormat() ==
+                         (d_stdoutUsesLongFormat
                              ? k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS
                              : k_DEFAULT_SHORT_FORMAT_WITHOUT_USERFIELDS)) {
-        d_stdoutFormatter.setFormat(
-                              d_useRegularFormatOnStdoutFlag
-                                  ? k_DEFAULT_LONG_FORMAT
-                                  : k_DEFAULT_SHORT_FORMAT);
+        (void)d_stdoutObserver.setFormat(d_stdoutUsesLongFormat
+                                       ? k_DEFAULT_LONG_FORMAT
+                                      : k_DEFAULT_SHORT_FORMAT);
     }
 
-    if (0 == bsl::strcmp(d_logFileFormatter.format(),
-                         k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS)) {
-        d_logFileFormatter.setFormat(k_DEFAULT_LONG_FORMAT);
-        d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
+    if (d_fileObserver2.getFormat() ==
+                                    k_DEFAULT_LONG_FORMAT_WITHOUT_USERFIELDS) {
+        (void)d_fileObserver2.setFormat(k_DEFAULT_LONG_FORMAT);
     }
 }
 
@@ -208,45 +215,51 @@ void FileObserver::enablePublishInLocalTime()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    d_publishInLocalTime = true;
-    d_stdoutFormatter.enablePublishInLocalTime();
-    d_logFileFormatter.enablePublishInLocalTime();
+    d_stdoutObserver.enablePublishInLocalTime();
     d_fileObserver2.enablePublishInLocalTime();
-
-    // Unfortunately, this is necessary because 'd_fileObserver2' has a *copy*
-    // of the log file formatter.
-
-    d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
 }
 
-void FileObserver::publish(const Record& record, const Context& context)
+void FileObserver::publish(const bsl::shared_ptr<const Record>& record,
+                           const Context&                       context)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    if (record.fixedFields().severity() <= d_stdoutThreshold) {
-        bsl::ostringstream oss;
-        d_stdoutFormatter(oss, record);
-
-        // Use 'fwrite' to specify the length to write.
-
-        bsl::fwrite(oss.str().c_str(), 1, oss.str().length(), stdout);
-        bsl::fflush(stdout);
+    if (record->fixedFields().severity() <= d_stdoutThreshold) {
+        d_stdoutObserver.publish(record, context);
     }
 
     d_fileObserver2.publish(record, context);
 }
 
-void FileObserver::setLogFormat(const char *logFileFormat,
+int FileObserver::setLogFormats(const char *logFileFormat,
                                 const char *stdoutFormat)
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    d_logFileFormatter.setFormat(logFileFormat);
-    d_fileObserver2.setLogFileFunctor(d_logFileFormatter);
+    const int rv1 = setFileLogFormatUnlocked(logFileFormat);
+    const int rv2 = setStdoutLogFormatUnlocked(stdoutFormat);
 
-    d_stdoutLongFormat = stdoutFormat;
-    d_stdoutFormatter.setFormat(stdoutFormat);
-    d_useRegularFormatOnStdoutFlag = true;  // enable prefix
+    return rv1 != 0 && rv2 == 0
+         ? -1  // file log format error
+         : rv1 == 0 && rv2 != 0
+         ? -2  // stdout log format error
+         : rv1 != 0 && rv2 != 0
+         ? -3  // both log formats error
+         : 0;  // both success
+}
+
+int FileObserver::setFileLogFormat(const char *logFileFormat)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    return setFileLogFormatUnlocked(logFileFormat);
+}
+
+int FileObserver::setStdoutLogFormat(const char *stdoutFormat)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    return setStdoutLogFormatUnlocked(stdoutFormat);
 }
 
 void FileObserver::setStdoutThreshold(Severity::Level stdoutThreshold)
@@ -267,22 +280,36 @@ void FileObserver::getLogFormat(const char **logFileFormat,
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    *logFileFormat = d_logFileFormatter.format();
-    *stdoutFormat  = d_stdoutFormatter.format();
+    *logFileFormat = d_fileObserver2.getFormat().c_str();
+    *stdoutFormat  = d_stdoutObserver.getFormat().c_str();
+}
+
+const bsl::string& FileObserver::getFileLogFormat() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    return d_fileObserver2.getFormat();
+}
+
+const bsl::string& FileObserver::getStdoutLogFormat() const
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+
+    return d_stdoutObserver.getFormat();
 }
 
 bool FileObserver::isPublishInLocalTimeEnabled() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    return d_publishInLocalTime;
+    return d_stdoutObserver.isPublishInLocalTimeEnabled();
 }
 
 bool FileObserver::isStdoutLoggingPrefixEnabled() const
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
 
-    return d_useRegularFormatOnStdoutFlag;
+    return d_stdoutUsesLongFormat;
 }
 
 bool FileObserver::isUserFieldsLoggingEnabled() const

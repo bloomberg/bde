@@ -4,6 +4,7 @@
 #include <ball_attribute.h>
 #include <ball_record.h>
 #include <ball_recordattributes.h>
+#include <ball_recordformatterfunctor.h>
 #include <ball_severity.h>
 #include <ball_userfields.h>
 
@@ -54,6 +55,10 @@ using namespace bsl;
 // implemented class is a function object, the `operator()` method that
 // provides string-based formatting support is extensively tested.
 //
+// CLASS METHODS
+// [10] int loadJsonSchemeFormatter(...);
+// [10] int loadQjsonSchemeFormatter(...);
+//
 // CREATORS
 // [ 2] RecordJsonFormatter();
 // [ 2] RecordJsonFormatter(bslma::Allocator *bA);
@@ -64,20 +69,27 @@ using namespace bsl;
 // MANIPULATORS
 // [ 6] RecordJsonFormatter& operator=(const RecordJsonFormatter& rhs);
 // [ 8] RecordJsonFormatter& operator=(MovableRef<RecordJsonFormatter> rhs);
-// [ 2] int setFormat(const bsl::string_view& format);
+// [ 2] int setJsonFormat(const bsl::string_view& format);
+// [ 2] int setSimplifiedFormat(const bsl::string_view& format);
+// [ 2] int setFormat(const bsl::string_view& format);              DEPRECATED
 // [ 2] void setRecordSeparator(const bsl::string_view& recordSeparator);
+// [ 9] setSimplifiedFormat(const bsl::string_view& format);
 //
 // ACCESSORS
 // [ 4] int operator(bsl::ostream& stream, const Record& record) const;
 // [ 3] const bsl::string& format() const;
+// [ 3] SpecSyntax formatSyntax() const;
+// [ 3] RecordFormatterTimezone::Enum timezoneDefault() const;
 // [ 3] const bsl::string& recordSeparator() const;
 // [ 3] bsl::Allocator *allocator() const;
 // [ 3] allocator_type get_allocator() const;
 //
 // FREE OPERATORS
+// [ 3] bool operator==(lhs, rhs);
+// [ 3] bool operator!=(lhs, rhs);
 // ----------------------------------------------------------------------------
-// [ 1] BREATING TEST
-// [ 9] USAGE EXAMPLE
+// [ 1] BREATHING TEST
+// [11] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -206,7 +218,8 @@ static const  DefaultDataRow DEFAULT_DATA[] = {
     {  L_,   "[\"attributes\"]",                                   "\r\n"    },
     {  L_,   "[\"a3\",\"a2\",\"a1\"]",                             k_NULL_SV },
 };
-enum { DEFAULT_NUM_DATA = sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA };
+static const bsl::size_t DEFAULT_NUM_DATA =
+                                    sizeof DEFAULT_DATA / sizeof *DEFAULT_DATA;
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -237,11 +250,11 @@ bsls::TimeInterval LocalTimeOffsetUtil::localTimeOffset(const bdlt::Datetime&)
 //-----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    int                 test = (argc > 1) ? bsl::atoi(argv[1]) : 1;
-    bool             verbose = (argc > 2);
-    bool         veryVerbose = (argc > 3);
-    bool     veryVeryVerbose = (argc > 4);
-    bool veryVeryVeryVerbose = (argc > 5);
+    const int                 test = (argc > 1) ? bsl::atoi(argv[1]) : 1;
+    const bool             verbose = (argc > 2);
+    const bool         veryVerbose = (argc > 3);
+    const bool     veryVeryVerbose = (argc > 4);
+    const bool veryVeryVeryVerbose = (argc > 5);
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
@@ -254,7 +267,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 9: {
+      case 11: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -272,17 +285,15 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "USAGE EXAMPLE" << endl
-                          << "=============" << endl
-;
+        if (verbose) cout << "USAGE EXAMPLE\n"
+                             "=============\n";
 // First we instantiate a JSON record formatter:
 // ```
    ball::RecordJsonFormatter formatter;
 // ```
 // Next we set a format specification to the newly created `formatter`:
 // ```
-   int rc = formatter.setFormat("[\"tid\",\"message\"]");
+   const int rc = formatter.setJsonFormat("[\"tid\",\"message\"]");
    BSLS_ASSERT(0 == rc);  (void)rc;
 // ```
 // The chosen format specification indicates that, when a record is formatted
@@ -306,6 +317,576 @@ int main(int argc, char *argv[])
 // ```
 //  {"tid":6,"message":"Hello, World!"}
 // ```
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // TESTING loadJsonSchemeFormatter AND loadQjsonSchemeFormatter
+        //
+        // Concerns:
+        // 1. loadJsonSchemeFormatter correctly creates a RecordFormatter for
+        //    JSON scheme with format array syntax.
+        // 2. loadQjsonSchemeFormatter correctly creates a RecordFormatter for
+        //    qjson scheme with simplified printf-style syntax.
+        // 3. Both functions respect formatOptions.timezoneDefault().
+        // 4. Both functions use the allocator from the output parameter.
+        // 5. Invalid format specifications return non-zero.
+        // 6. Valid format specifications return 0.
+        //
+        // Plan:
+        // 1. Call both factory functions with various format strings.
+        // 2. Invoke the resulting formatters on test records.
+        // 3. Verify JSON output is well-formed and contains expected fields.
+        // 4. Test error cases (invalid formats).
+        // 5. Test timezone settings.
+        //
+        // Testing:
+        //   int loadJsonSchemeFormatter(...);
+        //   int loadQjsonSchemeFormatter(...);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "TESTING SCHEME FACTORY FUNCTIONS\n"
+                                  "================================\n";
+
+        typedef ball::RecordFormatterFunctor::Type RecordFormatter;
+
+        bslma::TestAllocator ta("test",     veryVeryVeryVerbose);
+        bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+
+        // Create a test record
+        ball::RecordAttributes fixedFields(&sa);
+        ball::UserFields       customFields(&sa);
+
+        fixedFields.setTimestamp(bdlt::Datetime(2024,11,24, 15,30,45,123));
+        fixedFields.setProcessID(100);
+        fixedFields.setThreadID(200);
+        fixedFields.setSeverity(ball::Severity::e_WARN);
+        fixedFields.setFileName("test.cpp");
+        fixedFields.setLineNumber(42);
+        fixedFields.setCategory("TEST.CAT");
+        fixedFields.setMessage("Test json message");
+
+        ball::Record record(fixedFields, customFields, &sa);
+
+        // Test 1: loadJsonSchemeFormatter with basic fields
+        if (verbose) bsl::cout << "\tTesting loadJsonSchemeFormatter\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            int rc = Obj::loadJsonSchemeFormatter(&formatter,
+                                                  "[\"severity\",\"message\"]",
+                                                  options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            // Should be valid JSON with the requested fields
+            ASSERT(result.find("{")                 != bsl::string::npos);
+            ASSERT(result.find("}")                 != bsl::string::npos);
+            ASSERT(result.find("\"severity\"")      != bsl::string::npos);
+            ASSERT(result.find("\"WARN\"")          != bsl::string::npos);
+            ASSERT(result.find("\"message\"")       != bsl::string::npos);
+            ASSERT(result.find("Test json message") != bsl::string::npos);
+        }
+
+        // Test 2: loadJsonSchemeFormatter with more fields
+        if (verbose) bsl::cout << "\tTesting JSON with multiple fields\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            int rc = Obj::loadJsonSchemeFormatter(
+                                 &formatter,
+                                 "[\"timestamp\",\"pid\",\"tid\",\"severity\","
+                                 "\"file\",\"line\",\"category\",\"message\"]",
+                                 options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find("\"timestamp\"") != bsl::string::npos);
+            ASSERT(result.find("\"pid\"")       != bsl::string::npos);
+            ASSERT(result.find("100")           != bsl::string::npos);  // pid
+            ASSERT(result.find("\"tid\"")       != bsl::string::npos);
+            ASSERT(result.find("200")           != bsl::string::npos);  // tid
+            ASSERT(result.find("\"file\"")      != bsl::string::npos);
+            ASSERT(result.find("test.cpp")      != bsl::string::npos);
+            ASSERT(result.find("\"line\"")      != bsl::string::npos);
+            ASSERT(result.find("42")            != bsl::string::npos);
+            ASSERT(result.find("\"category\"")  != bsl::string::npos);
+            ASSERT(result.find("TEST.CAT")      != bsl::string::npos);
+        }
+
+        // Test 3: loadQjsonSchemeFormatter with simplified format
+        if (verbose) bsl::cout << "\tTesting loadQjsonSchemeFormatter\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            const int rc = Obj::loadQjsonSchemeFormatter(&formatter,
+                                                         "%s %m",
+                                                         options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            // Should be valid JSON with severity and message
+            ASSERT(result.find("{")                 != bsl::string::npos);
+            ASSERT(result.find("}")                 != bsl::string::npos);
+            ASSERT(result.find("\"severity\"")      != bsl::string::npos);
+            ASSERT(result.find("\"WARN\"")          != bsl::string::npos);
+            ASSERT(result.find("\"message\"")       != bsl::string::npos);
+            ASSERT(result.find("Test json message") != bsl::string::npos);
+        }
+
+        // Test 4: loadQjsonSchemeFormatter with multiple fields
+        if (verbose) bsl::cout << "\tTesting qjson with multiple fields\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            int rc = Obj::loadQjsonSchemeFormatter(&formatter,
+                                                   "%d %p %t %s %f %l %c %m",
+                                                   options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find("\"timestamp\"") != bsl::string::npos);
+            ASSERT(result.find("\"pid\"")       != bsl::string::npos);
+            ASSERT(result.find("\"tid\"")       != bsl::string::npos);
+            ASSERT(result.find("\"severity\"")  != bsl::string::npos);
+            ASSERT(result.find("\"file\"")      != bsl::string::npos);
+            ASSERT(result.find("\"line\"")      != bsl::string::npos);
+            ASSERT(result.find("\"category\"")  != bsl::string::npos);
+            ASSERT(result.find("\"message\"")   != bsl::string::npos);
+        }
+
+        // Test 5: Invalid JSON format syntax returns non-zero
+        if (verbose) bsl::cout << "\tTesting invalid JSON format\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+
+            // Missing closing bracket
+            int rc = Obj::loadJsonSchemeFormatter(&formatter,
+                                                  "[\"severity\"",
+                                                  options);
+            ASSERT(0 != rc);  // Should fail
+        }
+
+        // Test 6: Local timezone for JSON
+        if (verbose) bsl::cout << "\tTesting JSON with LOCAL timezone\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+            options.setTimezoneDefault(ball::RecordFormatterTimezone::e_LOCAL);
+
+            int rc = Obj::loadJsonSchemeFormatter(
+                                                 &formatter,
+                                                 "[\"timestamp\",\"message\"]",
+                                                 options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find("\"timestamp\"") != bsl::string::npos);
+            ASSERT(!result.empty());
+        }
+
+        // Test 7: Local timezone for qjson
+        if (verbose) bsl::cout << "\tTesting qjson with LOCAL timezone\n";
+        {
+            RecordFormatter         formatter(bsl::allocator_arg, &sa);
+            ball::RecordFormatterOptions options;
+            options.setTimezoneDefault(ball::RecordFormatterTimezone::e_LOCAL);
+
+            int rc = Obj::loadQjsonSchemeFormatter(&formatter,
+                                                   "%d %m",
+                                                   options);
+            ASSERT(0 == rc);
+
+            bsl::string result(&sa);
+            {
+                bslma::DefaultAllocatorGuard guard(&sa);
+                bsl::ostringstream           oss(&sa);
+                formatter(oss, record);
+                result = oss.str();
+            }
+
+            ASSERT(result.find("\"timestamp\"") != bsl::string::npos);
+        }
+
+        // Test 8: Allocator usage for JSON
+        if (verbose) bsl::cout << "\tTesting JSON allocator usage\n";
+        {
+            bslma::TestAllocator         fa("formatter", veryVeryVeryVerbose);
+            RecordFormatter         formatter(bsl::allocator_arg, &fa);
+            ball::RecordFormatterOptions options;
+
+            const bsls::Types::Int64 numAllocsBefore = fa.numAllocations();
+
+            int rc = Obj::loadJsonSchemeFormatter(&formatter,
+                                                  "[\"severity\",\"message\"]",
+                                                  options);
+            ASSERT(0 == rc);
+
+            ASSERT(fa.numAllocations() > numAllocsBefore);
+        }
+
+        // Test 9: Allocator usage for qjson
+        if (verbose) bsl::cout << "\tTesting qjson allocator usage\n";
+        {
+            bslma::TestAllocator         fa("formatter", veryVeryVeryVerbose);
+            RecordFormatter         formatter(bsl::allocator_arg, &fa);
+            ball::RecordFormatterOptions options;
+
+            const bsls::Types::Int64 numAllocsBefore = fa.numAllocations();
+
+            int rc = Obj::loadQjsonSchemeFormatter(&formatter,
+                                                   "%s %m",
+                                                   options);
+            ASSERT(0 == rc);
+
+            ASSERT(fa.numAllocations() > numAllocsBefore);
+        }
+
+#ifdef BDE_BUILD_TARGET_EXC
+        // Test 10: Exception safety for loadJsonSchemeFormatter
+        if (verbose) bsl::cout <<
+                        "\tTesting loadJsonSchemeFormatter exception safety\n";
+        {
+            bslma::TestAllocator         oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            ball::RecordFormatterOptions options;
+
+            const char *FORMATS[] = {
+                "[\"timestamp\",\"severity\",\"message\"]",
+                "[\"process\",\"thread\",\"file\",\"line\"]",
+                "[\"timestamp\",\"severity\",\"category\",\"message\"]"
+            };
+            const int NUM_FORMATS = sizeof(FORMATS) / sizeof(FORMATS[0]);
+
+            for (int i = 0; i < NUM_FORMATS; ++i) {
+                const char *FORMAT = FORMATS[i];
+
+                if (veryVerbose) {
+                    P_(i) P(FORMAT)
+                }
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    RecordFormatter formatter(bsl::allocator_arg, &oa);
+
+                    const int rc = Obj::loadJsonSchemeFormatter(&formatter,
+                                                                FORMAT,
+                                                                options);
+                    ASSERTV(FORMAT, 0 == rc);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(FORMAT, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            }
+
+            ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+        }
+
+        // Test 11: Exception safety for loadQjsonSchemeFormatter
+        if (verbose) bsl::cout << "\tTesting loadQjsonSchemeFormatter "
+                                  "exception safety\n";
+        {
+            bslma::TestAllocator         oa("object",  veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            ball::RecordFormatterOptions options;
+
+            const char *FORMATS[] = {
+                "%d %s %m",
+                "%p %t %f %l",
+                "%d %i %I %p %t %s %f %l %c %m"
+            };
+            const int NUM_FORMATS = sizeof(FORMATS) / sizeof(FORMATS[0]);
+
+            for (int i = 0; i < NUM_FORMATS; ++i) {
+                const char *FORMAT = FORMATS[i];
+
+                if (veryVerbose) {
+                    P_(i) P(FORMAT)
+                }
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    RecordFormatter formatter(bsl::allocator_arg, &oa);
+
+                    const int rc = Obj::loadQjsonSchemeFormatter(&formatter,
+                                                                 FORMAT,
+                                                                 options);
+                    ASSERTV(FORMAT, 0 == rc);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(FORMAT, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            }
+
+            ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+        }
+#endif  // BDE_BUILD_TARGET_EXC
+      } break;
+      case 9: {
+        // --------------------------------------------------------------------
+        // TESTING SIMPLIFIED FORMAT (setSimplifiedFormat)
+        //
+        // Concerns:
+        // 1. `setSimplifiedFormat` should parse printf-style format specs.
+        // 2. Each %field should render as a JSON key-value pair.
+        // 3. Whitespace and commas between fields should be ignored.
+        // 4. Field names should use default names (e.g., "timestamp", "tid").
+        // 5. No memory is allocated from the default or global allocators.
+        //
+        // Test plan:
+        //   Test representative simplified format patterns with the fields
+        //   that the simplified format supports (no customization options).
+        //
+        // Testing:
+        //   int setSimplifiedFormat(const bsl::string_view& format);
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "SIMPLIFIED FORMAT TEST\n"
+                                  "======================\n";
+
+        {
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
+
+            typedef ball::Severity S;
+
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+#define PS "\\"
+#else
+#define PS "/"
+#endif
+            const char *FILE_NAME = PS "bar" PS "foo.c";
+
+            static const struct {
+                int                 d_line;
+                const char         *d_spec;
+                char                d_timezone;  // 'U' for UTC, 'L' for LOCAL
+                bsls::Types::Int64  d_offset;
+                const char         *d_expected;  // 0 if invalid spec
+            } DATA[] = {
+// LINE  SPEC                           TZ     OFFSET
+//-----  -----------------------------  --     ------
+//       EXPECTED
+//       ------------------------------------------------------------------
+{ L_,    "%d",                         'U',   0,
+         "{\"timestamp\":\"02JAN2021_03:04:05.006\"}"                        },
+{ L_,    "%d",                         'L',   7200,
+         "{\"timestamp\":\"02JAN2021_05:04:05.006\"}"                        },
+{ L_,    "%i",                         'U',   0,
+         "{\"timestamp\":\"2021-01-02T03:04:05Z\"}"                          },
+{ L_,    "%i",                         'L',   7200,
+         "{\"timestamp\":\"2021-01-02T05:04:05+02:00\"}"                     },
+{ L_,    "%I",                         'U',   0,
+         "{\"timestamp\":\"2021-01-02T03:04:05.006Z\"}"                      },
+{ L_,    "%I",                         'L',   10800,
+         "{\"timestamp\":\"2021-01-02T06:04:05.006+03:00\"}"                 },
+{ L_,    "%p",                         'U',   0,
+         "{\"pid\":123}"                                                     },
+{ L_,    "%t",                         'U',   0,
+         "{\"tid\":456}"                                                     },
+{ L_,    "%T",                         'U',   0,
+         "{\"tid\":\"1C8\"}"                                                 },
+{ L_,    "%k",                         'U',   0,
+         "{\"ktid\":789}"                                                    },
+{ L_,    "%K",                         'U',   0,
+         "{\"ktid\":\"315\"}"                                                },
+{ L_,    "%f",                         'U',   0,
+         "{\"file\":\"\\" PS "bar\\" PS "foo.c\"}"                           },
+{ L_,    "%F",                         'U',   0,
+         "{\"file\":\"foo.c\"}"                                              },
+{ L_,    "%l",                         'U',   0,
+         "{\"line\":42}"                                                     },
+{ L_,    "%c",                         'U',   0,
+         "{\"category\":\"CAT\"}"                                            },
+{ L_,    "%s",                         'U',   0,
+         "{\"severity\":\"INFO\"}"                                           },
+{ L_,    "%m",                         'U',   0,
+         "{\"message\":\"Test msg\"}"                                        },
+{ L_,    "%A",                         'U',   0,
+         "{\"attr1\":\"val1\",\"attr2\":42}"                                 },
+{ L_,    "%a[attr1]",                  'U',   0,
+         "{\"attr1\":\"val1\"}"                                              },
+{ L_,    "%a[attr2]",                  'U',   0,
+         "{\"attr2\":42}"                                                    },
+{ L_,    "%a[missing]",                'U',   0,
+         "{\"missing\":\"N\\/A\"}"                                           },
+// Combined fields with various separators
+{ L_,    "%d %p %t",                   'U',   0,
+         "{\"timestamp\":\"02JAN2021_03:04:05.006\",\"pid\":123,\"tid\":456}"},
+{ L_,    "%d, %p, %t",                 'U',   0,
+         "{\"timestamp\":\"02JAN2021_03:04:05.006\",\"pid\":123,\"tid\":456}"},
+{ L_,    "%d,%p,%t",                   'U',   0,
+         "{\"timestamp\":\"02JAN2021_03:04:05.006\",\"pid\":123,\"tid\":456}"},
+{ L_,    "%T %s %c %m",                'U',   0,
+         "{\"tid\":\"1C8\",\"severity\":\"INFO\",\"category\":\"CAT\","
+         "\"message\":\"Test msg\"}"                                         },
+{ L_,    "%i %T %s %F %l %c %m",       'U',   0,
+         "{\"timestamp\":\"2021-01-02T03:04:05Z\",\"tid\":\"1C8\","
+         "\"severity\":\"INFO\",\"file\":\"foo.c\",\"line\":42,"
+         "\"category\":\"CAT\",\"message\":\"Test msg\"}"                    },
+// Test with local timezone offset
+{ L_,    "%i",                         'L',   3600,
+         "{\"timestamp\":\"2021-01-02T04:04:05+01:00\"}"                     },
+
+// Test with custom labels
+{ L_,    "ts:%d",                      'U',   0,
+         "{\"ts\":\"02JAN2021_03:04:05.006\"}"                               },
+{ L_,    "process:%p, thread:%t",      'U',   0,
+         "{\"process\":123,\"thread\":456}"                                  },
+{ L_,    "time:%i, msg:%m",            'U',   0,
+         "{\"time\":\"2021-01-02T03:04:05Z\",\"msg\":\"Test msg\"}"          },
+{ L_,    "sev:%s, cat:%c, text:%m",    'U',   0,
+         "{\"sev\":\"INFO\",\"cat\":\"CAT\",\"text\":\"Test msg\"}"          },
+{ L_,    "custom:%a[attr1]",           'U',   0,
+         "{\"custom\":\"val1\"}"                                             },
+{ L_,    "a1:%a[attr1], a2:%a[attr2]", 'U',   0,
+         "{\"a1\":\"val1\",\"a2\":42}"                                       },
+{ L_,    "%a[attr1], renamed:%a[attr2]", 'U', 0,
+         "{\"attr1\":\"val1\",\"renamed\":42}"                               },
+
+// Invalid format strings (`d_expected` == 0)
+{ L_,    "",                          'U',   0,
+         0                                                                   },
+{ L_,    "%",                         'U',   0,
+         0                                                                   },
+{ L_,    "%x",                        'U',   0,
+         0                                                                   },
+{ L_,    "%a",                        'U',   0,
+         0                                                                   },
+{ L_,    "%a[",                       'U',   0,
+         0                                                                   },
+{ L_,    "%a[attr1",                  'U',   0,
+         0                                                                   },
+{ L_,    "%a[]",                      'U',   0,
+         0                                                                   },
+{ L_,    "%d %a[]",                   'U',   0,
+         0                                                                   },
+{ L_,    "%a[] %d",                   'U',   0,
+         0                                                                   },
+{ L_,    "%d %a[] %s",                'U',   0,
+         0                                                                   },
+// Invalid comma placement
+{ L_,    ",",                         'U',   0,
+         0                                                                   },
+{ L_,    ",%d",                       'U',   0,
+         0                                                                   },
+{ L_,    "%d,",                       'U',   0,
+         0                                                                   },
+{ L_,    "%d,,",                      'U',   0,
+         0                                                                   },
+{ L_,    "%d,,%s",                    'U',   0,
+         0                                                                   },
+};
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bdlt::LocalTimeOffset::LocalTimeOffsetCallback defaultCallback =
+                             bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
+                                        &LocalTimeOffsetUtil::localTimeOffset);
+
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                const int           LINE     = DATA[i].d_line;
+                bsl::string_view    SPEC     = DATA[i].d_spec;
+                bsls::Types::Int64  OFFSET   = DATA[i].d_offset;
+                const bool          IS_UTC   = (DATA[i].d_timezone == 'U');
+                const char         *EXPECTED = DATA[i].d_expected;
+
+                bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+                Obj mX(&sa); const Obj& X = mX;
+
+                const int rc = mX.setSimplifiedFormat(SPEC);
+
+                if (0 == EXPECTED) {
+                    // Invalid format - should return non-zero
+                    ASSERTV(LINE, SPEC, rc, 0 != rc);
+                    continue;                                       // CONTINUE
+                }
+
+                // Valid format - should succeed
+                ASSERTV(LINE, SPEC, rc, 0 == rc);
+                mX.setRecordSeparator("");
+
+                bsl::ostringstream oss(&scratch);
+                RA                 ra(&scratch);
+                UF                 uf(&scratch);
+
+                ra.setTimestamp(bdlt::Datetime(2021, 1, 2, 3, 4, 5, 6, 7));
+                ra.setProcessID(123);
+                ra.setThreadID(456);
+                ra.setKernelThreadID(789);
+                ra.setFileName(FILE_NAME);
+                ra.setLineNumber(42);
+                ra.setCategory("CAT");
+                ra.setSeverity(S::e_INFO);
+                ra.setMessage("Test msg");
+
+                Rec rec(ra, uf, &scratch);
+
+                rec.addAttribute(ball::Attribute("attr1", "val1", &scratch));
+                rec.addAttribute(ball::Attribute("attr2", 42,     &scratch));
+
+                mX.setTimezoneDefault(IS_UTC
+                                    ? ball::RecordFormatterTimezone::e_UTC
+                                    : ball::RecordFormatterTimezone::e_LOCAL);
+
+                LocalTimeOffsetUtil::d_offset = OFFSET;
+
+                X(oss, rec);
+
+                if (veryVeryVerbose) {
+                    P_(LINE) P_(SPEC) P(oss.str().c_str());
+                }
+
+                ASSERTV(LINE, SPEC, oss.str().c_str(), EXPECTED,
+                              oss.str() == EXPECTED);
+                ASSERTV(dam.isInUseSame());
+            }
+            // Verify all memory is released.
+            ASSERTV(0 == sa.numBlocksInUse());
+            ASSERTV(0 == scratch.numBlocksInUse());
+
+            bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(defaultCallback);
+#undef PS
+        }
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -378,12 +959,11 @@ int main(int argc, char *argv[])
         //   RecordJsonFormatter& operator=(MovableRef<RecordJsonFormatter>);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "MOVE-ASSIGNMENT OPERATOR" << endl
-                          << "========================" << endl;
+        if (verbose) cout << "MOVE-ASSIGNMENT OPERATOR\n"
+                             "========================\n";
 
-        if (verbose) cout <<
-                 "\nAssign the address of the operator to a variable." << endl;
+        if (verbose)
+               cout << "\tAssign the address of the operator to a variable.\n";
         {
             typedef Obj& (Obj::*operatorPtr)(bslmf::MovableRef<Obj>);
 
@@ -444,7 +1024,7 @@ int main(int argc, char *argv[])
                 // Create target object `X`.
                 Obj *objPtr = new (fa) Obj(&oa);
                 Obj& mX = *objPtr;  const Obj& X = mX;
-                mX.setFormat("[\"timestamp\"]");
+                mX.setJsonFormat("[\"timestamp\"]");
 
                 // Verify the value of the object.
                 ASSERTV(CONFIG, X != W);
@@ -480,6 +1060,7 @@ int main(int argc, char *argv[])
                 ASSERTV(0 == oa.numBlocksInUse());
                 ASSERTV(0 == sa.numBlocksInUse());
             }
+#ifdef BDE_BUILD_TARGET_EXC
             {
                 // self-assignment
 
@@ -513,24 +1094,26 @@ int main(int argc, char *argv[])
                     ASSERTV(oam.isTotalSame());
                 }
             }
+#endif  // BDE_BUILD_TARGET_EXC
         }
 
+#ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nTesting move assignment with exceptions.\n");
         {
-            const int NUM_DATA                     = DEFAULT_NUM_DATA;
+            const bsl::size_t      NUM_DATA        = DEFAULT_NUM_DATA;
             const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int              LINE1 = DATA[ti].d_line;
                 const char *const      SPEC1 = DATA[ti].d_spec_p;
                 const bsl::string_view RSEP1 = DATA[ti].d_recordSeparator;
 
                 // Create control object `W`.
                 Obj mW;  const Obj& W = mW;
-                mW.setFormat(SPEC1);
+                mW.setJsonFormat(SPEC1);
                 mW.setRecordSeparator(RSEP1);
 
-                for (int tj = 0; tj < NUM_DATA; ++tj) {
+                for (bsl::size_t tj = 0; tj < NUM_DATA; ++tj) {
                     const int              LINE2 = DATA[tj].d_line;
                     const char *const      SPEC2 = DATA[tj].d_spec_p;
                     const bsl::string_view RSEP2 = DATA[tj].d_recordSeparator;
@@ -539,7 +1122,7 @@ int main(int argc, char *argv[])
 
                         const char CONFIG = cfg;  // how we specify allocator
 
-                        bslma::TestAllocator oa(   "object",
+                        bslma::TestAllocator oa("object",
                                                 veryVeryVeryVerbose);
                         bslma::TestAllocator za("different",
                                                 veryVeryVeryVerbose);
@@ -564,14 +1147,14 @@ int main(int argc, char *argv[])
                             bslma::TestAllocator& sa = *srcAllocatorPtr;
 
                             Obj mY(&sa);  const Obj& Y = mY;
-                            mY.setFormat(SPEC1);
+                            mY.setJsonFormat(SPEC1);
                             mY.setRecordSeparator(RSEP1);
 
                             ASSERTV(LINE1, LINE2, CONFIG, Y == W);
 
                             // Create target object `X`.
                             Obj mX(&oa);  const Obj& X = mX;
-                            mX.setFormat(SPEC2);
+                            mX.setJsonFormat(SPEC2);
                             mX.setRecordSeparator(RSEP2);
 
                             ASSERTV(LINE1, LINE2, CONFIG,
@@ -587,6 +1170,7 @@ int main(int argc, char *argv[])
                 }
             }
         }
+#endif  // BDE_BUILD_TARGET_EXC
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -649,12 +1233,11 @@ int main(int argc, char *argv[])
         //   RecordJsonFormatter(MovableRef<RecordJsonFormatter> o, alloc);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "MOVE CTOR" << endl
-                          << "=========" << endl;
+        if (verbose) cout << "MOVE CTOR\n"
+                             "=========\n";
 
         if (verbose) cout <<
-             "\nCreate objects with various allocator configurations." << endl;
+                   "\tCreate objects with various allocator configurations.\n";
         {
             // Create control object `W` with a scratch allocator.
 
@@ -855,7 +1438,7 @@ int main(int argc, char *argv[])
         //   1. Create a `bslma::TestAllocator` object, `oa`.
         //
         //   2. Use the default constructor, and `oa` to create a modifiable
-        //      `Obj` `mX`; also use `setFormat` primary manipulator and a
+        //      `Obj` `mX`; also use `setJsonFormat` primary manipulator and a
         //      distinct "scratch" allocator to create a `const` `Obj` `ZZ`.
         //
         //   3. Let `Z` be a `const` reference to `mX`.
@@ -887,12 +1470,11 @@ int main(int argc, char *argv[])
         //   HttpHeader& operator=(const HttpHeader& rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "COPY-ASSIGNMENT OPERATOR" << endl
-                          << "========================" << endl;
+        if (verbose) cout << "COPY-ASSIGNMENT OPERATOR\n"
+                             "========================\n";
 
-        if (verbose) cout <<
-                 "\nAssign the address of the operator to a variable." << endl;
+        if (verbose)
+               cout << "\tAssign the address of the operator to a variable.\n";
         {
             typedef Obj& (Obj::*operatorPtr)(const Obj&);
 
@@ -904,17 +1486,16 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) cout <<
-            "\nCreate a test allocator and install it as the default." << endl;
+                  "\tCreate a test allocator and install it as the default.\n";
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\nUse a table of distinct object values."
-                                                                       << endl;
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        if (verbose) cout << "\tUse a table of distinct object values.\n";
+        const bsl::size_t      NUM_DATA        = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
+        for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
             const int              LINE1 = DATA[ti].d_line;
             const char *const      SPEC1 = DATA[ti].d_spec_p;
             const bsl::string_view RSEP1 = DATA[ti].d_recordSeparator;
@@ -924,9 +1505,9 @@ int main(int argc, char *argv[])
             Obj  mZ(&scratch);  const Obj& Z  = mZ;
             Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
-            mZ.setFormat(SPEC1);
+            mZ.setJsonFormat(SPEC1);
             mZ.setRecordSeparator(RSEP1);
-            mZZ.setFormat(SPEC1);
+            mZZ.setJsonFormat(SPEC1);
             mZZ.setRecordSeparator(RSEP1);
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z.format()) P(ZZ.format()) }
@@ -940,7 +1521,7 @@ int main(int argc, char *argv[])
                 firstFlag = false;
             }
 
-            for (int tj = 0; tj < NUM_DATA; ++tj) {
+            for (bsl::size_t tj = 0; tj < NUM_DATA; ++tj) {
                 const int              LINE2 = DATA[tj].d_line;
                 const char *const      SPEC2 = DATA[tj].d_spec_p;
                 const bsl::string_view RSEP2 = DATA[tj].d_recordSeparator;
@@ -950,7 +1531,7 @@ int main(int argc, char *argv[])
                 {
                     Obj mX(&oa);  const Obj& X = mX;
 
-                    mX.setFormat(SPEC2);
+                    mX.setJsonFormat(SPEC2);
                     mX.setRecordSeparator(RSEP2);
 
                     if (veryVerbose) { T_ P_(LINE2) P(X.format()) }
@@ -959,6 +1540,7 @@ int main(int argc, char *argv[])
 
                     bslma::TestAllocatorMonitor oam(&oa), sam(&scratch);
 
+#ifdef BDE_BUILD_TARGET_EXC
                     BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                         if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -966,6 +1548,7 @@ int main(int argc, char *argv[])
                         ASSERTV(LINE1, LINE2,  Z == X);
                         ASSERTV(LINE1, LINE2, mR == &mX);
                     } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
 
                     ASSERTV(LINE1, LINE2, ZZ == Z);
 
@@ -996,9 +1579,9 @@ int main(int argc, char *argv[])
                 Obj  mX(&oa);
                 Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
-                mX.setFormat(SPEC1);
+                mX.setJsonFormat(SPEC1);
                 mX.setRecordSeparator(RSEP1);
-                mZZ.setFormat(SPEC1);
+                mZZ.setJsonFormat(SPEC1);
                 mZZ.setRecordSeparator(RSEP1);
 
                 const Obj& Z = mX;
@@ -1007,6 +1590,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
+#ifdef BDE_BUILD_TARGET_EXC
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
@@ -1014,6 +1598,7 @@ int main(int argc, char *argv[])
                     ASSERTV(LINE1, ZZ == Z);
                     ASSERTV(LINE1, mR == &mX);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
 
                 ASSERTV(LINE1, &oa,   Z.get_allocator().mechanism(),
                         &oa == Z.get_allocator());
@@ -1133,21 +1718,19 @@ int main(int argc, char *argv[])
         //   RecordJsonFormatter(const RecordJsonFormatter& o, a = alloc());
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "COPY CONSTRUCTOR" << endl
-                          << "================" << endl;
+        if (verbose) cout << "COPY CONSTRUCTOR\n"
+                             "================\n";
 
-        if (verbose) cout << "\nUse a table of distinct object values."
-                                                                       << endl;
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        if (verbose) cout << "\tUse a table of distinct object values.\n";
+        const bsl::size_t      NUM_DATA        = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
         if (verbose) cout <<
-             "\nCreate objects with various allocator configurations." << endl;
+                   "\tCreate objects with various allocator configurations.\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int              LINE = DATA[ti].d_line;
                 const char *const      SPEC = DATA[ti].d_spec_p;
                 const bsl::string_view RSEP = DATA[ti].d_recordSeparator;
@@ -1156,9 +1739,9 @@ int main(int argc, char *argv[])
                 Obj  mZ(&scratch);  const Obj& Z  = mZ;
                 Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
-                mZ.setFormat(SPEC);
+                mZ.setJsonFormat(SPEC);
                 mZ.setRecordSeparator(RSEP);
-                mZZ.setFormat(SPEC);
+                mZZ.setJsonFormat(SPEC);
                 mZZ.setRecordSeparator(RSEP);
 
                 if (veryVerbose) {
@@ -1257,9 +1840,9 @@ int main(int argc, char *argv[])
             }  // end foreach row
         }
 
-        if (verbose) cout << "\nTesting with injected exceptions." << endl;
+        if (verbose) cout << "\tTesting with injected exceptions.\n";
         {
-            for (int ti = 0; ti < NUM_DATA; ++ti) {
+            for (bsl::size_t ti = 0; ti < NUM_DATA; ++ti) {
                 const int              LINE = DATA[ti].d_line;
                 const char *const      SPEC = DATA[ti].d_spec_p;
                 const bsl::string_view RSEP = DATA[ti].d_recordSeparator;
@@ -1270,9 +1853,9 @@ int main(int argc, char *argv[])
                 Obj  mZ(&scratch);  const Obj& Z  = mZ;
                 Obj mZZ(&scratch);  const Obj& ZZ = mZZ;
 
-                mZ.setFormat(SPEC);
+                mZ.setJsonFormat(SPEC);
                 mZ.setRecordSeparator(RSEP);
-                mZZ.setFormat(SPEC);
+                mZZ.setJsonFormat(SPEC);
                 mZZ.setRecordSeparator(RSEP);
 
                 bslma::TestAllocator da("default",  veryVeryVeryVerbose);
@@ -1280,12 +1863,14 @@ int main(int argc, char *argv[])
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
+#ifdef BDE_BUILD_TARGET_EXC
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     Obj obj(Z, &sa);
                     ASSERTV(LINE, Z == obj);
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
 
                 ASSERTV(LINE, ZZ == Z);
 
@@ -1313,9 +1898,10 @@ int main(int argc, char *argv[])
         //   void operator()(bsl::ostream&, const ball::Record&) const;
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTIMESTAMP TEST"
-                               << "\n==============" << bsl::endl;
+        if (verbose) bsl::cout << "TESTING OPERATOR()\n"
+                                  "==================\n";
 
+        if (verbose) bsl::cout << "\tTIMESTAMP TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1399,9 +1985,9 @@ int main(int argc, char *argv[])
                              bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(
                                         &LocalTimeOffsetUtil::localTimeOffset);
 
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int           LINE     = DATA[i].d_line;
                 bsl::string_view    SPEC     = DATA[i].d_spec;
@@ -1412,7 +1998,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1437,9 +2023,7 @@ int main(int argc, char *argv[])
             bdlt::LocalTimeOffset::setLocalTimeOffsetCallback(defaultCallback);
         }
 
-        if (verbose) bsl::cout << "\nPROCESS ID TEST"
-                               << "\n==============" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tPROCESS ID TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1457,9 +2041,9 @@ int main(int argc, char *argv[])
                 {  L_,  "[{\"pid\":"
                         "{\"name\":\"My pid\"}}]", 1,   "{\"My pid\":1}"  }
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
@@ -1470,7 +2054,7 @@ int main(int argc, char *argv[])
 
                 bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1493,9 +2077,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nTHREAD ID TEST"
-                               << "\n==============" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tTHREAD ID TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1517,9 +2099,9 @@ int main(int argc, char *argv[])
               {  L_,  "[{\"tid\":"
                       "{\"format\":\"hex\"}}]",     42,  "{\"tid\":\"2A\"}" }
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int         LINE     = DATA[i].d_line;
                 bsl::string_view  SPEC     = DATA[i].d_spec;
@@ -1530,7 +2112,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1554,10 +2136,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose)
-            bsl::cout << "\nKERNEL THREAD ID TEST"
-                      << "\n=====================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tKERNEL THREAD ID TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1579,9 +2158,9 @@ int main(int argc, char *argv[])
               {  L_,  "[{\"ktid\":"
                       "{\"format\":\"hex\"}}]",     41,   "{\"ktid\":\"29\"}"}
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int         LINE     = DATA[i].d_line;
                 bsl::string_view  SPEC     = DATA[i].d_spec;
@@ -1592,7 +2171,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1616,9 +2195,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nFILE TEST"
-                               << "\n=========" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tFILE TEST\n";
         {
 #ifdef BSLS_PLATFORM_OS_WINDOWS
 #define PS "\\"
@@ -1651,9 +2228,9 @@ int main(int argc, char *argv[])
     {  L_,  "[{\"file\":"
              "{\"path\":\"file\"}}]",    FILE_NAME, "{\"file\":\"foo.c\"}"   },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
@@ -1664,7 +2241,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1689,9 +2266,7 @@ int main(int argc, char *argv[])
 #undef PS
         }
 
-        if (verbose) bsl::cout << "\nLINE TEST"
-                               << "\n=========" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tLINE TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1709,9 +2284,9 @@ int main(int argc, char *argv[])
               {  L_,  "[{\"line\":"
                       "{\"name\":\"My line\"}}]", 1234, "{\"My line\":1234}" },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE        = DATA[i].d_line;
                 const char *SPEC        = DATA[i].d_spec;
@@ -1722,7 +2297,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1746,9 +2321,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nCATEGORY TEST"
-                               << "\n=============" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tCATEGORY TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1768,9 +2341,9 @@ int main(int argc, char *argv[])
             "\"My Category\"}}]", "Category",  "{\"My Category\":"
                                                 "\"Category\"}"  },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
@@ -1781,7 +2354,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1805,9 +2378,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nSEVERITY TEST"
-                               << "\n=============" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tSEVERITY TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1837,10 +2408,9 @@ int main(int argc, char *argv[])
             "\"My Severity\"}}]",   S::e_INFO,  "{\"My Severity\":\"INFO\"}" },
             };
 
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
                 const int   SEVERITY = DATA[i].d_severity;
@@ -1850,7 +2420,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1874,9 +2444,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nMESSAGE TEST"
-                               << "\n=============" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tMESSAGE TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1901,9 +2469,9 @@ int main(int argc, char *argv[])
                                                         "\"Hello, world\"}" },
             };
 
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
@@ -1914,7 +2482,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -1938,9 +2506,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nUSER ATTRIBUTE TEST"
-                               << "\n===================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tUSER ATTRIBUTE TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -1978,9 +2544,9 @@ int main(int argc, char *argv[])
                                                     "\"a2\":\"v2\","
                                                     "\"a3\":\"v3\"}" },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
@@ -1990,7 +2556,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -2037,9 +2603,9 @@ int main(int argc, char *argv[])
                 {  L_,  "[\"ullong\"]",        "{\"ullong\":42}"         },
                 {  L_,  "[\"void_ptr\"]",      "{\"void_ptr\":\"0x2a\"}" },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
 
                 const int   LINE     = DATA[i].d_line;
                 const char *SPEC     = DATA[i].d_spec;
@@ -2049,7 +2615,7 @@ int main(int argc, char *argv[])
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator("");
 
@@ -2091,9 +2657,7 @@ int main(int argc, char *argv[])
             ASSERTV(0 == scratch.numBlocksInUse());
         }
 
-        if (verbose) bsl::cout << "\nRECORD SEPARATOR TEST"
-                               << "\n=====================" << bsl::endl;
-
+        if (verbose) bsl::cout << "\tRECORD SEPARATOR TEST\n";
         {
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
             bslma::TestAllocator sa("supplied",     veryVeryVeryVerbose);
@@ -2106,27 +2670,28 @@ int main(int argc, char *argv[])
                 bsl::string d_expected;
             } DATA[] = {
                 //-------------------------------------------------------------
-                // LINE  SEP     EXPECTED
-                //-------------------------------------------------------------
-                {  L_,   "\n",   "{\"message\":\"Hello, world\"}\n"          },
-                {  L_,   "",     "{\"message\":\"Hello, world\"}"            },
-                {  L_,   " ",    "{\"message\":\"Hello, world\"} "           },
-                {  L_,   "\r\n", "{\"message\":\"Hello, world\"}\r\n"        },
-                {  L_,   k_NULL_S,
-                                 "{\"message\":\"Hello, world\"}" + k_NULL_S },
+                // LINE SEP      EXPECTED
+                //------------------------------------------------------------
+                {  L_,  "\n",    "{\"message\":\"Hello, world\"}\n"          },
+                {  L_,  "",      "{\"message\":\"Hello, world\"}"            },
+                {  L_,  " ",     "{\"message\":\"Hello, world\"} "           },
+                {  L_,  "\r\n",  "{\"message\":\"Hello, world\"}\r\n"        },
+                {  L_,  k_NULL_S,"{\"message\":\"Hello, world\"}" + k_NULL_S },
             };
-            enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+            const bsl::size_t NUM_DATA = sizeof DATA / sizeof *DATA;
 
-            for (int i = 0; i < NUM_DATA; ++i) {
-                const int         LINE     = DATA[i].d_line;
-                const bsl::string RSEP     = DATA[i].d_recordSeparator;
-                const bsl::string EXPECTED = DATA[i].d_expected;
+            for (bsl::size_t i = 0; i < NUM_DATA; ++i) {
+                const int          LINE     = DATA[i].d_line;
+                const bsl::string& RSEP     = DATA[i].d_recordSeparator;
+                const bsl::string& EXPECTED = DATA[i].d_expected;
+
+                if (veryVeryVerbose) { P_(LINE) P_(RSEP) P(EXPECTED); }
 
                 bslma::TestAllocatorMonitor dam(&defaultAllocator);
 
                 Obj mX(&sa); const Obj& X = mX;
 
-                int rc = mX.setFormat(SPEC);
+                const int rc = mX.setJsonFormat(SPEC);
                 ASSERTV(rc, 0 == rc);
                 mX.setRecordSeparator(RSEP);
 
@@ -2137,7 +2702,7 @@ int main(int argc, char *argv[])
 
                 X(oss, Rec(fields, UF(&scratch)));
 
-                if (veryVeryVerbose) P(oss.str().c_str());
+                if (veryVeryVerbose) { P(oss.str().c_str()); }
 
                 ASSERTV(LINE, oss.str(), EXPECTED, oss.str() == EXPECTED);
 
@@ -2172,53 +2737,63 @@ int main(int argc, char *argv[])
         //      allocator.  Then configure the object to have the value from
         //      `R`.
         //
-        //   2. Verify that the `format`, `recordSeparator`, `get_allocator`
-        //      and `allocator` accessors, invoked on a `const` reference to
-        //      the object created in P-2, return the expected values.
+        //   2. Verify that the `format`, `formatSyntax`, `timezoneDefault`,
+        //      `recordSeparator`, `get_allocator`, and `allocator` accessors,
+        //      invoked on a `const` reference to the object created in P-2,
+        //      return the expected values.
         //
         //   3. Monitor the memory allocated from both the default and object
         //      allocators before and after calling the accessors; verify that
         //      there is no change in total memory allocation.  (C-3)
         //
+        //   4. Test the equality operators to ensure formatters compare equal
+        //      when all attributes match, and unequal when any attribute
+        //      differs.
+        //
         // Testing:
         //   const bsl::string& format() const;
+        //   SpecSyntax formatSyntax() const;
+        //   RecordFormatterTimezone::Enum timezoneDefault() const;
         //   const bsl::string& recordSeparator() const;
         //   bsl::Allocator *allocator() const;
         //   allocator_type get_allocator() const;
+        //   bool operator==(lhs, rhs);
+        //   bool operator!=(lhs, rhs);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                          << "BASIC ACCESSORS" << endl
-                          << "===============" << endl;
+        if (verbose) cout << "BASIC ACCESSORS\n"
+                             "===============\n";
 
         if (verbose) cout <<
-            "\nCreate a test allocator and install it as the default." << endl;
+                  "\tCreate a test allocator and install it as the default.\n";
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
 
-        if (verbose) cout << "\nUse a table of distinct object values."
-                                                                       << endl;
-        const int NUM_DATA                     = DEFAULT_NUM_DATA;
+        if (verbose) cout << "\tUse a table of distinct object values.\n";
+        const bsl::size_t      NUM_DATA        = DEFAULT_NUM_DATA;
         const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
 
-        for (int ti = 2; ti < NUM_DATA; ++ti) {
+        for (bsl::size_t ti = 2; ti < NUM_DATA; ++ti) {
             const int              LINE = DATA[ti].d_line;
             const char *const      SPEC = DATA[ti].d_spec_p;
             const bsl::string_view RSEP = DATA[ti].d_recordSeparator;
 
-            if (veryVerbose) { P_(LINE) P_(SPEC) P(RSEP) }
+            if (veryVerbose) { P_(LINE) P_(SPEC) P(RSEP); }
 
             bslma::TestAllocator      oa("object",  veryVeryVeryVerbose);
             bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
             Obj mX(&oa);  const Obj& X = mX;
-            mX.setFormat(SPEC);
+            mX.setJsonFormat(SPEC);
             mX.setRecordSeparator(RSEP);
 
             bslma::TestAllocatorMonitor oam(&oa), dam(&da);
 
             ASSERTV(LINE, SPEC, SPEC == X.format());
+            ASSERTV(LINE, Obj::e_JSON == X.formatSyntax());
+            ASSERTV(LINE, ball::RecordFormatterTimezone::e_UTC ==
+                                                         X.timezoneDefault());
             ASSERTV(LINE, RSEP, RSEP == X.recordSeparator());
 #ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 # pragma GCC diagnostic push
@@ -2232,8 +2807,39 @@ int main(int argc, char *argv[])
 
             ASSERTV(LINE, SPEC, oam.isTotalSame());
             ASSERTV(LINE, SPEC, dam.isTotalSame());
-        }
 
+            // Test equality operators
+            {
+                // Test equal objects
+                Obj mY(&scratch);  const Obj& Y = mY;
+                mY.setJsonFormat(SPEC);
+                mY.setRecordSeparator(RSEP);
+
+                ASSERTV(LINE, X == Y);
+                ASSERTV(LINE, !(X != Y));
+
+                // Test different format syntax
+                Obj mZ(&scratch);  const Obj& Z = mZ;
+                mZ.setSimplifiedFormat("%d");
+                ASSERTV(LINE, X != Z);
+                ASSERTV(LINE, !(X == Z));
+
+                // Test different timezone
+                Obj mW(&scratch);  const Obj& W = mW;
+                mW.setJsonFormat(SPEC);
+                mW.setRecordSeparator(RSEP);
+                mW.setTimezoneDefault(ball::RecordFormatterTimezone::e_LOCAL);
+                ASSERTV(LINE, X != W);
+                ASSERTV(LINE, !(X == W));
+
+                // Test different record separator
+                Obj mV(&scratch);  const Obj& V = mV;
+                mV.setJsonFormat(SPEC);
+                mV.setRecordSeparator("DIFFERENT");
+                ASSERTV(LINE, X != V);
+                ASSERTV(LINE, !(X == V));
+            }
+        }
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2269,9 +2875,16 @@ int main(int argc, char *argv[])
         //
         // 9. Each attribute is modifiable independently.
         //
+        //10. Both `setJsonFormat` and `setSimplifiedFormat` work correctly
+        //    with different format syntaxes.
+        //
+        //11. The deprecated `setFormat` method forwards correctly to
+        //    `setJsonFormat`.
+        //
         // Plan:
-        // 1. Create a set of distinct specification values for the format
-        //    string and record separator (for use in P-5).
+        // 1. Create a set of distinct specification values for the JSON
+        //    format string, simplified format string, and record separator
+        //    (for use in P-5).
         //
         // 2. Using a loop-based approach, default-construct three distinct
         //    objects, in turn, but configured differently: (a) without passing
@@ -2293,34 +2906,43 @@ int main(int argc, char *argv[])
         //   4. Use the (as yet unproven) basic accessors to verify the
         //      default-constructed value.  (C-1)
         //
-        //   5. In turn, for each value, `V`, in the table of format strings
-        //      described in P-1, supply `V` to the primary manipulator,
-        //      `setFormat` (using the `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*`
-        //      macros).  After each invocation, verify that `X` has the
-        //      expected value and that any memory allocation is as expected.
-        //      Then, repeat this process with the table of record separators
-        //      and the `setRecordSeparator` primary manipulator.  (C-5..6)
+        //   5. In turn, for each value, `V`, in the table of JSON format
+        //      strings described in P-1, supply `V` to the primary
+        //      manipulator, `setJsonFormat` (using the
+        //      `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_*` macros).  After each
+        //      invocation, verify that `X` has the expected value and that any
+        //      memory allocation is as expected.  (C-5..6, C-10)
         //
-        //   6. Corroborate that attributes are modifiable independently by
+        //   6. Repeat step 5 with the table of simplified format strings and
+        //      the `setSimplifiedFormat` primary manipulator.  (C-5..6, C-10)
+        //
+        //   7. Repeat step 5 with the table of record separators and the
+        //      `setRecordSeparator` primary manipulator.  (C-5..6)
+        //
+        //   8. Verify the deprecated `setFormat` method forwards to
+        //      `setJsonFormat` by testing with a JSON format string. (C-11)
+        //
+        //   9. Corroborate that attributes are modifiable independently by
         //      first setting all attributes to one set of values. Then
         //      incrementally set each attribute to a different value and
         //      verify after each manipulation that only that attribute's value
         //      changed.  (C-9)
         //
-        //   7. Verify that all object memory is released when the object is
+        //  10. Verify that all object memory is released when the object is
         //      destroyed.  (C-7)
         //
         // Testing:
         //   RecordJsonFormatter();
         //   RecordJsonFormatter(const allocator_type& a);
         //   ~RecordJsonFormatter();
-        //   int setFormat(const bsl::string_view& format);
+        //   int setJsonFormat(const bsl::string_view& format);
+        //   int setSimplifiedFormat(const bsl::string_view& format);
+        //   int setFormat(const bsl::string_view& format);        DEPRECATED
         //   void setRecordSeparator(const bsl::string_view& recordSeparator);
         // --------------------------------------------------------------------
 
-        if (verbose) cout << endl
-                       << "DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR" << endl
-                       << "==========================================" << endl;
+        if (verbose) cout << "DEFAULT CTOR, PRIMARY MANIPULATORS, & DTOR\n"
+                             "==========================================\n";
 
         static const struct {
             int         d_line;     // source line number
@@ -2348,8 +2970,34 @@ int main(int argc, char *argv[])
         enum { NUM_FORMAT_DATA = sizeof FORMAT_DATA / sizeof *FORMAT_DATA };
 
         static const struct {
-            int         d_line;  // source line number
-            bsl::string d_recordSeparator;
+            int         d_line;     // source line number
+            const char *d_spec_p;
+        } SIMPLIFIED_DATA[] = {
+    //LINE                            SPEC (Simplified Format)
+    //----  -------------------------------------------------------------------
+    { L_,   ""                                                               },
+    { L_,   "%d"                                                             },
+    { L_,   "%d %p"                                                          },
+    { L_,   "%d %p %t"                                                       },
+    { L_,   "%d %p %t %s"                                                    },
+    { L_,   "%d %p %t %s %f"                                                 },
+    { L_,   "%d %p %t %s %f %l"                                              },
+    { L_,   "%d %p %t %s %f %l %c"                                           },
+    { L_,   "%d %p %t %s %f %l %c %m"                                        },
+    { L_,   "%d %p %t %s %f %l %c %m %A"                                     },
+    { L_,   "%i %T %s %c %m"                                                 },
+    { L_,   "%I %p %s %m"                                                    },
+    { L_,   "%d,%T,%s,%c,%m"                                                 },
+    { L_,   "time:%d thread:%T %s %c %m"                                     },
+        };
+        enum { NUM_SIMPLIFIED_DATA = sizeof SIMPLIFIED_DATA
+                                   / sizeof *SIMPLIFIED_DATA };
+
+        static bsl::string_view k_NULL_SEP("\0", 1);
+
+        static const struct {
+            int              d_line;  // source line number
+            bsl::string_view d_recordSeparator;
         } RSEP_DATA[] = {
             //LINE     RECORD SEPARATOR
             //----  ----------------------
@@ -2357,12 +3005,12 @@ int main(int argc, char *argv[])
             {L_,    ""                  },
             {L_,    " "                 },
             {L_,    "\r\n"              },
-            {L_,    bsl::string(1, '\0')},
+            {L_,    k_NULL_SEP          },
         };
         enum { NUM_RSEP_DATA = sizeof RSEP_DATA / sizeof *RSEP_DATA };
 
-        if (verbose) cout << "\nTesting with various allocator configurations."
-                          << endl;
+        if (verbose)
+                  cout << "\tTesting with various allocator configurations.\n";
 
         for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
 
@@ -2434,14 +3082,47 @@ int main(int argc, char *argv[])
                 const int         LINE  = FORMAT_DATA[ti].d_line;
                 const char *const SPEC  = FORMAT_DATA[ti].d_spec_p;
 
+                if (veryVeryVerbose) { P_(LINE) P(SPEC); }
+
                 bslma::TestAllocatorMonitor oam(&oa);
 
+#ifdef BDE_BUILD_TARGET_EXC
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
-                    mX.setFormat(SPEC);
+                    mX.setJsonFormat(SPEC);
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
+
+                // Verify object value and expected memory use.
+
+                ASSERTV(CONFIG, LINE, SPEC, SPEC[0] == 0 ||
+                                            SPEC == X.format());
+                ASSERTV(CONFIG, LINE, SPEC,
+                        k_DEFAULT_RECORD_SEPARATOR == X.recordSeparator());
+                ASSERTV(CONFIG, LINE,
+                        CONFIG == 'c' || 0 == noa.numBlocksTotal());
+            }
+
+            bsl::string lastFormat(X.format(), &scratch);
+
+            for (int ti = 0; ti < NUM_SIMPLIFIED_DATA; ++ti) {
+                const int         LINE  = SIMPLIFIED_DATA[ti].d_line;
+                const char *const SPEC  = SIMPLIFIED_DATA[ti].d_spec_p;
+
+                if (veryVeryVerbose) { P_(LINE) P(SPEC); }
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    mX.setSimplifiedFormat(SPEC);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
 
                 // Verify object value and expected memory use.
 
@@ -2453,37 +3134,105 @@ int main(int argc, char *argv[])
                                       0 == noa.numBlocksTotal());
             }
 
-            const bsl::string lastFormat(X.format(), &scratch);
-
+            lastFormat = X.format();
             for (int ti = 0; ti < NUM_RSEP_DATA; ++ti) {
-                const int   LINE  = RSEP_DATA[ti].d_line;
-                bsl::string RSEP  = RSEP_DATA[ti].d_recordSeparator;
+                const int               LINE = RSEP_DATA[ti].d_line;
+                const bsl::string_view& RSEP = RSEP_DATA[ti].d_recordSeparator;
+
+                if (veryVeryVerbose) { P_(LINE) P(RSEP); }
 
                 bslma::TestAllocatorMonitor oam(&oa);
 
+#ifdef BDE_BUILD_TARGET_EXC
                 BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                     if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
 
                     mX.setRecordSeparator(RSEP);
 
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
 
                 // Verify object value and expected memory use.
 
                 ASSERTV(CONFIG, LINE, RSEP, RSEP == X.recordSeparator());
                 ASSERTV(CONFIG, LINE, lastFormat, lastFormat == X.format());
-                ASSERTV(CONFIG, LINE, CONFIG == 'c' ||
-                                      0 == noa.numBlocksTotal());
+                ASSERTV(CONFIG, LINE,
+                        CONFIG == 'c' || 0 == noa.numBlocksTotal());
+            }
+
+            // Test with null separator
+            {
+                const int               LINE = __LINE__;
+                const bsl::string_view& RSEP = k_NULL_SEP;
+
+                if (veryVeryVerbose) { P_(LINE) P(RSEP); }
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                    mX.setRecordSeparator(RSEP);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
+
+                // Verify object value and expected memory use.
+
+                ASSERTV(CONFIG, LINE, RSEP, RSEP == X.recordSeparator());
+                ASSERTV(CONFIG, LINE, lastFormat, lastFormat == X.format());
+                ASSERTV(CONFIG, LINE,
+                        CONFIG == 'c' || 0 == noa.numBlocksTotal());
+            }
+
+            // Test deprecated setFormat method forwards to setJsonFormat
+            {
+                const char *const JSON_FORMAT = "[\"timestamp\"]";
+
+                if (veryVeryVerbose) { P(JSON_FORMAT); }
+
+                bslma::TestAllocatorMonitor oam(&oa);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+// Testing a deprecated function.
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4996)
+#endif
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+                    const int rc = mX.setFormat(JSON_FORMAT);
+#ifdef BSLS_PLATFORM_CMP_MSVC
+#pragma warning(pop)
+#endif
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
+#pragma GCC diagnostic pop
+#endif
+                    ASSERTV(rc, 0 == rc);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+#endif  // BDE_BUILD_TARGET_EXC
+
+                // Verify setFormat forwards to setJsonFormat
+                ASSERTV(JSON_FORMAT, JSON_FORMAT == X.format());
+                ASSERTV(CONFIG, CONFIG == 'c' || 0 == noa.numBlocksTotal());
             }
 
             // Corroborate attribute independence.
             {
                 const char *const F1  = "[]";
                 const char *const F2  = "[\"timestamp\"]";
+                const char *const SF1 = "%d";
                 const char *const RS1 = "\n";
                 const char *const RS2 = "\r\n";
 
-                mX.setFormat(F1);
+                mX.setJsonFormat(F1);
                 mX.setRecordSeparator(RS1);
 
                 ASSERTV(F1,  F1 == X.format());
@@ -2494,10 +3243,21 @@ int main(int argc, char *argv[])
                 ASSERTV(F1,  F1 == X.format());
                 ASSERTV(RS2, RS2 == X.recordSeparator());
 
-                mX.setFormat(F2);
+                mX.setJsonFormat(F2);
 
                 ASSERTV(F2,  F2 == X.format());
                 ASSERTV(RS2, RS2 == X.recordSeparator());
+
+                // Verify setSimplifiedFormat works independently
+                mX.setSimplifiedFormat(SF1);
+
+                ASSERTV(SF1, SF1 == X.format());
+                ASSERTV(RS2, RS2 == X.recordSeparator());
+
+                mX.setRecordSeparator(RS1);
+
+                ASSERTV(SF1, SF1 == X.format());
+                ASSERTV(RS1, RS1 == X.recordSeparator());
             }
 
             // Reclaim dynamically allocated object under test.
@@ -2519,21 +3279,36 @@ int main(int argc, char *argv[])
         }
       } break;
       case 1: {
-          if (verbose) bsl::cout << "\nBREATHING TEST"
-                                 << "\n==============" << bsl::endl;
+        // --------------------------------------------------------------------
+        // BREATHING TEST
+        //   This case exercises (but does not fully test) basic functionality.
+        //
+        // Concerns:
+        // 1. The class is sufficiently functional to enable comprehensive
+        //    testing in subsequent test cases.
+        //
+        // Plan:
+        // 1. Create an object and set a format specification.
+        // 2. Format a record and verify the output contains expected fields.
+        //
+        // Testing:
+        //   BREATHING TEST
+        // --------------------------------------------------------------------
 
-          Obj mX;
-          int rc = 0;
-          rc = mX.setFormat("["
-                       "\"timestamp\", {\"timestamp\":{\"name\":\"Time\"}}"
-                       ",\"pid\", {\"pid\":{\"name\":\"PID\"}}"
-                       ",\"line\", {\"line\":{\"name\":\"ln\"}}"
-                       ",\"category\", {\"category\":{\"name\":\"cat\"}}"
-                       ",\"message\", {\"message\":{\"name\":\"msg\"}}"
-                       ",\"attributes\""
-                       "]");
+        if (verbose) bsl::cout << "BREATHING TEST\n"
+                                  "==============\n";
 
-          ASSERTV(rc, 0 == rc);
+        Obj mX;
+        const int rc = mX.setJsonFormat("["
+                     "\"timestamp\", {\"timestamp\":{\"name\":\"Time\"}}"
+                     ",\"pid\", {\"pid\":{\"name\":\"PID\"}}"
+                     ",\"line\", {\"line\":{\"name\":\"ln\"}}"
+                     ",\"category\", {\"category\":{\"name\":\"cat\"}}"
+                     ",\"message\", {\"message\":{\"name\":\"msg\"}}"
+                     ",\"attributes\""
+                     "]");
+
+        ASSERTV(rc, 0 == rc);
 
         bsl::ostringstream oss;
 
@@ -2550,14 +3325,14 @@ int main(int argc, char *argv[])
 #endif
         const char *MSG       = "Hello\3 world!\t";
         ball::RecordAttributes fixedFields(bdlt::Datetime(),
-                                          processID,
-                                          threadID,
-                                          kernelTID,
-                                          filename,
-                                          lineNum,
-                                          "FOO.BAR.BAZ",
-                                          ball::Severity::e_WARN,
-                                          MSG);
+                                           processID,
+                                           threadID,
+                                           kernelTID,
+                                           filename,
+                                           lineNum,
+                                           "FOO.BAR.BAZ",
+                                           ball::Severity::e_WARN,
+                                           MSG);
 
         fixedFields.setTimestamp(bdlt::CurrentTime::utc());
 
@@ -2585,7 +3360,6 @@ int main(int argc, char *argv[])
         mX(oss, mRecord);
 
         P(oss.str().c_str());
-
       } break;
       default: {
           bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND."
