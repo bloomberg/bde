@@ -1,9 +1,6 @@
 // bdlt_date_specifierformatter.t.cpp                                 -*-C++-*-
 #include <bdlt_date_specifierformatter.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlt_date_specifierformatter_t_cpp,"$Id$ $CSID$")
-
 // Testing of this component is done in `bdlt_date.t.cpp`.
 
 int main()

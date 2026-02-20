@@ -1,9 +1,6 @@
 // balber_berdecoderoptions.t.cpp                                     -*-C++-*-
 #include <balber_berdecoderoptions.h>
 
-#include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdem_berdecoderoptions_t_cpp,"$Id$ $CSID$")
-
 #include <bdlat_symbolicconverter.h>
 
 #include <bslim_testutil.h>
