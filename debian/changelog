@@ -1,5 +1,36 @@
-bsl-internal (4.35.0.0) unstable; urgency=low
+bsl-internal (4.36.0.0) unstable; urgency=low
 
+  * f3059f2f5 Bumped version to 4.36.0.0
+  * ce508dfe1 Remove remaining use of bsls_ident in test drivers (#5774)
+  * 319b829f9 Add `BSLS_ASSERT_*UNREACHABLE`. (#5704)
+  * e195580bd Ball log record formatter plugins (#5665)
+  * 4a27fd4a5 bdlt_formattestutil.t.cpp: eliminate cyclic dependency on Datetime (#5757)
+  * ec39ee1c8 reduce runtime for bsls_atomic cases 7, 8, and 9 (#5770)
+  * 2f91a2a14 Fix bad spelling of __cpp feature macro (#5769)
+  * 039b2365b Conditionally remove redeclarations deprecated in C++17 (#5696)
+  * 21951a69c remove temporary test vector suppression and replace with a reduce runtime vectos (#5767)
+  * ab5744015 reduce runtime of cases 7 and 8 on Darwin (#5766)
+  * 1fd8ef85c DRQS 182862857: Fix typo in balcl_typeinfo.t.cpp (#5764)
+  * 327666599 Alphasort libraryfeatures doc (#5737)
+  * 947fe7d75 Drqs 182854696/darwin nb 20260217 (#5760)
+  * 3fc0a080f Drqs 182811209/bslmt correct for testing only and add timedcompletionguard usage 20260213 (#5758)
+  * 501a3e880 Resolve deprecation warning in bdldfp_decimal test driver (#5756)
+  * 752ee82ce reduce case 4 spew (#5755)
+  * 0913a846b bsl::format for bdlt types drqs 179899414 (#5614)
+  * 664676b10 Fix build issues for C++23 on MacOS (#5752)
+  * 4ba59fe8a reduce failures (#5750)
+  * f4feb06c1 bdlmt::EventScheduler unexpectedly stores callback in event, creating a retain cycle hazard (2) (DRQS 179819546) (#5724)
+  * 3f9e0bb50 Audit the printFlags report in compiler features component (#5743)
+  * cac546c03 Fix logic that enables BSLS_IDENT (#5746)
+  * 419cc50a9 DRQS 182696903: Allow `decode` after maxDepth err (#5741)
+  * fa82721d7 Fix bsls assert macro usage. (#5740)
+  * c404f275b Regenerate groups/bsl/bslstl/bslstl_function_invokerutil_cpp03.t.cpp (#5739)
+
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Feb 2026 23:25:48 +0000
+
+bsl-internal (4.35.0.0) git; urgency=low
+
+  * 88d42c75c Changelog for version 4.35.0.0
   * 298cac7f1 Bumped version to 4.35.0.0
   * 5e23227ed Fix test driver for bslstl_function_invokerutil on Clang (#5738)
   * 0b1474e31 Fix builds with no transitive includes (#5736)
@@ -30,7 +61,7 @@ bsl-internal (4.35.0.0) unstable; urgency=low
   * 4aa5613c7 bslfmt_padutil: create component (#5649)
   * 5844b4f62 Simplify Jenkins.conan (#5703)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Thu, 5 Feb 2026 23:56:39 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 6 Feb 2026 00:02:44 +0000
 
 bsl-internal (4.34.0.0) git; urgency=low
 
