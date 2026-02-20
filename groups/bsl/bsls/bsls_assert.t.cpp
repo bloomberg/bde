@@ -114,16 +114,21 @@ using namespace std;
 // [ 9] CONCERN: Returning handler log: backoff
 // [-7] CONCERN: Returning handler log: limits
 //
-// [14] USAGE EXAMPLE: Using Assert Macros
-// [15] USAGE EXAMPLE: Invoking an assert handler directly
-// [16] USAGE EXAMPLE: Using Administration Functions
-// [16] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
-// [17] USAGE EXAMPLE: Creating Your Own Assert-Handler
-// [18] USAGE EXAMPLE: Using Scoped Guard
-// [19] USAGE EXAMPLE: Using "ASSERT" with `BDE_BUILD_TARGET_SAFE_2`
-// [20] USAGE EXAMPLE: Conditional Compilation
-// [21] USAGE EXAMPLE: Conditional Compilation of Support Functions
-// [22] USAGE EXAMPLE: Conditional Compilation of Support Code
+// [14] BSLS_ASSERT_SAFE_UNREACHABLE(X)
+// [14] BSLS_ASSERT_UNREACHABLE(X)
+// [14] BSLS_ASSERT_OPT_UNREACHABLE(X)
+//
+// [15] USAGE EXAMPLE: Using Assert Macros
+// [16] USAGE EXAMPLE: Invoking an assert handler directly
+// [17] USAGE EXAMPLE: Using Administration Functions
+// [17] USAGE EXAMPLE: Installing Prefabricated Assert-Handlers
+// [18] USAGE EXAMPLE: Creating Your Own Assert-Handler
+// [19] USAGE EXAMPLE: Using Scoped Guard
+// [20] USAGE EXAMPLE: Using "ASSERT" with `BDE_BUILD_TARGET_SAFE_2`
+// [21] USAGE EXAMPLE: Conditional Compilation
+// [22] USAGE EXAMPLE: Conditional Compilation of Support Functions
+// [23] USAGE EXAMPLE: Conditional Compilation of Support Code
+// [24] USAGE EXAMPLE: Asserting a Branch Is Unreachable
 //
 // [ 1] CONCERN: By default, the `bsls::Assert::failByAbort` is used.
 // [ 2] CONCERN: ASSERT macros are instantiated properly for build targets
@@ -1562,7 +1567,7 @@ void ComplexObject::doSomethingPurpley()
 //    inspected by the compiler to improve code generation.
 //
 ///Example 9: Conditional Compilation of Support Code
-/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+/// - - - - - - - - - - - - - - - - - - - - - - - - -
 // Sometimes there is code that needs to run in a function before an assertion
 // to gather information needed only by that assertion.  Often this can be
 // capturing input values or other system state before it is modified and
@@ -1617,15 +1622,270 @@ struct MySwapper {
 };
 }  // close namespace usage_example_assert_9_b
 // ```
+//
+///Example 10: Asserting a Branch Is Unreachable
+///- - - - - - - - - - - - - - - - - - - - - - -
+namespace usage_example_assert_10 {
+
+static const char *lastAction = "None";
+static int numActions = 0;
+
+void doClear()
+{
+    lastAction = "Clear";
+    ++numActions;
+}
+
+void doSet()
+{
+    lastAction = "Set";
+    ++numActions;
+}
+
+void doToggle()
+{
+    lastAction = "Toggle";
+    ++numActions;
+}
+
+// Sometimes a developer knows that it would always be a bug for a particular
+// branch to be taken.  For example, when handling a set of values in an
+// exhaustive `switch` statement, the default branch "should not" be taken
+// because the set of values is known to be limited at the point of the
+// `switch` (but a wrong value can be created by a bug, or perhaps by a future
+// change to the `enum`).
+//
+// There may be several situations depending on the code in question and its
+// state.  In existing code one may have an unconditional  BSLS_ASSERT_OPT that
+// is already being used to "cover" the unreachable branch:
+// ```
+    enum Action { e_CLEAR, e_SET, e_TOGGLE };
+
+    void badExistingDoAction(Action value) {
+        switch (value) {
+          case e_CLEAR:  doClear();  break;
+          case e_SET:    doSet();    break;
+          case e_TOGGLE: doToggle(); break;
+          default:       BSLS_ASSERT_OPT(false); break;
+        }
+    }
+// ```
+// `BSLS_ASSERT_OPT` is of course not ideal for this purpose because it has a
+// condition that we need to set to `false` and there is no convenient place to
+// put a message that describes what the issue is.  Using the dedicated
+// unreachable macro instead is much more clear and allows for a message to be
+// included that describes the issue, like this:
+// ```
+    void updatedDoAction(Action value) {
+        switch (value) {
+          case e_CLEAR:  doClear();  break;
+          case e_SET:    doSet();    break;
+          case e_TOGGLE: doToggle(); break;
+          default:       BSLS_ASSERT_OPT_UNREACHABLE("Unknown Action"); break;
+        }
+    }
+// ```
+// Using `BSLS_ASSERT_OPT_UNREACHABLE` allows us to keep the configurability of
+// the original assertion, while making it much more clear that the branch is
+// not expected to be taken and providing a message that describes the issue if
+// it is taken.  Moreover, if we wanted to introduce this assertion at the
+// REVIEW level, we could do so by changing the macro used in the `default`
+// case to `BSLS_ASSERT_REVIEW_UNREACHABLE`.
+//
+// Say we are writing a `doAction` method the first time and the action is so
+// critical that we want to make sure that the branch is never taken, therefore
+// we do not want the assertion to be configurable.  Instead want it to be an
+// unconditional assertion that always fires when the branch is taken.
+// In that case, we may use `BSLS_ASSERT_INVOKE_NORETURN` instead:
+// ```
+    void newlyWrittenDoAction(Action value) {
+        switch (value) {
+          case e_CLEAR:  doClear();  break;
+          case e_SET:    doSet();    break;
+          case e_TOGGLE: doToggle(); break;
+          default:       BSLS_ASSERT_INVOKE_NORETURN("Unknown Action");
+        }
+    }
+// ```
+// It is important to note that the `BSLS_ASSERT_INVOKE_NORETURN` macro does
+// not provide any way to disable the assertion, so it should be used only when
+// the branch is truly expected to be unreachable.  If the method is frequently
+// called with an unknown action it will keep bringing the system down.
+//
+// There may also be a case when we do not want any assertion to be invoked,
+// because the method itself is not critical at all, more informational.  For
+// example while a `toAscii` method for an `enum` is very useful for debugging,
+// we really do not want the act of formatting an error log message (with a
+// bad `enum` value) to cause the system to crash.  In such case we rely on the
+// fact that this is an information function and simply return a string that
+// indicates the value is unknown, without invoking any kind of assertion:
+// ```
+    enum Color { e_RED, e_GREEN, e_BLUE };
+
+    const char *toAscii(Color value) {
+        switch (value) {
+          case e_RED:   return "RED";
+          case e_GREEN: return "GREEN";
+          case e_BLUE:  return "BLUE";
+        }
+        return "(* UNKNOWN COLOR *)";
+    }
+// ```
+// As the examples show library designers should employ careful consideration
+// when deciding which type of assertion to use to ensure system stability,
+// security, observability, and build artifact configurability.  When in doubt,
+// err on the side of giving the owner of `main` more control over the behavior
+// of the system, or avoid the possibility of bringing the system down if that
+// action won't hide an error.
+}  // close namespace usage_example_assert_10
 
 // End of usage examples
 // BDE_VERIFY pragma: pop
 
 //=============================================================================
-//                              MAIN PROGRAM
+//                            TEST CASE FUNCTIONS
 //-----------------------------------------------------------------------------
 
-void test_case_22() {
+void test_case_24() {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE #10
+        //
+        // Concerns:
+        // 1. The usage example provided in the component header file must
+        //    compile, link, and run on all platforms as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage example from header into driver, remove leading
+        //    comment characters, and replace `assert` with `ASSERT`.
+        //
+        // Testing:
+        //   USAGE EXAMPLE: Asserting a Branch Is Unreachable
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE #10"
+                            "\n=================\n");
+
+        if (verbose) printf( "\n10. Asserting a Branch Is Unreachable\n");
+
+        // See usage examples section above `main` in `namespace`:
+        using namespace usage_example_assert_10;
+
+        // `badExistingDoAction` example
+        badExistingDoAction(e_CLEAR);
+        ASSERT(1 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Clear"));
+
+        badExistingDoAction(e_SET);
+        ASSERT(2 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Set"));
+
+        badExistingDoAction(e_TOGGLE);
+        ASSERT(3 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Toggle"));
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wconversion"
+#endif
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+#if defined(BDE_BUILD_TARGET_EXC)
+            bsls::AssertFailureHandlerGuard guard(bsls::Assert::failByThrow);
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE) || defined(BSLS_ASSERT_OPT_IS_REVIEW)
+            bool caughtException = false;
+            try {
+                badExistingDoAction(static_cast<Action>(-1));
+            } catch (const bsls::AssertTestException& ex) {
+                caughtException = true;
+            }
+            ASSERT(caughtException);
+#else
+            badExistingDoAction(static_cast<Action>(-1));
+#endif
+        }
+#endif
+
+        // `updatedDoAction` example
+        lastAction = "None";
+        numActions = 0;
+
+        updatedDoAction(e_CLEAR);
+        ASSERT(1 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Clear"));
+
+        updatedDoAction(e_SET);
+        ASSERT(2 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Set"));
+
+        updatedDoAction(e_TOGGLE);
+        ASSERT(3 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Toggle"));
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+#if defined(BDE_BUILD_TARGET_EXC)
+            bsls::AssertFailureHandlerGuard guard(bsls::Assert::failByThrow);
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE) || defined(BSLS_ASSERT_OPT_IS_REVIEW)
+            bool caughtException = false;
+            try {
+                updatedDoAction(static_cast<Action>(-1));
+            } catch (const bsls::AssertTestException& ex) {
+                caughtException = true;
+            }
+            ASSERT(caughtException);
+#else
+            updatedDoAction(static_cast<Action>(-1));
+#endif
+        }
+#endif
+
+        // `newlyWrittenDoAction` example
+        lastAction = "None";
+        numActions = 0;
+
+        newlyWrittenDoAction(e_CLEAR);
+        ASSERT(1 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Clear"));
+
+        newlyWrittenDoAction(e_SET);
+        ASSERT(2 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Set"));
+
+        newlyWrittenDoAction(e_TOGGLE);
+        ASSERT(3 == numActions);
+        ASSERT(0 == strcmp(lastAction, "Toggle"));
+
+        if (verbose) cout << "\nNegative Testing." << endl;
+        {
+#if defined(BDE_BUILD_TARGET_EXC)
+            bsls::AssertFailureHandlerGuard guard(bsls::Assert::failByThrow);
+
+            bool caughtException = false;
+            try {
+                newlyWrittenDoAction(static_cast<Action>(-1));
+            } catch (const bsls::AssertTestException& ex) {
+                caughtException = true;
+            }
+            ASSERT(caughtException);
+        }
+#endif
+
+        // `toAscii` example
+        ASSERT(0 == strcmp(toAscii(e_RED),   "RED"  ));
+        ASSERT(0 == strcmp(toAscii(e_GREEN), "GREEN"));
+        ASSERT(0 == strcmp(toAscii(e_BLUE),  "BLUE" ));
+        ASSERT(0 == strcmp(toAscii(static_cast<Color>(-1)),
+                           "(* UNKNOWN COLOR *)"));
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+#  pragma GCC diagnostic pop
+#endif
+}
+
+void test_case_23() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #9
         //
@@ -1657,7 +1917,7 @@ void test_case_22() {
 
 }
 
-void test_case_21() {
+void test_case_22() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #8
         //
@@ -1684,7 +1944,7 @@ void test_case_21() {
         o.doSomethingPurpley();
 }
 
-void test_case_20() {
+void test_case_21() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #7
         //
@@ -1711,7 +1971,7 @@ void test_case_20() {
         ASSERT(usage_example_assert_7::MyDateImpUtil::isValidSerialDate(1));
 }
 
-void test_case_19() {
+void test_case_20() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #6
         //
@@ -1767,7 +2027,7 @@ void test_case_19() {
 #endif  // BDE_BUILD_TARGET_SAFE_2
 }
 
-void test_case_18() {
+void test_case_19() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #5
         //
@@ -1817,7 +2077,7 @@ void test_case_18() {
 
 }
 
-void test_case_17() {
+void test_case_18() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #4
         //
@@ -1857,7 +2117,7 @@ void test_case_17() {
 #endif
 }
 
-void test_case_16() {
+void test_case_17() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #3
         //
@@ -1886,7 +2146,7 @@ void test_case_16() {
 
 }
 
-void test_case_15() {
+void test_case_16() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #2
         //
@@ -1918,6 +2178,112 @@ void test_case_15() {
 }
 
 void test_case_14() {
+        // --------------------------------------------------------------------
+        // BSLS_ASSERT_*_UNREACHABLE MACROS
+        //
+        // Concerns:
+        // 1. 'BSLS_ASSERT_OPT_UNREACHABLE(X)' invokes the assertion handler
+        //    when 'BSLS_ASSERT_OPT_IS_ACTIVE' or 'BSLS_ASSERT_OPT_IS_REVIEW'
+        //    is defined, and does nothing otherwise.
+        //
+        // 2. 'BSLS_ASSERT_UNREACHABLE(X)' invokes the assertion handler when
+        //    'BSLS_ASSERT_IS_ACTIVE' or 'BSLS_ASSERT_IS_REVIEW' is defined,
+        //    and does nothing otherwise.
+        //
+        // 3. 'BSLS_ASSERT_SAFE_UNREACHABLE(X)' invokes the assertion handler
+        //    when 'BSLS_ASSERT_SAFE_IS_ACTIVE' or 'BSLS_ASSERT_SAFE_IS_REVIEW'
+        //    is defined, and does nothing otherwise.
+        //
+        // 4. The message string passed to the UNREACHABLE macro appears as
+        //    the 'comment' in the 'AssertViolation' passed to the handler.
+        //
+        // Plan:
+        // 1. For each UNREACHABLE macro, test that it fires (throws via the
+        //    'failByThrow' handler) when the corresponding IS_ACTIVE or
+        //    IS_REVIEW macro is defined, or does nothing otherwise.
+        //
+        // Testing:
+        //   BSLS_ASSERT_SAFE_UNREACHABLE(X)
+        //   BSLS_ASSERT_UNREACHABLE(X)
+        //   BSLS_ASSERT_OPT_UNREACHABLE(X)
+        // --------------------------------------------------------------------
+
+        if (verbose) printf( "\nBSLS_ASSERT_*_UNREACHABLE MACROS"
+                             "\n================================\n" );
+
+#if !defined(BDE_BUILD_TARGET_EXC)
+        if (verbose)
+            printf( "\nThis case is not run as it relies "
+                    "on exception support.\n" );
+#else
+        bsls::AssertFailureHandlerGuard guard(bsls::Assert::failByThrow);
+
+        // Test BSLS_ASSERT_OPT_UNREACHABLE
+        if (veryVerbose) printf( "\tTesting BSLS_ASSERT_OPT_UNREACHABLE\n" );
+        {
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE) || defined(BSLS_ASSERT_OPT_IS_REVIEW)
+            bool caughtException = false;
+            try {
+                BSLS_ASSERT_OPT_UNREACHABLE("opt unreachable test");
+                ASSERT(false);  // Should not reach here
+            } catch (const bsls::AssertTestException& ex) {
+                caughtException = true;
+                ASSERTV(ex.expression(),
+                        0 == strcmp(ex.expression(), "opt unreachable test"));
+            }
+            ASSERT(caughtException);
+#else
+            // Macro should do nothing when not active
+            BSLS_ASSERT_OPT_UNREACHABLE("opt unreachable test");
+            ASSERT(true);  // We should reach here
+#endif
+        }
+
+        // Test BSLS_ASSERT_UNREACHABLE
+        if (veryVerbose) printf( "\tTesting BSLS_ASSERT_UNREACHABLE\n" );
+        {
+#if defined(BSLS_ASSERT_IS_ACTIVE) || defined(BSLS_ASSERT_IS_REVIEW)
+            bool caughtException = false;
+            try {
+                BSLS_ASSERT_UNREACHABLE("unreachable test");
+                ASSERT(false);  // Should not reach here
+            } catch (const bsls::AssertTestException& ex) {
+                caughtException = true;
+                ASSERTV(ex.expression(),
+                        0 == strcmp(ex.expression(), "unreachable test"));
+            }
+            ASSERT(caughtException);
+#else
+            // Macro should do nothing when not active
+            BSLS_ASSERT_UNREACHABLE("unreachable test");
+            ASSERT(true);  // We should reach here
+#endif
+        }
+
+        // Test BSLS_ASSERT_SAFE_UNREACHABLE
+        if (veryVerbose) printf( "\tTesting BSLS_ASSERT_SAFE_UNREACHABLE\n" );
+        {
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE) || defined(BSLS_ASSERT_SAFE_IS_REVIEW)
+            bool caughtException = false;
+            try {
+                BSLS_ASSERT_SAFE_UNREACHABLE("safe unreachable test");
+                ASSERT(false);  // Should not reach here
+            } catch (const bsls::AssertTestException& ex) {
+                caughtException = true;
+                ASSERTV(ex.expression(),
+                        0 == strcmp(ex.expression(), "safe unreachable test"));
+            }
+            ASSERT(caughtException);
+#else
+            // Macro should do nothing when not active
+            BSLS_ASSERT_SAFE_UNREACHABLE("safe unreachable test");
+            ASSERT(true);  // We should reach here
+#endif
+        }
+#endif  // BDE_BUILD_TARGET_EXC
+}
+
+void test_case_15() {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE #1
         //
@@ -4320,6 +4686,10 @@ void test_case_m8() {
         printf( "This message should not be seen.\n" );
 }
 
+//=============================================================================
+//                              MAIN PROGRAM
+//-----------------------------------------------------------------------------
+
 int main(int argc, char *argv[])
 {
     int             test = argc > 1 ? atoi(argv[1]) : 0;
@@ -4333,6 +4703,8 @@ int main(int argc, char *argv[])
 
     switch (test) {
     case 0:  // zero is always the leading case
+    case 24: test_case_24(); break;
+    case 23: test_case_23(); break;
     case 22: test_case_22(); break;
     case 21: test_case_21(); break;
     case 20: test_case_20(); break;
@@ -4873,6 +5245,12 @@ void TestConfigurationMacros()
 //      printcheckfailures("BSLS_REVIEW_SAFE(false);", expected[5])
 //      printcheckfailures("BSLS_REVIEW_INVOKE(\"false\");", "R")
 //
+//      # UNREACHABLE macros: fire as assert when IS_ACTIVE, as review when
+//      # IS_REVIEW, otherwise disabled
+//      printcheckfailures("BSLS_ASSERT_OPT_UNREACHABLE(\"u\");", expected[0])
+//      printcheckfailures("BSLS_ASSERT_UNREACHABLE(\"u\");", expected[1])
+//      printcheckfailures("BSLS_ASSERT_SAFE_UNREACHABLE(\"u\");", expected[2])
+//
 //  for n,line in enumerate(table1.split("\n")):
 //      if n <= 3 or not line.strip(): continue
 //
@@ -5012,6 +5390,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=================================== OPT ===================================//
 
 // [1] Reset all configuration macros
@@ -5111,6 +5501,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=================================== DBG ===================================//
 
 // [1] Reset all configuration macros
@@ -5209,6 +5611,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //================================= DBG OPT =================================//
 
@@ -5310,6 +5724,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //================================== SAFE ===================================//
 
 // [1] Reset all configuration macros
@@ -5408,6 +5834,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //================================ SAFE OPT =================================//
 
@@ -5509,6 +5947,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //================================ SAFE DBG =================================//
 
 // [1] Reset all configuration macros
@@ -5608,6 +6058,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //============================== SAFE DBG OPT ===============================//
 
@@ -5710,6 +6172,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //================================= SAFE_2 ==================================//
 
 // [1] Reset all configuration macros
@@ -5808,6 +6282,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //=============================== SAFE_2 OPT ================================//
 
@@ -5909,6 +6395,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=============================== SAFE_2 DBG ================================//
 
 // [1] Reset all configuration macros
@@ -6008,6 +6506,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //============================= SAFE_2 DBG OPT ==============================//
 
@@ -6110,6 +6620,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=============================== SAFE_2 SAFE ===============================//
 
 // [1] Reset all configuration macros
@@ -6209,6 +6731,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //============================= SAFE_2 SAFE OPT =============================//
 
@@ -6311,6 +6845,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================= SAFE_2 SAFE DBG =============================//
 
 // [1] Reset all configuration macros
@@ -6411,6 +6957,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //=========================== SAFE_2 SAFE DBG OPT ===========================//
 
@@ -6514,6 +7072,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=============================== LEVEL_NONE ================================//
 
 // [1] Reset all configuration macros
@@ -6612,6 +7182,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //============================= OPT LEVEL_NONE ==============================//
 
@@ -6713,6 +7295,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================= DBG LEVEL_NONE ==============================//
 
 // [1] Reset all configuration macros
@@ -6812,6 +7406,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //=========================== DBG OPT LEVEL_NONE ============================//
 
@@ -6914,6 +7520,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================= SAFE LEVEL_NONE =============================//
 
 // [1] Reset all configuration macros
@@ -7013,6 +7631,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //=========================== SAFE OPT LEVEL_NONE ===========================//
 
@@ -7115,6 +7745,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=========================== SAFE DBG LEVEL_NONE ===========================//
 
 // [1] Reset all configuration macros
@@ -7215,6 +7857,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================= SAFE DBG OPT LEVEL_NONE =========================//
 
@@ -7318,6 +7972,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================ SAFE_2 LEVEL_NONE ============================//
 
 // [1] Reset all configuration macros
@@ -7417,6 +8083,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================== SAFE_2 OPT LEVEL_NONE ==========================//
 
@@ -7519,6 +8197,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================== SAFE_2 DBG LEVEL_NONE ==========================//
 
 // [1] Reset all configuration macros
@@ -7619,6 +8309,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================== SAFE_2 DBG OPT LEVEL_NONE ========================//
 
@@ -7722,6 +8424,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================= SAFE_2 SAFE LEVEL_NONE ==========================//
 
 // [1] Reset all configuration macros
@@ -7822,6 +8536,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================= SAFE_2 SAFE OPT LEVEL_NONE ========================//
 
@@ -7925,6 +8651,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================= SAFE_2 SAFE DBG LEVEL_NONE ========================//
 
 // [1] Reset all configuration macros
@@ -8026,6 +8764,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //===================== SAFE_2 SAFE DBG OPT LEVEL_NONE ======================//
 
@@ -8130,6 +8880,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================ LEVEL_ASSERT_OPT =============================//
 
 // [1] Reset all configuration macros
@@ -8228,6 +8990,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================== OPT LEVEL_ASSERT_OPT ===========================//
 
@@ -8329,6 +9103,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================== DBG LEVEL_ASSERT_OPT ===========================//
 
 // [1] Reset all configuration macros
@@ -8428,6 +9214,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================== DBG OPT LEVEL_ASSERT_OPT =========================//
 
@@ -8530,6 +9328,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================== SAFE LEVEL_ASSERT_OPT ==========================//
 
 // [1] Reset all configuration macros
@@ -8629,6 +9439,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================== SAFE OPT LEVEL_ASSERT_OPT ========================//
 
@@ -8731,6 +9553,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================== SAFE DBG LEVEL_ASSERT_OPT ========================//
 
 // [1] Reset all configuration macros
@@ -8831,6 +9665,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //====================== SAFE DBG OPT LEVEL_ASSERT_OPT ======================//
 
@@ -8934,6 +9780,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================= SAFE_2 LEVEL_ASSERT_OPT =========================//
 
 // [1] Reset all configuration macros
@@ -9033,6 +9891,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================= SAFE_2 OPT LEVEL_ASSERT_OPT =======================//
 
@@ -9135,6 +10005,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================= SAFE_2 DBG LEVEL_ASSERT_OPT =======================//
 
 // [1] Reset all configuration macros
@@ -9235,6 +10117,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //===================== SAFE_2 DBG OPT LEVEL_ASSERT_OPT =====================//
 
@@ -9338,6 +10232,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== SAFE_2 SAFE LEVEL_ASSERT_OPT =======================//
 
 // [1] Reset all configuration macros
@@ -9438,6 +10344,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //==================== SAFE_2 SAFE OPT LEVEL_ASSERT_OPT =====================//
 
@@ -9541,6 +10459,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //==================== SAFE_2 SAFE DBG LEVEL_ASSERT_OPT =====================//
 
 // [1] Reset all configuration macros
@@ -9642,6 +10572,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT_OPT ===================//
 
@@ -9746,6 +10688,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================== LEVEL_ASSERT ===============================//
 
 // [1] Reset all configuration macros
@@ -9844,6 +10798,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //============================ OPT LEVEL_ASSERT =============================//
 
@@ -9945,6 +10911,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================ DBG LEVEL_ASSERT =============================//
 
 // [1] Reset all configuration macros
@@ -10044,6 +11022,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================== DBG OPT LEVEL_ASSERT ===========================//
 
@@ -10146,6 +11136,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================ SAFE LEVEL_ASSERT ============================//
 
 // [1] Reset all configuration macros
@@ -10245,6 +11247,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================== SAFE OPT LEVEL_ASSERT ==========================//
 
@@ -10347,6 +11361,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================== SAFE DBG LEVEL_ASSERT ==========================//
 
 // [1] Reset all configuration macros
@@ -10447,6 +11473,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================== SAFE DBG OPT LEVEL_ASSERT ========================//
 
@@ -10550,6 +11588,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=========================== SAFE_2 LEVEL_ASSERT ===========================//
 
 // [1] Reset all configuration macros
@@ -10649,6 +11699,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================= SAFE_2 OPT LEVEL_ASSERT =========================//
 
@@ -10751,6 +11813,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================= SAFE_2 DBG LEVEL_ASSERT =========================//
 
 // [1] Reset all configuration macros
@@ -10851,6 +11925,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================= SAFE_2 DBG OPT LEVEL_ASSERT =======================//
 
@@ -10954,6 +12040,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================== SAFE_2 SAFE LEVEL_ASSERT =========================//
 
 // [1] Reset all configuration macros
@@ -11054,6 +12152,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //====================== SAFE_2 SAFE OPT LEVEL_ASSERT =======================//
 
@@ -11157,6 +12267,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== SAFE_2 SAFE DBG LEVEL_ASSERT =======================//
 
 // [1] Reset all configuration macros
@@ -11258,6 +12380,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //==================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT =====================//
 
@@ -11362,6 +12496,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //============================ LEVEL_ASSERT_SAFE ============================//
 
 // [1] Reset all configuration macros
@@ -11460,6 +12606,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================== OPT LEVEL_ASSERT_SAFE ==========================//
 
@@ -11561,6 +12719,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================== DBG LEVEL_ASSERT_SAFE ==========================//
 
 // [1] Reset all configuration macros
@@ -11660,6 +12830,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================== DBG OPT LEVEL_ASSERT_SAFE ========================//
 
@@ -11762,6 +12944,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================= SAFE LEVEL_ASSERT_SAFE ==========================//
 
 // [1] Reset all configuration macros
@@ -11861,6 +13055,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================= SAFE OPT LEVEL_ASSERT_SAFE ========================//
 
@@ -11963,6 +13169,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================= SAFE DBG LEVEL_ASSERT_SAFE ========================//
 
 // [1] Reset all configuration macros
@@ -12063,6 +13281,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //===================== SAFE DBG OPT LEVEL_ASSERT_SAFE ======================//
 
@@ -12166,6 +13396,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================== SAFE_2 LEVEL_ASSERT_SAFE =========================//
 
 // [1] Reset all configuration macros
@@ -12265,6 +13507,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //====================== SAFE_2 OPT LEVEL_ASSERT_SAFE =======================//
 
@@ -12367,6 +13621,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== SAFE_2 DBG LEVEL_ASSERT_SAFE =======================//
 
 // [1] Reset all configuration macros
@@ -12467,6 +13733,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //==================== SAFE_2 DBG OPT LEVEL_ASSERT_SAFE =====================//
 
@@ -12570,6 +13848,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== SAFE_2 SAFE LEVEL_ASSERT_SAFE ======================//
 
 // [1] Reset all configuration macros
@@ -12670,6 +13960,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //==================== SAFE_2 SAFE OPT LEVEL_ASSERT_SAFE ====================//
 
@@ -12773,6 +14075,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //==================== SAFE_2 SAFE DBG LEVEL_ASSERT_SAFE ====================//
 
 // [1] Reset all configuration macros
@@ -12874,6 +14188,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //================== SAFE_2 SAFE DBG OPT LEVEL_ASSERT_SAFE ==================//
 
@@ -12978,6 +14304,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================= LEVEL_ASSUME_OPT LEVEL_NONE =======================//
 
 // [1] Reset all configuration macros
@@ -13076,6 +14414,16 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    // BSLS_ASSERT_OPT_UNREACHABLE("u"); is undefined behavior
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //===================== LEVEL_ASSUME_ASSERT LEVEL_NONE ======================//
 
 // [1] Reset all configuration macros
@@ -13172,6 +14520,14 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    // BSLS_ASSERT_OPT_UNREACHABLE("u"); is undefined behavior
+
+    // BSLS_ASSERT_UNREACHABLE("u"); is undefined behavior
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== LEVEL_ASSUME_SAFE LEVEL_NONE =======================//
 
 // [1] Reset all configuration macros
@@ -13265,6 +14621,12 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    // BSLS_ASSERT_OPT_UNREACHABLE("u"); is undefined behavior
+
+    // BSLS_ASSERT_UNREACHABLE("u"); is undefined behavior
+
+    // BSLS_ASSERT_SAFE_UNREACHABLE("u"); is undefined behavior
 
 //========================== LEVEL_NONE LEVEL_NONE ==========================//
 
@@ -13366,6 +14728,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //======================= LEVEL_ASSERT_OPT LEVEL_NONE =======================//
 
 // [1] Reset all configuration macros
@@ -13465,6 +14839,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //========================= LEVEL_ASSERT LEVEL_NONE =========================//
 
@@ -13566,6 +14952,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== LEVEL_ASSERT_SAFE LEVEL_NONE =======================//
 
 // [1] Reset all configuration macros
@@ -13665,6 +15063,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================= LEVEL_NONE LEVEL_REVIEW_OPT =======================//
 
@@ -13766,6 +15176,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //==================== LEVEL_ASSUME_OPT LEVEL_REVIEW_OPT ====================//
 
 // [1] Reset all configuration macros
@@ -13865,6 +15287,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //================== LEVEL_ASSUME_ASSERT LEVEL_REVIEW_OPT ===================//
 
@@ -13966,6 +15400,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //=================== LEVEL_ASSUME_SAFE LEVEL_REVIEW_OPT ====================//
 
 // [1] Reset all configuration macros
@@ -14065,6 +15511,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //==================== LEVEL_ASSERT_OPT LEVEL_REVIEW_OPT ====================//
 
@@ -14166,6 +15624,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== LEVEL_ASSERT LEVEL_REVIEW_OPT ======================//
 
 // [1] Reset all configuration macros
@@ -14265,6 +15735,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //=================== LEVEL_ASSERT_SAFE LEVEL_REVIEW_OPT ====================//
 
@@ -14366,6 +15848,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //========================= LEVEL_NONE LEVEL_REVIEW =========================//
 
 // [1] Reset all configuration macros
@@ -14465,6 +15959,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //====================== LEVEL_ASSUME_OPT LEVEL_REVIEW ======================//
 
@@ -14566,6 +16072,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //==================== LEVEL_ASSUME_ASSERT LEVEL_REVIEW =====================//
 
 // [1] Reset all configuration macros
@@ -14665,6 +16183,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //===================== LEVEL_ASSUME_SAFE LEVEL_REVIEW ======================//
 
@@ -14766,6 +16296,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== LEVEL_ASSERT_OPT LEVEL_REVIEW ======================//
 
 // [1] Reset all configuration macros
@@ -14865,6 +16407,18 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
 
 //======================== LEVEL_ASSERT LEVEL_REVIEW ========================//
 
@@ -14966,6 +16520,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(true);  }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //===================== LEVEL_ASSERT_SAFE LEVEL_REVIEW ======================//
 
 // [1] Reset all configuration macros
@@ -15066,6 +16632,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
 //====================== LEVEL_NONE LEVEL_REVIEW_SAFE =======================//
 
 // [1] Reset all configuration macros
@@ -15163,6 +16741,18 @@ void TestConfigurationMacros()
     catch(ReviewFailed)               { ASSERT(true);  }
 
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
@@ -15266,6 +16856,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
 //================== LEVEL_ASSUME_ASSERT LEVEL_REVIEW_SAFE ==================//
 
 // [1] Reset all configuration macros
@@ -15363,6 +16965,18 @@ void TestConfigurationMacros()
     catch(ReviewFailed)               { ASSERT(true);  }
 
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
@@ -15466,6 +17080,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
 //=================== LEVEL_ASSERT_OPT LEVEL_REVIEW_SAFE ====================//
 
 // [1] Reset all configuration macros
@@ -15563,6 +17189,18 @@ void TestConfigurationMacros()
     catch(ReviewFailed)               { ASSERT(true);  }
 
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
@@ -15666,6 +17304,18 @@ void TestConfigurationMacros()
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
 
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(false); }
+    catch(ReviewFailed)               { ASSERT(true);  }
+
 //=================== LEVEL_ASSERT_SAFE LEVEL_REVIEW_SAFE ===================//
 
 // [1] Reset all configuration macros
@@ -15765,6 +17415,20 @@ void TestConfigurationMacros()
     try { BSLS_REVIEW_INVOKE("false");  ASSERT(false); }
     catch(AssertFailed)               { ASSERT(false); }
     catch(ReviewFailed)               { ASSERT(true);  }
+
+    try { BSLS_ASSERT_OPT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+    try { BSLS_ASSERT_SAFE_UNREACHABLE("u"); ASSERT(false); }
+    catch(AssertFailed)               { ASSERT(true);  }
+    catch(ReviewFailed)               { ASSERT(false); }
+
+
 //----------------------------------------------------------------END GENERATED
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -//
 #endif  // defined BDE_BUILD_TARGET_EXC

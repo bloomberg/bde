@@ -18,6 +18,9 @@ BSLS_IDENT("$Id: $")
 //  BSLS_ASSERT_OPT: runtime check typically enabled in all build modes
 //  BSLS_ASSERT_INVOKE: for directly invoking the current failure handler
 //  BSLS_ASSERT_INVOKE_NORETURN: direct invocation always marked to not return
+//  BSLS_ASSERT_UNREACHABLE: mark unreachable code path, enabled like ASSERT
+//  BSLS_ASSERT_SAFE_UNREACHABLE: unreachable code path, enabled like SAFE
+//  BSLS_ASSERT_OPT_UNREACHABLE: unreachable code path, enabled like OPT
 //
 //@SEE_ALSO: bsls_review, bsls_asserttest
 //
@@ -1470,6 +1473,98 @@ BSLS_IDENT("$Id: $")
 //     }
 // };
 // ```
+//
+///Example 10: Asserting a Branch Is Unreachable
+///- - - - - - - - - - - - - - - - - - - - - - -
+// Sometimes a developer knows that it would always be a bug for a particular
+// branch to be taken.  For example, when handling a set of values in an
+// exhaustive `switch` statement, the default branch "should not" be taken
+// because the set of values is known to be limited at the point of the
+// `switch` (but a wrong value can be created by a bug, or perhaps by a future
+// change to the `enum`).
+//
+// There may be several situations depending on the code in question and its
+// state.  In existing code one may have an unconditional  BSLS_ASSERT_OPT that
+// is already being used to "cover" the unreachable branch:
+// ```
+// enum Action { e_CLEAR, e_SET, e_TOGGLE };
+//
+// void badExistingDoAction(Action value) {
+//     switch (value) {
+//       case e_CLEAR:  doClear();  break;
+//       case e_SET:    doSet();    break;
+//       case e_TOGGLE: doToggle(); break;
+//       default:       BSLS_ASSERT_OPT(false); break;
+//     }
+// }
+// ```
+// `BSLS_ASSERT_OPT` is of course not ideal for this purpose because it has a
+// condition that we need to set to `false` and there is no convenient place to
+// put a message that describes what the issue is.  Using the dedicated
+// unreachable macro instead is much more clear and allows for a message to be
+// included that describes the issue, like this:
+// ```
+// void updatedDoAction(Action value) {
+//     switch (value) {
+//       case e_CLEAR:  doClear();  break;
+//       case e_SET:    doSet();    break;
+//       case e_TOGGLE: doToggle(); break;
+//       default:       BSLS_ASSERT_OPT_UNREACHABLE("Unknown Action"); break;
+//     }
+// }
+// ```
+// Using `BSLS_ASSERT_OPT_UNREACHABLE` allows us to keep the configurability of
+// the original assertion, while making it much more clear that the branch is
+// not expected to be taken and providing a message that describes the issue if
+// it is taken.  Moreover, if we wanted to introduce this assertion at the
+// REVIEW level, we could do so by changing the macro used in the `default`
+// case to `BSLS_ASSERT_REVIEW_UNREACHABLE`.
+//
+// Say we are writing a `doAction` method the first time and the action is so
+// critical that we want to make sure that the default branch is never taken,
+// therefore we do not want the assertion to be configurable.  Instead want it
+// to be an unconditional assertion that always fires when the branch is taken.
+// In that case, we may use `BSLS_ASSERT_INVOKE_NORETURN` instead:
+// ```
+// void newlyWrittenDoAction(Action value) {
+//     switch (value) {
+//       case e_CLEAR:  doClear();  break;
+//       case e_SET:    doSet();    break;
+//       case e_TOGGLE: doToggle(); break;
+//       default:       BSLS_ASSERT_INVOKE_NORETURN("Unknown Action");
+//     }
+// }
+// ```
+// It is important to note that the `BSLS_ASSERT_INVOKE_NORETURN` macro does
+// not provide any way to disable the assertion, so it should be used only when
+// the branch is truly expected to be unreachable.  If the method is frequently
+// called with an unknown action it will keep bringing the system down.
+//
+// There may also be a case when we do not want any assertion to be invoked,
+// because the method itself is not critical at all, more informational.  For
+// example while a `toAscii` method for an `enum` is very useful for debugging,
+// we really do not want the act of formatting an error log message (with a
+// bad `enum` value) to cause the system to crash.  In such case we rely on the
+// fact that this is an information function and simply return a string that
+// indicates the value is unknown, without invoking any kind of assertion:
+// ```
+// enum Color { e_RED, e_GREEN, e_BLUE };
+//
+// const char *toAscii(Color value) {
+//     switch (value) {
+//       case e_RED:   return "RED";
+//       case e_GREEN: return "GREEN";
+//       case e_BLUE:  return "BLUE";
+//     }
+//     return "(* UNKNOWN COLOR *)";
+// }
+// ```
+// As the examples show library designers should employ careful consideration
+// when deciding which type of assertion to use to ensure system stability,
+// security, observability, and build artifact configurability.  When in doubt,
+// err on the side of giving the owner of `main` more control over the behavior
+// of the system, or avoid the possibility of bringing the system down if that
+// action won't hide an error.
 
 #include <bsls_annotation.h>
 #include <bsls_assertimputil.h>
@@ -1554,6 +1649,18 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_ASSERT_INVOKE_NORETURN)
 #error BSLS_ASSERT_INVOKE_NORETURN is already defined!
+#endif
+
+#if defined(BSLS_ASSERT_SAFE_UNREACHABLE)
+#error BSLS_ASSERT_SAFE_UNREACHABLE is already defined!
+#endif
+
+#if defined(BSLS_ASSERT_UNREACHABLE)
+#error BSLS_ASSERT_UNREACHABLE is already defined!
+#endif
+
+#if defined(BSLS_ASSERT_OPT_UNREACHABLE)
+#error BSLS_ASSERT_OPT_UNREACHABLE is already defined!
 #endif
 
                      // =================================
@@ -1643,6 +1750,31 @@ BSLS_IDENT("$Id: $")
 #endif
 #endif
 
+          // =====================================================
+          // UNREACHABLE Factored Implementation for Internal Use
+          // =====================================================
+
+// 'BSLS_ASSERT_UNREACHABLE_IMP' invokes the assertion handler unconditionally
+// with the specified message 'X'.  Unlike 'BSLS_ASSERT_ASSERT_IMP', this macro
+// does not check a condition --- it always invokes the handler when reached.
+
+#define BSLS_ASSERT_UNREACHABLE_IMP(X,LVL) do {                               \
+        BloombergLP::bsls::Assert::invokeHandler(                             \
+            BloombergLP::bsls::AssertViolation(                               \
+                                  X,                                          \
+                                  BSLS_ASSERTIMPUTIL_FILE,                    \
+                                  BSLS_ASSERTIMPUTIL_LINE,                    \
+                                  LVL));                                      \
+    } while (false)
+
+// 'BSLS_ASSERT_UNREACHABLE_DISABLED_IMP' does nothing except ensures that `X`
+// is a valid expression convertable to 'const char *'.  It is used when the
+// corresponding UNREACHABLE macro is disabled for the current build mode.
+
+#define BSLS_ASSERT_UNREACHABLE_DISABLED_IMP(X,LVL) do {                      \
+    (void)sizeof(static_cast<const char*>(X));                                \
+} while (false)
+
                               // ================
                               // BSLS_ASSERT_SAFE
                               // ================
@@ -1689,6 +1821,23 @@ BSLS_IDENT("$Id: $")
                                      BloombergLP::bsls::Assert::k_LEVEL_SAFE)
 #else
     #define BSLS_ASSERT_SAFE(X) BSLS_ASSERT_DISABLED_IMP(                     \
+                                     X,                                       \
+                                     BloombergLP::bsls::Assert::k_LEVEL_SAFE)
+#endif
+
+// Define 'BSLS_ASSERT_SAFE_UNREACHABLE' accordingly.
+
+#if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
+    #define BSLS_ASSERT_SAFE_UNREACHABLE(X) BSLS_ASSERT_UNREACHABLE_IMP(      \
+                                     X,                                       \
+                                     BloombergLP::bsls::Assert::k_LEVEL_SAFE)
+#elif defined(BSLS_ASSERT_SAFE_IS_REVIEW)
+    #define BSLS_ASSERT_SAFE_UNREACHABLE(X) BSLS_REVIEW_UNREACHABLE_IMP(      \
+                                     X,                                       \
+                                     BloombergLP::bsls::Assert::k_LEVEL_SAFE)
+#else
+    #define BSLS_ASSERT_SAFE_UNREACHABLE(X)                                   \
+                             BSLS_ASSERT_UNREACHABLE_DISABLED_IMP(            \
                                      X,                                       \
                                      BloombergLP::bsls::Assert::k_LEVEL_SAFE)
 #endif
@@ -1747,6 +1896,23 @@ BSLS_IDENT("$Id: $")
                                    BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
 #endif
 
+// Define 'BSLS_ASSERT_UNREACHABLE' accordingly.
+
+#if defined(BSLS_ASSERT_IS_ACTIVE)
+    #define BSLS_ASSERT_UNREACHABLE(X) BSLS_ASSERT_UNREACHABLE_IMP(           \
+                                   X,                                         \
+                                   BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
+#elif defined(BSLS_ASSERT_IS_REVIEW)
+    #define BSLS_ASSERT_UNREACHABLE(X) BSLS_REVIEW_UNREACHABLE_IMP(           \
+                                   X,                                         \
+                                   BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
+#else
+    #define BSLS_ASSERT_UNREACHABLE(X)                                        \
+                             BSLS_ASSERT_UNREACHABLE_DISABLED_IMP(            \
+                                   X,                                         \
+                                   BloombergLP::bsls::Assert::k_LEVEL_ASSERT)
+#endif
+
                               // ===============
                               // BSLS_ASSERT_OPT
                               // ===============
@@ -1795,6 +1961,23 @@ BSLS_IDENT("$Id: $")
                                       BloombergLP::bsls::Assert::k_LEVEL_OPT)
 #else
     #define BSLS_ASSERT_OPT(X) BSLS_ASSERT_DISABLED_IMP(                      \
+                                      X,                                      \
+                                      BloombergLP::bsls::Assert::k_LEVEL_OPT)
+#endif
+
+// Define 'BSLS_ASSERT_OPT_UNREACHABLE' accordingly.
+
+#if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
+    #define BSLS_ASSERT_OPT_UNREACHABLE(X) BSLS_ASSERT_UNREACHABLE_IMP(       \
+                                      X,                                      \
+                                      BloombergLP::bsls::Assert::k_LEVEL_OPT)
+#elif defined(BSLS_ASSERT_OPT_IS_REVIEW)
+    #define BSLS_ASSERT_OPT_UNREACHABLE(X) BSLS_REVIEW_UNREACHABLE_IMP(       \
+                                      X,                                      \
+                                      BloombergLP::bsls::Assert::k_LEVEL_OPT)
+#else
+    #define BSLS_ASSERT_OPT_UNREACHABLE(X)                                    \
+                             BSLS_ASSERT_UNREACHABLE_DISABLED_IMP(            \
                                       X,                                      \
                                       BloombergLP::bsls::Assert::k_LEVEL_OPT)
 #endif

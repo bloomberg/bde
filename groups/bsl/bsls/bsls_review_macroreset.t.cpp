@@ -278,6 +278,9 @@ void testMacroHandling()
     #ifdef BSLS_REVIEW_OPT_IS_USED
         ASSERT(0 == "BSLS_REVIEW_OPT_IS_USED is defined!");
     #endif
+    #ifdef BSLS_REVIEW_OPT_UNREACHABLE
+        ASSERT(0 == "BSLS_REVIEW_OPT_UNREACHABLE is defined!");
+    #endif
     #ifdef BSLS_REVIEW_REVIEW_COUNT_IMP
         ASSERT(0 == "BSLS_REVIEW_REVIEW_COUNT_IMP is defined!");
     #endif
@@ -292,6 +295,18 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_REVIEW_SAFE_IS_USED
         ASSERT(0 == "BSLS_REVIEW_SAFE_IS_USED is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_SAFE_UNREACHABLE
+        ASSERT(0 == "BSLS_REVIEW_SAFE_UNREACHABLE is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_UNREACHABLE
+        ASSERT(0 == "BSLS_REVIEW_UNREACHABLE is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_UNREACHABLE_DISABLED_IMP
+        ASSERT(0 == "BSLS_REVIEW_UNREACHABLE_DISABLED_IMP is defined!");
+    #endif
+    #ifdef BSLS_REVIEW_UNREACHABLE_IMP
+        ASSERT(0 == "BSLS_REVIEW_UNREACHABLE_IMP is defined!");
     #endif
     #ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
         ASSERT(0 == "BSLS_REVIEW_VALIDATE_DISABLED_MACROS is defined!");
@@ -323,11 +338,16 @@ void testMacroHandling()
     #define BSLS_REVIEW_OPT 17
     #define BSLS_REVIEW_OPT_IS_ACTIVE 17
     #define BSLS_REVIEW_OPT_IS_USED 17
+    #define BSLS_REVIEW_OPT_UNREACHABLE 17
     #define BSLS_REVIEW_REVIEW_COUNT_IMP 17
     #define BSLS_REVIEW_REVIEW_IMP 17
     #define BSLS_REVIEW_SAFE 17
     #define BSLS_REVIEW_SAFE_IS_ACTIVE 17
     #define BSLS_REVIEW_SAFE_IS_USED 17
+    #define BSLS_REVIEW_SAFE_UNREACHABLE 17
+    #define BSLS_REVIEW_UNREACHABLE 17
+    #define BSLS_REVIEW_UNREACHABLE_DISABLED_IMP 17
+    #define BSLS_REVIEW_UNREACHABLE_IMP 17
     #define BSLS_REVIEW_VALIDATE_DISABLED_MACROS 17
     #define INCLUDED_BSLS_REVIEW 17
 
@@ -403,6 +423,9 @@ void testMacroHandling()
     #ifdef BSLS_REVIEW_OPT_IS_USED
         ASSERT(0 == "BSLS_REVIEW_OPT_IS_USED is still defined!");
     #endif
+    #ifdef BSLS_REVIEW_OPT_UNREACHABLE
+        ASSERT(0 == "BSLS_REVIEW_OPT_UNREACHABLE is still defined!");
+    #endif
     #ifdef BSLS_REVIEW_REVIEW_COUNT_IMP
         ASSERT(0 == "BSLS_REVIEW_REVIEW_COUNT_IMP is still defined!");
     #endif
@@ -417,6 +440,18 @@ void testMacroHandling()
     #endif
     #ifdef BSLS_REVIEW_SAFE_IS_USED
         ASSERT(0 == "BSLS_REVIEW_SAFE_IS_USED is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_SAFE_UNREACHABLE
+        ASSERT(0 == "BSLS_REVIEW_SAFE_UNREACHABLE is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_UNREACHABLE
+        ASSERT(0 == "BSLS_REVIEW_UNREACHABLE is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_UNREACHABLE_DISABLED_IMP
+        ASSERT(0 == "BSLS_REVIEW_UNREACHABLE_DISABLED_IMP is still defined!");
+    #endif
+    #ifdef BSLS_REVIEW_UNREACHABLE_IMP
+        ASSERT(0 == "BSLS_REVIEW_UNREACHABLE_IMP is still defined!");
     #endif
     #ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
         ASSERT(0 == "BSLS_REVIEW_VALIDATE_DISABLED_MACROS is still defined!");

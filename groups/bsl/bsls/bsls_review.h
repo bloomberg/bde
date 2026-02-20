@@ -17,6 +17,9 @@ BSLS_IDENT("$Id: $")
 //  BSLS_REVIEW_SAFE: runtime check typically only enabled in safe build modes
 //  BSLS_REVIEW_OPT: runtime check typically enabled in all build modes
 //  BSLS_REVIEW_INVOKE: immediately invoke the current review handler
+//  BSLS_REVIEW_UNREACHABLE: mark unreachable code path, enabled like REVIEW
+//  BSLS_REVIEW_SAFE_UNREACHABLE: unreachable code path, enabled like SAFE
+//  BSLS_REVIEW_OPT_UNREACHABLE: unreachable code path, enabled like OPT
 //
 //@SEE_ALSO: bsls_assert
 //
@@ -673,6 +676,14 @@ BSLS_IDENT("$Id: $")
 #error BSLS_REVIEW_INVOKE is already defined!
 #endif
 
+#if defined(BSLS_REVIEW_UNREACHABLE_IMP)
+#error BSLS_REVIEW_UNREACHABLE_IMP is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_UNREACHABLE_DISABLED_IMP)
+#error BSLS_REVIEW_UNREACHABLE_DISABLED_IMP is already defined!
+#endif
+
 #if defined(BSLS_REVIEW_IS_ACTIVE)
 #error BSLS_REVIEW_IS_ACTIVE is already defined!
 #endif
@@ -703,6 +714,18 @@ BSLS_IDENT("$Id: $")
 
 #if defined(BSLS_REVIEW_SAFE_IS_USED)
 #error BSLS_REVIEW_SAFE_IS_USED is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_SAFE_UNREACHABLE)
+#error BSLS_REVIEW_SAFE_UNREACHABLE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_UNREACHABLE)
+#error BSLS_REVIEW_UNREACHABLE is already defined!
+#endif
+
+#if defined(BSLS_REVIEW_OPT_UNREACHABLE)
+#error BSLS_REVIEW_OPT_UNREACHABLE is already defined!
 #endif
 
                      // =================================
@@ -827,6 +850,33 @@ BSLS_IDENT("$Id: $")
                                   lastCount));                                \
     } while (false)
 
+                          // ========================
+                          // BSLS_REVIEW_UNREACHABLE
+                          // ========================
+
+// 'BSLS_REVIEW_UNREACHABLE_IMP' invokes the review handler unconditionally
+// with the specified message 'X'.  Unlike 'BSLS_REVIEW_REVIEW_IMP', this macro
+// does not check a condition -- it always invokes the handler when reached.
+
+#define BSLS_REVIEW_UNREACHABLE_IMP(X,LVL) do {                               \
+        BSLS_REVIEW_REVIEW_COUNT_IMP;                                         \
+        BloombergLP::bsls::Review::invokeHandler(                             \
+            BloombergLP::bsls::ReviewViolation(                               \
+                                  X,                                          \
+                                  BSLS_ASSERTIMPUTIL_FILE,                    \
+                                  BSLS_ASSERTIMPUTIL_LINE,                    \
+                                  LVL,                                        \
+                                  lastCount));                                \
+    } while (false)
+
+// 'BSLS_REVIEW_UNREACHABLE_DISABLED_IMP' does nothing except ensures that `X`
+// is a valid expression convertable to 'const char *'.  It is used when the
+// corresponding UNREACHABLE macro is disabled for the current build mode.
+
+#define BSLS_REVIEW_UNREACHABLE_DISABLED_IMP(X,LVL) do {                      \
+    (void)sizeof(static_cast<const char*>(X));                                \
+} while (false)
+
                               // ================
                               // BSLS_REVIEW_SAFE
                               // ================
@@ -855,6 +905,19 @@ BSLS_IDENT("$Id: $")
                                      BloombergLP::bsls::Review::k_LEVEL_SAFE)
 #else
     #define BSLS_REVIEW_SAFE(X) BSLS_REVIEW_DISABLED_IMP(                     \
+                                     X,                                       \
+                                     BloombergLP::bsls::Review::k_LEVEL_SAFE)
+#endif
+
+// Define 'BSLS_REVIEW_SAFE_UNREACHABLE' accordingly.
+
+#if defined(BSLS_REVIEW_SAFE_IS_ACTIVE)
+    #define BSLS_REVIEW_SAFE_UNREACHABLE(X) BSLS_REVIEW_UNREACHABLE_IMP(      \
+                                     X,                                       \
+                                     BloombergLP::bsls::Review::k_LEVEL_SAFE)
+#else
+    #define BSLS_REVIEW_SAFE_UNREACHABLE(X)                                   \
+                             BSLS_REVIEW_UNREACHABLE_DISABLED_IMP(            \
                                      X,                                       \
                                      BloombergLP::bsls::Review::k_LEVEL_SAFE)
 #endif
@@ -893,6 +956,19 @@ BSLS_IDENT("$Id: $")
                                    BloombergLP::bsls::Review::k_LEVEL_REVIEW)
 #endif
 
+// Define 'BSLS_REVIEW_UNREACHABLE' accordingly.
+
+#if defined(BSLS_REVIEW_IS_ACTIVE)
+    #define BSLS_REVIEW_UNREACHABLE(X) BSLS_REVIEW_UNREACHABLE_IMP(           \
+                                   X,                                         \
+                                   BloombergLP::bsls::Review::k_LEVEL_REVIEW)
+#else
+    #define BSLS_REVIEW_UNREACHABLE(X)                                        \
+                             BSLS_REVIEW_UNREACHABLE_DISABLED_IMP(            \
+                                   X,                                         \
+                                   BloombergLP::bsls::Review::k_LEVEL_REVIEW)
+#endif
+
                               // ===============
                               // BSLS_REVIEW_OPT
                               // ===============
@@ -917,6 +993,19 @@ BSLS_IDENT("$Id: $")
                                       BloombergLP::bsls::Review::k_LEVEL_OPT)
 #else
     #define BSLS_REVIEW_OPT(X) BSLS_REVIEW_DISABLED_IMP(                      \
+                                      X,                                      \
+                                      BloombergLP::bsls::Review::k_LEVEL_OPT)
+#endif
+
+// Define 'BSLS_REVIEW_OPT_UNREACHABLE' accordingly.
+
+#if defined(BSLS_REVIEW_OPT_IS_ACTIVE)
+    #define BSLS_REVIEW_OPT_UNREACHABLE(X) BSLS_REVIEW_UNREACHABLE_IMP(       \
+                                      X,                                      \
+                                      BloombergLP::bsls::Review::k_LEVEL_OPT)
+#else
+    #define BSLS_REVIEW_OPT_UNREACHABLE(X)                                    \
+                             BSLS_REVIEW_UNREACHABLE_DISABLED_IMP(            \
                                       X,                                      \
                                       BloombergLP::bsls::Review::k_LEVEL_OPT)
 #endif
