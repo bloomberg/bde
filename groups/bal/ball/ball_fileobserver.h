@@ -469,6 +469,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_recordformattertimezone.h>
 #include <ball_severity.h>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#include <ball_recordstringformatter.h>
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 #include <bdlt_datetimeinterval.h>
 
 #include <bsla_deprecated.h>
