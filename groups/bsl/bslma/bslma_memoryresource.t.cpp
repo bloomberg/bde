@@ -26,8 +26,10 @@
 #pragma bde_verify -TP19   // Missing or malformed standard test driver section
 #endif
 
-using std::printf;
 using std::fflush;
+using std::fprintf;
+using std::printf;
+
 using namespace BloombergLP;
 
 // ============================================================================

@@ -11,8 +11,10 @@
 #include <cstring>  // strlen, strcmp, strncmp
 
 using namespace BloombergLP;
-using std::printf;
+
 using std::fflush;
+using std::fprintf;
+using std::printf;
 
 // ============================================================================
 //                                  TEST PLAN

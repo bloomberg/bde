@@ -13,10 +13,10 @@
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
-#include <new>      // `std::bad_alloc`
-#include <cstdio>   // (in `std::`) `sprintf`, `mktmp`, `fclose`, `fread`
-#include <cstdlib>  // `std::atoi`
-#include <cstring>  // (in `std::`) `memset`, `memcpy`, `strlen`, `strcmp`
+#include <new>          // `std::bad_alloc`
+#include <stdio.h>      // `sprintf`, `mktmp`, `fclose`, `fread`
+#include <stdlib.h>     // `atoi`
+#include <string.h>     // `memset`, `memcpy`, `strlen`, `strcmp`
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) && !defined(BSLS_PLATFORM_CMP_GNU)
 #include <sys/resource.h>  // `setrlimit`
@@ -234,7 +234,7 @@ extern "C" {
 /// `operator<<`, where the right-hand side has type `TestAllocator`.  The
 /// contents of the stream are stored in an internal buffer whose size is
 /// specified by template-parameter `SIZE`.
-template <std::size_t SIZE = 1024>
+template <size_t SIZE = 1024>
 class BufferStream {
 
     // DATA
@@ -249,12 +249,12 @@ class BufferStream {
   public:
     // CREATORS
     BufferStream() : d_next_p(d_buffer), d_overflow(false)
-        { std::memset(d_buffer, '\0', SIZE); }
+        { memset(d_buffer, '\0', SIZE); }
 
     // ACCESSORS
     const char *data()      const { return d_buffer; }
     bool        overflow()  const { return d_overflow; }
-    std::size_t remaining() const { return SIZE - (d_next_p - d_buffer) - 1; }
+    size_t remaining() const { return SIZE - (d_next_p - d_buffer) - 1; }
 
     /// Return `true` if the buffer matches the specified `EXP` string, else
     /// `false`.
@@ -265,11 +265,11 @@ class BufferStream {
 
     /// Append the specified `text` of the specified `len` to the internal
     /// buffer.
-    void write(const char *text, std::size_t len);
+    void write(const char *text, size_t len);
 };
 
-template <std::size_t SIZE>
-void BufferStream<SIZE>::write(const char *text, std::size_t len)
+template <size_t SIZE>
+void BufferStream<SIZE>::write(const char *text, size_t len)
 {
     if (len > remaining()) {
         d_overflow = true;
@@ -322,7 +322,7 @@ extern "C" void *threadFunction1(void *arg)
     int n = 2;
 
     for (int i = 0; i < info->d_numIterations; ++i) {
-        void *p = mX.allocate(n);  std::memset(p, 0xff, n);
+        void *p = mX.allocate(n);  memset(p, 0xff, n);
         mX.deallocate(p);
 
         if (n > 10000) {
@@ -345,8 +345,8 @@ extern "C" void *threadFunction2(void *arg)
     int n = 3;
 
     for (int i = 0; i < info->d_numIterations; ++i) {
-        void *p1 = mX.allocate(n);      std::memset(p1, 0xff, n);
-        void *p2 = mX.allocate(n * 2);  std::memset(p2, 0xff, n * 2);
+        void *p1 = mX.allocate(n);      memset(p1, 0xff, n);
+        void *p2 = mX.allocate(n * 2);  memset(p2, 0xff, n * 2);
         mX.deallocate(p1);
         mX.deallocate(p2);
 
@@ -370,9 +370,9 @@ extern "C" void *threadFunction3(void *arg)
     int n = 5;
 
     for (int i = 0; i < info->d_numIterations; ++i) {
-        void *p1 = mX.allocate(n);      std::memset(p1, 0xff, n);
-        void *p2 = mX.allocate(n * 3);  std::memset(p2, 0xff, n * 3);
-        void *p3 = mX.allocate(n * 7);  std::memset(p3, 0xff, n * 7);
+        void *p1 = mX.allocate(n);      memset(p1, 0xff, n);
+        void *p2 = mX.allocate(n * 3);  memset(p2, 0xff, n * 3);
+        void *p3 = mX.allocate(n * 7);  memset(p3, 0xff, n * 7);
         mX.deallocate(p3);
         mX.deallocate(p2);
         mX.deallocate(p1);
@@ -749,7 +749,7 @@ void reallocate(short            **array,
 
     // COMMIT POINT
 
-    std::memcpy(*array, tmp, length * sizeof **array);
+    memcpy(*array, tmp, length * sizeof **array);
 
     if (basicAllocator) {
         basicAllocator->deallocate(tmp);
@@ -827,10 +827,10 @@ void debugprint(const my_ShortArray& array)
 /// its output to the specified `buf` of size `sz`.  If the output is
 /// truncated (if necessary) to `sz - 1` bytes, and is always nul
 /// terminated within `buf`.
-void printToBuffer(char *buf, std::size_t sz, const bslma::TestAllocator& ta)
+void printToBuffer(char *buf, size_t sz, const bslma::TestAllocator& ta)
 {
     // Create a temporary file
-    std::FILE* tmpf = 0;
+    FILE* tmpf = 0;
 #ifdef BSLS_PLATFORM_OS_WINDOWS
     errno_t e = tmpfile_s(&tmpf);
     BSLS_ASSERT(0 == e);
@@ -843,15 +843,15 @@ void printToBuffer(char *buf, std::size_t sz, const bslma::TestAllocator& ta)
     ta.print(tmpf);
 
     // Read what was just written from temp file into `buf`
-    std::rewind(tmpf);
+    rewind(tmpf);
     buf[sz - 1] = '\0';        // Ensure nul termination, no matter what.
-    std::size_t count = std::fread(buf, 1, sz - 1, tmpf);
+    size_t count = fread(buf, 1, sz - 1, tmpf);
     BSLS_ASSERT(count < sz); // sanity check
     buf[count] = '\0';       // Add nul terminator.
 
     BSLS_ASSERT('\0' == buf[sz - 1]);  // overrun check
 
-    std::fclose(tmpf);
+    fclose(tmpf);
 }
 
 /// Return `true` if the in-use block list for the specified `ta` test
@@ -861,7 +861,7 @@ void printToBuffer(char *buf, std::size_t sz, const bslma::TestAllocator& ta)
 /// non-null, then ID '4' is expected to be in the blocks list and if
 /// `blocks[5]` is null, then ID '5' is expected *not* to be in the blocks
 /// list.
-template <std::size_t NBLOCKS>
+template <size_t NBLOCKS>
 bool verifyBlockList(const bslma::TestAllocator&    ta,
                      void                        *(&blocks)[NBLOCKS])
 {
@@ -878,11 +878,11 @@ bool verifyBlockList(const bslma::TestAllocator&    ta,
 
     // Find start of in-use block list
     const char *p = strm.data();
-    p = std::strstr(p, "Outstanding Memory Allocations:");
+    p = strstr(p, "Outstanding Memory Allocations:");
     while (p && *p) {
-        p += std::strcspn(p, "0123456789");  // Skip non-digits
+        p += strcspn(p, "0123456789");  // Skip non-digits
         int id;
-        std::size_t count = sscanf(p, "\t%d", &id);
+        size_t count = sscanf(p, "\t%d", &id);
         if (count < 1) {
             break;  // No more IDs.
         }
@@ -890,7 +890,7 @@ bool verifyBlockList(const bslma::TestAllocator&    ta,
         BSLS_ASSERT(0 <= id && id < int(NBLOCKS));
         ids[id] = true;
 
-        p += std::strspn(p, "0123456789");  // Skip digits
+        p += strspn(p, "0123456789");  // Skip digits
     }
 
     // Traverse both arrays looking for a mismatch
@@ -933,7 +933,7 @@ struct StatisticsStashGuard {
 
 int main(int argc, char *argv[])
 {
-    int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
     bool             verbose = argc > 2;
     bool         veryVerbose = argc > 3;
     bool     veryVeryVerbose = argc > 4;
@@ -982,7 +982,7 @@ int main(int argc, char *argv[])
 // ```
 //  int main(int argc, char *argv[])
 //  {
-//      int                 test = argc > 1 ? std::atoi(argv[1]) : 0;
+//      int                 test = argc > 1 ? atoi(argv[1]) : 0;
 //      bool             verbose = argc > 2;
 //      bool         veryVerbose = argc > 3;
 //      bool     veryVeryVerbose = argc > 4;
@@ -1123,15 +1123,15 @@ int main(int argc, char *argv[])
             char preBuf[240];
             char postBuf[240];
 
-            std::strcpy(preBuf, "TestAllocator");
+            strcpy(preBuf, "TestAllocator");
 
             if (NAME) {
-                std::strcat(preBuf, " ");
-                std::strcat(preBuf, NAME);
+                strcat(preBuf, " ");
+                strcat(preBuf, NAME);
             }
 
-            snprintf(preBuf + std::strlen(preBuf),
-                     sizeof preBuf - std::strlen(preBuf),
+            snprintf(preBuf + strlen(preBuf),
+                     sizeof preBuf - strlen(preBuf),
                      " [%lld]: Deallocated " ZU " byte%sat %p.\n",
                      ALLOCIDX,
                      SIZE,
@@ -1148,7 +1148,7 @@ int main(int argc, char *argv[])
                  1 == SIZE ? " " : "s ",
                  ADDRESS);
 
-            LOOP1_ASSERT(ti, 0 == std::strcmp(preBuf, postBuf));
+            LOOP1_ASSERT(ti, 0 == strcmp(preBuf, postBuf));
         }
       } break;
       case 16: {
@@ -1465,7 +1465,7 @@ int main(int argc, char *argv[])
 
         const char ops1[] = "AADADAAAADDDDAADDADDADAADDADADADADAADDAD";
         const char ops2[] = "AAAAADDDADADADAAADDADDDAAADADADDAADADDDD";
-        const std::size_t k_NUM_OPS = sizeof(ops1) - 1;
+        const size_t k_NUM_OPS = sizeof(ops1) - 1;
 
         bslma::TestAllocator us1("upstream1", veryVeryVeryVerbose);
         bslma::TestAllocator us2("upstream2", veryVeryVeryVerbose);
@@ -1479,7 +1479,7 @@ int main(int argc, char *argv[])
 
         int nBlocks1 = 0, nBlocks2 = 0, nBlocks3 = 0;
 
-        for (std::size_t i = 0; i < k_NUM_OPS; ++i) {
+        for (size_t i = 0; i < k_NUM_OPS; ++i) {
             if ('A' == ops1[i]) {
                 blocks1[nBlocks1++] = ds1.allocate(i + 1);
                 blocks2[nBlocks2++] = ds2.allocate(i + 1);
@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[])
             }
             void *allocated_p = mX.allocate(s);
             typedef bsls::AlignmentUtil AlignUtil;
-            const std::size_t a = AlignUtil::calculateAlignmentFromSize(s);
+            const size_t a = AlignUtil::calculateAlignmentFromSize(s);
             ASSERT(AlignUtil::isAligned(allocated_p, a));
             ASSERT(allocated_p != 0);
             mX.deallocate(allocated_p);
@@ -1923,7 +1923,7 @@ int main(int argc, char *argv[])
                          X.numMismatches(), X.numBoundsErrors());
             }
 
-            size_t offset = std::strlen(expBuffer);
+            size_t offset = strlen(expBuffer);
 
             if (NUM_ALLOCS != NUM_DEALLOCS) {
                 for (int i = 0; i < NUM_ALLOCS; ++i) {
@@ -1945,14 +1945,14 @@ int main(int argc, char *argv[])
 
                 strcpy(expBuffer + offset,
                        " Indices of Outstanding Memory Allocations:\n");
-                offset = std::strlen(expBuffer);
+                offset = strlen(expBuffer);
 
                 for (int i = 0; i != numRemAllocs; ++i) {
                     snprintf(expBuffer + offset,
                              sizeof expBuffer - offset,
                              "\t%d",
                              remAllocs[i]);
-                    offset = std::strlen(expBuffer);
+                    offset = strlen(expBuffer);
                 }
 
                 if (numRemAllocs > 0) {
@@ -1970,7 +1970,7 @@ int main(int argc, char *argv[])
                 char buffer[BUF_SIZE];
                 printToBuffer(buffer, BUF_SIZE, X);
                 if (veryVerbose) printf("\n'print' OUTPUT:\n[%s]\n", buffer);
-                ASSERT(0 == std::strcmp(buffer, expBuffer));
+                ASSERT(0 == strcmp(buffer, expBuffer));
             }
 
             {
@@ -2021,13 +2021,13 @@ int main(int argc, char *argv[])
         // over/underrun fault
         for (int segLen = 1; segLen < 1000; ++segLen) {
             seg = (char *) alloc.allocate(segLen);
-            std::memset(seg, 0x07, segLen);
+            memset(seg, 0x07, segLen);
             alloc.deallocate(seg);
             ASSERT(0 == alloc.numMismatches());
             ASSERT(0 == alloc.numBoundsErrors());
 
             seg = (char *) alloc.allocate(segLen);
-            std::memset(seg, 0, segLen);
+            memset(seg, 0, segLen);
             alloc.deallocate(seg);
             ASSERT(0 == alloc.numMismatches());
             ASSERT(0 == alloc.numBoundsErrors());
@@ -2598,7 +2598,7 @@ int main(int argc, char *argv[])
 
         {
             // Offset of payload within non-allocator-supplied block.
-            const std::size_t offset = 12 * sizeof(void*);
+            const size_t offset = 12 * sizeof(void*);
 
             int i;
             if (verbose) printf("\nEnsure incompatibility with new/delete.\n");
@@ -2749,7 +2749,7 @@ int main(int argc, char *argv[])
     // For this reason, this part of the test has been removed for now.
             if (verbose) printf("\nEnsure deallocated memory is scribbled.\n");
             unsigned char *q = (unsigned char *) a.allocate(9);
-            std::memset(q, 0, 9);
+            memset(q, 0, 9);
             a.deallocate(q);
             if (verbose) printf("\t[deallocate memory scribbled]\n");
             for (int mi = 0; mi < 9; ++mi) {
@@ -2908,7 +2908,7 @@ int main(int argc, char *argv[])
 
         bsls::ObjectBuffer<Obj> arena;
 
-        std::memset(static_cast<void *>(arena.address()), 0xA5, sizeof arena);
+        memset(static_cast<void *>(arena.address()), 0xA5, sizeof arena);
         Obj *p = new(&arena) Obj;
 
         if (verbose) printf(

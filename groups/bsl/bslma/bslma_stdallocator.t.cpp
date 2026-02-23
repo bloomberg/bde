@@ -24,6 +24,7 @@
 #include <cstdio>
 #include <cstdlib>  // std::atoi
 
+using std::fprintf;
 using std::printf;
 
 int main(int argc, char *argv[])

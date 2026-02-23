@@ -21,8 +21,8 @@
 
 #include <climits>
 #include <cstddef>
-#include <cstdio>
-#include <cstdlib>
+#include <stdio.h>
+#include <stdlib.h>
 #include <new>
 
 using namespace BloombergLP;
@@ -543,7 +543,7 @@ int main(int argc, char *argv[])
         ASSERT(3               == X);
         ASSERT(CMS::e_ORIGINAL == X.copyMoveState());
 
-        std::memcpy(yBuffer, xBuffer.buffer(), sizeof(Obj));
+        memcpy(yBuffer, xBuffer.buffer(), sizeof(Obj));
 
         // `isDtorExecuted` is `false` if destructors like ours are optimized
         // away.

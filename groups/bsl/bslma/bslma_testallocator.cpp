@@ -24,7 +24,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #   define snprintf _snprintf
 # else
     // 'snprintf' not available.  Fall back to less-safe 'sprintf'.
-#   define snprintf(FMT, SZ, ...) sprintf(FMT, __VA_ARGS__)
+#   define snprintf(FMT, SZ, ...) std::sprintf(FMT, __VA_ARGS__)
 # endif
 #endif
 
@@ -143,11 +143,11 @@ void formatBlock(const void *address, std::ptrdiff_t length)
 
 void formatBlockHeader(const BlockHeader *address)
 {
-    printf("  Magic num: 0x%x, Id: " FMT_I64 ", Self: %p\n",
+    std::printf("  Magic num: 0x%x, Id: " FMT_I64 ", Self: %p\n",
            address->d_magicNumber, address->d_id, address->d_self_p);
-    printf("  User segment addr: %p, num bytes: " ZU "\n",
+    std::printf("  User segment addr: %p, num bytes: " ZU "\n",
            address + 1, address->d_bytes);
-    printf("  Prefix sentinel:\n    ");
+    std::printf("  Prefix sentinel:\n    ");
     formatBlock(&address->d_sentinel, k_SENTINEL_SIZE);
 }
 

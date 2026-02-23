@@ -10,12 +10,11 @@
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
 
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
-#include <bsls_libraryfeatures.h>
-
-#include <bsls_assert.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
 
 #include <cstdio>   // `printf`
@@ -31,8 +30,10 @@
 #pragma bde_verify -TP19   // Missing or malformed standard test driver section
 #endif
 
-using std::printf;
 using std::fflush;
+using std::fprintf;
+using std::printf;
+
 using namespace BloombergLP;
 
 // ============================================================================
