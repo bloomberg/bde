@@ -1167,9 +1167,12 @@ BSLS_IDENT("$Id: $")
 // This macro is defined first for the following compiler versions:
 //   - GCC 13.1
 //   - Clang 17.0 with either:
-//     - libc++ 17.0, or
+//     - libc++ 21.1.0, or
 //     - libstdc++ 13.1
 //   - VS 16.11 / MSVC 19.29
+//
+// (*) Up to libc++ 20.10 there is a bug with character arrays
+//     https://github.com/llvm/llvm-project/issues/115935
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER`
 ///--------------------------------------------------------
@@ -2441,7 +2444,7 @@ BSLS_IDENT("$Id: $")
   //  - MSVC uses the correct value.
   #if (defined(__cpp_lib_format) && __cpp_lib_format >= 202110L) ||           \
       (defined(BSLS_LIBRARYFEATURES_STDCPP_GNU) && _GLIBCXX_RELEASE >= 13) || \
-      (defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 170000)
+      (defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION >= 210100)
     #define BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT                             1
   #endif
   // But also, an older version of Clang might be used with a newer version of
@@ -2449,6 +2452,13 @@ BSLS_IDENT("$Id: $")
   // because Clang `consteval` support was buggy prior to version 17 (see
   // https://github.com/llvm/llvm-project/commit/e328d68).
   #if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 170000L)
+    #undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  #endif
+  // And also also, until 20.1.0 there is a severe bug with handling character
+  // arrays in `std::format` (see
+  // https://github.com/llvm/llvm-project/issues/115935 ), so we disable the
+  // feature even if the standard feature test macro is defined.
+  #if (defined(BSLS_PLATFORM_CMP_CLANG) && BSLS_PLATFORM_CMP_VERSION < 210100L)
     #undef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
   #endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
