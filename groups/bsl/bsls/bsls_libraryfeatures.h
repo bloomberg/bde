@@ -2463,7 +2463,9 @@ BSLS_IDENT("$Id: $")
   #endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION && _CPP20_BASELINE_LIBRARY
 
-#if __cpp_lib_format_ranges >= 202207L
+#if __cpp_lib_format_ranges >= 202207L && BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+  // Early support for C++23 interaction with C++20 ranges, this feature will
+  // not be supported in BDE when using our own implementation of `format`.
   #define BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT                         1
 #endif  // range formatter is implemented (P2286R8, P2585R1, LWG3750)
 
