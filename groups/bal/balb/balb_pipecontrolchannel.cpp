@@ -93,7 +93,7 @@ int PipeControlChannel::sendEmptyMessage()
     bsl::wstring wPipeName;
 
     if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, d_pipeName)) {
-        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        BSLS_ASSERT_UNREACHABLE("`pipeName` is an invalid UTF-8 string.");
         return 1;                                                     // RETURN
     }
 
@@ -232,7 +232,7 @@ PipeControlChannel::createNamedPipe(const char *pipeName)
     bsl::wstring wPipeName;
 
     if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
-        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        BSLS_ASSERT_UNREACHABLE("`pipeName` is an invalid UTF-8 string.");
         return -3;                                                    // RETURN
     }
 

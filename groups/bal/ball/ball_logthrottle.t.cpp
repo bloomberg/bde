@@ -279,7 +279,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, u::TestType testType)
       case u::e_PRINTF_STYLE: stream << "e_PRINTF_STYLE"; break;
       case u::e_STREAM_STYLE: stream << "e_STREAM_STYLE"; break;
       default: {
-        BSLS_ASSERT_OPT(0 && "invalid testType");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid `testType`");
       }
     }
 
@@ -733,7 +733,7 @@ class Func {
             }
           } break;
           default: {
-            BSLS_ASSERT_OPT(0 && "invalid testType");
+            BSLS_ASSERT_OPT_UNREACHABLE("Invalid `testType`");
           }
         }
 

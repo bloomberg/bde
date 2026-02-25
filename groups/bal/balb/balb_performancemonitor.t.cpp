@@ -246,7 +246,7 @@ ProcessHandle exec(bsl::string command, bsl::vector<bsl::string> arguments)
 
         execv(argvec[0], argvec.data());
 
-        BSLS_ASSERT_OPT(0 && "execv failed");
+        BSLS_ASSERT_OPT_UNREACHABLE("execv failed");
     }
 
     return handle;

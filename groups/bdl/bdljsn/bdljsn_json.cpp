@@ -91,7 +91,7 @@ void PrintVisitor::operator()(const JsonArray& value) const
 
 void PrintVisitor::operator()(bslmf::Nil) const
 {
-    BSLS_ASSERT(false);
+    BSLS_ASSERT_UNREACHABLE("`PrintVisitor` invoked for the `Nil` type");
 }
 
 }  // close unnamed namespace

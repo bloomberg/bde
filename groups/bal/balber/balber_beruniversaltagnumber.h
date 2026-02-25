@@ -474,7 +474,7 @@ class BerUniversalTagNumber_Imp {
     inline
     TagVal operator()(const TYPE&, bslmf::Nil)
     {
-        BSLS_ASSERT(0 && "Invalid type category");
+        BSLS_ASSERT_UNREACHABLE("Invalid type category");
         return BerUniversalTagNumber::e_BER_INVALID;
     }
 
@@ -1093,7 +1093,7 @@ BerUniversalTagNumber::Value
 BerUniversalTagNumber_Imp::select(
                           const BerUniversalTagNumber_Sel<TYPE, ANY_CATEGORY>&)
 {
-    BSLS_ASSERT(0 && "invalid type category");
+    BSLS_ASSERT_UNREACHABLE("Invalid type category");
     return BerUniversalTagNumber::e_BER_INVALID;
 }
 

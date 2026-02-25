@@ -1422,7 +1422,9 @@ void TemplateTestFacility::emplace(TemplateTestFacility::MethodPtr *address,
       case 125: *address = &TemplateTestFacility_StubClass::method<125>; break;
       case 126: *address = &TemplateTestFacility_StubClass::method<126>; break;
       case 127: *address = &TemplateTestFacility_StubClass::method<127>; break;
-      default : BSLS_ASSERT_OPT(false);
+      default : {
+        BSLS_ASSERT_OPT_UNREACHABLE("`identifier` out of range [0..127]");
+      }
     }
 }
 

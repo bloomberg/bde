@@ -236,38 +236,40 @@ int gg(bsl::vector<balm::MetricSampleGroup>   *groups,
     const balm::MetricRecord *head    = recordBuffer.data();
     const balm::MetricRecord *current = head;
     while (*c) {
-        if (!*c || !*(c+1) || !(*c+2) || !(*c+3)) {
-            bsl::cout << "Invalid termination for specification: "
-                      << specification << bsl::endl;
+        if (!c[1] || !c[2] || !c[3]) {
+            bsl::cout << "Invalid termination for specification: \""
+                      << specification << "\"\n";
         }
-        if (*c != 'R') {
-            bsl::cout << "Unexpected char in specification: " << specification
-                      << "  expecting: 'R'   found: '" << *c << "'"
-                      << bsl::endl;
-            BSLS_ASSERT(false);
+        if (c[0] != 'R') {
+            bsl::cout << "Unexpected char in specification: \""
+                      << specification
+                      << "\"  expecting: 'R' found: '" << *c << "'\n";
+            BSLS_ASSERT_UNREACHABLE("Unexpected char in specification,"
+                                                               "expected 'R'");
         }
 
-        int numRecords = *(c + 1) - '0';
+        const int numRecords = c[1] - '0';
         if (numRecords < 0 || numRecords > 9) {
-            bsl::cout << "Invalid number of records in specification: "
-                      << specification << "  found: '" << *c << "'"
-                      << bsl::endl;
-            BSLS_ASSERT(false);
+            bsl::cout << "Invalid number of records in specification: \""
+                      << specification << "\"  found: '" << c[1] << "'\n";
+            BSLS_ASSERT_UNREACHABLE("Invalid number of records in"
+                                               " specification, expected 0-9");
         }
 
-        if (*(c + 2) != 'E') {
-            bsl::cout << "Unexpected char in specification: " << specification
-                      << "  expecting: 'E'   found: '" << *c << "'"
-                      << bsl::endl;
-            BSLS_ASSERT(false);
+        if (c[2] != 'E') {
+            bsl::cout << "Unexpected char in specification: \""
+                      << specification
+                      << "\"  expecting: 'E'   found: '" << c[2] << "'\n";
+            BSLS_ASSERT_UNREACHABLE("Unexpected char in specification,"
+                                                              " expected 'E'");
         }
 
-        int elapsedTime = *(c + 3) - '0';
+        const int elapsedTime = c[3] - '0';
         if (elapsedTime < 0 || elapsedTime > 9) {
-            bsl::cout << "Invalid elapsed time in specification: "
-                      << specification << "  found: '" << *c << "'"
-                      << bsl::endl;
-            BSLS_ASSERT(false);
+            bsl::cout << "Invalid elapsed time in specification: \""
+                      << specification << "\"  found: '" << c[3] << "'\n";
+            BSLS_ASSERT_UNREACHABLE("Invalid elapsed time in specification,"
+                                                              " expected 0-9");
         }
 
         if (head + recordBuffer.size() < current + numRecords) {

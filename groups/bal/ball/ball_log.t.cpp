@@ -6713,7 +6713,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                       case 1: threshold.setPassLevel(DATA[i]); break;
                       case 2: threshold.setTriggerLevel(DATA[i]); break;
                       case 3: threshold.setTriggerAllLevel(DATA[i]); break;
-                      default: BSLS_ASSERT(false);
+                      default: BSLS_ASSERT_UNREACHABLE("Bad threshold index");
                     }
                     manager.setCategory("TEST.CATEGORY2",
                                         threshold.recordLevel(),

@@ -49,7 +49,7 @@ void *BufferImpUtil::allocateFromBuffer(bsls::Types::IntPtr       *cursor,
                                                                  size);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Invalid alignment 'strategy' value.");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid alignment `strategy` value");
       } break;
     }
 
@@ -162,7 +162,7 @@ void *BufferImpUtil::allocateFromBufferRaw(bsls::Types::IntPtr       *cursor,
                                                                     size);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Invalid alignment 'strategy' value.");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid alignment `strategy` value");
       } break;
     }
 

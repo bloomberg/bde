@@ -2918,7 +2918,7 @@ RETURN_TYPE Json::visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
                                                                       // RETURN
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid Json type in `visit()`");
       } break;
     }
     BSLA_UNREACHABLE;
@@ -2954,7 +2954,7 @@ decltype(auto) Json::visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
         return Util::invokeVisitor(visitor, &theNull());              // RETURN
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid Json type in `visit()`");
       } break;
     }
     BSLA_UNREACHABLE;
@@ -3217,7 +3217,7 @@ RETURN_TYPE Json::visit(
         return Util::invokeVisitor<RETURN_TYPE>(visitor, theNull());  // RETURN
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid Json type in `visit()`");
       } break;
     }
     BSLA_UNREACHABLE;
@@ -3250,7 +3250,7 @@ decltype(auto) Json::visit(
         return Util::invokeVisitor(visitor, theNull());               // RETURN
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid Json type in `visit()`");
       } break;
     }
     BSLA_UNREACHABLE;

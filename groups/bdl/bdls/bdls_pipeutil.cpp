@@ -134,7 +134,7 @@ int PipeUtil::send(const bsl::string_view& pipeName,
     bsl::wstring wPipeName;
 
     if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
-        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        BSLS_ASSERT_UNREACHABLE("`pipeName` is an invalid UTF-8 string.");
         return -1;                                                    // RETURN
     }
 
@@ -165,7 +165,7 @@ PipeUtil::isOpenForReading(const bsl::string_view& pipeName)
     bsl::wstring wPipeName;
 
     if (0 != bdlde::CharConvertUtf16::utf8ToUtf16(&wPipeName, pipeName)) {
-        BSLS_ASSERT(0 && "'pipeName' is an invalid UTF-8 string.");
+        BSLS_ASSERT_UNREACHABLE("`pipeName` is an invalid UTF-8 string.");
         return false;                                                 // RETURN
     }
 

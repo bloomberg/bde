@@ -384,13 +384,13 @@ bdldfp::Decimal64 NumberUtil::asDecimal64(const bsl::string_view& value)
     int rc = bdldfp::DecimalUtil::parseDecimal64(&d, dataString.c_str());
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(0 != rc)) {
         // This should not be possible and no test has found a case where this
-        // is occurs.  However, to prevent a possible denial of service attack
-        // if some gap were to be found in the implementation of low-level
+        // occurs.  However, to prevent a possible denial of service attack if
+        // some gap were to be found in the implementation of low-level
         // floating point parsing functions and the JSON number spec, we
         // provide in-contract defined behavior for optimized (production)
         // builds.
 
-        BSLS_ASSERT(false);
+        BSLS_ASSERT_UNREACHABLE("Unparseable JSON number");
         NumberUtil_ImpUtil::logUnparseableJsonNumber(value);
         return bsl::numeric_limits<bdldfp::Decimal64>::quiet_NaN();   // RETURN
     }

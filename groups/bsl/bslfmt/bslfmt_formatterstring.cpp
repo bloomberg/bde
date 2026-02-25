@@ -131,7 +131,7 @@ bool EmojiModifierSequenceDetector::match(
         }
       } break;
       default: {
-        BSLS_ASSERT(false && "Unexpected detector state");
+        BSLS_ASSERT_UNREACHABLE("Unexpected detector state");
       }
     }
 

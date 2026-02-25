@@ -400,7 +400,7 @@ void UnicodeCodePoint::extractUtf8(const void *bytes, size_t maxBytes)
         d_codePointWidth = getCodepointWidth(value);
       } break;
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid encoding type");
       }
     }
 

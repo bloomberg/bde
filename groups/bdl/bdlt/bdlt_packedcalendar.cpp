@@ -1521,8 +1521,8 @@ void PackedCalendar_BusinessDayConstIterator::previousBusinessDay()
 
     // Since there is a holiday, this line can never be reached.
 
-    BSLS_ASSERT_OPT(0 &&
-            "Impossible scenario for PackedCalendar_BusinessDayConstIterator");
+    BSLS_ASSERT_OPT_UNREACHABLE(
+          "Impossible scenario for `PackedCalendar_BusinessDayConstIterator`");
 }
 
 // MANIPULATORS

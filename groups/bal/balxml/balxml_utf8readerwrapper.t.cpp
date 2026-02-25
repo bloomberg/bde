@@ -1378,7 +1378,7 @@ int main(int argc, char *argv[])
                       } break;
                       case TC::e_END: BSLA_FALLTHROUGH;
                       default: {
-                        BSLS_ASSERT(0 && "impossible mode");
+                        BSLS_ASSERT_UNREACHABLE("Impossible `Mode`");
                       }
                     }
 
@@ -1487,7 +1487,7 @@ int main(int argc, char *argv[])
                       } break;
                       case TC::e_END: BSLA_FALLTHROUGH;
                       default: {
-                        BSLS_ASSERT(0 && "impossible mode");
+                        BSLS_ASSERT_UNREACHABLE("Impossible `Mode`");
                       }
                     }
 

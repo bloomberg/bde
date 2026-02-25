@@ -44,10 +44,10 @@ ball::UserFieldType::Enum UserFieldValue::type() const
         return ball::UserFieldType::e_CHAR_ARRAY;                     // RETURN
       } break;
       default: {
-        BSLS_ASSERT_OPT(false);
+        BSLS_ASSERT_OPT_UNREACHABLE("Unexpected variant type index");
       }
     }
-    BSLS_ASSERT_OPT(false);
+    BSLS_ASSERT_OPT_UNREACHABLE("All cases above should have returned");
     return ball::UserFieldType::e_INT64;
 }
 

@@ -421,7 +421,7 @@ int validateAndCountCodePoints(const char **invalidString, const char *string)
             string += 4;
           } break;
           default: {
-            BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+            BSLS_ASSERT_UNREACHABLE("Invalid UTF-8 initial octet category");
           }
         }
 
@@ -1178,7 +1178,8 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
           case 0xb: {
             // binary: 10xxxxxx: We hit an unexpected continuation octet.
 
-            BSLS_ASSERT(0 && "invalid UTF-8");
+            BSLS_ASSERT_UNREACHABLE(
+                               "Unexpected continuation octet in valid UTF-8");
           } break;
 
           // The following are multi-octet sequences.  Since we're assuming
@@ -1273,7 +1274,8 @@ Utf8Util::IntPtr Utf8Util::advanceRaw(const char **result,
           case 0xb: {
             // binary: 10xxxxxx: We hit an unexpected continuation octet.
 
-            BSLS_ASSERT(0 && "invalid UTF-8");
+            BSLS_ASSERT_UNREACHABLE(
+                               "Unexpected continuation octet in valid UTF-8");
           } break;
 
           // The following are multi-octet sequences.  Since we're assuming

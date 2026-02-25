@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 06:01:47 2024
+// Generated on Mon Jan 12 21:03:10 2026
 // Command line: sim_cpp11_features.pl bdlb_variant.h
 
 #ifdef COMPILING_BDLB_VARIANT_H
@@ -6223,7 +6223,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(0 == "Unreachable by design!");
+        BSLS_ASSERT_UNREACHABLE("Variant type index exceeds maximum");
       } break;
     }
 }

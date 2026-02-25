@@ -36,7 +36,7 @@ int CalendarDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
                                                   calendar);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unrecognized day count convention");
         numDays = 0;
       } break;
     }
@@ -76,7 +76,7 @@ double CalendarDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
                                                     calendar);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unrecognized day count convention");
         numYears = 0.0;
       } break;
     }

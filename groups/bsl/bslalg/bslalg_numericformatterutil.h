@@ -1531,8 +1531,8 @@ char *NumericFormatterUtil::toChars(char   *first,
       case e_HEX:        return toCharsHex(first, last, value);       // RETURN
     }
 
-    BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
-    return 0;  // To avoid warning from AIX xlC
+    BSLS_ASSERT_UNREACHABLE("Invalid `format` argument value");
+    return 0;
 }
 
 inline
@@ -1548,8 +1548,8 @@ char *NumericFormatterUtil::toChars(char   *first,
       case e_HEX:        return toCharsHex(first, last, value);       // RETURN
     }
 
-    BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
-    return 0;  // To avoid warning from AIX xlC
+    BSLS_ASSERT_UNREACHABLE("Invalid `format` argument value");
+    return 0;
 }
 
 inline
@@ -1574,8 +1574,8 @@ char *NumericFormatterUtil::toChars(char   *first,
       }
     }
 
-    BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
-    return 0;  // To avoid warning from AIX xlC
+    BSLS_ASSERT_UNREACHABLE("Invalid `format` argument value");
+    return 0;
 }
 
 inline
@@ -1600,8 +1600,8 @@ char *NumericFormatterUtil::toChars(char   *first,
       }
     }
 
-    BSLS_ASSERT_INVOKE_NORETURN("Invalid 'format' argument value.");
-    return 0;  // To avoid warning from AIX xlC
+    BSLS_ASSERT_UNREACHABLE("Invalid `format` argument value");
+    return 0;
 }
 
 }  // close package namespace

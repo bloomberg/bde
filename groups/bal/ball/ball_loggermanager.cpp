@@ -287,7 +287,7 @@ ball::Severity::Level convertBslsLogSeverity(bsls::LogSeverity::Enum severity)
       case bsls::LogSeverity::e_DEBUG: return ball::Severity::e_DEBUG;
       case bsls::LogSeverity::e_TRACE: return ball::Severity::e_TRACE;
     }
-    BSLS_ASSERT_OPT(false && "Unreachable by design");
+    BSLS_ASSERT_OPT_UNREACHABLE("Invalid `bsls::LogSeverity` value");
     return ball::Severity::e_ERROR;
 }
 

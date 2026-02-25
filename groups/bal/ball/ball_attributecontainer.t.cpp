@@ -297,7 +297,7 @@ typedef ball::AttributeContainer Obj;
                     return lhs.value().the<bdlb::Guid>() <
                            rhs.value().the<bdlb::Guid>();             // RETURN
                 }
-                BSLS_ASSERT(false);
+                BSLS_ASSERT_UNREACHABLE("Unknown `typeIndex`");
                 return false;
             }
         };

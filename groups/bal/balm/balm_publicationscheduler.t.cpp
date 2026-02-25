@@ -808,7 +808,7 @@ const char *Action::typeString(Type type)
       case Action::SCHEDULE_CATEGORY: return "SCHEDULE_CATEGORY";
       case Action::SCHEDULE_DEFAULT: return "SCHEDULE_DEFAULT";
     }
-    BSLS_ASSERT(false);
+    BSLS_ASSERT_UNREACHABLE("Invalid Action Type");
     return "Invalid Action Type";
 }
 
@@ -1240,7 +1240,7 @@ void gg(bsl::vector<Action>   *actions,
         else {
             bsl::cout << "Unexpected element type in spec: " << elementChar
                       << "(" << (int)elementChar << ")" << bsl::endl;
-            BSLS_ASSERT(false);
+            BSLS_ASSERT_UNREACHABLE("Unexpected element type in spec");
         }
 
         if (intervalChar > '0' && intervalChar <= '9') {
@@ -1249,7 +1249,7 @@ void gg(bsl::vector<Action>   *actions,
         else {
             bsl::cout << "Unexpected interval in spec: " << intervalChar
                       << "(" << (int)intervalChar << ")" << bsl::endl;
-            BSLS_ASSERT(false);
+            BSLS_ASSERT_UNREACHABLE("Unexpected interval in spec");
         }
 
         actions->push_back(Action(type, category, interval));

@@ -1344,7 +1344,8 @@ int bdlat_TypeCategoryUtil::manipulateByCategory(TYPE         *object,
 
     switch (select(*object)) {
       case bdlat_TypeCategory::e_DYNAMIC_CATEGORY: {
-        BSLS_ASSERT_SAFE("'select' must not return 'DYNAMIC_CATEGORY'." && 0);
+        BSLS_ASSERT_SAFE_UNREACHABLE(
+                                "`select` must not return `DYNAMIC_CATEGORY`");
         return -1;                                                    // RETURN
       }
       case bdlat_TypeCategory::e_ARRAY_CATEGORY: {
@@ -1384,7 +1385,8 @@ int bdlat_TypeCategoryUtil::accessByCategory(const TYPE& object,
 
     switch (select(object)) {
       case bdlat_TypeCategory::e_DYNAMIC_CATEGORY: {
-        BSLS_ASSERT_SAFE("'select' must not return 'DYNAMIC_CATEGORY'." && 0);
+        BSLS_ASSERT_SAFE_UNREACHABLE(
+                                "`select` must not return `DYNAMIC_CATEGORY`");
         return -1;                                                    // RETURN
       }
       case bdlat_TypeCategory::e_ARRAY_CATEGORY: {

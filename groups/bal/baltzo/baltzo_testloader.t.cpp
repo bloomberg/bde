@@ -1681,7 +1681,7 @@ int main(int argc, char *argv[])
                 objPtr = new (fa) Obj(alloc);
               } break;
               default: {
-                BSLS_ASSERT_OPT(false && "Bad allocator Config.");
+                BSLS_ASSERT_OPT_UNREACHABLE("Bad allocator `CONFIG`.");
               } break;
             }
 

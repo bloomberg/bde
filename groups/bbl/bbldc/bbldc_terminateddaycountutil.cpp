@@ -32,7 +32,8 @@ int TerminatedDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
                                                           terminationDate);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE(
+                               "Unrecognized terminated day count convention");
         numDays = 0;
       } break;
     }
@@ -70,7 +71,8 @@ double TerminatedDayCountUtil::yearsDiff(
                                                             terminationDate);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE(
+                               "Unrecognized terminated day count convention");
         numYears = 0.0;
       } break;
     }

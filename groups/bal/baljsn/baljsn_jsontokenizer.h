@@ -528,7 +528,7 @@ template <class TYPE>
 inline
 void JsonTokenizer_Visitor::operator()(const TYPE& parameter) const
 {
-    BSLS_ASSERT_OPT(false && "reachable");
+    BSLS_ASSERT_OPT_UNREACHABLE("Unexpected JSON type in visitor");
     (void) parameter;
 }
 

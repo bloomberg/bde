@@ -134,7 +134,7 @@ TimeInterval SystemTime::now(SystemClockType::Enum clockType)
       case SystemClockType::e_MONOTONIC: return nowMonotonicClock();  // RETURN
       case SystemClockType::e_REALTIME:  return nowRealtimeClock();   // RETURN
     }
-    BSLS_ASSERT_OPT("Invalid clockType parameter value" && 0);
+    BSLS_ASSERT_OPT_UNREACHABLE("Invalid `clockType` parameter value");
     return TimeInterval();
 }
 

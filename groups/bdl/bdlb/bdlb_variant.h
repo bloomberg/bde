@@ -6588,7 +6588,7 @@ void VariantImp<TYPES>::doApply(VISITOR_REF visitor, int type)
         applyImp<typename Base::Type20, VISITOR_REF>(visitor);
       } break;
       default: {
-        BSLS_ASSERT(0 == "Unreachable by design!");
+        BSLS_ASSERT_UNREACHABLE("Variant type index exceeds maximum");
       } break;
     }
 }

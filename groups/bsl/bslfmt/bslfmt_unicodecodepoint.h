@@ -158,7 +158,7 @@ void UnicodeCodePoint::extract(UtfEncoding  encoding,
         extractUtf32(bytes, maxBytes);
       } break;
       default: {
-        BSLS_ASSERT_INVOKE_NORETURN("unreachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid encoding type");
         BSLA_UNREACHABLE;
       }
     }

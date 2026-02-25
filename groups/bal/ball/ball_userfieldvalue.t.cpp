@@ -350,7 +350,7 @@ bool verifyFieldTypeAndValue(const Obj& object, char type, char value)
                        : E2 == object.theCharArray();
       } break;
       default: {
-        BSLS_ASSERT_OPT(false);
+        BSLS_ASSERT_OPT_UNREACHABLE("Unknown `type`");
       } break;
     }
 
@@ -432,7 +432,7 @@ int ggg(Obj *object, const char *spec, bool verboseFlag = true)
 
                 switch (type) {
                   case Type::e_VOID: {
-                    BSLS_ASSERT_OPT(false);
+                    BSLS_ASSERT_OPT_UNREACHABLE("`e_VOID` is unexpected here");
                   } break;
                   case Type::e_INT64: {
                     isOne ? object->setInt64(A1)
@@ -3675,7 +3675,7 @@ int main(int argc, char *argv[])
 
                 switch (TYPE) {
                   case Type::e_VOID: {
-                    BSLS_ASSERT_OPT(false);
+                    BSLS_ASSERT_OPT_UNREACHABLE("`e_VOID` is unexpected here");
                   } break;
                   case Type::e_INT64: {
                     mX.setInt64(A2);
@@ -3763,7 +3763,8 @@ int main(int argc, char *argv[])
 
                     switch (TYPEI) {  // initial type of field
                       case Type::e_VOID: {
-                        BSLS_ASSERT_OPT(false);
+                        BSLS_ASSERT_OPT_UNREACHABLE(
+                                                "`e_VOID` is unexpected here");
                       } break;
                       case Type::e_INT64: {
                         mX.setInt64(A1);
@@ -3794,7 +3795,8 @@ int main(int argc, char *argv[])
 
                     switch (TYPEJ) {  // new type of field
                       case Type::e_VOID: {
-                        BSLS_ASSERT_OPT(false);
+                        BSLS_ASSERT_OPT_UNREACHABLE(
+                                                "`e_VOID` is unexpected here");
                       } break;
                       case Type::e_INT64: {
                         mX.setInt64(A2);

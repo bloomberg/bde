@@ -72,7 +72,7 @@ bdlat_TypeName_Imp::xsdName(const signed char *, int format)
         return BDLAT_XSDNAME_STRING;  // UTF-8 character              // RETURN
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for char");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `signed char`");
 
         return 0;                                                     // RETURN
     }
@@ -90,7 +90,7 @@ bdlat_TypeName_Imp::xsdName(const unsigned char *, int format)
         return BDLAT_XSDNAME_STRING;  // UTF-8 character              // RETURN
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for char");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `unsigned char`");
 
         return 0;                                                     // RETURN
     }
@@ -108,7 +108,7 @@ bdlat_TypeName_Imp::xsdName(const short *, int format)
         return BDLAT_XSDNAME_STRING;  // UTF-16 character             // RETURN
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for short");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `short`");
 
         return 0;                                                     // RETURN
     }
@@ -125,7 +125,7 @@ bdlat_TypeName_Imp::xsdName(const float *, int format)
         return BDLAT_XSDNAME_DECIMAL;
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for float");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `float`");
 
         return 0;                                                     // RETURN
     }
@@ -142,7 +142,7 @@ bdlat_TypeName_Imp::xsdName(const double *, int format)
         return BDLAT_XSDNAME_DECIMAL;
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for double");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `double`");
 
         return 0;                                                     // RETURN
     }
@@ -156,7 +156,7 @@ bdlat_TypeName_Imp::xsdName(const bdldfp::Decimal64 *, int format)
         return BDLAT_XSDNAME_DECIMAL64;
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for bdldfp::Decimal64");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `bdldfp::Decimal64`");
 
         return 0;
     }
@@ -177,7 +177,7 @@ bdlat_TypeName_Imp::xsdName(const bsl::string *, int format)
         return BDLAT_XSDNAME_HEX_BINARY;                              // RETURN
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for string");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `string`");
         return 0;                                                     // RETURN
     }
 }
@@ -197,7 +197,7 @@ bdlat_TypeName_Imp::xsdName(const bsl::vector<char> *, int format)
         return BDLAT_XSDNAME_STRING;  // UTF-8 string                 // RETURN
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for vector<char>");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `vector<char>`");
         return 0;                                                     // RETURN
     }
 }
@@ -210,7 +210,7 @@ bdlat_TypeName_Imp::xsdName(const bsl::vector<short> *, int format)
         return BDLAT_XSDNAME_STRING;  // UTF-16 string
 
       default:
-        BSLS_ASSERT(0 && "Invalid format for vector<short>");
+        BSLS_ASSERT_UNREACHABLE("Invalid format for `vector<short>`");
 
         return 0;                                                     // RETURN
     }

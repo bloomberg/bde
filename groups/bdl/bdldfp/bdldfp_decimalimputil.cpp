@@ -193,12 +193,12 @@ int formatFixed(char                      *buffer,
     const int k_MAX_DIGITS = DecimalTraits<DECIMAL>::k_MAX_DIGITS;
 
     char significand[k_MAX_DIGITS] = { 0 };
-    int  len = print(&significand[0],
-                     &significand[k_MAX_DIGITS],
-                     s);
+    const int  len = print(&significand[0],
+                           &significand[k_MAX_DIGITS],
+                           s);
 
-    int pointPos     = (s != 0) ? len + exponent : 0;
-    int outputLength = static_cast<int>(
+    const int pointPos     = (s != 0) ? len + exponent : 0;
+    const int outputLength = static_cast<int>(
         (pointPos > 0 ? pointPos : sizeof('0')) +
         (cfg.precision() > 0 || cfg.showpoint()) + cfg.precision());
 
@@ -828,7 +828,7 @@ DecimalImpUtil::ValueType32 DecimalImpUtil::normalize(ValueType32 value)
 
       default: {
         result = makeDecimalRaw32(0, 0);  // suppress compile warning
-        BSLS_ASSERT(false);
+        BSLS_ASSERT_UNREACHABLE("Invalid decimal classification");
       } break;
     }
 
@@ -880,7 +880,7 @@ DecimalImpUtil::ValueType64 DecimalImpUtil::normalize(ValueType64 value)
 
       default: {
         result = makeDecimalRaw64(0, 0);  // suppress compile warning
-        BSLS_ASSERT(false);
+        BSLS_ASSERT_UNREACHABLE("Invalid decimal classification");
       } break;
     }
 
@@ -957,7 +957,7 @@ DecimalImpUtil::ValueType128 DecimalImpUtil::normalize(ValueType128 value)
       } break;
 
       default:
-        BSLS_ASSERT(false);
+        BSLS_ASSERT_UNREACHABLE("Invalid decimal classification");
     }
 
     return result;

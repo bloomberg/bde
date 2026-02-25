@@ -69,7 +69,7 @@ int BasicDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
         numDays = bbldc::BasicSia30360Neom::daysDiff(beginDate, endDate);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unrecognized day count convention");
         numDays = 0;
       } break;
     }
@@ -144,7 +144,7 @@ double BasicDayCountUtil::yearsDiff(const bdlt::Date&        beginDate,
         numYears = bbldc::BasicSia30360Neom::yearsDiff(beginDate, endDate);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unrecognized day count convention");
         numYears = 0.0;
       } break;
     }

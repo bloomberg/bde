@@ -1140,7 +1140,7 @@ int FdStreamBuf::sync()
 void FdStreamBuf::imbue(const bsl::locale& locale)
 {
     if (bsl::locale() != locale) {
-        BSLS_ASSERT_OPT(0 && "Changing locales not supported\n");
+        BSLS_ASSERT_OPT_UNREACHABLE("Changing locales not supported");
     }
 
 #if 0

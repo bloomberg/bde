@@ -31,7 +31,7 @@ void DecoderOptionsUtil::setMode(DecoderOptions *options, Mode mode)
         options->setAllowUnescapedControlCharacters(false);
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unrecognized `Mode` value");
       } break;
     }
 }

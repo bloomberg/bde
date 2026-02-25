@@ -68,7 +68,7 @@ double PeriodDayCountUtil::yearsDiffImp(
                                                             periodYearDiff);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unrecognized period day count convention");
         numYears = 0.0;
       } break;
     }
@@ -88,7 +88,8 @@ int PeriodDayCountUtil::daysDiff(const bdlt::Date&        beginDate,
         numDays = bbldc::PeriodIcmaActualActual::daysDiff(beginDate, endDate);
       } break;
       default: {
-        BSLS_ASSERT_OPT(0 && "Unrecognized convention");
+        BSLS_ASSERT_OPT_UNREACHABLE(
+                                   "Unrecognized period day count convention");
         numDays = 0;
       } break;
     }

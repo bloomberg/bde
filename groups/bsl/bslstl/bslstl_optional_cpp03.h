@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec 23 11:32:24 2025
+// Generated on Mon Jan 12 21:02:52 2026
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -10119,7 +10119,8 @@ template <class t_TYPE>
 inline
 Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t, AllocType)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10128,7 +10129,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t,
                                             AllocType,
                                             bsl::nullopt_t)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10140,7 +10142,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                          BloombergLP::bslstl::Optional_ConstructFromForwardRef,
                          t_ANY_TYPE&&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10152,7 +10155,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                   BloombergLP::bslstl::Optional_CopyConstructFromOtherOptional,
                   const Optional_Base<t_ANY_TYPE>&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10164,7 +10168,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                   BloombergLP::bslstl::Optional_MoveConstructFromOtherOptional,
                   Optional_Base<t_ANY_TYPE>&&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10176,7 +10181,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                     BloombergLP::bslstl::Optional_CopyConstructFromStdOptional,
                     const std::optional<t_ANY_TYPE>&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10188,7 +10194,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                     BloombergLP::bslstl::Optional_MoveConstructFromStdOptional,
                     std::optional<t_ANY_TYPE>&&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10199,7 +10206,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t,
                                             bsl::in_place_t,
                                             t_ARGS&&...)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10212,7 +10220,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   std::initializer_list<t_INIT_LIST_TYPE>,
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 // PROTECTED MANIPULATORS
@@ -10235,7 +10244,7 @@ t_TYPE& Optional_Base<t_TYPE, false>::dereferenceRaw()
 
 }
 
-// PROTECTED ACCESORS
+// PROTECTED ACCESSORS
 template <class t_TYPE>
 const t_TYPE& Optional_Base<t_TYPE, false>::dereferenceRaw() const
 {
@@ -10909,7 +10918,8 @@ template <class t_TYPE>
 inline
 Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t, AllocType)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10918,7 +10928,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t,
                                             AllocType,
                                             bsl::nullopt_t)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10927,7 +10938,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t,
                                             AllocType,
                                             const Optional_Base&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10937,7 +10949,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                  AllocType,
                                  BloombergLP::bslmf::MovableRef<Optional_Base>)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10949,7 +10962,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                          BloombergLP::bslstl::Optional_ConstructFromForwardRef,
                          BSLS_COMPILERFEATURES_FORWARD_REF(t_ANY_TYPE))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10961,7 +10975,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                   BloombergLP::bslstl::Optional_CopyConstructFromOtherOptional,
                   const Optional_Base<t_ANY_TYPE>&)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 template <class t_TYPE>
@@ -10973,7 +10988,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                   BloombergLP::bslstl::Optional_MoveConstructFromOtherOptional,
                   BSLMF_MOVABLEREF_DEDUCE(Optional_Base<t_ANY_TYPE>))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -10993,7 +11009,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   AllocType,
                                   bsl::in_place_t)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 0
 
@@ -11007,7 +11024,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   bsl::in_place_t,
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_01))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 1
 
@@ -11023,7 +11041,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_01),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_02))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 2
 
@@ -11041,7 +11060,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_02),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_03))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 3
 
@@ -11061,7 +11081,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_03),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_04))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 4
 
@@ -11083,7 +11104,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_04),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_05))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 5
 
@@ -11107,7 +11129,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_05),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_06))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 6
 
@@ -11133,7 +11156,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_06),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_07))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 7
 
@@ -11161,7 +11185,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_07),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_08))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 8
 
@@ -11191,7 +11216,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_08),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_09))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 9
 
@@ -11223,7 +11249,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_09),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_10))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 10
 
@@ -11239,7 +11266,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   bsl::in_place_t,
                                   std::initializer_list<t_INIT_LIST_TYPE>)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 0
 
@@ -11254,7 +11282,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   std::initializer_list<t_INIT_LIST_TYPE>,
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_01))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 1
 
@@ -11271,7 +11300,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_01),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_02))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 2
 
@@ -11290,7 +11320,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_02),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_03))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 3
 
@@ -11311,7 +11342,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_03),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_04))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 4
 
@@ -11334,7 +11366,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_04),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_05))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 5
 
@@ -11359,7 +11392,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_05),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_06))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 6
 
@@ -11386,7 +11420,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_06),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_07))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 7
 
@@ -11415,7 +11450,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_07),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_08))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 8
 
@@ -11446,7 +11482,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_08),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_09))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 9
 
@@ -11479,7 +11516,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_09),
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS_10))
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #endif  // BSLSTL_OPTIONAL_VARIADIC_LIMIT_Q >= 10
 
@@ -11496,7 +11534,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   bsl::in_place_t,
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 
 #   if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -11510,7 +11549,8 @@ Optional_Base<t_TYPE, false>::Optional_Base(
                                   std::initializer_list<t_INIT_LIST_TYPE>,
                                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...)
 {
-    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+    BSLS_ASSERT_INVOKE_NORETURN(
+                         "Should not be called for non-allocator-aware types");
 }
 #   endif
 // }}} END GENERATED CODE

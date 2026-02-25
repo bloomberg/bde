@@ -1372,7 +1372,8 @@ bsl::size_t FlatHashTable<KEY, ENTRY, ENTRY_UTIL, HASH, EQUAL>::findAvailable(
         index = (index + GroupControl::k_SIZE) & (capacity - 1);
     }
 
-    BSLS_ASSERT_OPT(false && "execution should never reach this location");
+    BSLS_ASSERT_OPT_UNREACHABLE("FlatHash ran out of available slots,"
+                                      " even though it should have found one");
     return capacity;
 }
 

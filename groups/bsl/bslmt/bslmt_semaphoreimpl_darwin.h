@@ -136,8 +136,8 @@ inline
 int SemaphoreImpl<bslmt::Platform::DarwinSemaphore>::getValue() const
 {
     // Not implemented on Darwin, but sem_getvalue still returns success.
-    BSLS_ASSERT(false &&
-            "sem_getvalue is optional in POSIX and not implemented on Darwin");
+    BSLS_ASSERT_UNREACHABLE(
+          "`sem_getvalue` is optional in POSIX and not implemented on Darwin");
     return 0;
 }
 

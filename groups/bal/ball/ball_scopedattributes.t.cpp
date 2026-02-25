@@ -176,7 +176,7 @@ bool veryVeryVerbose;
                     return lhs.value().the<bdlb::Guid>()
                          < rhs.value().the<bdlb::Guid>();             // RETURN
                 }
-                BSLS_ASSERT_OPT(false);
+                BSLS_ASSERT_OPT_UNREACHABLE("Unknown `typeIndex`");
                 return false;
             }
         };

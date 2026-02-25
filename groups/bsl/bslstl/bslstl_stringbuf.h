@@ -990,7 +990,7 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
                        + offset;
           } break;
           default: {
-            BSLS_ASSERT_OPT(false && "invalid seekdir argument");
+            BSLS_ASSERT_OPT_UNREACHABLE("Invalid seekdir argument");
           }
         }
 
@@ -1022,8 +1022,9 @@ typename basic_stringbuf<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::pos_type
                       + static_cast<std::ptrdiff_t>(streamSize())
                       + offset;
           } break;
-          default:
-            BSLS_ASSERT_OPT(false && "invalid seekdir argument");
+          default: {
+            BSLS_ASSERT_OPT_UNREACHABLE("Invalid seekdir argument");
+          }
         }
 
         if (outputPtr < this->pbase()

@@ -145,7 +145,7 @@ void PackedIntArrayImp<STORAGE>::replaceImp(bsl::size_t dstIndex,
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `d_bytesPerElement`");
       } break;
     }
 }
@@ -224,7 +224,8 @@ void PackedIntArrayImp<STORAGE>::replaceImp(void        *dst,
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'srcBytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                     "Invalid value for `srcBytesPerElement`");
           } break;
         }
       } break;
@@ -267,7 +268,8 @@ void PackedIntArrayImp<STORAGE>::replaceImp(void        *dst,
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'srcBytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                     "Invalid value for `srcBytesPerElement`");
           } break;
         }
       } break;
@@ -313,7 +315,8 @@ void PackedIntArrayImp<STORAGE>::replaceImp(void        *dst,
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'srcBytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                     "Invalid value for `srcBytesPerElement`");
           } break;
         }
       } break;
@@ -359,14 +362,15 @@ void PackedIntArrayImp<STORAGE>::replaceImp(void        *dst,
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'srcBytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                     "Invalid value for `srcBytesPerElement`");
           } break;
         }
       } break;
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'dstBytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `dstBytesPerElement`");
       } break;
     }
 }
@@ -428,7 +432,7 @@ int PackedIntArrayImp<STORAGE>::
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `d_bytesPerElement`");
       } break;
     }
     return requiredBytesPerElement;
@@ -484,7 +488,8 @@ bool PackedIntArrayImp<STORAGE>::isEqualImp(
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                      "Invalid value for `d_bytesPerElement`");
           } break;
         }
       } break;
@@ -529,7 +534,8 @@ bool PackedIntArrayImp<STORAGE>::isEqualImp(
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                      "Invalid value for `d_bytesPerElement`");
           } break;
         }
       } break;
@@ -574,7 +580,8 @@ bool PackedIntArrayImp<STORAGE>::isEqualImp(
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                      "Invalid value for `d_bytesPerElement`");
           } break;
         }
       } break;
@@ -619,14 +626,15 @@ bool PackedIntArrayImp<STORAGE>::isEqualImp(
             // Only the above values are valid so this case should never
             // happen.
 
-            BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE(
+                                      "Invalid value for `d_bytesPerElement`");
           } break;
         }
       } break;
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'd_BytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `d_bytesPerElement`");
       } break;
     }
     return true;
@@ -696,7 +704,7 @@ PackedIntArrayImp<STORAGE>::PackedIntArrayImp(bsl::size_t       numElements,
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `d_bytesPerElement`");
       } break;
     }
 }
@@ -1467,7 +1475,7 @@ typename PackedIntArrayImp<STORAGE>::ElementType
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `d_bytesPerElement`");
       } break;
     }
     return 0;  // Note that this RETURN is never reached.
@@ -1521,7 +1529,7 @@ bsl::ostream& PackedIntArrayImp<STORAGE>::print(
       default: {
         // Only the above values are valid so this case should never happen.
 
-        BSLS_ASSERT_OPT("Invalid value for 'd_bytesPerElement'." && 0);
+        BSLS_ASSERT_OPT_UNREACHABLE("Invalid value for `d_bytesPerElement`");
       } break;
     }
     printer.end();

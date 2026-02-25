@@ -230,7 +230,8 @@ AttributeContext *AttributeContext::getContext()
                __FILE__,
                __LINE__,
                "Failed to add 'AttributeContext' to thread specific storage.");
-        BSLS_ASSERT(false);
+        BSLS_ASSERT_UNREACHABLE(
+               "Failed to add `AttributeContext` to thread specific storage.");
     }
     g_threadLocalContext = context;
 #else
@@ -248,8 +249,9 @@ AttributeContext *AttributeContext::getContext()
                bsls::LogSeverity::e_ERROR,
                __FILE__,
                __LINE__,
-               "Failed to add 'AttributeContext' to thread specific storage.");
-            BSLS_ASSERT(false);
+               "Failed to add `AttributeContext` to thread specific storage.");
+            BSLS_ASSERT_UNREACHABLE(
+               "Failed to add `AttributeContext` to thread specific storage.");
         }
     }
 #endif

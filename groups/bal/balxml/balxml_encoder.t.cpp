@@ -2288,7 +2288,7 @@ class TestXmlElement {
           } break;
         }
 
-        BSLS_ASSERT(false && "Illegal path");
+        BSLS_ASSERT_UNREACHABLE("Illegal path");
         return stream;
     }
 };

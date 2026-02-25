@@ -2688,7 +2688,8 @@ Format_Imp_Visitor<t_OUT, t_CHAR>::Format_Imp_Visitor(
 template <class t_OUT, class t_CHAR>
 void Format_Imp_Visitor<t_OUT, t_CHAR>::operator()(bsl::monostate) const
 {
-    BSLS_ASSERT_OPT(false);
+    BSLS_ASSERT_OPT_UNREACHABLE(
+                         "This call should be impossible - arg uninitialized");
     BSLS_THROW(
            format_error("This call should be impossible - arg uninitialized"));
 }

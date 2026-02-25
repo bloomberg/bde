@@ -187,7 +187,7 @@ struct AttributeComparator {
 
         switch (lhs.value().typeIndex()) {
           case 0: // unset?
-            BSLS_ASSERT_OPT(false);
+            BSLS_ASSERT_OPT_UNREACHABLE("Unset `typeIndex`");
             return true;                                              // RETURN
           case 1: // int
             return lhs.value().the<int>() < rhs.value().the<int>();
@@ -217,7 +217,7 @@ struct AttributeComparator {
             return lhs.value().the<bdlb::Guid>() <
                    rhs.value().the<bdlb::Guid>();                     // RETURN
         }
-        BSLS_ASSERT_OPT(false);
+        BSLS_ASSERT_OPT_UNREACHABLE("Unknown `typeIndex`");
         return false;
     }
 };

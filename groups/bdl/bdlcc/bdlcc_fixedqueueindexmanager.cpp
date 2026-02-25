@@ -175,7 +175,7 @@ const char *toString(ElementState state)
       case e_FULL:    return "FULL";
       case e_READING: return "READING";
     };
-    BSLS_ASSERT(false);
+    BSLS_ASSERT_UNREACHABLE("Unknown `ElementState` value");
     return 0;
 }
 

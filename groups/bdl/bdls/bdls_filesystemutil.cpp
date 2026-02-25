@@ -1841,12 +1841,12 @@ int FilesystemUtil::visitPaths(
         while (PathUtil::hasLeaf(pattern)) {
             leaves.push_back(bsl::string());
             if (0 != PathUtil::getLeaf(&leaves.back(), pattern)) {
-                BSLS_ASSERT_OPT(0 && "'getLeaf' failed after"
-                                                 " 'hasLeaf' returned 'true'");
+                BSLS_ASSERT_OPT_UNREACHABLE(
+                           "`getLeaf` failed after `hasLeaf` returned `true`");
             }
             if (0 != PathUtil::popLeaf(&pattern)) {
-                BSLS_ASSERT_OPT(0 && "'popLeaf' failed after"
-                                                 " 'hasLeaf' returned 'true'");
+                BSLS_ASSERT_OPT_UNREACHABLE(
+                           "`popLeaf` failed after `hasLeaf` returned `true`");
             }
         }
 
@@ -1924,7 +1924,8 @@ int FilesystemUtil::visitPaths(
             if (!wideToNarrow(&narrowName, findDataW.cFileName)) {
                 // Can't happen: wideToNarrow won't fail.
 
-                BSLS_ASSERT_OPT(0 && "Wide-to-narrow conversion failed.");
+                BSLS_ASSERT_OPT_UNREACHABLE("Wide-to-narrow conversion"
+                                            " failed");
             }
 
             const char *pc = narrowName.c_str();
@@ -1939,8 +1940,8 @@ int FilesystemUtil::visitPaths(
                 // Can't happen: 'findDataW.cFileName' will never be an
                 // absolute path.
 
-                BSLS_ASSERT_OPT(0 &&
-                                  "FindFirstFileW returned an absolute path.");
+                BSLS_ASSERT_OPT_UNREACHABLE(
+                                "`FindFirstFileW` returned an absolute path");
             }
 
             ++numFiles;

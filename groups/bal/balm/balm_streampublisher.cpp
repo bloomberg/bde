@@ -24,7 +24,7 @@ const char *publicationTypeString(balm::PublicationType::Value value)
 {
     switch (value) {
       case balm::PublicationType::e_UNSPECIFIED: {
-        BSLS_ASSERT(false && "Invalid publication type");
+        BSLS_ASSERT_UNREACHABLE("Invalid publication type: `e_UNSPECIFIED`");
       } break;
       case balm::PublicationType::e_TOTAL: {
         return "total";                                               // RETURN
@@ -84,7 +84,7 @@ void formatValue(bsl::ostream&                 stream,
 {
     switch (publicationType) {
       case balm::PublicationType::e_UNSPECIFIED: {
-        BSLS_ASSERT(false && "Invalid publication type");
+        BSLS_ASSERT_UNREACHABLE("Invalid publication type: `e_UNSPECIFIED`");
       } break;
       case balm::PublicationType::e_TOTAL: {
         formatValue(stream, record.total(), formatSpec);

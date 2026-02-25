@@ -75,7 +75,7 @@ HandleGuard::HandleGuard(HANDLE handle)
 HandleGuard::~HandleGuard()
 {
     if (!CloseHandle(d_handle)) {
-        BSLS_ASSERT_OPT(false);
+        BSLS_ASSERT_OPT_UNREACHABLE("`CloseHandle` failed");
     }
 }
 

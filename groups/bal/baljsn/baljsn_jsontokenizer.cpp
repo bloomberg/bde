@@ -80,7 +80,7 @@ void JsonTokenizer_Visitor::operator()(const bdljsn::JsonArray& array) const
         d_tokenizer_p->d_contextStack.pop();
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unknown JSON array state");
       } break;
     }
 }
@@ -149,7 +149,7 @@ void JsonTokenizer_Visitor::operator()(const bdljsn::JsonObject& object) const
         d_tokenizer_p->d_contextStack.pop();
       } break;
       default: {
-        BSLS_ASSERT_OPT(false && "reachable");
+        BSLS_ASSERT_OPT_UNREACHABLE("Unknown JSON object state");
       } break;
     }
 }

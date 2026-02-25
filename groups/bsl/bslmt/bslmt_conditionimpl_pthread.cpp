@@ -49,7 +49,7 @@ public:
           } break;
           default:
             clockId = CLOCK_MONOTONIC;
-            BSLS_ASSERT_OPT("Invalid ClockType parameter value" && 0);
+            BSLS_ASSERT_OPT_UNREACHABLE("Invalid `ClockType` parameter value");
         }
 
         rc = pthread_condattr_setclock(&d_attr, clockId);
