@@ -2013,6 +2013,7 @@ BSLS_IDENT("$Id: $")
                                   BloombergLP::bsls::Assert::k_LEVEL_INVOKE));\
     } while (true)
 
+
                     // ===================================
                     // BSLS_ASSERT_NORETURN_INVOKE_HANDLER
                     // ===================================
@@ -2020,7 +2021,10 @@ BSLS_IDENT("$Id: $")
 #ifdef BSLS_ASSERT_ENABLE_NORETURN_FOR_INVOKE_HANDLER
 #define BSLS_ASSERT_NORETURN_INVOKE_HANDLER BSLS_ANNOTATION_NORETURN
 #else
-#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER
+#define BSLS_ASSERT_NORETURN_INVOKE_HANDLER BSLS_ANNOTATION_ANALYZER_NORETURN
+// Even in cases where we might allow potentially returning from the violation
+// handler, it is still preferable for static analysis tools to not produce
+// extraneous warnings about the branches where an assertion has been violated.
 #endif
 
 // A nested include guard is needed to support the test driver implementation.
@@ -2228,6 +2232,7 @@ class Assert {
 #ifdef BSLS_ASSERT_USE_CONTRACTS
     /// Call `invokeHandler` with an `AssertViolation` with properties from
     /// the specified `violation`.
+    BSLS_ANNOTATION_ANALYZER_NORETURN
     static void invokeLanguageContractHandler(
                                      const std::contract_violation& violation);
 #endif

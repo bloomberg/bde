@@ -339,7 +339,10 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_NORETURN
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_CLANG)
+#if defined(__clang__)
+// We need to use `__clang__` here instead of `BSLS_PLATFORM_CMP_CLANG` because
+// the latter is not defined when compiling with clang-cl, which also supports
+// the `analyzer_noreturn` attribute.
 #if __has_feature(attribute_analyzer_noreturn)
     #define BSLS_ANNOTATION_ANALYZER_NORETURN                                 \
                                              __attribute__((analyzer_noreturn))

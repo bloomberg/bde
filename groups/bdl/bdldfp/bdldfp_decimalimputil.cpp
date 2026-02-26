@@ -44,7 +44,7 @@ template <>
 struct DecimalTraits<DecimalImpUtil::ValueType64>
 {
     // TYPES
-   typedef bsls::Types::Uint64 Significand;
+    typedef bsls::Types::Uint64 Significand;
 
     // CLASS DATA
     static const int k_MAX_DIGITS = 16;
@@ -101,13 +101,13 @@ bsls::Types::Uint64 divmod10(Uint128* v)
     // Let Q = (2^64 * a + b) / 10 and R = (2^64 * a + b) % 10.
     // Set a to Q / 2^64, b to Q % 2^64, and return R.
     BSLS_ASSERT(v);
-    bsls::Types::Uint64 a  = v->high();
-    bsls::Types::Uint64 b  = v->low();
+    const bsls::Types::Uint64 a  = v->high();
+    const bsls::Types::Uint64 b  = v->low();
 
-    bsls::Types::Uint64 qa = a / 10;
-    bsls::Types::Uint64 ra = a % 10;
-    bsls::Types::Uint64 qb = b / 10;
-    bsls::Types::Uint64 rb = b % 10;
+    const bsls::Types::Uint64 qa = a / 10;
+    const bsls::Types::Uint64 ra = a % 10;
+    const bsls::Types::Uint64 qb = b / 10;
+    const bsls::Types::Uint64 rb = b % 10;
 
     v->setHigh(qa);
     v->setLow(qb + 0x1999999999999999ull * ra + (6 * ra + rb) / 10);
@@ -182,7 +182,7 @@ int formatFixed(char                      *buffer,
     int          sign;
     SIGNIFICAND  s;
     int          exponent;
-    int          cls = DecimalImpUtil::decompose(&sign, &s, &exponent, value);
+    const int    cls = DecimalImpUtil::decompose(&sign, &s, &exponent, value);
 
     BSLS_ASSERT(cls == FP_ZERO   ||
                 cls == FP_NORMAL ||
@@ -193,19 +193,17 @@ int formatFixed(char                      *buffer,
     const int k_MAX_DIGITS = DecimalTraits<DECIMAL>::k_MAX_DIGITS;
 
     char significand[k_MAX_DIGITS] = { 0 };
-    const int  len = print(&significand[0],
-                           &significand[k_MAX_DIGITS],
-                           s);
+    const int len = print(significand, significand + k_MAX_DIGITS, s);
 
-    const int pointPos     = (s != 0) ? len + exponent : 0;
+    const int pointPos = (s != 0) ? len + exponent : 0;
+    const int pointSize = (cfg.precision() > 0 || cfg.showpoint()) ? 1 : 0;
     const int outputLength = static_cast<int>(
-        (pointPos > 0 ? pointPos : sizeof('0')) +
-        (cfg.precision() > 0 || cfg.showpoint()) + cfg.precision());
+        (pointPos > 0 ? pointPos : sizeof('0')) + pointSize + cfg.precision());
 
     if (outputLength <= length) {
 
         char       *oi = buffer;
-        char       *oe = buffer + outputLength;
+        const char *oe = buffer + outputLength;
         const char *ii = significand;
         const char *ie = significand + len;
 
@@ -229,7 +227,7 @@ int formatFixed(char                      *buffer,
         }
 
         if (cfg.precision()) {
-            const char *end = bsl::min(oi - pointPos, oe);
+            const char *end = bsl::min<const char *>(oi - pointPos, oe);
             while (oi < end) {
                 *oi++ = '0';
             }
