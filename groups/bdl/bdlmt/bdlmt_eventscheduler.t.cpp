@@ -135,8 +135,8 @@ using namespace bsl;
 // [ 9] bool isStarted() const;
 // [23] bsls::TimeInterval now() const;
 // [34] bsls::TimeInterval nextPendingEventTime() const;
-// [37] bsl::optional<bsls::TimeInterval> scheduledEventTime(const EventHandle&) const;
-// [37] bsl::optional<bsls::TimeInterval> scheduledEventTIme(const RecurringEventHandle&) const;
+// [37] bsl::optional<bsls::TI> scheduledEventTime(const EH&) const;
+// [37] bsl::optional<bsls::TI> scheduledEventTIme(const REH&) const;
 // [24] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -3069,7 +3069,8 @@ int main(int argc, char *argv[])
         //    (C-8)
         //
         // Testing:
-        //   bsl::optional<bsls::TimeInterval> scheduledEventTime() const
+        //   bsl::optional<bsls::TI> scheduledEventTime(const EH&) const;
+        //   bsl::optional<bsls::TI> scheduledEventTIme(const REH&) const;
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3237,7 +3238,7 @@ int main(int argc, char *argv[])
             ASSERT(T3 == recurringTime.value());
 
             // Sleep at least long enough to let events trigger
-            microSleep(0, (T3 - NOW).seconds() + 1);
+            microSleep(0, static_cast<int>((T3 - NOW).seconds() + 1));
 
             // Non-recurring event no longer returns a value
             scheduledTime = x.scheduledEventTime(handle);
