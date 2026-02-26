@@ -1833,14 +1833,14 @@ int RecordJsonFormatter::loadJsonSchemeFormatter(
                    const bsl::string_view&               format,
                    const RecordFormatterOptions&         formatOptions)
 {
-    RecordJsonFormatter theFormatter(output->allocator());
+    RecordJsonFormatter theFormatter(output->get_allocator());
 
     theFormatter.setTimezoneDefault(formatOptions.timezoneDefault());
 
     const int rc = theFormatter.setJsonFormat(format);
 
     *output = RecordFormatterFunctor::Type(bsl::allocator_arg,
-                                           output->allocator(),
+                                           output->get_allocator(),
                                            theFormatter);
     return rc;
 }
@@ -1850,14 +1850,14 @@ int RecordJsonFormatter::loadQjsonSchemeFormatter(
                    const bsl::string_view&               format,
                    const RecordFormatterOptions&         formatOptions)
 {
-    RecordJsonFormatter theFormatter(output->allocator());
+    RecordJsonFormatter theFormatter(output->get_allocator());
 
     theFormatter.setTimezoneDefault(formatOptions.timezoneDefault());
 
     const int rc = theFormatter.setSimplifiedFormat(format);
 
     *output = RecordFormatterFunctor::Type(bsl::allocator_arg,
-                                           output->allocator(),
+                                           output->get_allocator(),
                                            theFormatter);
     return rc;
 }

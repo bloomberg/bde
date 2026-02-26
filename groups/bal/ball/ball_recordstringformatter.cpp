@@ -1170,12 +1170,12 @@ int RecordStringFormatter::loadTextSchemeFormatter(
                    const bsl::string_view&               format,
                    const RecordFormatterOptions&         formatOptions)
 {
-    RecordStringFormatter newFormatter(format, output->allocator());
+    RecordStringFormatter newFormatter(format, output->get_allocator());
     if (formatOptions.timezoneDefault() == RecordFormatterTimezone::e_LOCAL) {
         newFormatter.enablePublishInLocalTime();
     }
     RecordFormatterFunctor::Type newFunc(bsl::allocator_arg,
-                                         output->allocator(),
+                                         output->get_allocator(),
                                          newFormatter);
     output->swap(newFunc);
 
