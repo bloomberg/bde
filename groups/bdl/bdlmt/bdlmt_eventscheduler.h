@@ -461,6 +461,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>
+#include <bsl_optional.h>
 #include <bsl_string.h>
 #include <bsl_utility.h>
 
@@ -1463,6 +1464,14 @@ class EventScheduler {
     /// no pending events or recurring events, return `INT64_MAX`
     /// microseconds.
     bsls::TimeInterval nextPendingEventTime() const;
+
+    /// Return the scheduled starting time of the event having the specified
+    /// 'handle'.  If the `handle` is invalid, *or* the event has already been
+    /// canceled, return an optional without a value.
+    bsl::optional<bsls::TimeInterval> scheduledEventTime(
+                                              const EventHandle& handle) const;
+    bsl::optional<bsls::TimeInterval> scheduledEventTime(
+                                     const RecurringEventHandle& handle) const;
 
                                   // Aspects
 

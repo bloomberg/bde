@@ -17,6 +17,7 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_review.h>
 #include <bsls_systemtime.h>
+#include <bsls_timeinterval.h>
 
 #include <bsl_algorithm.h>
 #include <bsl_limits.h>
@@ -1258,6 +1259,30 @@ bsls::TimeInterval EventScheduler::nextPendingEventTime() const
 
     bsls::TimeInterval rv;
     rv.addMicroseconds(minTime);
+    return rv;
+}
+
+bsl::optional<bsls::TimeInterval> EventScheduler::scheduledEventTime(
+                                               const EventHandle& handle) const
+{
+    if (0 == (const Event *)handle) {
+        return bsl::nullopt;                                          // RETURN
+    }
+
+    bsls::TimeInterval rv;
+    rv.addMicroseconds(handle.d_handle.key());
+    return rv;
+}
+
+bsl::optional<bsls::TimeInterval> EventScheduler::scheduledEventTime(
+                                      const RecurringEventHandle& handle) const
+{
+    if (0 == (const RecurringEvent *)handle) {
+        return bsl::nullopt;                                          // RETURN
+    }
+
+    bsls::TimeInterval rv;
+    rv.addMicroseconds(handle.d_handle.key());
     return rv;
 }
 

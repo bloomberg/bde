@@ -135,6 +135,8 @@ using namespace bsl;
 // [ 9] bool isStarted() const;
 // [23] bsls::TimeInterval now() const;
 // [34] bsls::TimeInterval nextPendingEventTime() const;
+// [37] bsl::optional<bsls::TimeInterval> scheduledEventTime(const EventHandle&) const;
+// [37] bsl::optional<bsls::TimeInterval> scheduledEventTIme(const RecurringEventHandle&) const;
 // [24] bslma::Allocator *allocator() const;
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -3006,6 +3008,252 @@ int main(int argc, char *argv[])
                                       bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 37: {
+        // --------------------------------------------------------------------
+        // TESTING `scheduledEventTime`
+        //
+        // Concerns:
+        // 1. Submitted events have the expected time, including for events
+        //    submitted in the past.
+        //
+        // 2. Recheduled events have the expected time, including for events
+        //    submitted in the past.
+        //
+        // 3. A cancelled event returns an empty optional.
+        //
+        // 4. Submitted recurring events have the expected time, including for
+        //    recurring events in the past and at the default
+        //    `bsls::TimeInterval` value.
+        //
+        // 5. A cancelled recurring event return an empty optional.
+        //
+        // 6. Unsubmitted events & recurring events return an empty optional.
+        //
+        // 7. `scheduledEventTime` returns the time for the provided `handle`,
+        //    rather than the earliest event time.
+        //
+        // 8. `scheduledEventTime` returns the expected time for an event
+        //    which has already occurred. For a recurring event,
+        //    `scheduledEventTime` returns the next time that the event
+        //    will trigger, updating when the event does trigger.
+        //
+        // Plan:
+        // 1. Construct an event scheduler but do not start the scheduler.
+        //    Submit one event using the default `bsls::TimeInterval` value, a
+        //    time in the past, or a time in the future, and directly verify
+        //    the value returned by `scheduledEventTime`.  Rechedule the
+        //    event using the default `bsls::TimeInterval` value, a time in the
+        //    past, or a time in the future, and directly verify the value
+        //    returned by `scheduledEventTime`.  Cancel the event and
+        //    directly verify the value returned by `scheduledEventTime`.
+        //    (C-1-3,6)
+        //
+        // 2. Construct an event scheduler but do not start the scheduler.
+        //    Submit one recurring event using the default `bsls::TimeInterval`
+        //    value, a time in the past, or a time in the future, and directly
+        //    verify the value returned by `scheduledEventTime`. Cancel the
+        //    recurring event and directly verify the value returned by
+        //    `scheduledEventTime`.  (C-4-6)
+        //
+        // 3. Construct an event scheduler but do not start the scheduler.
+        //    Submit two events using different `bsls::TimeInterval` values,
+        //    and a recurring event using a third `bsls::TimeInterval` value.
+        //    Directly verify the value returned by `scheduledEventTime`.
+        //    (C-7)
+        //
+        // 4. Construct an event scheduler and start the scheduler. Submit an
+        //    event and a recurring event, both to occur in the future.
+        //    Directly verify the value returned by `scheduledEventTime` for
+        //    both events. Wait until these events have both triggered, then
+        //    directly verify the value returned by `scheduledEventTime`.
+        //    (C-8)
+        //
+        // Testing:
+        //   bsl::optional<bsls::TimeInterval> scheduledEventTime() const
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            cout << endl
+                 << "TESTING `scheduledEventTime`" << endl
+                 << "==============================" << endl;
+
+        const bsls::TimeInterval NOW_RAW = u::now();
+
+        bsls::TimeInterval NOW = NOW_RAW;
+        NOW.addNanoseconds(-NOW.nanoseconds());
+
+        const bsls::TimeInterval T1       = bsls::TimeInterval();
+        const bsls::TimeInterval T2       = NOW - bsls::TimeInterval(5);
+        const bsls::TimeInterval T3       = NOW + bsls::TimeInterval(5);
+        const bsls::TimeInterval INTERVAL = bsls::TimeInterval(1);
+
+        {
+            Obj x;
+
+            EventHandle handle;
+
+            ASSERT(!x.scheduledEventTime(handle).has_value());
+
+            x.scheduleEvent(&handle, T1, noop);
+
+            bsl::optional<bsls::TimeInterval> scheduledTime =
+                                                  x.scheduledEventTime(handle);
+
+            ASSERT(scheduledTime.has_value());
+            ASSERT(NOW <= scheduledTime.value());
+
+            x.rescheduleEvent(handle, T2);
+
+            scheduledTime = x.scheduledEventTime(handle);
+            ASSERT(scheduledTime.has_value());
+            ASSERT(NOW <= scheduledTime.value());
+
+            x.cancelEvent(&handle);
+
+            ASSERT(!x.scheduledEventTime(handle).has_value());
+        }
+        {
+            Obj x;
+
+            EventHandle handle;
+
+            x.scheduleEvent(&handle, T2, noop);
+
+            bsl::optional<bsls::TimeInterval> scheduledTime =
+                                                  x.scheduledEventTime(handle);
+
+            ASSERT(scheduledTime.has_value());
+            ASSERT(NOW <= scheduledTime.value());
+
+            x.rescheduleEvent(handle, T3);
+
+            scheduledTime = x.scheduledEventTime(handle);
+            ASSERT(scheduledTime.has_value());
+            ASSERT(T3 == scheduledTime.value());
+
+            x.cancelEvent(&handle);
+
+            ASSERT(!x.scheduledEventTime(handle).has_value());
+        }
+        {
+            Obj x;
+
+            EventHandle handle;
+
+            x.scheduleEvent(&handle, T3, noop);
+
+            bsl::optional<bsls::TimeInterval> scheduledTime =
+                                                  x.scheduledEventTime(handle);
+
+            ASSERT(scheduledTime.has_value());
+            ASSERT(T3 == scheduledTime.value());
+
+            x.rescheduleEvent(handle, T1);
+
+            scheduledTime = x.scheduledEventTime(handle);
+            ASSERT(scheduledTime.has_value());
+            ASSERT(NOW <= scheduledTime.value());
+
+            x.cancelEvent(&handle);
+
+            ASSERT(!x.scheduledEventTime(handle).has_value());
+        }
+        {
+            Obj x;
+
+            RecurringEventHandle handle;
+
+            ASSERT(!x.scheduledEventTime(handle).has_value());
+
+            x.scheduleRecurringEvent(&handle, INTERVAL, noop, T1);
+
+            bsl::optional<bsls::TimeInterval> scheduledTime =
+                                                  x.scheduledEventTime(handle);
+
+            ASSERT(scheduledTime.has_value());
+            ASSERT(NOW + INTERVAL <= scheduledTime.value());
+
+            x.cancelEvent(&handle);
+
+            ASSERT(!x.scheduledEventTime(handle).has_value());
+        }
+        {
+            Obj x;
+
+            EventHandle          handle1, handle2;
+            RecurringEventHandle handle3;
+
+            const bsls::TimeInterval TEVENT1 = T3;
+            const bsls::TimeInterval TEVENT2 = T3 + bsls::TimeInterval(5);
+            const bsls::TimeInterval TEVENT3 = T3 + bsls::TimeInterval(7);
+
+            x.scheduleEvent(&handle1, TEVENT1, noop);
+            x.scheduleEvent(&handle2, TEVENT2, noop);
+            x.scheduleRecurringEvent(&handle3, INTERVAL, noop, TEVENT3);
+
+            bsl::optional<bsls::TimeInterval> scheduledTime1 =
+                                                 x.scheduledEventTime(handle1);
+
+            ASSERT(scheduledTime1.has_value());
+            ASSERT(TEVENT1 == scheduledTime1.value());
+
+            bsl::optional<bsls::TimeInterval> scheduledTime2 =
+                                                 x.scheduledEventTime(handle2);
+
+            ASSERT(scheduledTime2.has_value());
+            ASSERT(TEVENT2 == scheduledTime2.value());
+
+            bsl::optional<bsls::TimeInterval> scheduledTime3 =
+                                                 x.scheduledEventTime(handle3);
+
+            ASSERT(scheduledTime3.has_value());
+            ASSERT(TEVENT3 == scheduledTime3.value());
+        }
+        {
+            Obj x;
+
+            x.start();
+
+            EventHandle              handle;
+            RecurringEventHandle     recurringHandle;
+            const bsls::TimeInterval LONG_INTERVAL(100);
+
+            x.scheduleEvent(&handle, T3, noop);
+            x.scheduleRecurringEvent(&recurringHandle,
+                                     LONG_INTERVAL,
+                                     noop,
+                                     T3);
+
+            bsl::optional<bsls::TimeInterval> scheduledTime =
+                                                  x.scheduledEventTime(handle);
+
+            ASSERT(scheduledTime.has_value());
+            ASSERT(T3 == scheduledTime.value());
+
+            bsl::optional<bsls::TimeInterval> recurringTime =
+                                         x.scheduledEventTime(recurringHandle);
+
+            ASSERT(recurringTime.has_value());
+            ASSERT(T3 == recurringTime.value());
+
+            // Sleep at least long enough to let events trigger
+            microSleep(0, (T3 - NOW).seconds() + 1);
+
+            // Non-recurring event no longer returns a value
+            scheduledTime = x.scheduledEventTime(handle);
+
+            ASSERT(scheduledTime.has_value());
+            ASSERT(T3 == scheduledTime.value());
+
+            // Recurring event returns updated value
+            recurringTime = x.scheduledEventTime(recurringHandle);
+
+            ASSERT(recurringTime.has_value());
+            ASSERT(T3 + LONG_INTERVAL >= recurringTime.value());
+
+            x.stop();
+        }
+      } break;
       case 36: {
         // --------------------------------------------------------------------
         // TESTING CONCERN: CANCELING EVENT FROM THE CALLBACK
