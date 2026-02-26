@@ -759,7 +759,9 @@ BSLS_IDENT("$Id: $")
 // `ball::Severity::e_TRACE` (i.e., enabling verbose logging) if the thread's
 // context contains an attribute with name "mylibrary.uuid" with value 3938908.
 // Note that we use the wild-card value `*` for the category so that the
-// `ball::Rule` rule will apply to all categories.
+// `ball::Rule` rule will apply to all categories. Also note that the computation of
+// effective threshold levels for **every** category matching the pattern has
+// considerable performance implications.
 // ```
 // ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
 // rule.addAttribute(ball::ManagedAttribute("mylibrary.uuid", 3938908));

@@ -9,7 +9,6 @@
   #include <ball_scopedattribute.h>
   #include <ball_streamobserver.h>
 
-
   #include <bslma_allocator.h>
   #include <bslma_default.h>
 
@@ -52,7 +51,7 @@
 // ```
         // We use 'ball::ScopedAttribute' here because the number of
         // attributes is relatively small.
-//
+
         ball::ScopedAttribute uuidAttribute("mylibrary.uuid", uuid);
         ball::ScopedAttribute luwAttribute("mylibrary.luw", luw);
         ball::ScopedAttribute termNumAttribute("mylibrary.terminalNumber",
@@ -62,7 +61,7 @@
 // a message at the 'ball::Severity::e_DEBUG' level.
 // ```
         BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//
+
         BALL_LOG_DEBUG << "An example message";
 // ```
 // Notice that if we were not using a "scoped" attribute container like that
@@ -94,11 +93,11 @@
         bsl::shared_ptr<ball::StreamObserver> observer =
             bsl::make_shared<ball::StreamObserver>(&bsl::cout);
         manager.registerObserver(observer, "default");
-//
+
         BALL_LOG_SET_CATEGORY("EXAMPLE.CATEGORY");
-//
+
         bsl::vector<char> message;
-//
+
         BALL_LOG_ERROR << "Processing the first message.";
         processData(3938908, 2, 9001, message);
 
@@ -107,12 +106,14 @@
 // 'ball::Severity::e_TRACE' (i.e., enabling verbose logging) if the thread's
 // context contains a "uuid" of 3938908.  Note that we use the wild-card
 // value '*' for the category so that the 'ball::Rule' rule will apply to all
-// categories.
+// categories. Also note that the computation of effective threshold levels
+// for **every** category matching the pattern has considerable
+// performance implications.
 // ```
         ball::Rule rule("*", 0, ball::Severity::e_TRACE, 0, 0);
         rule.addAttribute(ball::ManagedAttribute("mylibrary.uuid", 3938908));
         ball::LoggerManager::singleton().addRule(rule);
-//
+
         BALL_LOG_ERROR << "Processing the second message.";
         processData(3938908, 2, 9001, message);
 // ```
