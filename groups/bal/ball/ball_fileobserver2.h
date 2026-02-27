@@ -419,6 +419,7 @@ class FileObserver2 : public Observer {
     /// `RecordFormatter` is an alias for the type of the functor used for
     /// formatting log records to a stream.
     typedef RecordFormatterFunctor::Type RecordFormatter;
+    typedef RecordFormatterFunctor::Type LogRecordFunctor;
 
     /// `OnFileRotationCallback` is an alias for a user-supplied callback
     /// function that is invoked after the file observer attempts to rotate
@@ -633,10 +634,15 @@ class FileObserver2 : public Observer {
     /// affects log filenames (see {Log Filename Patterns}).
     void enablePublishInLocalTime();
 
-    using Observer::publish;
-    // Note that the `publish` method of this class is overloaded, it has an
-    // old, deprecated variant.  See the `publish` method below for details of
-    // the current, non-deprecated overload.
+    /// Process the specified log `record` having the specified publishing
+    /// `context` by writing `record` and `context` to the current log file
+    /// if file logging is enabled for this file observer.  The method has
+    /// no effect if file logging is not enabled, in which case `record` is
+    /// dropped.
+    ///
+    /// @DEPRECATED: Do not use.
+    void publish(const Record&  record,
+                 const Context& context) BSLS_KEYWORD_OVERRIDE;
 
     /// Process the record referenced by the specified `record` shared
     /// pointer having the specified publishing `context` by writing the
@@ -796,6 +802,19 @@ class FileObserver2 : public Observer {
                           // -------------------
 
 // MANIPULATORS
+inline
+void FileObserver2::publish(const Record& record, const Context& context)
+{
+    // It is safe to create a shared_ptr with a custom deleter that does
+    // nothing because we know exactly the publish method we delegate to, and
+    // that it does not store the `shared_ptr` beyond the lifetime of the call.
+    bsl::shared_ptr<const Record> ptr(&record, bslstl::SharedPtrNilDeleter());
+
+    // Delegate to the other overload which then immediately publishes the
+    // record, and does not store the `shared_ptr` to extend its lifetime.
+    publish(ptr, context);
+}
+
 inline
 void FileObserver2::releaseRecords()
 {

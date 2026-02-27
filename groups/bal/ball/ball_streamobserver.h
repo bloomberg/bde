@@ -176,6 +176,7 @@ class StreamObserver : public Observer {
     /// `LogRecordFunctor` is an alias for the type of the functor used for
     /// formatting log records to a stream.
     typedef RecordFormatterFunctor::Type RecordFormatter;
+    typedef RecordFormatterFunctor::Type RecordFormatFunctor;
 
     typedef bsl::allocator<char> allocator_type;
 
@@ -200,6 +201,13 @@ class StreamObserver : public Observer {
     StreamObserver(const StreamObserver&);
     StreamObserver& operator=(const StreamObserver&);
 
+    // CLASS METHODS
+
+    /// Write the specified log `record` to the specified output `stream`
+    /// using the default record format of this stream observer.
+    static
+    void logRecordDefault(bsl::ostream& stream, const Record& record);
+
   public:
     // CREATORS
 
@@ -207,7 +215,7 @@ class StreamObserver : public Observer {
     /// `stream`.  Optionally specify an `allocator` (e.g., the address of a
     /// `bslma::Allocator` object) to supply memory; otherwise, the default
     /// allocator is used.  Note that a default record format is in effect
-    /// for stream logging (see `setLogFileFunctor`).
+    /// for stream logging (see `logRecordDefault`).
     explicit
     StreamObserver(bsl::ostream          *stream,
                    const allocator_type&  allocator = allocator_type());

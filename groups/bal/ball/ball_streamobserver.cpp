@@ -35,6 +35,48 @@ const bsl::string_view k_DEFAULT_FORMAT = "\n%d %p %t %s %f %l %c %m %u\n";
                            // class StreamObserver
                            // --------------------
 
+// CLASS METHODS
+void StreamObserver::logRecordDefault(bsl::ostream& stream,
+                                      const Record& record)
+{
+    const RecordAttributes& fixedFields = record.fixedFields();
+
+    Severity::Level severityLevel = (Severity::Level)fixedFields.severity();
+
+    const int bufferSize = 64;
+    char      buffer[bufferSize];
+    const int fractionalSecondPrecision = 3;
+
+    const int numBytesWritten = fixedFields.timestamp().printToBuffer(
+                                                    buffer,
+                                                    bufferSize,
+                                                    fractionalSecondPrecision);
+
+    bslstl::StringRef        message        = fixedFields.messageRef();
+    const ball::UserFields& customFields    = record.customFields();
+    const int               numCustomFields = customFields.length();
+
+    stream << '\n';
+
+    stream.write(buffer, numBytesWritten);
+    stream << ' '
+           << fixedFields.processID()          << ' '
+           << fixedFields.threadID()           << ' '
+           << Severity::toAscii(severityLevel) << ' '
+           << fixedFields.fileName()           << ' '
+           << fixedFields.lineNumber()         << ' '
+           << fixedFields.category()           << ' ';
+
+    stream.write(message.data(), message.length());
+    stream << ' ';
+
+    for (int i = 0; i < numCustomFields; ++i) {
+        stream << customFields[i] << ' ';
+    }
+
+    stream << '\n' << bsl::flush;
+}
+
 // CREATORS
 StreamObserver::StreamObserver(bsl::ostream          *stream,
                                const allocator_type&  allocator)
@@ -45,6 +87,7 @@ StreamObserver::StreamObserver(bsl::ostream          *stream,
                          allocator)
 {
     BSLS_ASSERT(d_stream_p);
+    d_observerFormatterImp.setFormatFunctor(&StreamObserver::logRecordDefault);
 }
 
 StreamObserver::~StreamObserver()

@@ -742,10 +742,15 @@ class FileObserver : public Observer {
     /// affects log filenames (see {Log Filename Patterns}).
     void enablePublishInLocalTime();
 
-    using Observer::publish;
-    // Note that the `publish` method of this class is overloaded, it has an
-    // old, deprecated variant.  See the `publish` method below for details of
-    // the current, non-deprecated overload.
+    /// Process the specified log `record` having the specified publishing
+    /// `context` by writing `record` and `context` to the current log file
+    /// if file logging is enabled for this file observer, and to `stdout`
+    /// if the severity of `record` is at least as severe as the value
+    /// returned by `stdoutThreshold`.
+    ///
+    /// @DEPRECATED: Do not use.
+    void publish(const Record&  record,
+                 const Context& context) BSLS_KEYWORD_OVERRIDE;
 
     /// Process the record referenced by the specified 'record' shared
     /// pointer having the specified publishing 'context' by writing the
@@ -1018,6 +1023,13 @@ inline
 void FileObserver::forceRotation()
 {
     d_fileObserver2.forceRotation();
+}
+
+inline
+void FileObserver::publish(const Record& record, const Context& context)
+{
+    bsl::shared_ptr<const Record> ptr(&record, bslstl::SharedPtrNilDeleter());
+    publish(ptr, context);
 }
 
 inline

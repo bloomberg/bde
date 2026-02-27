@@ -560,6 +560,10 @@ BSLS_IDENT("$Id: $")
 #include <ball_recordformatterregistryutil.h>
 #include <ball_severity.h>
 
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+#include <ball_recordstringformatter.h>
+#endif
+
 #include <bdlcc_boundedqueue.h>
 
 #include <bdlt_datetimeinterval.h>

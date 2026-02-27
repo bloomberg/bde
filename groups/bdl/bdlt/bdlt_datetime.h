@@ -255,6 +255,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_performancehint.h>
 #include <bsls_preconditions.h>
 #include <bsls_review.h>
+#include <bsls_stackaddressutil.h>
 #include <bsls_timeinterval.h>
 #include <bsls_types.h>
 
