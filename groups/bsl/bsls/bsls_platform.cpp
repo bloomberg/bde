@@ -19,7 +19,7 @@ namespace bsls {
 // The compiler flags set up by the 'bsls_platform' header file will be sanity
 // checked against those those passed in by the build tool.
 
-// Ensure compiler flags are set when they have to be.
+// Ensure compiler flags are set for specific platforms when they have to be.
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     #if defined(BDE_BUILD_TARGET_EXC) && !defined(_CPPUNWIND)
         #error "Exception build without exception handling enabled (/GX)."

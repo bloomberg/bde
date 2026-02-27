@@ -534,12 +534,6 @@ static void printFlags()
     puts("\n  printFlags: bsls_platform Macros");
     puts(  "  --------------------------------");
 
-#if defined(BSLS_PLATFORM_CMP_AIX)
-    P_MACRO(BSLS_PLATFORM_CMP_AIX);
-#else
-    D_MACRO(BSLS_PLATFORM_CMP_AIX);
-#endif
-
 #if defined(BSLS_PLATFORM_CMP_CLANG)
     P_MACRO(BSLS_PLATFORM_CMP_CLANG);
 #else
@@ -562,12 +556,6 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM_CMP_HP);
 #else
     D_MACRO(BSLS_PLATFORM_CMP_HP);
-#endif
-
-#if defined(BSLS_PLATFORM_CMP_IBM)
-    P_MACRO(BSLS_PLATFORM_CMP_IBM);
-#else
-    D_MACRO(BSLS_PLATFORM_CMP_IBM);
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_MSVC)
@@ -732,12 +720,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_IS_LITTLE_ENDIAN);
 #endif
 
-#if defined(BSLS_PLATFORM_OS_AIX)
-    P_MACRO(BSLS_PLATFORM_OS_AIX);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_AIX);
-#endif
-
 #if defined(BSLS_PLATFORM_OS_CYGWIN)
     P_MACRO(BSLS_PLATFORM_OS_CYGWIN);
 #else
@@ -890,12 +872,6 @@ static void printFlags()
     puts("\n  printFlags: Deprecated macros for legacy support");
     puts(  "  ------------------------------------------------");
 
-#if defined(BSLS_PLATFORM__CMP_AIX)
-    P_MACRO(BSLS_PLATFORM__CMP_AIX);
-#else
-    D_MACRO(BSLS_PLATFORM__CMP_AIX);
-#endif
-
 #if defined(BSLS_PLATFORM__CMP_CLANG)
     P_MACRO(BSLS_PLATFORM__CMP_CLANG);
 #else
@@ -918,12 +894,6 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM__CMP_HP);
 #else
     D_MACRO(BSLS_PLATFORM__CMP_HP);
-#endif
-
-#if defined(BSLS_PLATFORM__CMP_IBM)
-    P_MACRO(BSLS_PLATFORM__CMP_IBM);
-#else
-    D_MACRO(BSLS_PLATFORM__CMP_IBM);
 #endif
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
@@ -992,12 +962,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__IS_LITTLE_ENDIAN);
 #endif
 
-#if defined(BSLS_PLATFORM__OS_AIX)
-    P_MACRO(BSLS_PLATFORM__OS_AIX);
-#else
-    D_MACRO(BSLS_PLATFORM__OS_AIX);
-#endif
-
 #if defined(BSLS_PLATFORM__OS_CYGWIN)
     P_MACRO(BSLS_PLATFORM__OS_CYGWIN);
 #else
@@ -1034,12 +998,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__OS_WINDOWS);
 #endif
 
-#if defined(BDES_PLATFORM__CMP_AIX)
-    P_MACRO(BDES_PLATFORM__CMP_AIX);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_AIX);
-#endif
-
 #if defined(BDES_PLATFORM__CMP_GNU)
     P_MACRO(BDES_PLATFORM__CMP_GNU);
 #else
@@ -1074,12 +1032,6 @@ static void printFlags()
     P_MACRO(BDES_PLATFORM__CPU_64_BIT);
 #else
     D_MACRO(BDES_PLATFORM__CPU_64_BIT);
-#endif
-
-#if defined(BDES_PLATFORM__OS_AIX)
-    P_MACRO(BDES_PLATFORM__OS_AIX);
-#else
-    D_MACRO(BDES_PLATFORM__OS_AIX);
 #endif
 
 #if defined(BDES_PLATFORM__OS_CYGWIN)
@@ -1163,85 +1115,6 @@ static void printFlags()
 
     puts("\n  printFlags: platform macros of interest to our configuration");
     puts(  "  ------------------------------------------------------------");
-
-                      // AIX platform specific macros
-#if defined(_AIX)
-    P_MACRO(_AIX);
-#else
-    D_MACRO(_AIX);
-#endif
-
-#if defined(_ARCH_601)
-    P_MACRO(_ARCH_601);
-#else
-    D_MACRO(_ARCH_601);
-#endif
-
-#if defined(_ARCH_COM)
-    P_MACRO(_ARCH_COM);
-#else
-    D_MACRO(_ARCH_COM);
-#endif
-
-#if defined(_ARCH_POWER)
-    P_MACRO(_ARCH_POWER);
-#else
-    D_MACRO(_ARCH_POWER);
-#endif
-
-#if defined(_ARCH_PPC)
-    P_MACRO(_ARCH_PPC);
-#else
-    D_MACRO(_ARCH_PPC);
-#endif
-
-#if defined(_ARCH_PPC64)
-    P_MACRO(_ARCH_PPC64);
-#else
-    D_MACRO(_ARCH_PPC64);
-#endif
-
-#if defined(_ARCH_PWR)
-    P_MACRO(_ARCH_PWR);
-#else
-    D_MACRO(_ARCH_PWR);
-#endif
-
-#if defined(_ARCH_PWR2)
-    P_MACRO(_ARCH_PWR2);
-#else
-    D_MACRO(_ARCH_PWR2);
-#endif
-
-#if defined(_BIG_ENDIAN)
-    P_MACRO(_BIG_ENDIAN);
-#else
-    D_MACRO(_BIG_ENDIAN);
-#endif
-
-#if defined(_IA64)
-    P_MACRO(_IA64);
-#else
-    D_MACRO(_IA64);
-#endif
-
-#if defined(_ILP32)
-    P_MACRO(_ILP32);
-#else
-    D_MACRO(_ILP32);
-#endif
-
-#if defined(_LITTLE_ENDIAN)
-    P_MACRO(_LITTLE_ENDIAN);
-#else
-    D_MACRO(_LITTLE_ENDIAN);
-#endif
-
-#if defined(_LP64)
-    P_MACRO(_LP64);
-#else
-    D_MACRO(_LP64);
-#endif
 
              // Microsoft Visual Studio compiler specific macros
 
@@ -1813,42 +1686,6 @@ static void printFlags()
     D_MACRO(__GXX_EXPERIMENTAL_CXX0X__);
 #endif
 
-#if defined(__HP_cc)
-    P_MACRO(__HP_cc);
-#else
-    D_MACRO(__HP_cc);
-#endif
-
-#if defined(__HP_aCC)
-    P_MACRO(__HP_aCC);
-#else
-    D_MACRO(__HP_aCC);
-#endif
-
-#if defined(__IA64__)
-    P_MACRO(__IA64__);
-#else
-    D_MACRO(__IA64__);
-#endif
-
-#if defined(__IBMC__)
-    P_MACRO(__IBMC__);
-#else
-    D_MACRO(__IBMC__);
-#endif
-
-#if defined(__IBMCPP__)
-    P_MACRO(__IBMCPP__);
-#else
-    D_MACRO(__IBMCPP__);
-#endif
-
-#if defined(__LP64__)
-    P_MACRO(__LP64__);
-#else
-    D_MACRO(__LP64__);
-#endif
-
 #if defined(__PIC__)
     P_MACRO(__PIC__);
 #else
@@ -1957,12 +1794,6 @@ static void printFlags()
     D_MACRO(__hppa__);
 #endif
 
-#if defined(__hpux)
-    P_MACRO(__hpux);
-#else
-    D_MACRO(__hpux);
-#endif
-
 #if defined(__i386)
     P_MACRO(__i386);
 #else
@@ -1973,18 +1804,6 @@ static void printFlags()
     P_MACRO(__i386__);
 #else
     D_MACRO(__i386__);
-#endif
-
-#if defined(__ia64)
-    P_MACRO(__ia64);
-#else
-    D_MACRO(__ia64);
-#endif
-
-#if defined(__ia64__)
-    P_MACRO(__ia64__);
-#else
-    D_MACRO(__ia64__);
 #endif
 
 #if defined(__ix86)
@@ -2101,22 +1920,22 @@ static void printFlags()
     D_MACRO(__x86_64__);
 #endif
 
-#if defined(__xlC__)
-    P_MACRO(__xlC__);
+#if defined(_BIG_ENDIAN)
+    P_MACRO(_BIG_ENDIAN);
 #else
-    D_MACRO(__xlC__);
+    D_MACRO(_BIG_ENDIAN);
+#endif
+
+#if defined(_LITTLE_ENDIAN)
+    P_MACRO(_LITTLE_ENDIAN);
+#else
+    D_MACRO(_LITTLE_ENDIAN);
 #endif
 
 #if defined(cygwin)
     P_MACRO(cygwin);
 #else
     D_MACRO(cygwin);
-#endif
-
-#if defined(hpux)
-    P_MACRO(hpux);
-#else
-    D_MACRO(hpux);
 #endif
 
 #if defined(i386)
@@ -2175,6 +1994,62 @@ static void printFlags()
     for (size_t i = 0; i != undefinedMacros.count(); ++i) {
         printf("\t  %s\n", undefinedMacros[i]);
     }
+
+                      // Legacy hardware platforms (Itanium)
+
+#if defined(_IA64)
+    P_MACRO(_IA64);
+#else
+    D_MACRO(_IA64);
+#endif
+
+#if defined(_ILP32)
+    P_MACRO(_ILP32);
+#else
+    D_MACRO(_ILP32);
+#endif
+
+#if defined(_LP64)
+    P_MACRO(_LP64);
+#else
+    D_MACRO(_LP64);
+#endif
+
+#if defined(__HP_cc)
+    P_MACRO(__HP_cc);
+#else
+    D_MACRO(__HP_cc);
+#endif
+
+#if defined(__HP_aCC)
+    P_MACRO(__HP_aCC);
+#else
+    D_MACRO(__HP_aCC);
+#endif
+
+#if defined(__IA64__)
+    P_MACRO(__IA64__);
+#else
+    D_MACRO(__IA64__);
+#endif
+
+#if defined(__LP64__)
+    P_MACRO(__LP64__);
+#else
+    D_MACRO(__LP64__);
+#endif
+
+#if defined(__ia64)
+    P_MACRO(__ia64);
+#else
+    D_MACRO(__ia64);
+#endif
+
+#if defined(__ia64__)
+    P_MACRO(__ia64__);
+#else
+    D_MACRO(__ia64__);
+#endif
 
     puts("\n\nprintFlags: Leave");
 
@@ -2597,9 +2472,6 @@ int main(int argc, char *argv[])
         ASSERT(Y <= X);                                                      \
         if (veryVerbose) printf("\t%s = %d (0x%X)\n", #X, (X), (X));
 
-        #if defined(BSLS_PLATFORM_CMP_AIX)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_AIX, 0);
-        #endif
         #if defined(BSLS_PLATFORM_CMP_CLANG)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_CLANG, 0);
         #endif
@@ -2611,9 +2483,6 @@ int main(int argc, char *argv[])
         #endif
         #if defined(BSLS_PLATFORM_CMP_HP)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_HP, 0);
-        #endif
-        #if defined(BSLS_PLATFORM_CMP_IBM)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_IBM, 0);
         #endif
         #if defined(BSLS_PLATFORM_CMP_MSVC)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_MSVC, 0);
@@ -2629,9 +2498,6 @@ int main(int argc, char *argv[])
 
         #if defined(BSLS_PLATFORM_OS_UNIX)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_UNIX, 1);
-        #endif
-        #if defined(BSLS_PLATFORM_OS_AIX)
-            MACRO_TESTEQ(BSLS_PLATFORM_OS_AIX, 1);
         #endif
         #if defined(BSLS_PLATFORM_OS_CYGWIN)
             MACRO_TESTEQ(BSLS_PLATFORM_OS_CYGWIN, 1);
@@ -2747,7 +2613,7 @@ int main(int argc, char *argv[])
                                 STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)
                                 "\"\n");
 
-        #if (defined(BSLS_PLATFORM_CMP_IBM) || defined(BSLS_PLATFORM_CMP_SUN))\
+        #if defined(BSLS_PLATFORM_CMP_SUN)                                   \
             || defined(BDE_BUILD_TARGET_AGGRESSIVE_INLINE)
         ASSERT(0 == strlen(STRINGIFY(BSLS_PLATFORM_AGGRESSIVE_INLINE)));
         #else
