@@ -21,7 +21,7 @@ BSLS_IDENT("$Id: $")
 // to providing a welcome availability in both C++03 and C++11 compilation
 // environments.
 //
-// A type `T` uses an allocator type `A` if `A` has a nested alias named
+// A type `T` uses an allocator type `A` if `T` has a nested alias named
 // `allocator_type` and `A` is convertible to `allocator_type` (as defined in
 // the `bslmf_isconvertible` component).  If a type `T` uses an allocator type
 // `A`, then `T` has a constructor that takes either 1) `allocator_arg_t` as a
