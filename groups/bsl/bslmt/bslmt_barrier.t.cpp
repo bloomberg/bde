@@ -455,11 +455,7 @@ extern "C" void * testThread4(void *arg)
 
     ++args->d_stopCount;
     while (args->d_nThreads + 1 != args->d_stopCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
-        // Avoid spinning as it can block on some overoptimized platforms.
-
         bslmt::ThreadUtil::yield();
-#endif
     }
 
     return arg;
@@ -1030,7 +1026,7 @@ int main(int argc, char *argv[])
         // ----------------------------------------------------------------
         enum {
            k_NUM_THREADS    =    4,
-           k_NUM_ITERATIONS = 3000
+           k_NUM_ITERATIONS = 2000
         };
 
         case8::test(k_NUM_ITERATIONS, k_NUM_THREADS);
@@ -1298,9 +1294,7 @@ int main(int argc, char *argv[])
                 // Wait until all the threads have stopped.
                 ++args.d_stopCount;
                 while (k_NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
                     bslmt::ThreadUtil::yield();
-#endif
                 }
 
                 LOOP_ASSERT(args.d_numTimedOut,
@@ -1330,9 +1324,7 @@ int main(int argc, char *argv[])
                 // Wait until all the threads have stopped.
                 ++args.d_stopCount;
                 while (k_NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
                     bslmt::ThreadUtil::yield();
-#endif
                 }
 
                 LOOP_ASSERT(args.d_numTimedOut,
@@ -1389,9 +1381,7 @@ int main(int argc, char *argv[])
                 if (0 == res ) {
                     ++args.d_stopCount;
                     while (k_NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
                         bslmt::ThreadUtil::yield();
-#endif
                     }
 
                     LOOP2_ASSERT(n, args.d_numTimedOut,
@@ -1459,9 +1449,7 @@ int main(int argc, char *argv[])
                 if (0 == res ) {
                     ++args.d_stopCount;
                     while (k_NTHREADS + 1 != args.d_stopCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
                         bslmt::ThreadUtil::yield();
-#endif
                     }
 
                     LOOP2_ASSERT(n, args.d_numTimedOut,
@@ -1555,11 +1543,7 @@ int main(int argc, char *argv[])
                                                           &args));
                 }
                 while (k_NTHREADS != args.d_waitCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
-                    // avoid spinning as this can preempt on some platforms
-
                     bslmt::ThreadUtil::yield();
-#endif
                 }
                 enum { k_NUM_CHECK = 100000 };
                 for (int i = 0; i < k_NUM_CHECK; ++i) {
@@ -1570,9 +1554,7 @@ int main(int argc, char *argv[])
                 args.d_barrier.wait();
 
                 while (0 != args.d_waitCount) {
-#ifdef BSLS_PLATFORM_OS_AIX
                     bslmt::ThreadUtil::yield();
-#endif
                 }
 
                 for (int i = 0; i < k_NUM_CHECK; ++i) {

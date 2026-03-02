@@ -544,6 +544,9 @@ int main(int argc, char *argv[])
         if (verbose) cout << "Large Queue Test" << endl
                           << "================" << endl;
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         bslma::TestAllocator ta(veryVeryVeryVerbose);
         {
             enum {

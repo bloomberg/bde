@@ -416,6 +416,7 @@ int main(int argc, char *argv[])
 
             // This string is part of the contract
             // ASSERT(X.getFormat() == "\n%d %p %t %s %f %l %c %m %u\n");
+            (void)X;
         }
 
         // Test timezone defaults (enablePublishInLocalTime,
