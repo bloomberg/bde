@@ -66,7 +66,7 @@ namespace bsl {
     /// Return the number of exceptions that have been thrown or rethrown in
     /// the current thread that have not been caught.  If the C++17 baseline
     /// library is not available, this function may return 1 even if more
-    /// than 1 uncaught exception exists, but if guaranteed to return 0 if
+    /// than 1 uncaught exception exists, but is guaranteed to return 0 if
     /// there are no uncaught exceptions.
     int uncaught_exceptions() throw();
 #endif  // ndef BSLSTL_EXCEPTION_UNCAUGHT_EXCEPTIONS_IS_ALIAS
