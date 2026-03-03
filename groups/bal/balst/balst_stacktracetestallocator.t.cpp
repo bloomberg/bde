@@ -2277,6 +2277,13 @@ int main(int argc, char *argv[])
         //     3. Properly deallocate the block allocated in step 1.
         //---------------------------------------------------------------------
 
+      #if !defined(BDE_BUILD_TARGET_TSAN) && !defined(BDE_BUILD_TARGET_ASAN)  \
+       && !defined(BDE_BUILD_TARGET_UBSAN)
+        //---------------------------------------------------------------------
+        // This test intentionally tries to use a custom allocator to 
+        // deallocate memory allocated with malloc. While sanitizers will
+        // report this test, this setup is intentional.
+        //---------------------------------------------------------------------
         expectedDefaultAllocations = -1;    // turn off default alloc checking
 
         bsl::stringstream oss;
@@ -2716,6 +2723,7 @@ int main(int argc, char *argv[])
                 ta.deallocate(cPtr);
             }
         }
+      #endif
       }  break;
       case 13: {
         //---------------------------------------------------------------------

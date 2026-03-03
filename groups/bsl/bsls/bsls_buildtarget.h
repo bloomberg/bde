@@ -12,15 +12,15 @@ BSLS_IDENT("$Id: $")
 //  BDE_BUILD_TARGET_NO_EXC: flag identifying exception-disabled builds
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
 //  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
-//  BDE_BULID_TARGET_32: flag identifying 32-bit builds
-//  BDE_BULID_TARGET_64: flag identifying 64-bit builds
-//  BDE_BULID_TARGET_SAFE: flag identifying SAFE level assert check builds
-//  BDE_BULID_TARGET_SAFE_2: flag identifying SAFE_2 level assert check builds
-//  BDE_BULID_TARGET_ASAN: flag identifying address sanitizer builds
-//  BDE_BULID_TARGET_MSAN: flag identifying memory sanitizer builds
-//  BDE_BULID_TARGET_TSAN: flag identifying thread sanitizer builds
-//  BDE_BULID_TARGET_UBSAN: flag identifying UB sanitizer builds
-//  BDE_BULID_TARGET_FUZZ: flag identifying fuzz testing builds
+//  BDE_BUILD_TARGET_32: flag identifying 32-bit builds
+//  BDE_BUILD_TARGET_64: flag identifying 64-bit builds
+//  BDE_BUILD_TARGET_SAFE: flag identifying SAFE level assert check builds
+//  BDE_BUILD_TARGET_SAFE_2: flag identifying SAFE_2 level assert check builds
+//  BDE_BUILD_TARGET_ASAN: flag identifying address sanitizer builds
+//  BDE_BUILD_TARGET_MSAN: flag identifying memory sanitizer builds
+//  BDE_BUILD_TARGET_TSAN: flag identifying thread sanitizer builds
+//  BDE_BUILD_TARGET_UBSAN: flag identifying UB sanitizer builds
+//  BDE_BUILD_TARGET_FUZZ: flag identifying fuzz testing builds
 //  BDE_BUILD_SKIP_VERSION_CHECKS: turn off compiler version checks
 //  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
 //  BDE_OMIT_INTERNAL_DEPRECATED: legacy flag to deprecate internal-only code
@@ -130,15 +130,15 @@ BSLS_IDENT("$Id: $")
 //:     This macro, when defined, indicates that the current build mode
 //:     includes address sanitizer.
 //:
-//: `BDE_BULID_TARGET_MSAN`:
+//: `BDE_BUILD_TARGET_MSAN`:
 //:     This macro, when defined, indicates that the current build mode
 //:     includes memory sanitizer.
 //:
-//: `BDE_BULID_TARGET_TSAN`:
+//: `BDE_BUILD_TARGET_TSAN`:
 //:     This macro, when defined, indicates that the current build mode
 //:     includes thread sanitizer.
 //:
-//: `BDE_BULID_TARGET_UBSAN`:
+//: `BDE_BUILD_TARGET_UBSAN`:
 //:     This macro, when defined, indicates that the current build mode
 //:     includes undefined behavior sanitizer.
 //
