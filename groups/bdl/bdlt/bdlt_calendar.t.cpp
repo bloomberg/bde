@@ -927,6 +927,17 @@ CALENDAR& gg(CALENDAR *object, const char *spec)
 }
 
 // ============================================================================
+//                         GLOBAL METHODS FOR TESTING
+// ----------------------------------------------------------------------------
+
+static int s_reviewCount = 0;
+
+static void reviewCount(const bsls::ReviewViolation&)
+{
+    ++s_reviewCount;
+}
+
+// ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 
@@ -6064,12 +6075,22 @@ int main(int argc, char *argv[])
             };
             const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
 
+            int EXP_REVIEW_COUNT = 0;  (void)EXP_REVIEW_COUNT;
+
+            bsls::ReviewFailureHandlerGuard reviewGuard(&reviewCount);
+
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int         LINE    = DATA[i].d_lineNum;
                 const char *const SPEC    = DATA[i].d_spec_p;
                 const int         VERSION = DATA[i].d_version;
                 const int         LEN     = DATA[i].d_length;
                 const char *const FMT     = DATA[i].d_fmt_p;
+
+                if (1 == VERSION) {
+                    // deprecated version
+
+                    EXP_REVIEW_COUNT += 2;  // two streamings below
+                }
 
                 // Test using class methods.
 
@@ -6149,6 +6170,10 @@ int main(int argc, char *argv[])
                     LOOP_ASSERT(LINE, &in == &rvIn);
                     ASSERTV(LINE, X, Y, X == Y);
                 }
+
+                ASSERTV(EXP_REVIEW_COUNT,
+                        s_reviewCount,
+                        EXP_REVIEW_COUNT == s_reviewCount);
             }
         }
 

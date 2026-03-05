@@ -3185,6 +3185,9 @@ STREAM& PackedCalendar::bdexStreamOut(STREAM& stream, int version) const
         }
       } break;
       case 1: {
+        BSLS_REVIEW_INVOKE(
+                     "bdlt::packedCalendar::bdexStreamOut deprecated version");
+
         d_firstDate.bdexStreamOut(stream, 1);
         d_lastDate.bdexStreamOut(stream, 1);
 
