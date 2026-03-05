@@ -3159,6 +3159,11 @@ class basic_string
     /// conversion operator can be invoked implicitly (e.g., during argument
     /// passing).
     operator basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const;
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+    /// Convert this object to a `std::basic_string_view`.
+    operator std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const;
+#endif
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
@@ -7500,6 +7505,16 @@ operator basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const
 {
     return basic_string_view<CHAR_TYPE, CHAR_TRAITS>(data(), size());
 }
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+operator std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const
+{
+    return {data(), size()};
+}
+#endif  // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 // PUBLIC ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>

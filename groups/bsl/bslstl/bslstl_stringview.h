@@ -1021,6 +1021,119 @@ class basic_string_view {
         return std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>(d_start_p,
                                                                     d_length);
     }
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+    /// Convert this object to a `std::basic_string_view`.
+    constexpr operator std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const;
+
+    // HIDDEN FRIENDS
+    friend constexpr
+    bool operator==(basic_string_view                              lhs,
+                    std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+                                                                       noexcept
+    {
+        return std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>{
+                                              lhs.data(), lhs.length()} == rhs;
+    }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    friend constexpr
+    auto operator<=>(basic_string_view                              lhs,
+                     std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+                                                                       noexcept
+    {
+        return std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>{
+                                             lhs.data(), lhs.length()} <=> rhs;
+    }
+
+#else  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+    friend constexpr
+    bool operator==(std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
+                    basic_string_view                              rhs)
+                                                                       noexcept
+    {
+        return rhs == lhs;
+    }
+
+    friend constexpr
+    bool operator!=(basic_string_view                              lhs,
+                    std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+                                                                       noexcept
+    {
+        return !(lhs == rhs);
+    }
+
+    friend constexpr
+    bool operator!=(std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
+                    basic_string_view                              rhs)
+                                                                       noexcept
+    {
+        return !(lhs == rhs);
+    }
+
+    friend constexpr
+    bool operator<(basic_string_view                              lhs,
+                   std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs) noexcept
+    {
+        return std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>{
+                                               lhs.data(), lhs.length()} < rhs;
+    }
+
+    friend constexpr
+    bool operator<(std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
+                   basic_string_view                              rhs) noexcept
+    {
+        return lhs < std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>{
+                                                     rhs.data(), rhs.length()};
+    }
+
+    friend constexpr
+    bool operator>(basic_string_view                              lhs,
+                   std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs) noexcept
+    {
+        return rhs < lhs;
+    }
+
+    friend constexpr
+    bool operator>(std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
+                   basic_string_view                              rhs) noexcept
+    {
+        return rhs < lhs;
+    }
+
+    friend constexpr
+    bool operator<=(basic_string_view                              lhs,
+                    std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+                                                                       noexcept
+    {
+        return !(rhs < lhs);
+    }
+
+    friend constexpr
+    bool operator<=(std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
+                    basic_string_view                              rhs)
+                                                                       noexcept
+    {
+        return !(rhs < lhs);
+    }
+
+    friend constexpr
+    bool operator>=(basic_string_view                              lhs,
+                    std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> rhs)
+                                                                       noexcept
+    {
+        return !(lhs < rhs);
+    }
+
+    friend constexpr
+    bool operator>=(std::basic_string_view<CHAR_TYPE, CHAR_TRAITS> lhs,
+                    basic_string_view                              rhs)
+                                                                       noexcept
+    {
+        return !(lhs < rhs);
+    }
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+#endif  // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 };
 
 // TYPEDEFS
@@ -2411,6 +2524,16 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::find_last_not_of(
     return find_last_not_of(&character, position, size_type(1));
 }
 
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+template <class CHAR_TYPE, class CHAR_TRAITS>
+constexpr
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::
+operator std::basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const
+{
+    return {d_start_p, d_length};
+}
+#endif  // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+
 // PUBLIC ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -2832,8 +2955,6 @@ void bslh::hashAppend(
 
 }  // close enterprise namespace
 #endif  // BSLSTL_STRING_VIEW_IS_ALIASED
-
-#undef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
 #endif
 

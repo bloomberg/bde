@@ -133,6 +133,7 @@
 // [21] bool contains(CHAR_TYPE character) const;
 // [21] bool contains(const CHAR_TYPE* characterString) const;
 // [25] operator std::string<>();
+// [25] operator std::string_view();
 //
 // FREE OPERATORS
 // [ 3] operator<<(std::basic_ostream& stream, basic_string_view view);
@@ -1152,6 +1153,8 @@ void TestDriver<TYPE,TRAITS>::testCase25()
     //    resulting `bsl::string_view` can be cast to `std::string` having the
     //    same value as the original.
     //
+    // 4. `bsl::string_view` is implicitly convertible to `std::string_view`.
+    //
     // Plan:
     // 1. Given an original `std::string_view` object, use the copy constructor
     //    to create a `bsl::string_view` object.  Also assign a
@@ -1171,10 +1174,15 @@ void TestDriver<TYPE,TRAITS>::testCase25()
     //    `std::string` and confirm that the contents match that of the
     //    original string.
     //
+    // 4. Construct `std::string_view` object from `bsl::string_view` object
+    //    and confirm that it has the same starting address and length as the
+    //    original string.
+    //
     // Testing:
     //   basic_string_view(const std::string_view& view);
     //   basic_string_view& operator=(const std::string_view& rhs);
     //   operator std::string<>();
+    //   operator std::string_view();
     // ------------------------------------------------------------------------
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
@@ -1193,8 +1201,11 @@ void TestDriver<TYPE,TRAITS>::testCase25()
         constexpr StdObj ctv1(STRING, STRING_LENGTH);
         constexpr Obj    ctv2(ctv1);
         constexpr Obj    ctv3 = TestDriver<TYPE, TRAITS>::assignFromStdObj();
+        constexpr StdObj ctv4(ctv2);  // bsl::string_view -> std::string_view
 
-        (void) ctv2;
+        ASSERT(ctv4.data()   == ctv2.data());
+        ASSERT(ctv4.length() == ctv2.length());
+
         (void) ctv3;
 #endif
     }
@@ -7418,7 +7429,8 @@ int main(int argc, char *argv[])
         // Testing:
         //   basic_string_view(const std::string_view& view);
         //   basic_string_view& operator=(const std::string_view& rhs);
-        //   operator std::string_view<>();
+        //   operator std::string<>();
+        //   operator std::string_view();
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -7993,6 +8005,33 @@ int main(int argc, char *argv[])
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
         // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+        {
+            bsl::string_view bs;
+            std::string_view ss;
+
+            ASSERT(ss == bs);
+            ASSERT(bs == ss);
+
+            ASSERT(!(ss != bs));
+            ASSERT(!(bs != ss));
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+            ASSERT(ss <=> bs == 0);
+            ASSERT(bs <=> ss == 0);
+#endif
+            ASSERT(!(ss < bs));
+            ASSERT(!(bs < ss));
+            ASSERT(ss <= bs);
+            ASSERT(bs <= ss);
+
+            ASSERT(!(ss > bs));
+            ASSERT(!(bs > ss));
+            ASSERT(ss >= bs);
+            ASSERT(bs >= ss);
+        }
+#endif
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
