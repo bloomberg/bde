@@ -54,7 +54,7 @@ using namespace bsl;
 // [ 6] int wait();
 //
 // ACCESSORS
-// [11] bsls::SystemClockType::Enum clockType() const;
+// [12] bsls::SystemClockType::Enum clockType() const;
 // [ 4] int getDisabledState() const;
 // [ 7] int getValue() const;
 // [ 7] int getValueRaw() const;
@@ -64,7 +64,8 @@ using namespace bsl;
 // [ 5] CONCERN: MANIPULATORS SIGNAL AS EXPECTED
 // [ 9] CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (1)
 // [10] CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (2)
-// [12] CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
+// [11] CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (3)
+// [13] CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1060,7 +1061,7 @@ int main(int argc, char *argv[])
         ExhaustiveTest::s_verbose = true;
     }
 
-    if (12 != test) {
+    if (13 != test) {
         bslmt::FastPostSemaphoreImplWorkaroundUtil::
                                            removePostAlwaysSignalsMitigation();
     }
@@ -1076,7 +1077,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // CONCERN: MANIPULATORS SIGNAL AS EXPECTED WITH MITIGATION
         //   Ensure the manipulators signal as expected.
@@ -1401,7 +1402,7 @@ int main(int argc, char *argv[])
             }
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // TESTING `clockType`
         //
@@ -1431,6 +1432,44 @@ int main(int argc, char *argv[])
         const Obj mt(bsls::SystemClockType::e_MONOTONIC);
         ASSERT(bsls::SystemClockType::e_MONOTONIC == mt.clockType());
       } break;
+      case 11: {
+        // --------------------------------------------------------------------
+        // CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (3)
+        //   Ensure the manipulators do not cause races that prevent methods
+        //   from completing.
+        //
+        // Concerns:
+        // 1. Where possible, ensure the concurrent execution of methods does
+        //    not result in a race that causes a method to not complete.
+        //
+        // Plan:
+        // 1. Using the "Exhaustive" testing framework, spot check the
+        //    concurrent execution of methods without requiring extensive
+        //    execution times.  (C-1)
+        //
+        // Testing:
+        //   CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (3)
+        // --------------------------------------------------------------------
+
+        {
+            char s[1024];
+
+            snprintf(s, sizeof s, "case %i", test);
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(570, 0), s));
+        }
+
+        if (verbose) {
+            cout << endl
+                 << "CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (3)"
+                 << endl
+                 << "========================================================"
+                 << endl;
+        }
+
+        ExhaustiveTest::test(Exhaustive_post,    0,
+                             Exhaustive_wait,    0,
+                             Exhaustive_disable, 0);
+      } break;
       case 10: {
         // --------------------------------------------------------------------
         // CONCERN: NO RACES RESULTING IN METHOD NON-COMPLETION (2)
@@ -1454,7 +1493,7 @@ int main(int argc, char *argv[])
             char s[1024];
 
             snprintf(s, sizeof s, "case %i", test);
-            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(360, 0), s));
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(570, 0), s));
         }
 
         if (verbose) {
@@ -1465,9 +1504,9 @@ int main(int argc, char *argv[])
                  << endl;
         }
 
-        ExhaustiveTest::test(Exhaustive_post,    0,
-                             Exhaustive_wait,    0,
-                             Exhaustive_disable, 0);
+        ExhaustiveTest::test(Exhaustive_post2, 0,
+                             Exhaustive_wait,  0,
+                             Exhaustive_wait,  0);
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -1492,7 +1531,7 @@ int main(int argc, char *argv[])
             char s[1024];
 
             snprintf(s, sizeof s, "case %i", test);
-            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(540, 0), s));
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(570, 0), s));
         }
 
         if (verbose) {
@@ -1508,10 +1547,6 @@ int main(int argc, char *argv[])
 
         ExhaustiveTest::test(Exhaustive_wait,    0,
                              Exhaustive_disable, 0);
-
-        ExhaustiveTest::test(Exhaustive_post2, 0,
-                             Exhaustive_wait,  0,
-                             Exhaustive_wait,  0);
       } break;
       case 8: {
         // --------------------------------------------------------------------

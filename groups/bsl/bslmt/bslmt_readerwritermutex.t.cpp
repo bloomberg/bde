@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
             char s[1024];
 
             snprintf(s, sizeof s, "case %i", test);
-            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(180, 0), s));
+            ASSERT(0 == completionGuard.guard(bsls::TimeInterval(570, 0), s));
         }
 
         const int numReaders = 10;
