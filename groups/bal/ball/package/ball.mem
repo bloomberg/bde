@@ -8,6 +8,8 @@ ball_attributecontext
 ball_broadcastobserver
 ball_category
 ball_categorymanager
+ball_categorymanager_radixtree
+ball_categorymanager_radixtree_cpp03
 ball_context
 ball_countingallocator
 ball_cstdioobserver
