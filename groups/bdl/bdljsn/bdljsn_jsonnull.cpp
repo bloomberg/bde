@@ -6,7 +6,7 @@ BSLS_IDENT_RCSID(bdljsn_jsonnull_cpp, "$Id$ $CSID$")
 
 #include <bslim_printer.h>
 
-#include <bsl_ostream.h>  // 'bsl::operator<<'
+#include <bsl_ostream.h>  // `bsl::operator<<`
 
 namespace BloombergLP {
 namespace bdljsn {
@@ -20,11 +20,20 @@ bsl::ostream& JsonNull::print(bsl::ostream& stream,
                               int           spacesPerLevel) const
 {
     bslim::Printer printer(&stream, level, spacesPerLevel);
-    printer.start(true);  // 'true' -> suppress '['
+    printer.start(true);  // `true` -> suppress `[`
     stream << "null";
-    printer.end(true);  // 'true' -> suppress ']'
+    printer.end(true);  // `true` -> suppress `]`
     return stream;
 }
+
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
+
+                               // ---------------
+                               // object jsonNull
+                               // ---------------
+
+const JsonNull jsonNull = { };
+#endif
 
 }  // close package namespace
 }  // close enterprise namespace

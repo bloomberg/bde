@@ -6,6 +6,8 @@ BSLS_IDENT_RCSID(bdljsn_json_cpp, "$Id$ $CSID$")
 
 #include <bdljsn_stringutil.h>
 
+#include <bsla_unreachable.h>
+
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 

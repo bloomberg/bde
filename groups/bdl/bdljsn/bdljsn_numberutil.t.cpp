@@ -27,6 +27,8 @@
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
+#include <bsls_log.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
@@ -35,7 +37,8 @@
 
 #include <bsltf_templatetestfacility.h>
 
-#include <bsl_cstddef.h>  // `bsl::size_t`
+#include <bsl_cerrno.h>   // `ERANGE`
+#include <bsl_cstddef.h>  // `bsl::size_t
 #include <bsl_cstdlib.h>  // `bsl::atoi`
 #include <bsl_cstring.h>  // `bsl::strlen`, `bsl::memcpy`, `bsl::strcmp`
 #include <bsl_iostream.h>
@@ -45,7 +48,10 @@
 #include <bsl_string_view.h>
 #include <bsl_vector.h>
 
+#include <stdint.h>      // `uint8_t`
+
 using bsl::cout;
+using bsl::cerr;
 using bsl::endl;
 using namespace BloombergLP;
 
@@ -70,15 +76,21 @@ using namespace BloombergLP;
 // [ 6] double asDouble(const bsl::string_view&);
 // [ 7] bdldfp::Decimal64 asDecimal64(const bsl::string_view&);
 // [ 7] int asDecimal64Exact(Decimal64 *, const bsl::string_view&);
+// [11] int asShort(short *, const bsl::string_view&);
 // [11] int asInt(int *, const bsl::string_view&);
+// [11] int asLong(long *, const bsl::string_view&);
+// [11] int asLonglong(long long *, const bsl::string_view&);
 // [11] int asInt64(Int64 *, const bsl::string_view&);
 // [11] int asUint(unsigned int *, const bsl::string_view&);
+// [11] int asUshort(unsigned short *, const bsl::string_view&);
+// [11] int asUlong(unsigned long *, const bsl::string_view&);
 // [ 5] int asUint64(Uint64 *, const bsl::string_view&);
+// [ 5] int asUlonglong(unsigned long long *, const bsl::string_view&);
 // [10] int asInteger(t_INTEGER_TYPE *, const bsl::string_view&);
-// [12] void stringify(bsl::string *, Int64);
-// [12] void stringify(bsl::string *, Uint64);
+// [12] void stringify(bsl::string *, long long);
+// [12] void stringify(bsl::string *, unsigned long long);
 // [12] void stringify(bsl::string *, double);
-// [12] void stringify(bsl::string *, const bdldfp::Decimal64& vlue);
+// [12] void stringify(bsl::string *, const bdldfp::Decimal64& value);
 // [ 8] bool areEqual(const string_view& , const string_view&);
 //
 // NumberUtil_ImpUtil
@@ -90,9 +102,10 @@ using namespace BloombergLP;
 // [ 1] BREATHING TEST
 // [13] USAGE EXAMPLE
 // [ 3] CONCERN: `IsValidNumber` functor can be used as an oracle.
-// [ 2] CONCERN: Test Machinery
-// [  ] CONCERN: `BSLS_REVIEW` failures should lead to test failures
-// [-1] BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
+// [ 2] CONCERN: TEST MACHINERY
+// [  ] CONCERN: Unexpected `BSLS_REVIEW` failures should lead to test failures
+// [  ] CONCERN: `bsls::Log` messages are sent by the tested module only.
+// [-1] BENCHMARK: `asDecimal64Exact` VS `asDecimal64ExactOracle`
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -167,6 +180,65 @@ BSLA_MAYBE_UNUSED bool     veryVeryVerbose;
 BSLA_MAYBE_UNUSED bool veryVeryVeryVerbose;
 
 // ============================================================================
+//                HELPERS FOR REVIEW & LOG MESSAGE HANDLING
+// ----------------------------------------------------------------------------
+
+/// Return `true` if the specified `subString` is present in the specified
+/// `string` disregarding case of alphabet characters `[a-zA-Z]`, otherwise
+/// return `false`.
+static bool containsCaseless(const bsl::string_view& string,
+                             const bsl::string_view& subString)
+{
+    if (subString.empty()) {
+        return true;                                                  // RETURN
+    }
+
+    typedef bdlb::StringViewUtil SVU;
+    const bsl::string_view rsv = SVU::strstrCaseless(string, subString);
+
+    return !rsv.empty();
+}
+
+// ============================================================================
+//                    EXPECTED `BSLS_REVIEW` TEST HANDLERS
+// ----------------------------------------------------------------------------
+
+// These handlers are needed only temporarily until we determine how to fix the
+// broken contract of `bdlb::NumericParseUtil::parseDouble()` that says under-
+// and overflow is not allowed yet the function supports it.
+
+/// Return `true` if the specified `reviewViolation` has been raised by the
+/// `bdlb_numericparseutil` component or no source file names are supported
+/// by the build, otherwise return `false`.
+bool isBdlbNumericParseUtilReview(const bsls::ReviewViolation& reviewViolation)
+{
+    const char *fn = reviewViolation.fileName();
+    const bool  fileOk = ('\0' == fn[0]) // empty or has the component name
+                              || containsCaseless(fn, "bdlb_numericparseutil");
+    return fileOk;
+}
+
+/// Return `true` if the specified `reviewViolation` is an overflow or
+/// underflow message from the `bdlb_numericparseutil` component (or no
+/// source file names are supported by the build), otherwise return `false`.
+bool isRangeReview(const bsls::ReviewViolation& reviewViolation)
+{
+    return isBdlbNumericParseUtilReview(reviewViolation) &&
+                    (containsCaseless(reviewViolation.comment(), "overflow") ||
+                     containsCaseless(reviewViolation.comment(), "underflow"));
+}
+
+/// If the specified `reviewViolation` is an expected overflow-related
+/// message from `parseDouble` do nothing, otherwise call
+/// `bsls::Review::failByAbort()`.
+void ignoreRangeMsgs(const bsls::ReviewViolation& reviewViolation)
+{
+    if (!isRangeReview(reviewViolation)) {
+        bsls::Review::failByAbort(reviewViolation);
+    }
+}
+
+// ============================================================================
 //                        JSON NUMBER VALIDATOR ORACLE
 // ----------------------------------------------------------------------------
 
@@ -183,7 +255,7 @@ class IsValidNumber {
   public:
     // CREATORS
 
-    /// Create an `IsValidNumber` functor object that is ready to match the
+    /// Create an `IsValidNumber` object that is prepared to match the
     /// textual pattern of a valid JSON number.
     IsValidNumber();
 
@@ -236,7 +308,7 @@ FP_TYPE fabsval(FP_TYPE input)
 // CLASS METHODS
 
 /// Return `true` if the specified `a` and `b` are approximately the same
-/// floating point value, and `false` otherwise'.
+/// floating point value, and `false` otherwise.
 template <class FP_TYPE>
 int fuzzyCompare(FP_TYPE a, FP_TYPE b)
 {
@@ -269,8 +341,8 @@ int fuzzyCompare(FP_TYPE a, FP_TYPE b)
 /// text to an in-process number type that can be called generically.
 int convertValue(double *result, const bsl::string_view& value)
 {
-  *result = Obj::NumberUtil::asDouble(value);
-  return 0;
+    *result = Obj::NumberUtil::asDouble(value);
+    return 0;
 }
 
 /// Load the specified `result` with the specified `value`.  Note that these
@@ -288,7 +360,7 @@ int convertValue(bdldfp::Decimal64 *result, const bsl::string_view& value)
 template <class t_INTEGER_TYPE>
 int convertValue(t_INTEGER_TYPE *result, const bsl::string_view& value)
 {
-  return Obj::NumberUtil::asInteger(result, value);
+    return Obj::NumberUtil::asInteger(result, value);
 }
 
 /// Load the specified `significand` from the specified `value`.
@@ -370,9 +442,10 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
 
     if (exponent.size() > 0) {
         bsl::string_view remainder;
-        const int rc = bdlb::NumericParseUtil::parseInt64(&originalExponent,
-                                                          &remainder,
-                                                          exponent);
+        int              rc = bdlb::NumericParseUtil::parseInt64(
+                                                             &originalExponent,
+                                                             &remainder,
+                                                             exponent);
         if (0 != rc || 0 != remainder.size()) {
             return;                                                   // RETURN
         }
@@ -412,12 +485,12 @@ void generateEquivalenceSet(bsl::vector<bsl::string> *result,
 
             output << "0." << zeros << digits << 'e' << bsl::to_string(exp);
         }
-        else if (adjustedDecimalPos > static_cast<Int64>(digits.size())) {
+        else if (adjustedDecimalPos > static_cast<int>(digits.size())) {
             bsl::string zeros(SizeType(adjustedDecimalPos) - digits.size(),
                               '0');
             output << digits << zeros << 'e' << bsl::to_string(exp);
         }
-        else if (adjustedDecimalPos == static_cast<Int64>(digits.size())) {
+        else if (adjustedDecimalPos == static_cast<int>(digits.size())) {
             output << digits << 'e' << bsl::to_string(exp);
         }
         else {
@@ -478,8 +551,9 @@ int verifyDecimal64Exactness(const char *value)
     };
 
     bdldfp::Decimal64 d;
-    const int rc = bdldfp::DecimalUtil::parseDecimal64(&d, value);
-    BSLS_ASSERT(0 == rc);  (void)rc;
+    int               rc = bdldfp::DecimalUtil::parseDecimal64(&d, value);
+    BSLS_ASSERT(0 == rc);
+    (void)rc;
 
     bsl::ostringstream text;
     text << d;
@@ -585,7 +659,7 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
 
     // A flag indicating if the significant digits range includes a '.'
 
-    bool sigDigitsSeparated = significantDotOffset != bsl::string_view::npos;
+    bool  sigDigitsSeparated = significantDotOffset != bsl::string_view::npos;
     Int64 numSigDigits = significant.size() - (sigDigitsSeparated  ? 1 : 0);
 
     if (numSigDigits > 16) {
@@ -593,7 +667,7 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
         return Obj::k_INEXACT;                                        // RETURN
     }
 
-    Uint64 significand;
+    Uint64           significand;
     bsl::string_view digits, moreDigits;
     if (!sigDigitsSeparated) {
         // If significant digits do not have a '.' in the middle
@@ -611,13 +685,12 @@ int asDecimal64ExactOracle(bdldfp::Decimal64       *result,
     BSLS_ASSERT(0 == rc);
     rc = ImpUtil::appendDigits(&significand, significand, moreDigits);
     BSLS_ASSERT(0 == rc);
-    const Int64 signedSignificand = isNeg
-                                  ? -static_cast<Int64>(significand)
-                                  : static_cast<Int64>(significand);
+    Int64 signedSignificand =
+        isNeg ? -static_cast<Int64>(significand) : significand;
 
-    using bdldfp::DecimalUtil;
-    *result = DecimalUtil::makeDecimalRaw64(signedSignificand,
-                                            static_cast<int>(exponent));
+    *result = bdldfp::DecimalUtil::makeDecimalRaw64(
+        signedSignificand, static_cast<int>(exponent));
+
     return 0;
 }
 
@@ -631,7 +704,7 @@ template <class t_INTEGRAL_TYPE>
 struct AsIntegralTest {
 
     // CONSTANTS
-    static const bool d_isSignedType =
+    static const bool s_isSignedType =
               BloombergLP::bdljsn::NumberUtil_IsSigned<t_INTEGRAL_TYPE>::value;
 
     /// See documentation for test case 10.
@@ -654,7 +727,7 @@ struct AsIntegralTest {
         struct Data {
             int         d_line;
             int         d_status;
-            const char *d_input;
+            const char *d_input_p;
             bool        d_isNegative;
             Uint64      d_result;
         } DATA[] = {
@@ -735,7 +808,7 @@ struct AsIntegralTest {
         for (int i = 0; i < NUM_DATA; ++i) {
             const int     LINE         = DATA[i].d_line;
             const int     STATUS       = DATA[i].d_status;
-            const char   *INPUT        = DATA[i].d_input;
+            const char   *INPUT        = DATA[i].d_input_p;
             const bool    ISNEG        = DATA[i].d_isNegative;
             const Uint64  EXPECTED_U64 = DATA[i].d_result;
 
@@ -750,7 +823,7 @@ struct AsIntegralTest {
             // for `t_INTEGRAL_TYPE`.
 
             Uint64 maxAsU64 = static_cast<Uint64>(k_MAX_VALUE);
-            Uint64 minAsU64 = (d_isSignedType) ? maxAsU64 + 1 : 0;
+            Uint64 minAsU64 = (s_isSignedType) ? maxAsU64 + 1 : 0;
 
             t_INTEGRAL_TYPE expected;
             int             expectedRc = (STATUS == ENOTINT) ? ENOTINT : 0;
@@ -775,10 +848,7 @@ struct AsIntegralTest {
                 // The expected result can be represented in `t_INTEGRAL_TYPE`.
 
                 expected = static_cast<t_INTEGRAL_TYPE>(EXPECTED_U64);
-                t_INTEGRAL_TYPE min =
-                                   bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
-                // cannot negate maximally negative values
-                if (ISNEG && (expected != min)) {
+                if (ISNEG) {
                     expected = static_cast<t_INTEGRAL_TYPE>(
                                   static_cast<t_INTEGRAL_TYPE>(-1) * expected);
                 }
@@ -827,17 +897,34 @@ struct AsIntegralTest {
 // Generation done by the python script embedded below.  Then the numeric test
 // points extracted and massaged a bit.
 //
-// One modified tests:
+// Two modified tests:
+// ```
+// n_multidigit_number_then_00.json - test data machinery cannot handle an
+//                                    embedded null, Do separate ad hoc test.
+//
 // y_number_after_space.json - this is not a valid number according to the JSON
 //                             spec.  A whitespace prefix will be handled by
-//                             the tokenizer it bdljsn.
+//                             the tokenizer.
+// ```
 
-static bool isValidJSonSuiteFileData(const bsl::string_view& fname) {
+static bool needsAdHocTestJSonSuiteFileData(const bsl::string_view& fname)
+{
     BSLS_ASSERT_OPT(!fname.empty());
 
+    if (bdlb::StringViewUtil::areEqualCaseless(
+                                              fname,
+                                              "n_multidigit_number_then_00")) {
+        return true;                                                  // RETURN
+    }
+    return false;
+}
 
-    using bdlb::StringViewUtil;
-    if (StringViewUtil::areEqualCaseless(fname, "y_number_after_space")) {
+static bool isValidJSonSuiteFileData(const bsl::string_view& fname)
+{
+    BSLS_ASSERT_OPT(!fname.empty());
+
+    if (bdlb::StringViewUtil::areEqualCaseless(fname,
+                                               "y_number_after_space")) {
         return false;                                                 // RETURN
     }
 
@@ -849,22 +936,12 @@ static bool isValidJSonSuiteFileData(const bsl::string_view& fname) {
         || tag == 'i';   // implementation defined, we support all
 }
 
-/// Using the specified `hayStack and `needle':
-///    return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
-///                                                      bsl::string_view();
-static bool containsCaseless(const bsl::string_view& hayStack,
-                             const bsl::string_view& needle)
-{
-    return bdlb::StringViewUtil::strstrCaseless(hayStack, needle) !=
-                                                            bsl::string_view();
-}
-
 static bool isOutOfRangeJSonSuiteFileData(const bsl::string_view& fname) {
     BSLS_ASSERT_OPT(!fname.empty());
 
     return containsCaseless(fname, "_huge_")
-       || (containsCaseless(fname, "_real_")
-           && (containsCaseless(fname, "_overflow")
+       ||     (containsCaseless(fname, "_real_")
+           && (   containsCaseless(fname, "_overflow")
                || containsCaseless(fname, "_underflow")));
 }
 
@@ -876,11 +953,12 @@ struct JSonSuiteNumericData {
     bool             d_isOutOfRange;
     bsl::string_view d_input;
 } JSON_SUITE_DATA[] =
+// BDE_VERIFY pragma: -NA01  // non-ASCII characters
 {
-#define TR(fname, json)                         \
-    { L_, fname,                                 \
-          isValidJSonSuiteFileData(fname),        \
-          isOutOfRangeJSonSuiteFileData(fname),    \
+#define TR(fname, json)                             \
+    { L_, fname,                                    \
+          isValidJSonSuiteFileData(fname),          \
+          isOutOfRangeJSonSuiteFileData(fname),     \
           bsl::string_view(json, (sizeof json) - 1) }
 
     TR("i_number_double_huge_neg_exp",   "123.456e-789"                      ),
@@ -974,10 +1052,13 @@ struct JSonSuiteNumericData {
     TR("y_number_real_pos_exponent",      "1e+2"                             ),
     TR("y_number_simple_int",             "123"                              ),
     TR("y_number_simple_real",            "123.456789"                       ),
+#undef TR
 };
 
-const int NUM_JSON_SUITE_DATA =
-                              sizeof JSON_SUITE_DATA / sizeof *JSON_SUITE_DATA;
+// BDE_VERIFY pragma: +NA01  // non-ASCII characters
+
+const int NUM_JSON_SUITE_DATA = sizeof(JSON_SUITE_DATA) /
+                                sizeof(*JSON_SUITE_DATA);
 
 #define NL "\n"
 const char *JSONTESTSUITE_PYTHON_SCRIPT =
@@ -993,7 +1074,7 @@ const char *JSONTESTSUITE_PYTHON_SCRIPT =
 "        description=DESCRIPTION,"                                           NL
 "        formatter_class=argparse.RawDescriptionHelpFormatter)"              NL
 ""                                                                           NL
-"    parser.add_argument(`directory`,type=str,"                              NL
+"    parser.add_argument('directory',type=str,"                              NL
 "                        help=\"directory location containing json examples \""
                                                                              NL
 "                        \"(JSONTestSuite/test_parsing)\")"                  NL
@@ -1006,7 +1087,7 @@ const char *JSONTESTSUITE_PYTHON_SCRIPT =
 "        if filename.endswith(\".json\"):"                                   NL
 "            success = filename.startswith("                                 NL
 "                \"y_\") or filename.startswith(\"i_\")"                     NL
-"            with open(os.path.join(directory, file), `rb`) as input:"       NL
+"            with open(os.path.join(directory, file), 'rb') as input:"       NL
 "                json = input.read()"                                        NL
 "            if len(json) > 100:"                                            NL
 "                json = b\"Skipped Too Long\""                               NL
@@ -1040,9 +1121,9 @@ extern "C"
 /// this component and return zero.
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    const char *FUZZ  = reinterpret_cast<const char *>(data);
-    const int  LENGTH = static_cast<int>(size);
-    const int  test   = 3;
+    const char *FUZZ   = reinterpret_cast<const char *>(data);
+    const int   LENGTH = static_cast<int>(size);
+    const int   test   = 3;
 
     switch (test) { case 0:  // Zero is always the leading case.
       case 3: {
@@ -1084,8 +1165,8 @@ int main(int argc, char *argv[])
 
     bsl::cout << "TEST " << __FILE__ << " CASE " << test << bsl::endl;
 
-    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
-    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+    // CONCERN: Unexpected `BSLS_REVIEW` failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&ignoreRangeMsgs);
 
     // CONCERN: In no case does memory come from the global allocator.
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
@@ -1114,9 +1195,8 @@ int main(int argc, char *argv[])
             bsl::cout << "\nUSAGE EXAMPLE"
                          "\n=============" << bsl::endl;
         }
-
-        bsl::ostringstream oss;
-        bsl::streambuf *savedStreambuf_p = bsl::cout.rdbuf();
+        bsl::ostringstream  oss;
+        bsl::streambuf     *savedStreambuf_p = bsl::cout.rdbuf();
         bsl::cout.rdbuf(oss.rdbuf());
 
 ///Usage
@@ -1142,7 +1222,8 @@ int main(int argc, char *argv[])
        "-9223372036854775809",               // INT64_MIN, underflow
        "1.5e27",                             // INT64_MAX, overflow
     };
-    const int NUM_DATA = sizeof(EXAMPLE_DATA) / sizeof(*EXAMPLE_DATA);
+
+    const int NUM_DATA = sizeof EXAMPLE_DATA / sizeof *EXAMPLE_DATA;
 // ```
 // Then, for each number, we first check whether it is a valid JSON Number
 // (note that the behavior for the other methods is undefined unless the text
@@ -1169,7 +1250,7 @@ int main(int argc, char *argv[])
 // Finally, we convert that number to an integer:
 // ```
         bsls::Types::Int64 value;
-        int rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
+        int                rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
 //
         bsl::cout << "  * value: " << value;
 //
@@ -1213,41 +1294,42 @@ int main(int argc, char *argv[])
 
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING: stringify
+        // TESTING: `stringify`
         //   This is a white box test, the methods under test all simply
         //   forward to `NumericFormatterUtil` and `DecimalUtil`
         //
-        //Concerns:
+        // Concerns:
         // 1. That `stringify` correctly renders strings for a range of input.
         //
         // 2. That the resulting numbers can be converted back to an
         //    equivalent in-process representation.
         //
-        //Plan:
-        // 1. For each of the types, create a small set of test data checking
-        //    a range of values.  stringify the input, and verify the expected
+        // Plan:
+        // 1. For each of the types, create a small set of test data checking a
+        //    range of values.  `stringify` the input, and verify the expected
         //    result.  Then convert the string back to the original
         //    representation and verify the round-tripped value is equal to the
         //    original.
         //
         // Testing:
-        //   void stringify(bsl::string *, Int64 );
-        //   void stringify(bsl::string *, Uint64 );
-        //   void stringify(bsl::string *, double );
-        //   void stringify(bsl::string *, const bdldfp::Decimal64& vlue);
+        //   void stringify(bsl::string *, long long);
+        //   void stringify(bsl::string *, unsigned long long);
+        //   void stringify(bsl::string *, double);
+        //   void stringify(bsl::string *, const bdldfp::Decimal64& value);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: stringify"
-                      << "\n==================" << bsl::endl;
+            bsl::cout << "\nTESTING: `stringify`"
+                      << "\n====================" << bsl::endl;
         }
 
-        if (verbose) bsl::cout << "\tTest stringify Int64" << bsl::endl;
+        if (verbose) bsl::cout << "\tTest `stringify` `long long`"
+                               << bsl::endl;
         {
             struct Data {
                 int         d_line;
-                Int64       d_input;
-                const char *d_expected;
+                long long   d_input;
+                const char *d_expected_p;
             } DATA[] = {
                 { L_,                          0,                    "0" },
                 { L_,                         15,                   "15" },
@@ -1261,9 +1343,9 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int    LINE     = DATA[i].d_line;
-                const Int64  INPUT    = DATA[i].d_input;
-                const char  *EXPECTED = DATA[i].d_expected;
+                const int        LINE     = DATA[i].d_line;
+                const long long  INPUT    = DATA[i].d_input;
+                const char      *EXPECTED = DATA[i].d_expected_p;
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(INPUT); P(EXPECTED);
@@ -1274,19 +1356,20 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
 
                 Int64 roundTrip;
-                int rc = Obj::asInt64(&roundTrip, result);
+                int   rc = Obj::asLonglong(&roundTrip, result);
 
                 ASSERTV(LINE, INPUT, rc, roundTrip, result, 0 == rc);
                 ASSERTV(LINE, INPUT, roundTrip, result, roundTrip == INPUT);
             }
         }
 
-        if (verbose) bsl::cout << "\tTest stringify Uint64" << bsl::endl;
+        if (verbose) bsl::cout << "\tTest `stringify` `unsigned long long`"
+                               << bsl::endl;
         {
             struct Data {
-                int         d_line;
-                Uint64      d_input;
-                const char *d_expected;
+                int                 d_line;
+                unsigned long long  d_input;
+                const char         *d_expected_p;
             } DATA[] = {
                 { L_,                          0,                    "0"  },
                 { L_,                         15,                    "15" },
@@ -1298,12 +1381,12 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int     LINE     = DATA[i].d_line;
-                const Uint64  INPUT    = DATA[i].d_input;
-                const char   *EXPECTED = DATA[i].d_expected;
+                const int                 LINE     = DATA[i].d_line;
+                const unsigned long long  INPUT    = DATA[i].d_input;
+                const char               *EXPECTED = DATA[i].d_expected_p;
 
                 if (veryVeryVerbose) {
-                    P_(LINE); P_(INPUT); P(EXPECTED);
+                    P_(LINE) P_(INPUT) P(EXPECTED)
                 }
                 bsl::string result;
                 Obj::stringify(&result, INPUT);
@@ -1311,19 +1394,19 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
 
                 Uint64 roundTrip;
-                int rc = Obj::asUint64(&roundTrip, result);
+                int    rc = Obj::asUlonglong(&roundTrip, result);
 
                 ASSERTV(LINE, INPUT, rc, roundTrip, result, 0 == rc);
                 ASSERTV(LINE, INPUT, roundTrip, result, roundTrip == INPUT);
             }
         }
 
-        if (verbose) bsl::cout << "\tTest stringify double" << bsl::endl;
+        if (verbose) bsl::cout << "\tTest `stringify` `double`" << bsl::endl;
         {
             struct Data {
                 int         d_line;
                 double      d_input;
-                const char *d_expected;
+                const char *d_expected_p;
             } DATA[] = {
                 { L_,                  0,                     "0" },
                 { L_,                 15,                    "15" },
@@ -1343,7 +1426,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int     LINE     = DATA[i].d_line;
                 const double  INPUT    = DATA[i].d_input;
-                const char   *EXPECTED = DATA[i].d_expected;
+                const char   *EXPECTED = DATA[i].d_expected_p;
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(INPUT); P(EXPECTED);
@@ -1360,11 +1443,11 @@ int main(int argc, char *argv[])
         }
 
         if (verbose)
-            bsl::cout << "\tTest stringify bdldfp::Decimal64" << bsl::endl;
+            bsl::cout << "\tTest `stringify` `bdldfp::Decimal64`" << bsl::endl;
         {
             struct Data {
                 int         d_line;
-                const char *d_text;
+                const char *d_text_p;
             } DATA[] = {
                 { L_,                       "0" },
                 { L_,                      "15" },
@@ -1380,8 +1463,8 @@ int main(int argc, char *argv[])
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int     LINE = DATA[i].d_line;
-                const char   *TEXT = DATA[i].d_text;
+                const int   LINE = DATA[i].d_line;
+                const char *TEXT = DATA[i].d_text_p;
 
                 bdldfp::Decimal64 INPUT;
 
@@ -1402,11 +1485,11 @@ int main(int argc, char *argv[])
       } break;
       case 11: {
         // --------------------------------------------------------------------
-        // TESTING: as[Ui|I]nt[64]
+        // TESTING: `as[Ui|I]nt[64]`
         //   This is a white box test, the methods under test all simply
         //   forward to `asInteger` which was previously tested.
         //
-        //Concerns:
+        // Concerns:
         // 1. That `asInt`, `asUint`, and `asInt64` delegate to `asInteger`
         //    correctly.
         //
@@ -1415,7 +1498,7 @@ int main(int argc, char *argv[])
         //
         // 3. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. For each of the types, create a small set of test data checking
         //    all possible error codes, and the boundaries of the
         //    representable range of the type.  Verify the expected results
@@ -1425,23 +1508,110 @@ int main(int argc, char *argv[])
         //    triggered when.
         //
         // Testing:
-        //   int asInt(int *, const bsl::string_view& );
-        //   int asUint(unsigned int *, const bsl::string_view& );
-        //   int asInt64(Int64 *, const bsl::string_view& );
+        //   int asShort(short *, const bsl::string_view&);
+        //   int asInt(int *, const bsl::string_view&);
+        //   int asLong(long *, const bsl::string_view&);
+        //   int asLonglong(long long *, const bsl::string_view&);
+        //   int asInt64(Int64 *, const bsl::string_view&);
+        //   int asUshort(unsigned short *, const bsl::string_view&);
+        //   int asUint(unsigned int *, const bsl::string_view&);
+        //   int asUlong(unsigned long *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: as[Ui|I]nt[64]"
-                      << "\n=======================" << bsl::endl;
+            bsl::cout << "\nTESTING: `as[Ui|I]nt[64]`"
+                      << "\n=========================" << bsl::endl;
         }
 
-        if (verbose) bsl::cout << "\tTest asInt" << bsl::endl;
+        if (verbose) bsl::cout << "\tTest `asShort`" << bsl::endl;
+        {
+            struct Data {
+                int         d_line;
+                int         d_expectedRc;
+                short       d_expected;
+                const char *d_input_p;
+            } DATA[] = {
+                { L_,      OK,                  0,                    "0" },
+                { L_,      OK,                  0,              "-0.0000" },
+                { L_,      OK,                 15,                   "15" },
+                { L_,      OK,                -15,                  "-15" },
+                { L_,      OK,                100,                  "1e2" },
+
+                    // boundary checks
+                { L_,      OK,         32767,                "32767" },
+                { L_,   EOVER,         32767,                "32768" },
+                { L_,      OK,        -32768,               "-32768" },
+                { L_,  EUNDER,        -32768,               "-32769" },
+
+                    // fraction
+                { L_, ENOTINT,                  1,                "15e-1" }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE     = DATA[i].d_line;
+                const int   EXPRC    = DATA[i].d_expectedRc;
+                const int   EXPECTED = DATA[i].d_expected;
+                const char *INPUT    = DATA[i].d_input_p;
+
+                if (veryVeryVerbose) {
+                    P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
+                }
+                short result;
+                int   rc = Obj::asShort(&result, INPUT);
+
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
+                ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
+            }
+        }
+
+        if (verbose) bsl::cout << "\tTest `asUshort`" << bsl::endl;
+        {
+            struct Data {
+                int             d_line;
+                int             d_expectedRc;
+                unsigned short  d_expected;
+                const char     *d_input_p;
+            } DATA[] = {
+                { L_,      OK,                  0U,                   "0" },
+                { L_,      OK,                  0U,             "-0.0000" },
+                { L_,      OK,                 15U,                  "15" },
+                { L_,      OK,                100U,                 "1e2" },
+
+                    // boundary checks
+                { L_,      OK,              65535U,               "65535" },
+                { L_,   EOVER,              65535U,               "65536" },
+                { L_,  EUNDER,                  0U,                  "-1" },
+
+                    // fraction
+                { L_, ENOTINT,                  1U,               "15e-1" }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int           LINE     = DATA[i].d_line;
+                const int           EXPRC    = DATA[i].d_expectedRc;
+                const unsigned int  EXPECTED = DATA[i].d_expected;
+                const char         *INPUT    = DATA[i].d_input_p;
+
+                if (veryVeryVerbose) {
+                    P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
+                }
+                unsigned short result;
+                int            rc = Obj::asUshort(&result, INPUT);
+
+                ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
+            }
+        }
+
+        if (verbose) bsl::cout << "\tTest `asInt`" << bsl::endl;
         {
             struct Data {
                 int         d_line;
                 int         d_expectedRc;
                 int         d_expected;
-                const char *d_input;
+                const char *d_input_p;
             } DATA[] = {
                 { L_,      OK,                  0,                    "0" },
                 { L_,      OK,                  0,              "-0.0000" },
@@ -1456,15 +1626,15 @@ int main(int argc, char *argv[])
                 { L_,  EUNDER,        -2147483647-1,        "-2147483649" },
 
                     // fraction
-                { L_, ENOTINT,                  1,                "15e-1" },
+                { L_, ENOTINT,                  1,                "15e-1" }
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const int  EXPRC   = DATA[i].d_expectedRc;
-                const int  EXPECTED = DATA[i].d_expected;
-                const char *INPUT = DATA[i].d_input;
+                const int   LINE     = DATA[i].d_line;
+                const int   EXPRC    = DATA[i].d_expectedRc;
+                const int   EXPECTED = DATA[i].d_expected;
+                const char *INPUT    = DATA[i].d_input_p;
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
@@ -1472,19 +1642,18 @@ int main(int argc, char *argv[])
                 int result;
                 int rc = Obj::asInt(&result, INPUT);
 
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
                 ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
-                ASSERTV(LINE, INPUT, EXPRC, rc, EXPRC == rc);
-
             }
         }
 
-        if (verbose) bsl::cout << "\tTest asUint" << bsl::endl;
+        if (verbose) bsl::cout << "\tTest `asUint`" << bsl::endl;
         {
             struct Data {
                 int           d_line;
                 int           d_expectedRc;
                 unsigned int  d_expected;
-                const char   *d_input;
+                const char   *d_input_p;
             } DATA[] = {
                 { L_,      OK,                  0U,                   "0" },
                 { L_,      OK,                  0U,             "-0.0000" },
@@ -1497,68 +1666,233 @@ int main(int argc, char *argv[])
                 { L_,  EUNDER,                  0U,                  "-1" },
 
                     // fraction
-                { L_, ENOTINT,                  1U,               "15e-1" },
+                { L_, ENOTINT,                  1U,               "15e-1" }
             };
-            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int           LINE     = DATA[i].d_line;
                 const int           EXPRC    = DATA[i].d_expectedRc;
                 const unsigned int  EXPECTED = DATA[i].d_expected;
-                const char         *INPUT    = DATA[i].d_input;
+                const char         *INPUT    = DATA[i].d_input_p;
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
                 }
                 unsigned int result;
-                int rc = Obj::asUint(&result, INPUT);
+                int          rc = Obj::asUint(&result, INPUT);
 
                 ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
-                ASSERTV(LINE, INPUT, EXPRC, rc, EXPRC == rc);
-
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
             }
         }
 
-        if (verbose) bsl::cout << "\tTest asInt64" << bsl::endl;
+        if (verbose) bsl::cout << "\tTest `asLong`" << bsl::endl;
+        {
+            const long k_MAX = bsl::numeric_limits<long>::max();
+
+            const char *const s_MAX_32_OK    =           "2147483647";
+            const char *const s_MAX_32_OVER  =           "2147483648";
+            const char *const s_MIN_32_OK    =          "-2147483648";
+            const char *const s_MIN_32_UNDER =          "-2147483649";
+                                                                // |
+
+            const char *const s_MAX_64_OK    =  "9223372036854775807";
+            const char *const s_MAX_64_OVER  =  "9223372036854775808";
+            const char *const s_MIN_64_OK    = "-9223372036854775808";
+            const char *const s_MIN_64_UNDER = "-9223372036854775809";
+                                                                // |
+            const bool        IS_LP64 = sizeof(long) == sizeof(long long);
+
+            if (veryVeryVerbose) {
+                P(IS_LP64)
+            }
+
+            const char *const s_MAX_OK    = IS_LP64
+                                          ? s_MAX_64_OK
+                                          : s_MAX_32_OK;
+
+            const char *const s_MAX_OVER  = IS_LP64
+                                          ? s_MAX_64_OVER
+                                          : s_MAX_32_OVER;
+
+            const char *const s_MIN_OK    = IS_LP64
+                                          ? s_MIN_64_OK
+                                          : s_MIN_32_OK;
+
+            const char *const s_MIN_UNDER = IS_LP64
+                                          ? s_MIN_64_UNDER
+                                          : s_MIN_32_UNDER;
+
+            struct Data {
+                int         d_line;
+                int         d_expectedRc;
+                long        d_expected;
+                const char *d_input_p;
+            } DATA[] = {
+                { L_,      OK,                 0L,                    "0" },
+                { L_,      OK,                 0L,              "-0.0000" },
+                { L_,      OK,                15L,                   "15" },
+                { L_,      OK,               -15L,                  "-15" },
+                { L_,      OK,               100L,                  "1e2" },
+
+                    // boundary checks
+                { L_,      OK,              k_MAX,            s_MAX_OK    },
+                { L_,   EOVER,              k_MAX,            s_MAX_OVER  },
+                { L_,      OK,             -k_MAX-1,          s_MIN_OK    },
+                { L_,  EUNDER,             -k_MAX-1,          s_MIN_UNDER },
+
+                    // fraction
+                { L_, ENOTINT,                 1L,                "15e-1" }
+
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int   LINE     = DATA[i].d_line;
+                const int   EXPRC    = DATA[i].d_expectedRc;
+                const long  EXPECTED = DATA[i].d_expected;
+                const char *INPUT    = DATA[i].d_input_p;
+
+                if (veryVeryVerbose) {
+                    P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
+                }
+                long result;
+                int  rc = Obj::asLong(&result, INPUT);                  // TEST
+
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
+                ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
+            }
+        }
+
+        if (verbose) bsl::cout << "\tTest `asUlong`" << bsl::endl;
+        {
+            const unsigned long k_MAX = bsl::numeric_limits<unsigned long>
+                                           ::max();
+            const unsigned long k_MIN = bsl::numeric_limits<unsigned long>
+                                           ::min();
+            ASSERTV(k_MIN, 0UL == k_MIN);
+
+            const char *const s_MAX_32_OK    =           "4294967295";
+            const char *const s_MAX_32_OVER  =           "4294967296";
+            const char *const s_MIN_32_OK    =                    "0";
+            const char *const s_MIN_32_UNDER =                   "-1";
+                                                                // |
+
+            const char *const s_MAX_64_OK    = "18446744073709551615";
+            const char *const s_MAX_64_OVER  = "18446744073709551616";
+            const char *const s_MIN_64_OK    =                    "0";
+            const char *const s_MIN_64_UNDER =                   "-1";
+                                                                // |
+
+            const bool        IS_LP64 = sizeof(unsigned long) ==
+                                        sizeof(unsigned long long);
+
+            if (veryVeryVerbose) {
+                P(IS_LP64)
+            }
+
+            const char *const s_MAX_OK    = IS_LP64
+                                          ? s_MAX_64_OK
+                                          : s_MAX_32_OK;
+
+            const char *const s_MAX_OVER  = IS_LP64
+                                          ? s_MAX_64_OVER
+                                          : s_MAX_32_OVER;
+
+            const char *const s_MIN_OK    = IS_LP64
+                                          ? s_MIN_64_OK
+                                          : s_MIN_32_OK;
+
+            const char *const s_MIN_UNDER = IS_LP64
+                                          ? s_MIN_64_UNDER
+                                          : s_MIN_32_UNDER;
+
+            struct Data {
+                int            d_line;
+                int            d_expectedRc;
+                unsigned long  d_expected;
+                const char    *d_input_p;
+            } DATA[] = {
+                { L_,      OK,                 0UL,                   "0" },
+                { L_,      OK,                 0UL,             "-0.0000" },
+                { L_,      OK,                15UL,                  "15" },
+                { L_,      OK,               100UL,                 "1e2" },
+
+                    // boundary checks
+                { L_,      OK,               k_MAX,           s_MAX_OK    },
+                { L_,   EOVER,               k_MAX,           s_MAX_OVER  },
+                { L_,      OK,               k_MIN,           s_MIN_OK    },
+                { L_,  EUNDER,               k_MIN,           s_MIN_UNDER },
+
+                    // fraction
+                { L_, ENOTINT,                 1UL,               "15e-1" }
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int            LINE     = DATA[i].d_line;
+                const int            EXPRC    = DATA[i].d_expectedRc;
+                const unsigned long  EXPECTED = DATA[i].d_expected;
+                const char          *INPUT    = DATA[i].d_input_p;
+
+                if (veryVeryVerbose) {
+                    P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
+                }
+                unsigned long result;
+                int           rc = Obj::asUlong(&result, INPUT);        // TEST
+
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
+                ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
+            }
+        }
+
+        if (verbose) bsl::cout << "\tTest `asInt64`/`asLonglong`" << bsl::endl;
         {
             struct Data {
                 int         d_line;
                 int         d_expectedRc;
                 Int64       d_expected;
-                const char *d_input;
+                const char *d_input_p;
             } DATA[] = {
-        { L_,      OK,                  0,                    "0" },
-        { L_,      OK,                  0,              "-0.0000" },
-        { L_,      OK,                 15,                   "15" },
-        { L_,      OK,                -15,                  "-15" },
-        { L_,      OK,                100,                  "1e2" },
+            { L_,      OK,                  0,                    "0" },
+            { L_,      OK,                  0,              "-0.0000" },
+            { L_,      OK,                 15,                   "15" },
+            { L_,      OK,                -15,                  "-15" },
+            { L_,      OK,                100,                  "1e2" },
 
-                    // boundary checks
-        { L_,     OK,  9223372036854775807LL,      "9223372036854775807" },
-        { L_,  EOVER,  9223372036854775807LL,      "9223372036854775808" },
-        { L_,     OK, -9223372036854775807LL - 1, "-9223372036854775808" },
-        { L_, EUNDER, -9223372036854775807LL - 1, "-9223372036854775809" },
+                        // boundary checks
+            { L_,     OK,  9223372036854775807LL,  "9223372036854775807" },
+            { L_,  EOVER,  9223372036854775807LL,  "9223372036854775808" },
+            { L_,     OK, -9223372036854775807LL - 1, "-9223372036854775808" },
+            { L_, EUNDER, -9223372036854775807LL - 1, "-9223372036854775809" },
 
-                   // fraction
-        { L_, ENOTINT,                  1,                "15e-1" },
+                       // fraction
+            { L_, ENOTINT,                  1,                "15e-1" },
             };
             const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
             for (int i = 0; i < NUM_DATA; ++i) {
-                const int   LINE  = DATA[i].d_line;
-                const int   EXPRC   = DATA[i].d_expectedRc;
+                const int   LINE     = DATA[i].d_line;
+                const int   EXPRC    = DATA[i].d_expectedRc;
                 const Int64 EXPECTED = DATA[i].d_expected;
-                const char *INPUT = DATA[i].d_input;
+                const char *INPUT    = DATA[i].d_input_p;
 
                 if (veryVeryVerbose) {
                     P_(LINE); P_(INPUT); P_(EXPRC); P(EXPECTED);
                 }
+
                 Int64 result;
-                int rc = Obj::asInt64(&result, INPUT);
+                int   rc = Obj::asInt64(&result, INPUT);                // TEST
 
+                long long resultLL;
+                int       rcLL = Obj::asLonglong(&resultLL, INPUT);     // TEST
+
+                ASSERTV(LINE, INPUT, EXPRC,    rc,     EXPRC    == rc);
                 ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
-                ASSERTV(LINE, INPUT, EXPRC, rc, EXPRC == rc);
 
+                ASSERTV(LINE, rc,         rcLL, rc     ==     rcLL);
+                ASSERTV(LINE, result, resultLL, result == resultLL);
             }
         }
 
@@ -1584,11 +1918,11 @@ int main(int argc, char *argv[])
       } break;
       case 10: {
         // --------------------------------------------------------------------
-        // TESTING: asInteger
+        // TESTING: `asInteger`
         //   This is a white box test. `asInteger` delegates to `asUint64` and
         //   then performs appropriate bounds checks for the result type.
         //
-        //Concerns:
+        // Concerns:
         // 1. For integers between bsl::numeric_limits<T> min and max,
         //    that number and a status of 0 are returned.
         //
@@ -1609,7 +1943,7 @@ int main(int argc, char *argv[])
         //
         // 7. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. Use the `bsltf_templatetestfacility` to apply the test over
         //    a range of signed and unsigned integral types.  For a test table
         //    that tests a range of varied input, compute the expected result
@@ -1624,12 +1958,12 @@ int main(int argc, char *argv[])
         //    triggered when.
         //
         // Testing:
-        //   int asInteger(t_INTEGER_TYPE *, const bsl::string_view& );
+        //   int asInteger(t_INTEGER_TYPE *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: asInteger"
-                      << "\n==================" << bsl::endl;
+            bsl::cout << "\nTESTING: `asInteger`"
+                      << "\n====================" << bsl::endl;
         }
         if (verbose)
             bsl::cout << "\tUse the template test facility" << bsl::endl;
@@ -1637,9 +1971,9 @@ int main(int argc, char *argv[])
 #define INTEGRAL_TYPES char, unsigned char, short, unsigned short, int, \
         unsigned int, long, unsigned long, long long, unsigned long long
 
-        BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(AsIntegralTest,
-                                                 testCase10,
-                                                 INTEGRAL_TYPES);
+            BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE(AsIntegralTest,
+                                                     testCase10,
+                                                     INTEGRAL_TYPES);
 #undef INTEGRAL_TYPES
         }
 
@@ -1655,9 +1989,9 @@ int main(int argc, char *argv[])
 
       case 9: {
         // --------------------------------------------------------------------
-        // TESTING: isIntegerNumber
+        // TESTING: `isIntegerNumber`
         //
-        //Concerns:
+        // Concerns:
         // 1. That `isIntegerNumber` returns `true` when the text supplied for
         //    the arguments represents an integer, and `false` otherwise.
         //
@@ -1678,7 +2012,7 @@ int main(int argc, char *argv[])
         //
         // 7. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. For a test table that tests a range of varied input,
         //    verify that `isIntegerNumber` returns the expected value.
         //
@@ -1694,12 +2028,12 @@ int main(int argc, char *argv[])
         //    triggered when.
         //
         // Testing:
-        //   bool isIntegralNumber(const bsl::string_view& );
+        //   bool isIntegralNumber(const bsl::string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: isIntegerNumber"
-                      << "\n========================" << bsl::endl;
+            bsl::cout << "\nTESTING: `isIntegerNumber`"
+                      << "\n==========================" << bsl::endl;
         }
 
         if (verbose) {
@@ -1713,7 +2047,7 @@ int main(int argc, char *argv[])
         struct Data {
             int         d_line;
             bool        d_isInteger;
-            const char *d_input;
+            const char *d_input_p;
         } DATA[] = {
             { L_, T,                         "0" },
             { L_, T,                        "-0" },
@@ -1755,8 +2089,8 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE  = DATA[i].d_line;
-            const bool   EXP   = DATA[i].d_isInteger;
-            const char *INPUT = DATA[i].d_input;
+            const bool  EXP   = DATA[i].d_isInteger;
+            const char *INPUT = DATA[i].d_input_p;
 
             if (veryVeryVerbose) {
                 P_(LINE); P_(INPUT); P(EXP);
@@ -1780,12 +2114,12 @@ int main(int argc, char *argv[])
         }
 
         if (verbose) {
-          bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
+            bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE  = DATA[i].d_line;
             const bool  EXP   = DATA[i].d_isInteger;
-            const char *INPUT = DATA[i].d_input;
+            const char *INPUT = DATA[i].d_input_p;
 
             if (veryVeryVerbose) {
                 P_(LINE); P_(INPUT); P(EXP);
@@ -1797,13 +2131,13 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string>::const_iterator it =
                                                         equivalentData.begin();
             for (; it != equivalentData.end(); ++it) {
-              const bsl::string& input = *it;
-              if (veryVeryVerbose) {
-                  bsl::cout << "   ";
-                  P_(LINE); P_(INPUT); P(input.size());
+                const bsl::string& input = *it;
+                if (veryVeryVerbose) {
+                    bsl::cout << "   ";
+                    P_(LINE); P_(INPUT); P(input.size());
+                }
+                ASSERTV(LINE, EXP, EXP == Obj::isIntegralNumber(input));
               }
-              ASSERTV(LINE, EXP, EXP == Obj::isIntegralNumber(input));
-            }
         }
 
         if (verbose) bsl::cout << "\tNegative Testing." << bsl::endl;
@@ -1818,9 +2152,9 @@ int main(int argc, char *argv[])
       } break;
       case 8: {
         // --------------------------------------------------------------------
-        // TESTING: areEqual
+        // TESTING: `areEqual`
         //
-        //Concerns:
+        // Concerns:
         // 1. That `areEqual` returns `true` when the text supplied for
         //    the arguments is the same.
         //
@@ -1833,12 +2167,12 @@ int main(int argc, char *argv[])
         // 4. That `areEqual` returns textual equality if the exponent of one
         //    of the values cannot be represented in a 64-bit integer.
         //
-        // 6. That `areEqual` correctly handles very large numbers of digits in
-        //  the representation or exponent.
+        // 5. That `areEqual` correctly handles very large numbers of digits in
+        //    the representation or exponent.
         //
-        // 5. QoI: Asserted precondition violations are detected when enabled.
+        // 6. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. For a test table that tests a range of varied input broken down
         //    into equivalence groups, perform a double-nested iteration,
         //    comparing values in the test table against each other using the
@@ -1851,18 +2185,18 @@ int main(int argc, char *argv[])
         // 2. For the JSONTestSuite number data, for those numbers that are
         //    valid, perform a double-nested iteration comparing values
         //    against each other.  Use the iterator position and
-        //    `asDecimal64[Exact]` to determine the expected result.
+        //   `asDecimal64[Exact]` to determine the expected result.
         //
         // 4. Verify that, in appropriate build modes, defensive checks are
         //    triggered when.
         //
         // Testing:
-        //   bool areEqual(const string_view& , const string_view& );
+        //   bool areEqual(const string_view& , const string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: areEqual"
-                      << "\n=================" << bsl::endl;
+            bsl::cout << "\nTESTING: `areEqual`"
+                      << "\n===================" << bsl::endl;
         }
 
         if (verbose) {
@@ -1873,7 +2207,7 @@ int main(int argc, char *argv[])
         struct Data {
             int         d_line;              // line
             int         d_equalityGroup;     // group of equal numbers
-            const char *d_input;             // input text
+            const char *d_input_p;           // input text
         } DATA[] = {
             { L_,     0,                         "0" },
             { L_,     0,                        "-0" },
@@ -1922,12 +2256,12 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LHS_LINE  = DATA[i].d_line;
             const int   LHS_GROUP = DATA[i].d_equalityGroup;
-            const char *LHS       = DATA[i].d_input;
+            const char *LHS       = DATA[i].d_input_p;
 
             for (int j = 0; j < NUM_DATA; ++j) {
                 const int   RHS_LINE  = DATA[j].d_line;
                 const int   RHS_GROUP = DATA[j].d_equalityGroup;
-                const char *RHS       = DATA[j].d_input;
+                const char *RHS       = DATA[j].d_input_p;
 
                 bool EXP = RHS_GROUP == LHS_GROUP;
 
@@ -1956,30 +2290,34 @@ int main(int argc, char *argv[])
                 }
             }
         }
-        if (verbose) cout << "\tTest JSONSuite Test Data\n";
-        typedef bsl::string_view StVw;
+        if (verbose) {
+            bsl::cout << "\tTest JSONSuite Test Data"
+                      << bsl::endl;
+        }
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const bool  L_LINE  = JSON_SUITE_DATA[i].d_line;
-            const bool  L_VALID = JSON_SUITE_DATA[i].d_isValid;
-            const StVw& L_INPUT = JSON_SUITE_DATA[i].d_input;
-            const StVw& L_NAME  = JSON_SUITE_DATA[i].d_testName;
+            const bool  L_EXP   = JSON_SUITE_DATA[i].d_isValid;
+            const char *L_INPUT = JSON_SUITE_DATA[i].d_input.data();
+            const char *L_NAME  = JSON_SUITE_DATA[i].d_testName.data();
 
-            if (!L_VALID) {  // Ignore invalid JSON numbers.
+            if (veryVerbose) {
+                T_ P_(L_EXP) P_(L_INPUT) P(L_NAME)
+            }
+
+            if (!L_EXP) {  // Ignore invalid JSON numbers.
                 continue;                                           // CONTINUE
             }
 
             for (int j = 0; j < NUM_JSON_SUITE_DATA; ++j) {
-                const bool  R_LINE  = JSON_SUITE_DATA[j].d_line;
-                const bool  R_VALID = JSON_SUITE_DATA[j].d_isValid;
-                const StVw& R_INPUT = JSON_SUITE_DATA[j].d_input;
-                const StVw& R_NAME  = JSON_SUITE_DATA[j].d_testName;
-                if (!R_VALID) {  // Ignore invalid JSON numbers.
-                    continue;                                       // CONTINUE
-                }
+                const bool  R_EXP   = JSON_SUITE_DATA[j].d_isValid;
+                const char *R_INPUT = JSON_SUITE_DATA[j].d_input.data();
+                const char *R_NAME  = JSON_SUITE_DATA[j].d_testName.data();
 
                 if (veryVerbose) {
-                    P_(L_LINE) P_(L_VALID) P_(L_INPUT) P(L_NAME);
-                    P_(R_LINE) P_(R_VALID) P_(R_INPUT) P(R_NAME);
+                    T_ T_ P_(R_EXP) P_(R_INPUT) P(R_NAME)
+                }
+
+                if (!R_EXP) {  // Ignore invalid JSON numbers.
+                    continue;                                       // CONTINUE
                 }
 
                 // We must jump through some hoops to determine the expected
@@ -1989,16 +2327,16 @@ int main(int argc, char *argv[])
                 // representation (both convert to 0).  The logic here assumes
                 // that the test data does *not* include two different test
                 // points that are numerically equal but do not convert to a
-                // Decimal64 exactly (a property we manually verified).
+                // `Decimal64` exactly (a property we manually verified).
 
                 bdldfp::Decimal64 junk;
-                const bool bothAreExact =
-                                    0 == Obj::asDecimal64Exact(&junk, L_INPUT)
-                                 && 0 == Obj::asDecimal64Exact(&junk, R_INPUT);
 
-                const bool expected = (i == j) || (bothAreExact &&
-                                                Obj::asDecimal64(L_INPUT) ==
-                                                    Obj::asDecimal64(R_INPUT));
+                bool lhsIsExact = 0 == Obj::asDecimal64Exact(&junk, L_INPUT);
+                bool rhsIsExact = 0 == Obj::asDecimal64Exact(&junk, R_INPUT);
+
+                bool expected = (i == j) || (lhsIsExact && rhsIsExact &&
+                                             Obj::asDecimal64(L_INPUT) ==
+                                                 Obj::asDecimal64(R_INPUT));
 
                 ASSERTV(i, j, L_INPUT, R_INPUT, L_NAME, R_NAME, expected,
                         expected == Obj::areEqual(L_INPUT, R_INPUT));
@@ -2016,13 +2354,13 @@ int main(int argc, char *argv[])
       } break;
       case 7: {
         // --------------------------------------------------------------------
-        // TESTING: asDecimal64
+        // TESTING: `asDecimal64`
         //   This is a white box test. `asDecimal64` delegates to
         //   `DecimalUtil` which we assume to be correct.  This
         //   test primarily looks for edge cases in the JSON number
-        //   specification that might result in strtod reporting an error.
+        //   specification that might result in `strtod` reporting an error.
         //
-        //Concerns:
+        // Concerns:
         // 1. That `asDecimal64[Exact]` returns the closest decimal floating
         //    point representation of the input text.
         //
@@ -2046,7 +2384,7 @@ int main(int argc, char *argv[])
         //
         // 7. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. For a test table that tests a range of varied input,
         //    verify that `asDecimal64[Exact]` returns the expected result,
         //    and, in addition, `asDecimal64Exact` returns the expected status.
@@ -2067,13 +2405,13 @@ int main(int argc, char *argv[])
         //    triggered when.
         //
         // Testing:
-        //   bdldfp::Decimal64 asDecimal64(const bsl::string_view& );
-        //   int asDecimal64Exact(Decimal64 *, const bsl::string_view&  );
+        //   bdldfp::Decimal64 asDecimal64(const bsl::string_view&);
+        //   int asDecimal64Exact(Decimal64 *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: asDecimal"
-                      << "\n==================" << bsl::endl;
+            bsl::cout << "\nTESTING: `asDecimal64`"
+                      << "\n======================" << bsl::endl;
         }
 
         const int k_INE = Obj::k_INEXACT;
@@ -2082,14 +2420,14 @@ int main(int argc, char *argv[])
         struct Data {
             int         d_line;
             int         d_status;
-            const char *d_input;
+            const char *d_input_p;
         } DATA[] = {
             { L_,     0,                       "0" },
             { L_,     0,                      "-0" },
             { L_,     0,                     "0.0" },
             { L_,     0,                  "0.0000" },
 
-// The following tests are disabled because of an issue in the inteldfp
+// The following tests are disabled because of an issue in the `inteldfp`
 // library.  See note in the implementation.
 //            { L_,     0,           "0.0000e100000" },
 //            { L_,     0,             "0.0e-100000" },
@@ -2143,7 +2481,7 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE   = DATA[i].d_line;
-            const char *INPUT  = DATA[i].d_input;
+            const char *INPUT  = DATA[i].d_input_p;
             const int   STATUS = DATA[i].d_status;
 
             // This is a sanity check that our test data is correct.
@@ -2198,11 +2536,11 @@ int main(int argc, char *argv[])
             }
         }
         if (verbose) {
-          bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
+            bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE   = DATA[i].d_line;
-            const char *INPUT  = DATA[i].d_input;
+            const char *INPUT  = DATA[i].d_input_p;
             const int   STATUS = DATA[i].d_status;
 
             if (veryVerbose) {
@@ -2210,8 +2548,9 @@ int main(int argc, char *argv[])
             }
 
             bdldfp::Decimal64 EXPECTED;
-            int rc = bdldfp::DecimalUtil::parseDecimal64(&EXPECTED, INPUT);
-
+            int               rc = bdldfp::DecimalUtil::parseDecimal64(
+                                                                     &EXPECTED,
+                                                                     INPUT);
             ASSERTV(rc, 0 == rc);
 
             bsl::vector<bsl::string> equivalentData;
@@ -2229,7 +2568,7 @@ int main(int argc, char *argv[])
                 bdldfp::Decimal64 result = Obj::asDecimal64(input);
                 ASSERTV(LINE, EXPECTED, result, EXPECTED == result);
                 if (result == bdldfp::Decimal64(0)) {
-                    // There is a known issue with the inteldfp library
+                    // There is a known issue with the `inteldfp` library
                     // incorrectly returning INEXACT for 0 with large or small
                     // exponents.
 
@@ -2245,25 +2584,28 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tTest JSONSuite Test Data\n";
-        typedef bsl::string_view StVw;
+        if (verbose) {
+            bsl::cout << "\tTest JSONSuite Test Data"
+                      << bsl::endl;
+        }
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
             const int   LINE      = JSON_SUITE_DATA[i].d_line;
             const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
             const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
-            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
-            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
-
-            if (!VALID) {  // Ignore invalid JSON numbers.
-                continue;                                           // CONTINUE
-            }
+            const char *INPUT     = JSON_SUITE_DATA[i].d_input.data();
+            const char *NAME      = JSON_SUITE_DATA[i].d_testName.data();
 
             if (veryVerbose) {
                 P_(LINE) P_(VALID) P_(RANGE_ERR) P_(INPUT) P(NAME);
             }
 
-            double  expected;
-            int rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
+            if (!VALID) {
+                // Ignore invalid JSON numbers.
+                continue;                                           // CONTINUE
+            }
+
+            double expected;
+            int    rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
             ASSERTV(LINE, INPUT, 0 == rc || (RANGE_ERR && ERANGE == rc));
 
             bdldfp::Decimal64 result;
@@ -2286,14 +2628,14 @@ int main(int argc, char *argv[])
       } break;
       case 6: {
         // --------------------------------------------------------------------
-        // TESTING: asDouble, asFloat
+        // TESTING: `asDouble`, `asFloat`
         //   This is a white box test. `asDouble` delegates to
         //   NumericParseUtil, which delegates to the standard library, which
         //   we assume to be correct.  This test primarily looks for edge cases
-        //   in the JSON number specification that might result in strtod
+        //   in the JSON number specification that might result in `strtod`
         //   reporting an error.
         //
-        //Concerns:
+        // Concerns:
         // 1. That `asDouble` returns the closest binary floating point
         //    representation of the input text.
         //
@@ -2303,12 +2645,12 @@ int main(int argc, char *argv[])
         // 3. That `asDouble` returns +INF and -INF if the input is outside of
         //    the range that can be represented by a `double`.
         //
-        // 4. That `asFloat` returns the same value as `asDouble` casted to a
-        //    `float`.
+        // 4. That `asFloat` returns the same value as `asDouble` cast to a
+        //   `float`.
         //
         // 5. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. For a test table that tests a range of varied input,
         //    verify that `asDouble` returns the expected value.
         //
@@ -2328,13 +2670,13 @@ int main(int argc, char *argv[])
         //    triggered when.
         //
         // Testing:
-        //   float asFloat(const bsl::string_view& );
-        //   double asDouble(const bsl::string_view& );
+        //   float asFloat(const bsl::string_view&);
+        //   double asDouble(const bsl::string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: asDouble, asFloat"
-                      << "\n==========================" << bsl::endl;
+            bsl::cout << "\nTESTING: `asDouble`, `asFloat`"
+                      << "\n==============================" << bsl::endl;
         }
 
         const double k_BIG_INT =
@@ -2348,7 +2690,7 @@ int main(int argc, char *argv[])
 
         struct Data {
             int         d_line;
-            const char *d_input;
+            const char *d_input_p;
             double      d_result;
         } DATA[] = {
             { L_,                        "0",             0 },
@@ -2391,6 +2733,7 @@ int main(int argc, char *argv[])
             { L_, "-1797693134862316E+99999",        -k_INF },
             { L_,             "2.22500E-308",             0 },
             { L_,            "-2.22500E-308",             0 }
+
         };
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
@@ -2400,7 +2743,7 @@ int main(int argc, char *argv[])
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int              LINE     = DATA[i].d_line;
-            const char            *INPUT    = DATA[i].d_input;
+            const char            *INPUT    = DATA[i].d_input_p;
             const volatile double  EXPECTED = DATA[i].d_result;
 
             if (veryVerbose) {
@@ -2426,25 +2769,25 @@ int main(int argc, char *argv[])
             for (; it != equivalentData.end(); ++it) {
                 const bsl::string& input = *it;
                 if (veryVeryVerbose) {
-                    bsl::cout << "   ";
-                    P_(LINE); P(input);
-                    }
-                    volatile double result = Obj::asDouble(input);
+                        bsl::cout << "   ";
+                        P_(LINE); P(input);
+                }
+                volatile double result = Obj::asDouble(input);
 
-                    ASSERTV(LINE, input, EXPECTED, result,
+                ASSERTV(LINE, input, EXPECTED, result,
                             fuzzyCompare(EXPECTED, result));
 
-                  volatile float fR = Obj::asFloat(input);
-                  ASSERTV(LINE, input, fR == static_cast<float>(result));
-                }
+                volatile float fR = Obj::asFloat(input);
+                ASSERTV(LINE, input, fR == static_cast<float>(result));
+            }
         }
 
         if (verbose) {
-          bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
+            bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int              LINE     = DATA[i].d_line;
-            const char            *INPUT    = DATA[i].d_input;
+            const char            *INPUT    = DATA[i].d_input_p;
             const volatile double  EXPECTED = DATA[i].d_result;
 
             if (veryVerbose) {
@@ -2457,10 +2800,10 @@ int main(int argc, char *argv[])
             // Both MSVC and MacOS have limits to the number of digits that can
             // be handled by the standard library `strtod` or `from_chars` used
             // by `parseDouble`, thus limiting the size of the possible input
-            // data to only a few thousand characters.  The limit for the
-            // for `strtod` on MacOS is 19,999 digits as of MacOS Monterey 12.6
-            // and Apple clang version 14.0.0.  `from_chars` from MSVC limits
-            // the accepted exponent value range (instead of string length).
+            // data to only a few thousand characters.  The limit for the for
+            // `strtod` on MacOS is 19,999 digits as of MacOS Monterey 12.6 and
+            // Apple clang version 14.0.0.  `from_chars` from MSVC limits the
+            // accepted exponent value range (instead of string length).
             generateEquivalenceSet(&equivalentData, -2000, -1999, INPUT);
             generateEquivalenceSet(&equivalentData,  1999,  2000, INPUT);
 
@@ -2478,29 +2821,30 @@ int main(int argc, char *argv[])
                         fuzzyCompare(EXPECTED, result));
             }
         }
-        if (verbose) cout << "\tTest JSONSuite Test Data\n";
-        typedef bsl::string_view StVw;
+        if (verbose) {
+            bsl::cout << "\tTest JSONSuite Test Data"
+                      << bsl::endl;
+        }
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
             const int   LINE      = JSON_SUITE_DATA[i].d_line;
             const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
             const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
-            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
-            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
-
-            if (!VALID) {  // Ignore invalid JSON numbers.
-                continue;                                           // CONTINUE
-            }
+            const char *INPUT     = JSON_SUITE_DATA[i].d_input.data();
+            const char *NAME      = JSON_SUITE_DATA[i].d_testName.data();
 
             if (veryVerbose) {
                 P_(LINE) P_(VALID) P_(RANGE_ERR) P_(INPUT) P(NAME);
             }
 
+            if (!VALID) {  // Ignore invalid JSON numbers.
+                continue;                                           // CONTINUE
+            }
+
             double result, expected;
-            int rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
-
+            int    rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
             ASSERTV(LINE, INPUT, 0 == rc || (RANGE_ERR && ERANGE == rc));
-            result = Obj::asDouble(INPUT);
 
+            result = Obj::asDouble(INPUT);
             ASSERTV(LINE, NAME, INPUT, expected, result, expected == result);
         }
 
@@ -2514,30 +2858,33 @@ int main(int argc, char *argv[])
       } break;
       case 5: {
         // --------------------------------------------------------------------
-        // TESTING: asUint64
+        // TESTING: `asUint64`, `asUlonglong`
         //
         // Concerns:
-        // 1. For basic integral text input in the [0, k_MAX] return that
+        // 1. For basic integral text input in the `[0, k_MAX]` return that
         //    number and a status of 0.
         //
-        // 2. For integrals in the range [0, UINT64_MAX] that any alternative
-        //    equivalent JSON Number rendering for the number (e.g., for "1",
+        // 2.For integrals in the range `[0, UINT64_MAX]` that any alternative
+        //   equivalent JSON Number rendering for the number (e.g., for "1",
         //   "1e-1", "0.1e1" etc) will correctly return that integer and a
-        //    status of 0.
+        //   status of 0.
         //
-        // 3. That for input in the range [0, k_MAX] that has a fraction,
+        // 3. That for input in the range `[0, k_MAX]` that has a fraction,
         //    that the truncated integer value is returned with a status of
         //    `k_NOT_INTEGER`.
         //
         // 4. That for negative input the value 0 is returned with a status of
         //    `k_UNDERFLOW`.
         //
-        // 5. That for positive input above k_MAX, that k_MAX is
+        // 5. That for positive input above `k_MAX`, that `k_MAX` is
         //    returned with a status `k_OVERFLOW`.
         //
         // 6. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // 7. The `asUlonglong` function returns the same results as
+        //    `asUint64`.
+        //
+        // Plan:
         // 1. For a test table that tests a range of varied input,
         //    verify that `asUint64` returns the expected value and expected
         //    status.
@@ -2557,13 +2904,18 @@ int main(int argc, char *argv[])
         // 4. Verify that, in appropriate build modes, defensive checks are
         //    triggered when.
         //
+        // 5. In the above tests, mirror each call to `asUint64` with a call to
+        //    `asUlonglong`.  Then, compare the return status and the resulting
+        //    values.
+        //
         // Testing:
-        //   int asUint64(Uint64 *, const bsl::string_view& );
+        //   int asUint64(Uint64 *, const bsl::string_view&);
+        //   int asUlonglong(unsigned long long *, const bsl::string_view&);
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: asUint64"
-                      << "\n=================" << bsl::endl;
+            bsl::cout << "\nTESTING: `asUint64`, `asUlonglong`"
+                      << "\n==================================" << bsl::endl;
         }
 
         const Uint64 k_MAX = bsl::numeric_limits<Uint64>::max();
@@ -2571,7 +2923,7 @@ int main(int argc, char *argv[])
         struct Data {
             int         d_line;
             int         d_status;
-            const char *d_input;
+            const char *d_input_p;
             Uint64      d_result;
         } DATA[] = {
             { L_,      OK,                        "0",         0 },
@@ -2630,7 +2982,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_DATA; ++i) {
             const int     LINE     = DATA[i].d_line;
             const int     STATUS   = DATA[i].d_status;
-            const char   *INPUT    = DATA[i].d_input;
+            const char   *INPUT    = DATA[i].d_input_p;
             const Uint64  EXPECTED = DATA[i].d_result;
 
             if (veryVerbose) {
@@ -2638,7 +2990,7 @@ int main(int argc, char *argv[])
             }
 
             Uint64 result;
-            int rc = Obj::asUint64(&result, INPUT);
+            int    rc = Obj::asUint64(&result, INPUT);
 
             ASSERTV(LINE, INPUT, STATUS, rc, STATUS == rc);
             ASSERTV(LINE, INPUT, EXPECTED, result, EXPECTED == result);
@@ -2659,25 +3011,32 @@ int main(int argc, char *argv[])
             bsl::vector<bsl::string>::const_iterator it =
                                                         equivalentData.begin();
             for (; it != equivalentData.end(); ++it) {
-              const bsl::string& input = *it;
-              if (veryVeryVerbose) {
-                  bsl::cout << "   ";
-                  P_(LINE); P(input);
-              }
-              Uint64 result;
-              int rc = Obj::asUint64(&result, input);
-              ASSERTV(LINE, input, STATUS, rc, STATUS == rc);
-              ASSERTV(LINE, input, EXPECTED, result, EXPECTED == result);
+                const bsl::string& input = *it;
+                if (veryVeryVerbose) {
+                    bsl::cout << "   ";
+                    P_(LINE); P(input);
+                }
+                Uint64 result;
+                int    rc = Obj::asUint64(&result, input);
+                ASSERTV(LINE, input, STATUS, rc, STATUS == rc);
+                ASSERTV(LINE, input, EXPECTED, result, EXPECTED == result);
+
+                {
+                    unsigned long long result;
+
+                    int rc = Obj::asUlonglong(&result, input);          // TEST
+                    ASSERTV(LINE, input, STATUS, rc, STATUS == rc);
+                }
             }
         }
 
         if (verbose) {
-          bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
+            bsl::cout << "\tTest an extreme number of digits" << bsl::endl;
         }
         for (int i = 0; i < NUM_DATA; ++i) {
             const int     LINE     = DATA[i].d_line;
             const int     STATUS   = DATA[i].d_status;
-            const char   *INPUT    = DATA[i].d_input;
+            const char   *INPUT    = DATA[i].d_input_p;
             const Uint64  EXPECTED = DATA[i].d_result;
 
             if (veryVerbose) {
@@ -2701,25 +3060,35 @@ int main(int argc, char *argv[])
                 int    rc = Obj::asUint64(&result, input);
                 ASSERTV(LINE, STATUS, rc, STATUS == rc);
                 ASSERTV(LINE, EXPECTED, result, EXPECTED == result);
+
+                {
+                    unsigned long long result;
+
+                    int rc = Obj::asUlonglong(&result, input);          // TEST
+                    ASSERTV(LINE, STATUS, rc, STATUS == rc);
+                    ASSERTV(LINE, EXPECTED, result, EXPECTED == result);
+                }
             }
         }
 
-        if (verbose) cout << "\tTest JSONSuite Test Data\n";
-        typedef bsl::string_view StVw;
+        if (verbose) {
+            bsl::cout << "\tTest JSONSuite Test Data"
+                      << bsl::endl;
+        }
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
             const int   LINE      = JSON_SUITE_DATA[i].d_line;
             const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
             const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
-            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
-            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
-
-            if (!VALID) {
-                // Ignore invalid JSON numbers.
-                continue;                                           // CONTINUE
-            }
+            const char *INPUT     = JSON_SUITE_DATA[i].d_input.data();
+            const char *NAME      = JSON_SUITE_DATA[i].d_testName.data();
 
             if (veryVerbose) {
                 P_(LINE) P_(VALID) P_(RANGE_ERR) P_(INPUT) P(NAME);
+            }
+
+            if (!VALID) {
+                // Ignore invalid JSON numbers.
+                continue;
             }
 
             // The following compares the result of a conversion to double
@@ -2729,15 +3098,19 @@ int main(int argc, char *argv[])
             // if the comparison is successful, either when converting both
             // numbers to an integer, or converting both numbers to a double.
 
-            Uint64 result;
             double expected;
 
             int rc = bdlb::NumericParseUtil::parseDouble(&expected, INPUT);
+            ASSERTV(LINE, INPUT, 0 == rc || (RANGE_ERR && ERANGE == rc));
 
-            ASSERTV(LINE, INPUT, RANGE_ERR,
-                    0 == rc || (RANGE_ERR && ERANGE ==rc));
+            Uint64 result, resultUll;
+            int    rcUll;
 
-            rc = Obj::asUint64(&result, INPUT);
+            rc    = Obj::asUint64   (&result,    INPUT);
+            rcUll = Obj::asUlonglong(&resultUll, INPUT);
+
+            ASSERTV(LINE, rc,     rcUll,     rc     ==     rcUll);
+            ASSERTV(LINE, result, resultUll, result == resultUll);
 
             if (1 > expected) {
                 expected = 0;
@@ -2758,20 +3131,27 @@ int main(int argc, char *argv[])
 
             ASSERT_PASS(Obj::asUint64(&result, "0"));
             ASSERT_FAIL(Obj::asUint64(&result, "NaN"));
+
+            {
+                unsigned long long result;
+                ASSERT_PASS(Obj::asUlonglong(&result, "0"));
+                ASSERT_FAIL(Obj::asUlonglong(&result, "NaN"));
+            }
+
         }
       } break;
       case 4: {
         // --------------------------------------------------------------------
-        // TESTING: decompose
+        // TESTING: `decompose`
         //
         // Concerns:
-        // 1. `isNegative` correctly returns whether the text begins with '-'.
+        // 1. `isNegative` correctly returns whether the text begins with `-`.
         //
         // 2. `integerBegin` and `integerEnd` correctly returns the integer
         //     part of the representation
         //
         // 3. `fractionBegin` and `fractionEnd` correctly return the fraction
-        //     part of the representation.
+        //    part of the representation.
         //
         // 4. If there is no fraction part, `fractionBegin` and `fractionEnd`
         //    are both equal to `exponentBegin`.
@@ -2780,10 +3160,10 @@ int main(int argc, char *argv[])
         //    adjustments.
         //
         // 5. `isExponentNegative` correctly returns whether the exponent
-        //     begins with '-'.
+        //    begins with `-`.
         //
         // 6. `exponentBegin` correctly returns the exponent part of the
-        //     representation.
+        //    representation.
         //
         // 7. If there is no exponent part of the representation,
         //    `exponentBegin` returns the end iterator.
@@ -2792,23 +3172,23 @@ int main(int argc, char *argv[])
         //    `fractionBegin` and `fractionEnd` equal `exponentBegin`.
         //
         // 9. `significantDigitsBegin` and `significantDigitsEnd` returns the
-        //    range of significant digits (which may or may not include a '.'
+        //    range of significant digits (which may or may not include a `.`
         //    separator)
         //
         // 10. If this is a 0 representation, the significantDigits range is a
-        //    single `0` character.
+        //     single `0` character.
         //
         // 11. Any leading and trailing 0s are removed from the
         //     significantDigits range.
         //
         // 12. `significantDigitsBias` provides a value, that when treated as
         //     an exponent of the digits in the signigicantDigits range
-        //     (ignoring the '.' character), the original numeric value is
+        //     (ignoring the `.` character), the original numeric value is
         //     restored.
         //
         // 13. QoI: Asserted precondition violations are detected when enabled.
         //
-        //Plan:
+        // Plan:
         // 1. For a test table that tests a range of varied input,
         //    verify that decompose returns values that match the expected
         //    results.
@@ -2821,22 +3201,22 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: decompose"
-                      << "\n==================" << bsl::endl;
+            bsl::cout << "\nTESTING: `decompose`"
+                      << "\n====================" << bsl::endl;
         }
         const bool F = false;
         const bool T = true;
 
         struct Data {
             int         d_line;
-            const char *d_text;     // input text
-            bool        d_isNeg;    // is negative
-            const char *d_intPart;  // integer digits
-            const char *d_fracPart; // fraction digits
-            bool        d_isExpNeg; // is exponent negative
-            const char *d_expPart;  // exponent digits
-            const char *d_sigPart;  // significant digits
-            Int64       d_sigBias;  // significant digits bias to exponent
+            const char *d_text_p;     // input text
+            bool        d_isNeg;      // is negative
+            const char *d_intPart_p;  // integer digits
+            const char *d_fracPart_p; // fraction digits
+            bool        d_isExpNeg;   // is exponent negative
+            const char *d_expPart_p;  // exponent digits
+            const char *d_sigPart_p;  // significant digits
+            Int64       d_sigBias;    // significant digits bias to exponent
         } DATA[] = {
           // line,       text, neg,   int, frac,eN, exp, sigDig, bias
           // ----        ----  ---    ---  ---- --  ---  ------  ----
@@ -2875,13 +3255,13 @@ int main(int argc, char *argv[])
         if (verbose) bsl::cout << "\tTest a wide array of input." << bsl::endl;
         for (int i = 0; i < NUM_DATA; ++i) {
             const int    LINE       = DATA[i].d_line;
-            const char  *TEXT       = DATA[i].d_text;
+            const char  *TEXT       = DATA[i].d_text_p;
             const bool   IS_NEG     = DATA[i].d_isNeg;
-            const char  *INT_PART   = DATA[i].d_intPart;
-            const char  *FRAC_PART  = DATA[i].d_fracPart;
+            const char  *INT_PART   = DATA[i].d_intPart_p;
+            const char  *FRAC_PART  = DATA[i].d_fracPart_p;
             const bool   IS_EXP_NEG = DATA[i].d_isExpNeg;
-            const char  *EXP_PART   = DATA[i].d_expPart;
-            const char  *SIG_PART   = DATA[i].d_sigPart;
+            const char  *EXP_PART   = DATA[i].d_expPart_p;
+            const char  *SIG_PART   = DATA[i].d_sigPart_p;
             const Int64  SIG_BIAS   = DATA[i].d_sigBias;
 
             if (veryVerbose) {
@@ -2972,34 +3352,34 @@ int main(int argc, char *argv[])
       } break;
       case 3: {
         // --------------------------------------------------------------------
-        // TESTING: isValidNumber
+        // TESTING: `isValidNumber`
         //
         // Concerns:
         // 1. `isValidNumber` rejects text with preceding or trailing white
         //    space.
         //
-        // 2. `isValidNumber` rejects text starting with '+'
+        // 2. `isValidNumber` rejects text starting with `+`
         //
         // 3. `isValidNumber` rejects text with non-numeric characters except
         //    "+-eE."
         //
-        // 4. `isValidNumber` rejects text starting with '.'
+        // 4. `isValidNumber` rejects text starting with `.`
         //
         // 5. `isValidNumber` rejects text with multiple consecutive "+-eE."
-        //     characters
+        //    characters
         //
         // 6. `isValidNumber` rejects numbers with multiple (non-consecutive)
-        //    '.' characters
+        //    `.` characters
         //
         // 7. `isValidNumber` rejects numbers with embedded 0 characters
         //
         // 8. `isValidNumber` accepts numbers that match the regular
         //    expression:
         //    "/^-?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?\z/"
-        //    Note that "\z" matches end-of-string but not a preceding '\n'.
+        //    Note that "\z" matches end-of-string but not a preceding `\n`.
         //
         // 9. `isValidNumber` accepts characters with a huge number of integer
-        //     digits.
+        //    digits.
         //
         // 10. `isValidNumber` accepts characters with a huge number of
         //     fraction digits.
@@ -3032,13 +3412,13 @@ int main(int argc, char *argv[])
         //    `isValidNumber`.
         //
         // Testing:
-        //   bool isValidNumber(const bsl::string_view& );
+        //   bool isValidNumber(const bsl::string_view&);
         //   CONCERN: `IsValidNumber` functor can be used as an oracle.
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nTESTING: isValidNumber"
-                      << "\n======================" << bsl::endl;
+            bsl::cout << "\nTESTING: `isValidNumber`"
+                      << "\n========================" << bsl::endl;
         }
 
         const char *HUGE_INT =
@@ -3065,7 +3445,7 @@ int main(int argc, char *argv[])
         {
             struct {
                 const int   d_line;
-                const char *d_string;
+                const char *d_string_p;
                 const bool  d_isValid;
             } DATA[] = {
                 // line                                       string isValid
@@ -3129,7 +3509,7 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < int(sizeof(DATA) / sizeof(DATA[0])); ++i) {
                 const int           LINE       = DATA[i].d_line;
-                const char         *STRING     = DATA[i].d_string;
+                const char         *STRING     = DATA[i].d_string_p;
                 const bool          IS_VALID   = DATA[i].d_isValid;
 
                 if (veryVerbose) {
@@ -3141,6 +3521,7 @@ int main(int argc, char *argv[])
                         bsls::AlignmentUtil::roundUpToMaximalAlignment(STRLEN);
                 char              *block      = static_cast<char *>(
                                                       ga.allocate(paddedSize));
+
                 char *firstProtectedAddress   = block + paddedSize;
                 char *data                    = firstProtectedAddress - STRLEN;
 
@@ -3158,36 +3539,41 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (verbose) cout << "\tTest JSONSuite Test Data\n";
-        typedef bsl::string_view StVw;
+        if (verbose)
+            bsl::cout << "\tTest JSONSuite Test Data"
+                      << bsl::endl;
         for (int i = 0; i < NUM_JSON_SUITE_DATA; ++i) {
-            const int   LINE      = JSON_SUITE_DATA[i].d_line;
-            const bool  VALID     = JSON_SUITE_DATA[i].d_isValid;
-            //const bool  RANGE_ERR = JSON_SUITE_DATA[i].d_isOutOfRange;
-            const StVw& INPUT     = JSON_SUITE_DATA[i].d_input;
-            const StVw& NAME      = JSON_SUITE_DATA[i].d_testName;
+            const int   LINE  = JSON_SUITE_DATA[i].d_line;
+            const bool  EXP   = JSON_SUITE_DATA[i].d_isValid;
+            const char *INPUT = JSON_SUITE_DATA[i].d_input.data();
+            const char *NAME  = JSON_SUITE_DATA[i].d_testName.data();
 
             if (veryVerbose) {
-                P_(LINE) P_(VALID) P_(INPUT) P(NAME);
+                P_(LINE) P_(EXP) P_(INPUT) P(NAME);
             }
 
-            const bsl::size_t  LENGTH     = INPUT.length();
+            if (needsAdHocTestJSonSuiteFileData(NAME)) {
+                continue;
+            }
+
+            const bsl::size_t  LENGTH     = bsl::strlen(INPUT);
             const bsl::size_t  paddedSize =
                         bsls::AlignmentUtil::roundUpToMaximalAlignment(LENGTH);
             char              *block      = static_cast<char *>(
                                                       ga.allocate(paddedSize));
+
             char *firstProtectedAddress   = block + paddedSize;
             char *data                    = firstProtectedAddress - LENGTH;
 
-            bsl::memcpy(data, INPUT.data(), LENGTH);
+            bsl::memcpy(data, INPUT, LENGTH);
 
             bsl::string_view input(data, LENGTH);
 
-            const bool rc = Obj::isValidNumber(input);
-            ASSERTV(LINE, NAME, INPUT, VALID, rc,  VALID == rc);
+            bool rc = Obj::isValidNumber(input);
+            ASSERTV(LINE, NAME, INPUT, EXP, rc,  EXP == rc);
 
-            const bool rcOr = oracle(input);
-            ASSERTV(LINE, NAME, INPUT, VALID, rcOr,  VALID == rcOr);
+            bool rcOr = oracle(input);
+            ASSERTV(LINE, NAME, INPUT, EXP, rcOr,  EXP == rcOr);
 
             ga.deallocate(block);
         }
@@ -3196,9 +3582,9 @@ int main(int argc, char *argv[])
             bsl::cout << "\tTest embedded null"
                       << bsl::endl;
         {
-            // Recreates n_multidigit_number_then_00.json  from JSONTestSuite
+            // Recreates `n_multidigit_number_then_00.json` from JSONTestSuite.
             const bsl::string_view input("123\0", 4);
-            bool rc = Obj::isValidNumber(input);
+            bool                   rc = Obj::isValidNumber(input);
             ASSERTV("embedded null char", false == rc);
 
             bool rcOr = oracle(input);
@@ -3207,7 +3593,7 @@ int main(int argc, char *argv[])
       } break;
       case 2: {
         // --------------------------------------------------------------------
-        // CONCERN: Test Machinery
+        // CONCERN: TEST MACHINERY
         //
         // Concerns:
         // 1. That generateEquivalenceSet can correctly adjust the exponent
@@ -3233,11 +3619,11 @@ int main(int argc, char *argv[])
         //    value in the range.
         //
         // Testing:
-        //   CONCERN: Test Machinery
+        //   CONCERN: TEST MACHINERY
         // --------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout << "\nCONCERN: Test Machinery"
+            bsl::cout << "\nCONCERN: TEST MACHINERY"
                       << "\n=======================" << bsl::endl;
         }
 
@@ -3247,9 +3633,9 @@ int main(int argc, char *argv[])
 
         struct Data {
             int         d_line;
-            const char *d_input;
+            const char *d_input_p;
             int         d_adjustment;
-            const char *d_expected;
+            const char *d_expected_p;
         } DATA[]           = {
            { L_,        "0",  0,       "0e0" },
            { L_,      "0.0",  0,       "0e0" },
@@ -3273,9 +3659,9 @@ int main(int argc, char *argv[])
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
         for (int i = 0; i < NUM_DATA; ++i) {
             const int   LINE  = DATA[i].d_line;
-            const char *INPUT = DATA[i].d_input;
+            const char *INPUT = DATA[i].d_input_p;
             const int   ADJ   = DATA[i].d_adjustment;
-            const char *EXP   = DATA[i].d_expected;
+            const char *EXP   = DATA[i].d_expected_p;
 
             if (veryVerbose) {
                 P_(LINE); P_(INPUT); P_(ADJ); P(EXP);
@@ -3366,8 +3752,8 @@ int main(int argc, char *argv[])
         {
             struct {
                 const int     d_line;
-                const char   *d_string;
-                const char   *d_expectedString;
+                const char   *d_string_p;
+                const char   *d_expectedString_p;
                 unsigned int  d_typesFlags;
             } DATA[] = {
               //  line  string      expect             types
@@ -3420,7 +3806,7 @@ int main(int argc, char *argv[])
               , { L_,        "-9e1",           "-90", e_ALL_SIGNED_INT_TYPES }
               , { L_,       "-10e1",          "-100", e_ALL_SIGNED_INT_TYPES }
 
-                // simple FP values (w/ exponents)
+                // simple floating point values (w/ exponents)
               , { L_,      "0.25e1",           "2.5", e_ALL_FP_TYPES }
               , { L_,       "0.5e1",             "5", e_ALL_FP_TYPES }
               , { L_,      "0.75e1",           "7.5", e_ALL_FP_TYPES }
@@ -3428,7 +3814,7 @@ int main(int argc, char *argv[])
               , { L_,      "-0.5e1",            "-5", e_ALL_FP_TYPES }
               , { L_,     "-0.75e1",          "-7.5", e_ALL_FP_TYPES }
 
-                // decimal FP
+                // decimal floating point
               , { L_,         "0.0",           "0.0", e_DECIMAL64 }
               , { L_,         "0.1",           "0.1", e_DECIMAL64 }
               , { L_,      "0.01e1",           "0.1", e_DECIMAL64 }
@@ -3476,10 +3862,14 @@ int main(int argc, char *argv[])
             };
 
             for (int i = 0; i < int(sizeof(DATA)/sizeof(DATA[0])); ++i) {
-                const int             LINE     = DATA[i].d_line;
-                const char         *STRING     = DATA[i].d_string;
-                const char         *EXPECT     = DATA[i].d_expectedString;
+                const int           LINE       = DATA[i].d_line;
+                const char         *STRING     = DATA[i].d_string_p;
+                const char         *EXPECT     = DATA[i].d_expectedString_p;
                 const unsigned int  TYPE_FLAGS = DATA[i].d_typesFlags;
+
+                if (veryVerbose) {
+                    P_(LINE); P_(STRING); P_(EXPECT); P(TYPE_FLAGS);
+                }
 
 #define TEST_TYPE(FLAG, TYPE, CAST_TYPE)                                \
                 if (TYPE_FLAGS & FLAG) {                                \
@@ -3494,9 +3884,8 @@ int main(int argc, char *argv[])
                             EXPECT == result);                          \
                 }
 
-#if defined(BSLS_PLATFORM_CMP_IBM) ||                                         \
-    (defined(BSLS_PLATFORM_CPU_ARM) && defined(BSLS_PLATFORM_OS_LINUX))
-                // IBM and Linux ARM char is unsigned.
+#ifdef BSLS_PLATFORM_CMP_IBM
+                // IBM char is unsigned.
                 TEST_TYPE(e_CHAR, signed char, Int64);
 #else
                 TEST_TYPE(e_CHAR, char, Int64);
@@ -3528,7 +3917,7 @@ int main(int argc, char *argv[])
         {
             struct {
                 const int   d_line;
-                const char *d_string;
+                const char *d_string_p;
                 const bool  d_isValid;
             } DATA[] = {
                 // line                                       string isValid
@@ -3560,8 +3949,12 @@ int main(int argc, char *argv[])
 
             for (int i = 0; i < int(sizeof(DATA) / sizeof(DATA[0])); ++i) {
                 const int           LINE       = DATA[i].d_line;
-                const char         *STRING     = DATA[i].d_string;
+                const char         *STRING     = DATA[i].d_string_p;
                 const bool          IS_VALID   = DATA[i].d_isValid;
+
+                if (veryVerbose) {
+                    P_(LINE); P_(STRING); P(IS_VALID);
+                }
 
                 bool rc = Obj::isValidNumber(STRING);
                 ASSERTV(LINE, STRING, rc, IS_VALID, IS_VALID == rc);
@@ -3573,7 +3966,7 @@ int main(int argc, char *argv[])
                       << bsl::endl;
         {
             Uint64 val = 1234567890;
-            int rc;
+            int    rc;
 
             rc = Obj::asUint64(&val, "1");
             ASSERTV(L_, rc, val, 0 == rc && 1 == val);
@@ -3607,8 +4000,7 @@ int main(int argc, char *argv[])
             ASSERTV(L_, rc, val, 0 == rc && 1200 == val);
 
             val = 1234567890;
-            // Note that
-            // https://www.rfc-editor.org/rfc/rfc8259#section-6
+            // Note that https://www.rfc-editor.org/rfc/rfc8259#section-6
             // allows for leading 0's after the [eE].
             rc = Obj::asUint64(&val, "120.0000e-00001");
             ASSERTV(L_, rc, val, 0 == rc && 12 == val);
@@ -3630,21 +4022,19 @@ int main(int argc, char *argv[])
       } break;
       case -1: {
         //---------------------------------------------------------------------
-        // BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle
+        // BENCHMARK: `asDecimal64Exact` VS `asDecimal64ExactOracle`
         //
         // This benchmark compares the current `asDecimal64Exact` function
-        // which delegates entirely to `inteldfp` parsing, to a "homebrewn"
+        // that delegates entirely to `inteldfp` parsing, to a "homebrewn"
         // implementation that parses the string into digits to use with
-        // `makeDecimla64Raw` (falling back to `inteldfp` parsing for inexact
+        // `makeDecimal64Raw` (falling back to `inteldfp` parsing for inexact
         // conversions)
         //---------------------------------------------------------------------
 
         if (verbose) {
-            bsl::cout
-                << bsl::endl
-                << "BENCHMARK: asDecimal64Exact vs asDecimal64ExactOracle\n"
-                << "=====================================================\n"
-                << bsl::endl;
+            bsl::cout <<
+         "\n" "BENCHMARK: `asDecimal64Exact` VS `asDecimal64ExactOracle`" "\n"
+              "=========================================================" "\n";
         }
 
         const char *DATA[] = {
@@ -3675,6 +4065,7 @@ int main(int argc, char *argv[])
             //"1238414121.14134242341543",
             //"18446744073709551615",
         };
+
         const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
 
         int numIterations = 100000;

@@ -70,11 +70,11 @@ BSLS_IDENT("$Id: $")
 // `isEqual` method is more computationally expensive than the equality and
 // inequality operators:
 // ```
-// // The following 'JsonNumber' objects do not compare equal because their
+// // The following `JsonNumber` objects do not compare equal because their
 // // string representations are different:
 // assert(bdljsn::JsonNumber("1")      != bdljsn::JsonNumber("1.0"));
 //
-// // But, they are numerically equal, so 'isEqual' returns 'true':
+// // But, they are numerically equal, so `isEqual` returns `true`:
 // assert(bdljsn::JsonNumber("1").isEqual(bdljsn::JsonNumber("1.0")));
 // ```
 //
@@ -83,10 +83,14 @@ BSLS_IDENT("$Id: $")
 // The value of a `bdljsn::JsonNumber` object can be converted to an assortment
 // of useful types:
 //
+// * `short`
+// * `unsigned short`
 // * `int`
 // * `unsigned int`
-// * `bsls::Types::Int64`
-// * `bsls::Types::Uint64`
+// * `long`
+// * `unsigned long`
+// * `long long`
+// * `unsigned long long`
 // * `float`
 // * `double`
 // * `bdldfp::Decimal64`
@@ -129,7 +133,7 @@ BSLS_IDENT("$Id: $")
 // `asDecimal64Exact` has very similar performance to `asDecimal64` (i.e.,
 // there is not a notable performance penalty to determining this property).
 //
-///Known Issues With `asDecima64Exact`
+///Known Issues With `asDecimal64Exact`
 ///- - - - - - - - - - - - - - - - - -
 // Currently `asDecimal64Exact` will return `bdljsn::JsonNumber::k_NOT_EXACT`
 // if the input is 0 with an exponent outside of the range (`[-398, 369]`).
@@ -163,11 +167,11 @@ BSLS_IDENT("$Id: $")
 //
 //   // Invalid Input (that is valid in other contexts).
 //
-//   { "1.",                   "Not uncommon way to write '1'."      , 0  }
+//   { "1.",                   "Not uncommon way to write `1`."      , 0  }
 // , { "1,000",                "No commas allowed"                   , 0  }
 // , { "01",                   "Leading '0',  disallowed by JSON."   , 0  }
-// , { "",                     "0 per 'atoi', disallowed by JSON."   , 0  }
-// , { "Hello, world!",        "0 per 'atoi', disallowed by JSON."   , 0  }
+// , { "",                     "0 per `atoi`, disallowed by JSON."   , 0  }
+// , { "Hello, world!",        "0 per `atoi`, disallowed by JSON."   , 0  }
 // , { "NaN",                  "invalid number"                      , 0  }
 // , { "INF",                  "invalid number"                      , 0  }
 // , { "-INF",                 "invalid number"                      , 0  }
@@ -245,13 +249,13 @@ BSLS_IDENT("$Id: $")
 //         bsl::cout << "Integral: ";
 // ```
 // If integral, we check if the value is a usable range.  Let us assume that
-// `bslsl::Type::Int64` is as large a number as we can accept.
+// `long long` is as large a number as we can accept.
 //
 // Then, we convert the JSON number to that type and check for overflow and
 // underflow:
 // ```
-//         bsls::Types::Int64 value;
-//         int                rc = obj.asInt64(&value);
+//         long long value;
+//         int       rc = obj.asLonglong(&value);
 //         switch (rc) {
 //             case 0: {
 //                 bsl::cout << value      << " : OK to USE" << bsl::endl;
@@ -263,7 +267,7 @@ BSLS_IDENT("$Id: $")
 //                 bsl::cout << obj.value() << ": NG too small" << bsl::endl;
 //             } break;
 //             case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-//               assert(0 == "reached");
+//               assert(false && "reached");
 //             } break;
 //         }
 // ```
@@ -284,7 +288,7 @@ BSLS_IDENT("$Id: $")
 //                 bsl::cout << value << ": inexact: USE approximation";
 //             } break;
 //             case bdljsn::JsonNumber::k_NOT_INTEGRAL: {
-//               assert(0 == "reached");
+//               assert(false && "reached");
 //             } break;
 //         }
 //
@@ -331,8 +335,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_annotation.h>
 #include <bsls_assert.h>
-#include <bsls_keyword.h>  // 'BSLS_KEYWORD_NOEXCEPT'
-#include <bsls_types.h>    // 'bsls::Types::Int64', 'bsls::Types::Uint64'
+#include <bsls_keyword.h>  // `BSLS_KEYWORD_NOEXCEPT`
+#include <bsls_types.h>    // `bsls::Types::Int64`, `bsls::Types::Uint64`
 
 #include <bsl_iosfwd.h>
 #include <bsl_string.h>
@@ -431,9 +435,13 @@ class JsonNumber {
                         const allocator_type& allocator = allocator_type());
     explicit JsonNumber(unsigned int          value,
                         const allocator_type& allocator = allocator_type());
-    explicit JsonNumber(bsls::Types::Int64    value,
+    explicit JsonNumber(long                  value,
                         const allocator_type& allocator = allocator_type());
-    explicit JsonNumber(bsls::Types::Uint64   value,
+    explicit JsonNumber(unsigned long         value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(long long             value,
+                        const allocator_type& allocator = allocator_type());
+    explicit JsonNumber(unsigned long long    value,
                         const allocator_type& allocator = allocator_type());
 
     /// Create a `JsonNumber` having the specified `value`.  Optionally
@@ -467,8 +475,8 @@ class JsonNumber {
     /// `original` becomes unspecified but valid, and no exceptions will be
     /// thrown; otherwise `original` is unchanged (and an exception may be
     /// thrown).
-    JsonNumber(bslmf::MovableRef<JsonNumber>  original,
-               const allocator_type&          allocator);
+    JsonNumber(bslmf::MovableRef<JsonNumber> original,
+               const allocator_type&         allocator);
 
     //! ~JsonNumber() = default;
         // Destroy this object.
@@ -491,8 +499,10 @@ class JsonNumber {
     /// non-`const` reference to this object.
     JsonNumber& operator=(int                 rhs);
     JsonNumber& operator=(unsigned int        rhs);
-    JsonNumber& operator=(bsls::Types::Int64  rhs);
-    JsonNumber& operator=(bsls::Types::Uint64 rhs);
+    JsonNumber& operator=(long                rhs);
+    JsonNumber& operator=(unsigned long       rhs);
+    JsonNumber& operator=(long long           rhs);
+    JsonNumber& operator=(unsigned long long  rhs);
 
     /// Assign to this object the value of the specified `rhs`, and return a
     /// non-`const` reference to this object.  The behavior is undefined if
@@ -538,34 +548,41 @@ class JsonNumber {
 
     /// Load into the specified `result` the integer value of this number.
     /// Return 0 on success, `k_OVERFLOW` if `value` is larger than can be
-    /// represented by `result`, `k_UNDERFLOW` if `value` is smaller than can
-    /// be represented by `result`,  and `k_NOT_INTEGRAL` if `value` is not an
-    /// integral number (i.e., there is a fractional part).  For underflow,
-    /// `result` will be loaded with the minimum representable value, for
-    /// overflow, `result` will be loaded with the maximum representable value,
-    /// for non-integral values `result` will be loaded with the integer part
-    /// of `value` (truncating the fractional part).  If the result is not an
-    /// integer and also either overflows or underflows, it is treated as an
-    /// overflow or underflow (respectively).  Note that this operation returns
-    /// an error status value (unlike similar floating point conversions)
-    /// because typically it is an error if a conversion to an integer results
-    /// in an in-exact value.
-    int asInt(int *result) const;
-    int asInt64 (bsls::Types::Int64  *result) const;
-    int asUint  (unsigned int        *result) const;
-    int asUint64(bsls::Types::Uint64 *result) const;
+    /// represented by `result`, `k_UNDERFLOW` if `value` is smaller than
+    /// can be represented by `result`,  and `k_NOT_INTEGRAL` if `value` is
+    /// not an integral number (i.e., there is a fractional part).  For
+    /// underflow, `result` will be loaded with the minimum representable
+    /// value, for overflow, `result` will be loaded with the maximum
+    /// representable value, for non-integral values `result` will be loaded
+    /// with the integer part of `value` (truncating the fractional part).
+    /// If the result is not an integer and also either overflows or
+    /// underflows, it is treated as an overflow or underflow
+    /// (respectively).  Note that this operation returns an error status
+    /// value (unlike similar floating point conversions) because typically
+    /// it is an error if a conversion to an integer results in an in-exact
+    /// value.
+    int asShort    (short               *result) const;
+    int asInt      (int                 *result) const;
+    int asLong     (long                *result) const;
+    int asLonglong (long long           *result) const;
+    int asInt64    (bsls::Types::Int64  *result) const;
+    int asUshort   (unsigned short      *result) const;
+    int asUint     (unsigned int        *result) const;
+    int asUlong    (unsigned long       *result) const;
+    int asUlonglong(unsigned long long  *result) const;
+    int asUint64   (bsls::Types::Uint64 *result) const;
 
     /// Return the closest floating point representation to this number.  If
-    /// this number is outside the representable range, return `+INF` or `-INF`
-    /// (as appropriate).  Note that values smaller than the smallest
+    /// this number is outside the representable range, return `+INF` or
+    /// `-INF` (as appropriate).  Note that values smaller than the smallest
     /// representable non-zero value (a.k.a, `MIN`) are rounded to `MIN`
     /// (positive or negative, as appropriate) or 0, whichever is the better
     /// approximation.
-    float              asFloat() const;
+    float              asFloat()     const;
     double             asDouble()    const;
     bdldfp::Decimal64  asDecimal64() const;
 
-                        // 'Exact' Accessors
+                        // "Exact" Accessors
 
     /// Load to the specified `result` the closest floating point
     /// representation to this number, even if a non-zero status is
@@ -581,7 +598,7 @@ class JsonNumber {
 
 // BDE_VERIFY pragma: pop
 
-                       // 'explicit' (conversion) operators
+                       // `explicit` (conversion) operators
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
     /// Return the closest floating point representation to this number.  If
@@ -596,10 +613,10 @@ class JsonNumber {
 
                         // Aspects
 
+    /// **DEPRECATED**: Use `get_allocator()` instead.
+    ///
     /// Return `get_allocator().mechanism()`, i.e., the memory resource used
     /// by this object to supply memory.
-    ///
-    /// @DEPRECATED: Use `get_allocator()` instead.
     bslma::Allocator *BSLS_ANNOTATION_DEPRECATED allocator() const;
 
     /// Return the allocator used by this object to supply memory.
@@ -703,18 +720,32 @@ inline
 JsonNumber::JsonNumber(int value, const allocator_type& allocator)
 : d_value(allocator)
 {
-    NumberUtil::stringify(&d_value, static_cast<bsls::Types::Int64>(value));
+    NumberUtil::stringify(&d_value, static_cast<long long>(value));
 }
 
 inline
 JsonNumber::JsonNumber(unsigned int value, const allocator_type& allocator)
 : d_value(allocator)
 {
-    NumberUtil::stringify(&d_value, static_cast<bsls::Types::Uint64>(value));
+    NumberUtil::stringify(&d_value, static_cast<unsigned long long>(value));
 }
 
 inline
-JsonNumber::JsonNumber(bsls::Types::Int64    value,
+JsonNumber::JsonNumber(long value, const allocator_type& allocator)
+: d_value(allocator)
+{
+    NumberUtil::stringify(&d_value, static_cast<long long>(value));
+}
+
+inline
+JsonNumber::JsonNumber(unsigned long value, const allocator_type& allocator)
+: d_value(allocator)
+{
+    NumberUtil::stringify(&d_value, static_cast<unsigned long long>(value));
+}
+
+inline
+JsonNumber::JsonNumber(long long             value,
                        const allocator_type& allocator)
 : d_value(allocator)
 {
@@ -722,7 +753,7 @@ JsonNumber::JsonNumber(bsls::Types::Int64    value,
 }
 
 inline
-JsonNumber::JsonNumber(bsls::Types::Uint64   value,
+JsonNumber::JsonNumber(unsigned long long    value,
                        const allocator_type& allocator)
 : d_value(allocator)
 {
@@ -818,26 +849,40 @@ JsonNumber& JsonNumber::operator=(bslmf::MovableRef<JsonNumber> rhs)
 inline
 JsonNumber& JsonNumber::operator=(int rhs)
 {
-    NumberUtil::stringify(&d_value, static_cast<bsls::Types::Int64>(rhs));
+    NumberUtil::stringify(&d_value, static_cast<long long>(rhs));
     return *this;
 }
 
 inline
 JsonNumber& JsonNumber::operator=(unsigned int rhs)
 {
-    NumberUtil::stringify(&d_value, static_cast<bsls::Types::Uint64>(rhs));
+    NumberUtil::stringify(&d_value, static_cast<unsigned long long>(rhs));
     return *this;
 }
 
 inline
-JsonNumber& JsonNumber::operator=(bsls::Types::Int64 rhs)
+JsonNumber& JsonNumber::operator=(long rhs)
+{
+    NumberUtil::stringify(&d_value, static_cast<long long>(rhs));
+    return *this;
+}
+
+inline
+JsonNumber& JsonNumber::operator=(unsigned long rhs)
+{
+    NumberUtil::stringify(&d_value, static_cast<unsigned long long>(rhs));
+    return *this;
+}
+
+inline
+JsonNumber& JsonNumber::operator=(long long rhs)
 {
     NumberUtil::stringify(&d_value, rhs);
     return *this;
 }
 
 inline
-JsonNumber& JsonNumber::operator=(bsls::Types::Uint64 rhs)
+JsonNumber& JsonNumber::operator=(unsigned long long rhs)
 {
     NumberUtil::stringify(&d_value, rhs);
     return *this;
@@ -906,15 +951,39 @@ const bsl::string& JsonNumber::value() const
 // BDE_VERIFY pragma: -FABC01 // not in alphabetic order
 
 inline
+int JsonNumber::asShort(short *result) const
+{
+    return NumberUtil::asShort(result, d_value);
+}
+
+inline
 int JsonNumber::asInt(int *result) const
 {
     return NumberUtil::asInt(result, d_value);
 }
 
 inline
-int JsonNumber::asInt64(bsls::Types::Int64 *result) const
+int JsonNumber::asLong(long *result) const
+{
+    return NumberUtil::asLong(result, d_value);
+}
+
+inline
+int JsonNumber::asLonglong(long long *result) const
+{
+    return NumberUtil::asLonglong(result, d_value);
+}
+
+inline
+int JsonNumber::asInt64(bsls::Types::Int64  *result) const
 {
     return NumberUtil::asInt64(result, d_value);
+}
+
+inline
+int JsonNumber::asUshort(unsigned short *result) const
+{
+    return NumberUtil::asUshort(result, d_value);
 }
 
 inline
@@ -924,7 +993,19 @@ int JsonNumber::asUint(unsigned int *result) const
 }
 
 inline
-int JsonNumber::asUint64(bsls::Types::Uint64 *result) const
+int JsonNumber::asUlong(unsigned long *result) const
+{
+    return NumberUtil::asUlong(result, d_value);
+}
+
+inline
+int JsonNumber::asUlonglong(unsigned long long *result) const
+{
+    return NumberUtil::asUlonglong(result, d_value);
+}
+
+inline
+int JsonNumber::asUint64(bsls::Types::Uint64  *result) const
 {
     return NumberUtil::asUint64(result, d_value);
 }
@@ -947,7 +1028,7 @@ bdldfp::Decimal64 JsonNumber::asDecimal64() const
     return NumberUtil::asDecimal64(d_value);
 }
 
-                        // 'Exact' Accessors
+                        // "Exact" Accessors
 
 inline
 int JsonNumber::asDecimal64Exact(bdldfp::Decimal64 *result) const
@@ -959,7 +1040,7 @@ int JsonNumber::asDecimal64Exact(bdldfp::Decimal64 *result) const
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT)
 
-                        // 'explicit' (conversion) operators
+                        // `explicit` (conversion) operators
 inline
 JsonNumber::operator float() const
 {

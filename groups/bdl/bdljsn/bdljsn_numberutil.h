@@ -47,7 +47,8 @@ BSLS_IDENT("$Id: $")
 //    "-9223372036854775809",               // INT64_MIN, underflow
 //    "1.5e27",                             // INT64_MAX, overflow
 // };
-// const int NUM_DATA = sizeof(EXAMPLE_DATA) / sizeof(*EXAMPLE_DATA);
+//
+// const int NUM_DATA = sizeof EXAMPLE_DATA / sizeof *EXAMPLE_DATA;
 // ```
 // Then, for each number, we first check whether it is a valid JSON Number
 // (note that the behavior for the other methods is undefined unless the text
@@ -74,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // Finally, we convert that number to an integer:
 // ```
 //     bsls::Types::Int64 value;
-//     int rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
+//     int                rc = bdljsn::NumberUtil::asInt64(&value, EXAMPLE);
 //
 //     bsl::cout << "  * value: " << value;
 //
@@ -120,11 +121,12 @@ BSLS_IDENT("$Id: $")
 #include <bsla_nodiscard.h>
 #include <bslmf_assert.h>
 #include <bslmf_selecttrait.h>
+
 #include <bsls_assert.h>
 #include <bsls_performancehint.h>
 #include <bsls_types.h>
 
-#include <bsl_cerrno.h>
+#include <bsl_cerrno.h>  // `ERANGE`
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 #include <bsl_type_traits.h>
@@ -178,12 +180,12 @@ struct NumberUtil {
            // basic floating point conversions
 
     /// Return the closest floating point representation to the specified
-    /// `value`.  If `value` is outside the representable range, return +INF or
-    /// -INF (as appropriate).  The behavior is undefined unless
+    /// `value`.  If `value` is outside the representable range, return +INF
+    /// or -INF (as appropriate).  The behavior is undefined unless
     /// `isValidNumber(value)` is `true`.
     static bdldfp::Decimal64 asDecimal64(const bsl::string_view& value);
-    static double asDouble(const bsl::string_view& value);
-    static float asFloat(const bsl::string_view& value);
+    static double            asDouble   (const bsl::string_view& value);
+    static float             asFloat    (const bsl::string_view& value);
 
            // exact floating point conversions
 
@@ -201,24 +203,36 @@ struct NumberUtil {
 
            // typed integer conversions
 
+// BDE_VERIFY pragma: -FABC01 // not in alphabetic order
+
     /// Load the specified `result` with the specified `value`, even if a
     /// non-zero status is returned (truncating fractional digits if
     /// necessary).  Return 0 on success, `k_OVERFLOW` if `value` is larger
     /// than can be represented by `result`, `k_UNDERFLOW` if `value` is
-    /// smaller than can be represented by `result`,  and `k_NOT_INTEGRAL` if
-    /// `value` is not an integral number (i.e., there is a fractional part).
-    /// For underflow, `result` will be loaded with the minimum representable
-    /// value, for overflow, `result` will be loaded with the maximum
-    /// representable value, for non-integral values `result` will be loaded
-    /// with the integer part of `value` (truncating the fractional part of
-    /// `value`).  The behavior is undefined unless `isValidNumber(value)` is
-    /// `true`.  Note that this operation will correctly handle exponents
-    /// (e.g., a `value` of "0.00000000000000000001e20" will produce a `result`
-    /// of 1).
-    static int asInt(int *result, const bsl::string_view& value);
-    static int asInt64(Int64 *result, const bsl::string_view& value);
-    static int asUint(unsigned int *result, const bsl::string_view& value);
-    static int asUint64(Uint64 *result, const bsl::string_view& value);
+    /// smaller than can be represented by `result`, and `k_NOT_INTEGRAL` if
+    /// `value` is not an integral number (i.e., there is a fractional
+    /// part).  For underflow, `result` will be loaded with the minimum
+    /// representable value, for overflow, `result` will be loaded with the
+    /// maximum representable value, for non-integral values `result` will
+    /// be loaded with the integer part of `value` (truncating the
+    /// fractional part of `value`).  The behavior is undefined unless
+    /// `isValidNumber(value)` is `true`.  Note that this operation will
+    /// correctly handle exponents (e.g., a `value` of
+    /// "0.00000000000000000001e20" will produce a `result` of 1).
+    static int asShort(short           *result, const bsl::string_view& value);
+    static int asUshort(unsigned short *result, const bsl::string_view& value);
+    static int asInt  (int             *result, const bsl::string_view& value);
+    static int asUint (unsigned int    *result, const bsl::string_view& value);
+    static int asLong (long            *result, const bsl::string_view& value);
+    static int asUlong(unsigned long   *result, const bsl::string_view& value);
+    static int asLonglong
+                   (long long          *result, const bsl::string_view& value);
+    static int asUlonglong
+                   (unsigned long long *result, const bsl::string_view& value);
+    static int asInt64 (Int64          *result, const bsl::string_view& value);
+    static int asUint64(Uint64         *result, const bsl::string_view& value);
+
+// BDE_VERIFY pragma: +FABC01 // not in alphabetic order
 
             // generic integer conversion
 
@@ -250,9 +264,9 @@ struct NumberUtil {
 
     /// Load into the specified `result` a string representation of
     /// specified numerical `value`.
-    static void stringify(bsl::string *result, Int64 value);
-    static void stringify(bsl::string *result, Uint64 value);
-    static void stringify(bsl::string *result, double value);
+    static void stringify(bsl::string *result, long long                value);
+    static void stringify(bsl::string *result, unsigned long long       value);
+    static void stringify(bsl::string *result, double                   value);
     static void stringify(bsl::string *result, const bdldfp::Decimal64& value);
 
            // comparison
@@ -319,15 +333,15 @@ struct NumberUtil_ImpUtil {
                          const bsl::string_view&  value);
 
     /// These functions are the template dispatched implementations for the
-    /// `NumberUtil_ImpUtil::asInteger` template function, and serve
-    /// distinguish the signed from the (default-case) unsigned
+    /// `NumberUtil_ImpUtil::asInteger` template function, and serve to
+    /// distinguish the `signed` from the (default-case) `unsigned`
     /// implementation.  These functions are documented by
     /// `NumberUtil::asInteger`.
     template <class t_INTEGER_TYPE>
     static int asIntegerDispatchImp(
-                           t_INTEGER_TYPE                    *result,
-                           const bsl::string_view&            value,
-                           bslmf::SelectTraitCase<NumberUtil_IsSigned>);
+                                  t_INTEGER_TYPE                    *result,
+                                  const bsl::string_view&            value,
+                                  bslmf::SelectTraitCase<NumberUtil_IsSigned>);
     template <class t_INTEGER_TYPE>
     static int asIntegerDispatchImp(t_INTEGER_TYPE           *result,
                                     const bsl::string_view&   value,
@@ -416,6 +430,8 @@ struct NumberUtil_ImpUtil {
                            // struct NumberUtil
                            // -----------------
 
+// BDE_VERIFY pragma: -FABC01 // not in alphabetic order
+
 inline
 double NumberUtil::asDouble(const bsl::string_view& value)
 {
@@ -446,7 +462,25 @@ float NumberUtil::asFloat(const bsl::string_view& value)
 }
 
 inline
+int NumberUtil::asShort(short *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
 int NumberUtil::asInt(int *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asLong(long *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asLonglong(long long *result, const bsl::string_view& value)
 {
     return asInteger(result, value);
 }
@@ -458,7 +492,26 @@ int NumberUtil::asInt64(Int64 *result, const bsl::string_view& value)
 }
 
 inline
+int NumberUtil::asUshort(unsigned short *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
 int NumberUtil::asUint(unsigned int *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asUlong(unsigned long *result, const bsl::string_view& value)
+{
+    return asInteger(result, value);
+}
+
+inline
+int NumberUtil::asUlonglong(unsigned long long      *result,
+                            const bsl::string_view&  value)
 {
     return asInteger(result, value);
 }
@@ -472,6 +525,8 @@ int NumberUtil::asInteger(t_INTEGER_TYPE          *result,
                  !bsl::is_same<t_INTEGER_TYPE, bool>::value));
     return NumberUtil_ImpUtil::asInteger(result, value);
 }
+
+// BDE_VERIFY pragma: +FABC01 // not in alphabetic order
 
                          // -------------------------
                          // struct NumberUtil_ImpUtil
