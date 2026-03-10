@@ -126,7 +126,6 @@ BSLS_IDENT("$Id: $")
 #include <bsl_iosfwd.h>
 #include <bsl_cstring.h> // memset
 #include <bsl_sstream.h>
-#include <bsl_optional.h>
 
 namespace BloombergLP {
 namespace bdlt {
