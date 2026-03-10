@@ -7,17 +7,154 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide functionality of the corresponding C++ Standard header.
 //
-//@DESCRIPTION: Provide types, in the 'bsl' namespace, equivalent to those
+//@DESCRIPTION: Provide types, in the `bsl` namespace, equivalent to those
 // defined in the corresponding C++ standard header.  Include the native
 // compiler-provided standard header, and also directly include Bloomberg's
 // implementation of the C++ standard type (if one exists).  Finally, place the
-// included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
+// included symbols from the `std` namespace (if any) into the `bsl` namespace.
+//
+// The following standard type traits are provided in namespace `bsl` by BDE in
+// C++03 as well as C++11.
+//```
+// `add_const`
+// `add_cv`
+// `add_lvalue_reference`
+// `add_pointer`
+// `add_rvalue_reference`
+// `add_volatile`
+// `conditional`
+// `decay`
+// `enable_if`
+// `false_type`
+// `integral_constant`
+// `is_arithmetic`
+// `is_array`
+// `is_class`
+// `is_const`
+// `is_convertible`
+// `is_copy_constructible`
+// `is_empty`
+// `is_enum`
+// `is_floating_point`
+// `is_function`
+// `is_fundamental`
+// `is_integral`
+// `is_lvalue_reference`
+// `is_member_function_pointer`
+// `is_member_object_pointer`
+// `is_member_pointer`
+// `is_nothrow_move_constructible`
+// `is_pointer`
+// `is_polymorphic`
+// `is_reference`
+// `is_rvalue_reference`
+// `is_same`
+// `is_trivially_copyable`
+// `is_trivially_default_constructible`
+// `is_void`
+// `is_volatile`
+// `remove_const`
+// `remove_cv`
+// `remove_extent`
+// `remove_pointer`
+// `remove_reference`
+// `remove_volatile`
+// `true_type`
+//```
+// The following standard type traits are provided in namespace `bsl` by BDE in
+// C++03 as well as C++17.
+//```
+// `bool_constant`
+// `conjunction`
+// `disjunction`
+// `invoke_result`
+// `negation`
+// `void_t`
+//```
+// The following standard type traits are provided in namespace `bsl` by BDE in
+// C++11 as well as C++17.
+//```
+// `is_nothrow_swappable`
+// `is_swappable`
+//```
+// The following standard type traits are provided in namespace `bsl` by BDE in
+// C++03 as well as C++20.
+//```
+// `is_bounded_array`
+// `is_unbounded_array`
+// `remove_cvref`
+// `type_identity`
+// `unwrap_ref_decay`
+// `unwrap_reference`
+//```
+// In addition, all the `bsl` traits with a `type` member define the
+// corresponding `bsl::trait_t` alias template in C++11 to simplify use.
+// Similarly the `bsl::trait_v` variable templates are provided in C++14.
+// The alias templates and variable template are also provided for the traits
+// supplied by the native Standard Library implementation in C++11/14, ahead
+// of the published standard that provided them.
+//
+// Note that the traits imported from namespace `std` are organized first by
+// the Standard that introduced them, and then by the subsection ordering
+// within the Standard.  Traits that have been removed in later editions of
+// the Standard are moved to the end of the file.
 
 #include <bsla_deprecated.h>
 
+// BDE implementation of standard traits
+#include <bslmf_addconst.h>
+#include <bslmf_addcv.h>
+#include <bslmf_addlvaluereference.h>
+#include <bslmf_addpointer.h>
+#include <bslmf_addrvaluereference.h>
+#include <bslmf_addvolatile.h>
+#include <bslmf_conditional.h>
 #include <bslmf_conjunction.h>
+#include <bslmf_decay.h>
 #include <bslmf_disjunction.h>
+#include <bslmf_enableif.h>
+#include <bslmf_integralconstant.h>
+#include <bslmf_invokeresult.h>
+#include <bslmf_isarithmetic.h>
+#include <bslmf_isarray.h>
+#include <bslmf_isclass.h>
+#include <bslmf_isconst.h>
+#include <bslmf_isconvertible.h>
+#include <bslmf_iscopyconstructible.h>
+#include <bslmf_isempty.h>
+#include <bslmf_isenum.h>
+#include <bslmf_isfloatingpoint.h>
+#include <bslmf_isfunction.h>
+#include <bslmf_isfundamental.h>
+#include <bslmf_isintegral.h>
+#include <bslmf_islvaluereference.h>
+#include <bslmf_ismemberfunctionpointer.h>
+#include <bslmf_ismemberobjectpointer.h>
+#include <bslmf_ismemberpointer.h>
+#include <bslmf_isnothrowmoveconstructible.h>
+#include <bslmf_isnothrowswappable.h>
+#include <bslmf_ispointer.h>
+#include <bslmf_ispolymorphic.h>
+#include <bslmf_isreference.h>
+#include <bslmf_isrvaluereference.h>
+#include <bslmf_issame.h>
+#include <bslmf_isswappable.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_isvoid.h>
+#include <bslmf_isvolatile.h>
 #include <bslmf_negation.h>
+#include <bslmf_removeconst.h>
+#include <bslmf_removecv.h>
+#include <bslmf_removecvref.h>
+#include <bslmf_removeextent.h>
+#include <bslmf_removepointer.h>
+#include <bslmf_removereference.h>
+#include <bslmf_removevolatile.h>
+#include <bslmf_typeidentity.h>
+#include <bslmf_unwraprefdecay.h>
+#include <bslmf_unwrapreference.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_compilerfeatures.h>
@@ -25,63 +162,10 @@ BSLS_IDENT("$Id: $")
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
 
-#include <cstddef>       // for 'std::size_t'
+#include <cstddef>       // for `std::size_t`
 
-#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-#include <bsls_nativestd.h>
-#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L
-#  ifndef BSL_USE_NATIVE_STD_IMPLEMENTATION
-#    define BSL_USE_NATIVE_STD_IMPLEMENTATION 1
-#  endif
-#endif
-
-#if defined(BSL_USE_NATIVE_STD_IMPLEMENTATION)
-
-#include <type_traits>
-
-// PLATFORM SUPPORT MACROS
-// -----------------------
-// The following macros diagnose whether the current platform supports the full
-// set of C++11 type traits.  Although this should be detected by directly
-// testing the version of the native standard library (which may deviate from
-// the default tool-chain) we are using the compiler version as a proxy for the
-// library, which is a good match on the platforms available to us for testing.
-// Library-specific detection and support may follow as subsequent patch
-// requests.
-
-// Our default implementation assumes that a full set of C++11-conformant
-// traits are not available; some standard library implementations omit them
-// silently, with no indicator macros.
-
-// BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-    // C++11 renamed a variety of 'has_trivial_*' traits to 'is_trivially_*'
-    // to provide a more consistent naming convention for the standard traits.
-    // Several standard library implementations took a while to catch up, after
-    // initially promoting their TR1 traits implementation into 'std'.  This
-    // macro tracks whether a given library version provides these traits.
-
-// BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-    // The 'aligned_union' type was added, removed, and then restored, over the
-    // evolution of C++11.  This macro tracks whether a given library version
-    // provides the type.
-
-// We then detect specific platforms that may have some elements of support,
-// and define the support macro for just those cases.  We do not redefine the
-// support macros if they are already defined, so that it is possible to define
-// them on the compiler command line to 0 or 1 regardless of platform.
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) || \
-    defined(BSLS_PLATFORM_CMP_GNU) || \
-    defined(BSLS_PLATFORM_CMP_CLANG)
-#  ifndef   BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
-#    define BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS 1
-#  endif
-#  ifndef   BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
-#    define BSL_TYPE_TRAITS_HAS_ALIGNED_UNION       1
-#  endif
-#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+# include <type_traits>
 
 namespace bsl {
     // Import selected symbols into bsl namespace
@@ -98,10 +182,6 @@ using std::is_compound;
 using std::is_trivial;
 using std::is_standard_layout;
 using std::is_pod;
-#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
-    // This name is removed by C++20
-using std::is_literal_type;
-#endif
 using std::is_abstract;
 using std::is_signed;
 using std::is_unsigned;
@@ -112,7 +192,6 @@ using std::is_assignable;
 using std::is_copy_assignable;
 using std::is_move_assignable;
 using std::is_destructible;
-#if BSL_TYPE_TRAITS_HAS_IS_TRIVIALLY_TRAITS
 using std::is_trivially_constructible;
 using std::is_trivially_copy_constructible;
 using std::is_trivially_move_constructible;
@@ -120,16 +199,14 @@ using std::is_trivially_assignable;
 using std::is_trivially_copy_assignable;
 using std::is_trivially_move_assignable;
 using std::is_trivially_destructible;
-#endif
 using std::is_nothrow_constructible;
 using std::is_nothrow_default_constructible;
 using std::is_nothrow_copy_constructible;
 using std::is_nothrow_assignable;
 using std::is_nothrow_copy_assignable;
 using std::is_nothrow_move_assignable;
-#if !defined(BSLS_PLATFORM_CMP_GNU) || BSLS_PLATFORM_CMP_VERSION >= 40800
 using std::is_nothrow_destructible;
-#endif
+
 using std::has_virtual_destructor;
 
     // 20.10.5, type property queries:
@@ -138,9 +215,7 @@ using std::rank;
 using std::extent;
 
     // 20.10.6, type relations:
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 using std::is_base_of;
-#endif
 
     // 20.10.7.3, sign modifications:
 using std::make_signed;
@@ -154,125 +229,70 @@ using std::remove_all_extents;
     // `std::aligned_storage` and `std::aligned_union` are deprecated in C++23.
     // Silence the warning that would result from including this header, but
     // mark the bsl aliases deprecated.
-#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#  endif
-#  define BSL_TYPE_TRAITS_DEPRECATED_ALIGNED [[deprecated]]
-#else
-#  define BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
-#endif
+# if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#   if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+#     pragma GCC diagnostic push
+#     pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
+#   define BSL_TYPE_TRAITS_DEPRECATED_ALIGNED [[deprecated]]
+# else
+#   define BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
+# endif
 
 template <std::size_t t_LEN,
           std::size_t t_ALIGNMENT =
               BloombergLP::bsls::AlignmentUtil
               ::defaultAlignmentOfAlignedStorage<t_LEN>()>
 using aligned_storage BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
-= std::aligned_storage<t_LEN, t_ALIGNMENT>;
+    = std::aligned_storage<t_LEN, t_ALIGNMENT>;
 
 template <std::size_t t_LEN,
           std::size_t t_ALIGNMENT =
               BloombergLP::bsls::AlignmentUtil
               ::defaultAlignmentOfAlignedStorage<t_LEN>()>
 using aligned_storage_t BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
-= typename std::aligned_storage<t_LEN, t_ALIGNMENT>::type;
+    = typename std::aligned_storage<t_LEN, t_ALIGNMENT>::type;
 
-#if BSL_TYPE_TRAITS_HAS_ALIGNED_UNION
 template <std::size_t t_LEN, class... t_TYPES>
 using aligned_union BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
-= std::aligned_union<t_LEN, t_TYPES...>;
+    = std::aligned_union<t_LEN, t_TYPES...>;
 
 template <std::size_t t_LEN, class... t_TYPES>
 using aligned_union_t BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
-= typename std::aligned_union<t_LEN, t_TYPES...>::type;
-#endif
+    = typename std::aligned_union<t_LEN, t_TYPES...>::type;
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
-#  if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
-#    pragma GCC diagnostic pop
-#  endif
-#  undef BSL_TYPE_TRAITS_DEPRECATED_ALIGNED_STORAGE
-#endif
+# if BSLS_COMPILERFEATURES_CPLUSPLUS > 202002L
+#   if defined(BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC)
+#     pragma GCC diagnostic pop
+#   endif
+#   undef BSL_TYPE_TRAITS_DEPRECATED_ALIGNED
+# endif
 
 using std::common_type;
 using std::underlying_type;
-#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
-    // This name is removed by C++20
-using std::result_of;
-#endif
 
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
 template <class... TYPES>
 using common_type_t = typename std::common_type<TYPES...>::type;
-    // 'common_type_t' is an alias to the return type of the
-    // 'std::common_type' meta-function.
-#endif
 
 template <class TYPE>
 using make_signed_t = typename std::make_signed<TYPE>::type;
-    // 'make_signed_t' is an alias to the return type of the
-    // 'std::make_signed' meta-function.
 
 template <class TYPE>
 using make_unsigned_t = typename std::make_unsigned<TYPE>::type;
-    // 'make_unsigned_t' is an alias to the return type of the
-    // 'std::make_unsigned' meta-function.
 
 template <class TYPE>
 using remove_all_extents_t =
                            typename std::remove_all_extents<TYPE>::type;
-    // 'remove_all_extents_t' is an alias to the return type of the
-    // 'std::remove_all_extents' meta-function.
-
-#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
-    // This name is removed by C++20
-
-template <class TYPE>
-using result_of_t = typename std::result_of<TYPE>::type;
-    // ' result_of_t' is an alias to the return type of the 'std::result_of'
-    // meta-function.
-#endif
 
 template <class TYPE>
 using underlying_type_t = typename std::underlying_type<TYPE>::type;
-    // 'underlying_type_t' is an alias to the return type of the
-    // 'std::underlying_type' meta-function.
-#endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
 using std::is_null_pointer;
 using std::is_final;
-#endif
+# endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-    // 20.10.8, logical operator traits:
-// supplied by 'bslmf'
-
-    // 23.15.4.3, type properties
-using std::has_unique_object_representations;
-using std::is_aggregate;
-
-    // 23.15.6, type relations
-using std::is_invocable;
-using std::is_invocable_r;
-using std::is_nothrow_invocable;
-using std::is_nothrow_invocable_r;
-
-    // 23.15.4.3, type properties
-using std::is_swappable;
-using std::is_swappable_with;
-using std::is_nothrow_swappable;
-using std::is_nothrow_swappable_with;
-
-// void_t is supplied by bslmf_voidtype.h, as is invoke_result
-// (bslmf_invokeresult.h), bool_constant (bslmf_integralconstant.h), and
-// type_identity (bslmf_typeidentity.h)
-#endif
-
-#if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
-
+# if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 template <class TYPE>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool has_virtual_destructor_v =
@@ -308,49 +328,20 @@ constexpr bool is_standard_layout_v = std::is_standard_layout<TYPE>::value;
 
 // ----------------------------------------------------------------------------
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 100000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS > 201703L
-    // g++ 10.2.1 starts warn from ~201709L
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
+#   if defined(BSLS_PLATFORM_CMP_GNU)
+    // Silence deprecation warning declaring this variable template in the case
+    // that the native standard library has marked `is_pod` as deprecated.
+#     pragma GCC diagnostic push
+#     pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#   endif
 
 template <class TYPE>
-#if BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
-BSLA_DEPRECATED  // Warn of using 'bsl::is_pod_v' even though we suppress
-                 // warnings of using 'std::is_pod' in this implementation.
-#endif // C++20
-BSLS_KEYWORD_INLINE_VARIABLE
+BSLA_DEPRECATED BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_pod_v = std::is_pod<TYPE>::value;
 
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 100000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS > 201703L
-#pragma GCC diagnostic pop
-#endif
-
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-#if ! defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
-template <class TYPE>
-BSLA_DEPRECATED  // Warn of using 'bsl::is_literal_type' even though we
-                 // suppress warnings of using 'std::is_pod' in this
-                 // implementation.
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_literal_type_v = std::is_literal_type<TYPE>::value;
-#else
-    // Removed in C++20
-#endif // Introduced in C++17 already deprecated; removed in C++20.
-
-#if defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 110000 &&  \
-    BSLS_COMPILERFEATURES_CPLUSPLUS >= 201703L
-#pragma GCC diagnostic pop
-#endif
+#   if defined(BSLS_PLATFORM_CMP_GNU)
+#     pragma GCC diagnostic pop
+#   endif
 
 // ----------------------------------------------------------------------------
 
@@ -489,207 +480,127 @@ constexpr std::size_t extent_v = std::extent<TYPE>::value;
 template <class TYPE1, class TYPE2>
 BSLS_KEYWORD_INLINE_VARIABLE
 constexpr bool is_base_of_v = std::is_base_of<TYPE1, TYPE2>::value;
+# endif // BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool has_unique_object_representations_v =
-                    std::has_unique_object_representations<TYPE>::value;
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // 23.15.4.3, type properties
+using std::has_unique_object_representations;
+using std::is_aggregate;
+
+    // 23.15.6, type relations
+using std::is_invocable;
+using std::is_invocable_r;
+using std::is_nothrow_invocable;
+using std::is_nothrow_invocable_r;
+
+    // 23.15.4.3, type properties
+using std::is_swappable_with;
+using std::is_nothrow_swappable_with;
 
 template <class TYPE>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_aggregate_v = std::is_aggregate<TYPE>::value;
+inline constexpr
+bool has_unique_object_representations_v =
+                           std::has_unique_object_representations<TYPE>::value;
+
+template <class TYPE>
+inline constexpr
+bool is_aggregate_v = std::is_aggregate<TYPE>::value;
 
 template <class TYPE, class ...Args>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_invocable_v =
-                                std::is_invocable<TYPE, Args...>::value;
+inline constexpr
+bool is_invocable_v = std::is_invocable<TYPE, Args...>::value;
 
 template <class RET, class TYPE, class ...Args>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_invocable_r_v =
-                         std::is_invocable_r<RET, TYPE, Args...>::value;
+inline constexpr
+bool is_invocable_r_v = std::is_invocable_r<RET, TYPE, Args...>::value;
 
 template <class TYPE, class ...Args>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_nothrow_invocable_v =
-                        std::is_nothrow_invocable<TYPE, Args...>::value;
+inline constexpr
+bool is_nothrow_invocable_v = std::is_nothrow_invocable<TYPE, Args...>::value;
 
 template <class RET, class TYPE, class ...Args>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_nothrow_invocable_r_v =
-                 std::is_nothrow_invocable_r<RET, TYPE, Args...>::value;
+inline constexpr
+bool is_nothrow_invocable_r_v =
+                        std::is_nothrow_invocable_r<RET, TYPE, Args...>::value;
 
 template <class TYPE1, class TYPE2>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_swappable_with_v =
-                            std::is_swappable_with<TYPE1, TYPE2>::value;
+inline constexpr
+bool is_swappable_with_v = std::is_swappable_with<TYPE1, TYPE2>::value;
 
 template <class TYPE1, class TYPE2>
-BSLS_KEYWORD_INLINE_VARIABLE
-constexpr bool is_nothrow_swappable_with_v =
-                    std::is_nothrow_swappable_with<TYPE1, TYPE2>::value;
-#endif
-#endif
+inline constexpr
+bool is_nothrow_swappable_with_v =
+                           std::is_nothrow_swappable_with<TYPE1, TYPE2>::value;
+# endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 // 20.15.6, type relations
 using std::is_nothrow_convertible;
 using std::is_nothrow_convertible_v;
 
 // 20.15.7.6, other transformations
-using std::remove_cvref;
-using std::remove_cvref_t;
 using std::common_reference;
 using std::common_reference_t;
 using std::basic_common_reference;
-using std::unwrap_reference;
-using std::unwrap_reference_t;
-using std::unwrap_ref_decay;
-using std::unwrap_ref_decay_t;
-#endif
+# endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_LAYOUT_COMPATIBLE
 // 20.15.6, type relations
 using std::is_layout_compatible;
 using std::is_layout_compatible_v;
-#endif
+# endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_POINTER_INTERCONVERTIBLE
 // 20.15.6, type relations
 using std::is_pointer_interconvertible_base_of;
 using std::is_pointer_interconvertible_base_of_v;
 
 // 20.15.9, member relationships
 using std::is_pointer_interconvertible_with_class;
-#endif
+# endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_IS_CORRESPONDING_MEMBER
 // 20.15.9, member relationships
 using std::is_corresponding_member;
-#endif
+# endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+# ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 // 20.15.10, constant evaluation context
 using std::is_constant_evaluated;
-#endif
+# endif
 
-#if 0
-    // These traits are provided by BDE, and have additional members for
-    // Bloomberg legacy code still using the pre-standard interface.
+# if defined(BSLS_PLATFORM_CMP_GNU)
+    // Silence deprecation warnings for declarations of alias templates and
+    // variable templates where the native library implementation may have
+    // marked the aliased trait as deprecated.
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
 
-using std::add_const;
-using std::add_cv;
-using std::add_lvalue_reference;
-using std::add_pointer;
-using std::add_rvalue_reference;
-using std::add_volatile;
-using std::conditional;
-using std::decay;
-using std::enable_if;
-using std::false_type;
-using std::integral_constant;
-using std::invoke_result;
-using std::is_arithmetic;
-using std::is_array;
-using std::is_bounded_array;
-using std::is_bounded_array_v;
-using std::is_class;
-using std::is_const;
-using std::is_convertible;
-using std::is_copy_constructible;
-using std::is_empty;
-using std::is_enum;
-using std::is_floating_point;
-using std::is_function;
-using std::is_fundamental;
-using std::is_integral;
-using std::is_lvalue_reference;
-using std::is_member_function_pointer;
-using std::is_member_object_pointer;
-using std::is_member_pointer;
-using std::is_nothrow_move_constructible;
-using std::is_pointer;
-using std::is_polymorphic;
-using std::is_reference;
-using std::is_rvalue_reference;
-using std::is_same;
-using std::is_trivially_copyable;
-using std::is_trivially_default_constructible;
-using std::is_unbounded_array;
-using std::is_unbounded_array_v;
-using std::is_void;
-using std::is_volatile;
-using std::remove_const;
-using std::remove_cv;
-using std::remove_extent;
-using std::remove_pointer;
-using std::remove_reference;
-using std::remove_volatile;
-using std::true_type;
-using std::void_t;
-#endif
+/// A numbers of type traits have been deprecated and removed as the Standard
+/// evolved.  We move those traits to the end of this header to simplify
+/// auditing against the latest Standard document.
+# if !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED)
+    // This name is removed by C++20
+using std::is_literal_type;
+#   if defined BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES
+template <class TYPE>
+BSLA_DEPRECATED BSLS_KEYWORD_INLINE_VARIABLE
+constexpr bool is_literal_type_v = std::is_literal_type<TYPE>::value;
+#   endif
+
+using std::result_of;
+template <class TYPE>
+using result_of_t = typename std::result_of<TYPE>::type;
+# endif // BSLS_LIBRARYFEATURES_HAS_CPP20_DEPRECATED_REMOVED
+
+# if defined(BSLS_PLATFORM_CMP_GNU)
+#   pragma GCC diagnostic pop
+# endif
+
 }  // close package namespace
 
-#endif  // BSL_USE_NATIVE_STD_IMPLEMENTATION
-
-// Include Bloomberg's implementation, unless compilation is configured to
-// override native types in the 'std' namespace with Bloomberg's
-// implementation, in which case the implementation file will be included by
-// the Bloomberg supplied standard header file.
-
-// standard traits
-#include <bslmf_addconst.h>
-#include <bslmf_addcv.h>
-#include <bslmf_addlvaluereference.h>
-#include <bslmf_addpointer.h>
-#include <bslmf_addreference.h>
-#include <bslmf_addrvaluereference.h>
-#include <bslmf_addvolatile.h>
-#include <bslmf_conditional.h>
-#include <bslmf_decay.h>
-#include <bslmf_enableif.h>
-#include <bslmf_integralconstant.h>
-#include <bslmf_invokeresult.h>
-#include <bslmf_isarithmetic.h>
-#include <bslmf_isarray.h>
-#include <bslmf_isclass.h>
-#include <bslmf_isconst.h>
-#include <bslmf_isconvertible.h>
-#include <bslmf_iscopyconstructible.h>
-#include <bslmf_isempty.h>
-#include <bslmf_isenum.h>
-#include <bslmf_isfloatingpoint.h>
-#include <bslmf_isfunction.h>
-#include <bslmf_isfundamental.h>
-#include <bslmf_isintegral.h>
-#include <bslmf_islvaluereference.h>
-#include <bslmf_ismemberfunctionpointer.h>
-#include <bslmf_ismemberobjectpointer.h>
-#include <bslmf_ismemberpointer.h>
-#include <bslmf_isnothrowmoveconstructible.h>
-#include <bslmf_isnothrowswappable.h>
-#include <bslmf_ispointer.h>
-#include <bslmf_ispolymorphic.h>
-#include <bslmf_isreference.h>
-#include <bslmf_isrvaluereference.h>
-#include <bslmf_issame.h>
-#include <bslmf_isswappable.h>
-#include <bslmf_istriviallycopyable.h>
-#include <bslmf_istriviallydefaultconstructible.h>
-#include <bslmf_isvoid.h>
-#include <bslmf_isvolatile.h>
-#include <bslmf_removeconst.h>
-#include <bslmf_removecv.h>
-#include <bslmf_removecvref.h>
-#include <bslmf_removeextent.h>
-#include <bslmf_removepointer.h>
-#include <bslmf_removereference.h>
-#include <bslmf_removevolatile.h>
-#include <bslmf_typeidentity.h>
-#include <bslmf_unwraprefdecay.h>
-#include <bslmf_unwrapreference.h>
-#include <bslmf_voidtype.h>
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 #endif
 
