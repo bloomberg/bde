@@ -215,10 +215,15 @@ struct CurrentTime {
     /// Return the `TimeInterval` value between `EpochUtil::epoch()` and the
     /// current date/time.  This is the default current-time callback
     /// implementation for current time retrieval.  The obtained time is
-    /// expressed as a time interval from `00:00 UTC, January 1, 1970`.  On
-    /// UNIX (Solaris, LINUX and DG-UNIX) this function provides a
-    /// microsecond resolution.  On Windows (NT, WIN2000, 95, 98 etc) it
-    /// provides a resolution of 100 nanoseconds.
+    /// expressed as a time interval from `00:00 UTC, January 1, 1970`.  The
+    /// resolution is:
+    /// * Unix DG-Unix: microsecond resolution
+    ///
+    /// * Linux: nanosecond resolution
+    ///
+    /// * Solaris: 5 nanosecond resolution
+    ///
+    /// * Windows 11: 1-5 millisecond resolution
     static bsls::TimeInterval currentTimeDefault();
 };
 

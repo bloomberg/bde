@@ -1060,21 +1060,49 @@ int main(int argc, char *argv[])
 
         if (verbose) { cout << "Testing monotonicity" << endl; }
         {
-            bsls::TimeInterval i1 = Util::currentTimeDefault();
-            ASSERT( 0 != i1);
-            bsls::TimeInterval i2 = Util::currentTimeDefault();
-            ASSERT( 0 != i2);
-            ASSERT( i2 >= i1 );
-            bsls::TimeInterval i3 = Util::currentTimeDefault();
-            ASSERT( 0 != i3);
-            ASSERT( i3 >= i2 );
-            bsls::TimeInterval i4 = Util::currentTimeDefault();
-            ASSERT( 0 != i4);
-            ASSERT( i4 >= i3 );
-            bsls::TimeInterval i5 = Util::currentTimeDefault();
-            ASSERT( 0 != i5);
-            ASSERT( i5 >= i4 );
-            if (veryVerbose) { P_(i1); P_(i2); P(i3); P_(i4); P(i5); }
+            bsls::TimeInterval ti[5];
+
+            ti[0] = Util::currentTimeDefault();
+            ti[1] = Util::currentTimeDefault();
+            ti[2] = Util::currentTimeDefault();
+            ti[3] = Util::currentTimeDefault();
+            do {
+                ti[4] = Util::currentTimeDefault();
+
+                // Note: on all Unix, this loop terminates after the first
+                // iteration.  On Windows 11, the first [ t[0] .. t[3] ]
+                // usually return identical times, then this loop iterates, and
+                // then `ti[4]` winds up being 2-9 milliseconds greater than
+                // `ti[3]`.  The windows nanoseconds displayed typically end
+                // with "00" with fairly random digits before that, which may
+                // have given earlier developers the illusion of precision.
+            } while (ti[4] == ti[3]);
+            ASSERT( 0 != ti[0]);
+            ASSERT( 0 != ti[1]);
+            ASSERT( ti[1] >= ti[0] );
+            ASSERT( 0 != ti[2]);
+            ASSERT( ti[2] >= ti[1] );
+            ASSERT( 0 != ti[3]);
+            ASSERT( ti[3] >= ti[2] );
+            ASSERT( 0 != ti[4]);
+            ASSERT( ti[4] >= ti[3] );
+            if (veryVerbose) {
+                for (int ii = 0; ii < 10; ++ii) {
+                    int jj = ii / 2;
+                    if (0 == jj && (ii & 1)) {
+                        continue;
+                    }
+                    const bsls::TimeInterval thisTi = (ii & 1) == 0
+                                                    ? ti[jj]
+                                                    : ti[jj] - ti[jj - 1];
+                    cout << thisTi.seconds() << '.';
+                    bsl::ios_base::fmtflags saveFlags(cout.flags());
+                    cout.fill('0');    cout.width(9);
+                    cout << thisTi.nanoseconds() <<
+                                     ((ii & 1 || 0 == jj) ? "\n" : "\tdiff: ");
+                    cout.flags(saveFlags);
+                }
+            }
         }
 
         if (verbose) { cout << "Comparing to other time sources" << endl; }
