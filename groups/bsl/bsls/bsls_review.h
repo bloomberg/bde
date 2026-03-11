@@ -640,6 +640,7 @@ BSLS_IDENT("$Id: $")
 // At this point, any contract violations in the use of `myFunc` in new code
 // will be caught immediately (i.e., in appropriate build modes).
 
+#include <bsls_annotation.h>
 #include <bsls_assertimputil.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_buildtarget.h>
@@ -1192,12 +1193,14 @@ class Review {
     /// Emulate the invocation of the standard `assert` macro with a `false`
     /// argument, using the specified `violation` to generate an output
     /// message and then, after logging, unconditionally abort.
+    BSLS_ANNOTATION_NORETURN
     static void failByAbort(const ReviewViolation& violation);
 
     /// Use the specified `violation` to generate an output message and
     /// then, after logging, spin in an infinite loop.  Note that this
     /// handler function is useful for hanging a process so that a debugger
     /// may be attached to it.
+    BSLS_ANNOTATION_NORETURN
     static void failBySleep(const ReviewViolation& violation);
 
     /// Throw an `AssertTestException` (whose attributes are `comment`,
@@ -1205,6 +1208,7 @@ class Review {
     /// provided that `BDE_BUILD_TARGET_EXC` is defined; otherwise, log an
     /// appropriate message and abort the program (similar to
     /// `failByAbort`).
+    BSLS_ANNOTATION_NORETURN
     static void failByThrow(const ReviewViolation& violation);
 };
 

@@ -171,6 +171,7 @@ void Review::invokeLanguageContractHandler(
 
                       // Standard Review-Failure Handlers
 
+BSLS_ANNOTATION_NORETURN
 void Review::failByAbort(const ReviewViolation& violation)
 {
     printError(violation);
@@ -257,12 +258,14 @@ void Review::failByLog(const ReviewViolation& violation)
     }
 }
 
+BSLS_ANNOTATION_NORETURN
 void Review::failBySleep(const ReviewViolation& violation)
 {
     printError(violation);
     AssertImpUtil::failBySleep();
 }
 
+BSLS_ANNOTATION_NORETURN
 void Review::failByThrow(const ReviewViolation& violation)
 {
 #ifdef BDE_BUILD_TARGET_EXC
