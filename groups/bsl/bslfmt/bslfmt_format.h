@@ -757,6 +757,7 @@ void vformat_to(wstring            *out,
                 std::wstring_view   fmtStr,
                 wformat_args        args);
 
+}  // close namespace bsl
 
 // ============================================================================
 //                           INLINE DEFINITIONS
@@ -764,7 +765,7 @@ void vformat_to(wstring            *out,
 
 // FREE FUNCTIONS
 template <class t_CONTEXT, class... t_ARGS>
-auto make_format_args(t_ARGS&... args)
+auto bsl::make_format_args(t_ARGS&... args)
 {
     static_assert(
                  (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
@@ -773,7 +774,7 @@ auto make_format_args(t_ARGS&... args)
 }
 
 template <class... t_ARGS>
-auto make_wformat_args(t_ARGS&... args)
+auto bsl::make_wformat_args(t_ARGS&... args)
 {
     static_assert(
                  (... && (!std::is_same_v<std::decay_t<t_ARGS>, long double>)),
@@ -782,23 +783,23 @@ auto make_wformat_args(t_ARGS&... args)
 }
 
 template <class... t_ARGS>
-string format(format_string<t_ARGS...> fmtStr, t_ARGS&&... args)
+bsl::string bsl::format(format_string<t_ARGS...> fmtStr, t_ARGS&&... args)
 {
     return bsl::vformat(fmtStr.get(),
                         bsl::make_format_args(args...));
 }
 
 template <class... t_ARGS>
-wstring format(wformat_string<t_ARGS...> fmtStr, t_ARGS&&... args)
+bsl::wstring bsl::format(wformat_string<t_ARGS...> fmtStr, t_ARGS&&... args)
 {
     return bsl::vformat(fmtStr.get(),
                         bsl::make_wformat_args(args...));
 }
 
 template <class... t_ARGS>
-string format(const std::locale&       loc,
-              format_string<t_ARGS...> fmtStr,
-              t_ARGS&&...              args)
+bsl::string bsl::format(const std::locale&       loc,
+                   format_string<t_ARGS...> fmtStr,
+                   t_ARGS&&...              args)
 {
     return bsl::vformat(loc,
                         fmtStr.get(),
@@ -806,9 +807,9 @@ string format(const std::locale&       loc,
 }
 
 template <class... t_ARGS>
-wstring format(const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtStr,
-               t_ARGS&&...               args)
+bsl::wstring bsl::format(const std::locale&        loc,
+                    wformat_string<t_ARGS...> fmtStr,
+                    t_ARGS&&...               args)
 {
     return bsl::vformat(loc,
                         fmtStr.get(),
@@ -816,9 +817,9 @@ wstring format(const std::locale&        loc,
 }
 
 template <class... t_ARGS>
-string format(allocator<char>          alloc,
-              format_string<t_ARGS...> fmtStr,
-              t_ARGS&&...              args)
+bsl::string bsl::format(allocator<char>          alloc,
+                   format_string<t_ARGS...> fmtStr,
+                   t_ARGS&&...              args)
 {
     return bsl::vformat(alloc,
                         fmtStr.get(),
@@ -826,9 +827,9 @@ string format(allocator<char>          alloc,
 }
 
 template <class... t_ARGS>
-wstring format(allocator<wchar_t>        alloc,
-               wformat_string<t_ARGS...> fmtStr,
-               t_ARGS&&...               args)
+bsl::wstring bsl::format(allocator<wchar_t>        alloc,
+                    wformat_string<t_ARGS...> fmtStr,
+                    t_ARGS&&...               args)
 {
     return bsl::vformat(alloc,
                         fmtStr.get(),
@@ -836,10 +837,10 @@ wstring format(allocator<wchar_t>        alloc,
 }
 
 template <class... t_ARGS>
-string format(allocator<char>          alloc,
-              const std::locale&       loc,
-              format_string<t_ARGS...> fmtStr,
-              t_ARGS&&...              args)
+bsl::string bsl::format(allocator<char>          alloc,
+                   const std::locale&       loc,
+                   format_string<t_ARGS...> fmtStr,
+                   t_ARGS&&...              args)
 {
     return bsl::vformat(alloc,
                         loc,
@@ -848,10 +849,10 @@ string format(allocator<char>          alloc,
 }
 
 template <class... t_ARGS>
-wstring format(allocator<wchar_t>        alloc,
-               const std::locale&        loc,
-               wformat_string<t_ARGS...> fmtStr,
-               t_ARGS&&...               args)
+bsl::wstring bsl::format(allocator<wchar_t>        alloc,
+                    const std::locale&        loc,
+                    wformat_string<t_ARGS...> fmtStr,
+                    t_ARGS&&...               args)
 {
     return bsl::vformat(alloc,
                         loc,
@@ -860,7 +861,7 @@ wstring format(allocator<wchar_t>        alloc,
 }
 
 inline
-string vformat(std::string_view fmt, format_args args)
+bsl::string bsl::vformat(std::string_view fmt, format_args args)
 {
     string result;
     bsl::vformat_to(&result, fmt, args);
@@ -868,7 +869,7 @@ string vformat(std::string_view fmt, format_args args)
 }
 
 inline
-wstring vformat(std::wstring_view fmt, wformat_args args)
+bsl::wstring bsl::vformat(std::wstring_view fmt, wformat_args args)
 {
     wstring result;
     bsl::vformat_to(&result, fmt, args);
@@ -876,7 +877,9 @@ wstring vformat(std::wstring_view fmt, wformat_args args)
 }
 
 inline
-string vformat(const std::locale& loc, std::string_view fmt, format_args args)
+bsl::string bsl::vformat(const std::locale& loc,
+                    std::string_view fmt,
+                    format_args args)
 {
     string result;
     bsl::vformat_to(&result, loc, fmt, args);
@@ -884,9 +887,9 @@ string vformat(const std::locale& loc, std::string_view fmt, format_args args)
 }
 
 inline
-wstring vformat(const std::locale& loc,
-                std::wstring_view  fmt,
-                wformat_args       args)
+bsl::wstring bsl::vformat(const std::locale& loc,
+                     std::wstring_view  fmt,
+                     wformat_args       args)
 {
     wstring result;
     bsl::vformat_to(&result, loc, fmt, args);
@@ -894,7 +897,9 @@ wstring vformat(const std::locale& loc,
 }
 
 inline
-string vformat(allocator<char> alloc, std::string_view fmt, format_args args)
+bsl::string bsl::vformat(allocator<char> alloc,
+                    std::string_view fmt,
+                    format_args args)
 {
     string result(alloc);
     bsl::vformat_to(&result, fmt, args);
@@ -902,9 +907,9 @@ string vformat(allocator<char> alloc, std::string_view fmt, format_args args)
 }
 
 inline
-wstring vformat(allocator<wchar_t> alloc,
-                std::wstring_view  fmt,
-                wformat_args       args)
+bsl::wstring bsl::vformat(allocator<wchar_t> alloc,
+                     std::wstring_view  fmt,
+                     wformat_args       args)
 {
     wstring result(alloc);
     bsl::vformat_to(&result, fmt, args);
@@ -912,10 +917,10 @@ wstring vformat(allocator<wchar_t> alloc,
 }
 
 inline
-string vformat(allocator<char>    alloc,
-               const std::locale& loc,
-               std::string_view   fmt,
-               format_args        args)
+bsl::string bsl::vformat(allocator<char>    alloc,
+                    const std::locale& loc,
+                    std::string_view   fmt,
+                    format_args        args)
 {
     string result(alloc);
     bsl::vformat_to(&result, loc, fmt, args);
@@ -923,10 +928,10 @@ string vformat(allocator<char>    alloc,
 }
 
 inline
-wstring vformat(allocator<wchar_t> alloc,
-                const std::locale& loc,
-                std::wstring_view  fmt,
-                wformat_args       args)
+bsl::wstring bsl::vformat(allocator<wchar_t> alloc,
+                     const std::locale& loc,
+                     std::wstring_view  fmt,
+                     wformat_args       args)
 {
     wstring result(alloc);
     bsl::vformat_to(&result, loc, fmt, args);
@@ -934,10 +939,10 @@ wstring vformat(allocator<wchar_t> alloc,
 }
 
 template <class t_STRING, class... t_ARGS>
-requires(bsl::is_same_v<t_STRING, bsl::string>) void format_to(
-                                              t_STRING                 *out,
-                                              format_string<t_ARGS...>  fmtStr,
-                                              t_ARGS&&...               args)
+requires(bsl::is_same_v<t_STRING, bsl::string>)
+void bsl::format_to(t_STRING                 *out,
+                    format_string<t_ARGS...>  fmtStr,
+                    t_ARGS&&...               args)
 {
     bsl::vformat_to(out,
                     fmtStr.get(),
@@ -946,9 +951,9 @@ requires(bsl::is_same_v<t_STRING, bsl::string>) void format_to(
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
-void format_to(t_STRING                  *out,
-               wformat_string<t_ARGS...>  fmtStr,
-               t_ARGS&&...                args)
+void bsl::format_to(t_STRING                  *out,
+                    wformat_string<t_ARGS...>  fmtStr,
+                    t_ARGS&&...                args)
 {
     bsl::vformat_to(out,
                     fmtStr.get(),
@@ -957,10 +962,10 @@ void format_to(t_STRING                  *out,
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::string>)
-void format_to(t_STRING                 *out,
-               const std::locale&        loc,
-               format_string<t_ARGS...>  fmtStr,
-               t_ARGS&&...               args)
+void bsl::format_to(t_STRING                 *out,
+                    const std::locale&        loc,
+                    format_string<t_ARGS...>  fmtStr,
+                    t_ARGS&&...               args)
 {
     bsl::vformat_to(out,
                     loc,
@@ -970,10 +975,10 @@ void format_to(t_STRING                 *out,
 
 template <class t_STRING, class... t_ARGS>
 requires(bsl::is_same_v<t_STRING, bsl::wstring>)
-void format_to(t_STRING                  *out,
-               const std::locale&         loc,
-               wformat_string<t_ARGS...>  fmtStr,
-               t_ARGS&&...                args)
+void bsl::format_to(t_STRING                  *out,
+                    const std::locale&         loc,
+                    wformat_string<t_ARGS...>  fmtStr,
+                    t_ARGS&&...                args)
 {
     bsl::vformat_to(out,
                     loc,
@@ -983,40 +988,38 @@ void format_to(t_STRING                  *out,
 
 
 inline
-void vformat_to(string *out, std::string_view fmt, format_args args)
+void bsl::vformat_to(string *out, std::string_view fmt, format_args args)
 {
     out->clear();
     std::vformat_to(std::back_inserter(*out), fmt, args);
 }
 
 inline
-void vformat_to(wstring *out, std::wstring_view fmt, wformat_args args)
+void bsl::vformat_to(wstring *out, std::wstring_view fmt, wformat_args args)
 {
     out->clear();
     std::vformat_to(std::back_inserter(*out), fmt, args);
 }
 
 inline
-void vformat_to(string             *out,
-                const std::locale&  loc,
-                std::string_view    fmt,
-                format_args         args)
+void bsl::vformat_to(string             *out,
+                     const std::locale&  loc,
+                     std::string_view    fmt,
+                     format_args         args)
 {
     out->clear();
     std::vformat_to(std::back_inserter(*out), loc, fmt, args);
 }
 
 inline
-void vformat_to(wstring            *out,
-                const std::locale&  loc,
-                std::wstring_view   fmt,
-                wformat_args        args)
+void bsl::vformat_to(wstring            *out,
+                     const std::locale&  loc,
+                     std::wstring_view   fmt,
+                     wformat_args        args)
 {
     out->clear();
     std::vformat_to(std::back_inserter(*out), loc, fmt, args);
 }
-
-}  // close namespace bsl
 
 #endif  // defined(BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT)
 

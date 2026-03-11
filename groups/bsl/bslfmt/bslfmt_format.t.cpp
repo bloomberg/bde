@@ -3,13 +3,20 @@
 
 #include <bslfmt_standardformatspecification.h>
 
+#include <bslalg_numericformatterutil.h>
+
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
+#include <bsls_exceptionutil.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_platform.h>
 
 #include <bslstl_string.h>
+#include <bslstl_stringref.h>
 #include <bslstl_vector.h>
 
 #include <locale>   // for C++20 tests
