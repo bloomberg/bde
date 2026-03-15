@@ -1,4 +1,4 @@
-// s_baltst_depthtestmessageutil.t.cpp                              -*-C++-*-
+// s_baltst_depthtestmessageutil.t.cpp                                -*-C++-*-
 #include <s_baltst_depthtestmessageutil.h>
 
 #include <bslim_testutil.h>

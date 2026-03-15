@@ -1,4 +1,3 @@
-
 // bslmf_invokeresult.cpp                                             -*-C++-*-
 
 #include <bslmf_invokeresult.h>

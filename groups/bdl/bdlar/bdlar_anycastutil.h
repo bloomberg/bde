@@ -1,4 +1,4 @@
-// bdlar_anycastutil.h                                                     -*-C++-*-
+// bdlar_anycastutil.h                                                -*-C++-*-
 #ifndef INCLUDED_BDLAR_ANYCASTUTIL
 #define INCLUDED_BDLAR_ANYCASTUTIL
 

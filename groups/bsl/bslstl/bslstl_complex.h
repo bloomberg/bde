@@ -1,4 +1,4 @@
-// bslstl_complex.h                                                    -*-C++-*-
+// bslstl_complex.h                                                   -*-C++-*-
 #ifndef INCLUDED_BSLSTL_COMPLEX
 #define INCLUDED_BSLSTL_COMPLEX
 

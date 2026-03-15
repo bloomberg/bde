@@ -1,4 +1,4 @@
-// bdlde_base64ignoremode.cpp                                        -*-C++-*-
+// bdlde_base64ignoremode.cpp                                         -*-C++-*-
 #include <bdlde_base64ignoremode.h>
 
 #include <bsls_ident.h>

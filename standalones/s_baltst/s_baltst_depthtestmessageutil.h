@@ -1,4 +1,4 @@
-// s_baltst_depthtestmessageutil.h                                  -*-C++-*-
+// s_baltst_depthtestmessageutil.h                                    -*-C++-*-
 #ifndef INCLUDED_S_BALTST_DEPTHTESTMESSAGEUTIL
 #define INCLUDED_S_BALTST_DEPTHTESTMESSAGEUTIL
 

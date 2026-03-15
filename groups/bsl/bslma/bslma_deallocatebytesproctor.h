@@ -1,4 +1,4 @@
-// bslma_deallocatebytesproctor.h                                    -*-C++-*-
+// bslma_deallocatebytesproctor.h                                     -*-C++-*-
 #ifndef INCLUDED_BSLMA_DEALLOCATEBYTESPROCTOR
 #define INCLUDED_BSLMA_DEALLOCATEBYTESPROCTOR
 

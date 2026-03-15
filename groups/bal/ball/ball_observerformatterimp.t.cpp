@@ -1,4 +1,4 @@
-﻿// ball_observerformatterimp.t.cpp                                    -*-C++-*-
+﻿// ball_observerformatterimp.t.cpp                                   -*-C++-*-
 #include <ball_observerformatterimp.h>
 
 #include <ball_context.h>

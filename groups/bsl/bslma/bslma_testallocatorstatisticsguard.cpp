@@ -1,4 +1,4 @@
-// bslma_testallocatorstatisticsguard.cpp                                     -*-C++-*-
+// bslma_testallocatorstatisticsguard.cpp                             -*-C++-*-
 #include <bslma_testallocatorstatisticsguard.h>
 
 #include <bsls_ident.h>

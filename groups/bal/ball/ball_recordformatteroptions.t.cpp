@@ -1,4 +1,4 @@
-// ball_recordformatteroptions.t.cpp                                 -*-C++-*-
+// ball_recordformatteroptions.t.cpp                                  -*-C++-*-
 
 #include <ball_recordformatteroptions.h>
 

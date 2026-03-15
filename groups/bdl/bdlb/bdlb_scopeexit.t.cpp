@@ -1,3 +1,5 @@
+// bdlb_scopeexit.t.cpp                                               -*-C++-*-
+
 #include <bdlb_scopeexit.h>
 
 #include <bdlb_tokenizer.h>

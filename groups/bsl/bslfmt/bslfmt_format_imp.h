@@ -1,4 +1,4 @@
-// bslfmt_format_imp.h                                                   -*-C++-*-
+// bslfmt_format_imp.h                                                -*-C++-*-
 
 #ifndef INCLUDED_BSLFMT_FORMAT_IMP
 #define INCLUDED_BSLFMT_FORMAT_IMP

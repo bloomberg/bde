@@ -1,4 +1,4 @@
-// bsl_shared_mutex.h                                                       -*-C++-*-
+// bsl_shared_mutex.h                                                 -*-C++-*-
 #ifndef INCLUDED_BSL_SHARED_MUTEX
 #define INCLUDED_BSL_SHARED_MUTEX
 

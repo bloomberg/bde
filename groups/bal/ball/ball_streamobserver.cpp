@@ -1,4 +1,4 @@
-﻿// ball_streamobserver.cpp                                            -*-C++-*-
+﻿// ball_streamobserver.cpp                                           -*-C++-*-
 #include <ball_streamobserver.h>
 
 #include <bsls_ident.h>

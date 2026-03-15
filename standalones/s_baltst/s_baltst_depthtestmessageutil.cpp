@@ -1,4 +1,4 @@
-// s_baltst_depthtestmessageutil.cpp                                -*-C++-*-
+// s_baltst_depthtestmessageutil.cpp                                  -*-C++-*-
 #include <s_baltst_depthtestmessageutil.h>
 
 #include <bsls_ident.h>

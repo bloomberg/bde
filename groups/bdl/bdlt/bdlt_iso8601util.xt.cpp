@@ -1,4 +1,4 @@
-// bdlt_iso8601util.xt.cpp                                           -*-C++-*-
+// bdlt_iso8601util.xt.cpp                                            -*-C++-*-
 #include <bdlt_iso8601util.h>
 
 #include <bdlt_date.h>

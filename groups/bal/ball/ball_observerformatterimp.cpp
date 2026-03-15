@@ -1,4 +1,4 @@
-﻿// ball_observerformatterimp.cpp                                      -*-C++-*-
+﻿// ball_observerformatterimp.cpp                                     -*-C++-*-
 #include <ball_observerformatterimp.h>
 
 #include <bsls_ident.h>
