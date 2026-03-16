@@ -1,6 +1,6 @@
 // bslmf_floatingtypestructuraltraits.h                               -*-C++-*-
-#ifndef INCLUDED_BSLMF_FLOATING_TYPE_STRUCTURAL_TRAITS
-#define INCLUDED_BSLMF_FLOATING_TYPE_STRUCTURAL_TRAITS
+#ifndef INCLUDED_BSLMF_FLOATINGTYPESTRUCTURALTRAITS
+#define INCLUDED_BSLMF_FLOATINGTYPESTRUCTURALTRAITS
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")

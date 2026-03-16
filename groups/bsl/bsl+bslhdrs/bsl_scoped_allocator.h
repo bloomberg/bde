@@ -1,6 +1,6 @@
 // bsl_scoped_allocator.h                                             -*-C++-*-
-#ifndef INCLUDED_BSL_scoped_allocator
-#define INCLUDED_BSL_scoped_allocator
+#ifndef INCLUDED_BSL_SCOPED_ALLOCATOR
+#define INCLUDED_BSL_SCOPED_ALLOCATOR
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 

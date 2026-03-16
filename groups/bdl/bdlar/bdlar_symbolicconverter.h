@@ -1,6 +1,6 @@
 // bdlar_symbolicconverter.h                                          -*-C++-*-
-#ifndef INCLUDED_BDLAR_SYMBOLICCONVERTER_H
-#define INCLUDED_BDLAR_SYMBOLICCONVERTER_H
+#ifndef INCLUDED_BDLAR_SYMBOLICCONVERTER
+#define INCLUDED_BDLAR_SYMBOLICCONVERTER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")

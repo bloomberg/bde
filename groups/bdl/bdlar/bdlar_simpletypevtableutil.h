@@ -1,6 +1,6 @@
 // bdlar_simpletypevtableutil.h                                       -*-C++-*-
-#ifndef INCLUDED_BDLAR_SIMPLETYPEEVTABLEUTIL
-#define INCLUDED_BDLAR_SIMPLETYPEEVTABLEUTIL
+#ifndef INCLUDED_BDLAR_SIMPLETYPEVTABLEUTIL
+#define INCLUDED_BDLAR_SIMPLETYPEVTABLEUTIL
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")

@@ -1,6 +1,6 @@
 // bdldfp_decimal.fwd.h                                               -*-C++-*-
-#ifndef FWD_INCLUDED_BDLDFP_DECIMAL
-#define FWD_INCLUDED_BDLDFP_DECIMAL
+#ifndef INCLUDED_BDLDFP_DECIMAL_FWD
+#define INCLUDED_BDLDFP_DECIMAL_FWD
 
 //@PURPOSE: Provide forward declarations to IEEE-754 decimal floating-pt types.
 //

@@ -1,6 +1,6 @@
 // bdlat_fuzzutiloptions.h                                            -*-C++-*-
-#ifndef INCLUDED_BDLAT_FUZZUTILOPTIONS_H
-#define INCLUDED_BDLAT_FUZZUTILOPTIONS_H
+#ifndef INCLUDED_BDLAT_FUZZUTILOPTIONS
+#define INCLUDED_BDLAT_FUZZUTILOPTIONS
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
