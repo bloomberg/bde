@@ -473,18 +473,35 @@ class basic_string_view {
     basic_string_view(const CHAR_TYPE *characterString,
                       size_type        numChars);
 
-    /// Create a view from of characters in the range starting at the
-    /// specified `first`, a contiguous iterator, to the position
-    /// immediately before the specified `end`, a sentinel type.  The
-    /// behavior is undefined unless:
-    /// * `[first, last)` is a contiguous valid range,
-    /// *o if `first` is 0, then `0 == last - first`, and
-    /// *o the `SENTINEL` type is *not* convertible to `std::size_t`.
-    /// Note that contiguous iterator types also provide random access.
+    /// Create a view from the specified `[first, last)` contiguous range of
+    /// `CHAR_TYPE` objects (characters).  The behaviour is undefined unless
+    /// `first` and `last` denote a valid contiguous range.  Note that in C++17
+    /// and earlier modes `first` must be convertible to `const CHAR_TYPE *`.
     /// Also note that pointers to `CHAR_TYPE` can be used as iterator and
     /// sentinel types.
-    template <class CONTG_ITER, class SENTINEL>
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    template <contiguous_iterator            CONTG_ITER,
+              sized_sentinel_for<CONTG_ITER> SENTINEL>
+    requires (std::same_as<iter_value_t<CONTG_ITER>, CHAR_TYPE> &&
+              !std::convertible_to<SENTINEL, size_type>)
+    constexpr
+    basic_string_view(CONTG_ITER first, SENTINEL last)
+    : d_start_p(std::to_address(first))
+    , d_length(last - first)
+    {   // Defined here because of the MSVC++ 2022 bug
+        BSLS_ASSERT_SAFE(last - first >= 0);
+    }
+#elif defined(BSLS_COMPILERFEATURES_FULL_CPP11)
+    template <class CONTG_ITER,
+              class SENTINEL,
+              enable_if_t<
+               BasicStringView_IsCompatibleIterator<CHAR_TYPE,
+                                                    CONTG_ITER>::value &&
+               BasicStringView_IsCompatibleSentinel<SENTINEL>::value, int> = 0>
     BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view(CONTG_ITER first, SENTINEL last);
+#else
+    template <class CONTG_ITER, class SENTINEL>
     basic_string_view(CONTG_ITER first,
                       SENTINEL   last,
                       typename
@@ -493,6 +510,7 @@ class basic_string_view {
                                                            CONTG_ITER>::value
                    && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
                       >::type * = 0);
+#endif
 
     /// Create a view of the specified `string`.
     template <class ALLOCATOR>
@@ -1596,10 +1614,22 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     BSLS_ASSERT_SAFE(numChars <= max_size());
 }
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 template <class CHAR_TYPE, class CHAR_TRAITS>
-template <class CONTG_ITER,  class SENTINEL>
-BSLS_PLATFORM_AGGRESSIVE_INLINE
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+template <class CONTG_ITER,
+          class SENTINEL,
+          enable_if_t<
+              BasicStringView_IsCompatibleIterator<CHAR_TYPE,
+                                                   CONTG_ITER>::value &&
+              BasicStringView_IsCompatibleSentinel<SENTINEL>::value, int> >
+inline
 BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(CONTG_ITER first,
+                                                             SENTINEL   last)
+#else
+template <class CONTG_ITER, class SENTINEL>
+inline
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                       CONTG_ITER first,
                       SENTINEL   last,
@@ -1609,12 +1639,14 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
                                                            CONTG_ITER>::value
                    && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
                       >::type *)
+#endif // BSLS_COMPILERFEATURES_FULL_CPP11
 : d_start_p(first)
 , d_length(last - first)
 {
     BSLS_ASSERT_SAFE(first || last - first == 0);
     BSLS_ASSERT_SAFE(         last - first >= 0);
 }
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class ALLOCATOR>

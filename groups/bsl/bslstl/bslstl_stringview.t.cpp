@@ -757,44 +757,92 @@ typename bsl::basic_string_view<CHAR_TYPE>::size_type findLastNotOf(
                         // class TestIterator
                         // ==================
 
+/// This class is used to test the constructor that accepts an iterator type
+/// (and a sentinel type).
+///
+/// Note that this test type is sufficient for by the BDE "backport" provided
+/// for pre-C++20 environments; however, C++20 and beyond require fully
+/// compliant contiguous iterators.
 template <class CHAR_TYPE>
 class TestIterator {
-    // This class is used to test the constructor that accepts an iterator type
-    // (and a sentinel type).
-    //
-    // Note that this test type is sufficient for by the BDE "backport"
-    // provided for pre-C++20 environments; however, C++20 and beyond require
-    // fully compliant contiguous iterators (as are provided by Standard
-    // containers).
 
   public:
     // TYPES
-    typedef const CHAR_TYPE (*Position);
     typedef CHAR_TYPE value_type;      // Standard iterator type trait
+    typedef ptrdiff_t difference_type;
+    typedef bsl::random_access_iterator_tag iterator_category;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    typedef bsl::contiguous_iterator_tag iterator_concept;
+#endif
+
 
   private:
-    Position d_position;
+    const CHAR_TYPE *d_position;
 
   public:
     // CREATORS
-    TestIterator(const CHAR_TYPE *position);
-        // Create a `TestIterator` object that refers to the specified
-        // `position` (address) of a `CHAR_TYPE`.
+
+    /// Create a `TestIterator` object that cannot be dereferenced and is
+    /// different from any valid iterator.
+    TestIterator();
+
+    /// Create a `TestIterator` object that refers to the specified `position`
+    /// (address) of a `CHAR_TYPE`.
+    explicit TestIterator(const CHAR_TYPE *position);
 
     // MANIPULATORS
-    void operator++();
-        // Increment the position of this object to refer to the next higher
-        // position (address) of a `CHAR_TYPE`.
+
+    /// Increment the position of this object to refer to the next higher
+    /// position (address) of a `CHAR_TYPE`.  Return a reference to this
+    /// object.
+    TestIterator& operator++();
+
+    /// Increment the position of this object to refer to the next higher
+    /// position (address) of a `CHAR_TYPE`.  Return the previous value of this
+    /// object.
+    TestIterator operator++(int);
+
+    /// Decrement the position of this object to refer to the previous lower
+    /// position (address) of a `CHAR_TYPE`.  Return a reference to this
+    /// object.
+    TestIterator& operator--();
+
+    /// Decrement the position of this object to refer to the previous lower
+    /// position (address) of a `CHAR_TYPE`.  Return the previous value of this
+    /// object.
+    TestIterator operator--(int);
+
+    /// Increments the position of this object by the specified `n` elements.
+    /// Return a reference to this object.
+    TestIterator& operator+=(difference_type n);
+
+    /// Decrements the position of this object by the specified `n` elements.
+    /// Return a reference to this object.
+    TestIterator& operator-=(difference_type n);
+
+    /// Return a reference to the element with the specified `i` index.
+    CHAR_TYPE& operator[](difference_type i);
 
     // ACCESSORS
+
+    /// Return a reference to the element with the specified `i` index.
+    const CHAR_TYPE& operator[](difference_type i) const;
+
+    /// Return the value at the current position of this object.
     const CHAR_TYPE& operator*() const;
-        // Return the value at the current position of this object.
 
-    operator Position() const;
-        // Return the position (address) referenced by this object.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    auto operator<=>(const TestIterator& ) const = default;
+#else
+    /// Return the position (address) referenced by this object.
+    operator const CHAR_TYPE *() const;
+#endif
 
+    /// Return the position (address) referenced by this object.
     const CHAR_TYPE *addr() const;
-        // Return the position (address) referenced by this object.
+
+    /// Return the position (address) referenced by this object.
+    const CHAR_TYPE *operator->() const;
 };
 
                         // ------------------
@@ -803,6 +851,13 @@ class TestIterator {
 
 // CREATORS
 template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE>::TestIterator()
+: d_position(0)
+{
+}
+
+
+template <class CHAR_TYPE>
 TestIterator<CHAR_TYPE>::TestIterator(const CHAR_TYPE *position)
 : d_position(position)
 {
@@ -810,28 +865,119 @@ TestIterator<CHAR_TYPE>::TestIterator(const CHAR_TYPE *position)
 
 // MANIPULATORS
 template <class CHAR_TYPE>
-void TestIterator<CHAR_TYPE>::operator++()
+TestIterator<CHAR_TYPE>& TestIterator<CHAR_TYPE>::operator++()
 {
     ++d_position;
+    return *this;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE> TestIterator<CHAR_TYPE>::operator++(int)
+{
+    TestIterator tmp = *this;
+    ++*this;
+    return tmp;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE>& TestIterator<CHAR_TYPE>::operator--()
+{
+    --d_position;
+    return *this;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE> TestIterator<CHAR_TYPE>::operator--(int)
+{
+    TestIterator tmp = *this;
+    --*this;
+    return tmp;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE>& TestIterator<CHAR_TYPE>::operator+=(difference_type n)
+{
+    d_position += n;
+    return *this;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE>& TestIterator<CHAR_TYPE>::operator-=(difference_type n)
+{
+    d_position -= n;
+    return *this;
+}
+
+template <class CHAR_TYPE>
+CHAR_TYPE& TestIterator<CHAR_TYPE>::operator[](difference_type i)
+{
+    return d_position[i];
 }
 
 // ACCESSORS
+template <class CHAR_TYPE>
+const CHAR_TYPE& TestIterator<CHAR_TYPE>::operator[](difference_type i) const
+{
+    return d_position[i];
+}
+
 template <class CHAR_TYPE>
 const CHAR_TYPE& TestIterator<CHAR_TYPE>::operator*() const
 {
     return *d_position;
 }
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 template <class CHAR_TYPE>
-TestIterator<CHAR_TYPE>::operator Position() const
+TestIterator<CHAR_TYPE>::operator const CHAR_TYPE *() const
 {
     return  d_position;
 }
+#endif
 
 template <class CHAR_TYPE>
 const CHAR_TYPE *TestIterator<CHAR_TYPE>::addr() const
 {
     return  d_position;
+}
+
+template <class CHAR_TYPE>
+const CHAR_TYPE *TestIterator<CHAR_TYPE>::operator->() const
+{
+    return d_position;
+}
+
+// FREE FUNCTIONS
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE> operator+(
+                           TestIterator<CHAR_TYPE>                           i,
+                           typename TestIterator<CHAR_TYPE>::difference_type n)
+{
+    return i += n;
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE> operator+(
+                           typename TestIterator<CHAR_TYPE>::difference_type n,
+                           TestIterator<CHAR_TYPE>                           i)
+{
+    return i += n;
+}
+
+template <class CHAR_TYPE>
+typename TestIterator<CHAR_TYPE>::difference_type operator-(
+                                                    TestIterator<CHAR_TYPE> i1,
+                                                    TestIterator<CHAR_TYPE> i2)
+{
+    return i1.addr() - i2.addr();
+}
+
+template <class CHAR_TYPE>
+TestIterator<CHAR_TYPE> operator-(
+                           TestIterator<CHAR_TYPE>                           i,
+                           typename TestIterator<CHAR_TYPE>::difference_type n)
+{
+    return i -= n;
 }
 
                         // ==================
@@ -845,14 +991,20 @@ class TestSentinel {
 
   public:
     // CREATORS
-    TestSentinel(const CHAR_TYPE *end);
-        // Create a `TestSentinel` object that refers the specified `end`
-        // position (address).  Note that no facility is provided to change
-        // the position of a `TestSentinel` object.
+
+    /// Create an unitialized `TestSentinel` object.  Assignment is the only
+    /// valid operation for the resulting object; others cause UB.
+    TestSentinel();
+
+    /// Create a `TestSentinel` object associated with the specified `end`
+    /// position (address).  Note that no facility is provided to change the
+    /// position of a `TestSentinel` object.
+    explicit TestSentinel(const CHAR_TYPE *end);
 
     // ACCESSORS
+
+    /// Return the address passed in the constructor.
     const CHAR_TYPE *addr() const;
-        // Return the position (address) referenced by this object.
 };
 
                         // ------------------
@@ -860,6 +1012,12 @@ class TestSentinel {
                         // ------------------
 
 // CREATORS
+template <class CHAR_TYPE>
+TestSentinel<CHAR_TYPE>::TestSentinel()
+: d_end_p(0)
+{
+}
+
 template <class CHAR_TYPE>
 TestSentinel<CHAR_TYPE>::TestSentinel(const CHAR_TYPE *end)
 : d_end_p(end)
@@ -911,7 +1069,7 @@ bool operator==(const TestIterator<CHAR_TYPE>& lhs,
     return lhs.addr() == rhs.addr();
 }
 
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif // BSLSTL_STRING_VIEW_IS_ALIASED
 
 #if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
 &&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
@@ -6997,11 +7155,13 @@ void TestDriver<TYPE, TRAITS>::testCase2()
 #else
 
 #ifdef  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         ASSERT((true  == std::is_convertible<
                                  TestIterator<TYPE>,
                                  typename std::add_pointer<
                                  typename std::add_const<TYPE>::type>::type
                                  >::value));
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
         ASSERT((false == std::is_convertible<TestSentinel<TYPE>,
                                              std::size_t
@@ -7015,11 +7175,13 @@ void TestDriver<TYPE, TRAITS>::testCase2()
                                     >::value));
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         ASSERT((bsl::BasicStringView_IsCompatibleIterator<TYPE,
                                                          TestIterator<TYPE> >
                                                                      ::value));
         ASSERT( bsl::BasicStringView_IsCompatibleSentinel<TestSentinel<TYPE> >
                                                                      ::value );
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
         TestIterator<TYPE> iter (STRING);
         TestSentinel<TYPE> sentl_0(STRING);
