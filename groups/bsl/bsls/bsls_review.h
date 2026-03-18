@@ -788,7 +788,7 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
     #define BSLS_REVIEW_REVIEW_COUNT_IMP                                      \
-        int lastCount = BloombergLP::bsls::Review::updateCount(               \
+        const int lastCount = BloombergLP::bsls::Review::updateCount(         \
             []{                                                               \
                 static BloombergLP::bsls::Review::Count count = {0};          \
                 return &count;                                                \
@@ -796,7 +796,7 @@ BSLS_IDENT("$Id: $")
 #else
     #define BSLS_REVIEW_REVIEW_COUNT_IMP                                      \
         static BloombergLP::bsls::Review::Count count = {0};                  \
-        int lastCount = BloombergLP::bsls::Review::updateCount(&count);
+        const int lastCount = BloombergLP::bsls::Review::updateCount(&count);
 #endif
 
                            // ======================
