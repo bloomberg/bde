@@ -65,14 +65,13 @@ bsl::function<bsls::TimeInterval()> createDefaultCurrentTimeFunctor(
 void startLagMetric(BloombergLP::bdlm::Metric               *value,
                     BloombergLP::bdlmt::TimerEventScheduler *object)
 {
-    BloombergLP::bsls::TimeInterval now  = object->now();
-    BloombergLP::bsls::TimeInterval next = object->nextPendingEventTime();
+    const bsls::TimeInterval now  = object->now();
+    const bsls::TimeInterval next = object->nextPendingEventTime();
     if (now <= next) {
-        *value = BloombergLP::bdlm::Metric::Gauge(0.0);
+        *value = bdlm::Metric::Gauge(0.0);
     }
     else {
-        *value = BloombergLP::bdlm::Metric::Gauge(
-                                          (now - next).totalSecondsAsDouble());
+        *value = bdlm::Metric::Gauge((now - next).totalSecondsAsDouble());
     }
 }
 
@@ -105,9 +104,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
     BSLS_ASSERT(0 != scheduler);
 
     typedef TimerEventScheduler::ClockDataPtr  ClockDataPtr;
-    typedef bdlcc::TimeQueueItem<ClockDataPtr> PendingClockItem;
-
-    bsl::vector<PendingClockItem> pendingClockItems;
+    typedef TimerEventScheduler::ClockItem      PendingClockItem;
 
     while (1) {
         bsl::size_t clockLen;
@@ -116,38 +113,40 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         // lock.
 
         {
-            bslmt::LockGuard<bslmt::Mutex> lock(&scheduler->d_mutex);
+            const bslmt::LockGuard<bslmt::Mutex> lock(&scheduler->d_mutex);
             if (!scheduler->d_running.loadRelaxed()) {
+                BSLS_REVIEW(scheduler->d_pendingClockItems.empty());
+                BSLS_REVIEW(scheduler->d_pendingEventItems.empty());
+
                 return;                                               // RETURN
             }
             ++scheduler->d_iterations;
 
             int newLengthClock = 0, newLengthEvent = 0;
-            bsls::TimeInterval now = scheduler->d_currentTimeFunctor();
+            const bsls::TimeInterval now = scheduler->d_currentTimeFunctor();
             scheduler->d_cachedNowMicroseconds = now.totalMicroseconds();
 
             // minTimeClock will be set only if newLengthClock > 0, similar
             // with minTimeEvent
 
-            enum {
-                MAX_PENDING_CLOCKS = 64,
-                MAX_PENDING_EVENTS = 64
-            };
+            const int k_MAX_PENDING_CLOCKS = 64;
+            const int k_MAX_PENDING_EVENTS = 64;
+
             bsls::TimeInterval minTimeClock, minTimeEvent;
 
             scheduler->d_clockTimeQueue.popLE(now,
-                                              MAX_PENDING_CLOCKS,
-                                              &pendingClockItems,
+                                              k_MAX_PENDING_CLOCKS,
+                                              &scheduler->d_pendingClockItems,
                                               &newLengthClock,
                                               &minTimeClock);
 
             scheduler->d_eventTimeQueue.popLE(now,
-                                              MAX_PENDING_EVENTS,
+                                              k_MAX_PENDING_EVENTS,
                                               &scheduler->d_pendingEventItems,
                                               &newLengthEvent,
                                               &minTimeEvent);
 
-            clockLen = pendingClockItems.size();
+            clockLen = scheduler->d_pendingClockItems.size();
             if (0 == clockLen && 0 == scheduler->d_pendingEventItems.size()) {
                 // There are no pending items.  Wait appropriately.
 
@@ -157,13 +156,13 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                     scheduler->d_condition.wait(&scheduler->d_mutex);
                 }
                 else {
-                    bsls::TimeInterval minTime =
+                    const bsls::TimeInterval minTime =
                                         0 == newLengthClock ? minTimeEvent :
                                         0 == newLengthEvent ? minTimeClock :
                                         bsl::min(minTimeClock, minTimeEvent);
 
                     // Something is meant to happen in 'minTime'.  Wait
-                    // (interruptibly) until then.
+                    // (interruptably) until then.
 
                     scheduler->d_condition.timedWait(&scheduler->d_mutex,
                                                      minTime);
@@ -171,7 +170,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                 continue;
             }
 
-            BSLS_ASSERT(!pendingClockItems.empty()
+            BSLS_ASSERT(!scheduler->d_pendingClockItems.empty()
                         || !scheduler->d_pendingEventItems.empty());
         }
 
@@ -182,8 +181,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         *eventIdxPtr = 0;
 
         PendingClockItem *clockData = 0;
-        if (!pendingClockItems.empty()) {
-            clockData = &pendingClockItems.front();
+        if (!scheduler->d_pendingClockItems.empty()) {
+            clockData = &scheduler->d_pendingClockItems.front();
             scheduler->d_cachedClockMicroseconds =
                                          clockData->time().totalMicroseconds();
         }
@@ -207,8 +206,8 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
         // for such an event) to delete a future event that is in
         // pendingEventItems.
 
-        while (   clockIdx < clockLen
-               && *eventIdxPtr < (int)scheduler->d_pendingEventItems.size()) {
+        while (clockIdx < clockLen  &&
+               *eventIdxPtr < (int)scheduler->d_pendingEventItems.size()) {
             // Both queues had pending events.  Do the events in time order
             // until at least one of the queues is empty.
 
@@ -222,7 +221,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                     scheduler->d_cachedClockMicroseconds =
                                 bsl::numeric_limits<bsls::Types::Int64>::max();
                 }
-                ClockDataPtr cd(clockData[clockIdx].data());
+                const ClockDataPtr cd(clockData[clockIdx].data());
                 if (!cd->d_isCancelled) {
                     scheduler->d_dispatcherFunctor(cd->d_callback);
                     if (!cd->d_isCancelled) {
@@ -260,7 +259,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
                                 bsl::numeric_limits<bsls::Types::Int64>::max();
             }
             const bsls::TimeInterval& clockTime = clockData[clockIdx].time();
-            ClockDataPtr cd(clockData[clockIdx].data());
+            const ClockDataPtr cd(clockData[clockIdx].data());
             if (!cd->d_isCancelled) {
                 scheduler->d_dispatcherFunctor(cd->d_callback);
                 if (!cd->d_isCancelled) {
@@ -286,7 +285,7 @@ void TimerEventSchedulerDispatcher::dispatchEvents(
             scheduler->d_dispatcherFunctor(eventData[*eventIdxPtr].data());
         }
 
-        pendingClockItems.clear();
+        scheduler->d_pendingClockItems.clear();
         scheduler->d_pendingEventItems.clear();
     }
 }
@@ -350,7 +349,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::advanceTime(
 {
     BSLS_ASSERT(amount > 0);
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    const bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
     d_currentTime += amount;
     return d_currentTime;
 }
@@ -358,7 +357,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::advanceTime(
 // ACCESSORS
 bsls::TimeInterval TimerEventSchedulerTestTimeSource_Data::currentTime() const
 {
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
+    const bslmt::LockGuard<bslmt::Mutex> lock(&d_currentTimeMutex);
     return d_currentTime;
 }
 
@@ -390,10 +389,10 @@ void TimerEventScheduler::initialize(
                                    ? metricsRegistry
                                    : &bdlm::MetricsRegistry::defaultInstance();
 
-    bdlm::InstanceCount::Value instanceNumber =
+    const bdlm::InstanceCount::Value instanceNumber =
                 bdlm::InstanceCount::nextInstanceNumber<TimerEventScheduler>();
 
-    bdlm::MetricDescriptor md(
+    const bdlm::MetricDescriptor md(
              bdlm::MetricDescriptor::k_USE_METRICS_ADAPTER_NAMESPACE_SELECTION,
              "bde.startlag",
              instanceNumber,
@@ -412,8 +411,8 @@ void TimerEventScheduler::initialize(
 void TimerEventScheduler::yieldToDispatcher()
 {
     if (d_running.loadRelaxed()) {
-        bsls::Types::Uint64 dispatcherId = static_cast<bsls::Types::Uint64>(
-                                                 d_dispatcherId.loadRelaxed());
+        const bsls::Types::Uint64 dispatcherId =
+                static_cast<bsls::Types::Uint64>(d_dispatcherId.loadRelaxed());
 
         if (bslmt::ThreadUtil::selfIdAsUint64() != dispatcherId) {
             const int it = d_iterations.loadRelaxed();
@@ -442,6 +441,7 @@ TimerEventScheduler::TimerEventScheduler(bslma::Allocator* basicAllocator)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -474,6 +474,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -504,6 +505,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -538,6 +540,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -567,6 +570,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -600,6 +604,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -630,6 +635,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -664,6 +670,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -693,6 +700,7 @@ TimerEventScheduler::TimerEventScheduler(int               numEvents,
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -733,6 +741,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -771,6 +780,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -813,6 +823,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -851,6 +862,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -893,6 +905,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -931,6 +944,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -973,6 +987,7 @@ TimerEventScheduler::TimerEventScheduler(
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
 , d_running(0)
 , d_iterations(0)
+, d_pendingClockItems(basicAllocator)
 , d_pendingEventItems(basicAllocator)
 , d_currentEventIndex(-1)
 , d_numEvents(0)
@@ -997,7 +1012,7 @@ TimerEventScheduler::~TimerEventScheduler()
 // MANIPULATORS
 int TimerEventScheduler::start()
 {
-    bslmt::ThreadAttributes attr;
+    const bslmt::ThreadAttributes attr;
 
     return start(attr);
 }
@@ -1007,12 +1022,12 @@ int TimerEventScheduler::start(const bslmt::ThreadAttributes& threadAttributes)
     // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
     // 'd_mutex' and must always be locked first.
 
-    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
+    const bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                              d_dispatcherThread));
 
-    bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+    const bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
     if (d_running.loadRelaxed()) {
         return 0;                                                     // RETURN
     }
@@ -1049,13 +1064,13 @@ void TimerEventScheduler::stop()
     // Implementation note: 'd_dispatcherMutex' is in a lock hierarchy with
     // 'd_mutex' and must always be locked first.
 
-    bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
+    const bslmt::LockGuard<bslmt::Mutex> dispatcherLock(&d_dispatcherMutex);
 
     BSLS_ASSERT(! bslmt::ThreadUtil::isEqual(bslmt::ThreadUtil::self(),
                                              d_dispatcherThread));
 
     {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        const bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         if (!d_running.loadRelaxed()) {
             return;                                                   // RETURN
         }
@@ -1074,7 +1089,7 @@ TimerEventScheduler::scheduleEvent(const bsls::TimeInterval&    time,
 {
     Handle handle;
     {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        const bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
 
         bsls::TimeInterval startTime = time;
@@ -1105,7 +1120,7 @@ int TimerEventScheduler::rescheduleEvent(TimerEventScheduler::Handle handle,
 {
     int status;
     {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        const bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
 
         bsls::TimeInterval startTime = newTime;
@@ -1233,10 +1248,10 @@ TimerEventScheduler::startClock(const bsls::TimeInterval&    interval,
                 new (d_clockDataAllocator.allocate()) ClockData(callback,
                                                                 interval,
                                                                 d_allocator_p);
-    ClockDataPtr p(pClockData, &d_clockDataAllocator, d_allocator_p);
+    const ClockDataPtr p(pClockData, &d_clockDataAllocator, d_allocator_p);
 
     {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        const bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
         int isNewTop = 0;
         p->d_handle = d_clockTimeQueue.add(stime, p, &isNewTop);
 
@@ -1321,13 +1336,13 @@ bsls::TimeInterval TimerEventScheduler::nextPendingEventTime() const
     bsls::Types::Int64 minTime =
                                 bsl::numeric_limits<bsls::Types::Int64>::max();
     {
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        const bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
 
         {
             minTime = d_cachedClockMicroseconds;
         }
         {
-            bsls::Types::Int64 ms = d_cachedEventMicroseconds;
+            const bsls::Types::Int64 ms = d_cachedEventMicroseconds;
             if (ms < minTime) {
                 minTime = ms;
             }
@@ -1409,7 +1424,7 @@ bsls::TimeInterval TimerEventSchedulerTestTimeSource::advanceTime(
     {
         // This scope limits how long we lock the scheduler's mutex
 
-        bslmt::LockGuard<bslmt::Mutex> lock(&d_scheduler_p->d_mutex);
+        const bslmt::LockGuard<bslmt::Mutex> lock(&d_scheduler_p->d_mutex);
 
         // Now that the time has changed, signal the scheduler's condition
         // variable so that the event dispatcher thread can be alerted to the

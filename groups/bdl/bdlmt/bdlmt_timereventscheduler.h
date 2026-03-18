@@ -431,6 +431,7 @@ class TimerEventScheduler {
 
     typedef bsl::shared_ptr<ClockData>                   ClockDataPtr;
     typedef bdlcc::TimeQueue<ClockDataPtr>               ClockTimeQueue;
+    typedef bdlcc::TimeQueueItem<ClockDataPtr>           ClockItem;
     typedef bdlcc::TimeQueueItem<bsl::function<void()> > EventItem;
     typedef bdlcc::TimeQueue<bsl::function<void()> >     EventTimeQueue;
     typedef bsl::function<bsls::TimeInterval()>          CurrentTimeFunctor;
@@ -508,6 +509,12 @@ class TimerEventScheduler {
 
     bsls::AtomicInt   d_iterations;         // dispatcher cycle iteration
                                             // number
+
+    bsl::vector<ClockItem>
+                      d_pendingClockItems;  // array of pending clock callbacks;
+                                            // not synchronized by 'd_mutex'
+                                            // because it is only accessed
+                                            // from the dispatcher thread
 
     bsl::vector<EventItem>
                       d_pendingEventItems;  // array of pending event callbacks
