@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 11 11:35:48 2024
+// Generated on Thu Mar  5 22:50:49 2026
 // Command line: sim_cpp11_features.pl bslstl_hashtable.h
 
 #ifdef COMPILING_BSLSTL_HASHTABLE_H
@@ -1270,6 +1270,7 @@ class HashTable {
                  bool                                          *isInsertedFlag,
                  BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY)  value)
     {
+
         BSLS_ASSERT(isInsertedFlag);
 
         const LOOKUP_KEY& lvalue = value;
@@ -1367,6 +1368,7 @@ class HashTable {
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                          BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         size_t hashCode = this->d_parameters.hashCodeForTransparentKey(key);
@@ -1871,6 +1873,7 @@ class HashTable {
                                     bslalg::BidirectionalLink  *hint,
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -1939,6 +1942,7 @@ class HashTable {
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2011,6 +2015,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2087,6 +2092,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2167,6 +2173,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2251,6 +2258,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2339,6 +2347,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2431,6 +2440,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2527,6 +2537,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2627,6 +2638,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2731,6 +2743,7 @@ class HashTable {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2836,6 +2849,7 @@ class HashTable {
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                                BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
     {
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2916,8 +2930,6 @@ class HashTable {
 
     /// Return the index of the bucket that would contain all the elements
     /// equivalent to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2925,6 +2937,8 @@ class HashTable {
                   SizeType>::type
     bucketIndexForKey(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         typedef typename
             HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
                                                                       SizeType;
@@ -2963,8 +2977,6 @@ class HashTable {
     /// first such element (from the contiguous sequence of elements having
     /// the same key).  The behavior is undefined unless `key` is equivalent
     /// to the elements of at most one equivalent-key group.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2972,6 +2984,8 @@ class HashTable {
                   bslalg::BidirectionalLink *>::type
     find(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             return bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                              d_anchor,
                                              key,
@@ -3009,8 +3023,6 @@ class HashTable {
     /// than a semi-open range where `last` would point to the element
     /// following the range).  Also note that this hash-table ensures all
     /// elements having the same key form a contiguous sequence.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -3020,6 +3032,8 @@ class HashTable {
               bslalg::BidirectionalLink **last,
               const LOOKUP_KEY&           key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             BSLS_ASSERT_SAFE(first);
             BSLS_ASSERT_SAFE(last);
 

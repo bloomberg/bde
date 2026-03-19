@@ -243,6 +243,36 @@ bool stringWasMovedFrom(const StringT& s)
     return 0 == s.size();
 }
 
+/// A helper type that is convertible to `bsl::basic_string_view` but NOT to
+/// `const CHAR_TYPE*`.  This type is used to test string-view-like
+/// constructor and manipulator overloads.  Takes a pointer to a string to
+/// make lifetime requirements explicit (the pointed-to string must outlive
+/// this helper).
+template <class CHAR_TYPE, class CHAR_TRAITS = bsl::char_traits<CHAR_TYPE> >
+class StringViewLikeHelper {
+  private:
+    bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> d_view;
+
+  public:
+    StringViewLikeHelper(const CHAR_TYPE *data, size_t length)
+    : d_view(data, length)
+    {
+    }
+
+    template <class ALLOC>
+    explicit StringViewLikeHelper(
+                   const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> *str)
+    : d_view(*str)
+    {
+    }
+
+    // ACCESSORS
+    operator bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const
+    {
+        return d_view;
+    }
+};
+
 template <class StreamT, class StringT>
 void testCase11()
 {
@@ -478,7 +508,7 @@ void testCase10()
         movedFrom.setstate(IosBase::failbit);
         ASSERT(movedFrom.fail());
 
-        bsls::Types::Int64 DEFAULT_NUM_BYTES_TOTAL = da.numBytesTotal();
+        const bsls::Types::Int64 DEFAULT_NUM_BYTES_TOTAL = da.numBytesTotal();
 
         // Move the stream
 
@@ -850,8 +880,8 @@ void testCase2()
             StreamT& mX = *objPtr;  const StreamT& X = mX;
                                     const BaseT&   B =  X;
 
-            bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            const bslma::TestAllocator&  oa = *objAllocatorPtr;
+            const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // Verify no allocation from the object/non-object allocators.
 
@@ -1039,7 +1069,7 @@ void testCase4()
             ASSERT(X.str()  == T);
             ASSERT(X.view() == T);
 
-            OtherString oS2 = X.str(OtherAllocator());
+            const OtherString oS2 = X.str(OtherAllocator());
             ASSERT(oS2 == oS);
         }
 #endif
@@ -1071,6 +1101,23 @@ void testCase4()
             ASSERT(X.view().empty());
         }
 #endif
+
+        // Test str() with string-view-like type
+        for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+            const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+            typedef StringViewLikeHelper<CharT, typename StringT::traits_type>
+                                                                    SVLHelper;
+
+            StringT mT(&da);  const StringT& T = mT;
+            loadString(&mT, LENGTH_TJ);
+
+            const SVLHelper svlh(&T);
+
+            mX.str(svlh);
+            ASSERT(X.str()  == T);
+            ASSERT(X.view() == T);
+        }
     }
 }
 
@@ -1194,8 +1241,8 @@ void testCase5()
                 StreamT& mX = *objPtr;  const StreamT& X = mX;
                                         const BaseT&   B =  X;
 
-                bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                const bslma::TestAllocator&  oa = *objAllocatorPtr;
+                const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
                 // Verify no allocation from the object/non-object allocators.
 
@@ -1378,8 +1425,8 @@ void testCase6()
             StreamT& mX = *objPtr;  const StreamT& X = mX;
                                     const BaseT&   B =  X;
 
-            bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            const bslma::TestAllocator&  oa = *objAllocatorPtr;
+            const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // Verify allocations from the object/non-object allocators.
 
@@ -1545,8 +1592,8 @@ void testCase6()
             StreamT& mX = *objPtr;  const StreamT& X = mX;
                                     const BaseT&   B =  X;
 
-            bslma::TestAllocator&  oa = *objAllocatorPtr;
-            bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+            const bslma::TestAllocator&  oa = *objAllocatorPtr;
+            const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
             // Verify allocations from the object/non-object allocators.
 
@@ -1560,6 +1607,100 @@ void testCase6()
                 ASSERTV(CONFIG,  oa.numBlocksTotal(),
                         0 !=  oa.numBlocksTotal());
             }
+
+            ASSERTV(CONFIG, X.rdbuf());
+            ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
+            ASSERTV(CONFIG, X.str()   == S);
+
+            mX << 'X';
+
+            if (S.empty()) { mS.resize(1); }
+            mS[0] = static_cast<CharT>('X');
+
+            ASSERTV(CONFIG, X.str() == S);
+
+            // Verify no temporary memory is allocated from the object
+            // allocator when supplied.
+
+            if ('c' == CONFIG) {
+                ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                        oa.numBlocksTotal() == oa.numBlocksInUse());
+            }
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(CONFIG,  fa.numBlocksInUse(),
+                    0 ==  fa.numBlocksInUse());
+            ASSERTV(CONFIG,  oa.numBlocksInUse(),
+                    0 ==  oa.numBlocksInUse());
+            ASSERTV(CONFIG, noa.numBlocksInUse(),
+                    0 == noa.numBlocksInUse());
+        }
+
+        // And with a string-view-like type
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            typedef StringViewLikeHelper<CharT, typename StringT::traits_type>
+                                                                    SVLHelper;
+
+            const char CONFIG = cfg;  // how we specify the allocator
+            const int  SVL_LENGTH = LENGTH_OF_SUFFICIENTLY_LONG_STRING;
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            if (veryVerbose) {
+                printf("\nTesting string-view-like ctor with various "
+                       "allocator configurations.\n");
+            }
+
+            StreamT              *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            StringT mS(&scratch);  const StringT& S = mS;
+            loadString(&mS, SVL_LENGTH);
+            const SVLHelper svlh(&S);
+
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) StreamT(svlh);
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) StreamT(
+                                      svlh,
+                                      typename StreamT::allocator_type(0));
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) StreamT(svlh, &sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                ASSERTV(CONFIG, "Bad allocator config.", false);
+                return;                                               // RETURN
+              } break;
+            }
+
+            StreamT& mX = *objPtr;  const StreamT& X = mX;
+                                    const BaseT&   B =  X;
+
+            const bslma::TestAllocator&  oa = *objAllocatorPtr;
+            const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+            // Verify allocations from the object/non-object allocators.
+            // (We use a sufficiently long string so allocation is expected)
+
+            ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                    0 !=  oa.numBlocksTotal());
 
             ASSERTV(CONFIG, X.rdbuf());
             ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
@@ -1719,8 +1860,8 @@ void testCase7()
                 StreamT& mX = *objPtr;  const StreamT& X = mX;
                                         const BaseT&   B =  X;
 
-                bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                const bslma::TestAllocator&  oa = *objAllocatorPtr;
+                const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
                 // Verify allocations from the object/non-object allocators.
 
@@ -1905,8 +2046,8 @@ void testCase7()
                 StreamT& mX = *objPtr;  const StreamT& X = mX;
                                         const BaseT&   B =  X;
 
-                bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+                const bslma::TestAllocator&  oa = *objAllocatorPtr;
+                const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
 
                 // Verify allocations from the object/non-object allocators.
 
@@ -1958,6 +2099,105 @@ void testCase7()
                 ASSERTV(CONFIG, noa.numBlocksInUse(),
                         0 == noa.numBlocksInUse());
             }
+        }
+
+        // And with a string-view-like type
+        for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+            typedef StringViewLikeHelper<CharT, typename StringT::traits_type>
+                                                                    SVLHelper;
+
+            const char CONFIG = cfg;  // how we specify the allocator
+            const int  SVL_LENGTH = LENGTH_OF_SUFFICIENTLY_LONG_STRING;
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+            bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+            const bslma::DefaultAllocatorGuard dag(&da);
+
+            if (veryVerbose) {
+                printf("\nTesting string-view-like ctor with openmode.\n");
+            }
+
+            StreamT              *objPtr;
+            bslma::TestAllocator *objAllocatorPtr;
+
+            bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+            StringT mS(&scratch);  const StringT& S = mS;
+            loadString(&mS, SVL_LENGTH);
+            const SVLHelper svlh(&S);
+
+            switch (CONFIG) {
+              case 'a': {
+                objPtr = new (fa) StreamT(svlh, MODE);
+                objAllocatorPtr = &da;
+              } break;
+              case 'b': {
+                objPtr = new (fa) StreamT(
+                                      svlh,
+                                      MODE,
+                                      typename StreamT::allocator_type(0));
+                objAllocatorPtr = &da;
+              } break;
+              case 'c': {
+                objPtr = new (fa) StreamT(svlh, MODE, &sa);
+                objAllocatorPtr = &sa;
+              } break;
+              default: {
+                ASSERTV(CONFIG, "Bad allocator config.", false);
+                return;                                               // RETURN
+              } break;
+            }
+
+            StreamT& mX = *objPtr;  const StreamT& X = mX;
+                                    const BaseT&   B =  X;
+
+            const bslma::TestAllocator&  oa = *objAllocatorPtr;
+            const bslma::TestAllocator& noa = 'c' != CONFIG ? sa : da;
+
+            // Verify allocations from the object/non-object allocators.
+            // (We use a sufficiently long string so allocation is expected)
+
+            ASSERTV(CONFIG,  oa.numBlocksTotal(),
+                    0 !=  oa.numBlocksTotal());
+
+            ASSERTV(CONFIG, X.rdbuf());
+            ASSERTV(CONFIG, X.rdbuf() == B.rdbuf());
+            ASSERTV(CONFIG, X.str()   == S);
+
+            mX << 'X';
+
+            if (MODE & IosBase::ate) {
+                mS.push_back(static_cast<CharT>('X'));
+            }
+            else {
+                if (S.empty()) { mS.resize(1); }
+                mS[0] = static_cast<CharT>('X');
+            }
+
+            ASSERTV(CONFIG, X.str() == S);
+
+            // Verify no temporary memory is allocated from the object
+            // allocator when supplied.
+
+            if ('c' == CONFIG && !(MODE & IosBase::ate)) {
+                ASSERTV(CONFIG, oa.numBlocksTotal(), oa.numBlocksInUse(),
+                        oa.numBlocksTotal() == oa.numBlocksInUse());
+            }
+
+            // Reclaim dynamically allocated object under test.
+
+            fa.deleteObject(objPtr);
+
+            // Verify all memory is released on object destruction.
+
+            ASSERTV(CONFIG,  fa.numBlocksInUse(),
+                    0 ==  fa.numBlocksInUse());
+            ASSERTV(CONFIG,  oa.numBlocksInUse(),
+                    0 ==  oa.numBlocksInUse());
+            ASSERTV(CONFIG, noa.numBlocksInUse(),
+                    0 == noa.numBlocksInUse());
         }
     }
 }
@@ -2015,7 +2255,7 @@ void testCase8()
     const Mode MODE = IosBase::out;
 
     {
-        StdAlloc A;
+        const StdAlloc A;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -2031,7 +2271,7 @@ void testCase8()
     }
 
     {
-        StdAlloc A;
+        const StdAlloc A;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -2047,7 +2287,7 @@ void testCase8()
     }
 
     {
-        StdAlloc A;
+        const StdAlloc A;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -2061,7 +2301,7 @@ void testCase8()
     }
 
     {
-        StdAlloc A;
+        const StdAlloc A;
 
         bslma::TestAllocator         da("default", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard dag(&da);
@@ -2115,10 +2355,10 @@ namespace {
 
 int main(int argc, char *argv[])
 {
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-    verbose = argc > 2;
-    veryVerbose = argc > 3;
-    veryVeryVerbose = argc > 4;
+    int            test = argc > 1 ? atoi(argv[1]) : 0;
+                verbose = argc > 2;
+            veryVerbose = argc > 3;
+        veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
     using namespace BloombergLP;
@@ -2163,7 +2403,6 @@ int main(int argc, char *argv[])
 //
     ASSERT(toString("abc") == "abc");
 // ```
-
       } break;
       case 11: {
         testCase11<Obj,  bsl::string >();
@@ -2259,7 +2498,6 @@ int main(int argc, char *argv[])
         ASSERT(X.rdbuf());
         ASSERT(X.rdbuf() == B.rdbuf());
         ASSERT(X.str()   == "t");
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

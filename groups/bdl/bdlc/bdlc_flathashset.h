@@ -954,8 +954,6 @@ class FlatHashSet {
 
     /// Return `true` if this set contains an element whose key is equivalent
     /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -963,6 +961,8 @@ class FlatHashSet {
         , bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end();
     }
 
@@ -976,8 +976,6 @@ class FlatHashSet {
     /// undefined unless `key` is equivalent to at most one element in this
     /// unordered set.  Note that since an unordered set maintains unique
     /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -985,6 +983,8 @@ class FlatHashSet {
           , bsl::size_t >::type
     count(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end() ? 1 : 0;
     }
 
@@ -1011,8 +1011,6 @@ class FlatHashSet {
     /// returned iterators will have the same value.  Note that since an
     /// unordered set maintains unique keys, the range will contain at most one
     /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1020,6 +1018,8 @@ class FlatHashSet {
           , bsl::pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.equal_range(key);
     }
 
@@ -1031,8 +1031,6 @@ class FlatHashSet {
     /// Return a `const_iterator` referring to the element in this set
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this set.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1040,6 +1038,8 @@ class FlatHashSet {
          , const_iterator>::type
     find(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(d_impl.find(key));
     }
 

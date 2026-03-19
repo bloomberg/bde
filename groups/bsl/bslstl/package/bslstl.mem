@@ -41,6 +41,8 @@ bslstl_ios
 bslstl_iosfwd
 bslstl_iserrorcodeenum
 bslstl_iserrorconditionenum
+bslstl_isconvertibletocstring
+bslstl_isconvertibletostringview
 bslstl_istringstream
 bslstl_iterator
 bslstl_iteratorutil
@@ -98,6 +100,7 @@ bslstl_stringref
 bslstl_stringrefdata
 bslstl_stringstream
 bslstl_stringview
+bslstl_stringviewlikeparam
 bslstl_syncbuf
 bslstl_syncbufbase
 bslstl_systemerror

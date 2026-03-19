@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Feb 11 13:05:49 2025
+// Generated on Thu Mar  5 22:51:43 2026
 // Command line: sim_cpp11_features.pl bdlc_flathashmap.h
 
 #ifdef COMPILING_BDLC_FLATHASHMAP_H
@@ -537,8 +537,6 @@ class FlatHashMap {
     /// associated with a key that is equivalent to the specified `key` in this
     /// map, if such an entry exists; otherwise throw a `std::out_of_range`
     /// exception.  Note that this method is not exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -546,6 +544,8 @@ class FlatHashMap {
           , VALUE&>::type
     at(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator iter = find(key);
         if (iter == end()) {
             BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
@@ -577,8 +577,6 @@ class FlatHashMap {
     /// the two returned iterators will have the same value.  Note that since a
     /// map maintains unique keys, the range will contain at most one
     /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -586,6 +584,8 @@ class FlatHashMap {
           , bsl::pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.equal_range(key);
     }
 
@@ -970,8 +970,6 @@ class FlatHashMap {
     /// Return an `iterator` referring to the modifiable element in this map
     /// having the key equivalent to the specified `key`, or `end()` if no such
     /// entry exists in this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -979,6 +977,8 @@ class FlatHashMap {
           , iterator>::type
     find(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(d_impl.find(key));
     }
 
@@ -1480,6 +1480,7 @@ class FlatHashMap {
           , bsl::pair<iterator, bool> >::type
     try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1497,6 +1498,7 @@ class FlatHashMap {
     try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1517,6 +1519,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1540,6 +1543,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1566,6 +1570,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1595,6 +1600,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1627,6 +1633,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1662,6 +1669,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1700,6 +1708,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1741,6 +1750,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1785,6 +1795,7 @@ class FlatHashMap {
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2145,6 +2156,7 @@ class FlatHashMap {
     try_emplace(const_iterator,
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2166,6 +2178,7 @@ class FlatHashMap {
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2189,6 +2202,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) args_01,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2215,6 +2229,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) args_02,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2244,6 +2259,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) args_03,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2276,6 +2292,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) args_04,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2311,6 +2328,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) args_05,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2349,6 +2367,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) args_06,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2390,6 +2409,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) args_07,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2434,6 +2454,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) args_08,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2481,6 +2502,7 @@ class FlatHashMap {
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) args_09,
                             BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) args_10)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2524,6 +2546,7 @@ class FlatHashMap {
     try_emplace(BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                 BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2550,6 +2573,7 @@ class FlatHashMap {
                              BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY) key,
                              BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... args)
     {
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -2596,8 +2620,6 @@ class FlatHashMap {
     /// in this map, if such an entry exists; otherwise throw a
     /// `std::out_of_range` exception.  Note that this method is not
     /// exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2605,6 +2627,8 @@ class FlatHashMap {
           , const VALUE&>::type
     at(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         const_iterator iter = find(key);
         if (iter == end()) {
             BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
@@ -2623,8 +2647,6 @@ class FlatHashMap {
 
     /// Return `true` if this map contains an element whose key is equivalent
     /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2632,6 +2654,8 @@ class FlatHashMap {
         , bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end();
     }
 
@@ -2643,8 +2667,6 @@ class FlatHashMap {
     /// Return the number of elements in this map having a key equivalent to
     /// the specified `key`.  Note that since a flat hash map maintains unique
     /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2652,6 +2674,8 @@ class FlatHashMap {
           , bsl::size_t >::type
     count(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end() ? 1 : 0;
     }
 
@@ -2678,8 +2702,6 @@ class FlatHashMap {
     /// returned iterators will have the same value.  Note that since an
     /// unordered map maintains unique keys, the range will contain at most one
     /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2687,6 +2709,8 @@ class FlatHashMap {
           , bsl::pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.equal_range(key);
     }
 
@@ -2698,8 +2722,6 @@ class FlatHashMap {
     /// Return a `const_iterator` referring to the element in this map
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -2707,6 +2729,8 @@ class FlatHashMap {
           , const_iterator>::type
     find(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(d_impl.find(key));
     }
 

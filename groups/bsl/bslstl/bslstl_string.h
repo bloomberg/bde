@@ -639,11 +639,14 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_algorithm.h>
 #include <bslstl_compare.h>
 #include <bslstl_hash.h>
+#include <bslstl_isconvertibletocstring.h>
+#include <bslstl_isconvertibletostringview.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
 #include <bslstl_stdexceptutil.h>
 #include <bslstl_stringrefdata.h>
 #include <bslstl_stringview.h>
+#include <bslstl_stringviewlikeparam.h>
 
 #include <bslalg_containerbase.h>
 #include <bslalg_scalarprimitives.h>
@@ -836,158 +839,27 @@ using String_ComparisonCategoryType =
     typename String_ComparisonCategory<CHAR_TRAITS>::type;
 #endif
 
-                    // =======================================
-                    // struct String_IsConvertibleToStringView
-                    // =======================================
-
-/// This component-private `struct` template implements a meta-function to
-/// determine if the (template parameter) `TYPE` is convertible to the
-/// `bsl::string_view<`CHAR_TYPE', CHAR_TRAITS>'.
-template <class CHAR_TYPE, class CHAR_TRAITS, class TYPE>
-struct String_IsConvertibleToStringView
-: bsl::is_convertible<TYPE, bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> > {
-};
-
-/// This partial specialization of `String_IsConvertibleToStringView` is
-/// instantiated when `const CHAR_TYPE (&)[]` is tested for convertibility
-/// to the `bsl::string_view<`CHAR_TYPE', CHAR_TRAITS>'.
-template <class CHAR_TYPE, class CHAR_TRAITS>
-struct String_IsConvertibleToStringView<CHAR_TYPE,
-                                        CHAR_TRAITS,
-                                        const CHAR_TYPE (&)[]>
-: bsl::true_type {
-};
-
-                    // ====================================
-                    // struct String_IsConvertibleToCString
-                    // ====================================
-
-/// This component-private `struct` template implements a meta-function to
-/// determine if the (template parameter) `TYPE` is convertible to the
-/// (template parameter) `const CHAR_TYPE *`.
-template <class CHAR_TYPE, class TYPE>
-struct String_IsConvertibleToCString
-: bsl::is_convertible<TYPE, const CHAR_TYPE *> {
-};
-
-
-/// This partial specialization of `String_IsConvertibleToStringView` is
-/// instantiated when `const CHAR_TYPE (&)[]` is tested for convertibility
-/// to the `const CHAR_TYPE *`.
-template <class CHAR_TYPE>
-struct String_IsConvertibleToCString<CHAR_TYPE, const CHAR_TYPE (&)[]>
-: bsl::true_type {
-};
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1900
-#define BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE                 \
-  const STRING_VIEW_LIKE_TYPE &
-    // MSVC 2015's limited SFINAE support means we are cannot use 'sizeof' to
-    // detect incomplete types. In this case it is safe to not perform this
-    // detection, as it is only required for the C++03 deficiencies in Sun and
-    // AIX compilers.
-#else
-/// We need to use an intermediate completeness test to work around
-/// deficiencies with SFINAE in the Sun and AIX compilers.
-#define BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE                 \
-typename bsl::enable_if<0 != sizeof(STRING_VIEW_LIKE_TYPE),                   \
-                        const STRING_VIEW_LIKE_TYPE&>::type
-#endif
-
-#define BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE       \
+/// SFINAE enable_if type alias for types convertible to string_view but NOT
+/// convertible to C-string and NOT an accessible base of `bsl::basic_string`
+/// or `std::basic_string`.  The result type is the macro argument if enabled.
+/// This is a variadic macro to support result types containing commas (e.g.,
+/// `basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>`).
+#define BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(...)                        \
     typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-     && !String_IsConvertibleToCString<                                       \
-              CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
+        BloombergLP::bslstl::IsConvertibleToStringView<                       \
+            CHAR_TYPE,                                                        \
+            CHAR_TRAITS,                                                      \
+            BSLSTL_STRINGVIEWLIKEPARAM_TYPE_IF_COMPLETE>::value               \
+     && !BloombergLP::bslstl::IsConvertibleToCString<                         \
+            CHAR_TYPE,                                                        \
+            BSLSTL_STRINGVIEWLIKEPARAM_TYPE_IF_COMPLETE>::value               \
      && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
-              bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
-              STRING_VIEW_LIKE_TYPE>::value                                   \
+            bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,             \
+            STRING_VIEW_LIKE_TYPE>::value                                     \
      && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
-              std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
-              STRING_VIEW_LIKE_TYPE>::value                                   \
-         , basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&>::type
-
-#define                                                                       \
-   BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE   \
-    typename bsl::enable_if<                                                  \
-        bsl::String_IsConvertibleToStringView<                                \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-     && !bsl::String_IsConvertibleToCString<                                  \
-              CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
-     && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
-              bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
-              STRING_VIEW_LIKE_TYPE>::value                                   \
-     && !BloombergLP::bslmf::IsAccessibleBaseOf<                              \
-              std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,           \
-              STRING_VIEW_LIKE_TYPE>::value                                   \
-        , bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR> >::type
-
-#define BSLSTL_STRING_DECLARE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID ,          \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-    >::type * = 0
-
-#define BSLSTL_STRING_DEFINE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID ,           \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-    >::type *
-
-#define BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID ,     \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-     && !String_IsConvertibleToCString<                                       \
-              CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
-    >::type * = 0
-
-#define BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID ,      \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-     && !String_IsConvertibleToCString<                                       \
-              CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
-    >::type *
-
-#define BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_ALLOC ,    \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-     && !String_IsConvertibleToCString<                                       \
-              CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
-    , const ALLOCATOR&>::type basicAllocator = ALLOCATOR()
-
-#define BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_ALLOC ,     \
-    typename bsl::enable_if<                                                  \
-        String_IsConvertibleToStringView<                                     \
-               CHAR_TYPE,                                                     \
-               CHAR_TRAITS,                                                   \
-               BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value  \
-     && !String_IsConvertibleToCString<                                       \
-              CHAR_TYPE,                                                      \
-              BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE>::value   \
-    , const ALLOCATOR&>::type basicAllocator
+            std::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>,             \
+            STRING_VIEW_LIKE_TYPE>::value,                                    \
+        __VA_ARGS__>::type
 
                               // ================
                               // class String_Imp
@@ -1794,8 +1666,9 @@ class basic_string
     /// allocator is used.
     template <class STRING_VIEW_LIKE_TYPE>
     explicit basic_string(
-             const STRING_VIEW_LIKE_TYPE& object
-             BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_ALLOC);
+             const STRING_VIEW_LIKE_TYPE& object,
+             BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const ALLOCATOR&)
+                                                  basicAllocator = ALLOCATOR());
 
     /// Create a string that has the same value as the substring of the
     /// specified `numChars` length starting at the specified `position` in
@@ -1807,8 +1680,8 @@ class basic_string
     basic_string(const STRING_VIEW_LIKE_TYPE& object,
                  size_type                    position,
                  size_type                    numChars,
-                 const ALLOCATOR&             basicAllocator = ALLOCATOR()
-                 BSLSTL_STRING_DECLARE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID);
+                 const ALLOCATOR&             basicAllocator = ALLOCATOR(),
+                 BSLSTL_STRINGVIEWLIKEPARAM_ENABLE_IF_T(void) * = 0);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Create a string and insert (in order) each `CHAR_TYPE` object in the
@@ -1853,7 +1726,7 @@ class basic_string
     /// Assign to this string the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this string.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     operator=(const STRING_VIEW_LIKE_TYPE& rhs);
 
     /// Assign to this string the value of the specified null-terminated
@@ -1986,7 +1859,7 @@ class basic_string
     /// Append the specified `rhs` to this string, and return a reference
     /// providing modifiable access to this string.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     operator+=(const STRING_VIEW_LIKE_TYPE& rhs);
 
     /// Append the specified `rhs` string to this string, and return a
@@ -2032,7 +1905,7 @@ class basic_string
     /// access to this string.  Throw `length_error` if the length of the
     /// resulting string exceeds `max_size()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     append(const STRING_VIEW_LIKE_TYPE& suffix);
 
     /// Append to this string the optionally specified `numChars` characters
@@ -2044,7 +1917,7 @@ class basic_string
     /// `position > strView.length()`.  Throw `length_error` if the length
     /// of the resulting string exceeds `max_size()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     append(const STRING_VIEW_LIKE_TYPE& suffix,
            size_type                    position,
            size_type                    numChars = npos);
@@ -2120,7 +1993,7 @@ class basic_string
     /// that this method has exactly the same behavior as the corresponding
     /// `operator=`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     assign(const STRING_VIEW_LIKE_TYPE& replacement);
 
     /// Assign to this string the value of the optionally specified
@@ -2131,7 +2004,7 @@ class basic_string
     /// providing modifiable access to this string.  Throw `out_of_range` if
     /// `position > replacement.length()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     assign(const STRING_VIEW_LIKE_TYPE& replacement,
            size_type                    position,
            size_type                    numChars = npos);
@@ -2245,7 +2118,7 @@ class basic_string
     /// Throw `out_of_range` if `position > length()`.  Throw `length_error`
     /// if the length of the resulting string exceeds `max_size()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     insert(size_type position, const STRING_VIEW_LIKE_TYPE& other);
 
     /// Insert at the specified `position` in this string the optionally
@@ -2259,7 +2132,7 @@ class basic_string
     /// `length_error` if the length of the resulting string exceeds
     /// `max_size()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     insert(size_type                    position,
            const STRING_VIEW_LIKE_TYPE& other,
            size_type                    sourcePosition,
@@ -2378,7 +2251,7 @@ class basic_string
     /// modifiable access to this string.  Throw `out_of_range` if
     /// `outPosition > length()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     replace(size_type                    outPosition,
             size_type                    outNumChars,
             const STRING_VIEW_LIKE_TYPE& replacement);
@@ -2395,7 +2268,7 @@ class basic_string
     /// access to this string.  Throw `out_of_range` if
     /// `outPosition > length()` or `position > replacement.length()`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     replace(size_type                    outPosition,
             size_type                    outNumChars,
             const STRING_VIEW_LIKE_TYPE& replacement,
@@ -2419,7 +2292,7 @@ class basic_string
     /// `first` and `last` are both within the range `[cbegin() .. cend()]`
     /// and `first <= last`.
     template <class STRING_VIEW_LIKE_TYPE>
-    BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+    BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(basic_string&)
     replace(const_iterator               first,
             const_iterator               last,
             const STRING_VIEW_LIKE_TYPE& replacement);
@@ -2638,8 +2511,8 @@ class basic_string
     template <class STRING_VIEW_LIKE_TYPE>
     size_type find(
                const STRING_VIEW_LIKE_TYPE& substring,
-               size_type                    position = 0
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               size_type                    position = 0,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Return the starting position of the *first* occurrence of the
@@ -2691,8 +2564,8 @@ class basic_string
     template <class STRING_VIEW_LIKE_TYPE>
     size_type rfind(
                const STRING_VIEW_LIKE_TYPE& substring,
-               size_type                    position = npos
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               size_type                    position = npos,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Return the starting position of the *last* occurrence of a substring
@@ -2742,8 +2615,8 @@ class basic_string
     template <class STRING_VIEW_LIKE_TYPE>
     size_type find_first_of(
                const STRING_VIEW_LIKE_TYPE& characterString,
-               size_type                    position = 0
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               size_type                    position = 0,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Return the position of the *first* occurrence of a character
@@ -2794,8 +2667,8 @@ class basic_string
     template <class STRING_VIEW_LIKE_TYPE>
     size_type find_last_of(
                const STRING_VIEW_LIKE_TYPE& characterString,
-               size_type                    position = npos
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               size_type                    position = npos,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Return the position of the *last* occurrence of a character
@@ -2846,8 +2719,8 @@ class basic_string
     template <class STRING_VIEW_LIKE_TYPE>
     size_type find_first_not_of(
                const STRING_VIEW_LIKE_TYPE& characterString,
-               size_type                    position = 0
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               size_type                    position = 0,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Return the position of the *first* occurrence of a character *not*
@@ -2899,8 +2772,8 @@ class basic_string
     template <class STRING_VIEW_LIKE_TYPE>
     size_type find_last_not_of(
                const STRING_VIEW_LIKE_TYPE& characterString,
-               size_type                    position = npos
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               size_type                    position = npos,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Return the position of the *last* occurrence of a character *not*
@@ -3092,8 +2965,8 @@ class basic_string
     /// ```
     template <class STRING_VIEW_LIKE_TYPE>
     int compare(
-               const STRING_VIEW_LIKE_TYPE& other
-               BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+               const STRING_VIEW_LIKE_TYPE& other,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0)
                                const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true);
 
     /// Lexicographically compare the substring of this string of the
@@ -3109,8 +2982,8 @@ class basic_string
     int compare(
         size_type                    position,
         size_type                    numChars,
-        const STRING_VIEW_LIKE_TYPE& other
-        BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID) const;
+        const STRING_VIEW_LIKE_TYPE& other,
+        BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0) const;
 
     /// Lexicographically compare the substring of this string of the
     /// specified `lhsNumChars` length starting at the specified
@@ -3133,8 +3006,8 @@ class basic_string
         size_type                    lhsNumChars,
         const STRING_VIEW_LIKE_TYPE& other,
         size_type                    otherPosition,
-        size_type                    otherNumChars = npos
-        BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID) const;
+        size_type                    otherNumChars = npos,
+        BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) * = 0) const;
 
     // *** BDE compatibility with platform libraries: ***
 
@@ -3591,7 +3464,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 operator+(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &    lhs,
           const STRING_VIEW_LIKE_TYPE                         &    rhs);
 #ifdef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
@@ -3599,7 +3473,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 operator+(      basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &&   lhs,
           const STRING_VIEW_LIKE_TYPE                         &    rhs);
 #endif  // BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
@@ -3607,7 +3482,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 operator+(const STRING_VIEW_LIKE_TYPE                         &    lhs,
           const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &    rhs);
 #ifdef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
@@ -3615,7 +3491,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 operator+(const STRING_VIEW_LIKE_TYPE                         &    lhs,
                 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> &&   rhs);
 #endif  // BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
@@ -5209,8 +5086,9 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 inline
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::basic_string(
-               const STRING_VIEW_LIKE_TYPE& object
-               BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_ALLOC)
+               const STRING_VIEW_LIKE_TYPE& object,
+               BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const ALLOCATOR&)
+                                                                basicAllocator)
 : Imp()
 , ContainerBase(basicAllocator)
 {
@@ -5225,8 +5103,8 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::basic_string(
                      const STRING_VIEW_LIKE_TYPE& object,
                      size_type                    position,
                      size_type                    numChars,
-                     const ALLOCATOR&             basicAllocator
-                     BSLSTL_STRING_DEFINE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                     const ALLOCATOR&             basicAllocator,
+                     BSLSTL_STRINGVIEWLIKEPARAM_ENABLE_IF_T(void) *)
 : Imp()
 , ContainerBase(basicAllocator)
 {
@@ -5331,7 +5209,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator=(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 inline
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::operator=(
                                               const STRING_VIEW_LIKE_TYPE& rhs)
 {
@@ -5580,7 +5459,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(CHAR_TYPE character)
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::operator+=(
                                               const STRING_VIEW_LIKE_TYPE& rhs)
 {
@@ -5666,7 +5546,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(size_type numChars,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::append(
                                            const STRING_VIEW_LIKE_TYPE& suffix)
 {
@@ -5679,7 +5560,8 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::append(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
                                          const STRING_VIEW_LIKE_TYPE& suffix,
                                          size_type                    position,
@@ -5809,7 +5691,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                       const STRING_VIEW_LIKE_TYPE& replacement)
 {
@@ -5821,7 +5704,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                                       const STRING_VIEW_LIKE_TYPE& replacement,
                                       size_type                    position,
@@ -6034,7 +5918,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::insert(
                                          size_type                    position,
                                          const STRING_VIEW_LIKE_TYPE& other)
@@ -6051,7 +5936,8 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::insert(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::insert(
                                    size_type                    position,
                                    const STRING_VIEW_LIKE_TYPE& other,
@@ -6292,7 +6178,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(size_type outPosition,
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                       size_type                    outPosition,
                                       size_type                    outNumChars,
@@ -6318,7 +6205,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                       size_type                    outPosition,
                                       size_type                    outNumChars,
@@ -6380,7 +6268,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
-BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
+BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                              basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&)
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                       const_iterator               first,
                                       const_iterator               last,
@@ -6773,8 +6662,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find(
                 const STRING_VIEW_LIKE_TYPE& substring,
-                size_type                    position
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                size_type                    position,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = substring;
@@ -6856,8 +6745,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::rfind(
                 const STRING_VIEW_LIKE_TYPE& substring,
-                size_type                    position
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                size_type                    position,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = substring;
@@ -6934,8 +6823,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_of(
                 const STRING_VIEW_LIKE_TYPE& characterString,
-                size_type                    position
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                size_type                    position,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = characterString;
@@ -7008,8 +6897,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_of(
                 const STRING_VIEW_LIKE_TYPE& characterString,
-                size_type                    position
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                size_type                    position,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = characterString;
@@ -7086,8 +6975,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_first_not_of(
                 const STRING_VIEW_LIKE_TYPE& characterString,
-                size_type                    position
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                size_type                    position,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = characterString;
@@ -7161,8 +7050,8 @@ BSLS_PLATFORM_AGGRESSIVE_INLINE
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::find_last_not_of(
                 const STRING_VIEW_LIKE_TYPE& characterString,
-                size_type                    position
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                size_type                    position,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = characterString;
@@ -7431,8 +7320,8 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class STRING_VIEW_LIKE_TYPE>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
-                const STRING_VIEW_LIKE_TYPE& other
-                BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID)
+                const STRING_VIEW_LIKE_TYPE& other,
+                BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *)
                                 const BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(true)
 {
     bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> strView = other;
@@ -7448,8 +7337,8 @@ template <class STRING_VIEW_LIKE_TYPE>
 int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
           size_type                    position,
           size_type                    numChars,
-          const STRING_VIEW_LIKE_TYPE& other
-          BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID) const
+          const STRING_VIEW_LIKE_TYPE& other,
+          BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *) const
 {
     privateThrowOutOfRange(
                   length() < position,
@@ -7473,8 +7362,8 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::compare(
           size_type                    lhsNumChars,
           const STRING_VIEW_LIKE_TYPE& other,
           size_type                    otherPosition,
-          size_type                    otherNumChars
-          BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID) const
+          size_type                    otherNumChars,
+          BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void) *) const
 {
     privateThrowOutOfRange(
         length() < lhsPosition,
@@ -8241,7 +8130,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+inline BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 bsl::operator+(const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> & lhs,
                const STRING_VIEW_LIKE_TYPE                              & rhs)
 {
@@ -8259,7 +8149,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+inline BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 bsl::operator+(      bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> && lhs,
                const STRING_VIEW_LIKE_TYPE                              &  rhs)
 {
@@ -8272,7 +8163,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+inline BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 bsl::operator+(const STRING_VIEW_LIKE_TYPE                              & lhs,
                const bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> & rhs)
 {
@@ -8290,7 +8182,8 @@ template <class CHAR_TYPE,
           class CHAR_TRAITS,
           class ALLOCATOR,
           class STRING_VIEW_LIKE_TYPE>
-inline BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
+inline BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T(
+                          bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>)
 bsl::operator+(const STRING_VIEW_LIKE_TYPE                              &  lhs,
                      bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR> && rhs)
 {
@@ -8556,15 +8449,7 @@ extern template class bsl::basic_string<char32_t>;
 
 #undef BSLSTL_STRING_SUPPORT_RVALUE_ADDITION_OPERATORS
 
-#undef BSLSTL_STRING_DEFINE_STRINGVIEW_LIKE_TYPE_IF_COMPLETE
-#undef BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE
-#undef BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_RETURN_TYPE_BY_VALUE
-#undef BSLSTL_STRING_DECLARE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
-#undef BSLSTL_STRING_DEFINE_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
-#undef BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
-#undef BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_VOID
-#undef BSLSTL_STRING_DECLARE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_ALLOC
-#undef BSLSTL_STRING_DEFINE_ONLY_CONVERTIBLE_TO_STRINGVIEW_PARAM_ALLOC
+#undef BSLSTL_STRING_ONLY_STRINGVIEW_ENABLE_IF_T
 
 #undef BSLSTL_STRING_DEDUCE_RVREF
 #undef BSLSTL_STRING_DEDUCE_RVREF_1

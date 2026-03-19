@@ -629,8 +629,6 @@ class FlatHashMap {
     /// associated with a key that is equivalent to the specified `key` in this
     /// map, if such an entry exists; otherwise throw a `std::out_of_range`
     /// exception.  Note that this method is not exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -638,6 +636,8 @@ class FlatHashMap {
           , VALUE&>::type
     at(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator iter = find(key);
         if (iter == end()) {
             BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
@@ -669,8 +669,6 @@ class FlatHashMap {
     /// the two returned iterators will have the same value.  Note that since a
     /// map maintains unique keys, the range will contain at most one
     /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -678,6 +676,8 @@ class FlatHashMap {
           , bsl::pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.equal_range(key);
     }
 
@@ -771,8 +771,6 @@ class FlatHashMap {
     /// Return an `iterator` referring to the modifiable element in this map
     /// having the key equivalent to the specified `key`, or `end()` if no such
     /// entry exists in this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -780,6 +778,8 @@ class FlatHashMap {
           , iterator>::type
     find(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(d_impl.find(key));
     }
 
@@ -1001,8 +1001,6 @@ class FlatHashMap {
     /// requires that the (template parameter) types `KEY` and `VALUE` are
     /// `emplace-constructible` from `key` and `args` respectively.  For
     /// C++03, `VALUE` must also be `copy-constructible`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY, class... ARGS>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1010,6 +1008,8 @@ class FlatHashMap {
           , bsl::pair<iterator, bool> >::type
     try_emplace(LOOKUP_KEY&& key, ARGS&&... args)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1050,8 +1050,6 @@ class FlatHashMap {
     /// that the (template parameter) types `KEY` and `VALUE` are
     /// `emplace-constructible` from `key` and `args` respectively.  For C++03,
     /// `VALUE` must also be `copy-constructible`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY, class... ARGS>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1059,6 +1057,8 @@ class FlatHashMap {
           , iterator>::type
     try_emplace(const_iterator, LOOKUP_KEY&& key, ARGS&&... args)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.try_emplace(
               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
               std::piecewise_construct,
@@ -1104,8 +1104,6 @@ class FlatHashMap {
     /// in this map, if such an entry exists; otherwise throw a
     /// `std::out_of_range` exception.  Note that this method is not
     /// exception-neutral.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1113,6 +1111,8 @@ class FlatHashMap {
           , const VALUE&>::type
     at(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         const_iterator iter = find(key);
         if (iter == end()) {
             BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
@@ -1131,8 +1131,6 @@ class FlatHashMap {
 
     /// Return `true` if this map contains an element whose key is equivalent
     /// to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1140,6 +1138,8 @@ class FlatHashMap {
         , bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end();
     }
 
@@ -1151,8 +1151,6 @@ class FlatHashMap {
     /// Return the number of elements in this map having a key equivalent to
     /// the specified `key`.  Note that since a flat hash map maintains unique
     /// keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1160,6 +1158,8 @@ class FlatHashMap {
           , bsl::size_t >::type
     count(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end() ? 1 : 0;
     }
 
@@ -1186,8 +1186,6 @@ class FlatHashMap {
     /// returned iterators will have the same value.  Note that since an
     /// unordered map maintains unique keys, the range will contain at most one
     /// element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1195,6 +1193,8 @@ class FlatHashMap {
           , bsl::pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return d_impl.equal_range(key);
     }
 
@@ -1206,8 +1206,6 @@ class FlatHashMap {
     /// Return a `const_iterator` referring to the element in this map
     /// having the specified `key`, or `end()` if no such entry exists in
     /// this map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -1215,6 +1213,8 @@ class FlatHashMap {
           , const_iterator>::type
     find(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(d_impl.find(key));
     }
 

@@ -1009,8 +1009,6 @@ class map {
     /// into this map and the (template parameter) type `VALUE` be
     /// `default-insertable` into this map (see {Requirements on `KEY` and
     /// `VALUE`}).
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1018,6 +1016,8 @@ class map {
         typename add_lvalue_reference<VALUE>::type>::type
     operator [](LOOKUP_KEY&& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return try_emplace(
                  BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)).first->second;
     }
@@ -1036,14 +1036,14 @@ class map {
     /// `std::out_of_range` exception.  Note that this method may also throw
     /// a different kind of exception if the (user-supplied) comparator
     /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         typename add_lvalue_reference<VALUE>::type>::type
     at(const LOOKUP_KEY& key) {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator iter = find(key);
         if (iter == end()) {
             BloombergLP::bslstl::StdExceptUtil::throwOutOfRange(
@@ -1276,8 +1276,6 @@ class map {
     /// `(std::forward<KEY>(key), std::forward<BDE_OTHER_TYPE>(obj)...))`,
     /// and return a pair containing an iterator referring to the
     /// newly-created entry and `true`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1285,6 +1283,8 @@ class map {
         pair<iterator, bool> >::type
     insert_or_assign(LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         typedef pair<iterator, bool> Result;
 
         int comparisonResult;
@@ -1352,8 +1352,6 @@ class map {
     /// and return an iterator referring to the newly-created entry.  Use
     /// the specified `hint` as a starting point for checking to see if the
     /// key already in the map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template<class LOOKUP_KEY, class BDE_OTHER_TYPE>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1361,6 +1359,8 @@ class map {
         iterator>::type
     insert_or_assign(const_iterator hint, LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         BloombergLP::bslalg::RbTreeNode *hintNode =
                     const_cast<BloombergLP::bslalg::RbTreeNode *>(hint.node());
 
@@ -1493,8 +1493,6 @@ class map {
     /// `true`.  This method requires that the (template parameter) types
     /// `KEY` and `VALUE` are `emplace-constructible` from `key` and `args`
     /// respectively.  For C++03, `VALUE` must also be `copy-constructible`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class... Args>
     pair<iterator, bool> try_emplace(const KEY& key, Args&&... args);
     template <class... Args>
@@ -1509,6 +1507,8 @@ class map {
         pair<iterator, bool> >::type
     try_emplace(LOOKUP_KEY&& key, Args&&... args)
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             const LOOKUP_KEY& lvalue = key;
 
             int comparisonResult;
@@ -1553,8 +1553,6 @@ class map {
     /// the map.  This method requires that the (template parameter) types
     /// `KEY` and `VALUE` are `emplace-constructible` from `key` and `args`
     /// respectively.  For C++03, `VALUE` must also be `copy-constructible`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template<class... Args>
     iterator try_emplace(const_iterator hint, const KEY& key, Args&&... args);
     template <class... Args>
@@ -1568,6 +1566,8 @@ class map {
         iterator>::type
     try_emplace(const_iterator hint, LOOKUP_KEY&& key, Args&&... args)
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             const LOOKUP_KEY& lvalue = key;
 
             BloombergLP::bslalg::RbTreeNode *hintNode =
@@ -1620,10 +1620,10 @@ class map {
     /// object in this map whose key is equivalent to the specified `key`,
     /// if such an entry exists, and the past-the-end (`end`) iterator
     /// otherwise.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     iterator find(const key_type& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::find(
                                              d_tree, this->comparator(), key));
     }
@@ -1632,8 +1632,6 @@ class map {
     /// object in this map whose key is equivalent to the specified `key`,
     /// if such an entry exists, and the past-the-end (`end`) iterator
     /// otherwise.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1641,6 +1639,8 @@ class map {
         iterator>::type
     find(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
@@ -1653,10 +1653,10 @@ class map {
     /// returns the *first* position before which a `value_type` object
     /// having an equivalent key could be inserted into the ordered sequence
     /// maintained by this map, while preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     iterator lower_bound(const key_type& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
@@ -1669,8 +1669,6 @@ class map {
     /// returns the *first* position before which a `value_type` object
     /// having an equivalent key could be inserted into the ordered sequence
     /// maintained by this map, while preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1678,6 +1676,8 @@ class map {
         iterator>::type
     lower_bound(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
@@ -1690,10 +1690,10 @@ class map {
     /// which a `value_type` object having an equivalent key could be
     /// inserted into the ordered sequence maintained by this map, while
     /// preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     iterator upper_bound(const key_type& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
@@ -1706,8 +1706,6 @@ class map {
     /// which a `value_type` object having an equivalent key could be
     /// inserted into the ordered sequence maintained by this map, while
     /// preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1715,6 +1713,8 @@ class map {
         iterator>::type
     upper_bound(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
@@ -1729,10 +1729,10 @@ class map {
     /// objects with an equivalent key, then the two returned iterators will
     /// have the same value.  Note that since a map maintains unique keys,
     /// the range will contain at most one element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     pair<iterator, iterator> equal_range(const key_type& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator startIt = lower_bound(key);
         iterator endIt   = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {
@@ -1754,8 +1754,6 @@ class map {
     /// transparent comparator may have been supplied that provides a
     /// different (but compatible) partitioning of keys for `LOOKUP_KEY` as
     /// the comparisons used to order the keys in the map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1763,6 +1761,8 @@ class map {
         pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator startIt = lower_bound(key);
         iterator endIt   = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {
@@ -1834,8 +1834,6 @@ class map {
 
     /// Return `true` if this map contains an element whose key is
     /// equivalent to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1843,6 +1841,8 @@ class map {
         bool>::type
     contains(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return find(key) != end();
     }
 
@@ -1874,14 +1874,13 @@ class map {
     /// `std::out_of_range` exception.  Note that this method may also throw
     /// a different kind of exception if the (user-supplied) comparator
     /// throws.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         typename add_lvalue_reference<const VALUE>::type>::type
     at(const LOOKUP_KEY& key) const {
+        // Note: implemented inline due to Sun CC compilation error.
 
         const_iterator iter = find(key);
         if (iter == end()) {
@@ -1912,10 +1911,10 @@ class map {
     /// `value_type` object in this map whose key is equivalent to the
     /// specified `key`, if such an entry exists, and the past-the-end
     /// (`end`) iterator otherwise.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator find(const key_type& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
                                              d_tree, this->comparator(), key));
     }
@@ -1924,8 +1923,6 @@ class map {
     /// `value_type` object in this map whose key is equivalent to the
     /// specified `key`, if such an entry exists, and the past-the-end
     /// (`end`) iterator otherwise.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1933,6 +1930,8 @@ class map {
         const_iterator>::type
     find(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::find(
             d_tree, this->comparator(), key));
     }
@@ -1940,10 +1939,10 @@ class map {
     /// Return the number of `value_type` objects within this map whose keys
     /// are equivalent to the specified `key`.  Note that since a map
     /// maintains unique keys, the returned value will be either 0 or 1.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     size_type count(const key_type& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return (find(key) != end()) ? 1 : 0;
     }
 
@@ -1953,8 +1952,6 @@ class map {
     /// because a transparent comparator may have been supplied that
     /// provides a different (but compatible) partitioning of keys for
     /// `LOOKUP_KEY` as the comparisons used to order the keys in the map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -1962,6 +1959,8 @@ class map {
         size_type>::type
     count(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         int            count = 0;
         const_iterator it    = lower_bound(key);
 
@@ -1980,10 +1979,10 @@ class map {
     /// returns the *first* position before which a `value_type` object
     /// having an equivalent key could be inserted into the ordered sequence
     /// maintained by this map, while preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator lower_bound(const key_type& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return iterator(BloombergLP::bslalg::RbTreeUtil::lowerBound(
             d_tree, this->comparator(), key));
     }
@@ -1996,8 +1995,6 @@ class map {
     /// returns the *first* position before which a `value_type` object
     /// having an equivalent key could be inserted into the ordered sequence
     /// maintained by this map, while preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -2005,6 +2002,8 @@ class map {
         const_iterator>::type
     lower_bound(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(
                 BloombergLP::bslalg::RbTreeUtil::lowerBound(d_tree,
                                                             this->comparator(),
@@ -2019,10 +2018,10 @@ class map {
     /// position before which a `value_type` object having an equivalent key
     /// could be inserted into the ordered sequence maintained by this map,
     /// while preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     const_iterator upper_bound(const key_type& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
@@ -2035,8 +2034,6 @@ class map {
     /// position before which a `value_type` object having an equivalent key
     /// could be inserted into the ordered sequence maintained by this map,
     /// while preserving its ordering.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -2044,6 +2041,8 @@ class map {
         const_iterator>::type
     upper_bound(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         return const_iterator(BloombergLP::bslalg::RbTreeUtil::upperBound(
             d_tree, this->comparator(), key));
     }
@@ -2058,10 +2057,10 @@ class map {
     /// `value_type` objects having keys equivalent to `key`, then the two
     /// returned iterators will have the same value.  Note that since a map
     /// maintains unique keys, the range will contain at most one element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     pair<const_iterator, const_iterator> equal_range(const key_type& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         const_iterator startIt = lower_bound(key);
         const_iterator endIt   = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {
@@ -2083,8 +2082,6 @@ class map {
     /// element,  because a transparent comparator may have been supplied
     /// that provides a different (but compatible) partitioning of keys for
     /// `LOOKUP_KEY` as the comparisons used to order the keys in the map.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
@@ -2092,6 +2089,8 @@ class map {
         pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         const_iterator startIt = lower_bound(key);
         const_iterator   endIt = startIt;
         if (endIt != end() && !comparator()(key, *endIt.node())) {

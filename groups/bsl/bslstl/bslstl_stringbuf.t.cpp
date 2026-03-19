@@ -21,8 +21,6 @@
 #include <bsltf_stdstatefulallocator.h>
 
 #include <iostream>
-#include <istream>
-#include <ostream>
 #include <string>
 #include <algorithm>
 
@@ -232,6 +230,36 @@ bool stringWasMovedFrom(const StringT& s)
     return 0 == s.size();
 }
 
+/// A helper type that is convertible to `bsl::basic_string_view` but NOT to
+/// `const CHAR_TYPE*`.  This type is used to test string-view-like
+/// constructor and manipulator overloads.  Takes a pointer to a string to
+/// make lifetime requirements explicit (the pointed-to string must outlive
+/// this helper).
+template <class CHAR_TYPE, class CHAR_TRAITS = bsl::char_traits<CHAR_TYPE> >
+class StringViewLikeHelper {
+  private:
+    bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS> d_view;
+
+  public:
+    StringViewLikeHelper(const CHAR_TYPE *data, size_t length)
+    : d_view(data, length)
+    {
+    }
+
+    template <class ALLOC>
+    explicit StringViewLikeHelper(
+                   const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOC> *str)
+    : d_view(*str)
+    {
+    }
+
+    // ACCESSORS
+    operator bsl::basic_string_view<CHAR_TYPE, CHAR_TRAITS>() const
+    {
+        return d_view;
+    }
+};
+
 template <class TYPE>
 class StringBufTest : public bsl::basic_stringbuf<TYPE>
 {
@@ -241,7 +269,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
     // CLASS METHODS
     static int getValues(const TYPE **values)
     {
-        bslma::DefaultAllocatorGuard guard(
+        const bslma::DefaultAllocatorGuard guard(
                                       &bslma::NewDeleteAllocator::singleton());
 
         const int NUM_VALUES = 12;
@@ -292,13 +320,13 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
     static void testSeekoff()
     {
-        const bsl::ios_base::openmode in = bsl::ios_base::in;
-        const bsl::ios_base::openmode out = bsl::ios_base::out;
-        const bsl::ios_base::seekdir beg = bsl::ios_base::beg;
-        const bsl::ios_base::seekdir cur = bsl::ios_base::cur;
-        const bsl::ios_base::seekdir end = bsl::ios_base::end;
+        static const bsl::ios_base::openmode in = bsl::ios_base::in;
+        static const bsl::ios_base::openmode out = bsl::ios_base::out;
+        static const bsl::ios_base::seekdir beg = bsl::ios_base::beg;
+        static const bsl::ios_base::seekdir cur = bsl::ios_base::cur;
+        static const bsl::ios_base::seekdir end = bsl::ios_base::end;
 
-        struct DataDef {
+        static const struct DataDef {
             int                      line;
             bsl::ios_base::seekdir   dir;
             bsl::ios_base::openmode  mode;
@@ -314,18 +342,19 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         };
 
         const int dataSize = sizeof DATA / sizeof *DATA;
-        bsl::string initialStr("initial");
+        const bsl::string initialStr("initial");
 
         for (int i = 0; i != dataSize; ++i) {
-            int LINE = DATA[i].line;
-            bsl::ios_base::seekdir DIR = DATA[i].dir;
-            bsl::ios_base::openmode MODE = DATA[i].mode;
+            const int                     LINE = DATA[i].line;
+            const bsl::ios_base::seekdir  DIR  = DATA[i].dir;
+            const bsl::ios_base::openmode MODE = DATA[i].mode;
 
             for (std::size_t pos = 0; pos != initialStr.size(); ++pos) {
                 StringBufTest strBuf(initialStr, MODE);
 
-                std::streamoff seekOff
-                    = DIR == end ? pos - initialStr.size() : pos;
+                const std::streamoff seekOff = DIR == end
+                                             ? pos - initialStr.size()
+                                             : pos;
 
                 if (DIR == cur) {
                     strBuf.pubseekoff(0, beg, MODE);
@@ -348,7 +377,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
     static void testSeekposImp(bsl::ios_base::openmode mode)
     {
-        bsl::string initialStr("initial state");
+        const bsl::string initialStr("initial state");
 
         for (std::size_t pos = 0; pos != initialStr.size(); ++pos) {
             StringBufTest strBuf(initialStr, mode);
@@ -376,7 +405,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
     static void testXsgetn()
     {
-        bsl::string initialStr("initial state");
+        const bsl::string initialStr("initial state");
         const std::size_t readbufSize = 50;
         char readbuf[readbufSize];
 
@@ -384,8 +413,8 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         ASSERT(readbufSize > initialStr.size());
 
         for (std::streamsize n = 0;
-             n != std::streamsize(initialStr.size());
-             ++n)
+                             n != std::streamsize(initialStr.size());
+                           ++n)
         {
             StringBufTest strBuf(initialStr, bsl::ios_base::in);
 
@@ -393,7 +422,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
             memset(readbuf, -1, readbufSize);
 
             // read some characters with `xsgetn`
-            std::streamsize readChars = strBuf.xsgetn(readbuf, n);
+            const std::streamsize readChars = strBuf.xsgetn(readbuf, n);
 
             // verify that characters were read successfully
             ASSERT(readChars == n);
@@ -403,28 +432,28 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
     static void testUnderflow()
     {
-        struct DataDef {
+        static const struct DataDef {
             int line;
             const char * str;
         } DATA[] = {
-            { L_, "A" },
-            { L_, "AA" },
-            { L_, "ABA" },
-            { L_, "ABCA" },
-            { L_, "ABCDA" },
+            { L_, "A"      },
+            { L_, "AA"     },
+            { L_, "ABA"    },
+            { L_, "ABCA"   },
+            { L_, "ABCDA"  },
             { L_, "ABCDEA" },
         };
 
         const std::size_t dataSize = sizeof DATA / sizeof *DATA;
 
         for (std::size_t i = 0; i != dataSize; ++i) {
-            int LINE = DATA[i].line;
-            bsl::string STR = DATA[i].str;
+            const int         LINE = DATA[i].line;
+            const bsl::string STR  = DATA[i].str;
 
             StringBufTest strBuf(STR, bsl::ios_base::in);
             for (std::streamsize pos = 0;
-                 pos <= std::streamsize(STR.size());
-                 ++pos)
+                                 pos <= std::streamsize(STR.size());
+                               ++pos)
             {
                 // read a character at the specified position
                 strBuf.pubseekpos(pos, bsl::ios_base::in);
@@ -453,31 +482,31 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
     static void testUflow()
     {
-        struct DataDef {
+        static const struct DataDef {
             int line;
             const char *str;
         } DATA[] = {
-            { L_, "A" },
-            { L_, "AA" },
-            { L_, "ABA" },
-            { L_, "ABCA" },
-            { L_, "ABCDA" },
+            { L_, "A"      },
+            { L_, "AA"     },
+            { L_, "ABA"    },
+            { L_, "ABCA"   },
+            { L_, "ABCDA"  },
             { L_, "ABCDEA" },
         };
 
         const std::size_t dataSize = sizeof DATA / sizeof *DATA;
 
         for (std::size_t i = 0; i != dataSize; ++i) {
-            int LINE = DATA[i].line;
-            bsl::string STR = DATA[i].str;
+            const int         LINE = DATA[i].line;
+            const bsl::string STR  = DATA[i].str;
 
             StringBufTest strBuf(STR, bsl::ios_base::in);
             for (std::streamsize pos = 0;
-                 pos <= std::streamsize(STR.size());
-                 ++pos)
+                                 pos <= std::streamsize(STR.size());
+                               ++pos)
             {
                 // read each character sequentially
-                int ic = strBuf.uflow();
+                const int ic = strBuf.uflow();
 
                 if (pos == std::streamsize(STR.size())) {
                     LOOP2_ASSERT(LINE, ic,
@@ -492,23 +521,23 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
     static void testPbackfail()
     {
-        struct DataDef {
+        static const struct DataDef {
             int line;
             const char *str;
         } DATA[] = {
-            { L_, "A" },
-            { L_, "AA" },
-            { L_, "ABA" },
-            { L_, "ABCA" },
-            { L_, "ABCDA" },
+            { L_, "A"      },
+            { L_, "AA"     },
+            { L_, "ABA"    },
+            { L_, "ABCA"   },
+            { L_, "ABCDA"  },
             { L_, "ABCDEA" },
         };
 
         const std::size_t dataSize = sizeof DATA / sizeof *DATA;
 
         for (std::size_t i = 0; i != dataSize; ++i) {
-            int LINE = DATA[i].line;
-            bsl::string STR = DATA[i].str;
+            const int         LINE = DATA[i].line;
+            const bsl::string STR  = DATA[i].str;
 
             StringBufTest strBuf(STR, bsl::ios_base::in);
 
@@ -522,15 +551,15 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
             // now read and put back characters one by one in a loop
             for (std::streamsize pos = 0;
-                 pos <= std::streamsize(STR.size());
-                 ++pos)
+                                 pos <= std::streamsize(STR.size());
+                               ++pos)
             {
                 // read a character
                 int ic = strBuf.uflow();
 
                 if (ic != std::char_traits<char>::eof()) {
                     // put the character back
-                    int bc = strBuf.pbackfail(ic);
+                    const int bc = strBuf.pbackfail(ic);
                     LOOP4_ASSERT(LINE, pos, ic, bc, ic == bc);
 
                     // read the character again
@@ -539,7 +568,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 }
                 else {
                     // pbackfail at the end, returns the last character
-                    int bc = strBuf.pbackfail();
+                    const int bc = strBuf.pbackfail();
                     LOOP3_ASSERT(LINE, pos, bc,
                                  bc != std::char_traits<char>::eof());
                 }
@@ -555,23 +584,23 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         StringBufTest readonlyBuf("", bsl::ios_base::in);
         ASSERT(readonlyBuf.xsputn(writeStr.c_str(), writeStr.size()) == 0);
 
-        struct DataDef {
+        static const struct DataDef {
             int line;
             const char *str;
         } DATA[] = {
-            { L_, "A" },
-            { L_, "AA" },
-            { L_, "ABA" },
-            { L_, "ABCA" },
-            { L_, "ABCDA" },
+            { L_, "A"      },
+            { L_, "AA"     },
+            { L_, "ABA"    },
+            { L_, "ABCA"   },
+            { L_, "ABCDA"  },
             { L_, "ABCDEA" },
         };
 
         const std::size_t dataSize = sizeof DATA / sizeof *DATA;
 
         for (std::size_t i = 0; i != dataSize; ++i) {
-            int LINE = DATA[i].line;
-            bsl::string STR(DATA[i].str);
+            const int         LINE = DATA[i].line;
+            const bsl::string STR  = DATA[i].str;
 
             for (std::size_t pos = 0; pos <= STR.size(); ++pos) {
                 StringBufTest strBuf(STR, bsl::ios_base::out);
@@ -607,23 +636,23 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         ASSERT(emptyBuf.overflow() != std::char_traits<char>::eof());
         ASSERT(emptyBuf.str().size() == 0);
 
-        struct DataDef {
+        static const struct DataDef {
             int line;
             const char *str;
         } DATA[] = {
-            { L_, "A" },
-            { L_, "AA" },
-            { L_, "ABA" },
-            { L_, "ABCA" },
-            { L_, "ABCDA" },
+            { L_, "A"      },
+            { L_, "AA"     },
+            { L_, "ABA"    },
+            { L_, "ABCA"   },
+            { L_, "ABCDA"  },
             { L_, "ABCDEA" },
         };
 
         const std::size_t dataSize = sizeof DATA / sizeof *DATA;
 
         for (std::size_t i = 0; i != dataSize; ++i) {
-            int LINE = DATA[i].line;
-            bsl::string STR(DATA[i].str);
+            const int         LINE = DATA[i].line;
+            const bsl::string STR  = DATA[i].str;
 
             const char writeCh = '1';
 
@@ -848,7 +877,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         ASSERTV(LINE, (0 == mX.eback()) &&
                                       (0 == mX.egptr()));
                     }
-                    StringType STR1(mX.pbase(), mX.epptr(), &ta);
+                    const StringType STR1(mX.pbase(), mX.epptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR1);
 
                     StringType initialString2;
@@ -863,7 +892,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 }
                 else if (MODE & IosBase::in) {
                     ASSERTV(LINE, mX.eback(), mX.eback() && mX.egptr());
-                    StringType STR(mX.eback(), mX.egptr(), &ta);
+                    const StringType STR(mX.eback(), mX.egptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR);
                     ASSERTV(LINE, mX.view() == STR);
                 }
@@ -916,7 +945,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         ASSERTV(LINE, (0 == mX.eback()) &&
                                       (0 == mX.egptr()));
                     }
-                    StringType STR1(mX.pbase(), mX.epptr(), &ta);
+                    const StringType STR1(mX.pbase(), mX.epptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR1);
 
                     StringType initialString2;
@@ -935,7 +964,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 }
                 else if (MODE & IosBase::in) {
                     ASSERTV(LINE, mX.eback(), mX.eback() && mX.egptr());
-                    StringType STR(mX.eback(), mX.egptr(), &ta);
+                    const StringType STR(mX.eback(), mX.egptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR);
                     ASSERTV(LINE, mX.view() == STR);
                 }
@@ -992,13 +1021,13 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                         ASSERTV(LINE, (0 == mX.eback()) &&
                                       (0 == mX.egptr()));
                     }
-                    StringType STR1(mX.pbase(), mX.epptr(), &ta);
+                    const StringType STR1(mX.pbase(), mX.epptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR1);
 
                     StringType initialString2;
                     populateString(&initialString2, SPEC2);
 
-                    bsl::basic_string<TYPE,
+                    const bsl::basic_string<TYPE,
                           bsl::char_traits<TYPE>,
                           OtherAllocator>
                                        otherAllocString(initialString2.data(),
@@ -1006,7 +1035,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
 
                     mX.str(otherAllocString);
 
-                    StringType STR2(mX.pbase(), mX.epptr(), &ta);
+                    const StringType STR2(mX.pbase(), mX.epptr(), &ta);
                     ASSERTV(LINE, mX.str() != STR2);
                     ASSERTV(LINE, mX.str() == initialString2);
                     ASSERTV(LINE, mX.view() == otherAllocString);
@@ -1014,7 +1043,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                 }
                 else if (MODE & IosBase::in) {
                     ASSERTV(LINE, mX.eback(), mX.eback() && mX.egptr());
-                    StringType STR(mX.eback(), mX.egptr(), &ta);
+                    const StringType STR(mX.eback(), mX.egptr(), &ta);
                     ASSERTV(LINE, mX.str() == STR);
                     ASSERTV(LINE, mX.view() == STR);
                 }
@@ -1123,6 +1152,24 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
                     if (LENGTH_TJ >= LENGTH_OF_SUFFICIENTLY_LONG_STRING) {
                         ASSERT(T != oT);
                     }
+                }
+
+                // Test str() with string-view-like type
+                for (int tj = 0; tj < NUM_STRLEN_DATA; ++tj) {
+                    const int LENGTH_TJ = STRLEN_DATA[tj].d_length;
+
+                    typedef StringViewLikeHelper<TYPE,
+                                                 bsl::char_traits<TYPE> >
+                                                                     SVLHelper;
+
+                    StringType mT(&da);  const StringType& T = mT;
+                    loadString(&mT, LENGTH_TJ);
+
+                    const SVLHelper svlh(&T);
+
+                    mX.str(svlh);
+                    ASSERT(X.str()  == T);
+                    ASSERT(X.view() == T);
                 }
 
                 fa.deleteObject(objPtr);
@@ -1421,7 +1468,7 @@ class StringBufTest : public bsl::basic_stringbuf<TYPE>
         }
     }
 
-    static void testMoveAssigment(int verbose)
+    static void testMoveAssignment(int verbose)
     {
         typedef bsl::basic_string<TYPE,
                           bsl::char_traits<TYPE>,
@@ -1734,10 +1781,10 @@ void testPutCharsInTheMiddle(SeekFunc seekpos)
     bsl::stringbuf buf("abcde");
     bsl::string what("34");
 
-    std::streamoff res1 = seekpos(buf);
+    const std::streamoff res1 = seekpos(buf);
     ASSERT(res1 != -1);
 
-    std::streamsize res2 = buf.sputn(what.data(), what.size());
+    const std::streamsize res2 = buf.sputn(what.data(), what.size());
     ASSERT(res2 == std::streamsize(what.size()));
 
     ASSERT(buf.str() == "ab34e");
@@ -1838,12 +1885,11 @@ int main(int argc, char *argv[])
 {
     using namespace BloombergLP;
 
-    int test = argc > 1 ? atoi(argv[1]) : 0;
-
-    int verbose = argc > 2;
-    int veryVerbose = argc > 3;
-    // int veryVeryVerbose = argc > 4;
-    int veryVeryVeryVerbose = argc > 5;
+    int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    bool             verbose = argc > 2;
+    bool         veryVerbose = argc > 3;
+    bool     veryVeryVerbose = argc > 4;  (void)veryVeryVerbose;
+    bool veryVeryVeryVerbose = argc > 5;
 
     // As part of our overall allocator testing strategy, we will create
     // three test allocators.
@@ -1901,7 +1947,6 @@ int main(int argc, char *argv[])
 //
     ASSERT(orig == result);
 // ```
-
       } break;
       case 19: {
         // --------------------------------------------------------------------
@@ -1929,7 +1974,6 @@ int main(int argc, char *argv[])
 
         StringBufTest<char   >::testStrManipulator();
         StringBufTest<wchar_t>::testStrManipulator();
-
       } break;
       case 18: {
         // --------------------------------------------------------------------
@@ -2211,18 +2255,18 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\ttesting in_avail\n");
 
         {
-            bsl::stringbuf buf1;
-            std::streamsize res1 = buf1.in_avail();
+            bsl::stringbuf        buf1;
+            const std::streamsize res1 = buf1.in_avail();
             ASSERT(res1 == 0);
 
-            bsl::string str("abc");
-            bsl::stringbuf buf2(str);
-            std::streamsize res2 = buf2.in_avail();
+            const bsl::string     str("abc");
+            bsl::stringbuf        buf2(str);
+            const std::streamsize res2 = buf2.in_avail();
             ASSERT(res2 == std::streamsize(str.size()));
 
             bsl::stringbuf buf3(str);
             buf3.pubseekpos(3);
-            std::streamsize res3 = buf3.in_avail();
+            const std::streamsize res3 = buf3.in_avail();
             ASSERT(res3 == 0);
         }
 
@@ -2230,11 +2274,11 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf1;
-            int res1 = buf1.snextc();
+            const int      res1 = buf1.snextc();
             ASSERT(res1 == EOF);
 
             bsl::stringbuf buf2("ab");
-            int res2 = buf2.snextc();
+            int           res2 = buf2.snextc();
             ASSERT(res2 == 'b');
 
             res2 = buf2.snextc();
@@ -2245,7 +2289,7 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf1;
-            int res1 = buf1.sbumpc();
+            const int      res1 = buf1.sbumpc();
             ASSERT(res1 == EOF);
 
             bsl::stringbuf buf2("ab");
@@ -2264,11 +2308,11 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf1;
-            int res1 = buf1.sgetc();
+            const int      res1 = buf1.sgetc();
             ASSERT(res1 == EOF);
 
             bsl::stringbuf buf2("abc");
-            int res2 = buf2.sgetc();
+            int            res2 = buf2.sgetc();
             ASSERT(res2 == 'a');
 
             buf2.pubseekpos(2);
@@ -2287,7 +2331,7 @@ int main(int argc, char *argv[])
             buf.sgetc();
 
             buf.str("123");
-            int res = buf.sgetc();
+            const int res = buf.sgetc();
             ASSERT(res == '1');
         }
 
@@ -2298,16 +2342,16 @@ int main(int argc, char *argv[])
             char read_buf[read_buf_size];
 
             bsl::stringbuf buf1;
-            std::streamsize res1 = buf1.sgetn(read_buf, read_buf_size);
+            const std::streamsize res1 = buf1.sgetn(read_buf, read_buf_size);
             ASSERT(res1 == 0);
 
             bsl::stringbuf buf2("abc");
-            std::streamsize res2 = buf2.sgetn(read_buf, read_buf_size);
+            const std::streamsize res2 = buf2.sgetn(read_buf, read_buf_size);
             ASSERT(res2 == std::streamsize(read_buf_size));
             ASSERT(strncmp(read_buf, "abc", 3) == 0);
 
             bsl::stringbuf buf3("de");
-            std::streamsize res3 = buf3.sgetn(read_buf, read_buf_size);
+            const std::streamsize res3 = buf3.sgetn(read_buf, read_buf_size);
             ASSERT(res3 == 2);
             ASSERT(strncmp(read_buf, "dec", 3) == 0);
                 // 'c' left from the previous sgetn
@@ -2317,7 +2361,7 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf1;
-            int res1 = buf1.sungetc();
+            const int      res1 = buf1.sungetc();
             ASSERT(res1 == EOF);
 
             bsl::stringbuf buf2("ab");
@@ -2330,7 +2374,7 @@ int main(int argc, char *argv[])
 
             bsl::stringbuf buf3("abc");
             buf3.pubseekpos(3);
-            int res3 = buf3.sungetc();
+            const int res3 = buf3.sungetc();
             ASSERT(res3 == 'c');
         }
 
@@ -2359,7 +2403,7 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf bufEmpty;
-            int resEmpty = bufEmpty.sputbackc('a');
+            const int      resEmpty = bufEmpty.sputbackc('a');
             ASSERT(resEmpty == EOF);
 
             bsl::stringbuf buf("abc");
@@ -2382,10 +2426,9 @@ int main(int argc, char *argv[])
             bsl::stringbuf bufReadonly("abc", std::ios_base::in);
             bufReadonly.sbumpc();
 
-            int resReadonly = bufReadonly.sputbackc('1');
+            const int resReadonly = bufReadonly.sputbackc('1');
             ASSERT(resReadonly == EOF);
         }
-
       } break;
       case 13: {
         // --------------------------------------------------------------------
@@ -2432,7 +2475,7 @@ int main(int argc, char *argv[])
 
         {
             bsl::stringbuf buf;
-            int res = buf.sputc('a');
+            const int      res = buf.sputc('a');
 
             ASSERT(res == 'a');
             ASSERT(buf.str() == "a");
@@ -2441,9 +2484,9 @@ int main(int argc, char *argv[])
         if (veryVerbose) printf("\ttesting sputn\n");
 
         {
-            bsl::stringbuf buf;
-            bsl::string what("abcde");
-            std::streamsize res = buf.sputn(what.data(), what.size());
+            bsl::stringbuf        buf;
+            bsl::string           what("abcde");
+            const std::streamsize res = buf.sputn(what.data(), what.size());
 
             ASSERT(res == std::streamsize(what.size()));
             ASSERT(buf.str() == what);
@@ -2469,7 +2512,7 @@ int main(int argc, char *argv[])
             bsl::stringbuf buf("abcde");
             bsl::string what("123");
             buf.pubseekpos(3);
-            std::streamsize res = buf.sputn(what.data(), what.size());
+            const std::streamsize res = buf.sputn(what.data(), what.size());
 
             ASSERT(res == std::streamsize(what.size()));
             ASSERT(buf.str() == "abc123");
@@ -2482,7 +2525,7 @@ int main(int argc, char *argv[])
 
             buf.str("another");
 
-            int res = buf.sputc('s');
+            const int res = buf.sputc('s');
             ASSERT(res == 's');
             ASSERT(buf.str() == "snother");
         }
@@ -2493,17 +2536,16 @@ int main(int argc, char *argv[])
         {
             bsl::stringbuf buf(std::ios_base::in);
 
-            std::streamsize res = buf.sputc('1');
+            const std::streamsize res = buf.sputc('1');
             ASSERT(res == EOF);
         }
 
         {
             bsl::stringbuf buf(std::ios_base::in);
 
-            std::streamsize res = buf.sputn("1", 1);
+            const std::streamsize res = buf.sputn("1", 1);
             ASSERT(res == 0);
         }
-
       } break;
       case 12: {
         // --------------------------------------------------------------------
@@ -2533,7 +2575,6 @@ int main(int argc, char *argv[])
                             "\n=========================\n");
 
         StringBufTest<char>::testOverflow();
-
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -2561,7 +2602,6 @@ int main(int argc, char *argv[])
                             "\n=======================\n");
 
         StringBufTest<char>::testXsputn();
-
       } break;
       case 10: {
         // --------------------------------------------------------------------
@@ -2593,7 +2633,6 @@ int main(int argc, char *argv[])
                             "\n==========================\n");
 
         StringBufTest<char>::testPbackfail();
-
       } break;
       case 9: {
         // --------------------------------------------------------------------
@@ -2617,7 +2656,6 @@ int main(int argc, char *argv[])
                             "\n======================\n");
 
         StringBufTest<char>::testUflow();
-
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2641,7 +2679,6 @@ int main(int argc, char *argv[])
                             "\n==========================\n");
 
         StringBufTest<char>::testUnderflow();
-
       } break;
       case 7: {
         // --------------------------------------------------------------------
@@ -2662,7 +2699,6 @@ int main(int argc, char *argv[])
                             "\n=======================\n");
 
         StringBufTest<char>::testXsgetn();
-
       } break;
       case 6: {
         // --------------------------------------------------------------------
@@ -2686,7 +2722,6 @@ int main(int argc, char *argv[])
                             "\n========================\n");
 
         StringBufTest<char>::testSeekpos();
-
       } break;
       case 5: {
         // --------------------------------------------------------------------
@@ -2715,7 +2750,6 @@ int main(int argc, char *argv[])
                             "\n========================\n");
 
         StringBufTest<char>::testSeekoff();
-
       } break;
       case 4: {
         // --------------------------------------------------------------------
@@ -2827,8 +2861,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        StringBufTest<char   >::testMoveAssigment(verbose);
-        StringBufTest<wchar_t>::testMoveAssigment(verbose);
+        StringBufTest<char   >::testMoveAssignment(verbose);
+        StringBufTest<wchar_t>::testMoveAssignment(verbose);
 #endif
       } break;
       case 3: {
@@ -3099,6 +3133,57 @@ int main(int argc, char *argv[])
             ASSERT(buf7.str() == "something");
         }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+        if (veryVerbose)
+            printf("\tstringbuf constructors with string-view-like type\n");
+
+        {
+            // Test construction from a string-view-like type (not const char*)
+            typedef StringViewLikeHelper<char, bsl::char_traits<char> >
+                                                                    HelperType;
+            bslma::TestAllocator ta("Test Allocator", veryVeryVeryVerbose);
+
+            const bsl::string data("string-view-like content");
+            const HelperType  svlh(&data);
+
+            // Constructor with string-view-like and allocator
+            {
+                const bsl::stringbuf buf(svlh, &ta);
+                ASSERTV(buf.str().c_str(), buf.str() == data);
+                ASSERT(buf.get_allocator() == &ta);
+            }
+
+            // Constructor with string-view-like, openmode, and allocator
+            {
+                const bsl::stringbuf buf(svlh, std::ios_base::in, &ta);
+                ASSERTV(buf.str().c_str(), buf.str() == data);
+                ASSERT(buf.get_allocator() == &ta);
+            }
+
+            // Constructor with string-view-like and openmode (no allocator)
+            {
+                const bsl::stringbuf buf(svlh, std::ios_base::out);
+                ASSERTV(buf.str().c_str(), buf.str() == data);
+            }
+
+            // Verify this works with wide characters too
+            typedef StringViewLikeHelper<wchar_t, bsl::char_traits<wchar_t> >
+                                                                 WideHelperType;
+            const bsl::wstring   wideData(L"wide string-view-like content");
+            const WideHelperType wideSvlh(&wideData);
+
+            {
+                const bsl::wstringbuf wbuf(wideSvlh);
+                ASSERTV(wbuf.str() == wideData);
+            }
+
+            {
+                const bsl::wstringbuf wbuf(wideSvlh, std::ios_base::in);
+                ASSERTV(wbuf.str() == wideData);
+            }
+        }
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
         if (veryVerbose)
             printf("\tstringbuf move construction with a long string\n");
@@ -3179,7 +3264,6 @@ int main(int argc, char *argv[])
 
         if (verbose) printf("\nBREATHING TEST"
                             "\n==============\n");
-
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

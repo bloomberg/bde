@@ -17,7 +17,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 127 components having 10 levels of physical
+ The 'bslstl' package currently has 130 components having 10 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -92,6 +92,7 @@
       bslstl_iteratorutil
       bslstl_ostream
       bslstl_stringrefdata
+      bslstl_stringviewlikeparam
 
    3. bslstl_bidirectionalnodepool
       bslstl_chrono
@@ -99,6 +100,7 @@
       bslstl_forwarditerator
       bslstl_function_rep                                             !PRIVATE!
       bslstl_ios
+      bslstl_isconvertibletostringview
       bslstl_optional
       bslstl_pair
       bslstl_stringview
@@ -119,6 +121,7 @@
       bslstl_hash
       bslstl_inplace
       bslstl_iosfwd
+      bslstl_isconvertibletocstring
       bslstl_iserrorcodeenum
       bslstl_iserrorconditionenum
       bslstl_iterator

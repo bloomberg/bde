@@ -2309,8 +2309,6 @@ class HashTable {
     /// `KEY_CONFIG` be `move-insertable` into this hash-table (see
     /// {Requirements on `KEY_CONFIG`}) and the (template parameter) type
     /// `SOURCE_TYPE` be implicitly convertible to `ValueType`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2320,6 +2318,8 @@ class HashTable {
                  bool                                          *isInsertedFlag,
                  BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY)  value)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         BSLS_ASSERT(isInsertedFlag);
 
         const LOOKUP_KEY& lvalue = value;
@@ -2421,8 +2421,6 @@ class HashTable {
     /// `key` and `obj`, load `true` into `isInsertedFlag`, and return a
     /// pointer to the newly-created entry.  Use the optionally specified
     /// `hint` as a starting place for the search for the existing key.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY, class BDE_OTHER_TYPE>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2433,6 +2431,8 @@ class HashTable {
                               LOOKUP_KEY&&                key,
                               BDE_OTHER_TYPE&&            obj)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         size_t hashCode = this->d_parameters.hashCodeForTransparentKey(key);
@@ -2585,8 +2585,6 @@ class HashTable {
     /// and return a pointer to the newly created entry.  Use the optionally
     /// specified `hint` as a starting place for the search for the existing
     /// key.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY, class... ARGS>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2597,6 +2595,8 @@ class HashTable {
                                     LOOKUP_KEY&&                key,
                                     ARGS&&...                   args)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         typedef bslalg::HashTableImpUtil ImpUtil;
 
         const std::size_t hashCode =
@@ -2682,8 +2682,6 @@ class HashTable {
 
     /// Return the index of the bucket that would contain all the elements
     /// equivalent to the specified `key`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2691,6 +2689,8 @@ class HashTable {
                   SizeType>::type
     bucketIndexForKey(const LOOKUP_KEY& key) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         typedef typename
             HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
                                                                       SizeType;
@@ -2729,8 +2729,6 @@ class HashTable {
     /// first such element (from the contiguous sequence of elements having
     /// the same key).  The behavior is undefined unless `key` is equivalent
     /// to the elements of at most one equivalent-key group.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2738,6 +2736,8 @@ class HashTable {
                   bslalg::BidirectionalLink *>::type
     find(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             return bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
                                              d_anchor,
                                              key,
@@ -2775,8 +2775,6 @@ class HashTable {
     /// than a semi-open range where `last` would point to the element
     /// following the range).  Also note that this hash-table ensures all
     /// elements having the same key form a contiguous sequence.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
       BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
@@ -2786,6 +2784,8 @@ class HashTable {
               bslalg::BidirectionalLink **last,
               const LOOKUP_KEY&           key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             BSLS_ASSERT_SAFE(first);
             BSLS_ASSERT_SAFE(last);
 

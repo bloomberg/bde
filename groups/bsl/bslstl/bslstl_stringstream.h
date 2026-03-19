@@ -116,6 +116,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_string.h>
 #include <bslstl_stringbuf.h>
 #include <bslstl_stringview.h>
+#include <bslstl_stringviewlikeparam.h>
 
 #include <ios>
 
@@ -276,14 +277,65 @@ class basic_stringstream
         // Note: implemented inline due to Sun CC compilation error.
     }
 
+    /// Create a `basic_stringstream` object.  Use the specified
+    /// `initialString` (of a type convertible to
+    /// `basic_string_view<CHAR_TYPE, CHAR_TRAITS>` but not to
+    /// `const CHAR_TYPE *`) indicating the initial sequence of characters
+    /// that this stream will access or manipulate.  `rdbuf` is created using
+    /// `ios_base::in | ios_base::out`.  Optionally specify the `allocator`
+    /// used to supply memory.  If `allocator` is not supplied, a
+    /// default-constructed object of the (template parameter) `ALLOCATOR`
+    /// type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
+    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
+    /// is of type `bsl::allocator` and `allocator` is not supplied, the
+    /// currently installed default allocator will be used to supply memory.
+    template <class STRING_VIEW_LIKE_TYPE>
+    basic_stringstream(
+        const STRING_VIEW_LIKE_TYPE&  initialString,
+        BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const allocator_type&)
+                                                  allocator = allocator_type())
+    : BaseType(initialString, ios_base::in | ios_base::out, allocator)
+    , BaseStream(BaseType::rdbuf())
+    {
+        // Note: implemented inline due to Sun CC compilation error.
+    }
+
+    /// Create a `basic_stringstream` object.  Use the specified
+    /// `initialString` (of a type convertible to
+    /// `basic_string_view<CHAR_TYPE, CHAR_TRAITS>` but not to
+    /// `const CHAR_TYPE *`) indicating the initial sequence of characters
+    /// that this stream will access or manipulate.  Use the specified
+    /// `modeBitMask` to indicate whether this stream may be read from,
+    /// written to, or both.  Optionally specify the `allocator` used to
+    /// supply memory.  If `allocator` is not supplied, a
+    /// default-constructed object of the (template parameter) `ALLOCATOR`
+    /// type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
+    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
+    /// is of type `bsl::allocator` and `allocator` is not supplied, the
+    /// currently installed default allocator will be used to supply memory.
+    template <class STRING_VIEW_LIKE_TYPE>
+    basic_stringstream(
+        const STRING_VIEW_LIKE_TYPE&  initialString,
+        ios_base::openmode            modeBitMask,
+        BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const allocator_type&)
+                                                  allocator = allocator_type())
+    : BaseType(initialString, modeBitMask, allocator)
+    , BaseStream(BaseType::rdbuf())
+    {
+        // Note: implemented inline due to Sun CC compilation error.
+    }
+
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     /// Create a `basic_stringstream` object having the same value as the
     /// specified `original` object by moving the contents of `original` to
     /// the newly-created object.  `original` is left in a valid but
     /// unspecified state.
+// NOLINTNEXTLINE(performance-noexcept-move-constructor)
     basic_stringstream(basic_stringstream&& original);
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 
     /// Destroy this object.
     //! ~basic_stringstream() = default;
@@ -295,8 +347,9 @@ class basic_stringstream
     /// reference providing modifiable access to this object.  The contents
     /// of `rhs` are move-assigned to this object.  `rhs` is left in a valid
     /// but unspecified state.
+// NOLINTNEXTLINE(performance-noexcept-move-constructor)
     basic_stringstream& operator=(basic_stringstream&& rhs);
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 
     /// Reset the internally buffered sequence of characters maintained by
     /// this stream to the specified `value`.  If `value` is passed by
@@ -312,11 +365,36 @@ class basic_stringstream
         return this->rdbuf()->str(value);
     }
 
+    /// Reset the internally buffered sequence of characters maintained by
+    /// this stream to the specified `value` (of a type convertible to
+    /// `basic_string_view<CHAR_TYPE, CHAR_TRAITS>` but not to
+    /// `const CHAR_TYPE *`).
+    template <class STRING_VIEW_LIKE_TYPE>
+    BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void)
+    str(const STRING_VIEW_LIKE_TYPE& value)
+    {
+        // Note: implemented inline due to Sun CC compilation error.
+        this->rdbuf()->str(value);
+    }
+
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
     /// Return the internally buffered sequence of characters maintained by
     /// this stream, leaving the stream empty.
     StringType str() &&;
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  This method provides the no-throw
+    /// exception-safety guarantee if `*this` and `other` allocators compare
+    /// equal.  The behavior is undefined unless either `*this` and `other`
+    /// allocators compare equal or `propagate_on_container_swap` is `true`.
+    /// Note that this function is only available for C++11 (and later)
+    /// language standards because it requires that `swap` be provided on
+    /// the (platform supplied) base class for this type.
+// NOLINTNEXTLINE(performance-noexcept-swap)
+    void swap(basic_stringstream& other);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
     // ACCESSORS
 
@@ -348,12 +426,25 @@ class basic_stringstream
         // Note: implemented inline due to Sun CC compilation error.
         return this->rdbuf()->str(allocator);
     }
-#endif
+#endif  // BSLS_PLATFORM_CMP_SUN
 
     /// Return a view of the internally buffered sequence of characters
     /// maintained by this stream object.
     ViewType view() const BSLS_KEYWORD_NOEXCEPT;
 };
+
+// FREE FUNCTIONS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+/// Efficiently exchange the values of the specified `a` and `b` objects.
+/// This method provides the no-throw exception-safety guarantee if `a` and
+/// `b` allocators compare equal.  Note that this function is only available
+/// for C++11 (and later) language standards.
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+// NOLINTNEXTLINE(performance-noexcept-swap)
+void swap(basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+          basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY && CPP11_STREAM_MOVE
 
 // STANDARD TYPEDEFS
 typedef basic_stringstream<char, char_traits<char>, allocator<char> >
@@ -473,13 +564,14 @@ basic_stringstream(BloombergLP::bslmf::MovableRef<StringType> initialString,
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+// NOLINTNEXTLINE(performance-noexcept-move-constructor)
 basic_stringstream(basic_stringstream&& original)
 : BaseType(std::move(original))
 , BaseStream(std::move(original))
 {
     BaseStream::set_rdbuf(BaseType::rdbuf());
 }
-#endif
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 
 // MANIPULATORS
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
@@ -487,6 +579,7 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
 basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::
+// NOLINTNEXTLINE(performance-noexcept-move-constructor)
 operator=(basic_stringstream&& rhs)
 {
     this->BaseType::operator=(std::move(rhs));
@@ -494,7 +587,30 @@ operator=(basic_stringstream&& rhs)
 
     return *this;
 }
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+// NOLINTNEXTLINE(performance-noexcept-swap)
+void basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::swap(
+                                              basic_stringstream& other)
+{
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wstringop-overflow"
 #endif
+    BSLS_ASSERT(
+           bsl::allocator_traits<ALLOCATOR>::propagate_on_container_swap::value
+        || this->rdbuf()->get_allocator()
+                                        == other.rdbuf()->get_allocator());
+    this->BaseType::swap(other);
+    this->BaseStream::swap(other);
+#ifdef BSLS_PLATFORM_CMP_GNU
+# pragma GCC diagnostic pop
+#endif
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
@@ -520,7 +636,7 @@ basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() &&
 {
     return std::move(*this->rdbuf()).str();
 }
-#endif
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
 // ACCESSORS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -539,7 +655,7 @@ basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const &
 {
     return this->rdbuf()->str();
 }
-#else
+#else  // BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::StringType
@@ -547,7 +663,7 @@ basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::str() const
 {
     return this->rdbuf()->str();
 }
-#endif
+#endif  // else BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
@@ -560,7 +676,19 @@ basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::view()
 
 }  // close namespace bsl
 
-#endif
+// FREE FUNCTIONS
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)                  \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE)
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+// NOLINTNEXTLINE(performance-noexcept-swap)
+void bsl::swap(basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& a,
+               basic_stringstream<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>& b)
+{
+    a.swap(b);
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY && CPP11_STREAM_MOVE
+
+#endif  // INCLUDED_BSLSTL_STRINGSTREAM
 
 // ----------------------------------------------------------------------------
 // Copyright 2013 Bloomberg Finance L.P.

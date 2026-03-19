@@ -141,6 +141,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iosfwd.h>
 #include <bslstl_string.h>
 #include <bslstl_stringview.h>
+#include <bslstl_stringviewlikeparam.h>
 
 #include <bslalg_swaputil.h>
 
@@ -507,14 +508,12 @@ class basic_stringbuf
     /// `modeBitMask` to indicate whether this buffer may be read from,
     /// written to, or both.  Optionally specify the `allocator` used to
     /// supply memory.  If `allocator` is not supplied, a
-    /// default-constructed object of the (template parameter) `ALLOCATOR`
-    /// type is used.  If the `ALLOCATOR` argument is of type
-    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall
-    /// be convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument
-    /// is of type `bsl::allocator` and `allocator` is not supplied, the
-    /// currently installed default allocator will be used to supply memory.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
+    /// default-constructed object of the (template parameter) `allocator_type`
+    /// is used.  If the `ALLOCATOR` argument is of type `bsl::allocator` (the
+    /// default), then `allocator`, if supplied, shall be convertible to
+    /// `bslma::Allocator *`.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` and `allocator` is not supplied, the currently
+    /// installed default allocator will be used to supply memory.
     template <class SALLOC>
     basic_stringbuf(
         const bsl::basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>&
@@ -528,6 +527,64 @@ class basic_stringbuf
     , d_endHint(initialString.size())
     , d_mode(modeBitMask)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+        updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
+    }
+
+    /// Create a `basic_stringbuf` object.  Use the specified `initialString`
+    /// (of a type convertible to `basic_string_view<CHAR_TYPE, CHAR_TRAITS>`
+    /// but not to `const CHAR_TYPE *`) indicating the initial sequence of
+    /// characters that this buffer will access or manipulate.  Optionally
+    /// specify the `allocator` used to supply memory.  If `allocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// `ALLOCATOR` type is used.  If the `ALLOCATOR` argument is of type
+    /// `bsl::allocator` (the default), then `allocator`, if supplied, shall be
+    /// convertible to `bslma::Allocator *`.  If the `ALLOCATOR` argument is of
+    /// type `bsl::allocator` and `allocator` is not supplied, the currently
+    /// installed default allocator will be used to supply to supply memory.
+    /// This buffer is created with `ios_base::in | ios_base::out`.
+    template <class STRING_VIEW_LIKE_TYPE>
+    basic_stringbuf(
+        const STRING_VIEW_LIKE_TYPE&              initialString,
+        BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const allocator_type&)
+                                                  allocator = allocator_type())
+    : BaseType()
+    , d_str(ViewType(initialString).data(),
+            ViewType(initialString).size(),
+            allocator)
+    , d_endHint(ViewType(initialString).size())
+    , d_mode(ios_base::in | ios_base::out)
+    {
+        // Note: implemented inline due to Sun CC compilation error.
+        updateStreamPositions();
+    }
+
+    /// Create a `basic_stringbuf` object.  Use the specified `initialString`
+    /// (of a type convertible to `basic_string_view<CHAR_TYPE, CHAR_TRAITS>`
+    /// but not to `const CHAR_TYPE *`) indicating the initial sequence of
+    /// characters that this buffer will access or manipulate.  Use the
+    /// specified `modeBitMask` to indicate whether this buffer may be read
+    /// from, written to, or both.  Optionally specify the `allocator` used to
+    /// supply memory.  If `allocator` is not supplied, a default-constructed
+    /// object of `allocator_type` is used.  If the `ALLOCATOR` argument is of
+    /// type bsl::allocator` (the default), then `allocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the `ALLOCATOR`
+    /// argument is of type `bsl::allocator` and `allocator` is not
+    /// supplied, the currently installed default allocator will be used
+    /// to supply memory.
+    template <class STRING_VIEW_LIKE_TYPE>
+    basic_stringbuf(const STRING_VIEW_LIKE_TYPE &initialString,
+                    ios_base::openmode modeBitMask,
+                    BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(
+                        const allocator_type &) allocator = allocator_type())
+    : BaseType(),
+    d_str(ViewType(initialString).data(),
+          ViewType(initialString).size(),
+          allocator)
+    , d_endHint(ViewType(initialString).size())
+    , d_mode(modeBitMask)
+    {
+        // Note: implemented inline due to Sun CC compilation error.
         updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
     }
 
@@ -537,6 +594,7 @@ class basic_stringbuf
     /// the newly-created object.  Optionally specify the `allocator` used
     /// to supply memory.  `original` is left in a valid but unspecified
     /// state.
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
     basic_stringbuf(basic_stringbuf&&     original);
     basic_stringbuf(basic_stringbuf&&     original,
                     const allocator_type& allocator);
@@ -552,6 +610,7 @@ class basic_stringbuf
     /// reference providing modifiable access to this object.  The contents
     /// of `rhs` are move-assigned to this object.  `rhs` is left in a valid
     /// but unspecified state.
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
     basic_stringbuf& operator=(basic_stringbuf&& rhs);
 #endif
 
@@ -562,8 +621,6 @@ class basic_stringbuf
     /// updated buffer, and update the current output position to be the end
     /// of the updated buffer.  If `value` is passed by `MovableRef`, then
     /// it is left in an unspecified but valid state.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     void str(const StringType& value);
     void str(BloombergLP::bslmf::MovableRef<StringType> value);
     template <class SALLOC>
@@ -571,7 +628,23 @@ class basic_stringbuf
         bsl::enable_if<!bsl::is_same<ALLOCATOR, SALLOC>::value, void>::type
     str(const basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>& value)
     {
+        // Note: implemented inline due to Sun CC compilation error.
         d_str.assign(value.data(), value.size());
+        d_endHint = d_str.size();
+        updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
+    }
+
+    /// Reset the internally buffered sequence of characters to the
+    /// specified `value` (of a type convertible to
+    /// `basic_string_view<CHAR_TYPE, CHAR_TRAITS>` but not to
+    /// `const CHAR_TYPE *`).
+    template <class STRING_VIEW_LIKE_TYPE>
+    BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(void)
+    str(const STRING_VIEW_LIKE_TYPE& value)
+    {
+        // Note: implemented inline due to Sun CC compilation error.
+        ViewType sv = value;
+        d_str.assign(sv.data(), sv.size());
         d_endHint = d_str.size();
         updateStreamPositions(0, d_mode & ios_base::ate ? d_endHint : 0);
     }
@@ -599,6 +672,7 @@ class basic_stringbuf
     /// Note that this function is only available for C++11 (and later)
     /// language standards because it requires that `swap` be provided on
     /// the (platform supplied) base class for this type.
+    // NOLINTNEXTLINE(performance-noexcept-swap)
     void swap(basic_stringbuf& other);
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
@@ -635,14 +709,13 @@ class basic_stringbuf
     /// represents the position one past the highest initialized character
     /// in the buffer.  Otherwise this object has been created in neither
     /// input nor output mode and a zero length `basic_string` is returned.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class SALLOC>
     typename bsl::enable_if<
         bsl::IsStdAllocator<SALLOC>::value,
         basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC> >::type
     str(const SALLOC& allocator) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
         return basic_string<CHAR_TYPE, CHAR_TRAITS, SALLOC>(view(), allocator);
     }
 #endif
@@ -767,11 +840,30 @@ class StringBufContainer {
         d_bufObj.str(MoveUtil::move(tempStr));
     }
 
+    /// Create a `StringBufContainer` object.  Use the specified
+    /// `initialString` (of a type convertible to
+    /// `basic_string_view<CHAR_TYPE, CHAR_TRAITS>` but not to
+    /// `const CHAR_TYPE *`) indicating the initial sequence of characters
+    /// that this buffer will access or manipulate.  Use the specified
+    /// `modeBitMask` to indicate whether this buffer may be read from,
+    /// written to, or both.  Use the specified `allocator` to supply
+    /// memory.
+    template <class STRING_VIEW_LIKE_TYPE>
+    StringBufContainer(
+        const STRING_VIEW_LIKE_TYPE&  initialString,
+        ios_base::openmode            modeBitMask,
+        BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const ALLOCATOR&)
+                                                             allocator)
+    : d_bufObj(initialString, modeBitMask, allocator)
+    {
+    }
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     /// Create a `StringBufContainer` object having the same value as the
     /// specified `original` object by moving the contents of `original` to
     /// the newly-created object.  `original` is left in a valid but
     /// unspecified state.
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
     StringBufContainer(StringBufContainer&& original)
     : d_bufObj(std::move(original.d_bufObj))
     {
@@ -797,6 +889,7 @@ class StringBufContainer {
     /// reference providing modifiable access to this object.  The contents
     /// of `rhs` are move-assigned to this object.  `rhs` is left in a valid
     /// but unspecified state.
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
     StringBufContainer& operator=(StringBufContainer&& rhs)
     {
         d_bufObj = std::move(rhs.d_bufObj);
@@ -808,6 +901,7 @@ class StringBufContainer {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     /// Efficiently exchange the value of this object with the value of the
     /// specified `other` object.
+    // NOLINTNEXTLINE(performance-noexcept-swap)
     void swap(StringBufContainer& other)
     {
         d_bufObj.swap(other.d_bufObj);

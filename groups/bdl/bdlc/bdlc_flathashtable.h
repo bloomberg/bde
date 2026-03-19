@@ -388,8 +388,6 @@ class FlatHashTable
     /// equivalent to the specified `key`, which has the specified `hashValue`,
     /// or `d_capacity` if a key equivalent to `key` is not present.  The
     /// behavior is undefined unless `hashValue == d_hasher(key)`.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -397,6 +395,8 @@ class FlatHashTable
           , bsl::size_t>::type
     findTransparentKey(const LOOKUP_KEY& key, bsl::size_t hashValue) const
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         BSLS_ASSERT_SAFE(hashValue == d_hasher(key));
 
         bsl::size_t  index   = (hashValue >> d_groupControlShift)
@@ -556,8 +556,6 @@ class FlatHashTable
     /// the specified `key`, then the two returned iterators will have the same
     /// value, `end()`.  Note that since a table maintains unique keys, the
     /// range will contain at most one entry.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -565,6 +563,8 @@ class FlatHashTable
           , bsl::pair<iterator, iterator> >::type
     equal_range(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator it1 = find(key);
         iterator it2 = it1;
         if (it1 != end()) {
@@ -595,8 +595,6 @@ class FlatHashTable
     /// exists, and return 1; otherwise (there is no object with a key equal
     /// to `key` in this table) return 0 with no other effect.  This method
     /// invalidates all iterators, and references to the removed element.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -604,6 +602,8 @@ class FlatHashTable
           , bsl::size_t>::type
     erase(LOOKUP_KEY&& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         iterator it = find(key);
         if (it == end()) {
             return 0;                                                 // RETURN
@@ -640,8 +640,6 @@ class FlatHashTable
     /// Return an iterator providing modifiable access to the object in this
     /// flat hash table with a key equivalent to the specified `key`, if such
     /// an entry exists, and `end()` otherwise.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -649,6 +647,8 @@ class FlatHashTable
           , iterator>::type
     find(const LOOKUP_KEY& key)
     {
+        // Note: implemented inline due to Sun CC compilation error.
+
         bsl::size_t index = findTransparentKey(key, d_hasher(key));
         if (index < d_capacity) {
             return iterator(IteratorImp(d_entries_p  + index,
@@ -893,8 +893,6 @@ class FlatHashTable
     /// the specified `key`, then the two returned iterators will have the same
     /// value, `end()`.  Note that since a table maintains unique keys, the
     /// range will contain at most one entry.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -902,6 +900,8 @@ class FlatHashTable
           , bsl::pair<const_iterator, const_iterator> >::type
     equal_range(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             const_iterator cit1 = find(key);
             const_iterator cit2 = cit1;
             if (cit1 != end()) {
@@ -918,8 +918,6 @@ class FlatHashTable
     /// Return an iterator representing the position of the entry in this
     /// flat hash table that is equivalent to the specified `key`, or `end()`
     //  if no such entry exists in this table.
-    ///
-    /// Note: implemented inline due to Sun CC compilation error.
     template <class LOOKUP_KEY>
     typename bsl::enable_if<
             BloombergLP::bslmf::IsTransparentPredicate<HASH, LOOKUP_KEY>::value
@@ -927,6 +925,8 @@ class FlatHashTable
           , const_iterator>::type
     find(const LOOKUP_KEY& key) const
         {
+            // Note: implemented inline due to Sun CC compilation error.
+
             bsl::size_t index = findTransparentKey(key, d_hasher(key));
             if (index < d_capacity) {
                 return const_iterator(IteratorImp(d_entries_p  + index,
