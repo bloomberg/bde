@@ -1,8 +1,6 @@
 // bdlt_date.t.cpp                                                    -*-C++-*-
 #include <bdlt_date.h>
 
-#include <bdlt_formattestutil.h>
-
 #include <bslim_fuzzdataview.h>
 #include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
@@ -133,8 +131,6 @@ using bsl::ostream;
 // [15] Date operator-(const Date& date, int numDays);
 // [16] int operator-(const Date& lhs, const Date& rhs);
 // [20] void hashAppend(HASHALG&, const Date&);
-// [21] string  bsl::format( "...", date);
-// [21] wstring bsl::format(L"...", date);
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
 // DEPRECATED
 // [13] static bool isValid(int year, int dayOfYear);
@@ -222,30 +218,12 @@ void aSsErT(bool condition, const char *message, int line)
 #define ASSERT_OPT_FAIL_RAW(EXPR)  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPR)
 
 // ============================================================================
-//                             FORMAT TEST MACROS
-// ----------------------------------------------------------------------------
-
-#define U_TEST_FORMAT(exp, format, value) do {                                \
-    bsl::string message;                                                      \
-    bool rc = bdlt::FormatTestUtil::testFormat(&message, exp, format, value); \
-    ASSERTV(message, rc);                                                     \
-} while (false)
-
-#define U_TEST_FORMAT_ARG(exp, format, value, arg) do {                       \
-    bsl::string message;                                                      \
-    bool rc = bdlt::FormatTestUtil::testFormatArg(                            \
-                                         &message, exp, format, value, arg);  \
-    ASSERTV(message, rc);                                                     \
-} while (false)
-
-// ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
 
 typedef bdlt::Date           Obj;
 typedef bslx::TestInStream   In;
 typedef bslx::TestOutStream  Out;
-typedef bdlt::FormatTestUtil TU;
 
 #define VERSION_SELECTOR 20140601
 
@@ -448,7 +426,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard defaultAllocatorGuard(&defaultAllocator);
 
     switch (test) { case 0:
-      case 22: {
+      case 21: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -545,231 +523,6 @@ if (verbose)
 // ```
 // on `stdout`.
 
-      } break;
-      case 21: {
-        // --------------------------------------------------------------------
-        // TESTING: `bsl::format`
-        //
-        // Concerns:
-        // 1. By default, `bsl::format{"{}", ...)` produces output from a
-        //    `Date` identical to that produced by `operator<<`.
-        //
-        // 2. All the percent sequences that print output from a `Date`
-        //    produce correct output.
-        //
-        // 3. The `precision` argument works properly when printing entire
-        //    `Date`s by default or using '%i'.
-        //
-        // 4. The `width` argument works properly when printing entire `Date`s
-        //    by default or using '%i', we test left, right, and center
-        //    padding.
-        //
-        // Plans:
-        // 1. Use `U_TEST_FORMAT` and `U_TEST_FORMAT_ARG` to test that
-        //    formatting an object with a given string produces a given result.
-        //    Tests on `char` and `wchar_t` strings.
-        //
-        // 2. Have a table `DEFAULT_DATA[]` driving different `Date` values.
-        //    Loop through the values, initializing `Date`s.
-        //
-        // 3. Verify that the default and '%i' output are as expected.
-        //
-        // 4. Verify using other format strings that produce output equivalent
-        //    to default and '%i' output, thereby exercising other '%'
-        //    sequences.
-        //
-        // 5. Test the rest of the more obscure '%' sequences.
-        //
-        // 6. For default output:
-        //    * Loop iterating through different values of `precision` to be
-        //      passed and verify output is as expected.
-        //    * Loop iterating through different values of `width` to be passed
-        //      and verify output is as expected, for right, left, and center
-        //      padding.
-        //
-        // 7. Repeat the steps of '6' for '%i' output.
-        //
-        // Testing:
-        //   bsl::string  bsl::format( "...", datetime);
-        //   bsl::wstring bsl::format(L"...", datetime);
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << "TESTING: `bsl::format`\n"
-                             "======================\n";
-
-        bslma::TestAllocator da;
-        bslma::DefaultAllocatorGuard defaultAllocatorGuard(&da);
-
-        for (int td = 0; td < DEFAULT_NUM_DATA; ++td) {
-            const DefaultDataRow& dData = DEFAULT_DATA[td];
-            const int             DLINE = dData.d_line;    (void) DLINE;
-            const int             YEAR  = dData.d_year;
-            const int             MONTH = dData.d_month;
-            const int             DAY   = dData.d_day;
-
-            const bdlt::Date  X(YEAR, MONTH, DAY);
-
-            if (veryVerbose) P(X);
-
-            bsl::ostringstream oss;
-            oss << X;
-
-            const bsl::string nakedDate = oss.str();
-            bsl::string  exps = nakedDate;   const bsl::string&  EXPS = exps;
-
-            U_TEST_FORMAT(EXPS, "{}", X);
-            U_TEST_FORMAT(EXPS, "{:%D}", X);
-            U_TEST_FORMAT(EXPS, "{:%d%b%Y}", X);
-            U_TEST_FORMAT(EXPS, "{:%d%h%C%y}", X);
-
-            exps = "% ";
-
-            U_TEST_FORMAT(EXPS, "{:%% }", X);
-
-            const bsl::string& fDate = bsl::format("{:04}-{:02}-{:02}",
-                                                             YEAR, MONTH, DAY);
-            exps = fDate;
-
-            U_TEST_FORMAT(EXPS, "{:%i}", X);
-            U_TEST_FORMAT(EXPS, "{:%F}", X);
-            U_TEST_FORMAT(EXPS, "{:%Y-%m-%d}", X);
-
-            oss.str("");
-            {
-                const size_t width = oss.width();
-                const char   fill  = oss.fill();
-                oss.width(3);
-                oss.fill('0');
-                oss << X.dayOfYear();
-                oss.width(width);
-                oss.fill(fill);
-            }
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%j}", X);    // 3-digit day of year
-
-            oss.str("");
-            oss << X.dayOfWeek();            // 3-letter weekday abbrev
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%a}", X);
-
-            int dow = X.dayOfWeek() - 1;     // Sunday is 0
-            oss.str("");
-            oss << dow;
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%w}", X);
-
-            dow = (dow + 7 - 1) % 7 + 1;        // Monday is 1
-            oss.str("");
-            oss << dow;
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%u}", X);
-
-            oss.str("");
-            {
-                const size_t width = oss.width();
-                const char   fill  = oss.fill();
-                oss.width(2);
-                oss.fill('0');
-                oss << (X.year() % 100);     // 2-digit year
-                oss.width(width);
-                oss.fill(fill);
-            }
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%y}", X);
-
-            oss.str("");
-            {
-                const size_t width = oss.width();
-                const char   fill  = oss.fill();
-                oss.width(2);
-                oss.fill('0');
-                oss << (X.year() / 100);     // 2-digit century
-                oss.width(width);
-                oss.fill(fill);
-            }
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%C}", X);
-
-            oss.str("");
-            oss << X.monthOfYear();          // 3-char month abbrev
-            oss << ',';
-            oss << X.monthOfYear();          // 3-char month abbrev
-            exps = oss.str();
-
-            U_TEST_FORMAT(EXPS, "{:%b,%h}", X);
-
-            size_t nakedWidth = nakedDate.length();
-
-            for (int rightPad = -2; rightPad < 10; ++rightPad) {
-                exps = nakedDate;
-                if (0 < rightPad) {
-                    exps.append(rightPad, '*');
-                }
-                U_TEST_FORMAT_ARG(EXPS, "{:*<{}}", X, nakedWidth + rightPad);
-            }
-
-            for (int leftPad = -2; leftPad < 10; ++leftPad) {
-                exps.clear();
-                if (0 < leftPad) {
-                    exps.append(leftPad, '*');
-                }
-                exps += nakedDate;
-                U_TEST_FORMAT_ARG(EXPS, "{:*>{}}", X, nakedWidth + leftPad);
-            }
-
-            for (int centerPad = -2; centerPad < 10; ++centerPad) {
-                exps.clear();
-                if (0 < centerPad / 2) {
-                    exps.append(centerPad / 2, '*');
-                }
-                exps += nakedDate;
-                int rightPad = centerPad - centerPad / 2;
-                if (0 < rightPad) {
-                    exps.append(rightPad, '*');
-                }
-                U_TEST_FORMAT_ARG(EXPS, "{:*^{}}", X, nakedWidth + centerPad);
-            }
-
-            nakedWidth = fDate.length();
-
-            for (int rightPad = -2; rightPad < 10; ++rightPad) {
-                exps = fDate;
-                if (0 < rightPad) {
-                    exps.append(rightPad, '*');
-                }
-                U_TEST_FORMAT_ARG(EXPS, "{:*<{}%i}", X, nakedWidth + rightPad);
-            }
-
-            for (int leftPad = -2; leftPad < 10; ++leftPad) {
-                exps.clear();
-                if (0 < leftPad) {
-                    exps.append(leftPad, '*');
-                }
-                exps += fDate;
-                U_TEST_FORMAT_ARG(EXPS, "{:*>{}%i}", X, nakedWidth + leftPad);
-            }
-
-            for (int centerPad = -2; centerPad < 10; ++centerPad) {
-                exps.clear();
-                if (0 < centerPad / 2) {
-                    exps.append(centerPad / 2, '*');
-                }
-                exps += fDate;
-                int rightPad = centerPad - centerPad / 2;
-                if (0 < rightPad) {
-                    exps.append(rightPad, '*');
-                }
-                U_TEST_FORMAT_ARG(EXPS, "{:*^{}%i}", X, nakedWidth+centerPad);
-            }
-        }
-#undef U_TEST_FORMAT
-#undef U_TEST_FORMAT_ARG
       } break;
       case 20: {
         // --------------------------------------------------------------------

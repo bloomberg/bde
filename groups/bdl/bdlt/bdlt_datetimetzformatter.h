@@ -1,23 +1,22 @@
-// bdlt_datetimetz_specifierformatter.h                               -*-C++-*-
-#ifndef INCLUDED_BDLT_DATETIMETZ_SPECIFIERFORMATTER
-#define INCLUDED_BDLT_DATETIMETZ_SPECIFIERFORMATTER
+// bdlt_datetimetzformatter.h                                         -*-C++-*-
+#ifndef INCLUDED_BDLT_DATETIMETZFORMATTER
+#define INCLUDED_BDLT_DATETIMETZFORMATTER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a datetime-with-timezone-formatting specifier.
+//@PURPOSE: Provide `bsl::formatter` specialization for `bdlt::DatetimeTz`.
 //
 //@CLASSES:
-//  bdlt::DatetimeTz_SpecifierFormatter: datetimetz formatter for `bslfmt`
+//  bdlt::DatetimeTzFormatter: datetimetz formatter for `bslfmt`
+//  bsl::formatter<bdlt::DatetimeTz, t_CHAR>: specialization
 //
-//@SEE_ALSO: bdlt_datetimetz, bdlt_date_specifierformatter,
-//           bdlt_time_specifierformatter, bslfmt_formatter
+//@SEE_ALSO: bdlt_datetimetz, bdlt_dateformatter,
+//           bdlt_timeformatter, bslfmt_formatter
 //
-//@DESCRIPTION: This component provides a single class,
-// `bdlt::DatetimeTz_SpecifierFormatter`, that implements
-// datetime-with-timezone formatting for the `bslfmt` framework.  This class is
-// used by `bdlt::DatetimeTz` and other datetime-with-timezone-related
-// components for consistent formatting.
+//@DESCRIPTION: This component provides `bdlt::DatetimeTzFormatter` and a
+// specialization of `bsl::formatter` that allow `bsl::format` to output
+// values of `bdlt::DatetimeTz`.
 //
 // The formatter interprets the following modifiers:
 // - ',' (comma) - the decimal point when displaying seconds is shown as a
@@ -49,8 +48,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_datetime.h>
-#include <bdlt_datetime_specifierformatter.h>
-#include <bdlt_timezone_specifierformatter.h>
+#include <bdlt_datetimeformatter.h>
+#include <bdlt_datetimetz.h>
+#include <bdlt_formatter.h>
+#include <bdlt_timezoneformatter.h>
 
 #include <bsl_iosfwd.h>
 #include <bsl_string_view.h>
@@ -58,30 +59,30 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-class DatetimeTz_SpecifierFormatter_Cache;
+class DatetimeTzFormatter_Cache;
 
-                    // ===================================
-                    // class DatetimeTz_SpecifierFormatter
-                    // ===================================
+                    // =========================
+                    // class DatetimeTzFormatter
+                    // =========================
 
 /// This `class` provides a specifier formatter for printing `DatetimeTz`
 /// objects.
 template <class t_CHAR>
-class DatetimeTz_SpecifierFormatter {
-    typedef bsl::basic_string_view<t_CHAR>         StringView;
-    typedef DatetimeTz_SpecifierFormatter_Cache    FormatCache;
+class DatetimeTzFormatter {
+    typedef bsl::basic_string_view<t_CHAR> StringView;
+    typedef DatetimeTzFormatter_Cache      FormatCache;
 
     // DATA
-    int                                  d_fixedWidth;
-    Datetime_SpecifierFormatter<t_CHAR>  d_datetimeFormatter;
-    TimeZone_SpecifierFormatter<t_CHAR>  d_timeZoneFormatter;
+    int                       d_fixedWidth;
+    DatetimeFormatter<t_CHAR> d_datetimeFormatter;
+    TimeZoneFormatter<t_CHAR> d_timeZoneFormatter;
 
   public:
     // CREATORS
 
     /// Create an object in its default initial state.
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    DatetimeTz_SpecifierFormatter();
+    DatetimeTzFormatter();
 
     // MANIPULATORS
 
@@ -138,30 +139,29 @@ class DatetimeTz_SpecifierFormatter {
     t_ITERATOR formatIso8601(t_ITERATOR out, const FormatCache& value) const;
 };
 
-                    // =========================================
-                    // class DatetimeTz_SpecifierFormatter_Cache
-                    // =========================================
+                      // ===============================
+                      // class DatetimeTzFormatter_Cache
+                      // ===============================
 
 /// This `class` facilitates faster access to a `DatetimeTz` object during
 /// printing by batching access to several fields per call during construction
 /// and caching them for quick access later.
-class DatetimeTz_SpecifierFormatter_Cache {
+class DatetimeTzFormatter_Cache {
     // DATA
-    Datetime_SpecifierFormatter_Cache      d_datetimeFormatCache;
-    int                                    d_offset;
+    DatetimeFormatter_Cache d_datetimeFormatCache;
+    int                     d_offset;
 
   public:
     // CREATORS
 
     /// Create a `DatetimeTz` format cache using the specified `datetime` and
     /// `offset`.
-    DatetimeTz_SpecifierFormatter_Cache(const Datetime& datetime,
-                                        int             offset);
+    DatetimeTzFormatter_Cache(const Datetime& datetime, int offset);
 
     // ACCESSORS
 
     /// Return the `Datetime` format cache.
-    const Datetime_SpecifierFormatter_Cache& datetime() const;
+    const DatetimeFormatter_Cache& datetime() const;
 
     /// Return the offset.
     int offset() const;
@@ -171,14 +171,14 @@ class DatetimeTz_SpecifierFormatter_Cache {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                    // -----------------------------------
-                    // class DatetimeTz_SpecifierFormatter
-                    // -----------------------------------
+                    // -------------------------
+                    // class DatetimeTzFormatter
+                    // -------------------------
 
 // CREATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-DatetimeTz_SpecifierFormatter<t_CHAR>::DatetimeTz_SpecifierFormatter()
+DatetimeTzFormatter<t_CHAR>::DatetimeTzFormatter()
 : d_fixedWidth(0)
 , d_datetimeFormatter()
 , d_timeZoneFormatter()
@@ -187,8 +187,7 @@ DatetimeTz_SpecifierFormatter<t_CHAR>::DatetimeTz_SpecifierFormatter()
 // MANIPULATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool DatetimeTz_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
-                                                         StringView *specInOut)
+bool DatetimeTzFormatter<t_CHAR>::parseNextSpecifier(StringView *specInOut)
 {
     BSLS_ASSERT(!specInOut->empty());
 
@@ -205,7 +204,7 @@ bool DatetimeTz_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void DatetimeTz_SpecifierFormatter<t_CHAR>::parseDefault()
+void DatetimeTzFormatter<t_CHAR>::parseDefault()
 {
     d_datetimeFormatter.parseDefault();
     d_timeZoneFormatter.parseDefault();
@@ -213,7 +212,7 @@ void DatetimeTz_SpecifierFormatter<t_CHAR>::parseDefault()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void DatetimeTz_SpecifierFormatter<t_CHAR>::parseIso8601()
+void DatetimeTzFormatter<t_CHAR>::parseIso8601()
 {
     d_datetimeFormatter.parseIso8601();
     d_timeZoneFormatter.parseIso8601();
@@ -221,7 +220,7 @@ void DatetimeTz_SpecifierFormatter<t_CHAR>::parseIso8601()
 
 template <class t_CHAR>
 inline
-void DatetimeTz_SpecifierFormatter<t_CHAR>::postprocess(
+void DatetimeTzFormatter<t_CHAR>::postprocess(
                          const bslfmt::FormatSpecificationParser<t_CHAR>& spec)
 {
     d_datetimeFormatter.postprocess(spec);
@@ -230,8 +229,7 @@ void DatetimeTz_SpecifierFormatter<t_CHAR>::postprocess(
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool DatetimeTz_SpecifierFormatter<t_CHAR>::parseNextModifier(
-                                                         StringView *specInOut)
+bool DatetimeTzFormatter<t_CHAR>::parseNextModifier(StringView *specInOut)
 {
     return d_datetimeFormatter.parseNextModifier(specInOut) ||
            d_timeZoneFormatter.parseNextModifier(specInOut);
@@ -240,7 +238,7 @@ bool DatetimeTz_SpecifierFormatter<t_CHAR>::parseNextModifier(
 // ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int DatetimeTz_SpecifierFormatter<t_CHAR>::extraSections() const
+int DatetimeTzFormatter<t_CHAR>::extraSections() const
 {
     return d_datetimeFormatter.extraSections() |
                                            d_timeZoneFormatter.extraSections();
@@ -248,8 +246,7 @@ int DatetimeTz_SpecifierFormatter<t_CHAR>::extraSections() const
 
 template <class t_CHAR>
 inline
-int DatetimeTz_SpecifierFormatter<t_CHAR>::totalWidth(const FormatCache& value)
-                                                                          const
+int DatetimeTzFormatter<t_CHAR>::totalWidth(const FormatCache& value)const
 {
     return d_fixedWidth + d_datetimeFormatter.totalWidth(value.datetime()) +
                                 d_timeZoneFormatter.totalWidth(value.offset());
@@ -258,7 +255,7 @@ int DatetimeTz_SpecifierFormatter<t_CHAR>::totalWidth(const FormatCache& value)
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-bool DatetimeTz_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
+bool DatetimeTzFormatter<t_CHAR>::formatNextSpecifier(
                                                StringView         *specInOut,
                                                t_ITERATOR         *outIt,
                                                const FormatCache&  value) const
@@ -271,9 +268,10 @@ bool DatetimeTz_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
         return true;                                                  // RETURN
     }
 
-    return d_datetimeFormatter.formatNextSpecifier(specInOut, outIt,
-                                                             value.datetime())
-        || d_timeZoneFormatter.formatNextSpecifier(specInOut,
+    return d_datetimeFormatter.formatNextSpecifier(specInOut,
+                                                   outIt,
+                                                   value.datetime()) ||
+           d_timeZoneFormatter.formatNextSpecifier(specInOut,
                                                    outIt,
                                                    value.offset());
 }
@@ -281,7 +279,7 @@ bool DatetimeTz_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR DatetimeTz_SpecifierFormatter<t_CHAR>::formatDefault(
+t_ITERATOR DatetimeTzFormatter<t_CHAR>::formatDefault(
                                 t_ITERATOR out, const FormatCache& value) const
 {
     out = d_datetimeFormatter.formatDefault(out, value.datetime());
@@ -292,7 +290,7 @@ t_ITERATOR DatetimeTz_SpecifierFormatter<t_CHAR>::formatDefault(
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR DatetimeTz_SpecifierFormatter<t_CHAR>::formatIso8601(
+t_ITERATOR DatetimeTzFormatter<t_CHAR>::formatIso8601(
                                 t_ITERATOR out, const FormatCache& value) const
 {
     out = d_datetimeFormatter.formatIso8601(out, value.datetime());
@@ -300,35 +298,76 @@ t_ITERATOR DatetimeTz_SpecifierFormatter<t_CHAR>::formatIso8601(
     return out;
 }
 
-                    // -----------------------------------
-                    // DatetimeTz_SpecifierFormatter_Cache
-                    // -----------------------------------
+                    // -------------------------
+                    // DatetimeTzFormatter_Cache
+                    // -------------------------
 
 // CREATORS
 inline
-DatetimeTz_SpecifierFormatter_Cache::
-                    DatetimeTz_SpecifierFormatter_Cache(const Datetime& value,
-                                                        int             offset)
+DatetimeTzFormatter_Cache::DatetimeTzFormatter_Cache(const Datetime& value,
+                                                     int             offset)
 : d_datetimeFormatCache(value)
 , d_offset(offset)
 {}
 
 // ACCESSORS
 inline
-const Datetime_SpecifierFormatter_Cache&
-                          DatetimeTz_SpecifierFormatter_Cache::datetime() const
+const DatetimeFormatter_Cache&
+                          DatetimeTzFormatter_Cache::datetime() const
 {
     return d_datetimeFormatCache;
 }
 
 inline
-int DatetimeTz_SpecifierFormatter_Cache::offset() const
+int DatetimeTzFormatter_Cache::offset() const
 {
     return d_offset;
 }
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `DatetimeTz` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::DatetimeTz, t_CHAR> {
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::DatetimeTz                          DatetimeTz;
+    typedef BloombergLP::bdlt::DatetimeTzFormatter_Cache           FormatCache;
+    typedef BloombergLP::bdlt::Formatter<
+                   BloombergLP::bdlt::DatetimeTzFormatter, t_CHAR> Formatter;
+
+    // DATA
+    Formatter                                               d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const DatetimeTz&  value,
+                                        t_FORMAT_CONTEXT&  formatContext) const
+    {
+        const FormatCache formatCache(value.localDatetime(), value.offset());
+        return d_formatter.format(formatCache, formatContext);
+    }
+};
+
+}  // close namespace bsl
 
 #endif
 

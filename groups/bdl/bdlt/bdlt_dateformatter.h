@@ -1,21 +1,21 @@
-// bdlt_date_specifierformatter.h                                     -*-C++-*-
-#ifndef INCLUDED_BDLT_DATE_SPECIFIERFORMATTER
-#define INCLUDED_BDLT_DATE_SPECIFIERFORMATTER
+// bdlt_dateformatter.h                                               -*-C++-*-
+#ifndef INCLUDED_BDLT_DATEFORMATTER
+#define INCLUDED_BDLT_DATEFORMATTER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a date specifier formatter for formatting date values.
+//@PURPOSE: Provide `bsl::formatter` specialization for `bdlt::Date`.
 //
 //@CLASSES:
-//  bdlt::Date_SpecifierFormatter: date specifier formatter template
+//  bdlt::DateFormatter: date specifier formatter template
+//  bsl::formatter<bdlt::Date, t_CHAR>: specialization
 //
 //@SEE_ALSO: bdlt_date, bdlt_formatter
 //
-//@DESCRIPTION: This component defines a class template,
-// `bdlt::Date_SpecifierFormatter`, that provides formatting functionality for
-// date values. The template is parameterized by a character type and provides
-// methods to parse format specifiers and format date values accordingly.
+//@DESCRIPTION: This component provides `bdlt::DateFormatter` and a
+// specialization of `bsl::formatter` that allow `bsl::format` to output
+// values of `bdlt::Date`.
 //
 // The formatter supports various `Date` format specifiers including:
 // - Year: 'Y' (4-digit), 'y' (2-digit), 'C' (century)
@@ -27,7 +27,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
+#include <bdlt_date.h>
 #include <bdlt_dayofweek.h>
+#include <bdlt_formatter.h>
 #include <bdlt_formatutil.h>
 #include <bdlt_monthofyear.h>
 
@@ -43,21 +45,20 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-template <class t_DATE>
-class Date_SpecifierFormatter_Cache;
+class DateFormatter_Cache;
 
-                        // =============================
-                        // class Date_SpecifierFormatter
-                        // =============================
+                        // ===================
+                        // class DateFormatter
+                        // ===================
 
 /// This `class` provides a specifier formatter for printing `Date` objects.
 template <class t_CHAR>
-class Date_SpecifierFormatter {
+class DateFormatter {
   private:
     // PRIVATE TYPES
-    typedef bslfmt::FormatterCharUtil<t_CHAR>   FormatterCharUtil;
-    typedef FormatUtil<t_CHAR>                  Util;
-    typedef typename Util::StringView           StringView;
+    typedef bslfmt::FormatterCharUtil<t_CHAR> FormatterCharUtil;
+    typedef FormatUtil<t_CHAR>                Util;
+    typedef typename Util::StringView         StringView;
 
     enum {
         k_DAY_OF_MONTH_WIDTH     = 2,
@@ -69,7 +70,8 @@ class Date_SpecifierFormatter {
         k_YEAR_WIDTH             = 4,
         k_ABBREVIATED_YEAR_WIDTH = 2,
         k_CENTURY_WIDTH          = 2,
-        k_DASH_WIDTH             = 1 };
+        k_DASH_WIDTH             = 1
+    };
 
     // DATA
     int d_fixedWidth;
@@ -78,49 +80,40 @@ class Date_SpecifierFormatter {
 
     /// Write the two-digit, zero-padded day of month from the specified
     /// `value` to the specified `out` and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    static
-    t_ITERATOR formatDayOfMonth(
-                           t_ITERATOR                                   out,
-                           const Date_SpecifierFormatter_Cache<t_DATE>& value);
+    template <class t_ITERATOR>
+    static t_ITERATOR formatDayOfMonth(t_ITERATOR                 out,
+                                       const DateFormatter_Cache& value);
 
     /// Write the three-letter English abbreviation of the day of week from the
     /// specified `value` to the specified `out` and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    static
-    t_ITERATOR formatDayOfWeek(
-                           t_ITERATOR                                   out,
-                           const Date_SpecifierFormatter_Cache<t_DATE>& value);
+    template <class t_ITERATOR>
+    static t_ITERATOR formatDayOfWeek(t_ITERATOR                 out,
+                                      const DateFormatter_Cache& value);
 
     /// Write the two-digit, zero-padded month of year from the specified
     /// `value` to the specified `out` and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    static
-    t_ITERATOR formatMonthIndex(
-                           t_ITERATOR                                   out,
-                           const Date_SpecifierFormatter_Cache<t_DATE>& value);
+    template <class t_ITERATOR>
+    static t_ITERATOR formatMonthIndex(t_ITERATOR                 out,
+                                       const DateFormatter_Cache& value);
 
     /// Write the three-letter English abbreviation of the month of year from
     /// the specified `value` to the specified `out` and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    static
-    t_ITERATOR formatMonthOfYear(
-                           t_ITERATOR                                   out,
-                           const Date_SpecifierFormatter_Cache<t_DATE>& value);
+    template <class t_ITERATOR>
+    static t_ITERATOR formatMonthOfYear(t_ITERATOR                 out,
+                                        const DateFormatter_Cache& value);
 
     /// Write the four-digit, zero-padded year from the specified `value` to
     /// the specified `out` and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    static
-    t_ITERATOR formatYear(t_ITERATOR                                   out,
-                          const Date_SpecifierFormatter_Cache<t_DATE>& value);
+    template <class t_ITERATOR>
+    static t_ITERATOR formatYear(t_ITERATOR                 out,
+                                 const DateFormatter_Cache& value);
 
   public:
     // CREATORS
 
     /// Create an object in its default initial state.
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    Date_SpecifierFormatter();
+    DateFormatter();
 
     // MANIPULATORS
 
@@ -157,43 +150,38 @@ class Date_SpecifierFormatter {
     /// this specifier formatter, use it to format the specified `value` to
     /// `*outIt`, remove the character from `*specInOut`, and return `true`,
     /// otherwise return `false` with no modification to `*specInOut`.
-    template <class t_ITERATOR, class t_DATE>
-    bool formatNextSpecifier(
-                    bsl::basic_string_view<t_CHAR>               *specInOut,
-                    t_ITERATOR                                   *outIt,
-                    const Date_SpecifierFormatter_Cache<t_DATE>&  value) const;
+    template <class t_ITERATOR>
+    bool formatNextSpecifier(bsl::basic_string_view<t_CHAR> *specInOut,
+                             t_ITERATOR                     *outIt,
+                             const DateFormatter_Cache&      value) const;
 
     /// Format the specified `value` to the specified `out` using the default
     /// format and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    t_ITERATOR formatDefault(
-                     t_ITERATOR                                   out,
-                     const Date_SpecifierFormatter_Cache<t_DATE>& value) const;
+    template <class t_ITERATOR>
+    t_ITERATOR formatDefault(t_ITERATOR                 out,
+                             const DateFormatter_Cache& value) const;
 
     /// Format the specified `value` to the specified `out` using the Iso8601
     /// format and return `out`.
-    template <class t_ITERATOR, class t_DATE>
-    t_ITERATOR formatIso8601(
-                     t_ITERATOR                                   out,
-                     const Date_SpecifierFormatter_Cache<t_DATE>& value) const;
+    template <class t_ITERATOR>
+    t_ITERATOR formatIso8601(t_ITERATOR                 out,
+                             const DateFormatter_Cache& value) const;
 
     /// Return the anticipated width of output given all the `parse*` calls
     /// that have been happened thus far and the specified `value`.
-    template <class t_DATE>
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    int totalWidth(const Date_SpecifierFormatter_Cache<t_DATE>& value) const;
+    int totalWidth(const DateFormatter_Cache& value) const;
 };
 
-                      // ===================================
-                      // class Date_SpecifierFormatter_Cache
-                      // ===================================
+                      // =========================
+                      // class DateFormatter_Cache
+                      // =========================
 
 /// This `class` facilitates faster access to a `Date` object during printing
 /// by batching access to several fields in a single call during construction
 /// and caching them for quick access later.
-template <class t_DATE>
-class Date_SpecifierFormatter_Cache {
-    t_DATE    d_value;
+class DateFormatter_Cache {
+    Date      d_value;
     int       d_year;
     int       d_month;
     int       d_day;
@@ -203,7 +191,7 @@ class Date_SpecifierFormatter_Cache {
 
     /// Cache a copy the specified `value` and its `year`, `month`, and `day`
     /// fields.
-    Date_SpecifierFormatter_Cache(const t_DATE& value);
+    DateFormatter_Cache(const Date& value);
 
     // ACCESSORS
 
@@ -227,28 +215,28 @@ class Date_SpecifierFormatter_Cache {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                          // -----------------------
-                          // Date_SpecifierFormatter
-                          // -----------------------
+                          // -------------
+                          // DateFormatter
+                          // -------------
 
 // PRIVATE CLASS METHODS
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatDayOfMonth(
+t_ITERATOR DateFormatter<t_CHAR>::formatDayOfMonth(
                             t_ITERATOR                                   out,
-                            const Date_SpecifierFormatter_Cache<t_DATE>& value)
+                            const DateFormatter_Cache& value)
 {
     return Util::writeZeroPaddedDigits(out, value.day(), k_DAY_OF_MONTH_WIDTH);
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatDayOfWeek(
+t_ITERATOR DateFormatter<t_CHAR>::formatDayOfWeek(
                             t_ITERATOR                                   out,
-                            const Date_SpecifierFormatter_Cache<t_DATE>& value)
+                            const DateFormatter_Cache& value)
 {
     bsl::string_view dayOfWeekName = DayOfWeek::toAscii(
                               static_cast<DayOfWeek::Enum>(value.dayOfWeek()));
@@ -260,11 +248,11 @@ t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatDayOfWeek(
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatMonthIndex(
+t_ITERATOR DateFormatter<t_CHAR>::formatMonthIndex(
                             t_ITERATOR                                   out,
-                            const Date_SpecifierFormatter_Cache<t_DATE>& value)
+                            const DateFormatter_Cache& value)
 {
     return Util::writeZeroPaddedDigits(out,
                                        value.month(),
@@ -272,11 +260,11 @@ t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatMonthIndex(
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatMonthOfYear(
+t_ITERATOR DateFormatter<t_CHAR>::formatMonthOfYear(
                             t_ITERATOR                                   out,
-                            const Date_SpecifierFormatter_Cache<t_DATE>& value)
+                            const DateFormatter_Cache& value)
 {
     bsl::string_view monthName = MonthOfYear::toAscii(
                                 static_cast<MonthOfYear::Enum>(value.month()));
@@ -288,11 +276,10 @@ t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatMonthOfYear(
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatYear(
-                            t_ITERATOR                                   out,
-                            const Date_SpecifierFormatter_Cache<t_DATE>& value)
+t_ITERATOR DateFormatter<t_CHAR>::formatYear(t_ITERATOR                 out,
+                                             const DateFormatter_Cache& value)
 {
     return Util::writeZeroPaddedDigits(out, value.year(), k_YEAR_WIDTH);
 }
@@ -300,21 +287,21 @@ t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatYear(
 // CREATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-Date_SpecifierFormatter<t_CHAR>::Date_SpecifierFormatter()
+DateFormatter<t_CHAR>::DateFormatter()
 : d_fixedWidth(0)
 {}
 
     // MANIPULATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void Date_SpecifierFormatter<t_CHAR>::parseDefault()
+void DateFormatter<t_CHAR>::parseDefault()
 {
     d_fixedWidth += k_YEAR_WIDTH + k_MONTH_NAME_WIDTH + k_DAY_OF_MONTH_WIDTH;
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void Date_SpecifierFormatter<t_CHAR>::parseIso8601()
+void DateFormatter<t_CHAR>::parseIso8601()
 {
     d_fixedWidth += k_YEAR_WIDTH + k_DASH_WIDTH + k_MONTH_INDEX_WIDTH +
                     k_DASH_WIDTH + k_DAY_OF_MONTH_WIDTH;
@@ -322,14 +309,14 @@ void Date_SpecifierFormatter<t_CHAR>::parseIso8601()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool Date_SpecifierFormatter<t_CHAR>::parseNextModifier(StringView *)
+bool DateFormatter<t_CHAR>::parseNextModifier(StringView *)
 {
     return false;
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool Date_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
+bool DateFormatter<t_CHAR>::parseNextSpecifier(
                                      bsl::basic_string_view<t_CHAR> *specInOut)
 {
     BSLS_ASSERT(!specInOut->empty());
@@ -384,23 +371,23 @@ bool Date_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
 
 template <class t_CHAR>
 inline
-void Date_SpecifierFormatter<t_CHAR>::postprocess(
+void DateFormatter<t_CHAR>::postprocess(
                               const bslfmt::FormatSpecificationParser<t_CHAR>&)
 {}
 
 // ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int Date_SpecifierFormatter<t_CHAR>::extraSections() const {
+int DateFormatter<t_CHAR>::extraSections() const {
     return 0;
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
-bool Date_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
-                     bsl::basic_string_view<t_CHAR>               *specInOut,
-                     t_ITERATOR                                   *outIt,
-                     const Date_SpecifierFormatter_Cache<t_DATE>&  value) const
+template <class t_ITERATOR>
+bool DateFormatter<t_CHAR>::formatNextSpecifier(
+                                  bsl::basic_string_view<t_CHAR> *specInOut,
+                                  t_ITERATOR                     *outIt,
+                                  const DateFormatter_Cache&      value) const
 {
     BSLS_ASSERT_SAFE(!specInOut->empty());
 
@@ -484,11 +471,11 @@ bool Date_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatDefault(
-                      t_ITERATOR                                   out,
-                      const Date_SpecifierFormatter_Cache<t_DATE>& value) const
+t_ITERATOR DateFormatter<t_CHAR>::formatDefault(
+                                        t_ITERATOR                 out,
+                                        const DateFormatter_Cache& value) const
 {
     out = formatDayOfMonth(out, value);
     out = formatMonthOfYear(out, value);
@@ -497,11 +484,11 @@ t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatDefault(
 }
 
 template <class t_CHAR>
-template <class t_ITERATOR, class t_DATE>
+template <class t_ITERATOR>
 inline
-t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatIso8601(
-                      t_ITERATOR                                   out,
-                      const Date_SpecifierFormatter_Cache<t_DATE>& value) const
+t_ITERATOR DateFormatter<t_CHAR>::formatIso8601(
+                                        t_ITERATOR                 out,
+                                        const DateFormatter_Cache& value) const
 {
     out    = formatYear(out, value);
     *out++ = t_CHAR('-');
@@ -512,66 +499,98 @@ t_ITERATOR Date_SpecifierFormatter<t_CHAR>::formatIso8601(
 }
 
 template <class t_CHAR>
-template <class t_DATE>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int Date_SpecifierFormatter<t_CHAR>::totalWidth(
-                            const Date_SpecifierFormatter_Cache<t_DATE>&) const
+int DateFormatter<t_CHAR>::totalWidth(
+                            const DateFormatter_Cache&) const
 {
     return d_fixedWidth;
 }
 
-                        // ------------------------------
-                        // Date_SpecifierFormatter_Cache
-                        // -----------------------------
+                        // -------------------
+                        // DateFormatter_Cache
+                        // -------------------
 
 // CREATORS
-template <class t_DATE>
 inline
-Date_SpecifierFormatter_Cache<t_DATE>::Date_SpecifierFormatter_Cache(
-                                                           const t_DATE& value)
+DateFormatter_Cache::DateFormatter_Cache(const Date& value)
 : d_value(value)
 {
     value.getYearMonthDay(&d_year, &d_month, &d_day);
 }
 
 // ACCESSORS
-template <class t_DATE>
 inline
-int Date_SpecifierFormatter_Cache<t_DATE>::year() const
+int DateFormatter_Cache::year() const
 {
     return d_year;
 }
 
-template <class t_DATE>
 inline
-int Date_SpecifierFormatter_Cache<t_DATE>::month() const
+int DateFormatter_Cache::month() const
 {
     return d_month;
 }
 
-template <class t_DATE>
 inline
-int Date_SpecifierFormatter_Cache<t_DATE>::day() const
+int DateFormatter_Cache::day() const
 {
     return d_day;
 }
 
-template <class t_DATE>
 inline
-int Date_SpecifierFormatter_Cache<t_DATE>::dayOfWeek() const
+int DateFormatter_Cache::dayOfWeek() const
 {
     return d_value.dayOfWeek();
 }
 
-template <class t_DATE>
 inline
-int Date_SpecifierFormatter_Cache<t_DATE>::dayOfYear() const
+int DateFormatter_Cache::dayOfYear() const
 {
     return d_value.dayOfYear();
 }
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `Date` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::Date, t_CHAR> {
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::Date                         Date;
+    typedef BloombergLP::bdlt::DateFormatter_Cache          FormatCache;
+    typedef BloombergLP::bdlt::Formatter<
+                 BloombergLP::bdlt::DateFormatter, t_CHAR>  Formatter;
+    // DATA
+    Formatter                                               d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                         const Date&       value,
+                                         t_FORMAT_CONTEXT& formatContext) const
+    {
+        return d_formatter.format(FormatCache(value), formatContext);
+    }
+};
+
+}  // close namespace bsl
 
 #endif
 

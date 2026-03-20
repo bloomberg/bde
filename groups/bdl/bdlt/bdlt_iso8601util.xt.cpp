@@ -2,12 +2,18 @@
 #include <bdlt_iso8601util.h>
 
 #include <bdlt_date.h>
+#include <bdlt_dateformatter.h>
 #include <bdlt_datetime.h>
+#include <bdlt_datetimeformatter.h>
 #include <bdlt_datetimetz.h>
+#include <bdlt_datetimetzformatter.h>
 #include <bdlt_datetz.h>
+#include <bdlt_datetzformatter.h>
 #include <bdlt_formattestutil.h>
 #include <bdlt_time.h>
+#include <bdlt_timeformatter.h>
 #include <bdlt_timetz.h>
+#include <bdlt_timetzformatter.h>
 
 #include <bdlb_chartype.h>
 

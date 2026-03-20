@@ -106,8 +106,6 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_datetimeinterval.h>
-#include <bdlt_formatter.h>
-#include <bdlt_time_specifierformatter.h>
 #include <bdlt_timeunitratio.h>
 
 #include <bdlb_bitutil.h>
@@ -1080,47 +1078,6 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::Time> : bsl::true_type {
 
 }  // close namespace bslmf
 }  // close enterprise namespace
-
-namespace bsl {
-
-/// This type implements the formatter logic specific for `Time` objects.
-template <class t_CHAR>
-class formatter<BloombergLP::bdlt::Time, t_CHAR> {
-    // PRIVATE TYPES
-    typedef BloombergLP::bdlt::Time                               Time;
-    typedef BloombergLP::bdlt::Time_SpecifierFormatter_Cache      FormatCache;
-
-    // DATA
-    BloombergLP::bdlt::Formatter<
-             BloombergLP::bdlt::Time_SpecifierFormatter,
-             t_CHAR>                                        d_formatter;
-
-  public:
-    /// Parse and validate the specification string stored in the specified
-    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
-    /// `bsl::format_error`, in the event of failure.
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                      t_PARSE_CONTEXT& context)
-    {
-        return d_formatter.parse(context);
-    }
-
-    /// Format the value in the specified `value` parameter according to the
-    /// specification stored as a result of a previous call to the `parse`
-    /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `formatContext` parameter.  Return an
-    /// end iterator of the output range.
-    template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                                        const Time&        value,
-                                        t_FORMAT_CONTEXT&  formatContext) const
-    {
-        return d_formatter.format(FormatCache(value), formatContext);
-    }
-};
-
-}  // close bsl namespace
 
 #endif
 

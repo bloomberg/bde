@@ -234,9 +234,7 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_datetime.h>
-#include <bdlt_datetimetz_specifierformatter.h>
 #include <bdlt_datetz.h>
-#include <bdlt_formatter.h>
 #include <bdlt_time.h>
 #include <bdlt_timetz.h>
 
@@ -729,48 +727,6 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::DatetimeTz> : bsl::true_type {
 
 }  // close namespace bslmf
 }  // close enterprise namespace
-
-namespace bsl {
-
-/// This type implements the formatter logic specific for `DatetimeTz` objects.
-template <class t_CHAR>
-class formatter<BloombergLP::bdlt::DatetimeTz, t_CHAR> {
-    // PRIVATE TYPES
-    typedef BloombergLP::bdlt::DatetimeTz                          DatetimeTz;
-    typedef BloombergLP::bdlt::DatetimeTz_SpecifierFormatter_Cache FormatCache;
-
-    // DATA
-    BloombergLP::bdlt::Formatter<
-       BloombergLP::bdlt::DatetimeTz_SpecifierFormatter,
-       t_CHAR>                                             d_formatter;
-
-  public:
-    /// Parse and validate the specification string stored in the specified
-    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
-    /// `bsl::format_error`, in the event of failure.
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                      t_PARSE_CONTEXT& context)
-    {
-        return d_formatter.parse(context);
-    }
-
-    /// Format the value in the specified `value` parameter according to the
-    /// specification stored as a result of a previous call to the `parse`
-    /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `formatContext` parameter.  Return an
-    /// end iterator of the output range.
-    template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                                        const DatetimeTz&  value,
-                                        t_FORMAT_CONTEXT&  formatContext) const
-    {
-        const FormatCache formatCache(value.localDatetime(), value.offset());
-        return d_formatter.format(formatCache, formatContext);
-    }
-};
-
-}  // close namespace bsl
 
 #endif
 

@@ -210,9 +210,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bdlscm_version.h>
 
-#include <bdlt_date_specifierformatter.h>
 #include <bdlt_dayofweek.h>
-#include <bdlt_formatter.h>
 #include <bdlt_monthofyear.h>
 #include <bdlt_serialdateimputil.h>
 
@@ -1123,50 +1121,6 @@ struct IsBitwiseCopyable<BloombergLP::bdlt::Date> : bsl::true_type {
 }  // close namespace bslmf
 
 }  // close enterprise namespace
-
-namespace bsl {
-
-/// This type implements the formatter logic specific for `Date` objects.
-template <class t_CHAR>
-class formatter<BloombergLP::bdlt::Date, t_CHAR>
-{
-    // PRIVATE TYPES
-    typedef BloombergLP::bdlt::Date                         Date;
-    typedef BloombergLP::bdlt::Date_SpecifierFormatter_Cache<
-                          BloombergLP::bdlt::Date>          FormatCache;
-
-    // DATA
-    BloombergLP::bdlt::Formatter<
-               BloombergLP::bdlt::Date_SpecifierFormatter,
-               t_CHAR>                                      d_formatter;
-
-  public:
-    /// Parse and validate the specification string stored in the specified
-    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
-    /// `bsl::format_error`, in the event of failure.
-    template <class t_PARSE_CONTEXT>
-    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
-                                                      t_PARSE_CONTEXT& context)
-    {
-        return d_formatter.parse(context);
-    }
-
-    /// Format the value in the specified `value` parameter according to the
-    /// specification stored as a result of a previous call to the `parse`
-    /// method, and write the result to the iterator accessed by calling the
-    /// `out()` method on the specified `formatContext` parameter.  Return an
-    /// end iterator of the output range.
-    template <class t_FORMAT_CONTEXT>
-    typename t_FORMAT_CONTEXT::iterator format(
-                                        const Date&        value,
-                                        t_FORMAT_CONTEXT&  formatContext) const
-    {
-
-        return d_formatter.format(FormatCache(value), formatContext);
-    }
-};
-
-}  // close namespace bsl
 
 #endif
 

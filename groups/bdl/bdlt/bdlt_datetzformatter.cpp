@@ -1,12 +1,14 @@
-// bdlt_timetz_specifierformatter.t.cpp                               -*-C++-*-
-#include <bdlt_timetz_specifierformatter.h>
+// bdlt_datetzformatter.cpp                                           -*-C++-*-
+#include <bdlt_datetzformatter.h>
 
-// Testing of this component is done in `bdlt_timetz.t.cpp`.
+#include <bsls_ident.h>
+BSLS_IDENT_RCSID(bdlt_datetzformatter_cpp,"$Id$ $CSID$")
 
-int main()
-{
-    return -1;
-}
+namespace BloombergLP {
+namespace bdlt {
+
+}  // close package namespace
+}  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
 // Copyright 2026 Bloomberg Finance L.P.

@@ -1,8 +1,8 @@
-// bdlt_date_specifierformatter.cpp                                   -*-C++-*-
-#include <bdlt_date_specifierformatter.h>
+// bdlt_timetzformatter.cpp                                           -*-C++-*-
+#include <bdlt_timetzformatter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(bdlt_date_specifierformatter_cpp,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(bdlt_timetzformatter_cpp,"$Id$ $CSID$")
 
 namespace BloombergLP {
 namespace bdlt {

@@ -1,22 +1,22 @@
-// bdlt_datetime_specifierformatter.h                                 -*-C++-*-
-#ifndef INCLUDED_BDLT_DATETIME_SPECIFIERFORMATTER
-#define INCLUDED_BDLT_DATETIME_SPECIFIERFORMATTER
+// bdlt_datetimeformatter.h                                           -*-C++-*-
+#ifndef INCLUDED_BDLT_DATETIMEFORMATTER
+#define INCLUDED_BDLT_DATETIMEFORMATTER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide a datetime specifier formatter.
+//@PURPOSE: Provide `bsl::formatter` specialization for `bdlt::Datetime`.
 //
 //@CLASSES:
-//  bdlt::Datetime_SpecifierFormatter: datetime formatter for `bslfmt`
+//  bdlt::DatetimeFormatter: datetime formatter for `bslfmt`
+//  bsl::formatter<bdlt::Datetime, t_CHAR>: specialization
 //
-//@SEE_ALSO: bdlt_datetime, bdlt_date_specifierformatter,
-//           bdlt_time_specifierformatter, bslfmt_formatter
+//@SEE_ALSO: bdlt_datetime, bdlt_dateformatter,
+//           bdlt_timeformatter, bslfmt_formatter
 //
-//@DESCRIPTION: This component provides a single class,
-// `bdlt::Datetime_SpecifierFormatter`, that implements datetime formatting for
-// the `bslfmt` framework.  This class is used by `bdlt::Datetime` and other
-// datetime-related components for consistent formatting.
+//@DESCRIPTION: This component provides `bdlt::DatetimeFormatter` and a
+// specialization of `bsl::formatter` that allow `bsl::format` to output
+// values of `bdlt::Datetime`.
 //
 // The formatter interprets the following modifier:
 // - ',' (comma) - the decimal point when displaying seconds is shown as a
@@ -41,8 +41,10 @@ BSLS_IDENT("$Id: $")
 #include <bdlscm_version.h>
 
 #include <bdlt_date.h>
-#include <bdlt_date_specifierformatter.h>
-#include <bdlt_time_specifierformatter.h>
+#include <bdlt_dateformatter.h>
+#include <bdlt_datetime.h>
+#include <bdlt_formatter.h>
+#include <bdlt_timeformatter.h>
 
 #include <bslfmt_formatspecificationparser.h>
 
@@ -54,26 +56,26 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-class Datetime_SpecifierFormatter_Cache;
+class DatetimeFormatter_Cache;
 
-                      // ==================================
-                      // class Datetime_SpecifierFormatter
-                      // ==================================
+                      // =======================
+                      // class DatetimeFormatter
+                      // =======================
 
 /// This `class` provides a specifier formatter for printing `Datetime`
 /// objects.
 template <class t_CHAR>
-class Datetime_SpecifierFormatter {
+class DatetimeFormatter {
     typedef bsl::basic_string_view<t_CHAR>       StringView;
-    typedef Datetime_SpecifierFormatter_Cache    FormatCache;
+    typedef DatetimeFormatter_Cache              FormatCache;
 
     // DATA
-    int                              d_fixedWidth;
+    int                    d_fixedWidth;
 
-    Date_SpecifierFormatter<t_CHAR>  d_dateFormatter;
+    DateFormatter<t_CHAR>  d_dateFormatter;
         // Formatter for date specifiers.
 
-    Time_SpecifierFormatter<t_CHAR>  d_timeFormatter;
+    TimeFormatter<t_CHAR>  d_timeFormatter;
         // Formatter for time specifiers.
 
   public:
@@ -81,7 +83,7 @@ class Datetime_SpecifierFormatter {
 
     /// Create an object in its default initial state.
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    Datetime_SpecifierFormatter();
+    DatetimeFormatter();
 
     // MANIPULATORS
 
@@ -138,46 +140,45 @@ class Datetime_SpecifierFormatter {
     t_ITERATOR formatIso8601(t_ITERATOR out, const FormatCache& value) const;
 };
 
-                    // =======================================
-                    // class Datetime_SpecifierFormatter_Cache
-                    // =======================================
+                    // =============================
+                    // class DatetimeFormatter_Cache
+                    // =============================
 
 /// This `class` facilitates faster access to a `Datetime` object during
 /// printing by batching access to several fields per call during construction
 /// and caching them for quick access later.
-class Datetime_SpecifierFormatter_Cache {
+class DatetimeFormatter_Cache {
     // DATA
-    Date_SpecifierFormatter_Cache<Date>     d_dateFormatCache;
-    Time_SpecifierFormatter_Cache           d_timeFormatCache;
+    DateFormatter_Cache     d_dateFormatCache;
+    TimeFormatter_Cache     d_timeFormatCache;
 
   public:
     // CREATORS
 
     /// Create a format cache initialized with the specified `value`.
-    template <class t_DATETIME>
-    explicit Datetime_SpecifierFormatter_Cache(const t_DATETIME& value);
+    explicit DatetimeFormatter_Cache(const Datetime& value);
 
     // ACCESSORS
 
     /// Return the date format cache held by this object.
-    const Date_SpecifierFormatter_Cache<Date>& date() const;
+    const DateFormatter_Cache& date() const;
 
     /// Return the time format cache held by this object.
-    const Time_SpecifierFormatter_Cache& time() const;
+    const TimeFormatter_Cache& time() const;
 };
 
 // ============================================================================
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                      // ---------------------------------
-                      // class Datetime_SpecifierFormatter
-                      // ---------------------------------
+                      // -----------------------
+                      // class DatetimeFormatter
+                      // -----------------------
 
 // CREATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-Datetime_SpecifierFormatter<t_CHAR>::Datetime_SpecifierFormatter()
+DatetimeFormatter<t_CHAR>::DatetimeFormatter()
 : d_fixedWidth(0)
 , d_dateFormatter()
 , d_timeFormatter()
@@ -186,7 +187,7 @@ Datetime_SpecifierFormatter<t_CHAR>::Datetime_SpecifierFormatter()
 // MANIPULATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void Datetime_SpecifierFormatter<t_CHAR>::parseDefault()
+void DatetimeFormatter<t_CHAR>::parseDefault()
 {
     d_dateFormatter.parseDefault();
     ++d_fixedWidth;  // For '_' between date and time
@@ -195,7 +196,7 @@ void Datetime_SpecifierFormatter<t_CHAR>::parseDefault()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void Datetime_SpecifierFormatter<t_CHAR>::parseIso8601()
+void DatetimeFormatter<t_CHAR>::parseIso8601()
 {
     d_dateFormatter.parseIso8601();
     ++d_fixedWidth;  // For 'T' between date and time
@@ -204,8 +205,7 @@ void Datetime_SpecifierFormatter<t_CHAR>::parseIso8601()
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool Datetime_SpecifierFormatter<t_CHAR>::parseNextModifier(
-                                                         StringView *specInOut)
+bool DatetimeFormatter<t_CHAR>::parseNextModifier(StringView *specInOut)
 {
     return d_dateFormatter.parseNextModifier(specInOut) ||
            d_timeFormatter.parseNextModifier(specInOut);
@@ -213,8 +213,7 @@ bool Datetime_SpecifierFormatter<t_CHAR>::parseNextModifier(
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool Datetime_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
-                                                         StringView *specInOut)
+bool DatetimeFormatter<t_CHAR>::parseNextSpecifier(StringView *specInOut)
 {
     BSLS_ASSERT(!specInOut->empty());
 
@@ -232,7 +231,7 @@ bool Datetime_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
 
 template <class t_CHAR>
 inline
-void Datetime_SpecifierFormatter<t_CHAR>::postprocess(
+void DatetimeFormatter<t_CHAR>::postprocess(
                          const bslfmt::FormatSpecificationParser<t_CHAR>& spec)
 {
     d_dateFormatter.postprocess(spec);
@@ -242,7 +241,7 @@ void Datetime_SpecifierFormatter<t_CHAR>::postprocess(
 // ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int Datetime_SpecifierFormatter<t_CHAR>::extraSections() const
+int DatetimeFormatter<t_CHAR>::extraSections() const
 {
     return d_dateFormatter.extraSections() |
            d_timeFormatter.extraSections();
@@ -250,17 +249,16 @@ int Datetime_SpecifierFormatter<t_CHAR>::extraSections() const
 
 template <class t_CHAR>
 inline
-int Datetime_SpecifierFormatter<t_CHAR>::totalWidth(
-                                                const FormatCache& value) const
+int DatetimeFormatter<t_CHAR>::totalWidth(const FormatCache& value) const
 {
     return d_fixedWidth + d_dateFormatter.totalWidth(value.date()) +
-                                      d_timeFormatter.totalWidth(value.time());
+           d_timeFormatter.totalWidth(value.time());
 }
 
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-bool Datetime_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
+bool DatetimeFormatter<t_CHAR>::formatNextSpecifier(
                                                StringView         *specInOut,
                                                t_ITERATOR         *outIt,
                                                const FormatCache&  value) const
@@ -281,7 +279,7 @@ bool Datetime_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR Datetime_SpecifierFormatter<t_CHAR>::formatDefault(
+t_ITERATOR DatetimeFormatter<t_CHAR>::formatDefault(
                                 t_ITERATOR out, const FormatCache& value) const
 {
     out    = d_dateFormatter.formatDefault(out, value.date());
@@ -292,7 +290,7 @@ t_ITERATOR Datetime_SpecifierFormatter<t_CHAR>::formatDefault(
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR Datetime_SpecifierFormatter<t_CHAR>::formatIso8601(
+t_ITERATOR DatetimeFormatter<t_CHAR>::formatIso8601(
                                 t_ITERATOR out, const FormatCache& value) const
 {
     out    = d_dateFormatter.formatIso8601(out, value.date());
@@ -300,37 +298,74 @@ t_ITERATOR Datetime_SpecifierFormatter<t_CHAR>::formatIso8601(
     return   d_timeFormatter.formatIso8601(out, value.time());
 }
 
-                  // ---------------------------------------
-                  // class Datetime_SpecifierFormatter_Cache
-                  // ---------------------------------------
+                  // -----------------------------
+                  // class DatetimeFormatter_Cache
+                  // -----------------------------
 
 // CREATORS
-template <class t_DATETIME>
 inline
-Datetime_SpecifierFormatter_Cache::
-                     Datetime_SpecifierFormatter_Cache(const t_DATETIME& value)
+DatetimeFormatter_Cache::DatetimeFormatter_Cache(const Datetime& value)
 : d_dateFormatCache(value.date())
-, d_timeFormatCache(value)
+, d_timeFormatCache(value.time())
 {}
 
 // ACCESSORS
 
 inline
-const Date_SpecifierFormatter_Cache<Date>&
-                                Datetime_SpecifierFormatter_Cache::date() const
+const DateFormatter_Cache& DatetimeFormatter_Cache::date() const
 {
     return d_dateFormatCache;
 }
 
 inline
-const Time_SpecifierFormatter_Cache&
-                                Datetime_SpecifierFormatter_Cache::time() const
+const TimeFormatter_Cache& DatetimeFormatter_Cache::time() const
 {
     return d_timeFormatCache;
 }
 
 }  // close package namespace
 }  // close enterprise namespace
+
+namespace bsl {
+
+/// This type implements the formatter logic specific for `Datetime` objects.
+template <class t_CHAR>
+class formatter<BloombergLP::bdlt::Datetime, t_CHAR> {
+    // PRIVATE TYPES
+    typedef BloombergLP::bdlt::Datetime                            Datetime;
+    typedef BloombergLP::bdlt::DatetimeFormatter_Cache             FormatCache;
+    typedef BloombergLP::bdlt::Formatter<
+                 BloombergLP::bdlt::DatetimeFormatter, t_CHAR>  Formatter;
+
+    // DATA
+    Formatter                                               d_formatter;
+
+  public:
+    /// Parse and validate the specification string stored in the specified
+    /// `parseContext`.  Return an end iterator of the parsed range.  Throw
+    /// `bsl::format_error`, in the event of failure.
+    template <class t_PARSE_CONTEXT>
+    BSLS_KEYWORD_CONSTEXPR_CPP20 typename t_PARSE_CONTEXT::iterator parse(
+                                                      t_PARSE_CONTEXT& context)
+    {
+        return d_formatter.parse(context);
+    }
+
+    /// Format the value in the specified `value` parameter according to the
+    /// specification stored as a result of a previous call to the `parse`
+    /// method, and write the result to the iterator accessed by calling the
+    /// `out()` method on the specified `formatContext` parameter.  Return an
+    /// end iterator of the output range.
+    template <class t_FORMAT_CONTEXT>
+    typename t_FORMAT_CONTEXT::iterator format(
+                                        const Datetime&    value,
+                                        t_FORMAT_CONTEXT&  formatContext) const
+    {
+        return d_formatter.format(FormatCache(value), formatContext);
+    }
+};
+
+}  // close namespace bsl
 
 #endif
 

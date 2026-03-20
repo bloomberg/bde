@@ -1,6 +1,6 @@
-// bdlt_timezone_specifierformatter.h                                 -*-C++-*-
-#ifndef INCLUDED_BDLT_TIMEZONE_SPECIFIERFORMATTER
-#define INCLUDED_BDLT_TIMEZONE_SPECIFIERFORMATTER
+// bdlt_timezoneformatter.h                                           -*-C++-*-
+#ifndef INCLUDED_BDLT_TIMEZONEFORMATTER
+#define INCLUDED_BDLT_TIMEZONEFORMATTER
 
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
@@ -8,7 +8,7 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide a mechanism for formatting time zones.
 //
 //@CLASSES:
-//  bdlt::TimeZone_SpecifierFormatter
+//  bdlt::TimeZoneFormatter
 //
 //@DESCRIPTION: This component implements a formatter for time zone
 // information.  Output can be done with the 'z' specifier, which outputs a
@@ -42,13 +42,13 @@ BSLS_IDENT("$Id: $")
 namespace BloombergLP {
 namespace bdlt {
 
-                     // =================================
-                     // class TimeZone_SpecifierFormatter
-                     // =================================
+                     // =======================
+                     // class TimeZoneFormatter
+                     // =======================
 
 /// This `class` provides a specifier formatter for printing time zones.
 template <class t_CHAR>
-class TimeZone_SpecifierFormatter {
+class TimeZoneFormatter {
     // PRIVATE TYPES
     enum { k_OFFSET_LIMIT   = 24 * 60,
            k_INITIAL_OFFSET = 2 * k_OFFSET_LIMIT };
@@ -83,7 +83,7 @@ class TimeZone_SpecifierFormatter {
 
     /// Create an object in its default initial state.
     BSLS_KEYWORD_CONSTEXPR_CPP20
-    TimeZone_SpecifierFormatter();
+    TimeZoneFormatter();
 
     // MANIPULATORS
 
@@ -143,15 +143,15 @@ class TimeZone_SpecifierFormatter {
     int totalWidth(int offset) const;
 };
 
-                         // ---------------------------------
-                         // class TimeZone_SpecifierFormatter
-                         // ---------------------------------
+                         // -----------------------
+                         // class TimeZoneFormatter
+                         // -----------------------
 
 // PRIVATE ACCESSORS
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR TimeZone_SpecifierFormatter<t_CHAR>::formatImp(
+t_ITERATOR TimeZoneFormatter<t_CHAR>::formatImp(
                               t_ITERATOR out, int offset, bool isIso8601) const
 {
     if (isTimeZoneZ(offset)) {
@@ -177,7 +177,7 @@ t_ITERATOR TimeZone_SpecifierFormatter<t_CHAR>::formatImp(
 }
 
 template <class t_CHAR>
-bool TimeZone_SpecifierFormatter<t_CHAR>::isTimeZoneZ(int offset) const
+bool TimeZoneFormatter<t_CHAR>::isTimeZoneZ(int offset) const
 {
     return d_tzZ && 0 == offset;
 }
@@ -185,7 +185,7 @@ bool TimeZone_SpecifierFormatter<t_CHAR>::isTimeZoneZ(int offset) const
 // CREATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-TimeZone_SpecifierFormatter<t_CHAR>::TimeZone_SpecifierFormatter()
+TimeZoneFormatter<t_CHAR>::TimeZoneFormatter()
 : d_numDefaultTimeZones(0)
 , d_numIso8601TimeZones(0)
 , d_colon(false)
@@ -196,22 +196,21 @@ TimeZone_SpecifierFormatter<t_CHAR>::TimeZone_SpecifierFormatter()
 // MANIPULATORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void TimeZone_SpecifierFormatter<t_CHAR>::parseDefault()
+void TimeZoneFormatter<t_CHAR>::parseDefault()
 {
     ++d_numDefaultTimeZones;
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-void TimeZone_SpecifierFormatter<t_CHAR>::parseIso8601()
+void TimeZoneFormatter<t_CHAR>::parseIso8601()
 {
     ++d_numIso8601TimeZones;
 }
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool TimeZone_SpecifierFormatter<t_CHAR>::parseNextModifier(
-                                                         StringView *specInOut)
+bool TimeZoneFormatter<t_CHAR>::parseNextModifier(StringView *specInOut)
 {
     BSLS_ASSERT(!specInOut->empty());
 
@@ -242,8 +241,7 @@ bool TimeZone_SpecifierFormatter<t_CHAR>::parseNextModifier(
 
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-bool TimeZone_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
-                                                         StringView *specInOut)
+bool TimeZoneFormatter<t_CHAR>::parseNextSpecifier(StringView *specInOut)
 {
     BSLS_ASSERT(!specInOut->empty());
 
@@ -259,14 +257,14 @@ bool TimeZone_SpecifierFormatter<t_CHAR>::parseNextSpecifier(
 
 template <class t_CHAR>
 inline
-void TimeZone_SpecifierFormatter<t_CHAR>::postprocess(
+void TimeZoneFormatter<t_CHAR>::postprocess(
                               const bslfmt::FormatSpecificationParser<t_CHAR>&)
 {}
 
 // ACCESSORS
 template <class t_CHAR>
 BSLS_KEYWORD_CONSTEXPR_CPP20
-int TimeZone_SpecifierFormatter<t_CHAR>::extraSections() const
+int TimeZoneFormatter<t_CHAR>::extraSections() const
 {
     return 0;
 }
@@ -274,7 +272,7 @@ int TimeZone_SpecifierFormatter<t_CHAR>::extraSections() const
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR TimeZone_SpecifierFormatter<t_CHAR>::formatDefault(
+t_ITERATOR TimeZoneFormatter<t_CHAR>::formatDefault(
                                               t_ITERATOR out, int offset) const
 {
     return formatImp(out, offset, false);
@@ -283,7 +281,7 @@ t_ITERATOR TimeZone_SpecifierFormatter<t_CHAR>::formatDefault(
 template <class t_CHAR>
 template <class t_ITERATOR>
 inline
-t_ITERATOR TimeZone_SpecifierFormatter<t_CHAR>::formatIso8601(
+t_ITERATOR TimeZoneFormatter<t_CHAR>::formatIso8601(
                                               t_ITERATOR out, int offset) const
 {
     return formatImp(out, offset, true);
@@ -291,7 +289,7 @@ t_ITERATOR TimeZone_SpecifierFormatter<t_CHAR>::formatIso8601(
 
 template <class t_CHAR>
 template <class t_ITERATOR>
-bool TimeZone_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
+bool TimeZoneFormatter<t_CHAR>::formatNextSpecifier(
                                   bsl::basic_string_view<t_CHAR> *specInOut,
                                   t_ITERATOR                     *outIt,
                                   int                             offset) const
@@ -310,7 +308,7 @@ bool TimeZone_SpecifierFormatter<t_CHAR>::formatNextSpecifier(
 
 template <class t_CHAR>
 inline
-int TimeZone_SpecifierFormatter<t_CHAR>::totalWidth(int offset) const
+int TimeZoneFormatter<t_CHAR>::totalWidth(int offset) const
 {
     enum { k_Z_TZ_WIDTH        = 1,
            k_COLON_TZ_WIDTH    = 6,

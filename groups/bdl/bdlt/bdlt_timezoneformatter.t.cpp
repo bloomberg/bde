@@ -1,6 +1,6 @@
-// bdlt_timezone_specifierformatter.t.cpp                             -*-C++-*-
+// bdlt_timezoneformatter.t.cpp                                       -*-C++-*-
 
-#include <bdlt_timezone_specifierformatter.h>
+#include <bdlt_timezoneformatter.h>
 
 #include <bslim_testutil.h>
 
@@ -76,7 +76,7 @@ void aSsErT(bool condition, const char *message, int line)
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 //-----------------------------------------------------------------------------
 
-typedef bdlt::TimeZone_SpecifierFormatter<char>      Obj;
+typedef bdlt::TimeZoneFormatter<char>      Obj;
 typedef bdlt::FormatUtil<char>                       Util;
 
 const int k_COLON       = 0x1;
