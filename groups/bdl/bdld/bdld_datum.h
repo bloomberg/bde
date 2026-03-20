@@ -1205,21 +1205,17 @@ class Datum {
     // CLASS DATA
 
     // 64-bit variation
-    static const int k_TYPE_OFFSET             = 14;  // offset of type in the
-                                                      // internal storage
-                                                      // buffer
-
-    static const int k_SHORTSTRING_SIZE        = 13;  // maximum size of short
+    static const int k_SHORTSTRING_SIZE        = 14;  // maximum size of short
                                                       // strings that stored in
                                                       // the internal storage
                                                       // buffer
 
-    static const int k_SMALLBINARY_SIZE_OFFSET = 13;  // offset of the size of
+    static const int k_SMALLBINARY_SIZE_OFFSET = 15;  // offset of the size of
                                                       // small-size binaries
                                                       // stored in the internal
                                                       // storage buffer
 
-    static const int k_SMALLBINARY_SIZE        = 13;  // maximum size of
+    static const int k_SMALLBINARY_SIZE        = 14;  // maximum size of
                                                       // small-size binaries
                                                       // stored in the internal
                                                       // storage buffer
@@ -1230,14 +1226,17 @@ class Datum {
 
     /// Typed access to the bits of the `Datum` internal representation
     struct TypedAccess {
-        union {                                       // Offset: 0
+        char                    d_type;               // Offset: 0
+        // 2 separate filler members are required for GCC-13 to generate
+        // optimal code.
+        char                    d_filler;             // Offset: 1
+        short                   d_filler2;            // Offset: 2
+        int                     d_int32;              // Offset: 4
+        union {                                       // Offset: 8
             bsls::Types::Int64  d_int64;
             void               *d_ptr;
             double              d_double;
         };
-        int                     d_int32;              // Offset: 8
-        short                   d_filler;             // Offset: 12
-        short                   d_type;               // Offset: 14
     };
 
     /// Ensures proper alignment (16 byte) and provides 2 types of access to
@@ -1268,8 +1267,16 @@ class Datum {
     /// Return a pointer to the internal storage buffer
     void* theInlineStorage();
 
+    /// Return a pointer to the part of the internal storage buffer that is
+    /// 64-bit aligned.
+    void* theAlignedInlineStorage();
+
     /// Return a non-modifiable pointer to the internal storage buffer.
     const void* theInlineStorage() const;
+
+    /// Return a non-modifiable pointer to the part of the internal storage
+    /// buffer that is 64-bit aligned.
+    const void* theAlignedInlineStorage() const;
 
 #endif // end - 64 bit
 
@@ -3359,13 +3366,25 @@ Datum Datum::createDatum(InternalDataType type, int data)
 inline
 void* Datum::theInlineStorage()
 {
-    return d_data.buffer();
+    return d_data.buffer() + 1;
+}
+
+inline
+void* Datum::theAlignedInlineStorage()
+{
+    return d_data.buffer() + 8;
 }
 
 inline
 const void* Datum::theInlineStorage() const
 {
-    return d_data.buffer();
+    return d_data.buffer() + 1;
+}
+
+inline
+const void* Datum::theAlignedInlineStorage() const
+{
+    return d_data.buffer() + 8;
 }
 #endif // end - 64 bit
 
@@ -3646,7 +3665,7 @@ Datum Datum::createDate(const bdlt::Date& value)
     *reinterpret_cast<bdlt::Date*>(&result.d_as.d_int) = value;
 #else   // end - 32 bit / begin - 64 bit
     result.d_as.d_type = e_INTERNAL_DATE;
-    new (result.theInlineStorage()) bdlt::Date(value);
+    new (result.theAlignedInlineStorage()) bdlt::Date(value);
 #endif  // end - 64 bit
     return result;
 }
@@ -3679,7 +3698,7 @@ Datum Datum::createDatetime(const bdlt::Datetime& value,
     (void)allocator;
 
     result.d_as.d_type = e_INTERNAL_DATETIME;
-    new (result.theInlineStorage()) bdlt::Datetime(value);
+    new (result.theAlignedInlineStorage()) bdlt::Datetime(value);
 #endif  // end - 64 bit
     return result;
 }
@@ -3868,7 +3887,7 @@ Datum Datum::createTime(const bdlt::Time& value)
     BSLS_ASSERT(rc);  (void)rc;
 #else   // end - 32 bit / begin - 64 bit
     result.d_as.d_type = e_INTERNAL_TIME;
-    new (result.theInlineStorage()) bdlt::Time(value);
+    new (result.theAlignedInlineStorage()) bdlt::Time(value);
 #endif  // end - 64 bit
     return result;
 }
@@ -4204,7 +4223,7 @@ DatumBinaryRef Datum::theBinary() const
     const InternalDataType type = internalType();
     switch(type) {
       case e_INTERNAL_BINARY:
-        return DatumBinaryRef(d_data.buffer(),                        // RETURN
+        return DatumBinaryRef(theInlineStorage(),                     // RETURN
                               d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET]);
       case e_INTERNAL_BINARY_ALLOC:
         return DatumBinaryRef(d_as.d_ptr, d_as.d_int32);              // RETURN
@@ -4235,7 +4254,7 @@ bdlt::Date Datum::theDate() const
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     return *reinterpret_cast<const bdlt::Date *>(&d_as.d_int);
 #else   // end - 32 bit / begin - 64 bit
-    return *reinterpret_cast<const bdlt::Date *>(theInlineStorage());
+    return *reinterpret_cast<const bdlt::Date *>(theAlignedInlineStorage());
 #endif  // end - 64 bit
 }
 
@@ -4261,7 +4280,8 @@ bdlt::Datetime Datum::theDatetime() const
             extendedInternalType() == e_EXTENDED_INTERNAL_DATETIME_ALLOC);
     return *allocatedPtr<const bdlt::Datetime>();
 #else   // end - 32 bit / begin - 64 bit
-    return *reinterpret_cast<const bdlt::Datetime *>(theInlineStorage());
+    return *reinterpret_cast<const bdlt::Datetime *>(
+                                                    theAlignedInlineStorage());
 #endif  // end - 64 bit
 }
 
@@ -4451,7 +4471,7 @@ bdlt::Time Datum::theTime() const
     rawTime = Datum_Helpers32::loadInt48(d_as.d_short, d_as.d_int);
     return *reinterpret_cast<bdlt::Time*>(&rawTime);
 #else   // end - 32 bit / begin - 64 bit
-    return *reinterpret_cast<const bdlt::Time *>(theInlineStorage());
+    return *reinterpret_cast<const bdlt::Time *>(theAlignedInlineStorage());
 #endif  // end - 64 bit
 }
 

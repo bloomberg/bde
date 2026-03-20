@@ -768,7 +768,7 @@ void populateWithNonAggregateValues(vector<Datum>    *elements,
     elements->push_back(Datum::createUdt(reinterpret_cast<void *>(0x2), 12));
     elements->push_back(Datum::createUdt(reinterpret_cast<void *>(0x2), 13));
     elements->push_back(Datum::copyBinary("abcde", 5, allocator));
-    elements->push_back(Datum::copyBinary("01234567890abc", 13, allocator));
+    elements->push_back(Datum::copyBinary("01234567890abcd", 14, allocator));
     elements->push_back(Datum::copyBinary("01234567890abcdef", 16, allocator));
     elements->push_back(Datum::copyString("1", allocator));
     elements->push_back(Datum::copyString("12", allocator));
@@ -1551,7 +1551,17 @@ void BenchmarkSuite::run(int   iterations,
               StringRef);
 
 #ifdef BSLS_PLATFORM_CPU_64_BIT
+    BENCHMARK(copyString("0123456789abcd", &alloc),
+              isString(),
+              theString(),
+              StringRef);
+
     BENCHMARK(copyString("0123456789abcde", &alloc),
+              isString(),
+              theString(),
+              StringRef);
+
+    BENCHMARK(copyString("0123456789abcdef", &alloc),
               isString(),
               theString(),
               StringRef);
@@ -1559,6 +1569,12 @@ void BenchmarkSuite::run(int   iterations,
     ++d_current;
 #endif  // end - 32 bit
     BENCHMARK(copyString("abcdefghijklmnopqrstuvwxyz", &alloc),
+              isString(),
+              theString(),
+              StringRef);
+
+    BENCHMARK(copyString("abcdefghijklmnopqrstuvwxyz"
+                         "abcdefghijklmnopqrstuvwxyz", &alloc),
               isString(),
               theString(),
               StringRef);
@@ -3420,6 +3436,7 @@ int main(int argc, char *argv[])
                     { L_,           12 },
                     { L_,           13 },
                     { L_,           14 },
+                    { L_,           15 },
                     { L_,           32 },
                     { L_,          255 },
                     { L_,          256 },
@@ -3606,6 +3623,7 @@ int main(int argc, char *argv[])
                     { L_,           12 },
                     { L_,           13 },
                     { L_,           14 },
+                    { L_,           15 },
                     { L_,           32 },
                     { L_,          255 },
                     { L_,          256 },
@@ -5611,6 +5629,7 @@ int main(int argc, char *argv[])
                     12,
                     13,
                     14,
+                    15,
                     32,
                     255,
                     256,
@@ -5650,8 +5669,8 @@ int main(int argc, char *argv[])
                             ASSERT(0 != ca.numBytesInUse());
                         }
 #else   // end - 32 bit / begin - 64 bit
-                        // Up to length 13 the strings are stored inline
-                        if (SIZE <= 13) {
+                        // Up to length 14 the strings are stored inline
+                        if (SIZE <= 14) {
                             ASSERT(0 == ca.numBytesInUse());
                         } else {
                             ASSERT(0 != ca.numBytesInUse());
@@ -5767,7 +5786,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                     ASSERT(0 != bytesInUse);   // always allocate
 #else   // end - 32 bit / begin - 64 bit
-                    if (SIZE <= 13) {
+                    if (SIZE <= 14) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
@@ -5816,8 +5835,8 @@ int main(int argc, char *argv[])
                     // Up to length 6 inclusive the strings are stored inline
                     if (SIZE <= 6) {
 #else   // end - 32 bit / begin - 64 bit
-                    // Up to length 13 inclusive the strings are stored inline
-                    if (SIZE <= 13) {
+                    // Up to length 14 inclusive the strings are stored inline
+                    if (SIZE <= 14) {
 #endif  // end - 64 bit
                         ASSERT(0 == bytesInUse);
                     } else {
@@ -5965,7 +5984,7 @@ int main(int argc, char *argv[])
             const Datum array1[] = {
                 Datum::createInteger(0),
                 Datum::createDouble(-3.1416),
-                Datum::copyString("A long string", &oa),
+                Datum::copyString("A very long string", &oa),
                 Datum::copyString("Abc", &oa),
                 Datum::createArrayReference(array2, array2Size, &oa),
                 Datum::createDate(bdlt::Date(2010, 1, 5)),
@@ -6611,17 +6630,17 @@ int main(int argc, char *argv[])
 { L_,  Datum::createStringRef("abcde", 5, &oa),   Datum::e_STRING            },
 { L_,  Datum::createStringRef("abcdef", 6, &oa),  Datum::e_STRING            },
 { L_,  Datum::createStringRef("0abcdef", 7, &oa), Datum::e_STRING            },
-{ L_,  Datum::createStringRef("0123456789abc", 13, &oa),
-                                                  Datum::e_STRING            },
 { L_,  Datum::createStringRef("0123456789abcd", 14, &oa),
+                                                  Datum::e_STRING            },
+{ L_,  Datum::createStringRef("0123456789abcde", 15, &oa),
                                                   Datum::e_STRING            },
 { L_,  Datum::createTime(Time()),                 Datum::e_TIME              },
 { L_,  Datum::createUdt(reinterpret_cast<void *>(0x2), 15),
                                                   Datum::e_USERDEFINED       },
 { L_,  Datum::copyBinary("abcde", 5, &oa),        Datum::e_BINARY            },
-{ L_,  Datum::copyBinary("0123456789abc", 13, &oa),
-                                                  Datum::e_BINARY            },
 { L_,  Datum::copyBinary("0123456789abcd", 14, &oa),
+                                                  Datum::e_BINARY            },
+{ L_,  Datum::copyBinary("0123456789abcde", 15, &oa),
                                                   Datum::e_BINARY            },
 { L_,  Datum::copyString("abcde", &oa),           Datum::e_STRING            },
             };
@@ -6796,8 +6815,8 @@ int main(int argc, char *argv[])
       { L_,  Datum::createStringRef("abcde", 5, &oa),                  true  },
       { L_,  Datum::createStringRef("abcdef", 6, &oa),                 true  },
       { L_,  Datum::createStringRef("0abcdef", 7, &oa),                true  },
-      { L_,  Datum::createStringRef("0123456789abc", 13, &oa),         true  },
       { L_,  Datum::createStringRef("0123456789abcd", 14, &oa),        true  },
+      { L_,  Datum::createStringRef("0123456789abcde", 15, &oa),       true  },
       { L_,  Datum::createTime(Time()),                                false },
       { L_,  Datum::createUdt(reinterpret_cast<void *>(0x2), 15),      true  },
       { L_,  Datum::copyBinary("abcde", 5, &oa),                       false },
@@ -7526,8 +7545,8 @@ int main(int argc, char *argv[])
                 // No data is stored inline
                 if (false) {
 #else   // end - 32 bit / begin - 64 bit
-                // Up to size 13 the data is stored inline
-                if (i <= 13) {
+                // Up to size 14 the data is stored inline
+                if (i <= 14) {
 #endif  // end - 64 bit
                     ASSERT(0 == oa.numBlocksInUse());
                 } else {
@@ -7638,8 +7657,8 @@ int main(int argc, char *argv[])
                 // Up to length 6 inclusive the strings are stored inline
                 if (i <= 6) {
 #else   // end - 32 bit / begin - 64 bit
-                // Up to length 13 inclusive the strings are stored inline
-                if (i <= 13) {
+                // Up to length 14 inclusive the strings are stored inline
+                if (i <= 14) {
 #endif  // end - 64 bit
                     ASSERT(0 == oa.numBlocksInUse());
                 } else {
@@ -12010,7 +12029,7 @@ int main(int argc, char *argv[])
 
                 const Int64 bytesInUse = oa.numBytesInUse();
 #ifdef BSLS_PLATFORM_CPU_64_BIT
-                if (SIZE <= 13) {
+                if (SIZE <= 14) {
                     ASSERT(0 == bytesInUse);
                 } else {
                     ASSERT(0 != bytesInUse);
@@ -12063,8 +12082,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 != bytesInUse);
                 }
 #else   // end - 32 bit / begin - 64 bit
-                // Up to length 13 inclusive the strings are stored inline
-                if (SIZE <= 13) {
+                // Up to length 14 inclusive the strings are stored inline
+                if (SIZE <= 14) {
                     ASSERT(0 == bytesInUse);
                 } else {
                     ASSERT(0 != bytesInUse);
@@ -13397,7 +13416,7 @@ int main(int argc, char *argv[])
 #ifdef BSLS_PLATFORM_CPU_32_BIT
                 ASSERT(0 != oa.numBlocksInUse());   // always allocate
 #else   // end - 32 bit / begin - 64 bit
-                if (i<=13) {
+                if (i <= 14) {
                     ASSERT(0 == oa.numBlocksInUse());
                 } else {
                     ASSERT(0 != oa.numBlocksInUse());
@@ -13458,8 +13477,8 @@ int main(int argc, char *argv[])
                         ASSERT(0 != bytesInUse);
                     }
 #else   // end - 32 bit / begin - 64 bit
-                    // Up to length 13 inclusive the strings are stored inline
-                    if (SIZE <= 13) {
+                    // Up to length 14 inclusive the strings are stored inline
+                    if (SIZE <= 14) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);

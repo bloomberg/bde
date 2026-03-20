@@ -699,7 +699,7 @@ Datum Datum::createDecimal64(bdldfp::Decimal64    value,
     (void)allocator;
 
     result.d_as.d_type = e_INTERNAL_DECIMAL64;
-    new (result.theInlineStorage()) bdldfp::Decimal64(value);
+    new (result.theAlignedInlineStorage()) bdldfp::Decimal64(value);
     return result;
 #endif  // end - 64 bit
 }
@@ -756,7 +756,7 @@ Datum Datum::copyBinary(const void            *value,
 
     if (static_cast<unsigned>(size) <= k_SMALLBINARY_SIZE) {
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(size)) {
-            bsl::memcpy(result.d_data.buffer(), value, size);
+            bsl::memcpy(result.theInlineStorage(), value, size);
         }
         else {
             BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -829,12 +829,12 @@ Datum Datum::copyString(const char           *string,
 #else   // end - 32 bit / begin - 64 bit
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *inlineString =
-            reinterpret_cast<char *>(result.theInlineStorage());
+                           reinterpret_cast<char *>(result.d_data.buffer());
+        *inlineString++ = e_INTERNAL_SHORTSTRING;
         *inlineString++ = static_cast<char>(length);
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(length)) {
             bsl::memcpy(inlineString, string, length);
         }
-        result.d_as.d_type = e_INTERNAL_SHORTSTRING;
         return result;                                                // RETURN
     }
 
@@ -842,7 +842,7 @@ Datum Datum::copyString(const char           *string,
 
     result.d_as.d_type  = e_INTERNAL_STRING;
     result.d_as.d_int32 = static_cast<int>(length);
-    result.d_as.d_ptr   = AllocUtil::allocateBytes(allocator, length);
+    result.d_as.d_ptr = AllocUtil::allocateBytes(allocator, length);
     bsl::memcpy(result.d_as.d_ptr, string, length);
 #endif  // end - 64 bit
 
@@ -1037,7 +1037,7 @@ void *Datum::createUninitializedBinary(Datum                *result,
         result->d_as.d_type = e_INTERNAL_BINARY;
         result->d_data.buffer()[k_SMALLBINARY_SIZE_OFFSET] =
                                                        static_cast<char>(size);
-        return result->d_data.buffer();                               // RETURN
+        return result->theInlineStorage();                            // RETURN
     }
 
     BSLS_ASSERT(size <= static_cast<SizeType>(
@@ -1326,7 +1326,8 @@ bdldfp::Decimal64 Datum::theDecimal64() const
 
     return Decimal64(); // silence compiler warning
 #else   // end - 32 bit / begin - 64 bit
-    return *reinterpret_cast<const bdldfp::Decimal64 *>(theInlineStorage());
+    return *reinterpret_cast<const bdldfp::Decimal64 *>(
+                                                    theAlignedInlineStorage());
 #endif  // end - 64 bit
 }
 
