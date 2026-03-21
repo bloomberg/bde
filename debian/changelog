@@ -1,5 +1,46 @@
-bsl-internal (4.36.0.0) unstable; urgency=low
+bsl-internal (4.37.0.0) unstable; urgency=low
 
+  * c8878af48 Bumped version to 4.37.0.0
+  * 54a4799c5 Bdlt format separate include drqs 183177406 (#5805)
+  * 441c3043a Increase 64-bit `bdld::Datum` small-string size (#5664)
+  * 5b6a19bf8 Stringstream stringview support. (#5793)
+  * 63693785c Add TimerEventScheduler::d_pendingClockItems. (#5803)
+  * 6d24d7a5e BSLS_REVIEW* local const correctness. (#5810)
+  * f833dbf38 bsl::string_view(ITER, SENTINEL) constructor in C++20 mode (DRQS 182792746) (#5786)
+  * 806bc5205 Fix incorrect header guard names in 6 files (#5808)
+  * d4bd18a7d Fix -*-C++-*- marker column position in 20 files (#5807)
+  * b6cf97ca7 Namespace-qualify bsl function definitions for bsl format (#5802)
+  * c056307ef added missing noreturn annotations in bsls_review (#5800)
+  * 5634f143b drqs-175433257: `bdljsn`: re-release of enhancements (#5763)
+  * d41b6f479 Update bsl_type_traits.h (#5795)
+  * 4b5d109f4 Bdlt currenttime eval precision drqs 182812731 (#5797)
+  * b2efae1e5 Remove accidentally added #include (#5799)
+  * c5d52f60f Ball Category Radix Tree. (#5778)
+  * 5a51dcfc8 improve bslmt nightly timing issues on Darwin (#5794)
+  * 6e2c8448f `operator std::string_view` for `bsl::string_view` (DRQS 183035512) (#5788)
+  * 168945231 add bsls_review for deprecated version (#5792)
+  * 38d06af98 Do not run with sanitizers test case that intentionally uses custom a… (#5783)
+  * dd0eca359 Replace BSLS_LIBRARYFEATURES_HAS_CPP23_FORMAT -> BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT (#5791)
+  * 07d7cdb2e Fix typo in bslstl_exception.h (#5789)
+  * 634f221b2 minor NB improvements (#5787)
+  * 9f1b10842 bslmf_usesallocator.h: Fix doc typo (#5759)
+  * 275880fd5 Reinstate legacy API for clients (#5784)
+  * 53fcb3d2b Remove AIX support from bsls_platform (#5762)
+  * 877c450f1 Make clang-tidy understand BSLS_ASSERT. (#5780)
+  * f8ae4b44a correct warning and some formatting errors (#5782)
+  * 6326329ee Add scheduledEventTime() to bdlmt::EventScheduler (DRQS 177722244) (#5725)
+  * 9a11d268d [DRQS 182859705] Clarify documentation around ball:Rule that applies to all categories (#5761)
+  * 877bbbe90 Remove deprecated function use. (#5781)
+  * b50a4c98d DRQS 182592268 apply bsls assert unreachable (#5768)
+  * f9b39ab8b Disable range formatting when std format is not available (#5779)
+  * 7c1423c29 Fix builds without transitive includes on Solaris (#5744)
+  * c8fcf23f9 Drqs 182904194 clang libc++ std::format error (#5776)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 21 Mar 2026 16:36:41 -0400
+
+bsl-internal (4.36.0.0) git; urgency=low
+
+  * fe31952c6 Changelog for version 4.36.0.0
   * f3059f2f5 Bumped version to 4.36.0.0
   * ce508dfe1 Remove remaining use of bsls_ident in test drivers (#5774)
   * 319b829f9 Add `BSLS_ASSERT_*UNREACHABLE`. (#5704)
@@ -26,7 +67,7 @@ bsl-internal (4.36.0.0) unstable; urgency=low
   * fa82721d7 Fix bsls assert macro usage. (#5740)
   * c404f275b Regenerate groups/bsl/bslstl/bslstl_function_invokerutil_cpp03.t.cpp (#5739)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Feb 2026 23:25:48 +0000
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 20 Feb 2026 23:31:05 +0000
 
 bsl-internal (4.35.0.0) git; urgency=low
 
