@@ -193,79 +193,88 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'ball' package currently has 52 components having 17 levels of physical
+ The 'ball' package currently has 60 components having 18 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  17. ball_asyncfileobserver
+  18. ball_asyncfileobserver
 
-  16. ball_fileobserver
+  17. ball_fileobserver
       ball_logfilecleanerutil
 
-  15. ball_fileobserver2
+  16. ball_fileobserver2
       ball_fmt
       ball_logthrottle
 
-  14. ball_log
+  15. ball_log
 
-  13. ball_administration
+  14. ball_administration
 
-  12. ball_loggercategoryutil
+  13. ball_loggercategoryutil
       ball_loggerfunctorpayloads
 
-  11. ball_loggermanager
+  12. ball_loggermanager
       ball_scopedattribute
       ball_scopedattributes
 
-  10. ball_attributecontext
+  11. ball_attributecontext
 
-   9. ball_categorymanager
-
-   8. ball_category
-
-   7. ball_broadcastobserver
-      ball_filteringobserver
+  10. ball_categorymanager
       ball_multiplexobserver                             !DEPRECATED!
+
+   9. ball_category
+      ball_cstdioobserver
+      ball_streamobserver
+
+   8. ball_broadcastobserver
+      ball_filteringobserver
+      ball_observerformatterimp
       ball_ruleset
 
-   6. ball_observeradapter
+   7. ball_observeradapter
+      ball_recordformatterregistryutil
       ball_rule
-      ball_streamobserver
       ball_testobserver
 
-   5. ball_fixedsizerecordbuffer
+   6. ball_fixedsizerecordbuffer
       ball_observer
       ball_predicateset                                  !DEPRECATED!
       ball_recordjsonformatter
       ball_recordstringformatter
 
-   4. ball_managedattributeset
+   5. ball_managedattributeset
       ball_record
 
-   3. ball_attributecontainerlist
+   4. ball_attributecontainerlist
       ball_defaultattributecontainer
       ball_predicate                                     !DEPRECATED!
       ball_userfields
 
-   2. ball_attributecollectorregistry
+   3. ball_attributecollectorregistry
       ball_attributecontainer
       ball_context
       ball_loggermanagerconfiguration
       ball_managedattribute
       ball_recordbuffer
+      ball_recordformatteroptions
       ball_severityutil
       ball_userfieldvalue
 
-   1. ball_attribute
+   2. ball_attribute
+      ball_categorymanager_radixtree                                  !PRIVATE!
       ball_countingallocator
       ball_loggermanagerdefaults
       ball_patternutil
       ball_recordattributes
+      ball_recordformatterfunctor
+      ball_recordformattertimezone
       ball_severity
       ball_thresholdaggregate
       ball_transmission
       ball_userfieldtype
+
+   1. ball_categorymanager_radixtree_cpp03                            !PRIVATE!
 ..
 
 /Component Synopsis
@@ -300,11 +309,20 @@
 : 'ball_categorymanager':
 :      Provide a manager of named categories each having "thresholds".
 :
+: 'ball_categorymanager_radixtree':                                   !PRIVATE!
+:      Provide a space-efficient associative container for string keys.
+:
+: 'ball_categorymanager_radixtree_cpp03':                             !PRIVATE!
+:      Provide C++03 implementation for ball_categorymanager_radixtree.h
+:
 : 'ball_context':
 :      Provide a container for the context of a transmitted log record.
 :
 : 'ball_countingallocator':
 :      Provide a concrete allocator that keeps count of allocated bytes.
+:
+: 'ball_cstdioobserver':
+:      Provide an observer that emits log records to a `FILE *`.
 :
 : 'ball_defaultattributecontainer':
 :      Provide a default container for storing attribute name/value pairs.
@@ -363,6 +381,9 @@
 : 'ball_observeradapter':
 :      Provide a helper for implementing the `ball::Observer` protocol.
 :
+: 'ball_observerformatterimp':
+:      Provide common methods for scheme-based formatters for observers
+:
 : 'ball_patternutil':
 :      Provide a utility class for string pattern matching.
 :
@@ -380,6 +401,18 @@
 :
 : 'ball_recordbuffer':
 :      Provide a protocol for managing log record handles.
+:
+: 'ball_recordformatterfunctor':
+:      Provide a typedef for the record formatter functor.
+:
+: 'ball_recordformatteroptions':
+:      Provides log record formatter option values.
+:
+: 'ball_recordformatterregistryutil':
+:      Provide utilities for creating log record formatters by scheme.
+:
+: 'ball_recordformattertimezone':
+:      Enumerate a set of timezone defaults for log timestamps.
 :
 : 'ball_recordjsonformatter':
 :      Provide a formatter for log records that renders output in JSON.

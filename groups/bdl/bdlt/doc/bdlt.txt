@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 41 components having 9 levels of physical
+ The 'bdlt' package currently has 52 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -30,25 +30,31 @@
      bdlt_timetablecache
 
   7. bdlt_currenttime
+     bdlt_datetimetzformatter
      bdlt_fixutil
      bdlt_fuzzutil
      bdlt_iso8601util
 
   6. bdlt_calendarutil
      bdlt_datetimetz
+     bdlt_datetzformatter
      bdlt_localtimeoffset
      bdlt_timetableloader
 
   5. bdlt_calendar
      bdlt_calendarloader
+     bdlt_datetimeformatter
      bdlt_datetimeutil
      bdlt_datetz
      bdlt_epochutil
      bdlt_timetable
+     bdlt_timetzformatter
 
-  4. bdlt_datetime
+  4. bdlt_dateformatter
+     bdlt_datetime
      bdlt_dateutil
      bdlt_packedcalendar
+     bdlt_timeformatter
      bdlt_timetz
      bdlt_timeutil
 
@@ -61,13 +67,18 @@
      bdlt_datetimeinterval
      bdlt_dayofweekset
      bdlt_dayofweekutil
+     bdlt_formatter
      bdlt_serialdateimputil
+     bdlt_timezoneformatter
 
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
      bdlt_fixutilconfiguration
+     bdlt_formattestutil
+     bdlt_formatutil
      bdlt_iso8601utilconfiguration
      bdlt_iso8601utilparseconfiguration
+     bdlt_literal_specifierformatter                                  !PRIVATE!
      bdlt_monthofyear
      bdlt_posixdateimputil
      bdlt_prolepticdateimputil
@@ -97,8 +108,14 @@
 : 'bdlt_date':
 :      Provide a value-semantic type to represent dates.
 :
+: 'bdlt_dateformatter':
+:      Provide `bsl::formatter` specialization for `bdlt::Date`.
+:
 : 'bdlt_datetime':
 :      Provide a value-semantic type representing both date and time.
+:
+: 'bdlt_datetimeformatter':
+:      Provide `bsl::formatter` specialization for `bdlt::Datetime`.
 :
 : 'bdlt_datetimeimputil':
 :      Provide constants useful for encoding datetimes.
@@ -112,11 +129,17 @@
 : 'bdlt_datetimetz':
 :      Provide a representation of a date and time with time zone offset.
 :
+: 'bdlt_datetimetzformatter':
+:      Provide `bsl::formatter` specialization for `bdlt::DatetimeTz`.
+:
 : 'bdlt_datetimeutil':
 :      Provide common non-primitive operations on `bdlt::Datetime`.
 :
 : 'bdlt_datetz':
 :      Provide a representation of a date with time zone offset.
+:
+: 'bdlt_datetzformatter':
+:      Provide `bsl::formatter` specialization for `bdlt::DateTz`.
 :
 : 'bdlt_dateutil':
 :      Provide common non-primitive operations on date objects.
@@ -145,6 +168,15 @@
 : 'bdlt_fixutilconfiguration':
 :      Provide an attribute class to configure FIX string generation.
 :
+: 'bdlt_formatter':
+:      Provide a standard compliant `format` implementation.
+:
+: 'bdlt_formattestutil':
+:      Provide macros and utilities for testing of `format` in bdlt.
+:
+: 'bdlt_formatutil':
+:      Provide utilities for formatting `bdlt` types
+:
 : 'bdlt_fuzzutil':
 :      Provide creation of `bdlt` data types from fuzz data.
 :
@@ -159,6 +191,9 @@
 :
 : 'bdlt_iso8601utilparseconfiguration':
 :      Provide an attribute class to configure ISO 8601 string parsing.
+:
+: 'bdlt_literal_specifierformatter':                                  !PRIVATE!
+:      Provide a specifier formatter for formatting simple literal values.
 :
 : 'bdlt_localtimeoffset':
 :      Provide utilities to retrieve the local time offset.
@@ -181,6 +216,9 @@
 : 'bdlt_time':
 :      Provide a value-semantic type representing time-of-day.
 :
+: 'bdlt_timeformatter':
+:      Provide `bsl::formatter` specialization for `bdlt::Time`.
+:
 : 'bdlt_timetable':
 :      Provide a repository for accessing timetable information.
 :
@@ -193,11 +231,17 @@
 : 'bdlt_timetz':
 :      Provide a representation of a time with time zone offset.
 :
+: 'bdlt_timetzformatter':
+:      Provide `bsl::formatter` specialization for `bdlt::TimeTz`.
+:
 : 'bdlt_timeunitratio':
 :      Provide constants characterizing ratios between common time units.
 :
 : 'bdlt_timeutil':
 :      Provide common non-primitive operations on `bdlt::Time`.
+:
+: 'bdlt_timezoneformatter':
+:      Provide a mechanism for formatting time zones.
 
 /Value Types
 /-----------

@@ -17,18 +17,18 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslstl' package currently has 130 components having 10 levels of physical
+ The 'bslstl' package currently has 130 components having 11 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
-  10. bslstl_ownerequal
+  11. bslstl_ownerequal
       bslstl_ownerhash
       bslstl_ownerless
       bslstl_stoptoken
       bslstl_typeindex
 
-   9. bslstl_map_test1                                                !PRIVATE!
+  10. bslstl_map_test1                                                !PRIVATE!
       bslstl_map_test2                                                !PRIVATE!
       bslstl_map_test3                                                !PRIVATE!
       bslstl_multimap_test                                            !PRIVATE!
@@ -36,13 +36,13 @@
       bslstl_set_test                                                 !PRIVATE!
       bslstl_sharedptr
 
-   8. bslstl_map
+   9. bslstl_map
       bslstl_multimap
       bslstl_multiset
       bslstl_osyncstream
       bslstl_set
 
-   7. bslstl_boyermoorehorspoolsearcher
+   8. bslstl_boyermoorehorspoolsearcher
       bslstl_istringstream
       bslstl_mapcomparator
       bslstl_ostringstream
@@ -54,14 +54,11 @@
       bslstl_treenodepool
       bslstl_unorderedmap_test                                        !PRIVATE!
       bslstl_unorderedmultimap_test                                   !PRIVATE!
-      bslstl_unorderedmultiset_test                                   !PRIVATE!
-      bslstl_unorderedset_test                                        !PRIVATE!
 
-   6. bslstl_bitset
+   7. bslstl_bitset
       bslstl_defaultsearcher
       bslstl_deque
       bslstl_iomanip
-      bslstl_priorityqueue
       bslstl_span
       bslstl_string_test                                              !PRIVATE!
       bslstl_stringbuf
@@ -69,16 +66,21 @@
       bslstl_treenode
       bslstl_unorderedmap
       bslstl_unorderedmultimap
+      bslstl_unorderedmultiset_test                                   !PRIVATE!
+      bslstl_unorderedset_test                                        !PRIVATE!
+      bslstl_variant
+
+   6. bslstl_priorityqueue
+      bslstl_string
       bslstl_unorderedmultiset
       bslstl_unorderedset
-      bslstl_variant
 
    5. bslstl_array
       bslstl_function
       bslstl_hashtable
       bslstl_list
       bslstl_randomaccessiterator
-      bslstl_string
+      bslstl_stringviewlikeparam
       bslstl_systemerror
       bslstl_vector
 
@@ -89,10 +91,10 @@
       bslstl_function_invokerutil                                     !PRIVATE!
       bslstl_hashtablebucketiterator
       bslstl_hashtableiterator
+      bslstl_isconvertibletostringview
       bslstl_iteratorutil
       bslstl_ostream
       bslstl_stringrefdata
-      bslstl_stringviewlikeparam
 
    3. bslstl_bidirectionalnodepool
       bslstl_chrono
@@ -100,7 +102,6 @@
       bslstl_forwarditerator
       bslstl_function_rep                                             !PRIVATE!
       bslstl_ios
-      bslstl_isconvertibletostringview
       bslstl_optional
       bslstl_pair
       bslstl_stringview
@@ -288,6 +289,12 @@
 : 'bslstl_iosfwd':
 :      Provide forward declarations for Standard stream classes.
 :
+: 'bslstl_isconvertibletocstring':
+:      Provide a compile-time check for types convertible to C-string.
+:
+: 'bslstl_isconvertibletostringview':
+:      Provide a compile-time check for types convertible to string_view.
+:
 : 'bslstl_iserrorcodeenum':
 :      Provide a compliant standard `is_error_code_enum` trait.
 :
@@ -464,6 +471,9 @@
 :
 : 'bslstl_stringview':
 :      Provide a standard-compliant `basic_string_view` class template.
+:
+: 'bslstl_stringviewlikeparam':
+:      Provide macros for SFINAE constraints on string-view-like params.
 :
 : 'bslstl_syncbuf':
 :      Provide a C++20-compatible `basic_syncbuf` class template.
