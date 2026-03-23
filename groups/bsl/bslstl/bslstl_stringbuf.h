@@ -544,6 +544,7 @@ class basic_stringbuf
     /// installed default allocator will be used to supply to supply memory.
     /// This buffer is created with `ios_base::in | ios_base::out`.
     template <class STRING_VIEW_LIKE_TYPE>
+    explicit
     basic_stringbuf(
         const STRING_VIEW_LIKE_TYPE&              initialString,
         BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const allocator_type&)
