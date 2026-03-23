@@ -82,7 +82,7 @@ StreamObserver::StreamObserver(bsl::ostream          *stream,
                                const allocator_type&  allocator)
 : d_stream_p(stream)
 , d_mutex()
-, d_observerFormatterImp(k_DEFAULT_FORMAT,
+, d_observerFormatterImp("",
                          RecordFormatterTimezone::e_UTC,
                          allocator)
 {
