@@ -1,8 +1,9 @@
-bsl-internal (4.37.0.1) unstable; urgency=low
+bsl-internal (4.37.0.2) unstable; urgency=low
 
+  * 9397a57c5 Changelog for version 4.37.0.1
   * f73e2651c Release fixes to ball_streamobserver and bslstl_stringstream (#5815)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 Mar 2026 15:01:03 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 23 Mar 2026 15:03:40 -0400
 
 bsl-internal (4.37.0.0) git; urgency=low
 
