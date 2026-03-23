@@ -404,10 +404,8 @@ int FileObserver2::rotateFile(bsl::string *rotatedLogFileName)
                                                           oldLogFileTimestamp);
             }
 
-            bsl::string filenameWithTimestamp = bsl::format(
-                                          "{}.{}",
-                                          d_logFileName,
-                                          getTimestampSuffix(timeStampSuffix));
+            bsl::string filenameWithTimestamp =
+                d_logFileName + "." + getTimestampSuffix(timeStampSuffix);
 
             // If file with an appended timestamp still does exist, we skip the
             // rotation.
