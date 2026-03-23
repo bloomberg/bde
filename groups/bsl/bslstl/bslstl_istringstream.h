@@ -284,6 +284,7 @@ class basic_istringstream
     /// `bsl::allocator` and `allocator` is not supplied, the currently
     /// installed default allocator will be used to supply memory.
     template <class STRING_VIEW_LIKE_TYPE>
+    explicit
     basic_istringstream(
         const STRING_VIEW_LIKE_TYPE&  initialString,
         BSLSTL_STRINGVIEWLIKEPARAM_ONLY_ENABLE_IF_T(const allocator_type&)
