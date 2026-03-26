@@ -1032,8 +1032,6 @@ void FileObserver::forceRotation()
 inline
 void FileObserver::publish(const Record& record, const Context& context)
 {
-    bsl::shared_ptr<const Record> ptr(&record, bslstl::SharedPtrNilDeleter());
-    publish(ptr, context);
 }
 
 inline
