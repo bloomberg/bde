@@ -1811,8 +1811,13 @@ int EventScheduler::cancelEvent(const Event *handle)
     // handle to be released), since large objects may be bound to the functor
     // and it may be surprising to users that they are not released until the
     // handle is released.
-    itemPtr->data().d_callback = 0;
-    return d_eventQueue.remove(itemPtr);
+
+    int rc = d_eventQueue.remove(itemPtr);
+    if (0 == rc) {
+        // not executing on the dispatcher thread
+        itemPtr->data().d_callback = 0;
+    }
+    return rc;
 }
 
 inline
@@ -1828,8 +1833,13 @@ int EventScheduler::cancelEvent(const RecurringEvent *handle)
     // handle to be released), since large objects may be bound to the functor
     // and it may be surprising to users that they are not released until the
     // handle is released.
-    itemPtr->data().d_callback = 0;
-    return d_recurringQueue.remove(itemPtr);
+
+    int rc = d_recurringQueue.remove(itemPtr);
+    if (0 == rc) {
+        // not executing on the dispatcher thread
+        itemPtr->data().d_callback = 0;
+    }
+    return rc;
 }
 
 inline
@@ -1840,7 +1850,6 @@ void EventScheduler::releaseEventRaw(Event *handle)
     }
     EventQueue::Pair *h = reinterpret_cast<EventQueue::Pair*>(
                                               reinterpret_cast<void*>(handle));
-    h->data().d_callback = 0;
     d_eventQueue.releaseReferenceRaw(h);
 }
 
@@ -1852,7 +1861,6 @@ void EventScheduler::releaseEventRaw(RecurringEvent *handle)
     }
     RecurringEventQueue::Pair *h= reinterpret_cast<RecurringEventQueue::Pair*>(
                                               reinterpret_cast<void*>(handle));
-    h->data().d_callback = 0;
     d_recurringQueue.releaseReferenceRaw(h);
 }
 
