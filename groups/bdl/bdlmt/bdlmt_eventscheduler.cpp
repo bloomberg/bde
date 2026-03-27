@@ -12,8 +12,6 @@ BSLS_IDENT_RCSID(bdlmt_eventscheduler_cpp,"$Id$ $CSID$")
 
 #include <bdlt_timeunitratio.h>
 
-#include <bslmf_movableref.h>
-
 #include <bsls_assert.h>
 #include <bsls_review.h>
 #include <bsls_systemtime.h>
@@ -300,10 +298,8 @@ void EventScheduler::dispatchEvents()
             if (nowOffset <= 0) {
                 int ret = d_eventQueue.remove(d_currentEvent);
                 if (0 == ret) {
-                    bsl::function<void()> callback(
-                                 bslmf::MovableRefUtil::move(data.d_callback));
                     lock.release()->unlock();
-                    d_dispatcherFunctor(callback);
+                    d_dispatcherFunctor(data.d_callback);
                 }
             }
             else {
