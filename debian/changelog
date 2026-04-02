@@ -1,5 +1,7 @@
-bsl-internal (4.37.0.4) linuxinfrastructure-unstable; urgency=low
+bsl-internal (4.37.1.0) linuxinfrastructure-unstable; urgency=low
 
+  * 307d5433b Bumped version to 4.37.1.0
+  * a59165030 Changelog for version 4.37.0.4
   * 03ab94ef2 Revert "bdlmt::EventScheduler unexpectedly stores callback in event, creating a retain cycle hazard (2) (DRQS 179819546) (#5724)"
   * 8c8b4991e Changelog for version 4.37.0.3
   * 32f544704 Add missing `explicit` qualifiers (#5816)
@@ -7,7 +9,7 @@ bsl-internal (4.37.0.4) linuxinfrastructure-unstable; urgency=low
   * 9397a57c5 Changelog for version 4.37.0.1
   * f73e2651c Release fixes to ball_streamobserver and bslstl_stringstream (#5815)
 
- -- Oleg Subbotin <osubbotin@bloomberg.net>  Fri, 27 Mar 2026 19:21:34 +0000
+ -- Mike Giroux <mgiroux@bloomberg.net>  Thu, 2 Apr 2026 10:17:19 -0400
 
 bsl-internal (4.37.0.0) git; urgency=low
 
