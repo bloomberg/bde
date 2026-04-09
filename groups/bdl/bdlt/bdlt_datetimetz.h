@@ -10,7 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::DatetimeTz: local-datetime value with time zone offset from UTC
 //
-//@SEE_ALSO: bdlt_datetime
+//@SEE_ALSO: bdlt_datetime, bdlt_datetimetzformatter, bdlt_formatdoc
 //
 //@DESCRIPTION: This component provides a single value-semantic class,
 // `bdlt::DatetimeTz`, that represents a datetime value in a particular time

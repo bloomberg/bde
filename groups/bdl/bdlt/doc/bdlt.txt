@@ -32,6 +32,7 @@
   7. bdlt_currenttime
      bdlt_datetimetzformatter
      bdlt_fixutil
+     bdlt_formatdoc
      bdlt_fuzzutil
      bdlt_iso8601util
 

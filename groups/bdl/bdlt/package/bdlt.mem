@@ -25,6 +25,7 @@ bdlt_defaulttimetablecache
 bdlt_epochutil
 bdlt_fixutil
 bdlt_fixutilconfiguration
+bdlt_formatdoc
 bdlt_formatter
 bdlt_formattestutil
 bdlt_formatutil

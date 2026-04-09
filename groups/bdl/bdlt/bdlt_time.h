@@ -10,6 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::Time: time-of-day type (with microsecond resolution)
 //
+//@SEE_ALSO: bdlt_timeformatter, bdlt_formatdoc
+
 //@DESCRIPTION: This component implements a value-semantic time class,
 // `bdlt::Time`, that can represent the time of day to a resolution of one
 // microsecond (using a 24-hour clock).  Valid time values range from

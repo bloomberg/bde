@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::Datetime: date and time value (at least microsecond resolution)
 //
-//@SEE_ALSO: bdlt_date, bdlt_time, bdlt_datetimetz
+//@SEE_ALSO: bdlt_date, bdlt_time, bdlt_datetimetz, bdlt_datetimeformatter,
+//  bdlt_formatdoc
 //
 //@DESCRIPTION: This component implements a value-semantic type,
 // `bdlt::Datetime`, that represents the composition of a date and a time

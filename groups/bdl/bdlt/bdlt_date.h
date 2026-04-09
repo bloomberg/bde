@@ -10,7 +10,8 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::Date: value-semantic date type consistent with the Unix calendar
 //
-//@SEE_ALSO: bdlt_dayofweek, bdlt_serialdateimputil
+//@SEE_ALSO: bdlt_dayofweek, bdlt_serialdateimputil, bdlt_dateformatter,
+//  bdlt_formatdoc
 //
 //@DESCRIPTION: This component defines a value-semantic class, `bdlt::Date`,
 // capable of representing any valid date that is consistent with the Unix
