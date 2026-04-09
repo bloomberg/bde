@@ -1,4 +1,4 @@
-﻿# Code Review Notes: Log Record Formatter Plugins
+# Code Review Notes: Log Record Formatter Plugins
 
 ## Overview and Motivation
 

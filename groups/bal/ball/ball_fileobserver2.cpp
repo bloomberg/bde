@@ -1,4 +1,4 @@
-﻿// ball_fileobserver2.cpp                                            -*-C++-*-
+// ball_fileobserver2.cpp                                            -*-C++-*-
 #include <ball_fileobserver2.h>
 
 #include <bsls_ident.h>

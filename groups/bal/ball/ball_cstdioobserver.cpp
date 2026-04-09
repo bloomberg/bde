@@ -1,4 +1,4 @@
-﻿// ball_cstdioobserver.cpp                                           -*-C++-*-
+// ball_cstdioobserver.cpp                                           -*-C++-*-
 #include <ball_cstdioobserver.h>
 
 #include <bsls_ident.h>
