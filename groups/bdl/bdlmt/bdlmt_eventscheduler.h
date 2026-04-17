@@ -102,11 +102,11 @@ BSLS_IDENT("$Id: $")
 ///---------------------------------------
 // It is intended that recurring and one-time events are processed as closely
 // as possible to their respective time values, and that they are processed in
-// the order scheduled.  However, this component **guarantees** only that events
-// will not be executed before their scheduled time.  Generally, events that
-// are scheduled more than 1 microsecond apart will be executed in the order
-// scheduled; but different behavior may be observed when events are submitted
-// after (or shortly before) their scheduled time.
+// the order scheduled.  However, this component **guarantees** only that
+// events will not be executed before their scheduled time.  Generally, events
+// that are scheduled more than 1 microsecond apart will be executed in the
+// order scheduled; but different behavior may be observed when events are
+// submitted after (or shortly before) their scheduled time.
 //
 // When events are executed in the dispatcher thread and take longer to
 // complete than the time between events, the dispatcher can fall behind.  In
@@ -439,17 +439,17 @@ BSLS_IDENT("$Id: $")
 #include <bdlf_bind.h>
 #include <bdlf_placeholder.h>
 
-#include <bslma_allocator.h>
-#include <bslma_usesbslmaallocator.h>
-
-#include <bslmf_allocatorargt.h>
-#include <bslmf_nestedtraitdeclaration.h>
-
 #include <bslmt_condition.h>
 #include <bslmt_lockguard.h>
 #include <bslmt_mutex.h>
 #include <bslmt_threadattributes.h>
 #include <bslmt_threadutil.h>
+
+#include <bslma_allocator.h>
+#include <bslma_usesbslmaallocator.h>
+
+#include <bslmf_allocatorargt.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
@@ -668,7 +668,7 @@ class EventScheduler {
 
     bsls::AtomicUint64    d_dispatcherThreadId; // dispatcher thread id used to
                                                 // implement function
-                                                // 'isInDispatcherThread'
+                                                // `isInDispatcherThread`
 
     bslmt::Mutex          d_dispatcherMutex;    // serialize starting/stopping
                                                 // dispatcher thread
@@ -686,7 +686,7 @@ class EventScheduler {
                                                 // signal when the dispatcher
                                                 // is ready to enter next
                                                 // iteration (synchronizes
-                                                // 'wait' methods)
+                                                // `wait` methods)
 
     bool                  d_running;            // controls the looping of the
                                                 // dispatcher thread
@@ -708,7 +708,7 @@ class EventScheduler {
     unsigned int          d_waitCount;          // count of the number of waits
                                                 // performed in the main
                                                 // dispatch loop, used in
-                                                // 'advanceTime' to determine
+                                                // `advanceTime` to determine
                                                 // when to return
 
     bsls::SystemClockType::Enum
@@ -720,6 +720,13 @@ class EventScheduler {
                           d_startLagHandle;     // start lag metric handle
 
     // PRIVATE CLASS METHODS
+
+    /// Cast the specified `handle` to an `EventQueue::Pair`.
+    static const EventQueue::Pair *castToQueuePair(const Event *handle);
+
+    /// Cast the specified `handle` to a `RecurringEventQueue::Pair`.
+    static const RecurringEventQueue::Pair *castToQueuePair(
+                                                 const RecurringEvent *handle);
 
     /// Return 0.
     static bsls::Types::Int64 returnZero();
@@ -1466,7 +1473,7 @@ class EventScheduler {
     bsls::TimeInterval nextPendingEventTime() const;
 
     /// Return the scheduled starting time of the event having the specified
-    /// 'handle'.  If the `handle` is invalid, *or* the event has already been
+    /// `handle`.  If the `handle` is invalid, *or* the event has already been
     /// canceled, return an optional without a value.
     bsl::optional<bsls::TimeInterval> scheduledEventTime(
                                               const EventHandle& handle) const;
@@ -1610,7 +1617,7 @@ class EventSchedulerTestTimeSource {
     bsl::shared_ptr<EventSchedulerTestTimeSource_Data>
                           d_data_sp;      // shared pointer to the state whose
                                           // lifetime must be as long as
-                                          // '*this' and '*d_scheduler_p'
+                                          // `*this` and `*d_scheduler_p`
 
     EventScheduler       *d_scheduler_p;  // pointer to the scheduler that we
                                           // are augmenting
@@ -1763,6 +1770,22 @@ namespace bdlmt {
                             // class EventScheduler
                             // --------------------
 
+inline
+const EventScheduler::EventQueue::Pair
+                          *EventScheduler::castToQueuePair(const Event *handle)
+{
+    return reinterpret_cast<const EventQueue::Pair *>(
+                                            static_cast<const void *>(handle));
+}
+
+inline
+const EventScheduler::RecurringEventQueue::Pair
+                 *EventScheduler::castToQueuePair(const RecurringEvent *handle)
+{
+    return reinterpret_cast<const RecurringEventQueue::Pair *>(
+                                            static_cast<const void *>(handle));
+}
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 // PRIVATE CLASS METHODS
 template <class t_CLOCK, class t_DURATION>
@@ -1801,36 +1824,49 @@ bsls::Types::Int64 EventScheduler::timeUntilTriggerRecurring(
 inline
 int EventScheduler::cancelEvent(const Event *handle)
 {
-    const EventQueue::Pair *itemPtr =
-                       reinterpret_cast<const EventQueue::Pair*>(
-                                       reinterpret_cast<const void*>(handle));
+    const EventQueue::Pair *itemPtr = castToQueuePair(handle);
 
-    return d_eventQueue.remove(itemPtr);
+    int ret = d_eventQueue.remove(itemPtr);
+    if (0 == ret) {
+        // `d_callback` may contain event handles which are in reference cycles
+        // which would prevent cleanup of the node and freeing of resources.
+
+        itemPtr->data().d_callback = 0;
+    }
+
+    return ret;
 }
 
 inline
 int EventScheduler::cancelEvent(const RecurringEvent *handle)
 {
-    const RecurringEventQueue::Pair *itemPtr =
-               reinterpret_cast<const RecurringEventQueue::Pair*>(
-                                       reinterpret_cast<const void*>(handle));
+    const RecurringEventQueue::Pair *itemPtr = castToQueuePair(handle);
 
-    return d_recurringQueue.remove(itemPtr);
+    int ret = d_recurringQueue.remove(itemPtr);
+    if (0 == ret) {
+        // `d_callback` may contain smart pointers which are in reference
+        // cycles which would prevent cleanup of the node and freeing of
+        // resources.  The dispatch loop copies `d_callback`, guard this
+        // assignment clearing it with the mutex to make sure we don't collide
+        // with that copy.
+
+        bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
+        itemPtr->data().d_callback = 0;
+    }
+
+    return ret;
 }
 
 inline
 void EventScheduler::releaseEventRaw(Event *handle)
 {
-    d_eventQueue.releaseReferenceRaw(reinterpret_cast<EventQueue::Pair*>(
-                                            reinterpret_cast<void*>(handle)));
+    d_eventQueue.releaseReferenceRaw(castToQueuePair(handle));
 }
 
 inline
 void EventScheduler::releaseEventRaw(RecurringEvent *handle)
 {
-    d_recurringQueue.releaseReferenceRaw(
-                         reinterpret_cast<RecurringEventQueue::Pair*>(
-                                            reinterpret_cast<void*>(handle)));
+    d_recurringQueue.releaseReferenceRaw(castToQueuePair(handle));
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -1846,8 +1882,7 @@ int EventScheduler::rescheduleEvent(
                                                                       // RETURN
     }
 
-    const EventQueue::Pair *h = reinterpret_cast<const EventQueue::Pair *>(
-                                       reinterpret_cast<const void *>(handle));
+    const EventQueue::Pair *h = castToQueuePair(handle);
 
     bool                           isNewTop;
     bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -1882,9 +1917,7 @@ int EventScheduler::rescheduleEventAndWait(
     }
 
     int                     ret;
-    const EventQueue::Pair *h =
-        reinterpret_cast<const EventQueue::Pair *>(
-                                       reinterpret_cast<const void *>(handle));
+    const EventQueue::Pair *h = castToQueuePair(handle);
     {
         bool                           isNewTop;
         bslmt::LockGuard<bslmt::Mutex> lock(&d_mutex);
@@ -2180,20 +2213,18 @@ inline
 EventScheduler::Event*
 EventScheduler::addEventRefRaw(Event *handle) const
 {
-    EventQueue::Pair *h = reinterpret_cast<EventQueue::Pair*>(
-                                              reinterpret_cast<void*>(handle));
-    return reinterpret_cast<Event*>(d_eventQueue.addPairReferenceRaw(h));
+    return reinterpret_cast<Event*>(d_eventQueue.addPairReferenceRaw(
+                                                     castToQueuePair(handle)));
+
 }
 
 inline
 EventScheduler::RecurringEvent*
 EventScheduler::addRecurringEventRefRaw(RecurringEvent *handle) const
 {
-    RecurringEventQueue::Pair *h =
-                               reinterpret_cast<RecurringEventQueue::Pair*>(
-                                              reinterpret_cast<void*>(handle));
     return reinterpret_cast<RecurringEvent*>(
-                                     d_recurringQueue.addPairReferenceRaw(h));
+                                     d_recurringQueue.addPairReferenceRaw(
+                                                     castToQueuePair(handle)));
 }
 
 inline

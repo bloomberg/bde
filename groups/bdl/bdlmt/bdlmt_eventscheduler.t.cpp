@@ -33,6 +33,9 @@
 #include <bslmt_timedcompletionguard.h>
 #include <bslmt_timedsemaphore.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_issame.h>
+
 #include <bsls_asserttest.h>
 #include <bsls_atomic.h>
 #include <bsls_keyword.h>
@@ -153,6 +156,8 @@ using namespace bsl;
 // [31] TESTING `scheduleRecurringEventRaw` WITH CHRONO CLOCKS
 // [32] CONCERN: `EventData` and `RecurringEventData` are allocator-aware.
 // [33] CONCERN: THREAD NAMES
+// [36] TESTING CONCERN: Self-canceling non-recurring callback
+// [36] TESTING CONCERN: Self-canceling recurring callback
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1117,6 +1122,132 @@ bool TestMetricsAdapter::verify(const bsl::string& name) const
 // ============================================================================
 //                 HELPER CLASSES AND FUNCTIONS FOR TESTING
 // ============================================================================
+
+namespace TESTCASE_SELF_CANCELING_CALLBACK {
+
+bsl::set<const void *> g_instanceRegistry;
+
+template <class t_HANDLE>
+struct SelfCancelingCallback {
+    BSLMF_ASSERT((bsl::is_same<t_HANDLE, Obj::EventHandle>::         value ||
+                  bsl::is_same<t_HANDLE, Obj::RecurringEventHandle>::value));
+
+    enum { k_NUM_RECURRING_EVENT_CALLS_UNTIL_CANCEL = 4 };
+
+    // DATA
+    Obj&                         d_scheduler;
+    bsl::shared_ptr<t_HANDLE>    d_handle_p;
+    bslmt::Barrier&              d_barrier;
+    static
+    bsls::AtomicInt              s_numCalls;
+
+    // CREATORS
+    SelfCancelingCallback(Obj&                                scheduler,
+                          const bsl::shared_ptr<t_HANDLE>&    handle_p,
+                          bslmt::Barrier                     *barrier_p)
+    : d_scheduler(scheduler)
+    , d_handle_p(handle_p)
+    , d_barrier(*barrier_p)
+    {
+        ASSERT(g_instanceRegistry.insert(this).second);
+    }
+    SelfCancelingCallback(const SelfCancelingCallback& original)
+    : d_scheduler(original.d_scheduler)
+    , d_handle_p(original.d_handle_p)
+    , d_barrier(original.d_barrier)
+    {
+        ASSERT(original.d_handle_p);
+        ASSERT(1 == g_instanceRegistry.count(&original));
+
+        ASSERT(g_instanceRegistry.insert(this).second);
+    }
+    SelfCancelingCallback(bslmf::MovableRef<SelfCancelingCallback> original)
+    : d_scheduler(bslmf::MovableRefUtil::access(original).d_scheduler)
+    , d_handle_p( bslmf::MovableRefUtil::access(original).d_handle_p)
+    , d_barrier(  bslmf::MovableRefUtil::access(original).d_barrier)
+    {
+        SelfCancelingCallback& local = original;
+
+        // Note that this is really a copy -- moves are not required to wipe
+        // out the original, and in this test case we deliberately fail to
+        // reset `local.d_handle_p` because it might be part of a reference
+        // cycle, and we want to confirm that any reference cycle is broken.
+
+        ASSERT(d_handle_p);
+        ASSERT(local.d_handle_p);
+        ASSERT(1 == g_instanceRegistry.count(&local));
+
+        ASSERT(g_instanceRegistry.insert(this).second);
+    }
+
+    ~SelfCancelingCallback()
+    {
+        ASSERT(1 == g_instanceRegistry.erase(this));
+    }
+
+    // MANIPULATORS
+    void operator()();
+};
+
+template <>
+void SelfCancelingCallback<EventHandle>::operator()()
+{
+    d_barrier.wait();
+
+    // Now that we are past the first barrier and before second wait on the
+    // second barrier to give the main thread a chance to confirm state is as
+    // expected when the callback is running.
+
+    d_barrier.wait();
+
+    ASSERT(d_handle_p);
+    ASSERT(1 == g_instanceRegistry.count(this));
+
+    ASSERT(0 == s_numCalls++);
+    ASSERT(0 == d_scheduler.numEvents());
+
+    int rc = d_scheduler.cancelEvent(d_handle_p.get());
+    ASSERT(0 != rc);
+    ASSERT(1 == s_numCalls);
+
+    ASSERT(0 == d_scheduler.numEvents());
+    ASSERT(1 == g_instanceRegistry.count(this));
+}
+
+template <>
+void SelfCancelingCallback<RecurringEventHandle>::operator()()
+{
+    ASSERT(d_handle_p);
+    ASSERT(1 == g_instanceRegistry.count(this));
+
+    ASSERT(0 <= s_numCalls++);
+    ASSERT(0 == d_scheduler.numEvents());
+    ASSERT(1 == d_scheduler.numRecurringEvents());
+
+    ASSERT(s_numCalls <= k_NUM_RECURRING_EVENT_CALLS_UNTIL_CANCEL);
+    if (k_NUM_RECURRING_EVENT_CALLS_UNTIL_CANCEL == s_numCalls) {
+        d_barrier.wait();
+
+        // Now that we are past the first barrier and before second wait on the
+        // second barrier to give the main thread a chance to confirm state is
+        // as expected when the callback is running.
+
+        d_barrier.wait();
+
+        int rc = d_scheduler.cancelEvent(d_handle_p.get());
+        ASSERT(0 == rc);
+        ASSERT(0 == d_scheduler.numRecurringEvents());
+    }
+
+    ASSERT(0 == d_scheduler.numEvents());
+    ASSERT(1 == g_instanceRegistry.count(this));
+}
+
+
+template <class t_HANDLE>
+bsls::AtomicInt SelfCancelingCallback<t_HANDLE>::s_numCalls(0);
+
+}  // close namespace TESTCASE_SELF_CANCELING_CALLBACK
 
 // This is a dispatcher function that simply executes the specified `functor`.
 void dispatcherFunction(bsl::function<void()> functor)
@@ -2634,6 +2765,103 @@ struct Test4_2 {
 
 namespace EVENTSCHEDULER_TEST_CASE_3 {
 
+/// This functor is to be scheduled as a recurring event.  The 4th time it
+/// occurs it is to cancel itself.  It contains a ptr to a barrier which is
+/// used to aggressively coordinate between the execution of the functor and
+/// the main thread as common state is examine to confirm it is as expected.
+class RecurringSelfCancelingFunctor {
+    // DATA
+    Obj                       *d_scheduler_p;
+    Obj::RecurringEventHandle *d_handle_p;
+    bslmt::Barrier            *d_barrier_p;
+    bsls::AtomicInt           *d_trackedState_p;
+
+  private:
+    // NOT IMPLEMENTED
+    RecurringSelfCancelingFunctor& operator=(
+                    const RecurringSelfCancelingFunctor&) BSLS_KEYWORD_DELETED;
+
+    // PRIVATE MANIPULATORS
+    void copyFrom(const RecurringSelfCancelingFunctor& other)
+    {
+        d_scheduler_p    = other.d_scheduler_p;
+        d_handle_p       = other.d_handle_p;
+        d_barrier_p      = other.d_barrier_p;
+        d_trackedState_p = other.d_trackedState_p;
+    }
+
+  public:
+    // CREATORS
+    RecurringSelfCancelingFunctor(Obj                       *scheduler_p,
+                                  Obj::RecurringEventHandle *handle_p,
+                                  bslmt::Barrier            *barrier_p,
+                                  bsls::AtomicInt           *trackedState_p)
+    : d_scheduler_p(scheduler_p)
+    , d_handle_p(handle_p)
+    , d_barrier_p(barrier_p)
+    , d_trackedState_p(trackedState_p)
+    {}
+
+    RecurringSelfCancelingFunctor(
+                                 const RecurringSelfCancelingFunctor& original)
+    {
+        copyFrom(original);
+    }
+
+    RecurringSelfCancelingFunctor(
+                     bslmf::MovableRef<RecurringSelfCancelingFunctor> original)
+    {
+        RecurringSelfCancelingFunctor& local = original;
+
+        copyFrom(local);
+        local.clear();
+    }
+
+    ~RecurringSelfCancelingFunctor()
+    {
+        clear();
+    }
+
+    // MANIPULATORS
+    void operator()()
+    {
+        ASSERT(0 != d_trackedState_p);        // object hasn't been cleared
+        ASSERT(*d_trackedState_p < 4);        // never recurred after
+                                              // cancellation
+
+        if (++*d_trackedState_p < 4) {
+            return;                                                   // RETURN
+        }
+
+        ASSERT(4 == *d_trackedState_p);        // never recurs after the 4th
+                                               // time
+
+        d_barrier_p->wait();
+
+        ++*d_trackedState_p;
+
+        d_barrier_p->wait();
+
+        d_scheduler_p->cancelEvent(d_handle_p);
+
+        d_barrier_p->wait();
+
+        ++*d_trackedState_p;
+
+        d_barrier_p->wait();
+
+        ASSERT(0 !=  d_trackedState_p);        // object hasn't been cleared
+    }
+
+    void clear()
+    {
+        d_scheduler_p    = 0;
+        d_handle_p       = 0;
+        d_barrier_p      = 0;
+        d_trackedState_p = 0;
+    }
+};
+
 }  // close namespace EVENTSCHEDULER_TEST_CASE_3
 
 // ============================================================================
@@ -2935,6 +3163,151 @@ int main(int argc, char *argv[])
                                       bsl::format("case {}", test)));
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 36: {
+        // --------------------------------------------------------------------
+        // Testing self-cancellation in the context of reference cycles
+        //
+        // Concerns:
+        // 1. If a functor being executed holds a ptr or handle that is in
+        //    a reference cycle, the event canceling itself will break the
+        //    cycle.
+        //
+        // Plan:
+        // 1. Create a `SelfCancelingCallback` template functor class that can
+        //    be copied, moved, that holds a smart pointer to an event handle,
+        //    where the handle can be a recurring or non-recurring event
+        //    handle.
+        //
+        //    1. Have the callback decide whether to cancel itself.  If the
+        //       callback is specialized on `t_HANDLE` == `EventHandle`, have
+        //       the callback cancel itself the first time it is run.  If
+        //       `t_HANDLE` == `RecurringEventHandle`, have it cancel itself
+        //       the fourth time the functor is called.
+        //
+        //    2. Have the callback cancel the event, finding the handle through
+        //       the smart pointer that it holds.
+        //
+        //    3. If the event was recurring, expect the cancellation to
+        //       succeed, otherwise expect it to fail.  Within the functor,
+        //       check other state to confirm that all is as expected.
+        //
+        // 2. Schedule the callback to execute, timed to wait one second first.
+        //
+        // 3. When the event is running and about to cancel itself, have both
+        //    the event and the main thread block on a barrier to synchronize,
+        //    then block on it a second time.  In between the two barriers,
+        //    have the main thread confirm state is as expected.
+        //
+        // Testing:
+        //   TESTING CONCERN: Self-canceling non-recurring callback
+        //   TESTING CONCERN: Self-canceling recurring callback
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "Testing self-cancellation\n"
+                             "=========================\n";
+
+        namespace TC = TESTCASE_SELF_CANCELING_CALLBACK;
+
+        typedef TC::SelfCancelingCallback<EventHandle> EventCallback;
+        typedef TC::SelfCancelingCallback<RecurringEventHandle>
+                                                       RecurringEventCallback;
+
+        if (verbose) cout << "Self-canceling non-recurring callback\n";
+        {
+            Obj mX;    const Obj& X = mX;
+            bslmt::Barrier barrier(2);
+
+            {
+                bsl::shared_ptr<EventHandle> handle =
+                                               bsl::make_shared<EventHandle>();
+                int rc = mX.start();
+                ASSERT(0 == rc);
+                const bsls::TimeInterval when =
+                                            X.now() + bsls::TimeInterval(0.25);
+
+                mX.scheduleEvent(&*handle,
+                                 when,
+                                 EventCallback(mX, handle, &barrier));
+
+                barrier.wait();
+
+                ASSERT(0 == X.numEvents());
+                ASSERT(2 == handle.use_count());
+                ASSERT(1 == TC::g_instanceRegistry.size());
+
+                barrier.wait();
+
+                // We are guaranteed that `1 <= handle.use_count()` because
+                // `handle` is still in scope.  Once the use count drops to 1,
+                // we know that the callback in the queue has been destroyed,
+                // and all copies of the callback in the dispatcher thread have
+                // been destroyed.
+
+                while (1 < handle.use_count()) {
+                    bslmt::ThreadUtil::microSleep(100 * 1000);
+                }
+
+                ASSERT(1 == handle.use_count());
+                ASSERT(0 == X.numEvents());
+                ASSERT(TC::g_instanceRegistry.empty());
+            }
+
+            mX.stop();
+        }
+
+        if (verbose) cout << "Self-canceling recurring callback\n";
+        {
+            Obj mX;    const Obj& X = mX;
+            bslmt::Barrier barrier(2);
+
+            {
+                bsl::shared_ptr<RecurringEventHandle> handle =
+                                      bsl::make_shared<RecurringEventHandle>();
+
+                int rc = mX.start();
+                ASSERT(0 == rc);
+                const bsls::TimeInterval when = X.now() +
+                                                       bsls::TimeInterval(1.0);
+                const bsls::TimeInterval interval(0.25);
+
+                mX.scheduleRecurringEvent(
+                                  &*handle,
+                                  interval,
+                                  RecurringEventCallback(mX, handle, &barrier),
+                                  when);
+
+                // This dispatcher thread copies the callback before executing
+                // it, so there may be 2 instances in existence.
+
+                ASSERT(1 == X.numRecurringEvents());
+                ASSERT(2 <= handle.use_count());
+
+                barrier.wait();
+
+                ASSERT(1 == X.numRecurringEvents());
+                ASSERT(1 == TC::g_instanceRegistry.size());
+                ASSERT(2 == handle.use_count());
+
+                barrier.wait();
+
+                // We are guaranteed that `1 <= handle.use_count()` because
+                // `handle` is still in scope.  Once the use count drops to 1,
+                // we know that any copies of the callback in the queue have
+                // been destroyed, and all copies of the callback in the
+                // dispatcher thread have been destroyed.
+
+                while (1 < handle.use_count()) {
+                    bslmt::ThreadUtil::microSleep(100 * 1000);
+                }
+
+                ASSERT(1 == handle.use_count());
+                ASSERT(0 == X.numRecurringEvents());
+                ASSERT(TC::g_instanceRegistry.empty());
+            }
+
+            mX.stop();
+        }
+      } break;
       case 35: {
         // --------------------------------------------------------------------
         // TESTING `scheduledEventTime`
@@ -6810,7 +7183,9 @@ int main(int argc, char *argv[])
         //   That if the dispatcher thread cancels an event that has
         //   already been executed then it should fail.
         //
-        //   That an event can not cancel itself.
+        //   That a non-recurring event can not cancel itself.
+        //
+        //   That a recurring event can cancel itself.
         //
         //   That if the dispatcher thread cancels an event that has been
         //   put onto the pending list but not yet executed, then the
@@ -6863,11 +7238,11 @@ int main(int argc, char *argv[])
                           << "TESTING `cancelEvent`" << endl
                           << "=====================" << endl;
 
-        using namespace EVENTSCHEDULER_TEST_CASE_3;
+        namespace TC = EVENTSCHEDULER_TEST_CASE_3;
 
         bslma::TestAllocator ta(veryVeryVerbose);
         {
-            Obj x(&ta); x.start();
+            Obj x(&ta); x.start();    const Obj& X = x;
             if (verbose)
                 ET("\tSchedule event and cancel before execution.");
             {
@@ -7134,6 +7509,63 @@ int main(int argc, char *argv[])
                              0 == testObj.numExecuted() );
                 ASSERT( 0 == x.numEvents() + x.numRecurringEvents());
             }
+
+            ASSERT(0 == X.numEvents() && 0 == X.numRecurringEvents());
+
+            if (verbose) ET("\t Recurring event cancels itself.");
+            {
+                bsls::TimeInterval                T(DECI_SEC / 2);
+
+                Obj::RecurringEventHandle         handle;
+                bslmt::Barrier                    barrier(2);
+                bsls::AtomicInt                   trackedState(0);
+                TC::RecurringSelfCancelingFunctor functor(&x,
+                                                          &handle,
+                                                          &barrier,
+                                                          &trackedState);
+
+                x.start();
+                x.scheduleRecurringEvent(&handle, T, functor);
+
+                barrier.wait();
+
+                ASSERT(0 == X.numEvents() && 1 == X.numRecurringEvents());
+
+                // `trackedState` is being incremented
+
+                barrier.wait();
+
+                ASSERT(5 == trackedState);
+
+                // event will cancel itself before next wait
+
+                barrier.wait();
+
+                ASSERT(0 == X.numEvents() && 0 == X.numRecurringEvents());
+
+                // `trackedState` is being incremented again, showing that
+                // canceling the event didn't interfere with the execution of
+                // the instance that was already running
+
+                barrier.wait();
+
+                ASSERT(6 == trackedState);
+
+                // Sleep for far longer than it would take for the event to
+                // recur if the cancellation were somehow effective.  The first
+                // thing that the functor does, before blocking on the barrier,
+                // is assert that `trackedState` is less than 4 which confirms
+                // that it never recurs after canceling itself.
+
+                bslmt::ThreadUtil::microSleep(
+                                  5 * static_cast<int>(T.totalMicroseconds()));
+
+                ASSERT(6 == trackedState);
+
+                x.stop();
+            }
+
+            ASSERT(0 == X.numEvents() && 0 == X.numRecurringEvents());
 
             if (verbose) ET("\tCancel event from another event prior.");
             {
