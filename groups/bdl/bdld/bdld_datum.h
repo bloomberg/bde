@@ -1120,11 +1120,6 @@ class Datum {
     // USHORT_MAX`.
     DatumArrayRef theLongArrayReference() const;
 
-    /// Return the short string value stored in this object as a
-    /// `bslstl::StringRef` object.  The behavior is undefined unless this
-    /// object actually stores a short string value.
-    bslstl::StringRef theLongestShortString() const;
-
     /// Return the string referenced by this object.  The behavior is
     /// undefined unless this object holds a reference to a string with
     /// `length >= USHORT_MAX`.
@@ -1191,8 +1186,10 @@ class Datum {
 
         e_INTERNAL_DECIMAL64         = 23,  // Decimal64
 
-        e_INTERNAL_INT_MAP           = 24   // map of datums keyed by 32-bit
+        e_INTERNAL_INT_MAP           = 24,  // map of datums keyed by 32-bit
                                             // integer values
+
+        e_INTERNAL_LONGEST_SHORTSTRING = 25   // Short string of length 15 characters
     };
 
     /// Define `k_NUM_INTERNAL_TYPES` to be the number of consecutively
@@ -1205,7 +1202,7 @@ class Datum {
     // CLASS DATA
 
     // 64-bit variation
-    static const int k_SHORTSTRING_SIZE        = 14;  // maximum size of short
+    static const int k_SHORTSTRING_SIZE        = 15;  // maximum size of short
                                                       // strings that stored in
                                                       // the internal storage
                                                       // buffer
@@ -1338,6 +1335,11 @@ class Datum {
     /// `bslstl::StringRef` object.  The behavior is undefined unless the
     /// object actually represents a short string value.
     bslstl::StringRef theShortString() const;
+
+    /// Return the short string value stored in this object as a
+    /// `bslstl::StringRef` object.  The behavior is undefined unless this
+    /// object actually stores a short string value.
+    bslstl::StringRef theLongestShortString() const;
 
     /// Return the string reference represented by this object as a
     /// `bslstl::StringRef` object.  The behavior is undefined unless the
@@ -3319,12 +3321,6 @@ DatumArrayRef Datum::theLongArrayReference() const
 }
 
 inline
-bslstl::StringRef Datum::theLongestShortString() const
-{
-    return bslstl::StringRef(d_string6.d_chars, sizeof d_string6.d_chars);
-}
-
-inline
 bslstl::StringRef Datum::theLongStringReference() const
 {
     return bslstl::StringRef(
@@ -3484,6 +3480,18 @@ bslstl::StringRef Datum::theShortString() const
     return bslstl::StringRef(str, static_cast<int>(len));
 #endif  // end - 64 bit
 }
+
+BDLD_DATUM_FORCE_INLINE
+bslstl::StringRef Datum::theLongestShortString() const
+{
+#ifdef BSLS_PLATFORM_CPU_32_BIT
+    return bslstl::StringRef(d_string6.d_chars, sizeof d_string6.d_chars);
+#else   // end - 32 bit / begin - 64 bit
+    const char* str = reinterpret_cast<const char*>(theInlineStorage());
+    return bslstl::StringRef(str, k_SHORTSTRING_SIZE);
+#endif  // end - 64 bit
+}
+
 
 inline
 bslstl::StringRef Datum::theStringReference() const
@@ -4446,9 +4454,11 @@ bslstl::StringRef Datum::theString() const
         return theInternalString();                                   // RETURN
       case e_INTERNAL_STRING_REFERENCE:
         return theStringReference();                                  // RETURN
-#ifdef BSLS_PLATFORM_CPU_32_BIT
-      case e_INTERNAL_LONGEST_SHORTSTRING:
+      case e_INTERNAL_LONGEST_SHORTSTRING: {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
         return theLongestShortString();                               // RETURN
+      }
+#ifdef BSLS_PLATFORM_CPU_32_BIT
       default:
         return theLongStringReference();                              // RETURN
 #else   // end - 32 bit / begin - 64 bit
@@ -4518,30 +4528,31 @@ Datum::DataType Datum::type() const
 #else   // end - 32 bit / begin - 64 bit
     static const DataType convert[] = {
         e_ERROR                            // e_INTERNAL_UNINITIALIZED; invalid
-      , e_DOUBLE                           // e_INTERNAL_INF               = 1
-      , e_NIL                              // e_INTERNAL_NIL               = 2
-      , e_BOOLEAN                          // e_INTERNAL_BOOLEAN           = 3
-      , e_STRING                           // e_INTERNAL_SHORTSTRING       = 4
-      , e_STRING                           // e_INTERNAL_STRING            = 5
-      , e_DATE                             // e_INTERNAL_DATE              = 6
-      , e_TIME                             // e_INTERNAL_TIME              = 7
-      , e_DATETIME                         // e_INTERNAL_DATETIME          = 8
-      , e_DATETIME_INTERVAL                // e_INTERNAL_DATETIME_INTERVAL = 9
-      , e_INTEGER                          // e_INTERNAL_INTEGER           = 10
-      , e_INTEGER64                        // e_INTERNAL_INTEGER64         = 11
-      , e_USERDEFINED                      // e_INTERNAL_USERDEFINED       = 12
-      , e_ARRAY                            // e_INTERNAL_ARRAY             = 13
-      , e_STRING                           // e_INTERNAL_STRING_REFERENCE  = 14
-      , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE   = 15
-      , e_DOUBLE                           // e_INTERNAL_DOUBLE            = 16
-      , e_MAP                              // e_INTERNAL_MAP               = 17
-      , e_MAP                              // e_INTERNAL_OWNED_MAP         = 18
-      , e_ERROR                            // e_INTERNAL_ERROR             = 19
-      , e_ERROR                            // e_INTERNAL_ERROR_ALLOC       = 20
-      , e_BINARY                           // e_INTERNAL_BINARY            = 21
-      , e_BINARY                           // e_INTERNAL_BINARY_ALLOC      = 22
-      , e_DECIMAL64                        // e_INTERNAL_DECIMAL64         = 23
-      , e_INT_MAP                          // e_INTERNAL_INT_MAP           = 24
+      , e_DOUBLE                           // e_INTERNAL_INF                 = 1
+      , e_NIL                              // e_INTERNAL_NIL                 = 2
+      , e_BOOLEAN                          // e_INTERNAL_BOOLEAN             = 3
+      , e_STRING                           // e_INTERNAL_SHORTSTRING         = 4
+      , e_STRING                           // e_INTERNAL_STRING              = 5
+      , e_DATE                             // e_INTERNAL_DATE                = 6
+      , e_TIME                             // e_INTERNAL_TIME                = 7
+      , e_DATETIME                         // e_INTERNAL_DATETIME            = 8
+      , e_DATETIME_INTERVAL                // e_INTERNAL_DATETIME_INTERVAL   = 9
+      , e_INTEGER                          // e_INTERNAL_INTEGER             = 10
+      , e_INTEGER64                        // e_INTERNAL_INTEGER64           = 11
+      , e_USERDEFINED                      // e_INTERNAL_USERDEFINED         = 12
+      , e_ARRAY                            // e_INTERNAL_ARRAY               = 13
+      , e_STRING                           // e_INTERNAL_STRING_REFERENCE    = 14
+      , e_ARRAY                            // e_INTERNAL_ARRAY_REFERENCE     = 15
+      , e_DOUBLE                           // e_INTERNAL_DOUBLE              = 16
+      , e_MAP                              // e_INTERNAL_MAP                 = 17
+      , e_MAP                              // e_INTERNAL_OWNED_MAP           = 18
+      , e_ERROR                            // e_INTERNAL_ERROR               = 19
+      , e_ERROR                            // e_INTERNAL_ERROR_ALLOC         = 20
+      , e_BINARY                           // e_INTERNAL_BINARY              = 21
+      , e_BINARY                           // e_INTERNAL_BINARY_ALLOC        = 22
+      , e_DECIMAL64                        // e_INTERNAL_DECIMAL64           = 23
+      , e_INT_MAP                          // e_INTERNAL_INT_MAP             = 24
+      , e_STRING                           // e_INTERNAL_LONGEST_SHORTSTRING = 25
     };
 
     const InternalDataType type = internalType();
@@ -4749,6 +4760,9 @@ void Datum::apply(t_VISITOR& visitor) const
       } break;
       case e_INTERNAL_INT_MAP:
           visitor(theIntMap());
+          break;
+      case e_INTERNAL_LONGEST_SHORTSTRING:
+          visitor(theLongestShortString());
           break;
       case e_INTERNAL_UNINITIALIZED:
         BSLS_ASSERT(0 == "Uninitialized Datum");

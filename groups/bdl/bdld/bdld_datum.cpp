@@ -830,8 +830,13 @@ Datum Datum::copyString(const char           *string,
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *inlineString =
                            reinterpret_cast<char *>(result.d_data.buffer());
-        *inlineString++ = e_INTERNAL_SHORTSTRING;
-        *inlineString++ = static_cast<char>(length);
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(length != k_SHORTSTRING_SIZE)) {
+            *inlineString++ = e_INTERNAL_SHORTSTRING;
+            *inlineString++ = static_cast<char>(length);
+        }
+        else {
+            *inlineString++ = e_INTERNAL_LONGEST_SHORTSTRING;
+        }
         if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(length)) {
             bsl::memcpy(inlineString, string, length);
         }
@@ -1000,8 +1005,13 @@ char *Datum::createUninitializedString(Datum                *result,
 #else   // end - 32 bit / begin - 64 bit
     if (static_cast<unsigned>(length) <= k_SHORTSTRING_SIZE) {
         char *str = reinterpret_cast<char *>(result->theInlineStorage());
-        *str++ = static_cast<char>(length);
-        result->d_as.d_type = e_INTERNAL_SHORTSTRING;
+        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(length != k_SHORTSTRING_SIZE)) {
+            *str++ = static_cast<char>(length);
+            result->d_as.d_type = e_INTERNAL_SHORTSTRING;
+        }
+        else {
+            result->d_as.d_type = e_INTERNAL_LONGEST_SHORTSTRING;
+        }
         return str;                                                   // RETURN
     }
 

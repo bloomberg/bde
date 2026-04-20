@@ -5669,8 +5669,8 @@ int main(int argc, char *argv[])
                             ASSERT(0 != ca.numBytesInUse());
                         }
 #else   // end - 32 bit / begin - 64 bit
-                        // Up to length 14 the strings are stored inline
-                        if (SIZE <= 14) {
+                        // Up to length 15 the strings are stored inline
+                        if (SIZE <= 15) {
                             ASSERT(0 == ca.numBytesInUse());
                         } else {
                             ASSERT(0 != ca.numBytesInUse());
@@ -5835,8 +5835,8 @@ int main(int argc, char *argv[])
                     // Up to length 6 inclusive the strings are stored inline
                     if (SIZE <= 6) {
 #else   // end - 32 bit / begin - 64 bit
-                    // Up to length 14 inclusive the strings are stored inline
-                    if (SIZE <= 14) {
+                    // Up to length 15 inclusive the strings are stored inline
+                    if (SIZE <= 15) {
 #endif  // end - 64 bit
                         ASSERT(0 == bytesInUse);
                     } else {
@@ -7657,8 +7657,8 @@ int main(int argc, char *argv[])
                 // Up to length 6 inclusive the strings are stored inline
                 if (i <= 6) {
 #else   // end - 32 bit / begin - 64 bit
-                // Up to length 14 inclusive the strings are stored inline
-                if (i <= 14) {
+                // Up to length 15 inclusive the strings are stored inline
+                if (i <= 15) {
 #endif  // end - 64 bit
                     ASSERT(0 == oa.numBlocksInUse());
                 } else {
@@ -12082,8 +12082,8 @@ int main(int argc, char *argv[])
                     ASSERT(0 != bytesInUse);
                 }
 #else   // end - 32 bit / begin - 64 bit
-                // Up to length 14 inclusive the strings are stored inline
-                if (SIZE <= 14) {
+                // Up to length 15 inclusive the strings are stored inline
+                if (SIZE <= 15) {
                     ASSERT(0 == bytesInUse);
                 } else {
                     ASSERT(0 != bytesInUse);
@@ -13477,8 +13477,8 @@ int main(int argc, char *argv[])
                         ASSERT(0 != bytesInUse);
                     }
 #else   // end - 32 bit / begin - 64 bit
-                    // Up to length 14 inclusive the strings are stored inline
-                    if (SIZE <= 14) {
+                    // Up to length 15 inclusive the strings are stored inline
+                    if (SIZE <= 15) {
                         ASSERT(0 == bytesInUse);
                     } else {
                         ASSERT(0 != bytesInUse);
