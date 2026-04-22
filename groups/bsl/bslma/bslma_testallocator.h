@@ -40,6 +40,8 @@ BSLS_IDENT("$Id: $")
 //            |         setNoAbort/isNoAbort
 //            |         setQuiet/isQuiet
 //            |         setVerbose/isVerbose
+//            |         setFillPattern/unsetFillPattern
+//            |         hasFillPattern/getFillPattern
 //            |         status
 //            V
 //    ,----------------.
@@ -128,6 +130,18 @@ BSLS_IDENT("$Id: $")
 // thrown until the allocation limit is again reset to a non-negative value.
 //
 // The allocation limit is set using the `setAllocationLimit` manipulator.
+//
+///64 Bit Fill Pattern
+///-------------------
+// The test allocator can be configured to fill newly allocated memory with a
+// specified bit pattern.  This feature is useful for detecting use of
+// uninitialized memory and for ensuring consistent initial state in tests.
+// When a fill pattern is set via `setFillPattern`, all subsequent allocations
+// will have their user segment filled with repetitions of the specified 64-bit
+// pattern.  The fill pattern can be disabled by calling `unsetFillPattern`,
+// after which newly allocated memory will not be initialized.  The current
+// state can be queried using `hasFillPattern`, and if set the current pattern
+// can be retrieved using `getFillPattern`.
 //
 ///Exception Test Macros
 ///---------------------
@@ -457,6 +471,11 @@ class TestAllocator : public Allocator {
 
     Allocator  *d_allocator_p;          // upstream allocator (held, not owned)
 
+    bool d_hasFillPattern;              // whether allocated memory should be filled
+                                        // with 'd_fillPattern'
+
+    bsls::Types::Uint64 d_fillPattern;  // pattern to fill allocated memory with
+
     // PRIVATE ACCESSORS
 
     /// Traverse up to 8 blocks from the specified `*blockList` and write
@@ -626,6 +645,17 @@ class TestAllocator : public Allocator {
     /// object.  Note that the default mode is *not* verbose.
     void setVerbose(bool flagValue);
 
+    /// Set the fill pattern for this test allocator to the specified 64-bit
+    /// `pattern`.  Newly allocated memory will be filled with the specified
+    /// pattern value.  Note that the fill pattern, if set, is applied to the
+    /// entire user segment of allocated memory blocks.
+    void setFillPattern(bsls::Types::Uint64 pattern);
+
+    /// Unset the fill pattern for this test allocator.  After calling this
+    /// method, newly allocated memory will not be initialized with any fill
+    /// pattern.
+    void unsetFillPattern();
+
     // ACCESSORS
 
     /// Return the current number of allocation requests left before an
@@ -650,6 +680,15 @@ class TestAllocator : public Allocator {
     /// events will be reported on `stdout`, as will summary statistics upon
     /// destruction of this object.
     bool isVerbose() const;
+
+    /// Return `true` if a fill pattern is currently set for this allocator,
+    /// and `false` otherwise.  When a fill pattern is set, newly allocated
+    /// memory is filled with the pattern value.
+    bool hasFillPattern() const;
+
+    /// Return the current fill pattern value for this allocator.  The
+    /// behavior is undefined unless `hasFillPattern()` returns `true`.
+    bsls::Types::Uint64 getFillPattern() const;
 
     /// Return the address that was returned by the most recent allocation
     /// request.  Return 0 if the most recent allocation request was for 0
@@ -1144,6 +1183,23 @@ void TestAllocator::setVerbose(bool flagValue)
     d_verboseFlag.storeRelaxed(flagValue);
 }
 
+inline
+void TestAllocator::setFillPattern(bsls::Types::Uint64 pattern)
+{
+    bsls::BslLockGuard guard(&d_lock);
+
+    d_hasFillPattern = true;
+    d_fillPattern = pattern;
+}
+
+inline
+void TestAllocator::unsetFillPattern()
+{
+    bsls::BslLockGuard guard(&d_lock);
+
+    d_hasFillPattern = false;
+}
+
 // ACCESSORS
 inline
 bsls::Types::Int64 TestAllocator::allocationLimit() const
@@ -1167,6 +1223,23 @@ inline
 bool TestAllocator::isVerbose() const
 {
     return d_verboseFlag.loadRelaxed();
+}
+
+inline
+bool TestAllocator::hasFillPattern() const
+{
+    bsls::BslLockGuard guard(&d_lock);
+    
+    return d_hasFillPattern;
+}
+
+inline
+bsls::Types::Uint64 TestAllocator::getFillPattern() const
+{
+    bsls::BslLockGuard guard(&d_lock);
+
+    BSLS_ASSERT(d_hasFillPattern);
+    return d_fillPattern;
 }
 
 inline

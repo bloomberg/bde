@@ -945,7 +945,7 @@ int main(int argc, char *argv[])
     bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
 
     switch (test) { case 0:
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1068,6 +1068,193 @@ int main(int argc, char *argv[])
 // ```
 // Note that the `BDE_BUILD_TARGET_EXC` macro is defined at compile-time to
 // indicate whether or not exceptions are enabled.
+
+      } break;
+      case 18: {
+        // --------------------------------------------------------------------
+        // TESTING FILL PATTERN METHODS
+        //
+        // Concerns:
+        // 1. Setting a fill pattern causes subsequently allocated memory to be
+        //    filled with the specified pattern.
+        //
+        // 2. 'hasFillPattern()' correctly reports whether a fill pattern is
+        //    currently set.
+        //
+        // 3. 'getFillPattern()' returns the correct fill pattern value when
+        //    a pattern is set.
+        //
+        // 4. Calling 'unsetFillPattern' disables the fill pattern feature.
+        //
+        // 5. The fill pattern is applied to the entire user segment of
+        //    allocated memory blocks.
+        //
+        // 6. The fill pattern works correctly for allocations of various sizes
+        //    (smaller than, equal to, and larger than sizeof(Uint64)).
+        //
+        // Plan:
+        // 1. Create a TestAllocator and verify hasFillPattern() returns false
+        //    initially.
+        //
+        // 2. Set a fill pattern using a known value and verify
+        //    hasFillPattern() returns true and getFillPattern() returns the
+        //    correct value.
+        //
+        // 3. Allocate memory blocks of various sizes and verify that each
+        //    byte of the allocated memory is filled with the expected pattern.
+        //
+        // 4. Test allocations smaller than sizeof(Uint64) to verify partial
+        //    pattern fills.
+        //
+        // 5. Test allocations equal to sizeof(Uint64) to verify exact pattern
+        //    fills.
+        //
+        // 6. Test allocations larger than sizeof(Uint64) to verify the
+        //    pattern is repeated correctly.
+        //
+        // 7. Disable the fill pattern using 'unsetFillPattern' and verify
+        //    hasFillPattern() returns false and newly allocated memory is not
+        //    filled with the pattern.
+        //
+        // Testing:
+        //   void setFillPattern(bsls::Types::Uint64 pattern);
+        //   void unsetFillPattern();
+        //   bool hasFillPattern() const;
+        //   bsls::Types::Uint64 getFillPattern() const;
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING FILL PATTERN METHODS"
+                            "\n=============================\n");
+
+        // Test pattern value: 0x0123456789ABCDEF
+        bsls::Types::Uint64 pattern = 0x0123456789ABCDEFULL;
+
+        if (veryVerbose) printf("\tTesting initial state\n");
+        {
+            bslma::TestAllocator ta;
+            ASSERT(!ta.hasFillPattern());
+        }
+
+        if (veryVerbose) printf("\tTesting with fill pattern enabled\n");
+        {
+            bslma::TestAllocator ta;
+            ta.setFillPattern(pattern);
+
+            // Verify accessors
+            ASSERT(ta.hasFillPattern());
+            ASSERT(pattern == ta.getFillPattern());
+
+            // Test allocation smaller than sizeof(Uint64) (4 bytes)
+            {
+                const std::size_t SIZE = 4;
+                unsigned char *p = static_cast<unsigned char*>(ta.allocate(SIZE));
+                ASSERT(p);
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+                const unsigned char EXPECTED[] = { 0xEF, 0xCD, 0xAB, 0x89 };
+#else
+                const unsigned char EXPECTED[] = { 0x01, 0x23, 0x45, 0x67 };
+#endif
+                for (std::size_t i = 0; i < SIZE; ++i) {
+                    ASSERTV(i, EXPECTED[i], p[i], EXPECTED[i] == p[i]);
+                }
+
+                ta.deallocate(p);
+            }
+
+            // Test allocation equal to sizeof(Uint64) (8 bytes)
+            {
+                const std::size_t SIZE = 8;
+                unsigned char *p = static_cast<unsigned char*>(ta.allocate(SIZE));
+                ASSERT(p);
+
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+                const unsigned char EXPECTED[] = {
+                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01
+                };
+#else
+                const unsigned char EXPECTED[] = {
+                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF
+                };
+#endif
+                for (std::size_t i = 0; i < SIZE; ++i) {
+                    ASSERTV(i, EXPECTED[i], p[i], EXPECTED[i] == p[i]);
+                }
+
+                ta.deallocate(p);
+            }
+
+            // Test allocation larger than sizeof(Uint64) (20 bytes)
+            {
+                const std::size_t SIZE = 20;
+                unsigned char *p = static_cast<unsigned char*>(ta.allocate(SIZE));
+                ASSERT(p);
+
+                // Pattern should repeat: 8 bytes + 8 bytes + 4 bytes
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+                const unsigned char EXPECTED[] = {
+                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01,  // 1st copy
+                    0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01,  // 2nd copy
+                    0xEF, 0xCD, 0xAB, 0x89                           // partial
+                };
+#else
+                const unsigned char EXPECTED[] = {
+                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,  // 1st copy
+                    0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,  // 2nd copy
+                    0x01, 0x23, 0x45, 0x67                           // partial
+                };
+#endif
+                for (std::size_t i = 0; i < SIZE; ++i) {
+                    ASSERTV(i, EXPECTED[i], p[i], EXPECTED[i] == p[i]);
+                }
+
+                ta.deallocate(p);
+            }
+        }
+
+        if (veryVerbose) printf("\tTesting with fill pattern disabled\n");
+        {
+            bslma::TestAllocator ta;
+            ta.setFillPattern(pattern);
+
+            // Allocate with pattern enabled
+            const std::size_t SIZE = 8;
+            unsigned char *p1 = static_cast<unsigned char*>(ta.allocate(SIZE));
+            ASSERT(p1);
+
+            // Verify pattern is present
+#ifdef BSLS_PLATFORM_IS_LITTLE_ENDIAN
+            const unsigned char EXPECTED[] = {
+                0xEF, 0xCD, 0xAB, 0x89, 0x67, 0x45, 0x23, 0x01
+            };
+#else
+            const unsigned char EXPECTED[] = {
+                0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF
+            };
+#endif
+            for (std::size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(i, EXPECTED[i], p1[i], EXPECTED[i] == p1[i]);
+            }
+
+            ta.deallocate(p1);
+
+            // Disable fill pattern
+            ta.unsetFillPattern();
+
+            // Verify fill pattern is disabled
+            ASSERT(!ta.hasFillPattern());
+
+            // Allocate with pattern disabled
+            unsigned char *p2 = static_cast<unsigned char*>(ta.allocate(SIZE));
+            ASSERT(p2);
+
+            // Memory should not necessarily be filled with the pattern
+            // We can't make strong assertions about uninitialized memory,
+            // but we can verify that the allocator doesn't crash and that
+            // the memory is allocated successfully.
+
+            ta.deallocate(p2);
+        }
 
       } break;
       case 17: {

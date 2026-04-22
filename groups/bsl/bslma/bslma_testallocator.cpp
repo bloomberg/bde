@@ -287,6 +287,8 @@ TestAllocator::TestAllocator(Allocator *basicAllocator)
 , d_allocator_p(basicAllocator
                 ? basicAllocator
                 : &MallocFreeAllocator::singleton())
+, d_hasFillPattern(false)
+, d_fillPattern(0)
 {
     BSLS_ASSERT(d_allocator_p);
 }
@@ -316,6 +318,8 @@ TestAllocator::TestAllocator(bool verboseFlag, Allocator *basicAllocator)
 , d_allocator_p(basicAllocator
                 ? basicAllocator
                 : &MallocFreeAllocator::singleton())
+, d_hasFillPattern(false)
+, d_fillPattern(0)
 {
     BSLS_ASSERT(d_allocator_p);
 }
@@ -345,6 +349,8 @@ TestAllocator::TestAllocator(const char *name, Allocator *basicAllocator)
 , d_allocator_p(basicAllocator
                 ? basicAllocator
                 : &MallocFreeAllocator::singleton())
+, d_hasFillPattern(false)
+, d_fillPattern(0)
 {
     BSLS_ASSERT(d_allocator_p);
 }
@@ -376,6 +382,8 @@ TestAllocator::TestAllocator(const char *name,
 , d_allocator_p(basicAllocator
                 ? basicAllocator
                 : &MallocFreeAllocator::singleton())
+, d_hasFillPattern(false)
+, d_fillPattern(0)
 {
     BSLS_ASSERT(d_allocator_p);
 }
@@ -509,12 +517,32 @@ void *TestAllocator::allocate(size_type size)
     d_lastAllocatedAddress_p.storeRelaxed(reinterpret_cast<int *>(address));
 
     // Fill sentinel bytes before and after user segment with known values.
-    // Note that we don't initialize the user portion of the segment because
-    // that would undermine Purify's 'UMR: uninitialized memory read' checking.
+    // Note that we don't initialize the user portion of the segment unless
+    // 'd_hasFillPattern' is explicitly set because otherwise we would
+    // undermine Purify's 'UMR: uninitialized memory read' checking.
     std::memset(static_cast<char*>(address) - k_SENTINEL_SIZE,
                 k_SENTINEL_BYTE, k_SENTINEL_SIZE);
     std::memset(static_cast<char*>(address) + size,
                 k_SENTINEL_BYTE, k_SENTINEL_SIZE);
+
+    if (d_hasFillPattern) {
+        const bsls::Types::Uint64 pattern = d_fillPattern;
+
+        // Write the first occurrence of the pattern.
+        const std::size_t initialPatternSize = size > sizeof(pattern) ? sizeof(pattern) : size;
+
+        memcpy(address, &pattern, initialPatternSize);
+
+        // Repeatedly copy the bytes we've already written.
+        std::size_t filledSoFar = initialPatternSize;
+        while (filledSoFar < size) {
+            const std::size_t remaining  = size - filledSoFar;
+            const std::size_t sizeToCopy = filledSoFar > remaining ? remaining
+                                                                   : filledSoFar;
+            memcpy(static_cast<char*>(address) + filledSoFar, address, sizeToCopy);
+            filledSoFar += sizeToCopy;
+        }
+    }
 
     if (isVerbose()) {
 
