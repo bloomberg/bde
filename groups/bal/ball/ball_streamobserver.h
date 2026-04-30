@@ -2,9 +2,6 @@
 #ifndef INCLUDED_BALL_STREAMOBSERVER
 #define INCLUDED_BALL_STREAMOBSERVER
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
-
 //@PURPOSE: Provide an observer that emits log records to a stream.
 //
 //@CLASSES:
@@ -200,13 +197,6 @@ class StreamObserver : public Observer {
     // NOT IMPLEMENTED
     StreamObserver(const StreamObserver&);
     StreamObserver& operator=(const StreamObserver&);
-
-    // CLASS METHODS
-
-    /// Write the specified log `record` to the specified output `stream`
-    /// using the default record format of this stream observer.
-    static
-    void logRecordDefault(bsl::ostream& stream, const Record& record);
 
   public:
     // CREATORS
