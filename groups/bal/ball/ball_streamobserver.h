@@ -201,13 +201,6 @@ class StreamObserver : public Observer {
     StreamObserver(const StreamObserver&);
     StreamObserver& operator=(const StreamObserver&);
 
-    // CLASS METHODS
-
-    /// Write the specified log `record` to the specified output `stream`
-    /// using the default record format of this stream observer.
-    static
-    void logRecordDefault(bsl::ostream& stream, const Record& record);
-
   public:
     // CREATORS
 
