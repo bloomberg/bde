@@ -822,8 +822,8 @@ struct AsIntegralTest {
             // The following logic computes the expected result and expectedRc
             // for `t_INTEGRAL_TYPE`.
 
-            Uint64 maxAsU64 = static_cast<Uint64>(k_MAX_VALUE);
-            Uint64 minAsU64 = (s_isSignedType) ? maxAsU64 + 1 : 0;
+            const Uint64 maxAsU64 = static_cast<Uint64>(k_MAX_VALUE);
+            const Uint64 minAsU64 = (s_isSignedType) ? maxAsU64 + 1 : 0;
 
             t_INTEGRAL_TYPE expected;
             int             expectedRc = (STATUS == ENOTINT) ? ENOTINT : 0;
@@ -842,6 +842,12 @@ struct AsIntegralTest {
                 // the range `EXPECTED_U64` can represent).
 
                 expectedRc = Obj::k_UNDERFLOW;
+                expected   = bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
+            }
+            else if (ISNEG && (EXPECTED_U64 == minAsU64)) {
+                // The `INPUT` is the maximum negative value, and its `VALUE`
+                // cannot be represented as a positive `t_INTEGRAL_TYPE`.
+
                 expected   = bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
             }
             else {

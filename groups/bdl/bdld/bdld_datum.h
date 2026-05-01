@@ -574,7 +574,9 @@ BSLS_IDENT("$Id$ $CSID$")
 // assert("Fatal error." == error.message());
 // Datum::destroy(datumError, &oa);
 // ```
-// Finally, we create a `Datum` that holds an arbitrary binary data:
+// Finally, we create a `Datum` that holds arbitrary binary data.  Notice that
+// due to alignment requirements for `int` we need to use `memcpy` to access
+// the data as it is not guarantee to be well-aligned for a `reinterpret_cast`.
 // ```
 // int buffer[] = { 1, 2, 3 };
 // Datum datumBlob = Datum::copyBinary(buffer, sizeof(buffer), &oa);
@@ -582,7 +584,13 @@ BSLS_IDENT("$Id$ $CSID$")
 // assert(true == datumBlob.isBinary());
 // DatumBinaryRef blob = datumBlob.theBinary();
 // assert(blob.size() == 3 * sizeof(int));
-// assert(reinterpret_cast<const int*>(blob.data())[2] == 3);
+//
+//  const char *dataPtr = static_cast<const char *>(blob.data());
+//  const char *thirdElemPtr = dataPtr + sizeof(int) * 2;
+//  int thirdElem;
+//  memcpy(&thirdElem, thirdElemPtr, sizeof(int));
+//
+// assert(thirdElem == 3);
 // Datum::destroy(datumBlob, &oa);
 // ```
 // Note that the bytes have been copied.
