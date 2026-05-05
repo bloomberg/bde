@@ -164,6 +164,15 @@ struct String {
     static char *copy(const bsl::string&  string,
                       bslma::Allocator   *basicAllocator);
 
+    /// Compare the specified `lhsString` and `rhsString` having the
+    /// optionally specified `lhsLength` and `rhsLength`, respectively.
+    /// Return 1 if, after conversion to lower case, `lhsString` is
+    /// lexically greater than `rhsString`, 0 if they are equal up to a case
+    /// conversion, and -1 otherwise.  The behavior is undefined unless
+    /// `0 <= lhsLength` and `0 <= rhsLength` (if specified), and
+    /// `lhsString.size() <= INT_MAX` and `rhsString.size() <= INT_MAX` (if
+    /// applicable).  See {`bdlb_stringviewutil`} for an identically named
+    /// method having the same semantics taking `bsl::string_view`.
     static int lowerCaseCmp(const char *lhsString, const char *rhsString);
     static int lowerCaseCmp(const char *lhsString,
                             const char *rhsString,
@@ -181,16 +190,6 @@ struct String {
     static int lowerCaseCmp(const char         *lhsString,
                             int                 lhsLength,
                             const bsl::string&  rhsString);
-
-    /// Compare the specified `lhsString` and `rhsString` having the
-    /// optionally specified `lhsLength` and `rhsLength`, respectively.
-    /// Return 1 if, after conversion to lower case, `lhsString` is
-    /// lexically greater than `rhsString`, 0 if they are equal up to a case
-    /// conversion, and -1 otherwise.  The behavior is undefined unless
-    /// `0 <= lhsLength` and `0 <= rhsLength` (if specified), and
-    /// `lhsString.size() <= INT_MAX` and `rhsString.size() <= INT_MAX` (if
-    /// applicable).  See {`bdlb_stringviewutil`} for an identically named
-    /// method having the same semantics taking `bsl::string_view`.
     static int lowerCaseCmp(const bsl::string&  lhsString,
                             const char         *rhsString);
     static int lowerCaseCmp(const bsl::string&  lhsString,
