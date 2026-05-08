@@ -854,6 +854,11 @@ void runTest()
 {
     typedef Callback<t_EXPECTED_ALLOC_USAGE, t_ARG_TYPE, t_ARG_CATEGORY> F;
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    BSLMF_ASSERT((bsl::is_same<stop_callback<F>,
+                                        stop_token::callback_type<F>>::value));
+#endif
+
     typedef typename bsl::conditional<t_ARG_TYPE == e_CALLBACK,
                                       F,
                                       ConvertibleToCallback>::type ArgObjType;

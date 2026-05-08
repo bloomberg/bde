@@ -380,6 +380,13 @@ extern const nostopstate_t nostopstate;
 /// cannot be used to make a cancellation request.
 class stop_token {
 
+  public:
+    // PUBLIC TYPES
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
+    template <class t_CALLBACK>
+    using callback_type = stop_callback<t_CALLBACK>;
+#endif
+
   private:
     // PRIVATE TYPES
     typedef BloombergLP::bslstl::StopToken_RefCountedState RefCountedState;
