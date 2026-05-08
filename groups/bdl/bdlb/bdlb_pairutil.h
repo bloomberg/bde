@@ -88,7 +88,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // `bsl::views::values`.  This problem can be resolved using the
 // `bdlb::PairUtil::adaptForRanges` function on the container:
 // ```
-//  auto names = bdlb::PairUtil::adaptForRanges(employees)
+//  auto names = employees | bdlb::PairUtil::adaptForRanges
 //                                                        | bsl::views::values;
 //  auto namesIt = names.begin();
 //  assert("John Dow" == *namesIt);
@@ -101,7 +101,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //      return name.starts_with("Ja");
 //  };
 //
-//  auto jaNames = bdlb::PairUtil::adaptForRanges(employees)
+//  auto jaNames = employees | bdlb::PairUtil::adaptForRanges
 //                                          | bsl::views::values
 //                                          | bsl::views::filter(startsWithJa);
 //  assert(bsl::ranges::equal(jaNames,
@@ -145,8 +145,27 @@ struct PairUtil_StdPairRefAdaptor {
     constexpr std::pair<t_FIRST&, t_SECOND&> operator()(
                                      bsl::pair<t_FIRST, t_SECOND>& pair) const;
     template <class t_FIRST, class t_SECOND>
-    constexpr std::pair<const t_FIRST&, const t_SECOND&>
-    operator()(const bsl::pair<t_FIRST, t_SECOND>& pair) const;
+    constexpr std::pair<const t_FIRST&, const t_SECOND&> operator()(
+                               const bsl::pair<t_FIRST, t_SECOND>& pair) const;
+};
+
+                     // =====================================
+                     // struct PairUtil_AdaptForRangesClosure
+                     // =====================================
+
+/// This component-private struct is a function object converting ranges
+/// containing `bsl::pair`s to a range of `std::pair`s.
+struct PairUtil_AdaptForRangesClosure {
+    // ACCESSORS
+
+    /// Given a range of `bsl::pairs`, translate it to a range of `std::pair`s,
+    /// where each element of the resulting `std::pair`s is a reference to
+    /// corresponding member of the corresponding element of the bsl range.
+    template <class t_RANGE_BSL_PAIR>
+    auto operator()(t_RANGE_BSL_PAIR&& bslRange) const
+         -> decltype(bsl::views::transform(
+                           bsl::forward<t_RANGE_BSL_PAIR>(bslRange),
+                           std::declval<const PairUtil_StdPairRefAdaptor&>()));
 };
 #endif
 
@@ -163,9 +182,15 @@ struct PairUtil {
     // CLASS DATA
 
     /// A function object that takes a `bsl::pair` by reference and returns a
-    // `std::pair` where each element is a reference to the corresponding
-    // member of the `bsl::pair`.
+    /// `std::pair` where each element is a reference to the corresponding
+    /// member of the `bsl::pair`.
     static constexpr PairUtil_StdPairRefAdaptor stdPairRefAdaptor{};
+
+    /// A function object which, when applied to a range of `bsl::pair`s,
+    /// transforms it into a range of `std::pair`s, where the members of the
+    /// resultant `std::pair`s are references to the corresponding members of
+    /// the corresponding `bsl::pair`s in the input range.
+    static constexpr PairUtil_AdaptForRangesClosure adaptForRanges{};
 #endif
 
     // CLASS METHODS
@@ -175,21 +200,28 @@ struct PairUtil {
     template <class t_FIRST, class t_SECOND>
     static bsl::pair<t_FIRST&, t_SECOND&> tie(t_FIRST&  first,
                                               t_SECOND& second);
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-    /// Return a view containing all elements of the specified `container`,
-    /// converted to `std::pair` by calling `stdPairRefAdaptor`.  This function
-    /// participates in overload resolution only if container is a range whose
-    /// value type is a `bsl::pair` type.
-    template <class t_CONTAINER>
-    static auto adaptForRanges(t_CONTAINER&& container)
-        -> decltype(bsl::views::transform(bsl::forward<t_CONTAINER>(container),
-                                          stdPairRefAdaptor));
-#endif
 };
 
 // ============================================================================
 //                            INLINE DEFINITIONS
+// ============================================================================
+
+// FREE OPERATORS
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
+/// Translate the range of `bsl::pair`s into a range of `std::pair`s, where
+/// each `pair` of the resulting range is a `pair` of references to the
+/// corresponding members of the corresponding `pair` in the input range.
+template <class t_RANGE_BSL_PAIR>
+auto operator|(t_RANGE_BSL_PAIR&& bslRange,
+               const PairUtil_AdaptForRangesClosure&)
+                            -> decltype(PairUtil::adaptForRanges(
+                                    bsl::forward<t_RANGE_BSL_PAIR>(bslRange)));
+#endif
+
+// ============================================================================
+//                  TEMPLATE AND INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
                        // ---------------------------------
@@ -206,6 +238,7 @@ PairUtil_StdPairRefAdaptor::operator()(
 {
     BSLMF_ASSERT(!bsl::is_rvalue_reference_v<t_FIRST>);
     BSLMF_ASSERT(!bsl::is_rvalue_reference_v<t_SECOND>);
+
     return {pair.first, pair.second};
 }
 
@@ -222,6 +255,23 @@ PairUtil_StdPairRefAdaptor::operator()(
 }
 #endif
 
+                     // -------------------------------------
+                     // struct PairUtil_AdaptForRangesClosure
+                     // -------------------------------------
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+template <class t_RANGE_BSL_PAIR>
+inline auto
+PairUtil_AdaptForRangesClosure::operator()(t_RANGE_BSL_PAIR&& bslRange) const
+         -> decltype(bsl::views::transform(
+                            bsl::forward<t_RANGE_BSL_PAIR>(bslRange),
+                            std::declval<const PairUtil_StdPairRefAdaptor&>()))
+{
+    return bsl::forward<t_RANGE_BSL_PAIR>(bslRange)
+                          | bsl::views::transform(PairUtil::stdPairRefAdaptor);
+}
+#endif
+
                               // ---------------
                               // struct PairUtil
                               // ---------------
@@ -234,15 +284,16 @@ bsl::pair<t_FIRST&, t_SECOND&> PairUtil::tie(t_FIRST& first, t_SECOND& second)
     return bsl::pair<t_FIRST&, t_SECOND&>(first, second);
 }
 
+// FREE OPERATORS
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-template <class t_CONTAINER>
-inline auto
-PairUtil::adaptForRanges(t_CONTAINER&& container)
--> decltype(bsl::views::transform(bsl::forward<t_CONTAINER>(container),
-                                  stdPairRefAdaptor))
+template <class t_RANGE_BSL_PAIR>
+auto operator|(t_RANGE_BSL_PAIR&& bslRange,
+               const PairUtil_AdaptForRangesClosure&)
+                            -> decltype(PairUtil::adaptForRanges(
+                                     bsl::forward<t_RANGE_BSL_PAIR>(bslRange)))
 {
-    return std::forward<t_CONTAINER>(container)
-                                    | bsl::views::transform(stdPairRefAdaptor);
+    return PairUtil::adaptForRanges(bsl::forward<t_RANGE_BSL_PAIR>(bslRange));
 }
 #endif
 

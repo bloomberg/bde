@@ -402,8 +402,7 @@ void testAdaptor()
 template <class t_CONTAINER>
 void testAdaptForRanges()
 {
-    if (verbose) bsl::cout << bsl::endl
-                           << "\tCONTAINER: "
+    if (verbose) bsl::cout << "CONTAINER: "
                            << (bsls::NameOf<t_CONTAINER>().name())
                            << bsl::endl;
 
@@ -427,39 +426,6 @@ void testAdaptForRanges()
                         static_cast<Value>(MIN_VALUE + static_cast<Value>(i)));
     }
 
-    t_CONTAINER       container(pairs.begin(), pairs.end());
-    const t_CONTAINER copy(container);
-
-    // Testing result type
-
-    auto adaptationResult = Util::adaptForRanges(container);
-    using ResultType = decltype(adaptationResult);
-
-    // Checking that result type is a view
-    ASSERT(bsl::ranges::view<ResultType>);
-
-    // Checking value type of the result type
-    using ExpectedValueType =
-                      decltype(Util::stdPairRefAdaptor(std::declval<Pair&>()));
-    using ActualValueType   = bsl::ranges::range_value_t<ResultType>;
-
-    ASSERTV(bsls::NameOf<ExpectedValueType>().name(),
-            bsls::NameOf<ActualValueType>().name(),
-            (bsl::is_same_v<ExpectedValueType, ActualValueType>));
-
-    // Checking range category
-    using ExpectedIterConcept = typename bsl::iterator_traits<
-        typename t_CONTAINER::iterator>::iterator_category;
-
-    using ActualIterConcept =
-                typename bsl::ranges::iterator_t<ResultType>::iterator_concept;
-
-    ASSERTV(
-          bsls::NameOf<t_CONTAINER>().name(),
-          bsls::NameOf<ExpectedIterConcept>().name(),
-          bsls::NameOf<ActualIterConcept>().name(),
-          (bsl::is_same_v<ExpectedIterConcept, ActualIterConcept>));
-
     // Filter
     const auto isEven = [](Value value) -> bool
     {
@@ -472,221 +438,207 @@ void testAdaptForRanges()
         return value * 2;
     };
 
-    // ------------------------------------------------------------------------
-    // `bsl::views::values` test
-    // ------------------------------------------------------------------------
+    const t_CONTAINER container(pairs.begin(), pairs.end());
+    const t_CONTAINER copy(container);
 
-    size_t counter = 0;
-    for (auto value : container
-                    | bsl::views::transform(Util::stdPairRefAdaptor)
-                    | bsl::views::values
-                    | bsl::views::filter(isEven)) {
-        ASSERTV(value, MIN_VALUE <= value );
-        ASSERTV(value, MAX_VALUE >= value );
-        ASSERTV(value, isEven(value));
-        ++counter;
-    }
-    size_t expectedCounterValue = isEven(NUM_ELEMENTS) ? NUM_ELEMENTS / 2
-                                                       : NUM_ELEMENTS / 2 + 1;
-    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
-            expectedCounterValue == counter);
+    // Testing result type
 
-    counter = 0;
+    using CallResultType          = decltype(Util::adaptForRanges(container));
+    using PipeClosureResultType   = decltype(container | Util::adaptForRanges);
+    using PipeTransformResultType = decltype(container | bsl::views::transform(
+                                                     Util::stdPairRefAdaptor));
 
-    for (auto value : Util::adaptForRanges(container)
-                    | bsl::views::values
-                    | bsl::views::filter(isEven)) {
-        ASSERTV(value, MIN_VALUE <= value );
-        ASSERTV(value, MAX_VALUE >= value );
-        ASSERTV(value, isEven(value));
-        ++counter;
-    }
+    // Checking that result types are views
 
-    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
-            expectedCounterValue == counter);
+    ASSERT(bsl::ranges::view<CallResultType>);
+    ASSERT(bsl::ranges::view<PipeClosureResultType>);
+    ASSERT(bsl::ranges::view<PipeTransformResultType>);
 
-    counter = 0;
+    // Checking that result types all match
 
-    // ------------------------------------------------------------------------
+    ASSERTV(bsls::NameOf<CallResultType>().name(),
+            bsls::NameOf<PipeClosureResultType>().name(),
+            (bsl::is_same_v<CallResultType, PipeClosureResultType>));
+    ASSERTV(bsls::NameOf<CallResultType>().name(),
+            bsls::NameOf<PipeTransformResultType>().name(),
+            (bsl::is_same_v<CallResultType, PipeTransformResultType>));
+    ASSERTV(bsls::NameOf<PipeClosureResultType>().name(),
+            bsls::NameOf<PipeTransformResultType>().name(),
+            (bsl::is_same_v<PipeClosureResultType, PipeTransformResultType>));
 
-    for (auto value : container
-                    | bsl::views::transform(Util::stdPairRefAdaptor)
-                    | bsl::views::values
-                    | bsl::views::transform(doubleValue)) {
-        ASSERTV(value, MIN_VALUE * 2 <= value );
-        ASSERTV(value, MAX_VALUE * 2 >= value );
-        ASSERTV(value, isEven(value));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+    if (veryVerbose) cout << "\tResult type: " <<
+                                 bsls::NameOf<CallResultType>().name() << endl;
 
-    counter = 0;
+    // Checking value type of the result type
 
-    for (auto value : Util::adaptForRanges(container)
-                    | bsl::views::values
-                    | bsl::views::transform(doubleValue)) {
-        ASSERTV(value, MIN_VALUE * 2 <= value );
-        ASSERTV(value, MAX_VALUE * 2 >= value );
-        ASSERTV(value, isEven(value));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+    using ExpectedValueType =
+                decltype(Util::stdPairRefAdaptor(std::declval<const Pair&>()));
+    using ActualValueType   = bsl::ranges::range_value_t<CallResultType>;
+    ASSERTV(bsls::NameOf<ExpectedValueType>().name(),
+            bsls::NameOf<ActualValueType>().name(),
+            (bsl::is_same_v<ExpectedValueType, ActualValueType>));
 
-    counter = 0;
+    // Checking range category
 
-    // ------------------------------------------------------------------------
+    using ContainerIterConcept = typename bsl::iterator_traits<
+                            typename t_CONTAINER::iterator>::iterator_category;
+    using AdaptorIterConcept = typename
+                     bsl::ranges::iterator_t<CallResultType>::iterator_concept;
+    ASSERTV(bsls::NameOf<t_CONTAINER>().name(),
+            bsls::NameOf<ContainerIterConcept>().name(),
+            bsls::NameOf<AdaptorIterConcept>().name(),
+            (bsl::is_same_v<ContainerIterConcept, AdaptorIterConcept>));
 
-    for (auto value : container
-                    | bsl::views::transform(Util::stdPairRefAdaptor)
-                    | bsl::views::values
-                    | bsl::views::filter(isEven)
-                    | bsl::views::transform(doubleValue)
-                    | bsl::views::take(2)) {
-        ASSERTV(value, MIN_VALUE * 2 <= value );
-        ASSERTV(value, MAX_VALUE * 2 >= value );
-        ASSERTV(value, isEven(value));
-        ++counter;
-    }
-    ASSERTV(counter, 2 == counter);
+    enum Mode { e_BEGIN,
+                e_CALL = e_BEGIN,
+                e_PIPE_CLOSURE,
+                e_PIPE_TRANSFORM,
+                e_END };
+    for (Mode mode = e_BEGIN; mode < e_END; mode = static_cast<Mode>(mode+1)) {
 
-    counter = 0;
+        if (veryVerbose) cout << "\tmode: " <<
+                                      (e_CALL           == mode ? "call"
+                                     : e_PIPE_CLOSURE   == mode ? "closure"
+                                     : e_PIPE_TRANSFORM == mode ? "transform"
+                                     :                      "unknown") << endl;
 
-    for (auto value : Util::adaptForRanges(container)
-                    | bsl::views::values
-                    | bsl::views::filter(isEven)
-                    | bsl::views::transform(doubleValue)
-                    | bsl::views::take(2)) {
-        ASSERTV(value, MIN_VALUE * 2 <= value );
-        ASSERTV(value, MAX_VALUE * 2 >= value );
-        ASSERTV(value, isEven(value));
-        ++counter;
-    }
-    ASSERTV(counter, 2 == counter);
+        const CallResultType adaptationResult =
+                      e_CALL     == mode ? Util::adaptForRanges(container)
+                    : e_PIPE_CLOSURE == mode ? container | Util::adaptForRanges
+                    :                      container | bsl::views::transform(
+                                                      Util::stdPairRefAdaptor);
 
-    counter = 0;
+        // --------------------------------------------------------------------
+        // `bsl::views::values` test
+        // --------------------------------------------------------------------
 
-    // ------------------------------------------------------------------------
-    // `bsl::views::keys` test
-    // ------------------------------------------------------------------------
-
-    for (auto key : container | bsl::views::transform(Util::stdPairRefAdaptor)
-                              | bsl::views::keys
-                              | bsl::views::filter(isEven)) {
-        ASSERTV(key, MIN_KEY <= key );
-        ASSERTV(key, MAX_KEY >= key );
-        ASSERTV(key, isEven(key));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
-            expectedCounterValue == counter);
-
-    counter = 0;
-
-    for (auto key : Util::adaptForRanges(container)
-                  | bsl::views::keys
-                  | bsl::views::filter(isEven)) {
-        ASSERTV(key, MIN_KEY <= key );
-        ASSERTV(key, MAX_KEY >= key );
-        ASSERTV(key, isEven(key));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
-            expectedCounterValue == counter);
-
-    counter = 0;
-
-    // ------------------------------------------------------------------------
-
-    for (auto key : container | bsl::views::transform(Util::stdPairRefAdaptor)
-                              | bsl::views::keys
-                              | bsl::views::transform(doubleValue)) {
-        ASSERTV(key, MIN_KEY * 2 <= key );
-        ASSERTV(key, MAX_KEY * 2 >= key );
-        ASSERTV(key, isEven(key));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
-
-    counter = 0;
-
-    for (auto key : Util::adaptForRanges(container)
-                  | bsl::views::keys
-                  | bsl::views::transform(doubleValue)) {
-        ASSERTV(key, MIN_KEY * 2 <= key );
-        ASSERTV(key, MAX_KEY * 2 >= key );
-        ASSERTV(key, isEven(key));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
-
-    counter = 0;
-
-    // ------------------------------------------------------------------------
-
-    for (auto key : container | bsl::views::transform(Util::stdPairRefAdaptor)
-                              | bsl::views::keys
-                              | bsl::views::filter(isEven)
-                              | bsl::views::transform(doubleValue)
-                              | bsl::views::drop(2)) {
-        ASSERTV(key, MIN_KEY * 2 <= key );
-        ASSERTV(key, MAX_KEY * 2 >= key );
-        ASSERTV(key, isEven(key));
-        ++counter;
-    }
-    expectedCounterValue = isEven(NUM_ELEMENTS) ? NUM_ELEMENTS / 2 - 2
-                                                : NUM_ELEMENTS / 2 - 1;
-    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
-            expectedCounterValue == counter);
-
-    counter = 0;
-
-    for (auto key : Util::adaptForRanges(container)
-                  | bsl::views::keys
-                  | bsl::views::filter(isEven)
-                  | bsl::views::transform(doubleValue)
-                  | bsl::views::drop(2)) {
-        ASSERTV(key, MIN_KEY * 2 <= key );
-        ASSERTV(key, MAX_KEY * 2 >= key );
-        ASSERTV(key, isEven(key));
-        ++counter;
-    }
-    ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
-            expectedCounterValue == counter);
-
-    // ------------------------------------------------------------------------
-
-    ASSERTV(copy == container);
-
-    // ------------------------------------------------------------------------
-    // Testing ability to modify container using adaptors
-    // ------------------------------------------------------------------------
-
-    bsl::ranges::fill(container
-                               | bsl::views::transform(Util::stdPairRefAdaptor)
-                               | bsl::views::values
-                               | bsl::views::filter(isEven),
-                      0);
-
-    for (auto pair : container) {
-        if (pair.first % 2 != 0) {
-            ASSERTV(pair.first, pair.second, 0 != pair.second);
+        size_t expectedCounterValue = (NUM_ELEMENTS + 1) / 2;
+        size_t counter = 0;
+        for (auto value : adaptationResult
+                        | bsl::views::values
+                        | bsl::views::filter(isEven)) {
+            ASSERTV(value, MIN_VALUE <= value );
+            ASSERTV(value, MAX_VALUE >= value );
+            ASSERTV(value, isEven(value));
+            ++counter;
         }
-        else {
-            ASSERTV(pair.first, pair.second, 0 == pair.second);
-        }
-    }
+        ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+                                              expectedCounterValue == counter);
 
-    bsl::ranges::fill(Util::adaptForRanges(container)
-                                                  | bsl::views::values
-                                                  | bsl::views::filter(isEven),
-                      1);
+        // --------------------------------------------------------------------
 
-    for (auto pair : container) {
-        if (pair.first % 2 != 0) {
-            ASSERTV(pair.first, pair.second, 1 != pair.second);
+        counter = 0;
+        for (auto value : adaptationResult
+                        | bsl::views::values
+                        | bsl::views::transform(doubleValue)) {
+            ASSERTV(value, MIN_VALUE * 2 <= value );
+            ASSERTV(value, MAX_VALUE * 2 >= value );
+            ASSERTV(value, isEven(value));
+            ++counter;
         }
-        else {
-            ASSERTV(pair.first, pair.second, 1 == pair.second);
+        ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+
+        // --------------------------------------------------------------------
+
+        counter = 0;
+        for (auto value : adaptationResult
+                        | bsl::views::values
+                        | bsl::views::filter(isEven)
+                        | bsl::views::transform(doubleValue)
+                        | bsl::views::take(2)) {
+            ASSERTV(value, MIN_VALUE * 2 <= value );
+            ASSERTV(value, MAX_VALUE * 2 >= value );
+            ASSERTV(value, isEven(value));
+            ++counter;
+        }
+        ASSERTV(counter, 2 == counter);
+
+        // --------------------------------------------------------------------
+        // `bsl::views::keys` test
+        // --------------------------------------------------------------------
+
+        counter = 0;
+        for (auto key : adaptationResult
+                      | bsl::views::keys
+                      | bsl::views::filter(isEven)) {
+            ASSERTV(key, MIN_KEY <= key );
+            ASSERTV(key, MAX_KEY >= key );
+            ASSERTV(key, isEven(key));
+            ++counter;
+        }
+        ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+                expectedCounterValue == counter);
+
+        // --------------------------------------------------------------------
+
+        counter = 0;
+        for (auto key : adaptationResult
+                      | bsl::views::keys
+                      | bsl::views::transform(doubleValue)) {
+            ASSERTV(key, MIN_KEY * 2 <= key );
+            ASSERTV(key, MAX_KEY * 2 >= key );
+            ASSERTV(key, isEven(key));
+            ++counter;
+        }
+        ASSERTV(counter, NUM_ELEMENTS, NUM_ELEMENTS == counter);
+
+        // --------------------------------------------------------------------
+
+        expectedCounterValue = isEven(NUM_ELEMENTS) ? NUM_ELEMENTS / 2 - 2
+                                                    : NUM_ELEMENTS / 2 - 1;
+        counter = 0;
+        for (auto key : adaptationResult
+                      | bsl::views::keys
+                      | bsl::views::filter(isEven)
+                      | bsl::views::transform(doubleValue)
+                      | bsl::views::drop(2)) {
+            ASSERTV(key, MIN_KEY * 2 <= key );
+            ASSERTV(key, MAX_KEY * 2 >= key );
+            ASSERTV(key, isEven(key));
+            ++counter;
+        }
+        ASSERTV(counter, NUM_ELEMENTS, expectedCounterValue,
+                expectedCounterValue == counter);
+
+        // --------------------------------------------------------------------
+
+        ASSERT(copy == container);
+
+        // --------------------------------------------------------------------
+        // Testing ability to modify container using adaptors
+        // --------------------------------------------------------------------
+
+        t_CONTAINER mutContainer(container);    // mutable container
+
+        for (auto pair : mutContainer) {
+            ASSERTV(pair.first, pair.second,
+                                         0 != pair.second && 1 != pair.second);
+        }
+
+        auto mutAdaptationResult =
+               e_CALL         == mode ? Util::adaptForRanges(mutContainer)
+             : e_PIPE_CLOSURE == mode ? mutContainer | Util::adaptForRanges
+             :                          mutContainer | bsl::views::transform(
+                                                      Util::stdPairRefAdaptor);
+
+        bsl::ranges::fill(mutAdaptationResult | bsl::views::values
+                                              | bsl::views::filter(isEven),
+                          0);
+
+        for (auto pair : mutContainer) {
+            ASSERTV(pair.first, pair.second, isEven(pair.first)
+                                                           ? 0 == pair.second
+                                                           : 0 != pair.second);
+        }
+
+        bsl::ranges::fill(mutAdaptationResult | bsl::views::values
+                                              | bsl::views::filter(isEven),
+                          1);
+
+        for (auto pair : mutContainer) {
+            ASSERTV(pair.first, pair.second, isEven(pair.first)
+                                                           ? 1 == pair.second
+                                                           : 1 != pair.second);
         }
     }
 }
@@ -747,6 +699,7 @@ void usageExample1()
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 void usageExample2() {
+//
 ///Example 2: Adapting `bsl` Container For Ranges
 /// - - - - - - - - - - - - - - - - - - - - - - -
 // Let's assume that we have a `bsl::map` storing employee indexes and their
@@ -768,7 +721,7 @@ void usageExample2() {
 // `bsl::views::values`.  This problem can be resolved using the
 // `bdlb::PairUtil::adaptForRanges` function on the container:
 // ```
-    auto names = bdlb::PairUtil::adaptForRanges(employees)
+    auto names = employees | bdlb::PairUtil::adaptForRanges
                                                           | bsl::views::values;
     auto namesIt = names.begin();
     ASSERT("John Dow" == *namesIt);
@@ -781,7 +734,7 @@ void usageExample2() {
         return name.starts_with("Ja");
     };
 
-    auto jaNames = bdlb::PairUtil::adaptForRanges(employees)
+    auto jaNames = employees | bdlb::PairUtil::adaptForRanges
                                             | bsl::views::values
                                             | bsl::views::filter(startsWithJa);
     ASSERT(bsl::ranges::equal(jaNames,
