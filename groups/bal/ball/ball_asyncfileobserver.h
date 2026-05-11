@@ -462,9 +462,9 @@ BSLS_IDENT("$Id: $")
 // observer->setFileLogFormat("%I %p:%t %s %f:%l %c %m\n");
 // observer->setStdoutLogFormat("%d %p:%t %s %f:%l %c %m\n");
 // ```
-// Note that both of the above format specifications omit user fields (`%u`) in
-// the output.  Also note that, unlike the default, this format does not emit a
-// blank line between consecutive log messages.
+// Note that both of the above format specifications omit user fields (`"%u"`)
+// in the output.  Also note that, unlike the default, this format does not
+// emit a blank line between consecutive log messages.
 //
 // Next, we start the publication thread by invoking `startPublicationThread`:
 // ```

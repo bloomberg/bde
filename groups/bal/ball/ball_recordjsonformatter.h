@@ -79,7 +79,7 @@ BSLS_IDENT("$Id: $")
 // Each `%`-prefixed field is rendered as a JSON key-value pair with a default
 // field name (e.g., "timestamp", "tid", "severity").  Field names can be
 // customized by prefixing a format specifier with `<fieldName>:`, for example:
-// `myTime:%d` uses "myTime" as the field name instead of "timestamp".  For
+// `"myTime:%d"` uses "myTime" as the field name instead of "timestamp".  For
 // more advanced formatting options, use the full JSON array format
 // specification described below.
 //

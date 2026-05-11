@@ -17,10 +17,12 @@ BSLS_IDENT("$Id: $")
 // are independent of the type and value of the object being formatted.
 //
 // The common specifier formatter interprets the following sequences (beginning
-// with '%'), ending with the following characters:
+// with `%`), ending with the following characters:
+// ```
 // '%' - output a '%'
 // 'n' - output a '\n'
 // 't' - output a '\t'
+// ```
 
 #include <bdlscm_version.h>
 

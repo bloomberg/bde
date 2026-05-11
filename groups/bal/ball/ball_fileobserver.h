@@ -412,9 +412,9 @@ BSLS_IDENT("$Id: $")
 //     observer->setFileLogFormat("%I %p:%t %s %f:%l %c %m\n");
 //     observer->setStdoutLogFormat("%d %p:%t %s %f:%l %c %m\n");
 // ```
-// Note that both of the above format specifications omit user fields (`%u`) in
-// the output.  Also note that, unlike the default, this format does not emit a
-// blank line between consecutive log messages.
+// Note that both of the above format specifications omit user fields (`"%u"`)
+// in the output.  Also note that, unlike the default, this format does not
+// emit a blank line between consecutive log messages.
 //
 // Henceforth, all messages that are published by the logging system will be
 // transmitted to the `publish` method of `observer`.  By default, only the

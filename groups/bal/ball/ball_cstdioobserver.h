@@ -75,15 +75,15 @@ BSLS_IDENT("$Id: $")
 // * text://<format-specification>
 //   > Uses `ball::RecordStringFormatter` with the provided format
 //   > specification.  For example:
-//   > `text://\n%d %p:%t %s %f:%l %c %m %a\n`
+//   > `"text://\n%d %p:%t %s %f:%l %c %m %a\n"`
 //
 // * qjson://<format-specification>
 //   > Uses `ball::RecordJsonFormatter` to output log records in JSON format
 //   > using a simplified printf-style format specification.  The format
-//   > specification uses `%`-prefixed fields (e.g., `%d` for timestamp, `%s`
-//   > for severity, `%m` for message).  For example: `qjson://%d %s %m`.  See
-//   > `ball_recordjsonformatter` for the complete list of supported `%`
-//   > fields.
+//   > specification uses `%`-prefixed fields (e.g., `"%d"` for timestamp,
+//   > `"%s"` for severity, `"%m"` for message).  For example:
+//   > `"qjson://%d %s %m"`.  See `ball_recordjsonformatter` for the complete
+//   > list of supported `%` fields.
 //
 // * json://<format-specification>
 //   > Uses `ball::RecordJsonFormatter` to output log records in JSON format.

@@ -73,9 +73,9 @@ BSLS_IDENT("$Id: $")
 // %av[name] - log only the value of an attribute with the specified 'name',
 //      log nothing if the attribute with the specified 'name' is not found
 // ```
-// (Note that `%F` is used to indicate the shortened form of `__FILE__` rather
-// than `%f` because `%f` was given its current interpretation in an earlier
-// version of this component.)
+// (Note that `"%F"` is used to indicate the shortened form of `__FILE__`
+// rather than `"%f"` because `"%f"` was given its current interpretation in
+// an earlier version of this component.)
 //
 // In addition, the following '\'-escape sequences are interpolated in the
 // formatted output as indicated when they occur in the format specification:
@@ -187,7 +187,7 @@ class RecordStringFormatter {
     typedef bsl::vector<FieldStringFormatter> FieldStringFormatters;
 
     /// `SkipAttributes` is an alias for a set of keys of attributes that
-    /// should not be printed as part of a `%a` format specifier.
+    /// should not be printed as part of a `"%a"` format specifier.
     typedef bsl::set<bsl::string_view>        SkipAttributes;
 
   public:
