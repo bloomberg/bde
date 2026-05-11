@@ -388,12 +388,12 @@ class ReaderWriterLock {
     /// are simply forwarded to `unlock`.
     void unlockWrite();
 
-    /// Release a read lock that was previously acquired from a successful
-    /// call to `lockRead`, `lockReadReserveWrite`, or `tryLockRead`, or a
-    /// call to write lock which was previously acquired by a successful
-    /// call to `lockWrite`, `tryLockWrite`, or `upgradeToWriteLock`.  Note
-    /// that the behavior is undefined unless the calling thread currently
-    /// owns this read/write lock.
+    /// Release a read lock that was previously acquired from a successful call
+    /// to `lockRead`, `lockReadReserveWrite`, or `tryLockRead`, or a write
+    /// lock which was previously acquired by a successful call to `lockWrite`,
+    /// `tryLockWrite`, or `upgradeToWriteLock`.  Note that the behavior is
+    /// undefined unless the calling thread currently owns this read/write
+    /// lock.
     void unlock();
 
     // ACCESSORS

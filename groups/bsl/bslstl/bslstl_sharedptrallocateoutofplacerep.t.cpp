@@ -591,7 +591,6 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-#if 0  // TBD Need an appropriately levelized usage example
       case 5: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -606,6 +605,11 @@ int main(int argc, char *argv[])
         // Testing:
         //   Usage example
         // --------------------------------------------------------------------
+
+        if (verbose) printf("\nUSAGE EXAMPLE"
+                            "\n=============\n");
+
+#if 0  // TBD Need an appropriately levelized usage example
         {
             ASSERT(0 == ta.numAllocations());
             MySharedDatetime dt1(new(ta) bdlt::Datetime(2011, 1, 1), &ta);
@@ -623,8 +627,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numDeallocations());
         }
         ASSERT(2 == ta.numDeallocations());
-      } break;
+#else
+       if (verbose) puts("TBD Need an appropriately levelized usage example");
 #endif  // 0
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // TESTING `getDeleter`

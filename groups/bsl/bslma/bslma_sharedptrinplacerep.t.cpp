@@ -1668,8 +1668,7 @@ int main(int argc, char *argv[])
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
-    switch (test) { case 0:  // Zero is always the leading case.
-#if 0  // TBD Need an appropriately levelized usage example
+    switch (test) {  case 0: // Zero is always the leading case.
       case 6: {
         // --------------------------------------------------------------------
         // TESTING USAGE EXAMPLE
@@ -1684,9 +1683,10 @@ int main(int argc, char *argv[])
         // Testing:
         //   Usage example
         // --------------------------------------------------------------------
-        if (verbose) printf(endl
-                        << "Testing Usage Example\n"
-                        << "=====================\n");
+        if (verbose) printf("Testing Usage Example\n"
+                            "=====================\n");
+
+#if 0 // TBD Need an appropriately levelized usage example
         {
             MySharedDatetime dt1;
             ASSERT(0 == ta.numAllocations());
@@ -1706,8 +1706,10 @@ int main(int argc, char *argv[])
             ASSERT(0 == ta.numDeallocations());
         }
         ASSERT(1 == ta.numDeallocations());
-      } break;
+#else
+        if (verbose) puts("TBD Need an appropriately levelized usage example");
 #endif
+      } break;
       case 5: {
         // --------------------------------------------------------------------
         // TESTING `releaseRef` and `releaseWeakRef`

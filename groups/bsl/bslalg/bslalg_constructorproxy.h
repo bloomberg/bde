@@ -35,7 +35,7 @@ BSLS_IDENT("$Id: $")
 ///-----
 ///Example 1: Conditionally pass an allocator to a template member ctor
 ///- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// In this example, we create a key-value class template consiting of a
+// In this example, we create a key-value class template consisting of a
 // string key paired with a value of template-parameter type.  Since the value
 // type might be allocator aware (AA), we want to ensure that our key-value
 // class template can pass an allocator to its value-type constructor.
@@ -80,7 +80,7 @@ BSLS_IDENT("$Id: $")
 // bool operator!=(const String& a, const String& b);
 // ```
 // Next, we define the constructors, destructor, and equality-comparison
-// operators.  For brevity, we've omited the implementation of the assignment
+// operators.  For brevity, we've omitted the implementation of the assignment
 // operator, which is not used in this example:
 // ```
 // String::String(const char *str, const allocator_type& a)
@@ -150,11 +150,11 @@ BSLS_IDENT("$Id: $")
 //     // MANIPULATORS
 //     KeyValue& operator=(const KeyValue& rhs);
 // ```
-// Next, we declare the accessessors and, for convenience in this example,
-// define them inline.  Note that the `value` accessor extracts the proxied
-// object from the `d_valueProxy` member:
+// Next, we declare the accessors and, for convenience in this example, define
+// them inline.  Note that the `value` accessor extracts the proxied object
+// from the `d_valueProxy` member:
 // ```
-//     // ACCESSESSORS
+//     // ACCESSORS
 //     allocator_type get_allocator() const { return d_key.get_allocator(); }
 //     const String&  key()   const { return d_key; }
 //     const TYPE&    value() const { return d_valueProxy.object(); }
