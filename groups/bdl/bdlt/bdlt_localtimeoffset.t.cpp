@@ -654,7 +654,7 @@ int main(int argc, char *argv[])
             const int NUM_INPUT = static_cast<int>(sizeof(INPUT)
                                                    / sizeof(*INPUT));
 
-            int  expectedOffset;
+            int  expectedOffset = 0;
             bool callbackInvoked;
 
             MyLocalTimeOffset::setExternals(&expectedOffset, &callbackInvoked);
