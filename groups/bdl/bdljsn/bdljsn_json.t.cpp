@@ -1,14 +1,17 @@
 // bdljsn_json.t.cpp                                                  -*-C++-*-
 #include <bdljsn_json.h>
 
-#include <bsla_maybeunused.h>
+#include <bdljsn_jsonnumber.h>
 
 #include <bslalg_constructorproxy.h>
+
+#include <bslh_hash.h>       // `bslh::hashAppend`
 
 #include <bslim_testutil.h>
 
 #include <bsla_maybeunused.h>
 
+#include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
@@ -21,7 +24,6 @@
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
-#include <bsls_compilerfeatures.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
@@ -36,6 +38,7 @@
 #include <bsl_sstream.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
+#include <bsl_type_traits.h> // `bsl::is_convertible_v`
 #include <bsl_utility.h>
 #include <bsl_vector.h>
 
@@ -43,7 +46,7 @@
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #include <string_view> // `std::string_view`
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+#endif
 
 using namespace BloombergLP;
 using namespace BloombergLP::bdljsn;
@@ -107,7 +110,7 @@ using bsl::flush;
 // [ 2] JsonArray();
 // [ 2] JsonArray(const bslma::allocator *a);
 // [ 3] JsonArray(INPUT_ITERATOR first, INPUT_ITERATOR last, *a);
-// [13] JsonArray(initializer_list<Json> l, *a);
+// [13] JsonArray(initializer_list<Json_Initializer> l, *a);
 // [ 7] JsonArray(const JsonArray& o, *a);
 // [ 8] JsonArray(MovableRef<JsonArray> o);
 // [ 8] JsonArray(MovableRef<JsonArray> o, *a);
@@ -116,7 +119,7 @@ using bsl::flush;
 // MANIPULATORS
 // [10] JsonArray::operator=(const JsonArray& rhs);
 // [11] JsonArray::operator=(MovableRef<JsonArray> rhs);
-// [13] JsonArray::operator=(initializer_list<Json> l);
+// [13] JsonArray::operator=(initializer_list<Json_Initializer> l);
 // [ 2] JsonArray::pushBack(const Json& j);
 // [13] JsonArray::pushBack(MovableRef<Json> j);
 // [43] JsonArray::pushBack(const JsonArray&  array);
@@ -139,8 +142,9 @@ using bsl::flush;
 // [43] JsonArray::pushBack(const char              *string);
 // [43] JsonArray::pushBack(const bsl::string_view&  string);
 // [43] JsonArray::pushBack(bsl::string&&            string);
+// [46] JsonArray::pushBack(Json_Initializer init);
 // [13] Json& JsonArray::operator[](size_t i);
-// [13] JsonArray::assign(initializer_list<Json> l);
+// [13] JsonArray::assign(initializer_list<Json_Initializer> l);
 // [13] JsonArray::assign(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [13] Iterator JsonArray::begin();
 // [13] Iterator JsonArray::end();
@@ -195,12 +199,13 @@ using bsl::flush;
 // [21] JsonObject(MovableRef<JsonObject> o, *a);
 // [16] JsonObject(INPUT_ITER first, INPUT_ITER last, *a);
 // [26] JsonObject(initializer_list<Member> members, *a);
+// [26] JsonObject(initializer_list<Json_MemberInitializer> members, *a);
 // [15] ~JsonObject();
 //
 // MANIPULATORS
 // [23] JsonObject::operator=(const JsonObject& rhs);
 // [24] JsonObject::operator=(MovableRef<JsonObject> rhs);
-// [26] JsonObject::operator=(initializer_list<Member> members);
+// [26] JsonObject::operator=(initializer_list<Json_MembInit> members);
 // [15] Json& JsonObject::operator[](const string_view& key);
 // [26] Iterator JsonObject::begin();
 // [26] Iterator JsonObject::end();
@@ -209,6 +214,7 @@ using bsl::flush;
 // [26] pair<Iterator, bool> JsonObject::insert(MovableRef<Member> m);
 // [26] JsonObject& JsonObject::insert(INPUT_ITER first, INPUT_ITER last);
 // [26] JsonObject& JsonObject::insert(initializer_list<Member> members);
+// [46] JsonObject::insert(string_view, Json_Initializer init);
 // [26] pair<Iterator, bool> JsonObject::insert(string_view key, V&& v);
 // [26] bsl::size_t JsonObject::erase(const bsl::string_view& key);
 // [26] Iterator JsonObject::erase(Iterator position);
@@ -267,6 +273,7 @@ using bsl::flush;
 // [29] Json(const char              *string, *a);
 // [29] Json(const bsl::string_view&  string, *a);
 // [29] Json(STRING&&                 string, *a);
+// [46] Json(const Json_Initializer, bslma::Allocator *);
 // [28] ~Json();
 //
 // MANIPULATORS
@@ -454,7 +461,27 @@ using bsl::flush;
 //
 // FREE FUNCTIONS
 // [35] void swap(Json& lhs, rhs);
+//
+// JSON_INITIALIZER CLASS METHODS
+//
+// [45] Json_Initializer();
+// [45] Json_Initializer(const JsonNull &);
+// [45] Json_Initializer(bool b);
+// [45] Json_Initializer(NUMBER num);
+// [45] Json_Initializer(float f);
+// [45] Json_Initializer(double d);
+// [45] Json_Initializer(const char *p);
+// [45] Json_Initializer(const bsl::string &s);
+// [45] Json_Initializer(const std::string &s);
+// [45] Json_Initializer(bsl::string_view sv);
+// [45] Json_Initializer(std::initializer_list<Json_Initializer> il);
+// [45] Json_Initializer(const JsonObject &jObj);
+// [45] Json_Initializer(const JsonArray &jArr);
+// [45] Json_Initializer(const JsonNumber &jNum);
+// [45] Json_Initializer(const Json &json);
+// [45] const storage& get_storage() const;
 // ----------------------------------------------------------------------------
+// [41} CONCERN: USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -1596,11 +1623,6 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(  Y != Z );
     }
 
-    // HashAppend
-    {
-        // TBD: How to test?
-    }
-
     // (Free) Swap
     {
         JsonArray mX = ga("[1s]");
@@ -1753,7 +1775,7 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
 
         bslma::TestAllocator ta;
 
-        JsonObject        mX(members, members + 2, &ta);
+        JsonObject mX(members, members + 2, &ta);
         const JsonObject& X = mX;
 
         ASSERT(X.size() == 2);
@@ -1806,6 +1828,16 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
     }
 #endif
 
+    // Subscript Operator
+    {
+        JsonObject mX;
+        mX.insert(JsonObject::Member("a", Json()));
+        mX.insert(JsonObject::Member("b", Json("")));
+
+        ASSERT(mX["a"].isNull());
+        ASSERT(mX["b"].isString());
+    }
+
     // Copy-Assignment Operator
     {
         JsonObject        mX;
@@ -1854,6 +1886,11 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         mY.insert(JsonObject::Member("a", Json()));
         mY.insert(JsonObject::Member("b", Json("")));
 
+        ASSERTV(X.size(), 0 == X.size());
+        ASSERTV(Y.size(), 2 == Y.size());
+
+        ASSERT(X.allocator() != Y.allocator());
+
         JsonObject& mXRef = (mX = bslmf::MovableRefUtil::move(mY));
         ASSERT(&mXRef == &mX);
 
@@ -1868,18 +1905,77 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
                (++X.cbegin())->second.isString());
         ASSERT(X.allocator() == bslma::Default::allocator());
 
+        ASSERTV(X.size(), 2 == X.size());
+        ASSERTV(Y.size(), 2 == Y.size());
+
         ASSERT(X == Y);
         ASSERT(Y.allocator() == &ta);
     }
 
-    // Subscript Operator
+    // Move-Assignment Operator, different allocators
     {
-        JsonObject mX;
-        mX.insert(JsonObject::Member("a", Json()));
-        mX.insert(JsonObject::Member("b", Json("")));
+        JsonObject           mX;      const JsonObject& X = mX;
+        bslma::TestAllocator ta;
+        JsonObject           mY(&ta); const JsonObject& Y = mY;
 
-        ASSERT(mX["a"].isNull());
-        ASSERT(mX["b"].isString());
+        // Unequal Allocators
+        ASSERT(bslma::Default::allocator() == X.allocator());
+        ASSERT(&ta                         == Y.allocator());
+
+        mY.insert(JsonObject::Member("a", Json()));
+        mY.insert(JsonObject::Member("b", Json("")));
+        ASSERTV(X.size(), 0 == X.size());
+        ASSERTV(Y.size(), 2 == Y.size());
+
+        JsonObject& mXRef = (mX = bslmf::MovableRefUtil::move(mY));     // TEST
+        ASSERT(&mXRef == &mX);
+
+        ASSERT(X.size() == 2);
+
+        ASSERT(X.cbegin()->first == "a" ||
+               X.cbegin()->first == "b");
+        ASSERT((++X.cbegin())->first == "a" ||
+               (++X.cbegin())->first == "b");
+        ASSERT(X.cbegin()->second.isNull() ||
+               X.cbegin()->second.isString());
+        ASSERT((++X.cbegin())->second.isNull() ||
+               (++X.cbegin())->second.isString());
+        ASSERT(X.allocator() == bslma::Default::allocator());
+
+        ASSERT(X == Y);
+    }
+
+    // Move-Assignment Operator, same allocators
+    {
+        JsonObject mX; const JsonObject& X = mX;
+        JsonObject mY; const JsonObject& Y = mY;
+
+        // Same Allocator
+        ASSERT(bslma::Default::allocator() == X.allocator());
+        ASSERT(bslma::Default::allocator() == Y.allocator());
+
+        mY.insert(JsonObject::Member("a", Json()));
+        mY.insert(JsonObject::Member("b", Json("")));
+        ASSERTV(X.size(), 0 == X.size());
+        ASSERTV(Y.size(), 2 == Y.size());
+
+        JsonObject& mXRef = (mX = bslmf::MovableRefUtil::move(mY));     // TEST
+        ASSERT(&mXRef == &mX);
+
+        ASSERT(X.size() == 2);
+
+        ASSERT(X.cbegin()->first == "a" ||
+               X.cbegin()->first == "b");
+        ASSERT((++X.cbegin())->first == "a" ||
+               (++X.cbegin())->first == "b");
+        ASSERT(X.cbegin()->second.isNull() ||
+               X.cbegin()->second.isString());
+        ASSERT((++X.cbegin())->second.isNull() ||
+               (++X.cbegin())->second.isString());
+        ASSERT(X.allocator() == bslma::Default::allocator());
+
+        ASSERT(X != Y);  // `Y` was moved from
+        ASSERT(Y.size() == 0);
     }
 
     // Begin
@@ -2006,6 +2102,32 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT((++X.cbegin())->second.isNull() ||
                (++X.cbegin())->second.isString());
         ASSERT(X.allocator() == &ta);
+    }
+
+    // Initializer-List Assignment
+    {
+        bslma::TestAllocator ta;
+        JsonObject           mX(&ta); const JsonObject& X = mX;
+        JsonObject           mY(&ta); const JsonObject& Y = mY;
+
+        ASSERT(X.allocator() == &ta);
+        ASSERT(Y.allocator() == &ta);
+
+        mX = {{"a", Json()}, {"b", Json("")}};                          // TEST
+
+        ASSERT(X.size() == 2);
+        ASSERT(X.contains("a") && X["a"] == Json());
+        ASSERT(X.contains("b") && X["b"] == Json(""));
+
+        // Insert "a" twice, is second is ignored?
+
+        mY.insert("c", JsonArray());  // non-empty object.
+        ASSERT(Y.size() == 1);
+        ASSERT(Y.contains("c") && Y["c"] == JsonArray());
+
+        mY = {{"a", Json()}, {"a", Json("")}};                          // TEST
+        ASSERT(Y.size() == 1);
+        ASSERT(Y.contains("a") && Y["a"] == Json());
     }
 #endif
 
@@ -2305,11 +2427,6 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(!(X != Y));
         ASSERT(  X != Z );
         ASSERT(  Y != Z );
-    }
-
-    // HashAppend
-    {
-        // TBD: How to test?
     }
 
     // (Free) Swap
@@ -3496,11 +3613,6 @@ void extendedBreathingTest(BSLA_MAYBE_UNUSED bool verbose,
         ASSERT(  Y != Z );
     }
 
-    // HashAppend
-    {
-        // TBD: How to test?
-    }
-
     // (Free) Swap
     {
         Json        mX(false);
@@ -4634,7 +4746,7 @@ void testEqualityOverloadsVal()
     ASSERT(!(objA   != valueA));
 
     // Test `const JsonNull&`
-    //
+
     typedef bdljsn::JsonNull Null;
 
     const Null& null = Null();  // "default" is the only value.
@@ -6249,26 +6361,26 @@ namespace Example3 {
 // document we expect 10 `Json` objects distributed thus:
 //
 //  - Object
-//   1 top-level of the document is an object
-//   2 `{"boolean": false }`, interior object
+//   1. top-level of the document is an object
+//   2. `{"boolean": false }`, interior object
 //
 //  - Array
-//   1 `[2.76, true]`
+//   1. `[2.76, true]`
 //
 //  - String
-//   1 `"text"`
+//   1. `"text"`
 //
 //  - Number
-//   1 `2.76`
-//   2 `3.14`
+//   1. `2.76`
+//   2. `3.14`
 //
 //  - Boolean
-//   1 `false`, from the internal object
-//   2 `true`, from the array
-//   3 `true`, from top-level object
+//   1. `false`, from the internal object
+//   2. `true`, from the array
+//   3. `true`, from top-level object
 //
 //  - Null
-//   1 null
+//   1. `null`
 //
 // Use of our visitor functor on `example1` confirms these observations:
 // ```
@@ -6755,13 +6867,31 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
         // TESTING CONSUMPTION OF JSON_INITIALIZER
         //
+        // In general, there are several ways to initialize an object:
+        //..
+        //  Foo x(a, b, c);     // direct      initialization
+        //  Foo x{a, b, c};     // direct list initialization
+        //  Foo x = y;          // copy        initialization
+        //  Foo x = {a, b, c};  // copy   list initialization
+        //..
+        //
+        // `Json`/`JsonObject`/`JsonArray` do not support all of these methods,
+        // but, for completeness, tests have been written for each.  When
+        // a feature is not supported (a compiler error) the test is commented
+        // out, often with an explanation.
+        //
         // Concerns:
-        // 1. Each constructor captures the (single) parameter and stores it
-        //    into the variant.
+        // 1. Each constructor/method under test can be invoked with a with a
+        //    braced list containing:
+        //
+        //    * a single scalar value
+        //    * a list of scalar values
+        //    * value(s) that include other `Json`, `JsonArray`, and
+        //      `JsonObject` objects created via initialization lists.
         //
         // Plan:
-        // 1. Construct a series of `Json_Initializer` objects, and confirm
-        //    that the type and the value for each one is as expected.
+        // 1. An ad hoc series of tests that systematically explores the
+        //    combination of configurations.
         //
         // Testing:
         //   Json(const Json_Initializer, bslma::Allocator *);
@@ -6773,11 +6903,511 @@ int main(int argc, char *argv[])
                           << "TESTING CONSUMPTION OF JSON_INITIALIZER" << endl
                           << "=======================================" << endl;
 
-        if (veryVerbose) {
-            cout << "SKIP: Pending restoration of enhanced initializer lists."
-                 << endl;
+        const JsonNumber ONE  (1);
+        const JsonNumber TWO  (2);
+        const JsonNumber THREE(3);
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+        if (veryVerbose) cout << "`JsonObject`: Breathing-style test" << endl;
+        {
+            JsonObject jo ({ {"play",  "Waiting for Godot"                },
+                             {"chars", { "Didi", "Gogo", "Pozzo", "Lucky" }}});
+
+            ASSERT(2 == jo.size());
+            ASSERT(jo.contains("play" )); ASSERT(jo["play"] .isString());
+            ASSERT(jo.contains("chars")); ASSERT(jo["chars"].isArray ());
+
+            jo.insert("KEY", 123);
+            ASSERT(3 == jo.size());
+            ASSERT(jo.contains("KEY"));   ASSERT(jo["KEY"].isNumber());
         }
 
+        if (veryVerbose) cout << "Empty Lists" << endl;
+        {
+            Json       jd    {};  ASSERT(jd  == Json());
+            Json       jc  = {};  ASSERT(jc  == Json());
+
+            JsonArray  jad   {};  ASSERT(jad == JsonArray());
+            JsonArray  jac = {};  ASSERT(jac == JsonArray());
+
+            JsonObject jod   {};  ASSERT(jod == JsonObject());
+            JsonObject joc = {};  ASSERT(joc == JsonObject());
+        }
+
+
+        if (veryVerbose) cout << "`Json`: value CTORS" << endl;
+        {
+            bsl::string s = "ABC";
+
+            Json j1 (2);
+            ASSERT(true == j1.isNumber());
+            ASSERT(2    == j1);
+
+            Json j2 (true);
+            ASSERT(j2.isBoolean());
+            ASSERT(j2.theBoolean());
+
+            Json j3 (2.4);
+            ASSERT(true == j3.isNumber());
+            ASSERT(2.4  == j3.theNumber().asDouble());
+
+            Json j4 ("abc");
+            ASSERT(true  == j4.isString());
+            ASSERT("abc" == j4.theString());
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            {
+                using namespace std::literals::string_view_literals;
+                Json j5 ("def"sv);
+                ASSERT(true  == j5.isString());
+                ASSERT("def" == j5.theString());
+            }
+#endif
+            {
+                using namespace bsl::literals::string_view_literals;
+                Json j5 ("def"_sv);
+                ASSERT(true  == j5.isString());
+                ASSERT("def" == j5.theString());
+            }
+
+            Json j6 (s);
+            ASSERT(true == j6.isString());
+            ASSERT(s    == j6.theString());
+        }
+
+        if (veryVerbose) cout << "`Json`: value CTORS via braces" << endl;
+        {
+            Json j1 {2};
+            ASSERT(true == j1.isNumber());
+            ASSERT(2    == j1);
+
+            Json j2 {true};
+            ASSERT(true == j2.isBoolean());
+            ASSERT(true == j2);
+
+            Json j3 {2.4};
+            ASSERT(true == j3.isNumber());
+            ASSERT(2.4  == j3.asDouble());
+
+            Json j4 {"abc"};
+            ASSERT(true  == j4.isString());
+            ASSERT("abc" == j4);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            {
+                using namespace std::literals::string_view_literals;
+                Json j5 {"def"sv};
+                ASSERT(true  == j5.isString());
+                ASSERT("def" == j5);
+            }
+#endif
+            {
+                using namespace bsl::literals::string_view_literals;
+                Json j5 {"def"_sv};
+                ASSERT(true  == j5.isString());
+                ASSERT("def" == j5);
+            }
+
+            bsl::string s = "ABC";
+
+            Json j6 {s};
+            ASSERT(true == j6.isString());
+            ASSERT(s    == j6);
+        }
+
+        if (veryVerbose) cout << "`Json`: `explicit` CTORS " << endl;
+        {
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            using namespace std::literals::string_view_literals;
+#endif
+            using namespace bsl::literals::string_view_literals;
+
+            // CTORs for these values exist.
+            Json j1 = Json(2);
+            Json j2 = Json(true);
+            Json j3 = Json(2.4);
+            Json j4 = Json("abc");
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            Json j5 = Json("abc"sv);
+#endif
+            Json j6 = Json("abc"_sv);
+
+            // Verify that these constructor are `explicit`.
+            ASSERT((false == bsl::is_convertible<decltype(2),
+                                                 Json>::value));
+            ASSERT((false == bsl::is_convertible<decltype(true),
+                                                 Json>::value));
+            ASSERT((false == bsl::is_convertible<decltype(2.4),
+                                                 Json>::value));
+            ASSERT((false == bsl::is_convertible<decltype("abc"),
+                                                 Json>::value));
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+            ASSERT((false == bsl::is_convertible<decltype("abc"sv),
+                                                 Json>::value));
+#endif
+            ASSERT((false == bsl::is_convertible<decltype("abc"_sv),
+                                                 Json>::value));
+        }
+
+        if (veryVerbose) cout << "`JsonArray`: IL's of scalars" << endl;
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        {
+            using namespace std::literals::string_view_literals;
+
+            JsonArray j1  ({2, 3.5, false, "ABC"sv});
+            JsonArray j2   {2, 3.5, false, "ABC"sv};
+            JsonArray j3 = {2, 3.5, false, "ABC"sv};
+
+            ASSERT(4     == j1.size());
+            ASSERT(true  == j1[0].isNumber());
+            ASSERT(true  == j1[1].isNumber());
+            ASSERT(true  == j1[2].isBoolean());
+            ASSERT(true  == j1[3].isString());
+            ASSERT(2     == j1[0]);
+            ASSERT(3.5   == j1[1].asDouble());
+            ASSERT(false == j1[2].theBoolean());
+            ASSERT("ABC" == j1[3].theString());
+
+            ASSERT(j1 == j2);
+            ASSERT(j1 == j3);
+        }
+#endif
+        {
+            using namespace bsl::literals::string_view_literals;
+
+            JsonArray j1  ({2, 3.5, false, "ABC"_sv});
+            JsonArray j2   {2, 3.5, false, "ABC"_sv};
+            JsonArray j3 = {2, 3.5, false, "ABC"_sv};
+
+            ASSERT(4     == j1.size());
+            ASSERT(true  == j1[0].isNumber());
+            ASSERT(true  == j1[1].isNumber());
+            ASSERT(true  == j1[2].isBoolean());
+            ASSERT(true  == j1[3].isString());
+            ASSERT(2     == j1[0]);
+            ASSERT(3.5   == j1[1].asDouble());
+            ASSERT(false == j1[2].theBoolean());
+            ASSERT("ABC" == j1[3].theString());
+
+            ASSERT(j1 == j2);
+            ASSERT(j1 == j3);
+        }
+
+
+        if (veryVerbose) cout << "`JsonObject`: scalar values" << endl;
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        {
+            using namespace std::literals::string_view_literals;
+
+            JsonObject j1  ({{"ABC"sv, 2.34}});
+            JsonObject j2   {{"ABC"sv, 2.34}};
+            JsonObject j3 = {{"ABC"sv, 2.34}};
+
+            JsonObject j4  ({{"PDQ"sv, 2.34}, {"XYZ"sv, 5.67}});
+            JsonObject j5   {{"PDQ"sv, 2.34}, {"XYZ"sv, 5.67}};
+            JsonObject j6 = {{"PDQ"sv, 2.34}, {"XYZ"sv, 5.67}};
+
+            ASSERT(1    == j1.size());
+            ASSERT(true == j1.contains("ABC"sv));
+            ASSERT(2.34 == j1["ABC"sv].asDouble());
+
+            ASSERT(j1 == j2);
+            ASSERT(j1 == j3);
+
+            ASSERT(2    == j4.size());
+            ASSERT(true == j4.contains("PDQ"sv));
+            ASSERT(2.34 == j4["PDQ"sv].asDouble());
+            ASSERT(true == j4.contains("XYZ"sv));
+            ASSERT(5.67 == j4["XYZ"sv].asDouble());
+
+            ASSERT(j4 == j5);
+            ASSERT(j5 == j6);
+        }
+#endif
+        {
+            using namespace bsl::literals::string_view_literals;
+
+            JsonObject j1  ({{"ABC"_sv, 2.34}});
+            JsonObject j2   {{"ABC"_sv, 2.34}};
+            JsonObject j3 = {{"ABC"_sv, 2.34}};
+
+            JsonObject j4  ({{"PDQ"_sv, 2.34}, {"XYZ"_sv, 5.67}});
+            JsonObject j5   {{"PDQ"_sv, 2.34}, {"XYZ"_sv, 5.67}};
+            JsonObject j6 = {{"PDQ"_sv, 2.34}, {"XYZ"_sv, 5.67}};
+
+            ASSERT(1    == j1.size());
+            ASSERT(true == j1.contains("ABC"_sv));
+            ASSERT(2.34 == j1["ABC"_sv].asDouble());
+
+            ASSERT(j1 == j2);
+            ASSERT(j1 == j3);
+
+            ASSERT(2    == j4.size());
+            ASSERT(true == j4.contains("PDQ"_sv));
+            ASSERT(2.34 == j4["PDQ"_sv].asDouble());
+            ASSERT(true == j4.contains("XYZ"_sv));
+            ASSERT(5.67 == j4["XYZ"_sv].asDouble());
+
+            ASSERT(j4 == j5);
+            ASSERT(j5 == j6);
+        }
+
+        if (veryVerbose) cout << "`Json` from `Json(Array|Object)" << endl;
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+        {
+            using namespace std::literals::string_view_literals;
+
+            Json j1  (JsonArray{2, 3.5, false, "ABC"sv});
+            Json j2 = JsonArray{2, 3.5, false, "ABC"sv};
+
+            ASSERT(true  == j1.isArray());
+            ASSERT(4     == j1.theArray().size())
+            ASSERT(true  == j1[0].isNumber());
+            ASSERT(true  == j1[1].isNumber());
+            ASSERT(true  == j1[2].isBoolean());
+            ASSERT(true  == j1[3].isString());
+            ASSERT(2     == j1[0]);
+            ASSERT(3.5   == j1[1]);
+            ASSERT(false == j1[2]);
+            ASSERT("ABC" == j1[3]);
+
+            ASSERT(j1    == j2);
+
+            Json j3  (JsonObject{{"ABC"sv, 2.34}});
+            Json j4 = JsonObject{{"ABC"sv, 2.34}};
+
+            ASSERT(true == j3.isObject());
+            ASSERT(1    == j3.theObject().size());
+
+            ASSERT(j3   == j4);
+        }
+#endif
+        {
+            using namespace bsl::literals::string_view_literals;
+
+            Json j1  (JsonArray{2, 3.5, false, "ABC"_sv});
+            Json j2 = JsonArray{2, 3.5, false, "ABC"_sv};
+
+            ASSERT(true == j1.isArray());
+            ASSERT(4    == j1.theArray().size());
+            ASSERT(j1   == j2);
+
+            Json j3  (JsonObject{{"ABC"_sv, 2.34}});
+            Json j4 = JsonObject{{"ABC"_sv, 2.34}};
+
+            ASSERT(true == j3.isObject());
+            ASSERT(1    == j3.theObject().size());
+            ASSERT(j3   == j4);
+        }
+
+        if (veryVerbose) cout << "`Json`: value CTORs" << endl;
+        {
+            bsl::string s = "ABC";
+            JsonArray   jArr;
+            Json        j0;
+
+            Json j1 (j0);                   // uses the copy ctor
+            Json j2 (ConvertibleTo<int>{});
+            Json j3 (s);
+            Json j4 (bsl::string("DEF"));   // uses `Json(STRING_TYPE &&)`
+            Json j5 (std::move(s));         // uses `Json(STRING_TYPE &&)`
+            Json j6 (jArr);                 // uses `Json(const JsonArray &)`
+            Json j7 (JsonArray{});          // uses `Json(      JsonArray &&)`
+            Json j8 (std::move(jArr));      // uses `Json(      JsonArray &&)`
+        }
+
+        if (veryVerbose) cout << "`Json`: value CTORs via braces" << endl;
+        {
+            bsl::string s = "ABC";
+            JsonArray   jArr;
+            Json        j0;
+
+            Json j1 {j0};                   // uses the copy ctor
+            Json j2 {ConvertibleTo<int>{}};
+            Json j3 {s};
+            Json j4 {bsl::string("DEF")};   // uses `Json(STRING_TYPE &&)`
+            Json j5 {std::move(s)};         // uses `Json(STRING_TYPE &&)`
+            Json j6 {jArr};                 // uses `Json(const JsonArray &)`
+            Json j7 {JsonArray{}};          // uses `Json(      JsonArray &&)`
+            Json j8 {std::move(jArr)};      // uses `Json(      JsonArray &&)`
+        }
+
+        if (veryVerbose) cout << "`Json`: copy initialization" << endl;
+        {
+            bsl::string s = "ABC";
+            JsonArray   jArr;
+            Json        j0;
+
+            Json j1 = j0;                   // uses the copy ctor
+        //  Json j2 = ConvertibleTo<int>{}; // Error, two conversions
+        //  Json j3 = s;                    // Error, two conversions
+            Json j4 = bsl::string("DEF");   // uses `Json(STRING_TYPE &&)`
+            Json j5 = std::move(s);         // uses `Json(STRING_TYPE &&)`
+            Json j6 = jArr;                 // uses `Json(const JsonArray &)`
+            Json j7 = JsonArray{};          // uses `Json(      JsonArray &&)`
+            Json j8 = std::move(jArr);      // uses `Json(      JsonArray &&)`
+        }
+
+        {
+            JsonArray j1;
+            ASSERT(0     == j1.size());
+
+        //  JsonArray j2  (false);  // Error, no CTOR.
+
+            JsonArray j3  {false};
+            ASSERT(1     == j3.size());
+            ASSERT(true  == j3[0].isBoolean());
+            ASSERT(false == j3[0].theBoolean());
+
+        //  JsonArray j4 = false; // Error: No viable converson from 'bool' to
+                                  // 'JsonArray'.  Two conversons are required.
+                                  // 1. `false` to `Json_Initializer`
+                                  // 2. `Json_Initializer` to `Json`
+            ASSERT((true  == bsl::is_convertible<decltype(false),
+                                                 Json_Initializer>::value));
+            ASSERT((true  == bsl::is_convertible<Json_Initializer,
+                                                 Json>::value));
+        }
+
+        if (veryVerbose)
+            cout << "`JsonArray`: `pushBack` `JsonArray` from IL" << endl;
+        {
+            JsonArray j1;
+            ASSERT(0     == j1.size());
+
+            j1.pushBack("ABC");
+            ASSERT(1     == j1.size());
+            ASSERT(true  == j1[0].isString());
+            ASSERT("ABC" == j1[0]);
+
+            j1.pushBack(JsonArray {1, false});
+            j1.pushBack(          {1, false});
+            ASSERT(3     == j1.size());
+            ASSERT(true  == j1[1].isArray());
+            ASSERT(2     == j1[1].size());
+            ASSERT(true  == j1[1][0].isNumber());
+            ASSERT(ONE   == j1[1][0]);
+            ASSERT(true  == j1[1][1].isBoolean());
+            ASSERT(false == j1[1][1]);
+            ASSERT(j1[1] == j1[2]);
+        }
+
+        if (veryVerbose) cout << "Nested, non-scalar JSON types." << endl;
+        {
+            typedef JsonArray  JA;
+            typedef JsonObject JO;
+
+            JA jaar = { 1, 2,     {"a", 1},  4};  // "implicit"
+            JA jaad = { 1, 2, JA  {"a", 1},  4};  // "explicit"
+            JA jao =  { 1, 2, JO {{"a", 1}}, 4};  // "explicit" required
+
+            ASSERT(4    == jaar.size());
+            ASSERT(true == jaar[2].isArray());
+
+            ASSERT(jaar == jaad);
+
+            ASSERT(4    == jao.size());
+            ASSERT(true == jao[2].isObject());
+
+            JA ja0 { "X", "Y", "Z" };
+            ASSERT ( 3  == ja0.size());
+            ASSERT ("X" == ja0[0]);
+            ASSERT ("Y" == ja0[1]);
+            ASSERT ("Z" == ja0[2]);
+            ja0 =  {"A", "B"};          // assignment operator
+            ASSERT ( 2  == ja0.size());
+            ASSERT ("A" == ja0[0]);
+            ASSERT ("B" == ja0[1]);
+
+            JA ja1 { "X", "Y", "Z" };
+            ASSERT ( 3  == ja1.size());
+            ASSERT ("X" == ja1[0]);
+            ASSERT ("Y" == ja1[1]);
+            ASSERT ("Z" == ja1[2]);
+            ja1.assign({ "A", "B" });  // assignment method
+            ASSERT ( 2  == ja1.size());
+            ASSERT ("A" == ja1[0]);
+            ASSERT ("B" == ja1[1]);
+
+            // ----------------------------------------------------------------
+
+            JO joar { {"a",      {"b", 2}} };    // "implicit"
+            JO joad { {"a", JA   {"b", 2}} };    // "explicit"
+            JO joo  { {"a", JO  {{"b", 2}} } };  // "explicit" required
+            JO joo2 { {"a", JO  {{"b", 2},
+                                 {"c", 3}} } };
+
+            ASSERT(1    == joar.size());
+            ASSERT(true == joar.contains("a"));
+            ASSERT(true == joar["a"].isArray());
+            ASSERT(2    == joar["a"].size());
+            ASSERT(true == joar["a"].isArray());
+            ASSERT(true == joar["a"][0].isString());
+            ASSERT("b"  == joar["a"][0]);
+            ASSERT(true == joar["a"][1].isNumber());
+            ASSERT(TWO  == joar["a"][1]);
+
+            ASSERT(joar == joad);
+
+            ASSERT(1    == joo.size());
+            ASSERT(true == joo.contains("a"));
+            ASSERT(true == joo ["a"].isObject());
+            ASSERT(1    == joo ["a"].size());
+            ASSERT(true == joo ["a"].theObject().contains("b"));
+            ASSERT(true == joo ["a"]["b"].isNumber());
+            ASSERT(TWO  == joo ["a"]["b"]);
+
+            ASSERT(1    == joo2.size());
+            ASSERT(true == joo2.contains("a"));
+            ASSERT(true == joo2["a"].isObject());
+            ASSERT(2    == joo2["a"].size());
+            ASSERT(true == joo2["a"].theObject().contains("b"));
+            ASSERT(true == joo2["a"]["b"].isNumber());
+            ASSERT(TWO  == joo2["a"]["b"]);
+            ASSERT(true == joo2["a"].theObject().contains("c"));
+            ASSERT(true == joo2["a"]["c"].isNumber());
+            ASSERT(THREE== joo2["a"]["c"]);
+
+            // Are the correct members ignored?
+            JO joo3 { {"a",  1        }  // insert
+                    , {"a", "2"       }  // ignore duplicate key
+                    , {"a", {1, 2, 3} }  // ignore duplicate key
+                    };
+
+            ASSERT(1    == joo3.size());
+            ASSERT(true == joo3.contains("a"));
+            ASSERT(true == joo3["a"].isNumber());
+            ASSERT(ONE  == joo3["a"]);
+
+            JO joo4 { {"b",  3        } };
+            ASSERT(true == joo4.contains("b"));
+            joo4 =  { {"a",  1        }       // assignment operator
+                    , {"a", "2"       }
+                    , {"a", {1, 2, 3} }
+                    };
+
+            ASSERT(joo3  == joo4);
+            ASSERT(false == joo4.contains("b")); // prior contents destroyed
+
+            JO joo5 { {"b", 3             } };
+            joo5.insert({ {"a",  1        }    // `insert` method
+                        , {"a", "2"       }
+                        , {"a", {1, 2, 3} }
+                        });
+            ASSERT(2     == joo5.size());
+            ASSERT(true  == joo5.contains("b"));
+            ASSERT(true  == joo5["b"].isNumber());
+            ASSERT(THREE == joo5["b"]);
+            ASSERT(true  == joo5.contains("a"));
+            ASSERT(true  == joo5["a"].isNumber());
+            ASSERT(ONE   == joo5["a"]);
+        }
+#else
+        if (veryVerbose) {
+            cout << "SKIP: No support for generalized initializers." << endl;
+        }
+#endif
       } break;
       case 45: {
         // --------------------------------------------------------------------
@@ -6814,11 +7444,71 @@ int main(int argc, char *argv[])
                           << "TESTING JSON_INITIALIZER" << endl
                           << "========================" << endl;
 
-        if (veryVerbose) {
-            cout << "SKIP: Pending restoration of enhanced initializer lists."
-                 << endl;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+        bsl::string abcString = "ABC";
+        JsonNull    jNull;
+        JsonObject  jObj;
+        JsonArray   jArr;
+        JsonNumber  jNum;
+        Json        json;
+
+        Json_Initializer ji0;
+        ASSERT(ji0.get_storage().is<JsonNull>());
+        ASSERT(JsonNull() == ji0.get_storage().the<JsonNull>());
+
+        Json_Initializer ji1(jNull);
+        ASSERT(ji1.get_storage().is<JsonNull>());
+        ASSERT(JsonNull() == ji1.get_storage().the<JsonNull>());
+
+        Json_Initializer ji2[] = { 2, 2L, 2LL };
+        for (const auto& ji: ji2) {
+            ASSERT(ji.get_storage().is<long long>());
+            ASSERT(2 == ji.get_storage().the<long long>());
         }
 
+        Json_Initializer ji3[] = { 3U, 3UL, 3ULL };
+        for (const auto& ji: ji3) {
+            ASSERT(ji.get_storage().is<unsigned long long>());
+            ASSERT(3 == ji.get_storage().the<unsigned long long>());
+        }
+
+        Json_Initializer ji4(4.25f);
+        ASSERT(ji4.get_storage().is<double>());
+        ASSERT(4.25 == ji4.get_storage().the<double>());
+
+        Json_Initializer ji5(4.25);
+        ASSERT(ji5.get_storage().is<double>());
+        ASSERT(4.25 == ji5.get_storage().the<double>());
+
+        Json_Initializer ji6[] = { "ABC", abcString, bsl::string_view("ABC") };
+        for (const auto& ji: ji6) {
+            ASSERT(ji.get_storage().is<bsl::string_view>());
+            ASSERT("ABC" == ji.get_storage().the<bsl::string_view>());
+        }
+
+        Json_Initializer ji7 = { false, "DEF", 42 };
+        ASSERT(ji7.get_storage().is<bsl::span<const Json_Initializer>>()
+                                                                             );
+        Json_Initializer ji8(jObj);
+        ASSERT(ji8.get_storage().is<const JsonObject *>());
+        ASSERT(&jObj == ji8.get_storage().the<const JsonObject *>());
+
+        Json_Initializer ji9(jArr);
+        ASSERT(ji9.get_storage().is<const JsonArray *>());
+        ASSERT(&jArr == ji9.get_storage().the<const JsonArray *>());
+
+        Json_Initializer jiA(jNum);
+        ASSERT(jiA.get_storage().is<const JsonNumber *>());
+        ASSERT(&jNum == jiA.get_storage().the<const JsonNumber *>());
+
+        Json_Initializer jiB(json);
+        ASSERT(jiB.get_storage().is<const Json *>());
+        ASSERT(&json == jiB.get_storage().the<const Json *>());
+#else
+        if (veryVerbose) {
+            cout << "SKIP: No support for generalized initializers." << endl;
+        }
+#endif
       } break;
       case 44: {
         // --------------------------------------------------------------------
@@ -7160,7 +7850,7 @@ int main(int argc, char *argv[])
             testEqualityOverloadsVal<bdldfp::Decimal64  >();  // 14
 
             testEqualityOverloadsStr                     (); // `const char *`
-                                                             //  16
+                                                             //  15
 
             testEqualityOverloadsRef<bsl::string_view   >(); //  16
         }
@@ -7229,9 +7919,9 @@ int main(int argc, char *argv[])
             bdljsn::JsonObject             obj;
             bsl::list<ModifiableKeyMember> members;
 
-            members.push_back(ModifiableKeyMember("zero", Json()));
-            members.push_back(ModifiableKeyMember("one", Json()));
-            members.push_back(ModifiableKeyMember("two", Json()));
+            members.push_back(ModifiableKeyMember("zero",  Json()));
+            members.push_back(ModifiableKeyMember("one",   Json()));
+            members.push_back(ModifiableKeyMember("two",   Json()));
             members.push_back(ModifiableKeyMember("three", Json()));
 
             obj.insert(members.begin(), members.end());
@@ -7482,7 +8172,7 @@ int main(int argc, char *argv[])
 // Using `operator[]` is intuitive but not the most efficient method to add new
 // members to a `bdljsn::JsonObject` (similar to using `operator[]` to add
 // elements to an `unordered_map`).  The following code demonstrates a more
-// efficient way to create the same `bdljsn::Json` representation as example 1:
+// efficient way to create the same `bdljsn::Json` representation as Example 1:
 // ```
     using namespace bdldfp::DecimalLiterals;
 
@@ -8998,7 +9688,8 @@ int main(int argc, char *argv[])
         //
         // 5. The reference returned is to the target object (i.e., `*this`).
         //
-        // 6. If the allocators are different, the value of the source object
+        // 6. Non-guaranteed, observed behavior:
+        //    If the allocators are different, the value of the source object
         //    is not modified.
         //
         // 7. If the allocators are the same, no new allocations happen when
@@ -9008,8 +9699,8 @@ int main(int argc, char *argv[])
         //
         // 9. Any memory allocation is exception neutral.
         //
-        // 10. Assigning an object to itself behaves as expected
-        //     (alias-safety).
+        // 10. Assigning an object to itself behaves as does not change the
+        //     object's value (alias-safety).
         //
         // 11. Every object releases any allocated memory at destruction.
         //
@@ -9247,10 +9938,10 @@ int main(int argc, char *argv[])
                 {
                     // Test move assignment with different allocator
 
-                    Obj mF(&s1); const Obj& F=mF;
+                    Obj mF(&s1); const Obj& F = mF;
                     JsonValueEnumeration::setValue(&mF, VALUE_CONFIG1);
 
-                    Obj mX(&s2); const Obj& X=mX;
+                    Obj mX(&s2); const Obj& X = mX;
 
                     const bool MEMDST2 = JsonValueEnumeration::setValue(
                                                                 &mX,
@@ -12582,7 +13273,8 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   JsonObject(initializer_list<Member> members, *a);
-        //   JsonObject::operator=(initializer_list<Member> members);
+        //   JsonObject(initializer_list<Json_MemberInitializer> members, *a);
+        //   JsonObject::operator=(initializer_list<Json_MembInit> members);
         //   Iterator JsonObject::begin();
         //   Iterator JsonObject::end();
         //   pair<Iterator, bool> JsonObject::insert(const Member& m);
@@ -12661,6 +13353,13 @@ int main(int argc, char *argv[])
             FuncPtr funcPtr = &JsonObject::find;
             (void) funcPtr;
         }
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+        {
+            Obj& (Obj::*funcPtr)(std::initializer_list<Json_MemberInitializer>)
+                                                             = &Obj::operator=;
+            (void) funcPtr;
+        }
+#endif
 
         bslma::TestAllocator         ka("constant", veryVeryVeryVerbose);
         bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
@@ -12683,12 +13382,128 @@ int main(int argc, char *argv[])
             ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
             ASSERTV(sa.numBlocksTotal(), 0 <  sa.numBlocksTotal());
         }
+
+        {
+            bslma::TestAllocator sa2("supplied2", veryVeryVeryVerbose);
+
+            {  // don't pass the allocator to the constructor
+                bslma::TestAllocator         da2("default2",
+                                                  veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da2);
+
+                Obj j1 {{"ABC", 23},
+                        {"DEF", 2.4},
+                        {"GHI", JsonArray{2, 3.5, false, "ABC"}}};
+
+                ASSERT(3 == j1.size());
+                ASSERT( j1.contains("ABC"));
+                ASSERT( j1.contains("DEF"));
+                ASSERT( j1.contains("GHI"));
+                ASSERT(!j1.contains("XYZ"));
+
+                ASSERT(23  == j1["ABC"]);
+                ASSERT(2.4 == j1["DEF"].asDouble());
+                ASSERT(j1["GHI"].isArray());
+                ASSERT(4   == j1["GHI"].theArray().size());
+
+                ASSERTV(da2.numBlocksInUse(), 0 <  da2.numBlocksInUse());
+                ASSERTV(sa2.numBlocksTotal(), 0 == sa2.numBlocksTotal());
+            }
+
+            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
+
+            {   // pass the allocator to the constructor
+                bslma::TestAllocator         da2("default2",
+                                                  veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da2);
+
+                Obj j1 ({{"ABC", 23},
+                         {"DEF", 2.4},
+                         {"GHI", JsonArray{2, 3.5, false, "ABC"}}},
+                        &sa2);
+
+                ASSERT(3 == j1.size());
+                ASSERT( j1.contains("ABC"));
+                ASSERT( j1.contains("DEF"));
+                ASSERT( j1.contains("GHI"));
+                ASSERT(!j1.contains("XYZ"));
+
+                ASSERT(23  == j1["ABC"]);
+                ASSERT(2.4 == j1["DEF"].asDouble());
+                ASSERT(j1["GHI"].isArray());
+                ASSERT(4   == j1["GHI"].theArray().size());
+
+                ASSERTV(da2.numBlocksInUse(), 0 == da2.numBlocksInUse());
+                ASSERTV(da2.numBlocksTotal(), 0 <  da2.numBlocksTotal());
+                ASSERTV(sa2.numBlocksTotal(), 0 <  sa2.numBlocksTotal());
+            }
+
+            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
+
+            {  // use a naked set of braces rather than saying 'JsonArray'
+                bslma::TestAllocator         da2("default2",
+                                                  veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da2);
+
+                Obj j1 {{"ABC", 23},
+                        {"DEF", 2.4},
+                        {"GHI", {2, 3.5, false, "ABC"}}};
+
+                ASSERT(3 == j1.size());
+                ASSERT( j1.contains("ABC"));
+                ASSERT( j1.contains("DEF"));
+                ASSERT( j1.contains("GHI"));
+                ASSERT(!j1.contains("XYZ"));
+
+                ASSERT(23  == j1["ABC"]);
+                ASSERT(2.4 == j1["DEF"].asDouble());
+                ASSERT(j1["GHI"].isArray());
+                ASSERT(4   == j1["GHI"].theArray().size());
+
+                ASSERTV(da2.numBlocksInUse(), 0 <  da2.numBlocksInUse());
+                ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
+            }
+
+            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
+
+            {  // use a naked set of braces rather than saying 'JsonArray'
+                bslma::TestAllocator         da2("default2",
+                                                  veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da2);
+
+                Obj j1 ({{"ABC", 23},
+                         {"DEF", 2.4},
+                         {"GHI", {2, 3.5, false, "ABC"}}},
+                        &sa2);
+
+                ASSERT(3 == j1.size());
+                ASSERT( j1.contains("ABC"));
+                ASSERT( j1.contains("DEF"));
+                ASSERT( j1.contains("GHI"));
+                ASSERT(!j1.contains("XYZ"));
+
+                ASSERT(23  == j1["ABC"]);
+                ASSERT(2.4 == j1["DEF"].asDouble());
+                ASSERT(j1["GHI"].isArray());
+                ASSERT(4   == j1["GHI"].theArray().size());
+
+                ASSERTV(da2.numBlocksTotal(), 0 == da2.numBlocksTotal());
+                ASSERTV(sa2.numBlocksTotal(), 0 <  sa2.numBlocksTotal());
+            }
+
+            ASSERTV(sa2.numBlocksInUse(), 0 == sa2.numBlocksInUse());
+            // We didn't use the previous default allocator at all
+            ASSERTV(da.numBlocksTotal(),  0 ==  da.numBlocksTotal());
+        }
+
 #endif
 
         for (char cfg = 'a'; cfg <= 'e'; ++cfg) {
             const char CONFIG = cfg;
 
-            bslma::TestAllocator sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator         sa("supplied", veryVeryVeryVerbose);
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
 
             const Obj::Member TO_BE_CORRECTED(KEY, BAD);
 
@@ -12699,9 +13514,10 @@ int main(int argc, char *argv[])
               case 'a': {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
                 if (veryVerbose) cout <<
-                                       "operator=(initializer_list<Json> l)\n";
+                           "operator=(initializer_list<Json_Initializer> l)\n";
                 Obj& r = (mX = {{KEY, GOOD}});
                 ASSERT(&r == &mX);
+                ASSERT(1 == X.size());
 #else
                 if (veryVerbose) cout << "init list assignment elided.\n";
                 continue;
@@ -12933,7 +13749,9 @@ int main(int argc, char *argv[])
         //
         // 5. The reference returned is to the target object (i.e., `*this`).
         //
-        // 6. If the allocators are different, the value of the source object
+        //
+        // 6. Non-specified but observible behavior:
+        //    If the allocators are different, the value of the source object
         //    is not modified.
         //
         // 7. If the allocators are the same, no new allocations happen when
@@ -12943,15 +13761,15 @@ int main(int argc, char *argv[])
         //
         // 9. Any memory allocation is exception neutral.
         //
-        // 10. Assigning an object to itself behaves as expected
-        //     (alias-safety).
+        // 10. Assigning an object to itself does not modify the value of the
+        //     object (alias-safety).
         //
         // 11. Every object releases any allocated memory at destruction.
         //
         // Plan:
         // 1. Use the address of `operator=` to initialize a member-function
         //    pointer having the appropriate signature and return type for the
-        //    copy-assignment operator defined in this component.  (C-4)
+        //    move-assignment operator defined in this component.  (C-4)
         //
         // 2. Create a `bslma::TestAllocator` object, and install it as the
         //    default allocator (note that a ubiquitous test allocator is
@@ -15130,7 +15948,7 @@ int main(int argc, char *argv[])
                 const int         SPL  = DATA[ti].d_spacesPerLevel;
                 const char *const EXP  = DATA[ti].d_expected_p;
 
-                if (veryVerbose) { T_ P_(L) P_(SPL) }
+                if (veryVerbose) { T_ P_(L) P(SPL) }
 
                 if (veryVeryVerbose) {T_ T_ Q(EXPECTED) cout << EXP; }
 
@@ -16092,10 +16910,10 @@ int main(int argc, char *argv[])
         //    `clear` on that object, and assert that the object is now empty.
         //
         // Testing:
-        //   JsonArray(initializer_list<Json> l, *a);
-        //   JsonArray::operator=(initializer_list<Json> l);
+        //   JsonArray(initializer_list<Json_Initializer> l, *a);
+        //   JsonArray::operator=(initializer_list<Json_Initializer> l);
         //   Json& JsonArray::operator[](size_t i);
-        //   JsonArray::assign(initializer_list<Json> l);
+        //   JsonArray::assign(initializer_list<Json_Initializer> l);
         //   JsonArray::assign(INPUT_ITERATOR first, INPUT_ITERATOR last);
         //   Iterator JsonArray::begin();
         //   Iterator JsonArray::end();
@@ -16159,7 +16977,7 @@ int main(int argc, char *argv[])
               case 'b': {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
                 if (veryVerbose) cout <<
-                                       "operator=(initializer_list<Json> l)\n";
+                           "operator=(initializer_list<Json_Initializer> l)\n";
                 Obj& r = (mX = {GOOD});
                 ASSERT(&r == &mX);
 #else
@@ -16169,7 +16987,8 @@ int main(int argc, char *argv[])
               } break;
               case 'c': {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-                if (veryVerbose) cout << "assign(initializer_list<Json> l);\n";
+                if (veryVerbose) cout <<
+                             "assign(initializer_list<Json_Initializer> l);\n";
                 ASSERT(&mX == &mX.assign({GOOD}));
 #else
                 if (veryVerbose) cout << "init list assign member elided.\n";
@@ -16204,6 +17023,7 @@ int main(int argc, char *argv[])
             ASSERTV(CONFIG, K, X, K == X);
             ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
+
         for (char cfg = 'i'; cfg <= 'm'; ++cfg) {
             const char CONFIG = cfg;
 
@@ -16363,7 +17183,8 @@ int main(int argc, char *argv[])
         //
         // 5. The reference returned is to the target object (i.e., `*this`).
         //
-        // 6. If the allocators are different, the value of the source object
+        // 6. Non-specified but observible behavior:
+        //    If the allocators are different, the value of the source object
         //    is not modified.
         //
         // 7. If the allocators are the same, no new allocations happen when
@@ -19426,7 +20247,6 @@ int main(int argc, char *argv[])
                  << "-----------------------" << endl;
 
         extendedBreathingTest(verbose, veryVerbose);
-
       } break;
       default: {
         bsl::cerr << "WARNING: CASE `" << test << "' NOT FOUND." << bsl::endl;

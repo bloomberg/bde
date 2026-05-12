@@ -711,6 +711,11 @@ struct AsIntegralTest {
     static void testCase10()
 
     {
+        if (veryVerbose) {
+            Q(AsIntegralTest::testCase10)
+                P(bsls::NameOf<t_INTEGRAL_TYPE>());
+        }
+
         t_INTEGRAL_TYPE k_MAX_VALUE =
                                    bsl::numeric_limits<t_INTEGRAL_TYPE>::max();
 
@@ -826,7 +831,7 @@ struct AsIntegralTest {
             const Uint64 minAsU64 = (s_isSignedType) ? maxAsU64 + 1 : 0;
 
             t_INTEGRAL_TYPE expected;
-            int             expectedRc = (STATUS == ENOTINT) ? ENOTINT : 0;
+            int             expectedRc = (STATUS == ENOTINT) ? ENOTINT : OK;
 
             if (!ISNEG && (EXPECTED_U64 > maxAsU64 || STATUS == EOVER)) {
                 // The `INPUT` is a positive value, and its `VALUE` is above
@@ -854,7 +859,10 @@ struct AsIntegralTest {
                 // The expected result can be represented in `t_INTEGRAL_TYPE`.
 
                 expected = static_cast<t_INTEGRAL_TYPE>(EXPECTED_U64);
-                if (ISNEG) {
+                t_INTEGRAL_TYPE min =
+                                   bsl::numeric_limits<t_INTEGRAL_TYPE>::min();
+                // cannot negate maximally negative values
+                if (ISNEG && (expected != min)) {
                     expected = static_cast<t_INTEGRAL_TYPE>(
                                   static_cast<t_INTEGRAL_TYPE>(-1) * expected);
                 }
@@ -974,6 +982,7 @@ struct JSonSuiteNumericData {
                                              "9999999999999999999999999999999"
                                              "9999999999999999999999969999999"
                                              "006"                           ),
+
     TR("i_number_neg_int_huge_exp",      "-1e+9999"                          ),
     TR("i_number_pos_double_huge_exp",   "1.5e+9999"                         ),
     TR("i_number_real_neg_overflow",     "-123123e100000"                    ),
@@ -3118,15 +3127,18 @@ int main(int argc, char *argv[])
             ASSERTV(LINE, rc,     rcUll,     rc     ==     rcUll);
             ASSERTV(LINE, result, resultUll, result == resultUll);
 
-            if (1 > expected) {
+            if (expected < 1) {
                 expected = 0;
             }
+
             if (static_cast<double>(k_MAX) < expected) {
                 expected = static_cast<double>(k_MAX);
+                ASSERTV(LINE, NAME, INPUT,    expected, result,
+                        expected == static_cast<double>(result));
+            } else {
+                ASSERTV(LINE, NAME, INPUT,  expected,    result,
+                        static_cast<Uint64>(expected) == result);
             }
-            ASSERTV(LINE, NAME, INPUT, expected, result,
-                    static_cast<Uint64>(expected) == result ||
-                    expected == static_cast<double>(result));
         }
 
         if (verbose) bsl::cout << "\tNegative Testing." << bsl::endl;

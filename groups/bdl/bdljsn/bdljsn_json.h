@@ -8,8 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide an in-memory representation of a JSON document.
 //
 //@CLASSES:
-//  bdljsn::Json: representation of a JSON document
-//  bdljsn::JsonArray: representation of a JSON array
+//  bdljsn::Json      : representation of a JSON document
+//  bdljsn::JsonArray : representation of a JSON array
 //  bdljsn::JsonObject: representation of a JSON object
 //
 //@SEE_ALSO: bdljsn_jsonutil, bdljsn_jsonnumber, bdljsn_jsonnull
@@ -162,7 +162,7 @@ BSLS_IDENT("$Id: $")
 // `operator[]` is intuitive but not the most efficient method to add new
 // members to a `bdljsn::JsonObject` (similar to using `operator[]` to add
 // elements to an `unordered_map`).  The following code demonstrates a more
-// efficient way to create the same `bdljsn::Json` representation as example 1:
+// efficient way to create the same `bdljsn::Json` representation as Example 1:
 // ```
 // using namespace bdldfp::DecimalLiterals;
 //
@@ -344,26 +344,26 @@ BSLS_IDENT("$Id: $")
 // document we expect 10 `Json` objects distributed thus:
 //
 //  - Object
-//   1 top-level of the document is an object
-//   2 `{"boolean": false }`, interior object
+//   1. top-level of the document is an object
+//   2. `{"boolean": false }`, interior object
 //
 //  - Array
-//   1 `[2.76, true]`
+//   1. `[2.76, true]`
 //
 //  - String
-//   1 `"text"`
+//   1. `"text"`
 //
 //  - Number
-//   1 `2.76`
-//   2 `3.14`
+//   1. `2.76`
+//   2. `3.14`
 //
 //  - Boolean
-//   1 `false`, from the internal object
-//   2 `true`, from the array
-//   3 `true`, from top-level object
+//   1. `false`, from the internal object
+//   2. `true`, from the array
+//   3. `true`, from top-level object
 //
 //  - Null
-//   1 null
+//   1. `null`
 //
 // Use of our visitor functor on `example1` confirms these observations:
 // ```
@@ -423,12 +423,21 @@ BSLS_IDENT("$Id: $")
 
 #include <bsl_exception.h>     // `bsl::uncaught_exceptions`
 #include <bsl_iterator.h>
+#include <bsl_span.h>
 #include <bsl_string.h>
 #include <bsl_string_view.h>
 #include <bsl_type_traits.h>   // `bsl::enable_if`, `bsl::is_same`
 #include <bsl_unordered_map.h>
 #include <bsl_utility.h>       // `bsl::forward`
 #include <bsl_vector.h>
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#include <initializer_list>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+#include <string_view>
+#endif
 
 namespace BloombergLP {
 namespace bdljsn {
@@ -437,6 +446,10 @@ namespace bdljsn {
 class Json;
 class JsonArray;
 class JsonObject;
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+class Json_Initializer;
+class Json_MemberInitializer;
+#endif
 
                               // ===============
                               // class JsonArray
@@ -475,8 +488,6 @@ class JsonArray {
     // FRIENDS
     friend bool operator==(const JsonArray&, const JsonArray&);
     friend bool operator!=(const JsonArray&, const JsonArray&);
-    template <class HASHALG>
-    friend void hashAppend(HASHALG&, const JsonArray&);
     friend void swap(JsonArray&, JsonArray&);
 
   public:
@@ -525,25 +536,26 @@ class JsonArray {
     /// specified, the currently installed default allocator is used.  Throw
     /// `bsl::length_error` if the number of elements in `[first .. last)`
     /// exceeds the value returned by the method `maxSize`.  The (template
-    /// parameter) type `INPUT_ITERATOR` shall meet the requirements of an
+    /// parameter) type `t_INPUT_ITERATOR` shall meet the requirements of an
     /// input iterator defined in the c++11 standard [24.2.3] providing
     /// access to values of a type convertible to `Json`, and `Json` must be
     /// `emplace-constructible` form `*i`, where `i` is a dereferenceable
     /// iterator in the range `[first .. last)`.  The behavior is undefined
     /// unless `first` and `last` refer to a range of valid values where
     /// `first` is at a position at or before `last`.
-    template <class INPUT_ITERATOR>
-    JsonArray(INPUT_ITERATOR    first,
-              INPUT_ITERATOR    last,
+    template <class t_INPUT_ITERATOR>
+    JsonArray(t_INPUT_ITERATOR    first,
+              t_INPUT_ITERATOR    last,
               bslma::Allocator *basicAllocator = 0);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    /// Create a `JsonArray` and insert (in order) each `Json` object in the
-    /// specified `elements` initializer list.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
-    /// specified, the currently installed default allocator is used.
-    JsonArray(std::initializer_list<Json>  elements,
-              bslma::Allocator            *basicAllocator = 0);     // IMPLICIT
+    /// Create a `JsonArray` having a `Json` object for each element (in order)
+    /// of the specified `elements`.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is not specified, the
+    /// currently installed default allocator is used.
+    JsonArray(std::initializer_list<Json_Initializer>  elements,
+              bslma::Allocator                        *basicAllocator = 0);
+                                                                    // IMPLICIT
 #endif
 
     // MANIPULATORS
@@ -556,27 +568,20 @@ class JsonArray {
 
     /// Assign to this object the value of the specified `rhs` object, and
     /// return a reference providing modifiable access to this object.  The
-    /// contents of `rhs` are moved (in constant time) to this JsonArray if
+    /// contents of `rhs` are moved (in constant time) to this `JsonArray` if
     /// `allocator() == rhs.allocator()`; otherwise, all elements in this
     /// `JsonArray` are either destroyed or move-assigned to and each
-    /// additional element in `rhs` is move-inserted into this JsonArray.
+    /// additional element in `rhs` is move-inserted into this `JsonArray`.
     /// `rhs` is left in a valid but unspecified state.
     JsonArray& operator=(bslmf::MovableRef<JsonArray> rhs);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    /// Assign to this object the value resulting from first clearing this
-    /// `JsonArray` and then inserting (in order) each object in the
-    /// specified `initializer` list.  Return a reference to `*this`.  If an
-    /// exception is thrown, `*this` is left in a valid but unspecified
+    /// Assign to this array a sequence of `Json` objects, one for each
+    /// element (in order) of the specified `elements`.  Previous elements of
+    /// this array, if any, are destroyed.  Return a reference to `*this`.  If
+    /// an exception is thrown, `*this` is left in a valid but unspecified
     /// state.
-    JsonArray& operator=(std::initializer_list<Json> initializer);
-
-    /// Assign to this object the value resulting from first clearing this
-    /// `JsonArray` and then inserting (in order) each `Json` object in the
-    /// specified `initializer` initializer list.  Return a non-`const`
-    /// reference to this array.  If an exception is thrown, `*this` is left
-    /// in a valid but unspecified state.
-    JsonArray& assign(std::initializer_list<Json> initializer);
+    JsonArray& operator=(std::initializer_list<Json_Initializer> elements);
 #endif
 
     /// Return a reference providing modifiable access to the element at the
@@ -591,15 +596,24 @@ class JsonArray {
     /// non-`const` reference to this array.  If an exception is thrown,
     /// `*this` is left in a valid but unspecified state.  Throw
     /// `bsl::length_error` if `distance(first,last) > maxSize()`.  The
-    /// (template parameter) type `INPUT_ITERATOR` shall meet the
+    /// (template parameter) type `t_INPUT_ITERATOR` shall meet the
     /// requirements of an input iterator defined in the c++11 standard
     /// [24.2.3] providing access to values of a type convertible to `Json`,
     /// and `Json` must be `emplace-constructible` form `*i`, where `i` is a
     /// dereferenceable iterator in the range `[first .. last)`.  The
     /// behavior is undefined unless `first` and `last` refer to a range of
     /// valid values where `first` is at a position at or before `last`.
-    template <class INPUT_ITERATOR>
-    JsonArray& assign(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    template <class t_INPUT_ITERATOR>
+    JsonArray& assign(t_INPUT_ITERATOR first, t_INPUT_ITERATOR last);
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+    /// Assign to this array a sequence of `Json` objects, one for each
+    /// element (in order) of the specified `elements`.  Previous elements of
+    /// this array, if any, are destroyed.  Return a reference to `*this`.  If
+    /// an exception is thrown, `*this` is left in a valid but unspecified
+    /// state.
+    JsonArray& assign(std::initializer_list<Json_Initializer> elements);
+#endif
 
     // BDE_VERIFY pragma: -FABC01
 
@@ -678,7 +692,7 @@ class JsonArray {
     /// referring to the first newly inserted element.  If an exception is
     /// thrown, `*this` is unaffected.  Throw `bsl::length_error` if
     /// `size() + distance(first, last) > maxSize()`.  The (template
-    /// parameter) type `INPUT_ITERATOR` shall meet the requirements of an
+    /// parameter) type `t_INPUT_ITERATOR` shall meet the requirements of an
     /// input iterator defined in the C++11 standard [24.2.3] providing
     /// access to values of a type convertible to `Json`, and `Json` must be
     /// `emplace-constructible` from `*i` into this `JsonArray`, where `i` is
@@ -686,10 +700,10 @@ class JsonArray {
     /// behavior is undefined unless `index` is in the range `[0 .. size()]`
     /// (both endpoints included), and `first` and `last` refer to a range
     /// of valid values where `first` is at a position at or before `last`.
-    template <class INPUT_ITERATOR>
+    template <class t_INPUT_ITERATOR>
     Iterator insert(bsl::size_t    index,
-                    INPUT_ITERATOR first,
-                    INPUT_ITERATOR last);
+                    t_INPUT_ITERATOR first,
+                    t_INPUT_ITERATOR last);
 
     /// Insert at the specified `position` in this `JsonArray` a copy of the
     /// specified `json`, and return an iterator referring to the newly
@@ -714,7 +728,7 @@ class JsonArray {
     /// referring to the first newly inserted element.  If an exception is
     /// thrown, `*this` is unaffected.  Throw `bsl::length_error` if
     /// `size() + distance(first, last) > maxSize()`.  The (template
-    /// parameter) type `INPUT_ITERATOR` shall meet the requirements of an
+    /// parameter) type `t_INPUT_ITERATOR` shall meet the requirements of an
     /// input iterator defined in the C++11 standard [24.2.3] providing
     /// access to values of a type convertible to `value_type`, and
     /// `value_type` must be `emplace-constructible` from `*i` into this
@@ -723,10 +737,10 @@ class JsonArray {
     /// an iterator in the range `[begin() .. end()]` (both endpoints
     /// included), and `first` and `last` refer to a range of valid values
     /// where `first` is at a position at or before `last`.
-    template <class INPUT_ITERATOR>
-    Iterator insert(ConstIterator  position,
-                    INPUT_ITERATOR first,
-                    INPUT_ITERATOR last);
+    template <class t_INPUT_ITERATOR>
+    Iterator insert(ConstIterator    position,
+                    t_INPUT_ITERATOR first,
+                    t_INPUT_ITERATOR last);
 
     /// Erase the last element from this `JsonArray`.  The behavior is
     /// undefined if this `JsonArray` is empty.
@@ -779,13 +793,13 @@ class JsonArray {
     /// `string` to the new element and return a non-`const` reference to
     /// this array.  `string` is left in a valid but unspecified state.
     /// This function does not participate in overload resolution unless the
-    /// specified `STRING_TYPE` is `bsl::string`.  The behavior is undefined
+    /// specified `t_STRING_TYPE` is `bsl::string`.  The behavior is undefined
     /// unless `string` is valid UTF-8 (see `bdlde::Utf8Util::isValid`).
-    template <class STRING_TYPE>
-    typename bsl::enable_if<bsl::is_same<STRING_TYPE,
+    template <class t_STRING_TYPE>
+    typename bsl::enable_if<bsl::is_same<t_STRING_TYPE,
                                          bsl::string>::value,
                             JsonArray&>::type
-    pushBack(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string);
+    pushBack(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) string);
 
     /// Change the size of this `JsonArray` to the specified `count`.  If
     /// `count < size()`, the elements in the range `[count .. size())` are
@@ -913,11 +927,6 @@ bool operator==(const JsonArray& lhs, const JsonArray& rhs);
 /// `rhs`.
 bool operator!=(const JsonArray& lhs, const JsonArray& rhs);
 
-/// Invoke the specified `hashAlg` on the attributes of the specified
-/// `object`.
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const JsonArray& object);
-
 /// Exchange the value of the specified `a` `JsonArray` with that of the
 /// specified `b` `JsonArray`.  This function provides the no-throw
 /// exception-safety guarantee.  This operation has O[1] complexity if `a`
@@ -941,8 +950,7 @@ class JsonObject {
     typedef bsl::unordered_map<bsl::string,
                                Json,
                                bdlb::TransparentHash,
-                               bdlb::TransparentEqualTo>
-        Container;
+                               bdlb::TransparentEqualTo> Container;
 
   public:
     // TYPES
@@ -968,8 +976,6 @@ class JsonObject {
     // FRIENDS
     friend bool operator==(const JsonObject&, const JsonObject&);
     friend bool operator!=(const JsonObject&, const JsonObject&);
-    template <class HASHALG>
-    friend void hashAppend(HASHALG&, const JsonObject&);
     friend void swap(JsonObject&, JsonObject&);
 
   public:
@@ -1020,29 +1026,31 @@ class JsonObject {
     /// specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is not supplied, the currently installed default
     /// allocator is used to supply memory.  The (template parameter) type
-    /// `INPUT_ITERATOR` shall meet the requirements of an input iterator
+    /// `t_INPUT_ITERATOR` shall meet the requirements of an input iterator
     /// defined in the C++11 standard [24.2.3] providing access to values of
     /// a type convertible to `Member`.  The behavior is undefined unless
     /// `first` and `last` refer to a sequence of valid values where `first`
     /// is at a position at or before `last`, and all keys of all `Member`
     /// objects inserted are valid UTF-8 (see `bdlde::Utf8Util::isValid`).
-    template <class INPUT_ITERATOR>
-    JsonObject(INPUT_ITERATOR    first,
-               INPUT_ITERATOR    last,
+    template <class t_INPUT_ITERATOR>
+    JsonObject(t_INPUT_ITERATOR  first,
+               t_INPUT_ITERATOR  last,
                bslma::Allocator *basicAllocator = 0);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    /// Create an empty `JsonObject`, and then create a `Json` object for
-    /// each in the range specified by `members` argument, ignoring elements
-    /// having a key that appears earlier in the sequence.  Optionally
-    /// specify the `basicAllocator` used to supply memory.  If
+    /// Create a `JsonObject` having members created (in order) from the
+    /// specified `memberInitializers`.  Member initializers having key values
+    /// that were previously inserted into the new object are ignored.
+    /// Optionally specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is not specified, the currently installed default
-    /// allocator is used to supply memory.  The behavior is undefined
-    /// unless the keys of all `Member` objects in `members` are valid UTF-8
-    /// (see `bdlde::Utf8Util::isValid`).
-    JsonObject(std::initializer_list<Member>  members,
-               bslma::Allocator              *basicAllocator = 0);  // IMPLICIT
-#endif
+    /// allocator is used.  The behavior is undefined unless the key of each
+    /// member initializer in `memberInitializers` is valid UTF-8 (see
+    /// `bdlde::Utf8Util::isValid`).
+    JsonObject(
+            std::initializer_list<Json_MemberInitializer>  memberInitializers,
+            bslma::Allocator                              *basicAllocator = 0);
+                                                                    // IMPLICIT
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
     // MANIPULATORS
 
@@ -1060,12 +1068,14 @@ class JsonObject {
     JsonObject& operator=(bslmf::MovableRef<JsonObject> rhs);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    /// Assign to this object the value resulting from first clearing this
-    /// `JsonObject` and then inserting (in order) each `Member` object in
-    /// the specified `members` initializer list.  Return a reference to
-    /// `*this`.  If an exception is thrown, `*this` is left in a valid but
-    /// unspecified state.
-    JsonObject& operator=(std::initializer_list<Member> members);
+    /// Assign to this `JsonObject` members created (in order) from the
+    /// specified `members`.  List members having key values that were
+    /// previously inserted into the this object are ignored.  Previous members
+    /// of this object, if any, are destroyed.  The behavior is undefined
+    /// unless the key of each member in `members` is valid UTF-8 (see
+    /// `bdlde::Utf8Util::isValid`).
+    JsonObject& operator=(std::initializer_list<Json_MemberInitializer>
+                                                                      members);
 #endif
 
     /// Return a reference providing modifiable access to the `Json` object
@@ -1152,27 +1162,28 @@ class JsonObject {
     /// by each iterator.  Insert into this `JsonObject` each such object
     /// whose key is not already contained.  Return a non-`const` reference
     /// to this `JsonObject`.  The (template parameter) type
-    /// `INPUT_ITERATOR` shall meet the requirements of an input iterator
+    /// `t_INPUT_ITERATOR` shall meet the requirements of an input iterator
     /// defined in the C++11 standard [24.2.3] providing access to values of
     /// a type convertible to `Member`.  The behavior is undefined unless
     /// `first` and `last` refer to a sequence of value values where `first`
     /// is at a position at or before `last`.  The behavior is undefined
     /// unless the keys of all `Member` objects inserted are valid UTF-8
     /// (see `bdlde::Utf8Util::isValid`).
-    template <class INPUT_ITERATOR>
-    typename bsl::enable_if<!bsl::is_convertible<INPUT_ITERATOR,
+    template <class t_INPUT_ITERATOR>
+    typename bsl::enable_if<!bsl::is_convertible<t_INPUT_ITERATOR,
                                                  bsl::string_view>::value,
                             JsonObject&>::type
-    insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    insert(t_INPUT_ITERATOR first, t_INPUT_ITERATOR last);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
-    /// Create a `Member` object for each element in the specified
-    /// `members`.  Insert into this `JsonObject` each such object whose key
-    /// is not already contained.  Return a non-`const` reference to this
+    /// Insert into this `JsonObject` members created (in order) from the
+    /// specified `members`.  List members having key values already contained
+    /// in this object are ignored.  Return a non-`const` reference to this
     /// `JsonObject`.  The behavior is undefined unless the keys of all
     /// `Member` objects inserted are valid UTF-8 (see
     /// `bdlde::Utf8Util::isValid`).
-    JsonObject& insert(std::initializer_list<Member> members);
+    JsonObject& insert(std::initializer_list<Json_MemberInitializer>
+                                                           memberInitializers);
 #endif
 
     /// Insert into this `JsonObject` a `Member` constructed from the
@@ -1184,10 +1195,10 @@ class JsonObject {
     /// inserted, and whose `second` member is `true` if a new value was
     /// inserted, and `false` otherwise.  The behavior is undefined unless
     /// `key` is valid UTF-8 (see `bdlde::Utf8Util::isValid`).
-    template <class VALUE>
+    template <class t_VALUE>
     bsl::pair<Iterator, bool> insert(
-                               const bsl::string_view&                  key,
-                               BSLS_COMPILERFEATURES_FORWARD_REF(VALUE) value);
+                             const bsl::string_view&                    key,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(t_VALUE) value);
 
     /// Exchange the value of this object with that of the specified `other`
     /// object.  If an exception is thrown, both objects are left in valid
@@ -1207,19 +1218,17 @@ class JsonObject {
 
     // BDE_VERIFY pragma: -FABC01
 
-    ConstIterator  begin() const BSLS_KEYWORD_NOEXCEPT;
-
     /// Return an iterator providing non-modifiable access to the first
     /// `Member` object in the sequence of `Member` objects maintained by
     /// this `JsonObject`, or the `end` iterator if this `JsonObject` is
     /// empty.
+    ConstIterator  begin() const BSLS_KEYWORD_NOEXCEPT;
     ConstIterator cbegin() const BSLS_KEYWORD_NOEXCEPT;
-
-    ConstIterator  end() const BSLS_KEYWORD_NOEXCEPT;
 
     /// Return an iterator providing non-modifiable access to the
     /// past-the-end position in the sequence of `Member` objects maintained
     /// by this `JsonObject`.
+    ConstIterator  end() const BSLS_KEYWORD_NOEXCEPT;
     ConstIterator cend() const BSLS_KEYWORD_NOEXCEPT;
 
     // BDE_VERIFY pragma: +FABC01
@@ -1291,11 +1300,6 @@ bool operator==(const JsonObject& lhs, const JsonObject& rhs);
 /// contained in `rhs` having the same value, and vice versa.
 bool operator!=(const JsonObject& lhs, const JsonObject& rhs);
 
-/// Invoke the specified `hashAlg` on the attributes of the specified
-/// `object`.
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const JsonObject& object);
-
 /// Exchange the value of the specified `a` `JsonObject` with that of the
 /// specified `b` `JsonObject`.  This function provides the no-throw
 /// exception-safety guarantee.  This operation has O[1] complexity if `a`
@@ -1313,9 +1317,12 @@ void swap(JsonObject& a, JsonObject& b);
 class Json {
 
     // PRIVATE TYPES
-    typedef bdlb::
-        Variant<JsonObject, JsonArray, bsl::string, JsonNumber, bool, JsonNull>
-            Value;
+    typedef bdlb::Variant<JsonObject,
+                          JsonArray,
+                          bsl::string,
+                          JsonNumber,
+                          bool,
+                          JsonNull> Value;
 
     BSLMF_ASSERT(0 == JsonType::e_OBJECT);
     BSLMF_ASSERT(1 == JsonType::e_ARRAY);
@@ -1331,10 +1338,6 @@ class Json {
     // FRIENDS
     friend bool operator==(const Json&, const Json&);
     friend bool operator!=(const Json&, const Json&);
-
-    template <class HASHALG>
-    friend void hashAppend(HASHALG&, const Json&);
-
     friend void swap(Json&, Json&);
 
   public:
@@ -1410,6 +1413,22 @@ class Json {
                                                                     // IMPLICIT
     explicit Json(bslmf::MovableRef<JsonNumber>  number,
                   bslma::Allocator              *basicAllocator = 0);
+                                                                    // IMPLICIT
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+    /// Create a `Json` object having the same structure as the specified
+    /// `initializer`.  Optionally specify the `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is not specified, the currently
+    /// installed default allocator is used to supply memory.
+    template <class t_JSON_INITIALIZER>
+    Json(const t_JSON_INITIALIZER&  initializer,
+         bslma::Allocator        *basicAllocator = 0,
+         typename bsl::enable_if<
+         bsl::is_same<t_JSON_INITIALIZER,
+                        Json_Initializer>::value>::type * = 0);
+                                                                    // IMPLICIT
+#endif
 
     /// Create a `Json` object having the type `JsonNumber` and the the
     /// specified `value`.  Optionally specify the `basicAllocator` used to
@@ -1457,14 +1476,15 @@ class Json {
     /// not specified, the allocator associated with `string` is propagated
     /// for use in the newly-created `Json` object.  `string` is left in a
     /// valid but unspecified state.  This function does not participate in
-    /// overload resolution unless the specified `STRING_TYPE` is
+    /// overload resolution unless the specified `t_STRING_TYPE` is
     /// `bsl::string`.  The behavior is undefined unless `string` is valid
     /// UTF-8 (see `bdlde::Utf8Util::isValid`).
-    template <class STRING_TYPE>
-    Json(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string,
-         bslma::Allocator                    *basicAllocator = 0,
+    template <class t_STRING_TYPE>
+    Json(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE)  string,
+         bslma::Allocator                       *basicAllocator = 0,
          typename bsl::enable_if<
-                   bsl::is_same<STRING_TYPE, bsl::string>::value>::type * = 0);
+                   bsl::is_same<t_STRING_TYPE,
+                                bsl::string>::value>::type * = 0);
                                                                     // IMPLICIT
 
     // BDE_VERIFY pragma: +IND01 DEDUCE macro confuses bde_verify
@@ -1526,13 +1546,13 @@ class Json {
     /// `rhs` is left in a valid but unspecified state.  The value currently
     /// held by this object (if any) is destroyed if that value's type is
     /// not `bsl::string`.  This function does not participate in overload
-    /// resolution unless the specified `STRING_TYPE` is `bsl::string`.  The
+    /// resolution unless the specified `t_STRING_TYPE` is `bsl::string`.  The
     /// behavior is undefined unless `rhs` is valid UTF-8 (see
     /// `bdlde::Utf8Util::isValid`).
-    template <class STRING_TYPE>
-    typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value,
+    template <class t_STRING_TYPE>
+    typename bsl::enable_if<bsl::is_same<t_STRING_TYPE, bsl::string>::value,
                             Json>::type&
-    operator=(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) rhs);
+    operator=(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) rhs);
 
     /// Assign to this object a value of type `bool` initialized from the
     /// specified `rhs`, and return a reference providing modifiable access
@@ -1643,12 +1663,12 @@ class Json {
     /// This method first destroys the current value held by this object
     /// (even if the type currently held is `bsl::string`).  This function
     /// does not participate in overload resolution unless the specified
-    /// `STRING_TYPE` is `bsl::string`.  The behavior is undefined unless
+    /// `t_STRING_TYPE` is `bsl::string`.  The behavior is undefined unless
     /// `string` is valid UTF-8 (see `bdlde::Utf8Util::isValid`).
-    template <class STRING_TYPE>
-    typename bsl::enable_if<bsl::is_same<STRING_TYPE,
+    template <class t_STRING_TYPE>
+    typename bsl::enable_if<bsl::is_same<t_STRING_TYPE,
                                          bsl::string>::value>::type
-    makeString(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string);
+    makeString(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) string);
 
     // BDE_VERIFY pragma: +FD06 `string` and `bsl::string` are too similar
     // BDE_VERIFY pragma: +FD07 `string` and `bsl::string` are too similar
@@ -1781,14 +1801,14 @@ class Json {
     /// reference to this object.  If `isNull()`, then the type is changed
     /// to array.  `string` is left in a valid but unspecified state.  This
     /// function does not participate in overload resolution unless the
-    /// specified `STRING_TYPE` is `bsl::string`.  The behavior is undefined
+    /// specified `t_STRING_TYPE` is `bsl::string`.  The behavior is undefined
     /// unless `string` is valid UTF-8 (see `bdlde::Utf8Util::isValid`).
     /// The behavior is undefined unless `isArray()` or `isNull()`.
-    template <class STRING_TYPE>
-    typename bsl::enable_if<bsl::is_same<STRING_TYPE,
+    template <class t_STRING_TYPE>
+    typename bsl::enable_if<bsl::is_same<t_STRING_TYPE,
                                          bsl::string>::value,
                             Json&>::type
-    pushBack(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string);
+    pushBack(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) string);
 
     /// Return the result (having `RETURN_TYPE`) of invoking the specified
     /// `visitor` (callable) object on this `Json` object.  `visitor` must
@@ -2180,11 +2200,6 @@ bool operator!=(const Json&              lhs, bdldfp::Decimal64        rhs);
 bool operator!=(const Json&              lhs, const char              *rhs);
 bool operator!=(const Json&              lhs, const bsl::string_view&  rhs);
 
-/// Invoke the specified `hashAlg` on the attributes of the specified
-/// `object`.
-template <class HASHALG>
-void hashAppend(HASHALG& hashAlg, const Json& object);
-
 /// Exchange the value of the specified `a` `Json` object with that of the
 /// specified `b` `Json` object.  If an exception is thrown, both objects
 /// are left in valid but unspecified states.  This operation guarantees
@@ -2192,9 +2207,548 @@ void hashAppend(HASHALG& hashAlg, const Json& object);
 /// the same allocator as `b`.
 void swap(Json& a, Json& b);
 
-                                 // =====================
-                                 // struct Json_VisitUtil
-                                 // =====================
+// ============================================================================
+//                            INLINE DEFINITIONS
+// ============================================================================
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+                           // ======================
+                           // class Json_Initializer
+                           // ======================
+
+/// This component-private class is designed capture a set of values that can
+/// be used to initialize a `Json` object, or an element in a `JsonArray`, or
+/// the "value" portion of a `JsonObject` member.  This class is not
+/// modifiable, and (except for small types like `int`) does not own the
+/// objects that it holds.  The purpose here is to enable list-initialization
+/// (including nested lists) of `Json`, `JsonArray`, and `JsonObject` objects.
+/// The lifetime of a `Json_Initializer` object should not exceed that of
+/// list-initialization expression because pointers held here would no longer
+/// be valid.
+class Json_Initializer {
+
+  public:
+    // PUBLIC TYPES
+    typedef bdlb::Variant<JsonNull,
+                          bool,
+                          long long,
+                          unsigned long long,
+                          double,
+                          bdldfp::Decimal64,
+                          bsl::string_view,
+                          bsl::span<const Json_Initializer>,
+                          const JsonObject *,
+                          const JsonArray  *,
+                          const JsonNumber *,
+                          const Json       *> Storage;
+
+  private:
+    // DATA
+    Storage d_storage;
+
+  public:
+    // CREATORS
+
+    /// Create a `Json_Initializer` object containing a `JsonNull` in the
+    /// internal variant.
+    Json_Initializer();
+    Json_Initializer(const JsonNull& );                             // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing the boolean value of
+    /// the specified `b` in the internal variant.
+    Json_Initializer(bool b);                                       // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing the value of the
+    /// specified `num` in the internal variant.  If `num` is a signed
+    /// integral type, then the value is stored as a `long long`.  If `num`
+    /// is an unsigned integral type, then the value is stored as an
+    /// `unsigned long long`.
+    template <class NUMBER, class = typename bsl::enable_if<
+                                        std::is_integral<NUMBER>::value>::type>
+    Json_Initializer(NUMBER num);                                   // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing the specified `f`.
+    Json_Initializer(float f);                                      // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing the specified `d`.
+    Json_Initializer(double d);                                     // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing the specified `value`.
+    Json_Initializer(bdldfp::Decimal64 value);                      // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing a string_view
+    /// referring to the null-terminated sequence pointed to by the
+    /// specified `p`.
+    Json_Initializer(const char *p);                                // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing a `string_view` referring
+    /// to the contents of the specified `s`.
+    Json_Initializer(const bsl::string&      s);                    // IMPLICIT
+    Json_Initializer(const std::string&      s);                    // IMPLICIT
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    Json_Initializer(const std::pmr::string& s);                    // IMPLICIT
+#endif
+
+    /// Create a `Json_Initializer` object containing a `string_view`
+    /// containing the specified `sv`.
+    Json_Initializer(const bsl::string_view& sv);                   // IMPLICIT
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+    /// Create a `Json_Initializer` object containing a `string_view`
+    /// containing the specified `sv`.
+    Json_Initializer(const std::string_view& sv);                   // IMPLICIT
+#endif
+
+    /// Create a `Json_Initializer` object containing an initializer list
+    /// with the value of the specified `il`.
+    Json_Initializer(std::initializer_list<Json_Initializer> il);   // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing a pointer to the
+    /// specified `jObj`.
+    Json_Initializer(const JsonObject& jObj);                       // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing a pointer to the
+    /// specified `jArr`.
+    Json_Initializer(const JsonArray& jArr);                        // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing a pointer to the
+    /// specified `jNum`.
+    Json_Initializer(const JsonNumber& jNum);                       // IMPLICIT
+
+    /// Create a `Json_Initializer` object containing a pointer to the
+    /// specified `json`.
+    Json_Initializer(const Json& json);                             // IMPLICIT
+
+    // ACCESSORS
+
+    /// Return a reference providing non-modifiable access to the internal
+    /// variant.
+    const Storage& get_storage() const;
+};
+
+                           // ----------------------
+                           // class Json_Initializer
+                           // ----------------------
+
+// CREATORS
+inline
+Json_Initializer::Json_Initializer()
+: d_storage(JsonNull())
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const JsonNull &)
+: d_storage(JsonNull())
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(bool b)
+: d_storage(b)
+{
+}
+
+template <class NUMBER, class>
+inline
+Json_Initializer::Json_Initializer(NUMBER num)
+{
+    BSLMF_ASSERT(bsl::is_unsigned<NUMBER>::value ||
+                 bsl::is_signed<NUMBER>::value);
+
+    if (bsl::is_unsigned<NUMBER>::value) {
+        d_storage = static_cast<unsigned long long>(num);
+    }
+    else {
+        d_storage = static_cast<long long>(num);
+    }
+}
+
+inline
+Json_Initializer::Json_Initializer(float f)
+: d_storage(static_cast<double>(f))
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(double d)
+: d_storage(d)
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(bdldfp::Decimal64 value)
+: d_storage(value)
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const char *p)
+: d_storage(bsl::string_view(p))
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const bsl::string &s)
+: d_storage(bsl::string_view(s))
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const std::string &s)
+: d_storage(bsl::string_view(s))
+{
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+inline
+Json_Initializer::Json_Initializer(const std::pmr::string &s)
+: d_storage(bsl::string_view(s))
+{
+}
+#endif
+
+inline
+Json_Initializer::Json_Initializer(const bsl::string_view& sv)
+: d_storage(sv)
+{
+}
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+inline
+Json_Initializer::Json_Initializer(const std::string_view& sv)
+: d_storage(bsl::string_view(sv))
+{
+}
+#endif
+
+inline
+Json_Initializer::Json_Initializer(std::initializer_list<Json_Initializer> il)
+: d_storage(bsl::span<const Json_Initializer>(il.begin(), il.end()))
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const JsonObject& jObj)
+: d_storage(&jObj)
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const JsonArray& jArr)
+: d_storage(&jArr)
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const JsonNumber& jNum)
+: d_storage(&jNum)
+{
+}
+
+inline
+Json_Initializer::Json_Initializer(const Json& json)
+: d_storage(&json)
+{
+}
+
+// ACCESSORS
+inline
+const Json_Initializer::Storage&
+Json_Initializer::get_storage() const
+{
+    return d_storage;
+}
+
+                        // ===========================
+                        // class Json_ConstructVisitor
+                        // ===========================
+
+// This component-private class is used to construct a `Json` object from
+// a `Json_Initializer` object.  `Json_Initializer` is a variant class defined
+// below.
+class Json_ConstructVisitor {
+    Json *d_this_p;
+
+  public:
+    /// Create a `Json_ConstructVisitor` object configured write into the
+    /// specified `json`.
+    explicit Json_ConstructVisitor(Json *json);
+
+    /// Store the specified `jNull` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(const JsonNull &jNull) const;
+
+    /// Store the specified `b` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(bool b) const;
+
+    /// Store the specified `ll` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(long long ll) const;
+
+    /// Store the specified `ull` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(unsigned long long ull) const;
+
+    /// Store the specified `d` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(double d) const;
+
+    /// Store the specified `value` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(bdldfp::Decimal64 value) const;
+
+    /// Store the specified `sv` into the `Json` object pointed to by
+    /// `d_this_p`.
+    void operator()(const bsl::string_view& sv) const;
+
+    /// Store the object pointed to by the specified `jObj` to the `Json`
+    /// object pointed to by `d_this_p`.
+    void operator()(const JsonObject *jObj) const;
+
+    /// Store the object pointed to by the specified `jArr` to the `Json`
+    /// object pointed to by `d_this_p`.
+    void operator()(const JsonArray *jArr) const;
+
+    /// Store the object pointed to by the specified `jNum` to the `Json`
+    /// object pointed to by `d_this_p`.
+    void operator()(const JsonNumber *jNum) const;
+
+    /// Store the object pointed to by the specified `json` to the `Json`
+    /// object pointed to by `d_this_p`.
+    void operator()(const Json *json) const;
+
+    /// Store a `JsonArray` containing the elements of the specified `il` into
+    /// the `Json` object pointed to by `d_this_p`.
+    void operator()(bsl::span<const Json_Initializer> il) const;
+
+    /// The behavior is undefined when this method is called.
+    void operator()(bslmf::Nil) const;
+};
+
+                        // ---------------------------
+                        // class Json_ConstructVisitor
+                        // ---------------------------
+
+inline
+Json_ConstructVisitor::Json_ConstructVisitor(Json *json)
+: d_this_p(json)
+{
+}
+
+inline
+void Json_ConstructVisitor::operator()(const JsonNull &jNull) const
+{
+    (void)jNull;
+}
+
+inline
+void Json_ConstructVisitor::operator()(bool b) const
+{
+    d_this_p->makeBoolean(b);
+}
+
+inline
+void Json_ConstructVisitor::operator()(long long ll) const
+{
+    d_this_p->makeNumber(JsonNumber(ll));
+}
+
+inline
+void Json_ConstructVisitor::operator()(unsigned long long ull) const
+{
+    d_this_p->makeNumber(JsonNumber(ull));
+}
+
+inline
+void Json_ConstructVisitor::operator()(double d) const
+{
+    d_this_p->makeNumber(JsonNumber(d));
+}
+
+inline
+void Json_ConstructVisitor::operator()(bdldfp::Decimal64 value) const
+{
+    d_this_p->makeNumber(JsonNumber(value));
+}
+
+inline
+void Json_ConstructVisitor::operator()(const bsl::string_view& sv) const
+{
+    d_this_p->makeString(sv);
+}
+
+inline
+void Json_ConstructVisitor::operator()(const JsonObject *jObj) const
+{
+    d_this_p->makeObject(*jObj);
+}
+
+inline
+void Json_ConstructVisitor::operator()(const JsonArray *jArr) const
+{
+    d_this_p->makeArray(*jArr);
+}
+
+inline
+void Json_ConstructVisitor::operator()(const JsonNumber *jNum) const
+{
+    d_this_p->makeNumber(*jNum);
+}
+
+inline
+void Json_ConstructVisitor::operator()(const Json *json) const
+{
+    *d_this_p = *json;
+}
+
+inline
+void Json_ConstructVisitor::operator()(bsl::span<const Json_Initializer> sp)
+                                                                          const
+{
+    JsonArray arr(sp.begin(), sp.end(), d_this_p->allocator());
+    d_this_p->makeArray(bslmf::MovableRefUtil::move(arr));
+}
+
+inline
+void Json_ConstructVisitor::operator()(bslmf::Nil) const
+{
+    BSLA_UNREACHABLE;
+    BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
+}
+
+                        // ============================
+                        // class Json_MemberInitializer
+                        // ============================
+
+/// This component-private class is designed capture a set of values that can
+/// be used to initialize an element in a `JsonObject`.  The purpose here is to
+/// enable list-initialization (including nested lists) of JSON objects.
+class Json_MemberInitializer {
+
+  private:
+    // DATA
+    bsl::string_view    d_first;
+    Json_Initializer    d_second;
+
+  public:
+// BDE_VERIFY pragma: push
+// BDE_VERIFY pragma: -IEC01  // implicit conversions is the reason we exist
+
+    // CREATORS
+
+    /// Create a Json_MemberInitializer object a key whose value is equal to
+    /// the specified `s` and whose value is equal to the specified `ji`.
+    Json_MemberInitializer(const char         *s, const Json_Initializer& ji);
+    Json_MemberInitializer(const bsl::string&  s, const Json_Initializer& ji);
+    Json_MemberInitializer(const std::string&  s, const Json_Initializer& ji);
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+    Json_MemberInitializer(const std::pmr::string& s,
+                                                  const Json_Initializer& ji);
+#endif
+
+    /// Create a Json_MemberInitializer object a key whose value is equal to
+    /// the specified `sv` and whose value is equal to the specified `ji`.
+    Json_MemberInitializer(const bsl::string_view& sv,
+                           const Json_Initializer& ji);
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+    /// Create a `Json_MemberInitializer` object a key whose value is equal to
+    /// the specified `sv` and whose value is equal to the specified `ji`.
+    Json_MemberInitializer(const std::string_view& sv,
+                           const Json_Initializer& ji);
+#endif
+
+    // ACCESSORS
+
+    /// Return the key that the object was created with.
+    bsl::string_view key() const;
+
+    /// Return a reference providing non-modifiable access to the value that
+    /// the object was created with.
+    const Json_Initializer& value() const;
+
+// BDE_VERIFY pragma: pop
+
+};
+
+                        // ----------------------------
+                        // class Json_MemberInitializer
+                        // ----------------------------
+
+// CREATORS
+inline
+Json_MemberInitializer::Json_MemberInitializer(const char              *s,
+                                               const Json_Initializer&  ji)
+: d_first(s)
+, d_second(ji)
+{
+}
+
+inline
+Json_MemberInitializer::Json_MemberInitializer(const bsl::string&      s,
+                                               const Json_Initializer& ji)
+: d_first(s)
+, d_second(ji)
+{
+}
+
+inline
+Json_MemberInitializer::Json_MemberInitializer(const std::string&      s,
+                                               const Json_Initializer& ji)
+: d_first(s)
+, d_second(ji)
+{
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
+inline
+Json_MemberInitializer::Json_MemberInitializer(const std::pmr::string& s,
+                                               const Json_Initializer& ji)
+: d_first(s)
+, d_second(ji)
+{
+}
+#endif
+
+inline
+Json_MemberInitializer::Json_MemberInitializer(const bsl::string_view& sv,
+                                               const Json_Initializer& ji)
+: d_first(sv)
+, d_second(ji)
+{
+}
+
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+inline
+Json_MemberInitializer::Json_MemberInitializer(const std::string_view& sv,
+                                               const Json_Initializer& ji)
+: d_first(sv)
+, d_second(ji)
+{
+}
+#endif
+
+// ACCESSORS
+inline
+bsl::string_view Json_MemberInitializer::key() const
+{
+    return d_first;
+}
+
+inline
+const Json_Initializer& Json_MemberInitializer::value() const
+{
+    return d_second;
+}
+
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+                             // =====================
+                             // struct Json_VisitUtil
+                             // =====================
 
 struct Json_VisitUtil {
 
@@ -2242,6 +2796,74 @@ struct Json_VisitUtil {
 #endif
 };
 
+                             // ---------------------
+                             // struct Json_VisitUtil
+                             // ---------------------
+
+template <class RETURN_TYPE,
+          class VISITOR,
+          class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(VISITOR         *visitor,
+                                          const ARGUMENT&  argument)
+{
+    BSLS_ASSERT(visitor);
+    return (*visitor)(argument);
+}
+
+template <class RETURN_TYPE,
+          class VISITOR,
+          class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(VISITOR&        visitor,
+                                          const ARGUMENT& argument)
+{
+    return visitor(argument);
+}
+
+template <class RETURN_TYPE,
+          class VISITOR,
+          class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(const VISITOR&  visitor,
+                                          const ARGUMENT& argument)
+{
+    return visitor(argument);
+}
+
+template <class RETURN_TYPE,
+          class VISITOR,
+          class ARGUMENT>
+RETURN_TYPE Json_VisitUtil::invokeVisitor(
+                                     BSLMF_MOVABLEREF_DEDUCE(VISITOR) visitor,
+                                     const ARGUMENT&                  argument)
+{
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    return         (bsl::forward<VISITOR>(visitor))(argument);
+#else
+    return (bslmf::MovableRefUtil::access(visitor))(argument);
+#endif
+}
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
+template <class VISITOR,
+          class ARGUMENT>
+decltype(auto) Json_VisitUtil::invokeVisitor(const VISITOR&  visitor,
+                                             const ARGUMENT& argument)
+{
+    return visitor(argument);
+}
+
+template <class VISITOR,
+          class ARGUMENT>
+decltype(auto) Json_VisitUtil::invokeVisitor(
+                                     BSLMF_MOVABLEREF_DEDUCE(VISITOR) visitor,
+                                     const ARGUMENT&                  argument)
+{
+#ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
+    return         (bsl::forward<VISITOR>(visitor))(argument);
+#else
+    return (bslmf::MovableRefUtil::access(visitor))(argument);
+#endif
+}
+#endif
                         // ===============================
                         // class Json_StringInvariantGuard
                         // ===============================
@@ -2264,9 +2886,29 @@ class Json_StringInvariantGuard {
     ~Json_StringInvariantGuard() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false);
 };
 
-// ============================================================================
-//                            INLINE DEFINITIONS
-// ============================================================================
+                        // -------------------------------
+                        // class Json_StringInvariantGuard
+                        // -------------------------------
+
+// CREATORS
+inline
+Json_StringInvariantGuard::Json_StringInvariantGuard(bsl::string *string)
+: d_string_p(string)
+{
+    BSLS_ASSERT(string);
+}
+
+inline
+Json_StringInvariantGuard::~Json_StringInvariantGuard()
+                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
+{
+    if (0 == bsl::uncaught_exceptions()) {
+        if (false == bdlde::Utf8Util::isValid(*d_string_p)) {
+            BSLS_ASSERT_INVOKE_NORETURN(
+                             "false == bdlde::Utf8Util::isValid(*d_string_p)");
+        }
+    }
+}
 
                               // ---------------
                               // class JsonArray
@@ -2315,10 +2957,10 @@ JsonArray::JsonArray(bslmf::MovableRef<JsonArray>  original,
     }
 }
 
-template <class INPUT_ITERATOR>
+template <class t_INPUT_ITERATOR>
 inline
-JsonArray::JsonArray(INPUT_ITERATOR    first,
-                     INPUT_ITERATOR    last,
+JsonArray::JsonArray(t_INPUT_ITERATOR  first,
+                     t_INPUT_ITERATOR  last,
                      bslma::Allocator *basicAllocator)
 : d_elements(first, last, basicAllocator)
 {
@@ -2326,11 +2968,12 @@ JsonArray::JsonArray(INPUT_ITERATOR    first,
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
-JsonArray::JsonArray(std::initializer_list<Json>  elements,
-                     bslma::Allocator            *basicAllocator)
-: d_elements(elements, basicAllocator)
+JsonArray::JsonArray(std::initializer_list<Json_Initializer>  elements,
+                     bslma::Allocator                        *basicAllocator)
+: d_elements(elements.begin(), elements.end(), basicAllocator)
 {
 }
+
 #endif
 
 // MANIPULATORS
@@ -2351,9 +2994,10 @@ JsonArray& JsonArray::operator=(bslmf::MovableRef<JsonArray> rhs)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
-JsonArray& JsonArray::operator=(std::initializer_list<Json> initializer)
+JsonArray& JsonArray::operator=(std::initializer_list<Json_Initializer>
+                                                                      elements)
 {
-    d_elements = initializer;
+    assign(elements);
     return *this;
 }
 #endif
@@ -2365,9 +3009,9 @@ Json& JsonArray::operator[](bsl::size_t index)
     return d_elements[index];
 }
 
-template <class INPUT_ITERATOR>
+template <class t_INPUT_ITERATOR>
 inline
-JsonArray& JsonArray::assign(INPUT_ITERATOR first, INPUT_ITERATOR last)
+JsonArray& JsonArray::assign(t_INPUT_ITERATOR first, t_INPUT_ITERATOR last)
 {
     d_elements.assign(first, last);
     return *this;
@@ -2375,9 +3019,9 @@ JsonArray& JsonArray::assign(INPUT_ITERATOR first, INPUT_ITERATOR last)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
-JsonArray& JsonArray::assign(std::initializer_list<Json> initializer)
+JsonArray& JsonArray::assign(std::initializer_list<Json_Initializer> elements)
 {
-    d_elements.assign(initializer);
+    d_elements.assign(elements.begin(), elements.end());
     return *this;
 }
 #endif
@@ -2444,11 +3088,11 @@ JsonArray::Iterator JsonArray::insert(bsl::size_t             index,
                              bslmf::MovableRefUtil::move(json));
 }
 
-template <class INPUT_ITERATOR>
+template <class t_INPUT_ITERATOR>
 inline
-JsonArray::Iterator JsonArray::insert(bsl::size_t    index,
-                                      INPUT_ITERATOR first,
-                                      INPUT_ITERATOR last)
+JsonArray::Iterator JsonArray::insert(bsl::size_t      index,
+                                      t_INPUT_ITERATOR first,
+                                      t_INPUT_ITERATOR last)
 {
     return d_elements.insert(d_elements.begin() + index, first, last);
 }
@@ -2466,11 +3110,11 @@ JsonArray::Iterator JsonArray::insert(ConstIterator           position,
     return d_elements.insert(position, bslmf::MovableRefUtil::move(json));
 }
 
-template <class INPUT_ITERATOR>
+template <class t_INPUT_ITERATOR>
 inline
-JsonArray::Iterator JsonArray::insert(ConstIterator  position,
-                                      INPUT_ITERATOR first,
-                                      INPUT_ITERATOR last)
+JsonArray::Iterator JsonArray::insert(ConstIterator    position,
+                                      t_INPUT_ITERATOR first,
+                                      t_INPUT_ITERATOR last)
 {
     return d_elements.insert(position, first, last);
 }
@@ -2630,12 +3274,12 @@ JsonArray& JsonArray::pushBack(const bsl::string_view& string)
     return *this;
 }
 
-template <class STRING_TYPE>
+template <class t_STRING_TYPE>
 inline
-typename bsl::enable_if<bsl::is_same<STRING_TYPE,
+typename bsl::enable_if<bsl::is_same<t_STRING_TYPE,
                                      bsl::string>::value,
                         JsonArray&>::type
-JsonArray::pushBack(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string)
+JsonArray::pushBack(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) string)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(
                                        bslmf::MovableRefUtil::access(string)));
@@ -2778,38 +3422,40 @@ JsonObject::JsonObject(bslmf::MovableRef<JsonObject>  original,
     }
 }
 
-template <class INPUT_ITERATOR>
+template <class t_INPUT_ITERATOR>
 inline
-JsonObject::JsonObject(INPUT_ITERATOR    first,
-                       INPUT_ITERATOR    last,
+JsonObject::JsonObject(t_INPUT_ITERATOR  first,
+                       t_INPUT_ITERATOR  last,
                        bslma::Allocator *basicAllocator)
 : d_members(first, last, basicAllocator)
 {
 #ifdef BSLS_ASSERT_IS_ACTIVE
-    for (Container::const_iterator iter = d_members.begin();
-         iter != d_members.end();
-         ++iter) {
-        BSLS_ASSERT(bdlde::Utf8Util::isValid(iter->first.data(),
-                                             iter->first.size()));
+    for (Container::const_iterator itr  = d_members.begin(),
+                                   end  = d_members.end();
+                                   end != itr; ++itr) {
+        BSLS_ASSERT(bdlde::Utf8Util::isValid(itr->first));
     }
 #endif
 }
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 inline
-JsonObject::JsonObject(std::initializer_list<Member>  members,
-                       bslma::Allocator              *basicAllocator)
-: d_members(members, basicAllocator)
+JsonObject::JsonObject(
+             std::initializer_list<Json_MemberInitializer>  memberInitializers,
+             bslma::Allocator                              *basicAllocator)
+: d_members(basicAllocator)
 {
-#ifdef BSLS_ASSERT_IS_ACTIVE
-    for (Container::const_iterator iter  = d_members.begin();
-                                   iter != d_members.end(); ++iter) {
-        BSLS_ASSERT(bdlde::Utf8Util::isValid(iter->first.data(),
-                                             iter->first.size()));
+    d_members.reserve(memberInitializers.size());
+
+    for (const Json_MemberInitializer& memberInitializer : memberInitializers)
+    {
+        BSLS_ASSERT(bdlde::Utf8Util::isValid(memberInitializer.key()));
+
+        d_members.emplace(memberInitializer.key(),
+                          memberInitializer.value());
     }
-#endif
 }
-#endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
 // MANIPULATORS
 inline
@@ -2822,6 +3468,8 @@ JsonObject& JsonObject::operator=(const JsonObject& rhs)
 inline
 JsonObject& JsonObject::operator=(bslmf::MovableRef<JsonObject> rhs)
 {
+    // Implementation Note: We test allocators here per {DRQS 143521386<GO>}.
+
     Container& rhsMembers = bslmf::MovableRefUtil::access(rhs).d_members;
     if (d_members.get_allocator() == rhsMembers.get_allocator()) {
         d_members = bslmf::MovableRefUtil::move(rhsMembers);
@@ -2834,9 +3482,20 @@ JsonObject& JsonObject::operator=(bslmf::MovableRef<JsonObject> rhs)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
-JsonObject& JsonObject::operator=(std::initializer_list<Member> members)
+JsonObject& JsonObject::operator=(
+              std::initializer_list<Json_MemberInitializer> memberInitializers)
 {
-    d_members = members;
+    Container newContainer(d_members.get_allocator());
+    newContainer.reserve(memberInitializers.size());
+
+    for (const Json_MemberInitializer& memberInitializer : memberInitializers)
+    {
+        BSLS_ASSERT(bdlde::Utf8Util::isValid(memberInitializer.key()));
+
+        newContainer.emplace(memberInitializer.key(),
+                             memberInitializer.value());
+    }
+    d_members = bslmf::MovableRefUtil::move(newContainer);
     return *this;
 }
 #endif
@@ -2844,25 +3503,9 @@ JsonObject& JsonObject::operator=(std::initializer_list<Member> members)
 inline
 Json& JsonObject::operator[](const bsl::string_view& key)
 {
-    BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(key));
 
-    Iterator it = d_members.find(key);
-    if (it != d_members.end()) {
-        return it->second;                                            // RETURN
-    }
-
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-    return d_members
-        .emplace(std::piecewise_construct,
-                 std::forward_as_tuple(key),
-                 std::forward_as_tuple())
-        .first->second;
-#else
-    bslma::Allocator                  *alloc = allocator();
-    bsl::pair<bsl::string_view, Json>  value(alloc);
-    value.first = key;
-    return d_members.emplace(bslmf::MovableRefUtil::move(value)).first->second;
-#endif
+    return d_members[key];
 }
 
 inline
@@ -2924,55 +3567,53 @@ bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
 {
 #ifdef BSLS_ASSERT_IS_ACTIVE
     const bsl::string& key = bslmf::MovableRefUtil::access(member).first;
-    BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(key));
 #endif
     return d_members.insert(bslmf::MovableRefUtil::move(member));
 }
 
-template <class INPUT_ITERATOR>
+template <class t_INPUT_ITERATOR>
 inline
 typename bsl::enable_if<
-    !bsl::is_convertible<INPUT_ITERATOR, bsl::string_view>::value,
+    !bsl::is_convertible<t_INPUT_ITERATOR, bsl::string_view>::value,
     JsonObject&>::type
-JsonObject::insert(INPUT_ITERATOR first, INPUT_ITERATOR last)
+JsonObject::insert(t_INPUT_ITERATOR first, t_INPUT_ITERATOR last)
 {
-    d_members.insert(first, last);
-#ifdef BSLS_ASSERT_SAFE_IS_ACTIVE
-    for (Container::const_iterator iter = d_members.begin();
-         iter != d_members.end();
-         ++iter) {
-        BSLS_ASSERT_SAFE(
-             bdlde::Utf8Util::isValid(iter->first.data(), iter->first.size()));
+#ifdef BSLS_ASSERT_IS_ACTIVE
+    for (Container::const_iterator itr  = d_members.begin(),
+                                   end  = d_members.end();
+                                   end != itr; ++itr) {
+        BSLS_ASSERT(bdlde::Utf8Util::isValid(itr->first));
     }
 #endif
+    d_members.insert(first, last);
     return *this;
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
-JsonObject& JsonObject::insert(std::initializer_list<Member> members)
+JsonObject& JsonObject::insert(std::initializer_list<Json_MemberInitializer>
+                                                          memberInitializers)
 {
-#ifdef BSLS_ASSERT_IS_ACTIVE
-    for (auto member : members) {
-        BSLS_ASSERT(bdlde::Utf8Util::isValid(member.first.data(),
-                                             member.first.size()));
+    for (const Json_MemberInitializer& memberInitializer : memberInitializers)
+    {
+        BSLS_ASSERT(bdlde::Utf8Util::isValid(memberInitializer.key()));
+
+        d_members.emplace(memberInitializer.key(), memberInitializer.value());
     }
-#endif
-    d_members.insert(members);
     return *this;
 }
 #endif
 
-template <class VALUE>
+template <class t_VALUE>
 bsl::pair<JsonObject::Iterator, bool> JsonObject::insert(
-                                const bsl::string_view&                  key,
-                                BSLS_COMPILERFEATURES_FORWARD_REF(VALUE) value)
+                              const bsl::string_view&                    key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_VALUE) value)
 {
-    BSLS_ASSERT(bdlde::Utf8Util::isValid(key.data(), key.size()));
-    Json   json(BSLS_COMPILERFEATURES_FORWARD(VALUE, value), allocator());
-    Member member(key, Json(), allocator());
-    member.second = bslmf::MovableRefUtil::move(json);
-    return insert(bslmf::MovableRefUtil::move(member));
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(key));
+
+    return d_members.emplace(key,
+                             BSLS_COMPILERFEATURES_FORWARD(t_VALUE, value));
 }
 
 inline
@@ -3133,6 +3774,19 @@ Json::Json(bslmf::MovableRef<JsonNumber>  number,
 {
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+template <class t_JSON_INITIALIZER>
+Json::Json(const t_JSON_INITIALIZER&  initializer,
+           bslma::Allocator          *basicAllocator,
+           typename bsl::enable_if<
+           bsl::is_same<t_JSON_INITIALIZER,
+                          Json_Initializer>::value>::type *)
+: d_value(JsonNull(), basicAllocator)
+{
+    initializer.get_storage().apply(Json_ConstructVisitor(this));
+}
+#endif
+
 inline
 Json::Json(int value, bslma::Allocator *basicAllocator)
 : d_value(JsonNumber(value), basicAllocator)
@@ -3203,12 +3857,12 @@ Json::Json(const bsl::string_view& string, bslma::Allocator *basicAllocator)
     d_value.createInPlace<bsl::string>(string);
 }
 
-template <class STRING_TYPE>
+template <class t_STRING_TYPE>
 inline
-Json::Json(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string,
-           bslma::Allocator                    *basicAllocator,
+Json::Json(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE)  string,
+           bslma::Allocator                       *basicAllocator,
            typename bsl::enable_if<
-               bsl::is_same<STRING_TYPE, bsl::string>::value>::type *)
+               bsl::is_same<t_STRING_TYPE, bsl::string>::value>::type *)
 : d_value(bslmf::MovableRefUtil::move(string), basicAllocator)
 {
     BSLS_ASSERT(bdlde::Utf8Util::isValid(
@@ -3322,10 +3976,10 @@ Json& Json::operator=(const bsl::string_view& rhs)
     return *this;
 }
 
-template <class STRING_TYPE>
-typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value,
+template <class t_STRING_TYPE>
+typename bsl::enable_if<bsl::is_same<t_STRING_TYPE, bsl::string>::value,
                         Json>::type&
-    Json::operator=(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) rhs)
+    Json::operator=(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) rhs)
 {
     makeString(bslmf::MovableRefUtil::move(rhs));
     return *this;
@@ -3473,13 +4127,13 @@ void Json::makeString(const bsl::string_view& string)
     d_value.createInPlace<bsl::string>(string);
 }
 
-template <class STRING_TYPE>
+template <class t_STRING_TYPE>
 inline
-typename bsl::enable_if<bsl::is_same<STRING_TYPE, bsl::string>::value>::type
-    Json::makeString(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string)
+typename bsl::enable_if<bsl::is_same<t_STRING_TYPE, bsl::string>::value>::type
+Json::makeString(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) string)
 {
-    BSLS_ASSERT(
-              bdlde::Utf8Util::isValid(bslmf::MovableRefUtil::access(string)));
+    BSLS_ASSERT(bdlde::Utf8Util::isValid(
+                                       bslmf::MovableRefUtil::access(string)));
     d_value = bslmf::MovableRefUtil::move(string);
 }
 
@@ -3717,12 +4371,12 @@ Json& Json::pushBack(const bsl::string_view& string)
     return *this;
 }
 
-template <class STRING_TYPE>
+template <class t_STRING_TYPE>
 inline
-typename bsl::enable_if<bsl::is_same<STRING_TYPE,
+typename bsl::enable_if<bsl::is_same<t_STRING_TYPE,
                                      bsl::string>::value,
                         Json&>::type
-Json::pushBack(BSLMF_MOVABLEREF_DEDUCE(STRING_TYPE) string)
+Json::pushBack(BSLMF_MOVABLEREF_DEDUCE(t_STRING_TYPE) string)
 {
     BSLS_ASSERT(isArray() || isNull());
     if (isNull()) {
@@ -3748,7 +4402,7 @@ RETURN_TYPE Json::visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
       } break;
       case JsonType::e_STRING : {
 #ifdef BSLS_ASSERT_IS_ACTIVE
-        Json_StringInvariantGuard         guard(&d_value.the<bsl::string>());
+        Json_StringInvariantGuard guard(&d_value.the<bsl::string>());
 #endif
         return Util::invokeVisitor<RETURN_TYPE>(visitor,
                                                 &d_value.the<bsl::string>());
@@ -3788,7 +4442,7 @@ decltype(auto) Json::visit(BSLS_COMPILERFEATURES_FORWARD_REF(VISITOR) visitor)
       } break;
       case JsonType::e_STRING : {
 #ifdef BSLS_ASSERT_IS_ACTIVE
-        Json_StringInvariantGuard     guard(&d_value.the<bsl::string>());
+        Json_StringInvariantGuard guard(&d_value.the<bsl::string>());
 #endif
         return Util::invokeVisitor(visitor, &d_value.the<bsl::string>());
                                                                       // RETURN
@@ -4240,13 +4894,6 @@ bool bdljsn::operator!=(const bdljsn::JsonArray& lhs,
     return lhs.d_elements != rhs.d_elements;
 }
 
-template <class HASHALG>
-inline
-void bdljsn::hashAppend(HASHALG& hashAlg, const bdljsn::JsonArray& object)
-{
-    hashAppend(hashAlg, object.d_elements);
-}
-
 inline
 void bdljsn::swap(bdljsn::JsonArray& a, bdljsn::JsonArray& b)
 {
@@ -4272,13 +4919,6 @@ bool bdljsn::operator!=(const bdljsn::JsonObject& lhs,
                         const bdljsn::JsonObject& rhs)
 {
     return lhs.d_members != rhs.d_members;
-}
-
-template <class HASHALG>
-inline
-void bdljsn::hashAppend(HASHALG& hashAlg, const bdljsn::JsonObject& object)
-{
-    hashAppend(hashAlg, object.d_members);
 }
 
 inline
@@ -4704,114 +5344,12 @@ bool bdljsn::operator!=(const Json& lhs, const bsl::string_view& rhs)
     return !lhs.isString() || lhs.theString() != rhs;
 }
 
-template <class HASHALG>
-inline
-void bdljsn::hashAppend(HASHALG& hashAlg, const bdljsn::Json& object)
-{
-    hashAppend(hashAlg, object.d_value);
-}
-
 inline
 void bdljsn::swap(bdljsn::Json& a, bdljsn::Json& b)
 {
     bslalg::SwapUtil::swap(&a.d_value, &b.d_value);
 }
 
-namespace bdljsn {
-                                 // ---------------------
-                                 // struct Json_VisitUtil
-                                 // ---------------------
-
-template <class RETURN_TYPE,
-          class VISITOR,
-          class ARGUMENT>
-RETURN_TYPE Json_VisitUtil::invokeVisitor(VISITOR         *visitor,
-                                          const ARGUMENT&  argument)
-{
-    BSLS_ASSERT(visitor);
-    return (*visitor)(argument);
-}
-
-template <class RETURN_TYPE,
-          class VISITOR,
-          class ARGUMENT>
-RETURN_TYPE Json_VisitUtil::invokeVisitor(VISITOR&        visitor,
-                                          const ARGUMENT& argument)
-{
-    return visitor(argument);
-}
-
-template <class RETURN_TYPE,
-          class VISITOR,
-          class ARGUMENT>
-RETURN_TYPE Json_VisitUtil::invokeVisitor(const VISITOR&  visitor,
-                                          const ARGUMENT& argument)
-{
-    return visitor(argument);
-}
-
-template <class RETURN_TYPE,
-          class VISITOR,
-          class ARGUMENT>
-RETURN_TYPE Json_VisitUtil::invokeVisitor(
-                                     BSLMF_MOVABLEREF_DEDUCE(VISITOR) visitor,
-                                     const ARGUMENT&                  argument)
-{
-  #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-    return         (bsl::forward<VISITOR>(visitor))(argument);
-  #else
-    return (bslmf::MovableRefUtil::access(visitor))(argument);
-  #endif
-}
-
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-template <class VISITOR,
-          class ARGUMENT>
-decltype(auto) Json_VisitUtil::invokeVisitor(const VISITOR&  visitor,
-                                             const ARGUMENT& argument)
-{
-    return visitor(argument);
-}
-
-template <class VISITOR,
-          class ARGUMENT>
-decltype(auto) Json_VisitUtil::invokeVisitor(
-                                     BSLMF_MOVABLEREF_DEDUCE(VISITOR) visitor,
-                                     const ARGUMENT&                  argument)
-{
-  #ifdef BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES
-    return         (bsl::forward<VISITOR>(visitor))(argument);
-  #else
-    return (bslmf::MovableRefUtil::access(visitor))(argument);
-  #endif
-}
-#endif
-
-                        // -------------------------------
-                        // class Json_StringInvariantGuard
-                        // -------------------------------
-
-// CREATORS
-inline
-Json_StringInvariantGuard::Json_StringInvariantGuard(bsl::string *string)
-: d_string_p(string)
-{
-    BSLS_ASSERT(string);
-}
-
-inline
-Json_StringInvariantGuard::~Json_StringInvariantGuard()
-                                     BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false)
-{
-    if (0 == bsl::uncaught_exceptions()) {
-        if (false == bdlde::Utf8Util::isValid(*d_string_p)) {
-            BSLS_ASSERT_INVOKE_NORETURN(
-                             "false == bdlde::Utf8Util::isValid(*d_string_p)");
-        }
-    }
-}
-
-}  // close package namespace
 }  // close enterprise namespace
 
 #endif  // INCLUDED_BDLJSN_JSON

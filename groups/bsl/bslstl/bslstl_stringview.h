@@ -12,6 +12,10 @@ BSLS_IDENT("$Id: $")
 //  bsl::string_view: `typedef` for `bsl::basic_string_view<char>`
 //  bsl::wstring_view: `typedef` for `bsl::basic_string_view<wchar_t>`
 //
+//@MACROS:
+//  BSLSTL_STRING_VIEW_IS_ALIASED: `bsl::string_view` => `std::string_view`
+//  BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST: are different classes
+//
 //@CANONICAL_HEADER: bsl_string_view.h
 //
 //@SEE_ALSO: ISO C++ Standard, bdlb_stringviewutil
@@ -136,6 +140,43 @@ BSLS_IDENT("$Id: $")
 // using namespace bsl::string_view_literals;
 // bsl::string_view svr = "test"_sv;
 // ```
+//
+///`bsl::string_view` and `std::string_view`
+///-----------------------------------------
+// The following macros are provided to allow developers who work with both
+// `bsl::string_view` (which exists for *all* supported language levels) and
+// `std::string_view` (which does not exist for all language levels and whose
+// feature set differs according to language level) to define and test
+// their interfaces as appropriate.
+//
+//  * `BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY`: If defined, the
+//    `std::string_view` class is exists.
+//    `assert(true  == bsl::is_class<std::string_view>);'
+//
+//  * `BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST`: If defined, both
+//    `std::string_view` and `bsl::string_view` exist, and they are each is a
+//     distinct class.
+//    `assert(false == bsl::is_same_v<bsl::string_view, std::string_view>);'
+//
+//  * `BSLSTL_STRING_VIEW_IS_ALIASED': If defined, both `std::string_view` and
+//    `bsl::string_view` exist *and* the latter is implemented as an alias to
+//    the former.
+//    `assert(true  == bsl::is_same_v<bsl::string_view, std::string_view>);'
+//
+///Background
+/// - - - - -
+// `std::string_view` was introduced in the Standard library for C++17.
+// Later versions of the Standard have added features.  One of the goals of
+// `bsl::string_view` is to make *all* `std::string_view` features
+// available to Bloomberg developers, irrespective of the language level being
+// used.  Thus, `bsl::string_view` provides a `std::string_view` implementation
+// for C++03, C++11, and CPP14 -- language levels that have no
+// `std::string_view` class.  For later language levels, `bsl::string_view`
+// may be implemented as an alias to `std::string_view` itself.  Alternatively,
+// for some language levels, the two classes may both be available.  For
+// example, for CPP17, `bsl::string_view` can be constructed from appropriate
+// iterators (a feature of the C++20 standard) but the native C++17
+// `std::string_view` cannot.
 //
 ///Usage
 ///-----
