@@ -175,7 +175,7 @@ BSLS_IDENT("$Id: $")
 //     bslmt::Condition                 d_timerChangedCond;
 //     bslmt::ThreadUtil::Handle        d_connectionThreadHandle;
 //     bslmt::ThreadUtil::Handle        d_timerThreadHandle;
-//     volatile bool                    d_done;
+//     bool                             d_done;
 //
 //   protected:
 //     /// Add the specified `connection` to the current `my_Server`,
@@ -241,30 +241,46 @@ BSLS_IDENT("$Id: $")
 //
 //     /// Begin monitoring timers and connections.
 //     int start();
+//
+//     /// Stop monitoring timers and connections and join threads.
+//     void stop();
 // };
 // ```
 // The constructor is simple: it initializes the internal `bdlcc::TimeQueue`
-// and sets the I/O timeout value.  The virtual destructor sets a shared
-// completion flag to indicate completion, wakes up all waiting threads, and
-// waits for them to join.
+// and sets the I/O timeout value.  The virtual destructor calls `stop()`.
 // ```
 // my_Server::my_Server(int ioTimeout, bslma::Allocator *basicAllocator)
 // : d_timeQueue(basicAllocator)
 // , d_ioTimeout(ioTimeout)
 // , d_connectionThreadHandle(bslmt::ThreadUtil::invalidHandle())
 // , d_timerThreadHandle(bslmt::ThreadUtil::invalidHandle())
+// , d_done(false)
 // {
 // }
 //
 // my_Server::~my_Server()
 // {
-//     d_done = true;
-//     d_timerChangedCond.broadcast();
+//     stop();
+// }
+// ```
+// Member function `stop` signals all waiting threads by setting the `d_done`
+// flag and broadcasting on the condition variable, then joins the connection
+// and timer threads and resets their handles to invalid.
+// ```
+// void my_Server::stop()
+// {
+//     {
+//         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
+//         d_done = true;
+//         d_timerChangedCond.broadcast();
+//     }
 //     if (bslmt::ThreadUtil::invalidHandle() != d_connectionThreadHandle) {
 //         bslmt::ThreadUtil::join(d_connectionThreadHandle);
+//         d_connectionThreadHandle = bslmt::ThreadUtil::invalidHandle();
 //     }
-//     if (bslmt::ThreadUtil::invalidHandle()!= d_timerThreadHandle) {
+//     if (bslmt::ThreadUtil::invalidHandle() != d_timerThreadHandle) {
 //         bslmt::ThreadUtil::join(d_timerThreadHandle);
+//         d_timerThreadHandle = bslmt::ThreadUtil::invalidHandle();
 //     }
 // }
 // ```
@@ -278,12 +294,12 @@ BSLS_IDENT("$Id: $")
 // {
 //     d_connections.push_back(connection);
 //     int isNewTop = 0;
-//     connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-//                                                                d_ioTimeout,
-//                                             connection,
-//                                             &isNewTop);
+//     bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
+//     connection->d_timerId = d_timeQueue.add(
+//                                     bdlt::CurrentTime::now() + d_ioTimeout,
+//                                     connection,
+//                                     &isNewTop);
 //     if (isNewTop) {
-//         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
 //         d_timerChangedCond.signal();
 //     }
 // }
@@ -331,21 +347,27 @@ BSLS_IDENT("$Id: $")
 //                               void          *buffer_p,
 //                               int            length)
 // {
-//     if (connection->d_timerId) {
-//         if (d_timeQueue.remove(connection->d_timerId))  return;   // RETURN
-//         connection->d_timerId = 0;
+//     {
+//         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
+//         if (connection->d_timerId) {
+//             if (d_timeQueue.remove(connection->d_timerId)) {
+//                 return;                                           // RETURN
+//             }
+//             connection->d_timerId = 0;
+//         }
 //     }
 //     connection->d_session_p->processData(buffer_p, length);
 //
 //     int isNewTop = 0;
-//
-//     connection->d_timerId = d_timeQueue.add(bdlt::CurrentTime::now() +
-//                                                                d_ioTimeout,
-//                                             connection,
-//                                             &isNewTop);
-//     if (isNewTop) {
+//     {
 //         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
-//         d_timerChangedCond.signal();
+//         connection->d_timerId = d_timeQueue.add(
+//                                     bdlt::CurrentTime::now() + d_ioTimeout,
+//                                     connection,
+//                                     &isNewTop);
+//         if (isNewTop) {
+//             d_timerChangedCond.signal();
+//         }
 //     }
 // }
 // ```
@@ -356,35 +378,38 @@ BSLS_IDENT("$Id: $")
 // ```
 // void my_Server::monitorTimers()
 // {
-//     while (!d_done) {
-//         bsl::vector<bdlcc::TimeQueueItem<my_Connection*> > expiredTimers;
-//         {
-//             bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
-//             bsls::TimeInterval minTime;
-//             int newLength;
+//     while (true) {
+//         bsl::vector<bdlcc::TimeQueueItem<my_Connection *> > expiredTimers;
+//         bslmt::LockGuard<bslmt::Mutex> lock(&d_timerMonitorMutex);
 //
-//             d_timeQueue.popLE(bdlt::CurrentTime::now(),
-//                               &expiredTimers,
-//                               &newLength,
-//                               &minTime );
+//         if (d_done) {
+//             break;
+//         }
 //
-//             if (!expiredTimers.size()) {
-//                 if (newLength) {
-//                     // no expired timers, but unexpired timers remain.
-//                     d_timerChangedCond.timedWait(&d_timerMonitorMutex,
-//                                                  minTime);
-//                 }
-//                 else {
-//                     // no expired timers, and timer queue is empty.
-//                     d_timerChangedCond.wait(&d_timerMonitorMutex);
-//                 }
-//                 continue;
+//         bsls::TimeInterval minTime;
+//         int                newLength;
+//
+//         d_timeQueue.popLE(bsls::SystemTime::nowRealtimeClock(),
+//                           &expiredTimers,
+//                           &newLength,
+//                           &minTime);
+//
+//         if (!expiredTimers.size()) {
+//             if (newLength) {
+//                 // no expired timers, but unexpired timers remain.
+//                 d_timerChangedCond.timedWait(&d_timerMonitorMutex,
+//                                              minTime);
 //             }
+//             else {
+//                 // no expired timers, and timer queue is empty.
+//                 d_timerChangedCond.wait(&d_timerMonitorMutex);
+//             }
+//             continue;
 //         }
 //
 //         int length = static_cast<int>(expiredTimers.size());
 //         if (length) {
-//             bdlcc::TimeQueueItem<my_Connection*> *data =
+//             bdlcc::TimeQueueItem<my_Connection *> *data =
 //                                                     &expiredTimers.front();
 //             for (int i = 0; i < length; ++i) {
 //                 closeConnection(data[i].data());
@@ -519,6 +544,7 @@ BSLS_IDENT("$Id: $")
 //
 // my_TestServer::~my_TestServer()
 // {
+//     stop();
 // }
 //
 // void my_TestServer::closeConnection(my_Connection *connection)
