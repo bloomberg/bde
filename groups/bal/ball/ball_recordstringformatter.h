@@ -385,7 +385,6 @@ class RecordStringFormatter {
     /// that if no allocator was supplied at construction the default
     /// allocator in effect at construction is used.
     allocator_type get_allocator() const;
-
 };
 
 // FREE OPERATORS

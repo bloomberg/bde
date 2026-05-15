@@ -57,6 +57,7 @@
 #include <sys/stat.h>
 
 #ifdef BSLS_PLATFORM_OS_UNIX
+#include <glob.h>
 #include <bsl_c_signal.h>
 #include <sys/resource.h>
 #include <bsl_c_time.h>
@@ -501,6 +502,8 @@ typedef LogRotationCallbackTester RotCb;
 
 namespace BALL_ASYNCFILEOBSERVER_TEST_CONCURRENCY {
 
+bslmt::Barrier *s_barrier_p = 0;  // barrier for synchronizing stop operation
+
 /// Create the specified `numThreads`, each executing the specified `func`.
 void executeInParallel(int                                numThreads,
                        bslmt::ThreadUtil::ThreadFunction  function)
@@ -549,9 +552,15 @@ extern "C" void *workerThread2(void *arg)
     for (int i = 0; i < 10; ++i) {
         ret = observer->startPublicationThread();
         ASSERT(0 == ret);
+
         for (int j = 0; j < 1000; ++j) {
             BALL_LOG_TRACE << "ball::AsyncFileObserver Concurrency Test.";
         }
+
+        // Synchronize before stop so all threads finish publishing first.
+        // This prevents livelock where one thread stops the publication
+        // thread while others are blocked trying to publish to a full queue.
+        s_barrier_p->wait();
 
         // Test both stopPublicationThread and shutdownPublicationThread
 
@@ -560,8 +569,9 @@ extern "C" void *workerThread2(void *arg)
         else
             ret = observer->shutdownPublicationThread();
         ASSERT(0 == ret);
-        ret = observer->startPublicationThread();
-        ASSERT(0 == ret);
+
+        // Synchronize after stop before next iteration's start.
+        s_barrier_p->wait();
     }
     return 0;
 }
@@ -570,7 +580,7 @@ extern "C" void *workerThread2(void *arg)
 
 namespace BALL_ASYNCFILEOBSERVER_RELEASERECORDS_TEST {
 
-/// Publish arbitrary log records to the specifeid `observer` until the
+/// Publish arbitrary log records to the specified `observer` until the
 /// specified `releaseCounter` is 0, using the specified `barrier` to
 /// synchronize the start and completetion of the publication of records.
 /// Note that this method is designed to be the entry point function of a
@@ -1165,7 +1175,6 @@ int main(int argc, char *argv[])
         // Testing:
         //   CONCERN: CONCURRENT PUBLICATION
         // --------------------------------------------------------------------
-
         if (verbose) cout << "\nTESTING CONCURRENT PUBLICATION."
                           << "\n===============================" << endl;
 
@@ -1224,7 +1233,21 @@ int main(int argc, char *argv[])
         // concurrently without crash.
 
         if (verbose) cout << "Running second concurrency test." << endl;
+
+        // Set up barrier to synchronize start/stop operations across threads.
+        // This prevents livelock where threads fight over publication thread
+        // state while the blocking queue fills up.
+        bslmt::Barrier barrier(numThreads);
+        s_barrier_p = &barrier;
+
+        // Re-enable file logging for the second test.
+        mX->enableFileLogging(fileName.c_str());
+
+        // Note: publication thread is stopped; workerThread2 will start it.
+
         executeInParallel(numThreads, workerThread2);
+
+        s_barrier_p = 0;
 
         mX->stopPublicationThread();
         mX->disableFileLogging();
@@ -1445,7 +1468,6 @@ int main(int argc, char *argv[])
         bdls::TempDirectoryGuard tempDirGuard("ball_asyncfileobserver_");
 
         {
-
             bsl::stringstream os;
 
             struct rlimit rlim;
@@ -1567,9 +1589,7 @@ int main(int argc, char *argv[])
 
         const ball::Severity::Level e_INFO = ball::Severity::e_INFO;
 
-        if (verbose) {
-            cerr << "Testing `forceRotation`" << endl;
-        }
+        if (verbose) cerr << "Testing `forceRotation`" << endl;
         {
             bslmt::Latch latch(1);
             LogRotationCallbackTester rotationCb(&latch, Z);
@@ -1583,7 +1603,6 @@ int main(int argc, char *argv[])
             mX.setOnFileRotationCallback(rotationCb);
             mX.startPublicationThread();
             mX.enableFileLogging(fileName.c_str());
-
 
             mX.publish(createRecord("Message 1", e_INFO, Z), context);
             mX.stopPublicationThread();
@@ -1610,9 +1629,8 @@ int main(int argc, char *argv[])
             ASSERTV(numRecordsFile1, 1 == numRecordsFile1);
             ASSERTV(numRecordsFile2, 1 == numRecordsFile2);
         }
-        if (verbose) {
-            cerr << "Testing `rotateOnSize`" << endl;
-        }
+
+        if (verbose) cerr << "Testing `rotateOnSize`" << endl;
         {
             bsl::string oneKbMessage(1024, 'x', Z);
             bslmt::Latch latch(1);
@@ -1621,7 +1639,6 @@ int main(int argc, char *argv[])
             bsl::string fileName(tempDirGuard.getTempDirName());
             bdls::PathUtil::appendRaw(&fileName,
                                       "caseTestingFileRotation_rotateOnSize");
-
 
             Obj mX(ball::Severity::e_ERROR, &ta);
 
@@ -1633,7 +1650,6 @@ int main(int argc, char *argv[])
             mX.rotateOnSize(1);
             mX.startPublicationThread();
             mX.enableFileLogging(fileName.c_str());
-
 
             mX.publish(createRecord(oneKbMessage, e_INFO, Z), context);
             mX.stopPublicationThread();
@@ -1662,7 +1678,6 @@ int main(int argc, char *argv[])
             mX.stopPublicationThread();
             mX.disableFileLogging();
 
-
             if (veryVerbose) {
                 P_(fileName);
                 P(rotationCb.numInvocations());
@@ -1671,9 +1686,8 @@ int main(int argc, char *argv[])
             ASSERTV(rotationCb.numInvocations(),
                     1 == rotationCb.numInvocations());
         }
-        if (verbose) {
-            cerr << "Testing `rotateOnTimeInterval`" << endl;
-        }
+
+        if (verbose)  cerr << "Testing `rotateOnTimeInterval`" << endl;
         {
 
             bslmt::Latch latch(1);
@@ -1683,7 +1697,6 @@ int main(int argc, char *argv[])
             bdls::PathUtil::appendRaw(
                                &fileName,
                                "caseTestingFileRotation_rotateOnTimeInterval");
-
 
             Obj mX(ball::Severity::e_ERROR, &ta);
 
@@ -1751,9 +1764,9 @@ int main(int argc, char *argv[])
                     1 == rotationCb.numInvocations());
 
 
-            int numRecordsFile1 =
+            const int numRecordsFile1 =
                               countLoggedRecords(rotationCb.rotatedFileName());
-            int numRecordsFile2 = countLoggedRecords(fileName);
+            const int numRecordsFile2 = countLoggedRecords(fileName);
             ASSERTV(numRecordsFile1, 3 == numRecordsFile1);
             ASSERTV(numRecordsFile2, 6 == numRecordsFile2);
         }
@@ -2236,20 +2249,13 @@ int main(int argc, char *argv[])
               } break;
             }
 
-            Obj&                  mX = *objPtr;
-            const Obj&            X  = mX;
-            bslma::TestAllocator& oa = *objAllocatorPtr;
+            Obj&                  mX  = *objPtr;
+            const Obj&            X   = mX;
+            bslma::TestAllocator& oa  = *objAllocatorPtr;
+            bslma::TestAllocator& noa = CONFIG < 'e' ? sa : da;
 
             ASSERTV(CONFIG, oa.numBlocksTotal(),  0 != oa.numBlocksTotal());
-            if (CONFIG < 'e') {
-                ASSERTV(CONFIG, sa.numBlocksTotal(), 0 == sa.numBlocksTotal());
-            }
-            else {
-                // The "plugin" log record formatters do allocate temporaries
-                // using the default allocator during creation but they get all
-                // released.
-                ASSERTV(CONFIG, da.numBlocksInUse(), 0 == da.numBlocksInUse());
-            }
+            ASSERTV(CONFIG, noa.numBlocksTotal(), 0 == noa.numBlocksTotal());
 
             // Verify the object attributes.
             ASSERT(false == X.isFileLoggingEnabled());

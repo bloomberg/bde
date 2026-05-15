@@ -364,8 +364,8 @@ class RecordAttributes {
     /// specified `threadID`.
     void setThreadID(bsls::Types::Uint64 threadID);
 
-    /// Set the kernelThreadID attribute of this record attributes object to the
-    /// specified `kernelThreadID`.
+    /// Set the kernelThreadID attribute of this record attributes object to
+    /// the specified `kernelThreadID`.
     void setKernelThreadID(bsls::Types::Uint64 kernelThreadID);
 
     /// Set the timestamp attribute of this record attributes object to the

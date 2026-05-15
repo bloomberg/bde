@@ -827,7 +827,9 @@ extern "C" void *case4RuleThread(void *args)
     while (numRulesLocked(manager) > 0) {
         int r = randomValue(&seed) % ball::RuleSet::e_MAX_NUM_RULES;
 
-        // 2/3 chance to remove a rule, 1/3 chance to add a rule
+        // 2/3 chance to remove a rule, 1/3 chance to add a rule (only if
+        // there are still rules to remove; once empty, stop adding to avoid
+        // a race with other threads that have exited this loop).
 
         if (0 != (randomValue(&seed) % 3)) {
             while (0 == manager->removeRule(*ruleSet.getRuleById(r))
@@ -835,10 +837,11 @@ extern "C" void *case4RuleThread(void *args)
                 r = randomValue(&seed) % ball::RuleSet::e_MAX_NUM_RULES;
             }
         }
-        else {
+        else if (numRulesLocked(manager) > 0) {
             manager->addRule(*ruleSet.getRuleById(r));
         }
     }
+
     ASSERT(0 == numRulesLocked(manager));
 
     if (veryVerbose) {
