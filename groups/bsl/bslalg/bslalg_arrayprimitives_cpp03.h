@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec  3 13:44:16 2025
+// Generated on Tue Feb  3 18:41:11 2026
 // Command line: sim_cpp11_features.pl bslalg_arrayprimitives.h
 
 #ifdef COMPILING_BSLALG_ARRAYPRIMITIVES_H
@@ -68,12 +68,12 @@ struct ArrayPrimitives {
     /// array is left in an uninitialized state.  The behavior is undefined
     /// unless `toBegin` refers to space sufficient to hold
     /// `fromEnd - fromBegin` elements.
-    template <class ALLOCATOR, class FWD_ITER>
+    template <class ALLOCATOR, class FWD_ITER, class SENTINEL>
     static void
     copyConstruct(
                  typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
                  FWD_ITER                                           fromBegin,
-                 FWD_ITER                                           fromEnd,
+                 SENTINEL                                           fromEnd,
                  ALLOCATOR                                          allocator);
     template <class ALLOCATOR, class SOURCE_TYPE>
     static void
@@ -94,10 +94,10 @@ struct ArrayPrimitives {
     /// `TARGET_TYPE` constructor throws an exception during the operation,
     /// then the destructor is called on any newly-constructed elements,
     /// leaving the output array in an uninitialized state.
-    template <class TARGET_TYPE, class FWD_ITER>
+    template <class TARGET_TYPE, class FWD_ITER, class SENTINEL>
     static void copyConstruct(TARGET_TYPE      *toBegin,
                               FWD_ITER          fromBegin,
-                              FWD_ITER          fromEnd,
+                              SENTINEL          fromEnd,
                               bslma::Allocator *allocator);
     template <class TARGET_TYPE, class SOURCE_TYPE>
     static void copyConstruct(TARGET_TYPE      *toBegin,
@@ -578,32 +578,31 @@ struct ArrayPrimitives {
                                          size_type            numElements,
                                          bslma::Allocator    *allocator);
 
-    /// Move the elements of type `allocator_traits<ALLOCATOR>::value_type`
-    /// in the range beginning at the specified `fromBegin` location and
-    /// ending immediately before the specified `fromEnd` location into the
-    /// uninitialized array beginning at the specified `toBegin` location
-    /// using the specified `allocator` to supply memory (if required),
-    /// inserting at the specified `position` (after translating from
-    /// `fromBegin` to `toBegin`) the specified `numElements` copies of the
-    /// non-modifiable elements from the range starting at the specified
-    /// `first` iterator of (template parameter) type `FWD_ITER` and ending
-    /// immediately before the specified `last` iterator, ensuring that the
-    /// specified `fromEndPtr` points to the first uninitialized element in
+    /// Move the elements of type `allocator_traits<ALLOCATOR>::value_type` in
+    /// the range beginning at the specified `fromBegin` location and ending
+    /// immediately before the specified `fromEnd` location into the
+    /// uninitialized array beginning at the specified `toBegin` location using
+    /// the specified `allocator` to supply memory (if required), inserting at
+    /// the specified `position` (after translating from `fromBegin` to
+    /// `toBegin`) the specified `numElements` copies of the non-modifiable
+    /// elements from the range starting at the specified `first` iterator of
+    /// (template parameter) type `FWD_ITER` and ending immediately before the
+    /// specified `last` sentinel or iterator, ensuring that the specified
+    /// `fromEndPtr` points to the first uninitialized element in
     /// `[fromBegin .. fromEnd)` as the elements are moved from source to
-    /// destination.  On return, the elements in the input range are
-    /// invalid, i.e., their destructors must not be called after this
-    /// operation returns.  If a constructor throws an exception during this
-    /// operation, the output array is left in an uninitialized state.  If
-    /// a constructor other than the copy or move constructor throws an
-    /// exception during this operation, the input array is unaffected;
-    /// otherwise, if a copy or move constructor throws an exception during
-    /// this operation, the input elements in the range
-    /// `[fromBegin .. *fromEndPtr)` are left in a valid but unspecified
-    /// state and the remaining portion of the input array is left in an
-    /// uninitialized state.  The behavior is undefined unless
+    /// destination.  On return, the elements in the input range are invalid,
+    /// i.e., their destructors must not be called after this operation
+    /// returns.  If a constructor throws an exception during this operation,
+    /// the output array is left in an uninitialized state.  If a constructor
+    /// other than the copy or move constructor throws an exception during this
+    /// operation, the input array is unaffected; otherwise, if a copy or move
+    /// constructor throws an exception during this operation, the input
+    /// elements in the range `[fromBegin .. *fromEndPtr)` are left in a valid
+    /// but unspecified state and the remaining portion of the input array is
+    /// left in an uninitialized state.  The behavior is undefined unless
     /// `fromBegin <= position <= fromEnd` and `toBegin` refers to space
     /// sufficient to hold `fromEnd - fromBegin + numElements` elements.
-    template <class ALLOCATOR, class FWD_ITER>
+    template <class ALLOCATOR, class FWD_ITER, class SENTINEL>
     static void destructiveMoveAndInsert(
                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -611,37 +610,37 @@ struct ArrayPrimitives {
                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                FWD_ITER                                            first,
-               FWD_ITER                                            last,
+               SENTINEL                                            last,
                size_type                                           numElements,
                ALLOCATOR                                           allocator);
 
     /// Move the elements of the parameterized `TARGET_TYPE` in the array
     /// starting at the specified `fromBegin` address and ending immediately
-    /// before the specified `fromEnd` address into an uninitialized array
-    /// of `TARGET_TYPE` at the specified `toBegin` address, inserting at
-    /// the specified `position` (after translating from `fromBegin` to
-    /// `toBegin`) the specified `numElements` copies of the non-modifiable
-    /// elements from the range starting at the specified `first` iterator
-    /// of the parameterized `FWD_ITER` type and ending immediately before
-    /// the specified `last` iterator.  Keep the pointer at the specified
-    /// `fromEndPtr` to point to the first uninitialized element in
+    /// before the specified `fromEnd` address into an uninitialized array of
+    /// `TARGET_TYPE` at the specified `toBegin` address, inserting at the
+    /// specified `position` (after translating from `fromBegin` to `toBegin`)
+    /// the specified `numElements` copies of the non-modifiable elements from
+    /// the range starting at the specified `first` iterator of the
+    /// parameterized `FWD_ITER` type and ending immediately before the
+    /// specified `last` sentinel or iterator.  Keep the pointer at the
+    /// specified `fromEndPtr` to point to the first uninitialized element in
     /// `[fromBegin, fromEnd)` as the elements are moved from source to
     /// destination.  The behavior is undefined unless
-    /// `fromBegin <= position <= fromEnd`, the destination array contains
-    /// at least `(fromEnd - fromBegin) + numElements` uninitialized
-    /// elements after `toBegin`, and `numElements` is the distance from
-    /// `first` to `last`.  If a copy constructor or assignment operator for
-    /// `TARGET_TYPE` throws an exception, then any elements created in the
-    /// output array are destroyed and the elements in the range
-    /// `[ fromBegin, *fromEndPtr )` will have unspecified but valid values.
-    template <class TARGET_TYPE, class FWD_ITER>
+    /// `fromBegin <= position <= fromEnd`, the destination array contains at
+    /// least `(fromEnd - fromBegin) + numElements` uninitialized elements
+    /// after `toBegin`, and `numElements` is the distance from `first` to
+    /// `last`.  If a copy constructor or assignment operator for `TARGET_TYPE`
+    /// throws an exception, then any elements created in the output array are
+    /// destroyed and the elements in the range `[ fromBegin, *fromEndPtr )`
+    /// will have unspecified but valid values.
+    template <class TARGET_TYPE, class FWD_ITER, class SENTINEL>
     static void destructiveMoveAndInsert(TARGET_TYPE       *toBegin,
                                          TARGET_TYPE      **fromEndPtr,
                                          TARGET_TYPE       *fromBegin,
                                          TARGET_TYPE       *position,
                                          TARGET_TYPE       *fromEnd,
                                          FWD_ITER           first,
-                                         FWD_ITER           last,
+                                         SENTINEL           last,
                                          size_type          numElements,
                                          bslma::Allocator  *allocator);
 
@@ -1212,26 +1211,26 @@ struct ArrayPrimitives {
 
     /// TBD: improve comment
     /// Insert the specified `numElements` from the range starting at the
-    /// specified `fromBegin` and ending immediately before the specified
-    /// `fromEnd` iterators of (template parameter) `FWD_ITER` type (or
-    /// template parameter `SOURCE_TYPE *`), into the array of elements of
-    /// type given by the `allocator_traits` class template for (template
-    /// parameter) `ALLOCATOR`, starting at the specified `toBegin` address,
-    /// shifting forward the elements in the array by `numElements`
+    /// specified `fromBegin` of (template parameter) `FWD_ITER` type (or
+    /// template parameter `SOURCE_TYPE *`) and ending immediately before the
+    /// specified `fromEnd` sentinels or iterators of (template parameter)
+    /// `SENTINEL` type (or template parameter `SOURCE_TYPE *`), into the array
+    /// of elements of type given by the `allocator_traits` class template for
+    /// (template parameter) `ALLOCATOR`, starting at the specified `toBegin`
+    /// address, shifting forward the elements in the array by `numElements`
     /// positions.  The behavior is undefined unless the destination array
     /// contains `numElements` uninitialized elements after `toEnd`,
-    /// `numElements` is the distance between `fromBegin` and `fromEnd`,
-    /// and the input array and the destination array do not overlap.  If a
-    /// copy constructor or assignment operator throws an exception, then
-    /// any elements created after `toEnd` are destroyed and the elements in
-    /// the range `[ toBegin, toEnd )` will have valid but unspecified
-    /// values.
-    template <class ALLOCATOR, class FWD_ITER>
+    /// `numElements` is the distance between `fromBegin` and `fromEnd`, and
+    /// the input array and the destination array do not overlap.  If a copy
+    /// constructor or assignment operator throws an exception, then any
+    /// elements created after `toEnd` are destroyed and the elements in the
+    /// range `[ toBegin, toEnd )` will have valid but unspecified values.
+    template <class ALLOCATOR, class FWD_ITER, class SENTINEL>
     static void
     insert(typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
            typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
            FWD_ITER                                            fromBegin,
-           FWD_ITER                                            fromEnd,
+           SENTINEL                                            fromEnd,
            size_type                                           numElements,
            ALLOCATOR                                           allocator);
     template <class ALLOCATOR, class SOURCE_TYPE>
@@ -1245,25 +1244,26 @@ struct ArrayPrimitives {
 
     /// Insert, into the array at the specified `toBegin` location, the
     /// specified `numElements` from the range starting at the specified
-    /// `fromBegin` and ending immediately before the specified `fromEnd`
-    /// iterators of the (template parameter) `FWD_ITER` type (or the
-    /// (template parameter) `SOURCE_TYPE *`), into the array of elements of
-    /// the parameterized `TARGET_TYPE` starting at the specified `toBegin`
-    /// address and ending immediately before the specified `toEnd` address,
-    /// shifting the elements in the array by `numElements` positions
-    /// towards larger addresses.  The behavior is undefined unless the
-    /// destination array contains `numElements` uninitialized elements
-    /// after `toEnd`, `numElements` is the distance between `fromBegin` and
-    /// `fromEnd`, and the input array and the destination array do not
-    /// overlap.  If a copy constructor or assignment operator for
-    /// `TARGET_TYPE` throws an exception, then any elements created after
-    /// `toEnd` are destroyed and the elements in the range
-    /// `[ toBegin, toEnd )` will have unspecified, but valid, values.
-    template <class TARGET_TYPE, class FWD_ITER>
+    /// `fromBegin` iterators of the (template parameter) `FWD_ITER` type (or
+    /// the (template parameter) `SOURCE_TYPE *`) and ending immediately before
+    /// the specified `fromEnd` sentinels or iterators of the (template
+    /// parameter) `SENTINEL` type (or the (template parameter)
+    /// `SOURCE_TYPE *`), into the array of elements of the parameterized
+    /// `TARGET_TYPE` starting at the specified `toBegin` address and ending
+    /// immediately before the specified `toEnd` address, shifting the elements
+    /// in the array by `numElements` positions towards larger addresses.  The
+    /// behavior is undefined unless the destination array contains
+    /// `numElements` uninitialized elements after `toEnd`, `numElements` is
+    /// the distance between `fromBegin` and `fromEnd`, and the input array and
+    /// the destination array do not overlap.  If a copy constructor or
+    /// assignment operator for `TARGET_TYPE` throws an exception, then any
+    /// elements created after `toEnd` are destroyed and the elements in the
+    /// range `[ toBegin, toEnd )` will have unspecified, but valid, values.
+    template <class TARGET_TYPE, class FWD_ITER, class SENTINEL>
     static void insert(TARGET_TYPE      *toBegin,
                        TARGET_TYPE      *toEnd,
                        FWD_ITER          fromBegin,
-                       FWD_ITER          fromEnd,
+                       SENTINEL          fromEnd,
                        size_type         numElements,
                        bslma::Allocator *allocator);
     template <class TARGET_TYPE, class SOURCE_TYPE>
@@ -1657,21 +1657,23 @@ struct ArrayPrimitives_Imp {
                 ALLOCATOR                                    *allocator,
                 bsl::integral_constant<int, e_NIL_TRAITS>);
 
-    /// These functions follow the `copyConstruct` contract.  If the
-    /// (template parameter) `ALLOCATOR` type is based on `bslma::Allocator`
-    /// and the `TARGET_TYPE` constructors take an allocator argument, then
-    /// pass the specified `allocator` to the copy constructor.  The
-    /// behavior is undefined unless the output array has length at least
-    /// the distance from the specified `fromBegin` to the specified
-    /// `fromEnd`.  Note that if `FWD_ITER` is the `TARGET_TYPE *` pointer
-    /// type and `TARGET_TYPE` is bit-wise copyable, then this operation is
-    /// simply `memcpy`.  The last argument is for removing overload
-    /// ambiguities and is not used.
-    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    /// These functions follow the `copyConstruct` contract.  If the (template
+    /// parameter) `ALLOCATOR` type is based on `bslma::Allocator` and the
+    /// `TARGET_TYPE` constructors take an allocator argument, then pass the
+    /// specified `allocator` to the copy constructor.  The behavior is
+    /// undefined unless the output array has length at least the distance from
+    /// the specified `fromBegin` to the specified `fromEnd`.  Note that if
+    /// `FWD_ITER` is the `TARGET_TYPE *` pointer type and `TARGET_TYPE` is
+    /// bit-wise copyable, then this operation is simply `memcpy`.  The last
+    /// argument is for removing overload ambiguities and is not used.
+    template <class TARGET_TYPE,
+              class FWD_ITER,
+              class SENTINEL,
+              class ALLOCATOR>
     static void copyConstruct(
              TARGET_TYPE                                          *toBegin,
              FWD_ITER                                              fromBegin,
-             FWD_ITER                                              fromEnd,
+             SENTINEL                                              fromEnd,
              ALLOCATOR                                             allocator,
              bsl::integral_constant<int, e_IS_POINTER_TO_POINTER>);
     template <class TARGET_TYPE, class ALLOCATOR>
@@ -1681,25 +1683,31 @@ struct ArrayPrimitives_Imp {
              const TARGET_TYPE                                     *fromEnd,
              ALLOCATOR                                              allocator,
              bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>);
-    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    template <class TARGET_TYPE,
+              class FWD_ITER,
+              class SENTINEL,
+              class ALLOCATOR>
     static void copyConstruct(
              TARGET_TYPE                                           *toBegin,
              FWD_ITER                                               fromBegin,
-             FWD_ITER                                               fromEnd,
+             SENTINEL                                               fromEnd,
              ALLOCATOR                                              allocator,
              bsl::integral_constant<int, e_IS_ITERATOR_TO_FUNCTION_POINTER>);
-    template <class FWD_ITER, class ALLOCATOR>
+    template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
     static void copyConstruct(
              void                                                 **toBegin,
              FWD_ITER                                               fromBegin,
-             FWD_ITER                                               fromEnd,
+             SENTINEL                                               fromEnd,
              ALLOCATOR                                              allocator,
              bsl::integral_constant<int, e_IS_ITERATOR_TO_FUNCTION_POINTER>);
-    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    template <class TARGET_TYPE,
+              class FWD_ITER,
+              class SENTINEL,
+              class ALLOCATOR>
     static void copyConstruct(
              TARGET_TYPE                                           *toBegin,
              FWD_ITER                                               fromBegin,
-             FWD_ITER                                               fromEnd,
+             SENTINEL                                               fromEnd,
              ALLOCATOR                                              allocator,
              bsl::integral_constant<int, e_NIL_TRAITS>);
 
@@ -2494,12 +2502,15 @@ struct ArrayPrimitives_Imp {
     /// operation can still be optimized using `memmove` followed by
     /// repeated copies.  The last argument is for removing overload
     /// ambiguities and is not used.
-    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    template <class TARGET_TYPE,
+              class FWD_ITER,
+              class SENTINEL,
+              class ALLOCATOR>
     static void insert(
            TARGET_TYPE                                            *toBegin,
            TARGET_TYPE                                            *toEnd,
            FWD_ITER                                                fromBegin,
-           FWD_ITER                                                fromEnd,
+           SENTINEL                                                fromEnd,
            size_type                                               numElements,
            ALLOCATOR                                               allocator,
            bsl::integral_constant<int, e_IS_POINTER_TO_POINTER>);
@@ -2512,30 +2523,36 @@ struct ArrayPrimitives_Imp {
            size_type                                               numElements,
            ALLOCATOR                                               allocator,
            bsl::integral_constant<int, e_BITWISE_COPYABLE_TRAITS>);
-    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    template <class TARGET_TYPE,
+              class FWD_ITER,
+              class SENTINEL,
+              class ALLOCATOR>
     static void insert(
            TARGET_TYPE                                            *toBegin,
            TARGET_TYPE                                            *toEnd,
            FWD_ITER                                                fromBegin,
-           FWD_ITER                                                fromEnd,
+           SENTINEL                                                fromEnd,
            size_type                                               numElements,
            ALLOCATOR                                               allocator,
            bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS>);
-    template <class FWD_ITER, class ALLOCATOR>
+    template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
     static void insert(
            void                                                  **toBegin,
            void                                                  **toEnd,
            FWD_ITER                                                fromBegin,
-           FWD_ITER                                                fromEnd,
+           SENTINEL                                                fromEnd,
            size_type                                               numElements,
            ALLOCATOR                                               allocator,
            bsl::integral_constant<int, e_IS_ITERATOR_TO_FUNCTION_POINTER>);
-    template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+    template <class TARGET_TYPE,
+              class FWD_ITER,
+              class SENTINEL,
+              class ALLOCATOR>
     static void insert(
            TARGET_TYPE                                            *toBegin,
            TARGET_TYPE                                            *toEnd,
            FWD_ITER                                                fromBegin,
-           FWD_ITER                                                fromEnd,
+           SENTINEL                                                fromEnd,
            size_type                                               numElements,
            ALLOCATOR                                               allocator,
            bsl::integral_constant<int, e_NIL_TRAITS>);
@@ -2656,8 +2673,8 @@ struct ArrayPrimitives_Imp {
     /// function can prove invalid ranges only for pointers, although should
     /// also encompass generic random access iterators in a future update,
     /// where iterator tag types are levelized below `bslalg`.
-    template <class FORWARD_ITERATOR>
-    static bool isInvalidRange(FORWARD_ITERATOR begin, FORWARD_ITERATOR end);
+    template <class FORWARD_ITERATOR, class SENTINEL>
+    static bool isInvalidRange(FORWARD_ITERATOR begin, SENTINEL end);
     template <class TARGET_TYPE>
     static bool isInvalidRange(TARGET_TYPE *begin, TARGET_TYPE *end);
 };
@@ -2745,11 +2762,11 @@ void ArrayPrimitives::uninitializedFillN(TARGET_TYPE        *begin,
                                                      basicAllocator);
 }
 
-template <class ALLOCATOR, class FWD_ITER>
+template <class ALLOCATOR, class FWD_ITER, class SENTINEL>
 void ArrayPrimitives::copyConstruct(
                   typename bsl::allocator_traits<ALLOCATOR>::pointer toBegin,
                   FWD_ITER                                           fromBegin,
-                  FWD_ITER                                           fromEnd,
+                  SENTINEL                                           fromEnd,
                   ALLOCATOR                                          allocator)
 {
     BSLS_ASSERT_SAFE(toBegin || fromBegin == fromEnd);
@@ -2794,11 +2811,11 @@ void ArrayPrimitives::copyConstruct(
                                        bsl::integral_constant<int, k_VALUE>());
 }
 
-template <class TARGET_TYPE, class FWD_ITER>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL>
 inline
 void ArrayPrimitives::copyConstruct(TARGET_TYPE      *toBegin,
                                     FWD_ITER          fromBegin,
-                                    FWD_ITER          fromEnd,
+                                    SENTINEL          fromEnd,
                                     bslma::Allocator *basicAllocator)
 {
     copyConstruct<bsl::allocator<TARGET_TYPE> >(toBegin,
@@ -3853,7 +3870,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
                                                            basicAllocator);
 }
 
-template <class ALLOCATOR, class FWD_ITER>
+template <class ALLOCATOR, class FWD_ITER, class SENTINEL>
 void ArrayPrimitives::destructiveMoveAndInsert(
                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                typename bsl::allocator_traits<ALLOCATOR>::pointer *fromEndPtr,
@@ -3861,7 +3878,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
                typename bsl::allocator_traits<ALLOCATOR>::pointer  position,
                typename bsl::allocator_traits<ALLOCATOR>::pointer  fromEnd,
                FWD_ITER                                            first,
-               FWD_ITER                                            last,
+               SENTINEL                                            last,
                size_type                                           numElements,
                ALLOCATOR                                           allocator)
 {
@@ -3923,7 +3940,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
     guard.release();
 }
 
-template <class TARGET_TYPE, class FWD_ITER>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL>
 inline
 void ArrayPrimitives::destructiveMoveAndInsert(
                                              TARGET_TYPE       *toBegin,
@@ -3932,7 +3949,7 @@ void ArrayPrimitives::destructiveMoveAndInsert(
                                              TARGET_TYPE       *position,
                                              TARGET_TYPE       *fromEnd,
                                              FWD_ITER           first,
-                                             FWD_ITER           last,
+                                             SENTINEL           last,
                                              size_type          numElements,
                                              bslma::Allocator  *basicAllocator)
 {
@@ -5045,12 +5062,12 @@ void ArrayPrimitives::insert(TARGET_TYPE        *toBegin,
                                          basicAllocator);
 }
 
-template <class ALLOCATOR, class FWD_ITER>
+template <class ALLOCATOR, class FWD_ITER, class SENTINEL>
 void ArrayPrimitives::insert(
                typename bsl::allocator_traits<ALLOCATOR>::pointer  toBegin,
                typename bsl::allocator_traits<ALLOCATOR>::pointer  toEnd,
                FWD_ITER                                            fromBegin,
-               FWD_ITER                                            fromEnd,
+               SENTINEL                                            fromEnd,
                size_type                                           numElements,
                ALLOCATOR                                           allocator)
 {
@@ -5100,12 +5117,12 @@ void ArrayPrimitives::insert(
                                 bsl::integral_constant<int, k_VALUE>());
 }
 
-template <class TARGET_TYPE, class FWD_ITER>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL>
 inline
 void ArrayPrimitives::insert(TARGET_TYPE      *toBegin,
                              TARGET_TYPE      *toEnd,
                              FWD_ITER          fromBegin,
-                             FWD_ITER          fromEnd,
+                             SENTINEL          fromEnd,
                              size_type         numElements,
                              bslma::Allocator *basicAllocator)
 {
@@ -5292,10 +5309,9 @@ void ArrayPrimitives_Imp::assign(TARGET_TYPE *srcStart,
     }
 }
 
-template <class FORWARD_ITERATOR>
+template <class FORWARD_ITERATOR, class SENTINEL>
 inline
-bool ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR,
-                                         FORWARD_ITERATOR)
+bool ArrayPrimitives_Imp::isInvalidRange(FORWARD_ITERATOR, SENTINEL)
 {
     // Ideally would dispatch on random_access_iterator_tag to support
     // generalized random access iterators, but we are constrained by 'bsl'
@@ -5672,12 +5688,12 @@ void ArrayPrimitives_Imp::uninitializedFillN(
 
                     // *** 'copyConstruct' overloads: ***
 
-template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::copyConstruct(
                TARGET_TYPE                                          *toBegin,
                FWD_ITER                                              fromBegin,
-               FWD_ITER                                              fromEnd,
+               SENTINEL                                              fromEnd,
                ALLOCATOR                                             allocator,
                bsl::integral_constant<int, e_IS_POINTER_TO_POINTER>)
 {
@@ -5710,11 +5726,11 @@ void ArrayPrimitives_Imp::copyConstruct(
 #endif
 }
 
-template <class FWD_ITER, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void ArrayPrimitives_Imp::copyConstruct(
     void                                                           **toBegin,
     FWD_ITER                                                         fromBegin,
-    FWD_ITER                                                         fromEnd,
+    SENTINEL                                                         fromEnd,
     ALLOCATOR,
     bsl::integral_constant<int, e_IS_ITERATOR_TO_FUNCTION_POINTER>)
 {
@@ -5756,11 +5772,11 @@ void ArrayPrimitives_Imp::copyConstruct(
     }
 }
 
-template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void ArrayPrimitives_Imp::copyConstruct(
                           TARGET_TYPE                               *toBegin,
                           FWD_ITER                                   fromBegin,
-                          FWD_ITER                                   fromEnd,
+                          SENTINEL                                   fromEnd,
                           ALLOCATOR                                  allocator,
                           bsl::integral_constant<int, e_NIL_TRAITS>)
 {
@@ -8459,13 +8475,13 @@ void ArrayPrimitives_Imp::insert(
                   // *** 'insert' with 'FWD_ITER' overloads: ***
 
 
-template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL, class ALLOCATOR>
 inline
 void ArrayPrimitives_Imp::insert(
              TARGET_TYPE                                          *toBegin,
              TARGET_TYPE                                          *toEnd,
              FWD_ITER                                              fromBegin,
-             FWD_ITER                                              fromEnd,
+             SENTINEL                                              fromEnd,
              size_type                                             numElements,
              ALLOCATOR                                             allocator,
              bsl::integral_constant<int, e_IS_POINTER_TO_POINTER>)
@@ -8555,12 +8571,12 @@ void ArrayPrimitives_Imp::insert(
     }
 }
 
-template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
            TARGET_TYPE                                            *toBegin,
            TARGET_TYPE                                            *toEnd,
            FWD_ITER                                                fromBegin,
-           FWD_ITER,
+           SENTINEL,
            size_type                                               numElements,
            ALLOCATOR                                               allocator,
            bsl::integral_constant<int, e_BITWISE_MOVEABLE_TRAITS>)
@@ -8655,12 +8671,12 @@ void ArrayPrimitives_Imp::insert(
     }
 }
 
-template <class TARGET_TYPE, class FWD_ITER, class ALLOCATOR>
+template <class TARGET_TYPE, class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
                         TARGET_TYPE                               *toBegin,
                         TARGET_TYPE                               *toEnd,
                         FWD_ITER                                   fromBegin,
-                        FWD_ITER                                   fromEnd,
+                        SENTINEL                                   fromEnd,
                         size_type                                  numElements,
                         ALLOCATOR                                  allocator,
                         bsl::integral_constant<int, e_NIL_TRAITS>)
@@ -8758,12 +8774,12 @@ void ArrayPrimitives_Imp::insert(
     }
 }
 
-template <class FWD_ITER, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void ArrayPrimitives_Imp::insert(
   void                                                           **toBegin,
   void                                                           **toEnd,
   FWD_ITER                                                         fromBegin,
-  FWD_ITER,
+  SENTINEL,
   size_type                                                        numElements,
   ALLOCATOR,
   bsl::integral_constant<int, e_IS_ITERATOR_TO_FUNCTION_POINTER>)

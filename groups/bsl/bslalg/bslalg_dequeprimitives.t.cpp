@@ -65,9 +65,9 @@ using namespace BloombergLP;
 // [ 7] void insertAndMoveToFront(Itr *toBeg, Itr fromBeg, Itr p, size_type n,
 //                                const T& v, bslma::Allocator *a)
 // [ 8] void insertAndMoveToBack(Itr *toEnd, Itr fromEnd, Itr p, FWD_ITR f,
-//                               FWD_ITR l, size_type n, bslma::Allocator *a)
+//                               SNT l, size_type n, bslma::Allocator *a)
 // [ 9] void insertAndMoveToFront(Itr *toEnd, Itr fromEnd, Itr p, FWD_ITR f,
-//                                FWD_ITR l, size_type n, bslma::Allocator *a)
+//                                SNT l, size_type n, bslma::Allocator *a)
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 
@@ -220,6 +220,243 @@ const struct {
 };
 
 bslma::TestAllocator *Z;  // initialized at the start of main()
+
+                           // ==============
+                           // class Sentinel
+                           // ==============
+
+struct Sentinel {
+};
+
+                           // ===================
+                           // class InputIterator
+                           // ===================
+
+/// This class provide a STL-conforming input iterator over values used for
+/// testing (see section [24.2.3 input.iterators] of the C++11 standard).
+/// An `InputIterator` provide access to elements of parameterized type
+/// `VALUE`.  An iterator is considered dereferenceable if all of the
+/// following are satisfied:
+/// 1. The iterator refers to a valid element (not `end`).
+/// 2. The iterator has not been dereferenced.
+/// 3. The iterator is not a copy of another iterator of which `operator++`
+///    have been invoked.
+/// An iterator is comparable if the iterator is not a copy of another
+/// iterator of which `operator++` have been invoked.
+template <class VALUE>
+class InputIterator {
+
+    // DATA
+    const VALUE *d_data_p;              // pointer to array of values (held,
+                                        // not owned)
+
+    const VALUE *d_end_p;               // end pointer (held, not owned)
+
+
+  private:
+    // FRIENDS
+    template <class OTHER_VALUE>
+    friend bool operator==(const InputIterator<OTHER_VALUE>&,
+                           const InputIterator<OTHER_VALUE>&);
+
+    template <class OTHER_VALUE>
+    friend bool operator!=(const InputIterator<OTHER_VALUE>&,
+                           const InputIterator<OTHER_VALUE>&);
+
+    template <class OTHER_VALUE>
+    friend bool operator==(const InputIterator<OTHER_VALUE>&, const Sentinel&);
+
+  public:
+    // TYPES
+    typedef VALUE         value_type;
+    typedef ptrdiff_t     difference_type;
+    typedef const VALUE  *pointer;
+
+    /// Standard iterator defined types [24.4.2].
+    typedef const VALUE&  reference;
+
+  public:
+    // CREATORS
+
+    /// Create an iterator referring to the specified `object` for a
+    /// container with the specified `end`, with two arrays of boolean
+    /// referred to by the specified `dereferenceable` and `isValid` to
+    /// indicate whether this iterator and its subsequent values until
+    /// `end` is allowed to be dereferenced and is not yet invalidated
+    /// respectively.
+    InputIterator(const VALUE *object, const VALUE *end);
+
+    InputIterator(const InputIterator& original);
+
+    // MANIPULATORS
+    InputIterator& operator=(const InputIterator& rhs);
+
+    /// Move this iterator to the next element in the container.  Any copies
+    /// of this iterator are no longer dereferenceable or comparable.  The
+    /// behavior is undefined unless this iterator refers to a valid value
+    /// in the container.
+    InputIterator& operator++();
+
+    /// Move this iterator to the next element in the container, and return
+    /// an object that can be dereferenced to refer to the same object that
+    /// this iterator initially points to.  Any copies of this iterator are
+    /// no longer dereferenceable or comparable.  The behavior is undefined
+    /// unless this iterator refers to a valid value in the container.
+    InputIterator operator++(int);
+
+    // ACCESSORS
+
+    /// Return the value referred to by this object.  This object is no
+    /// longer dereferenceable after a call to this function.  The behavior
+    /// is undefined unless this iterator is dereferenceable.
+    const VALUE& operator *() const;
+
+    /// Return the address of the value (of the parameterized `VALUE_TYPE`)
+    /// of the element at which this iterator is positioned.  The behavior
+    /// is undefined unless this iterator dereferenceable.
+    const VALUE *operator->() const;
+};
+
+/// Return `true` if the specified `lhs` and `rhs` iterators refer to the
+/// same element, and `false` otherwise.  The behavior is undefined unless
+/// `lhs` and `rhs` are comparable.
+template <class VALUE>
+bool operator==(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs);
+template <class VALUE>
+bool operator==(const InputIterator<VALUE>& lhs, const Sentinel& rhs);
+template <class VALUE>
+bool operator==(const Sentinel& lhs, const InputIterator<VALUE>& rhs);
+
+/// Return `true` if the specified `lhs` and `rhs` iterators do *not* refer
+/// to the same element, and `false` otherwise.  The behavior is undefined
+/// unless `lhs` and `rhs` are comparable.
+template <class VALUE>
+bool operator!=(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs);
+template <class VALUE>
+bool operator!=(const InputIterator<VALUE>& lhs, const Sentinel& rhs);
+template <class VALUE>
+bool operator!=(const Sentinel& lhs, const InputIterator<VALUE>& rhs);
+
+                       // -------------------
+                       // class InputIterator
+                       // -------------------
+
+// CREATORS
+template <class VALUE>
+inline
+InputIterator<VALUE>::InputIterator(const VALUE *object, const VALUE *end)
+: d_data_p(object)
+, d_end_p(end)
+{
+    BSLS_ASSERT_SAFE(object);
+    BSLS_ASSERT_SAFE(end);
+}
+
+template <class VALUE>
+inline
+InputIterator<VALUE>::InputIterator(const InputIterator& original)
+: d_data_p(original.d_data_p)
+, d_end_p(original.d_end_p)
+{
+}
+
+// MANIPULATORS
+template <class VALUE>
+InputIterator<VALUE>&
+InputIterator<VALUE>::operator=(const InputIterator& rhs)
+{
+    d_data_p = rhs.d_data_p;
+    d_end_p  = rhs.d_end_p;
+
+    return *this;
+}
+
+template <class VALUE>
+InputIterator<VALUE>&
+InputIterator<VALUE>::operator++()
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    ++d_data_p;
+    return *this;
+}
+
+template <class VALUE>
+InputIterator<VALUE>
+InputIterator<VALUE>::operator++(int)
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    InputIterator<VALUE> result(*this);
+    this->operator++();
+    return result;
+}
+
+// ACCESSORS
+template <class VALUE>
+inline
+const VALUE& InputIterator<VALUE>::operator *() const
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    return *d_data_p;
+}
+
+template <class VALUE>
+inline
+const VALUE *InputIterator<VALUE>::operator->() const
+{
+    BSLS_ASSERT_OPT(d_data_p != d_end_p);
+
+    return d_data_p;
+}
+
+// FREE OPERATORS
+template <class VALUE>
+inline
+bool operator==(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs)
+{
+    return lhs.d_data_p == rhs.d_data_p;
+}
+
+template <class VALUE>
+inline
+bool operator==(const InputIterator<VALUE>& lhs,  const Sentinel&)
+{
+    return lhs.d_data_p == lhs.d_end_p;
+}
+
+template <class VALUE>
+inline
+bool operator==(const Sentinel& lhs,  const InputIterator<VALUE>& rhs)
+{
+    return rhs == lhs;
+}
+
+template <class VALUE>
+inline
+bool operator!=(const InputIterator<VALUE>& lhs,
+                const InputIterator<VALUE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class VALUE>
+inline
+bool operator!=(const InputIterator<VALUE>& lhs,  const Sentinel& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class VALUE>
+inline
+bool operator!=(const Sentinel& lhs,  const InputIterator<VALUE>& rhs)
+{
+    return !(lhs == rhs);
+}
 
                                // ===============
                                // class TestDeque
@@ -1104,6 +1341,73 @@ void testInsertAndMoveToFrontRange(bool exceptionSafetyFlag = false)
                     cleanup(&deque, EXP, za);
                 }
             }
+
+            for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
+
+                if (g_veryVerbose) {
+                    printf("INITIAL POSITION = %d\n", ip);
+                }
+
+                if (exceptionSafetyFlag) {
+                    bslma::TestAllocator& testAllocator = *Z;
+                    BEGIN_bslma_EXCEPTION_TEST {
+
+                        const Int64 AL = testAllocator.allocationLimit();
+                        testAllocator.setAllocationLimit(-1);
+
+                        Deque deque(SIZE, numBlocks, Z);
+                        setInitPos(&deque, numBlocks, ip);
+                        gg(&deque, SPEC); verify(&deque, SPEC);
+
+                        typename Deque::Iterator begin;
+
+                        // Guard just have to destruct according to the given
+                        // `SPEC`.  `insertAndMoveToBack` will not modify the
+                        // existing range of objects in case of an exception.
+                        CleanupGuard<TYPE, BLOCK_LENGTH>
+                                  guard(&deque, &begin, begin, SPEC, false, Z);
+
+                        testAllocator.setAllocationLimit(AL);
+
+                        Obj::insertAndMoveToFront(
+                                        &begin,
+                                        deque.begin() + BEGIN,
+                                        deque.begin() + DST,
+                                        InputIterator<TYPE>(INPUT, INPUT + NE),
+                                        Sentinel(),
+                                        NE,
+                                        za);
+
+                        guard.release();
+
+                        ASSERT(deque.begin() + EB == begin);
+
+                        verify(&deque, EXP);
+                        cleanup(&deque, EXP, za);
+
+                    } END_bslma_EXCEPTION_TEST
+                }
+                else {
+                    Deque deque(SIZE, numBlocks, Z);
+                    setInitPos(&deque, numBlocks, ip);
+                    gg(&deque, SPEC);  verify(&deque, SPEC);
+
+                    typename Deque::Iterator begin;
+                    Obj::insertAndMoveToFront(
+                                        &begin,
+                                        deque.begin() + BEGIN,
+                                        deque.begin() + DST,
+                                        InputIterator<TYPE>(INPUT, INPUT + NE),
+                                        Sentinel(),
+                                        NE,
+                                        za);
+
+                    ASSERT(deque.begin() + EB == begin);
+
+                    verify(&deque, EXP);
+                    cleanup(&deque, EXP, za);
+                }
+            }
         }
     }
     destroyAry(&input[0].object(), INPUTREF, za);
@@ -1275,6 +1579,72 @@ void testInsertAndMoveToBackRange(bool exceptionSafetyFlag = false)
                                              INPUT + NE,
                                              NE,
                                              za);
+
+                    ASSERT(deque.begin() + EE == end);
+
+                    verify(&deque, EXP);
+                    cleanup(&deque, EXP, za);
+                }
+            }
+
+            for (int ip = 0; ip < numBlocks * BLOCK_LENGTH - SIZE; ++ip) {
+
+                if (g_veryVerbose) {
+                    printf("INITIAL POSITION = %d\n", ip);
+                }
+
+                if (exceptionSafetyFlag) {
+                    bslma::TestAllocator& testAllocator = *Z;
+                    BEGIN_bslma_EXCEPTION_TEST {
+
+                        const Int64 AL = testAllocator.allocationLimit();
+                        testAllocator.setAllocationLimit(-1);
+
+                        Deque deque(SIZE, numBlocks, Z);
+                        setInitPos(&deque, numBlocks, ip);
+                        gg(&deque, SPEC);  verify(&deque, SPEC);
+
+                        typename Deque::Iterator end;
+
+                        // Guard just have to destruct according to the given
+                        // `SPEC`.  `insertAndMoveToBack` will not modify the
+                        // existing range of objects in case of an exception.
+                        CleanupGuard<TYPE, BLOCK_LENGTH>
+                                      guard(&deque, &end, end, SPEC, false, Z);
+
+                        testAllocator.setAllocationLimit(AL);
+
+                        Obj::insertAndMoveToBack(
+                                        &end,
+                                        deque.begin() + END,
+                                        deque.begin() + DST,
+                                        InputIterator<TYPE>(INPUT, INPUT + NE),
+                                        Sentinel(),
+                                        NE,
+                                        za);
+                        guard.release();
+
+                        ASSERT(deque.begin() + EE == end);
+
+                        verify(&deque, EXP);
+                        cleanup(&deque, EXP, za);
+
+                    } END_bslma_EXCEPTION_TEST
+                }
+                else {
+                    Deque deque(SIZE, numBlocks, Z);
+                    setInitPos(&deque, numBlocks, ip);
+                    gg(&deque, SPEC);  verify(&deque, SPEC);
+
+                    typename Deque::Iterator end;
+                    Obj::insertAndMoveToBack(
+                                        &end,
+                                        deque.begin() + END,
+                                        deque.begin() + DST,
+                                        InputIterator<TYPE>(INPUT, INPUT + NE),
+                                        Sentinel(),
+                                        NE,
+                                        za);
 
                     ASSERT(deque.begin() + EE == end);
 
@@ -2304,6 +2674,7 @@ int main(int argc, char *argv[])
         //   3. `toBegin` is properly updated with the new start position.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
+        //   6. `first` and `last` can be of different types.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2317,7 +2688,7 @@ int main(int argc, char *argv[])
         //                             Iterator           fromBegin,
         //                             Iterator           position,
         //                             FWD_ITER           first,
-        //                             FWD_ITER           last,
+        //                             SENTINEL           last,
         //                             size_type          numElements,
         //                             bslma::Allocator  *allocator);
         // --------------------------------------------------------------------
@@ -2382,6 +2753,7 @@ int main(int argc, char *argv[])
         //   3. `toEnd` is properly updated with the new end position.
         //   4. Exception safety.
         //   5. No potentially destructive self-move assignment is used.
+        //   6. `first` and `last` can be of different types.
         //
         // Plan:
         //   Create objects in a deque-like structure using a "source SPEC".
@@ -2395,7 +2767,7 @@ int main(int argc, char *argv[])
         //                            Iterator          fromEnd,
         //                            Iterator          position,
         //                            FWD_ITER          first,
-        //                            FWD_ITER          last,
+        //                            SENTINEL          last,
         //                            size_type         numElements,
         //                            bslma::Allocator *allocator);
         // --------------------------------------------------------------------

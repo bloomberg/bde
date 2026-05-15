@@ -252,6 +252,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_nullptr.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -264,18 +265,18 @@ BSLS_IDENT("$Id: $")
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)     \
-&&  (!defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) || \
+&&  (!defined(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY) || \
      (defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
-     (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 20)))
+     (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 23)))
     /// `bsl` and `std::string_view`s coexist when we have at least C++17
     /// standard library available, but C++20 library is not available, or it
     /// is disabled due to ABI compatibility reasons.
 # define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 #endif
 
-#if defined (BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
+#if defined (BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY) && \
    !(defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) &&          \
-    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 20))
+    (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED < 23))
 
     /// `BSLSTL_STRING_VIEW_IS_ALIASED` is defined when `bsl::string_view` and
     /// its accompanying symbols are aliases to their `std` equivalents.  Note
@@ -382,35 +383,6 @@ struct StringView_Identity {
 
 namespace bsl {
 
-            // ===========================================
-            // struct BasicStringView_IsCompatibleIterator
-            // ===========================================
-
-/// `value` is 1 if (template parameter) type `CONTG_ITER` is convertible to
-/// `const CHAR_TYPE *` (i.e., convertible to `d_start_p` of
-/// `basic_string_view`); otherwise, `value` is 0.
-template <class CHAR_TYPE, class CONTG_ITER>
-struct BasicStringView_IsCompatibleIterator : bsl::is_convertible<
-                                      CONTG_ITER,
-                                      typename bsl::add_pointer<
-                                      typename bsl::add_const<CHAR_TYPE>::type
-                                                                       >::type>
-{
-};
-
-            // ===========================================
-            // struct BasicStringView_IsCompatibleSentinel
-            // ===========================================
-
-/// `value` is 1 if (template parameter) type `SENTINEL> is *not*
-/// convertible to `size_type`, and 0 otherwise.
-template <class SENTINEL>
-struct BasicStringView_IsCompatibleSentinel :
-    bsl::integral_constant<bool,
-                           ! bsl::is_convertible<SENTINEL, std::size_t>::value>
-{
-};
-
 // Import 'char_traits' into the 'bsl' namespace so that 'basic_string_view'
 // and 'char_traits' are always in the same namespace.
 
@@ -504,7 +476,12 @@ class basic_string_view {
     /// Create a view of the specified null-terminated `characterString` (of
     /// length `CHAR_TRAITS::length(characterString)`).
     BSLS_KEYWORD_CONSTEXPR_CPP17
-    basic_string_view(const CHAR_TYPE *characterString);           // IMPLICIT
+    basic_string_view(const CHAR_TYPE *characterString);            // IMPLICIT
+
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+    /// A view cannot be constructed from a `nullptr` or from a literal `0`.
+    basic_string_view(bsl::nullptr_t ) = delete;
+#endif
 
     /// Create a view that has the same value as the subview of the
     /// optionally specified `numChars` length starting at the beginning of
@@ -514,42 +491,39 @@ class basic_string_view {
     basic_string_view(const CHAR_TYPE *characterString,
                       size_type        numChars);
 
-    /// Create a view from the specified `[first, last)` contiguous range of
-    /// `CHAR_TYPE` objects (characters).  The behaviour is undefined unless
-    /// `first` and `last` denote a valid contiguous range.  Note that in C++17
-    /// and earlier modes `first` must be convertible to `const CHAR_TYPE *`.
+    /// Create a view of the characters in the range starting at the
+    /// specified `first`, a contiguous iterator, to the position
+    /// immediately before the specified `end`, a sentinel type.  The
+    /// behavior is undefined unless:
+    ///   * `[first, last)` is a contiguous valid range,
+    ///   * if `first` is 0, then `0 == last - first`, and
+    ///   * the `SENTINEL` type is *not* convertible to `std::size_t`.
+    /// Note that contiguous iterator types also provide random access.
     /// Also note that pointers to `CHAR_TYPE` can be used as iterator and
-    /// sentinel types.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-    template <contiguous_iterator            CONTG_ITER,
-              sized_sentinel_for<CONTG_ITER> SENTINEL>
-    requires (std::same_as<iter_value_t<CONTG_ITER>, CHAR_TYPE> &&
-              !std::convertible_to<SENTINEL, size_type>)
-    constexpr
-    basic_string_view(CONTG_ITER first, SENTINEL last)
-    : d_start_p(std::to_address(first))
-    , d_length(last - first)
-    {   // Defined here because of the MSVC++ 2022 bug
-        BSLS_ASSERT_SAFE(last - first >= 0);
-    }
-#elif defined(BSLS_COMPILERFEATURES_FULL_CPP11)
-    template <class CONTG_ITER,
-              class SENTINEL,
-              enable_if_t<
-               BasicStringView_IsCompatibleIterator<CHAR_TYPE,
-                                                    CONTG_ITER>::value &&
-               BasicStringView_IsCompatibleSentinel<SENTINEL>::value, int> = 0>
+    /// sentinel types.  If `to_address` is not available the contiguous
+    /// iterator must also be convertible to `const CHAR_TYPE*`.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+    template <class CONTIG_ITER, class SENTINEL>
     BSLS_KEYWORD_CONSTEXPR_CPP14
-    basic_string_view(CONTG_ITER first, SENTINEL last);
-#else
-    template <class CONTG_ITER, class SENTINEL>
-    basic_string_view(CONTG_ITER first,
+    basic_string_view(CONTIG_ITER first,
                       SENTINEL   last,
                       typename
                       bsl::enable_if<
-                      BasicStringView_IsCompatibleIterator<CHAR_TYPE,
-                                                           CONTG_ITER>::value
-                   && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
+                      bsl::is_convertible<
+                          decltype(&(*std::declval<CONTIG_ITER>())),
+                          const CHAR_TYPE*
+                      >::value
+                   && !bsl::is_convertible<SENTINEL, std::size_t>::value
+                      >::type * = 0);
+#else
+    template <class CONTIG_ITER, class SENTINEL>
+    BSLS_KEYWORD_CONSTEXPR_CPP14
+    basic_string_view(CONTIG_ITER first,
+                      SENTINEL   last,
+                      typename
+                      bsl::enable_if<
+                      bsl::is_convertible<CONTIG_ITER, const CHAR_TYPE*>::value
+                   && !bsl::is_convertible<SENTINEL, std::size_t>::value
                       >::type * = 0);
 #endif
 
@@ -1655,39 +1629,50 @@ basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
     BSLS_ASSERT_SAFE(numChars <= max_size());
 }
 
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 template <class CHAR_TYPE, class CHAR_TRAITS>
-#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
-template <class CONTG_ITER,
-          class SENTINEL,
-          enable_if_t<
-              BasicStringView_IsCompatibleIterator<CHAR_TYPE,
-                                                   CONTG_ITER>::value &&
-              BasicStringView_IsCompatibleSentinel<SENTINEL>::value, int> >
-inline
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+template <class CONTIG_ITER, class SENTINEL>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
 BSLS_KEYWORD_CONSTEXPR_CPP14
-basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(CONTG_ITER first,
-                                                             SENTINEL   last)
-#else
-template <class CONTG_ITER, class SENTINEL>
-inline
 basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
-                      CONTG_ITER first,
-                      SENTINEL   last,
-                      typename
-                      bsl::enable_if<
-                      BasicStringView_IsCompatibleIterator<CHAR_TYPE,
-                                                           CONTG_ITER>::value
-                   && BasicStringView_IsCompatibleSentinel<SENTINEL  >::value
-                      >::type *)
-#endif // BSLS_COMPILERFEATURES_FULL_CPP11
-: d_start_p(first)
+    CONTIG_ITER first,
+    SENTINEL   last,
+    typename
+    bsl::enable_if<
+        bsl::is_convertible<
+            decltype(&(*std::declval<CONTIG_ITER>())),
+            const CHAR_TYPE*
+        >::value
+     && !bsl::is_convertible<SENTINEL, std::size_t>::value
+    >::type *)
+#else
+template <class CONTIG_ITER, class SENTINEL>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+BSLS_KEYWORD_CONSTEXPR_CPP14
+basic_string_view<CHAR_TYPE, CHAR_TRAITS>::basic_string_view(
+    CONTIG_ITER first,
+    SENTINEL   last,
+    typename
+    bsl::enable_if<
+        bsl::is_convertible<CONTIG_ITER, const CHAR_TYPE*>::value
+     && !bsl::is_convertible<SENTINEL, std::size_t>::value
+    >::type *)
+#endif
+: d_start_p(
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    std::to_address(first)
+#else
+    first
+#endif
+    )
 , d_length(last - first)
 {
-    BSLS_ASSERT_SAFE(first || last - first == 0);
-    BSLS_ASSERT_SAFE(         last - first >= 0);
+    BSLS_ASSERT_SAFE(last - first >= 0);
+
+    // we test the computed values because we do not want to
+    // impose additional requirements on our template parameters
+    BSLS_ASSERT_SAFE(d_start_p || d_length == 0);
 }
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
 template <class CHAR_TYPE, class CHAR_TRAITS>
 template <class ALLOCATOR>

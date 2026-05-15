@@ -32,11 +32,13 @@ bsl_iostream.h
 bsl_istream.h
 bsl_limits.h
 bsl_locale.h
+bsl_mdspan.h
 bsl_new.h
 bsl_numeric.h
 bsl_ostream.h
+bsl_spanstream.h
 bsl_stdexcept.h
-bsl_stop_token.h
+bsl_stdfloat.h
 bsl_streambuf.h
 bsl_strstream.h
 bsl_thread.h
@@ -135,3 +137,9 @@ bsl_span.h
 bsl_stop_token.h
 bsl_syncstream.h
 bsl_version.h
+
+# C++23 headers
+bsl_generator.h
+bsl_print.h
+bsl_print_ostream.h
+bsl_stacktrace.h

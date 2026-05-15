@@ -47,6 +47,13 @@ namespace bsl {
     using std::midpoint;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+namespace ranges {
+    using std::ranges::iota;
+    using std::ranges::iota_result;
+}  // close namespace ranges
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.

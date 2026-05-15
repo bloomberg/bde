@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Oct 14 11:26:11 2024
+// Generated on Thu Mar 19 20:53:55 2026
 // Command line: sim_cpp11_features.pl bslstl_multimap.h
 
 #ifdef COMPILING_BSLSTL_MULTIMAP_H
@@ -260,6 +260,48 @@ class multimap {
     /// allocator as `other`.
     void quickSwapRetainAllocators(multimap& other);
 
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty multimap.  If sorted, directly place each value in its
+    /// proper position. If an out of order value is detected, revert to
+    /// normal insertion.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty multimap.  The specified 'numElements` is used to
+    /// improve performance.  If sorted, directly place each value in its
+    /// proper position.  If an out of order value is detected, revert to
+    /// normal insertion.  The behavior is undefined if the iterators support
+    /// the calculation of distance and `numElements` is not the distance
+    /// from `first` to `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first,
+                            SENTINEL       last,
+                            size_t         numElements);
+#endif
+
+    // Insert the values between `first` and `last` into this multimap.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into this
+    /// multimap. The specified `numElements` is used to improve performance.
+    /// The behavior is undefined if the iterators support the calculation
+    /// of distance and `numElements` is not the distance from `first` to
+    /// `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last,
+                         size_t         numElements);
+#endif
+
     // PRIVATE ACCESSORS
 
     /// Return a reference providing non-modifiable access to the comparator
@@ -385,6 +427,66 @@ class multimap {
     multimap(INPUT_ITERATOR    first,
              INPUT_ITERATOR    last,
              const ALLOCATOR&  basicAllocator);
+
+    /// Create a multimap having the (`value_type`) values obtained from the
+    /// specified `range`.  Optionally specify a `comparator` used to order
+    /// key-value pairs contained in this object.  If `comparator` is not
+    /// supplied, a default-constructed object of the (template parameter) type
+    /// `COMPARATOR` is used.  Optionally specify a `basicAllocator` used to
+    /// supply memory.  If `basicAllocator` is not supplied, a
+    /// default-constructed object of the (template parameter) type `ALLOCATOR`
+    /// is used.  If the type `ALLOCATOR` is `bsl::allocator` (the default),
+    /// then `basicAllocator`, if supplied, shall be convertible to
+    /// `bslma::Allocator *`.  If the type `ALLOCATOR` is `bsl::allocator` and
+    /// `basicAllocator` is not supplied, the currently installed default
+    /// allocator is used.  If values obtained from `range` are ordered
+    /// according to `comparator`, then this operation has `O[N]` complexity,
+    /// where `N` is the number of values in the `range`; otherwise, this
+    /// operation has `O[N * log(N)]` complexity.  Note that `RANGE` must meet
+    /// the requirements of an input range and the values from `range` must
+    /// have a type matching or convertible to `value_type`.
+    template <class RANGE>
+    BSLSTL_MULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    multimap(
+        bsl::from_range_t                        ,
+        BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+        const COMPARATOR&                        comparator     = COMPARATOR(),
+        const ALLOCATOR&                         basicAllocator = ALLOCATOR())
+    : d_compAndAlloc(comparator, basicAllocator)
+    , d_tree()
+    {
+        // Defined inline to avoid Windows errors.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (std::ranges::sized_range<RANGE>) {
+            constructFromRange(bsl::ranges::begin(range),
+                               bsl::ranges::end  (range),
+                               bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            constructFromRange(bsl::ranges::begin(range),
+                               bsl::ranges::end  (range));
+        }
+    }
+
+    template <class RANGE>
+    BSLSTL_MULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    multimap(from_range_t                             ,
+             BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+             const ALLOCATOR&                         basicAllocator)
+    : d_compAndAlloc(COMPARATOR(), basicAllocator)
+    , d_tree()
+    {
+        // Defined inline to avoid Windows errors.
+
+        multimap other(bsl::from_range,
+                       range,
+                       COMPARATOR(),
+                       nodeFactory().allocator());
+        quickSwapRetainAllocators(other);
+    }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Create a multimap and insert each `value_type` object in the
@@ -581,6 +683,34 @@ class multimap {
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 
+    /// Insert into this multimap the value of each `value_type` object in the
+    /// specified `range`.  The (template parameter) type `RANGE` must meet the
+    /// requirements of the C++20 standard [ranges] providing access to values
+    /// of a type convertible to `value_type`, and `value_type` must be
+    /// `emplace-constructible` from `*i` into this multimap, where `i` is a
+    /// dereferenceable iterator obtained from `range` (see {Requirements on
+    /// `KEY` and `VALUE`}).  The behavior is undefined if `range` overlaps
+    /// this multimap.
+    template <class RANGE>
+    BSLSTL_MULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    void insert_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+    {
+        // Defined inline to avoid Windows errors.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (std::ranges::sized_range<RANGE>) {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range),
+                            bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range));
+        }
+    }
+
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     void insert(const_iterator first, const_iterator last);
         // This method is provided only on Sun to work around a bug in the Sun
@@ -681,6 +811,26 @@ class multimap {
     /// This method invalidates only iterators and references to the removed
     /// element and previously saved values of the `end()` iterator.
     size_type erase(const key_type& key);
+    template <class t_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   t_KEY>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        iterator>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        const_iterator>::value,
+    size_type>::type erase(BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY) key)
+    {
+        // Implemented inline due to Sun CC compilation error.
+        size_type count = 0;
+        iterator  it    = this->lower_bound(key);
+        while (it != end() && !key_comp()(key, it->first)) {
+                           // !(it->first > key)
+            it = erase(it);
+            count++;
+        }
+        return count;
+    }
 
     /// Remove from this multimap the `value_type` objects starting at the
     /// specified `first` position up to, but including the specified `last`
@@ -1555,6 +1705,192 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwapRetainAllocators(
     }
 }
 
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void
+multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::constructFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (
+        BloombergLP::bslstl::IteratorUtil::
+                      canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()) {
+        nodeFactory().reserveNodes(
+               BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+    }
+
+    BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
+                                                               &d_tree,
+                                                               &nodeFactory());
+
+    // The following loop guarantees amortized linear time to insert an ordered
+    // sequence of values (as required by the standard).   If the values are
+    // in sorted order, we are guaranteed the next node can be inserted as the
+    // right child of the previous node, and can call 'insertAt' without
+    // 'findInsertLocation'.
+
+    insert(*first);
+    BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+
+    while (++first != last) {
+
+        const value_type& value = *first;
+        if (this->comparator()(value.first, *prevNode)) {
+            // The values are not in order, so insert them normally.
+            insert(value);
+            insertFromRange(++first, last);
+            break;
+        }
+
+        // For multimap, we always insert even if keys are equal
+        BloombergLP::bslalg::RbTreeNode *node =
+                               nodeFactory().emplaceIntoNewNode(value);
+        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                  prevNode,
+                                                  false,
+                                                  node);
+        prevNode = node;
+    }
+
+    proctor.release();
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void
+multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::constructFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_type>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if (0 < numElements) {
+        nodeFactory().reserveNodes(numElements);
+    }
+
+    BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
+                                                               &d_tree,
+                                                               &nodeFactory());
+
+    // The following loop guarantees amortized linear time to insert an ordered
+    // sequence of values (as required by the standard).   If the values are
+    // in sorted order, we are guaranteed the next node can be inserted as the
+    // right child of the previous node, and can call 'insertAt' without
+    // 'findInsertLocation'.
+
+    insert(*first); --numElements;
+    BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+
+    while (++first != last) {
+
+        const value_type& value = *first;
+        if (this->comparator()(value.first, *prevNode)) {
+            // The values are not in order, so insert them normally.
+            insert(value); --numElements;
+            insertFromRange(++first, last, numElements);
+            break;
+        }
+
+        // For multimap, we always insert even if keys are equal
+        BloombergLP::bslalg::RbTreeNode *node =
+                               nodeFactory().emplaceIntoNewNode(value);
+        BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                  prevNode,
+                                                  false,
+                                                  node);
+        prevNode = node;
+        --numElements;
+    }
+
+    proctor.release();
+}
+
+#endif
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void
+multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insertFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    ///Implementation Notes
+    ///--------------------
+    // First, consume currently held free nodes.  Free nodes may be available
+    // from previous insertions or from nodes reserved in `constructFromRange`.
+    //
+    // If those nodes are insufficient *and* one can calculate the remaining
+    // number of elements, then reserve exactly that many free nodes.  There is
+    // no more than one call to 'reserveNodes' per invocation of this method,
+    // hence the use of 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+
+    while (first != last) {
+
+        if (BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            nodeFactory().reserveNodes(
+               BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+        }
+
+        insert(*first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insertFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_type>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    while (first != last) {
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            nodeFactory().reserveNodes(numElements);
+        }
+
+        insert(*first);
+        --numElements;
+        ++first;
+    }
+}
+
+#endif
+
 // PRIVATE ACCESSORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
@@ -1674,8 +2010,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 {
     if (first != last) {
 
-        size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+        const size_type numElements = static_cast<size_type>(
+            BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
 
         if (0 < numElements) {
             nodeFactory().reserveNodes(numElements);
@@ -1726,8 +2062,8 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::multimap(
 {
     if (first != last) {
 
-        size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+        const size_type numElements = static_cast<size_type>(
+            BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
 
         if (0 < numElements) {
             nodeFactory().reserveNodes(numElements);
@@ -1924,17 +2260,13 @@ void multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
     // call to 'reserveNodes' per invocation of this method, hence the use of
     // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
 
-    const bool canCalculateInsertDistance =
-             is_convertible<typename
-                            iterator_traits<INPUT_ITERATOR>::iterator_category,
-                            forward_iterator_tag>::value;
-
     while (first != last) {
-        if (canCalculateInsertDistance
+        if (BloombergLP::bslstl::IteratorUtil
+                 ::canCalculateInsertDistance<INPUT_ITERATOR, INPUT_ITERATOR>()
         && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                               !nodeFactory().hasFreeNodes())) {
-            const size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+            const size_type numElements = static_cast<size_type>(
+               BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
 
             nodeFactory().reserveNodes(numElements);
         }
@@ -2374,7 +2706,6 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::begin() const
     return cbegin();
 }
 
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 typename multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::const_iterator
@@ -2382,7 +2713,6 @@ multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>::end() const BSLS_KEYWORD_NOEXCEPT
 {
     return cend();
 }
-
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
@@ -2564,7 +2894,6 @@ bool bsl::operator<=(
     return !(rhs < lhs);
 }
 
-
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
 bool bsl::operator>=(
@@ -2589,7 +2918,6 @@ bsl::erase_if(bsl::multimap<KEY, VALUE, COMPARATOR, ALLOCATOR>&      m,
 {
     return BloombergLP::bslstl::AlgorithmUtil::containerEraseIf(m, predicate);
 }
-
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline

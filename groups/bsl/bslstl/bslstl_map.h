@@ -160,6 +160,7 @@ BSLS_IDENT("$Id: $")
 // 'value_type'    - 'pair<const K, V>'
 // 'c'             - comparator providing an ordering for objects of type 'K'
 // 'al             - STL-style memory allocator
+// 'rg'            - range of objects convertible to 'V'
 // 'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
 // 'k'             - object of type 'K'
 // 'v'             - object of type 'V'
@@ -189,6 +190,14 @@ BSLS_IDENT("$Id: $")
 // |                                                    | O[N * log(N)]      |
 // |                                                    | otherwise, where N |
 // |                                                    | is distance(i1,i2) |
+// +----------------------------------------------------+--------------------+
+// | map<K, V> a(from_range, rg);                       | O[N] if 'rg' is    |
+// | map<K, V> a(from_range, rg, al);                   | sorted with        |
+// | map<K, V> a(from_range, rg, c, al);                | 'a.value_comp()',  |
+// |                                                    | O[N * log(N)]      |
+// |                                                    | otherwise, where N |
+// |                                                    | is ranges::        |
+// |                                                    |       distance(rg) |
 // +----------------------------------------------------+--------------------+
 // | a.~map<K, V>();  (destruction)                     | O[n]               |
 // +----------------------------------------------------+--------------------+
@@ -239,6 +248,14 @@ BSLS_IDENT("$Id: $")
 // |                                                    |                    |
 // |                                                    | where N is         |
 // |                                                    | n + distance(i1,i2)|
+// +----------------------------------------------------+--------------------+
+// | a.insert_range(rg)                                 | O[log(N) *         |
+// |                                                    | ranges::           |
+// |                                                    |      distance(rg)] |
+// |                                                    |                    |
+// |                                                    | where N is n +     |
+// |                                                    | ranges::           |
+// |                                                    |      distance(rg)] |
 // +----------------------------------------------------+--------------------+
 // | a.erase(p1)                                        | amortized constant |
 // +----------------------------------------------------+--------------------+
@@ -474,6 +491,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_iteratorutil.h>
 #include <bslstl_mapcomparator.h>
 #include <bslstl_pair.h>
+#include <bslstl_ranges.h>
 #include <bslstl_stdexceptutil.h>
 #include <bslstl_treeiterator.h>
 #include <bslstl_treenode.h>
@@ -494,6 +512,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_addlvaluereference.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_istransparentpredicate.h>
@@ -504,6 +523,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
@@ -531,10 +551,18 @@ BSLS_IDENT("$Id: $")
     #endif
 #endif
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_MAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_MAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
+#endif
+
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
 // Include version that can be compiled with C++03
-// Generated on Mon Jan 13 08:31:39 2025
+// Generated on Mon Nov  3 18:52:43 2025
 // Command line: sim_cpp11_features.pl bslstl_map.h
 
 # define COMPILING_BSLSTL_MAP_H
@@ -773,6 +801,48 @@ class map {
     /// allocator as `other`.
     void quickSwapRetainAllocators(map& other);
 
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty map.  If sorted, directly place each value in its
+    /// proper position. If an out of order value is detected, revert to
+    /// normal insertion.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty map.  The specified 'numElements` is used to improve
+    /// performance.  If sorted, directly place each value in its proper
+    /// position. If an out of order value is detected, revert to
+    /// normal insertion.  The behavior is undefined if the iterators support
+    /// the calculation of distance and `numElements` is not the distance
+    /// from `first` to `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first,
+                            SENTINEL       last,
+                            size_t         numElements);
+#endif
+
+    // Insert the values between `first` and `last` into this map.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into this
+    /// map. The specified `numElements` is used to improve performance.
+    /// The behavior is undefined if the iterators support the calculation
+    /// of distance and `numElements` is not the distance from `first` to
+    /// `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last,
+                         size_t         numElements);
+#endif
+
     // PRIVATE ACCESSORS
 
     /// Return a reference providing non-modifiable access to the node
@@ -882,7 +952,9 @@ class map {
     /// `last` is ordered according to `comparator`, then this operation has
     /// `O[N]` complexity, where `N` is the number of elements between
     /// `first` and `last`; otherwise, this operation has `O[N * log(N)]`
-    /// complexity.  The (template parameter) type `INPUT_ITERATOR` shall
+    /// complexity.
+    ///
+    /// The (template parameter) type `INPUT_ITERATOR` shall
     /// meet the requirements of an input iterator defined in the C++11
     /// standard [input.iterators] providing access to values of a type
     /// convertible to `value_type`, and `value_type` must be
@@ -900,6 +972,66 @@ class map {
     map(INPUT_ITERATOR    first,
         INPUT_ITERATOR    last,
         const ALLOCATOR&  basicAllocator);
+
+    /// Create a map having the (`value_type`) values obtained from the
+    /// specified `range`.  Ignore those those objects having a key equivalent
+    /// to that which appears earlier in the sequence.  Optionally specify a
+    /// `comparator` used to order key-value pairs contained in this object.
+    /// If `comparator` is not supplied, a default-constructed object of the
+    /// (template parameter) type `COMPARATOR` is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter) type
+    /// `ALLOCATOR` is used.  If the type `ALLOCATOR` is `bsl::allocator`
+    /// (the default), then `basicAllocator`, if supplied, shall be
+    /// convertible to `bslma::Allocator *`.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` and `basicAllocator` is not supplied, the currently
+    /// installed default allocator is used.  If values obtained from `range
+    /// are ordered according to `comparator`, then this operation has `O[N]`
+    /// complexity, where `N` is the number of values in the `range`;
+    /// otherwise, this operation has `O[N * log(N)]` complexity.  Note that
+    /// `RANGE` must meet the requirements of an input range and the values
+    /// from `range` must have a type matching or convertible to `value_type`.
+    template <class RANGE>
+    BSLSTL_MAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    map(bsl::from_range_t                        ,
+        BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+        const COMPARATOR&                        comparator     = COMPARATOR(),
+        const ALLOCATOR&                         basicAllocator = ALLOCATOR())
+    : d_compAndAlloc(comparator, basicAllocator)
+    , d_tree()
+    {
+        // Defined inline to avoid Windows errors.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            constructFromRange(bsl::ranges::begin(range),
+                               bsl::ranges::end  (range),
+                               bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            constructFromRange(bsl::ranges::begin(range),
+                               bsl::ranges::end  (range));
+        }
+    }
+
+    template <class RANGE>
+    BSLSTL_MAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    map(from_range_t                             ,
+        BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+        const ALLOCATOR&                         basicAllocator)
+    : d_compAndAlloc(COMPARATOR(), basicAllocator)
+    , d_tree()
+    {
+        // Defined inline to avoid Windows errors.
+
+        map other(bsl::from_range,
+                  range,
+                  COMPARATOR(),
+                  nodeFactory().allocator());
+        quickSwapRetainAllocators(other);
+    }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Create a map and insert each `value_type` object in the specified
@@ -1225,6 +1357,35 @@ class map {
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 
+    /// Insert into this map the value of each `value_type` object in the
+    /// specified `range` if the key equivalent of that object is not
+    /// already contained in this map.  The (template parameter) type `RANGE`
+    /// must meet the requirements the C++20 standard [ranges] providing access
+    /// to values of a type convertible to `value_type`, and `value_type` must
+    /// be `emplace-constructible` from `*i` into this map, where `i` is a
+    /// dereferenceable iterator obtained from `range` (see {Requirements on
+    /// `KEY` and `VALUE`}).  The behavior is undefined if `range` overlaps
+    /// this map.
+    template <class RANGE>
+    BSLSTL_MAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    void insert_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+    {
+        // Defined inline to avoid Windows errors.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range),
+                            bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range));
+        }
+    }
+
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
     void insert(const_iterator first, const_iterator last);
         // This method is provided only on Sun to work around a bug in the Sun
@@ -1342,7 +1503,6 @@ class map {
                               BloombergLP::bslmf::MovableRef<KEY> key,
                               BDE_OTHER_TYPE&&                    obj);
 
-
     /// If a key equivalent to the specified `key` already exists in this
     /// _map, assign the specified `obj` to the value associated with that
     /// key, and return an iterator referring to the existing item.
@@ -1357,7 +1517,9 @@ class map {
         BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
                                                    LOOKUP_KEY>::value,
         iterator>::type
-    insert_or_assign(const_iterator hint, LOOKUP_KEY&& key, BDE_OTHER_TYPE&& obj)
+    insert_or_assign(const_iterator   hint,
+                     LOOKUP_KEY&&     key,
+                     BDE_OTHER_TYPE&& obj)
     {
         // Note: implemented inline due to Sun CC compilation error.
 
@@ -1452,6 +1614,24 @@ class map {
     /// iterators and references to the removed element and previously saved
     /// values of the `end()` iterator.
     size_type erase(const key_type& key);
+    template <class t_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,
+                                                   t_KEY>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        iterator>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        const_iterator>::value,
+    size_type>::type erase(BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY) key)
+    {
+        // Implemented inline due to Sun CC compilation error.
+        iterator it = this->find(key);
+        if (it == end()) {
+            return 0;                                                 // RETURN
+        }
+        erase(it);
+        return 1;
+    }
 
     /// Remove from this map the `value_type` objects starting at the
     /// specified `first` position up to, but including the specified `last`
@@ -2520,6 +2700,202 @@ void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::quickSwapRetainAllocators(
     }
 }
 
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::constructFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (
+        BloombergLP::bslstl::IteratorUtil::
+                      canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()) {
+        const size_type numElements = static_cast<size_type>(
+            BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+        nodeFactory().reserveNodes(numElements);
+    }
+
+    BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
+                                                               &d_tree,
+                                                               &nodeFactory());
+
+    // The following loop guarantees amortized linear time to insert an ordered
+    // sequence of values (as required by the standard).   If the values are
+    // in sorted order, we are guaranteed the next node can be inserted as the
+    // right child of the previous node, and can call 'insertAt' without
+    // 'findUniqueInsertLocation'.
+
+    insert(*first);
+    BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+
+    while (++first != last) {
+
+        const value_type& value = *first;
+        if (this->comparator()(value.first, *prevNode)) {
+            // The values are not in order, so insert them normally.
+            insert(value);
+            insertFromRange(++first, last);
+            break;
+        }
+
+        if (this->comparator()(*prevNode, value.first)) {
+            BloombergLP::bslalg::RbTreeNode *node =
+                                   nodeFactory().emplaceIntoNewNode(value);
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      prevNode,
+                                                      false,
+                                                      node);
+            prevNode = node;
+        }
+    }
+
+    proctor.release();
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void
+map<KEY, VALUE, COMPARATOR, ALLOCATOR>::constructFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_type>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if (0 < numElements) {
+        nodeFactory().reserveNodes(numElements);
+    }
+
+    BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
+                                                               &d_tree,
+                                                               &nodeFactory());
+
+    // The following loop guarantees amortized linear time to insert an ordered
+    // sequence of values (as required by the standard).   If the values are
+    // in sorted order, we are guaranteed the next node can be inserted as the
+    // right child of the previous node, and can call 'insertAt' without
+    // 'findUniqueInsertLocation'.
+
+    insert(*first); --numElements;
+    BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
+
+    while (++first != last) {
+
+        const value_type& value = *first;
+        if (this->comparator()(value.first, *prevNode)) {
+            // The values are not in order, so insert them normally.
+            insert(value); --numElements;
+            insertFromRange(++first, last, numElements);
+            break;
+        }
+
+        if (this->comparator()(*prevNode, value.first)) {
+            BloombergLP::bslalg::RbTreeNode *node =
+                                   nodeFactory().emplaceIntoNewNode(value);
+            BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
+                                                      prevNode,
+                                                      false,
+                                                      node);
+            --numElements;
+            prevNode = node;
+        }
+    }
+
+    proctor.release();
+}
+
+#endif
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insertFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    ///Implementation Notes
+    ///--------------------
+    // First, consume currently held free nodes.  Free nodes may be available
+    // from previous insertions that where skipped due to collisions with
+    // keys already in the map or from nodes reserved in `constructFromRange`.
+    //
+    // If those nodes are insufficient *and* one can calculate the remaining
+    // number of elements, then reserve exactly that many free nodes.  There is
+    // no more than one call to 'reserveNodes' per invocation of this method,
+    // hence the use of 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.
+    //
+    // When reserving nodes, we assume the elements remaining to be inserted
+    // have unique keys that do not duplicate any keys already in the container
+    // If there are any duplicates, this container will have free nodes on
+    // return from this method.
+
+    while (first != last) {
+
+        if (BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            const size_type numElements = static_cast<size_type>(
+               BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+
+            nodeFactory().reserveNodes(numElements);
+        }
+
+        insert(*first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insertFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_type>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    while (first != last) {
+
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
+                                              !nodeFactory().hasFreeNodes())) {
+            nodeFactory().reserveNodes(numElements);
+        }
+
+        insert(*first);
+        --numElements;
+        ++first;
+    }
+}
+
+#endif
+
 // PRIVATE ACCESSORS
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
 inline
@@ -2632,49 +3008,7 @@ map<KEY, VALUE, COMPARATOR, ALLOCATOR>::map(INPUT_ITERATOR    first,
 : d_compAndAlloc(comparator, basicAllocator)
 , d_tree()
 {
-    if (first != last) {
-
-        size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-
-        if (0 < numElements) {
-            nodeFactory().reserveNodes(numElements);
-        }
-
-        BloombergLP::bslalg::RbTreeUtilTreeProctor<NodeFactory> proctor(
-                                                               &d_tree,
-                                                               &nodeFactory());
-
-        // The following loop guarantees amortized linear time to insert an
-        // ordered sequence of values (as required by the standard).   If the
-        // values are in sorted order, we are guaranteed the next node can be
-        // inserted as the right child of the previous node, and can call
-        // 'insertAt' without 'findUniqueInsertLocation'.
-
-        insert(*first);
-        BloombergLP::bslalg::RbTreeNode *prevNode = d_tree.rootNode();
-        while (++first != last) {
-            // The values are not in order, so insert them normally.
-
-            const value_type& value = *first;
-            if (this->comparator()(value.first, *prevNode)) {
-                insert(value);
-                insert(++first, last);
-                break;
-            }
-
-            if (this->comparator()(*prevNode, value.first)) {
-                BloombergLP::bslalg::RbTreeNode *node =
-                                       nodeFactory().emplaceIntoNewNode(value);
-                BloombergLP::bslalg::RbTreeUtil::insertAt(&d_tree,
-                                                          prevNode,
-                                                          false,
-                                                          node);
-                prevNode = node;
-            }
-        }
-        proctor.release();
-    }
+    constructFromRange(first, last);
 }
 
 template <class KEY, class VALUE, class COMPARATOR, class ALLOCATOR>
@@ -2949,35 +3283,7 @@ inline
 void map<KEY, VALUE, COMPARATOR, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                     INPUT_ITERATOR last)
 {
-    ///Implementation Notes
-    ///--------------------
-    // First, consume currently held free nodes.  If those nodes are
-    // insufficient *and* one can calculate the remaining number of elements,
-    // then reserve exactly that many free nodes.  There is no more than one
-    // call to 'reserveNodes' per invocation of this method, hence the use of
-    // 'BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY'.  When reserving nodes, we
-    // assume the elements remaining to be inserted have unique keys that do
-    // not duplicate any keys already in the container.  If there are any
-    // duplicates, this container will have free nodes on return from this
-    // method.
-
-    const bool canCalculateInsertDistance =
-             is_convertible<typename
-                            iterator_traits<INPUT_ITERATOR>::iterator_category,
-                            forward_iterator_tag>::value;
-
-    while (first != last) {
-        if (canCalculateInsertDistance
-        && BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
-                                              !nodeFactory().hasFreeNodes())) {
-            const size_type numElements =
-                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-
-            nodeFactory().reserveNodes(numElements);
-        }
-        insert(*first);
-        ++first;
-    }
+    insertFromRange(first, last);
 }
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130

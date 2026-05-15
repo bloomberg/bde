@@ -104,6 +104,10 @@ using bsls::NameOf;
 // [12] unordered_multiset(ITER, ITER, size_type, allocator);
 // [12] unordered_multiset(ITER, ITER, size_type, hasher, allocator);
 // [12] unordered_multiset(ITER, ITER, size_type, hasher, key_equal, alloc);
+// [12] unordered_multiset(fr_t , auto&& range, nb, hasher, key_equal, alloc);
+// [12] unordered_multiset(fr_t , auto&& range, nb, hasher,            alloc);
+// [12] unordered_multiset(fr_t , auto&& range, nb,                    alloc);
+// [12] unordered_multiset(fr_t , auto&& range,                        alloc);
 //*[29] unordered_multiset(unordered_multiset&& original);
 //*[11] unordered_multiset(const A& allocator);
 //*[ 7] unordered_multiset(const unordered_multiset& original);
@@ -152,6 +156,7 @@ using bsls::NameOf;
 //*[31] iterator insert(const_iterator hint, const value_type&& value);
 // [34] iterator insert(initializer_list<value_type>);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [ 8] void swap(set& other);
 //
 // observers:
@@ -207,7 +212,12 @@ using bsls::NameOf;
 // [23] CONCERN: The object has the necessary type traits
 // [27] CONCERN: The values are spread into different buckets.
 // [35] CONCERN: Methods qualified `noexcept` in standard are so implemented.
-// [36] CLASS TEMPLATE DEDUCTION GUIDES
+// [36] CONCERN: `find`        properly handles transparent comparators.
+// [36] CONCERN: `count`       properly handles transparent comparators.
+// [36] CONCERN: `equal_range` properly handles transparent comparators.
+// [36] CONCERN: `erase`       properly handles transparent comparators.
+// [37] CLASS TEMPLATE DEDUCTION GUIDES
+// [38] ERASE_IF
 // [39] CONCERN: `unordered_multiset` IS A C++20 RANGE
 
 // ============================================================================
@@ -703,7 +713,6 @@ void testBuckets(CONTAINER& mX)
     ASSERTV(itemCount, x.size(), itemCount == x.size());
 }
 
-
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
 {
@@ -1022,7 +1031,6 @@ struct ExceptionProctor {
         d_object_p = 0;
     }
 };
-
 
 bool g_enableEqualityFunctorFlag = true;
 
@@ -2290,7 +2298,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::
     //   propagate_on_container_swap
     // ------------------------------------------------------------------------
 
-
     if (verbose) printf("\nTesting `%s`.\n", NameOf<KEY>().name());
 
     if (verbose) printf("\t'propagate_on_container_swap::value == false'\n");
@@ -2668,7 +2675,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
                     proctorX.release();
                     proctorZ.release();
                 } EXCEPTION_TEST_END
-
 
                 ASSERTV(LINE1, LINE2, ZZ, X, ZZ == X);
                 ASSERTV(LINE1, LINE2, XX, Z, XX == Z);

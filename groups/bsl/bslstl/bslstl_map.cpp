@@ -6,6 +6,7 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bslstl_iterator.h>         // for testing only
 #include <bslstl_pair.h>             // for testing only
+#include <bslstl_vector.h>           // for testing only
 
 namespace BloombergLP {
 namespace bslstl {

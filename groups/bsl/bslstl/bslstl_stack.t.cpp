@@ -1,6 +1,7 @@
 // bslstl_stack.t.cpp                                                 -*-C++-*-
 #include <bslstl_stack.h>
 
+#include <bslstl_span.h>
 #include <bslstl_vector.h>
 
 #include <bslalg_rangecompare.h>
@@ -120,6 +121,10 @@ using namespace bsl;
 // CREATORS
 // [ 7] copy c'tor
 // [ 2] stack, stack(bslma::Allocator *bA)
+// [ 2] stack(INPUT_ITER first, INPUT_ITER last);
+// [ 2] stack(INPUT_ITER first, INPUT_ITER last, const ALLOCATOR& allocator);
+// [ 2] stack(from_range_t, t_RANGE&& range);
+// [ 2] stack(from_range_t, t_RANGE&& range, const ALLOCATOR& allocator);
 // [17] stack(MovableRef container)
 // [17] stack(MovableRef container, bslma::Allocator *bA)
 // [17] stack(MovableRef stack)
@@ -131,6 +136,7 @@ using namespace bsl;
 // [ 8] member swap
 // [ 2] Primary Manipulators -- push and pop
 // [18] push(MovableRef value)
+// [ 2] void push_range(t_RANGE&& range);
 // [18] emplace(Args&&.. args)
 //
 // ACCESSORS
@@ -151,6 +157,7 @@ using namespace bsl;
 // [ 1] Breathing Test
 // [19] CONCERN: Methods qualified `noexcept` in standard are so implemented.
 // [20] CLASS TEMPLATE DEDUCTION GUIDES
+// [21] CONCERN: `bsl::ranges::to<stack>`
 //
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -212,6 +219,12 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
+//                     TEST DRIVER SPECIFIC MACROS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAME_TYPE(...) ASSERT((bsl::is_same<__VA_ARGS__>::value))
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -5832,6 +5845,8 @@ void TestDriver<CONTAINER>::testCase2()
     //    appropriate value, and allocate memory from the appropriate
     //    allocator.
     //
+    // 16. `push_range(r)` has the same effect as `for(v : r) push(v)`.
+    //
     // Plan:
     // 1. For each value of increasing length, `L`:
     //
@@ -5839,7 +5854,7 @@ void TestDriver<CONTAINER>::testCase2()
     //      objects, in turn, but configured differently: (a) without passing
     //      an allocator, (b) passing a null allocator address explicitly, and
     //      (c) passing the address of a test allocator distinct from the
-    //      default.  For each of these three iterations: (C-1..14)
+    //      default.  For each of these three iterations: (C-1..16)
     //
     //     1. Create three `bslma::TestAllocator` objects, and install one as
     //        as the current default allocator (note that a ubiquitous test
@@ -5869,11 +5884,16 @@ void TestDriver<CONTAINER>::testCase2()
     //     8. Verify that no temporary memory is allocated from the object
     //        allocator.  (C-7)
     //
-    //     9. Make a copy of the object using the appropriate copy c'tor.
+    //     9. Create an empty stack.  Invoke `push_range` with the same range
+    //        of `L` elements.  Verify that the resulting object is equal to
+    //        `X`.  (C-16)
     //
-    //    10. Verify that all object memory is released when the object is
+    //    10. Make a copy of the object using the appropriate copy c'tor.
+    //
+    //    11. Verify that all object memory is released when the object is
     //        destroyed.  (Implicit in test allocator).  (C-8)
-    //    11. Verify that calling `pop` on an empty stack will fail an assert
+    //
+    //    12. Verify that calling `pop` on an empty stack will fail an assert
     //        in safe mode.
     //
     // Testing:
@@ -5881,7 +5901,12 @@ void TestDriver<CONTAINER>::testCase2()
     //   stack(bslma_Allocator *);
     //   ~stack();
     //   push(const value_type& value);
+    //   void push_range(t_RANGE&& range);
     //   stack(const CONTAINER& container, bslma_allocator *);
+    //   stack(INPUT_ITER first, INPUT_ITER last);
+    //   stack(INPUT_ITER first, INPUT_ITER last, const ALLOCATOR& allocator);
+    //   stack(from_range_t, t_RANGE&& range);
+    //   stack(from_range_t, t_RANGE&& range, const ALLOCATOR& allocator);
     //   stack(const stack& stack, bslma_allocator *);
     // ------------------------------------------------------------------------
 
@@ -5996,6 +6021,16 @@ void TestDriver<CONTAINER>::testCase2()
                 ASSERTV(LENGTH, CONFIG, LENGTH == X.size());
             }
 
+            // Test `push_range`
+            {
+                bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+                Obj s;
+                s.push_range(bsl::span<const value_type>(VALUES.data(),
+                                                         LENGTH));
+                ASSERTV(LENGTH, CONFIG, s == X);
+            }
+
             // Test copy c'tors
             {
                 bslma::TestAllocatorMonitor oaMonitor(&oa);
@@ -6027,6 +6062,7 @@ void TestDriver<CONTAINER>::testCase2()
             }
 
             // Test container c'tors
+            for (int subcfg = 0; subcfg <= 3; ++subcfg)
             {
                 bslma::TestAllocatorMonitor oaMonitor(&oa);
                 bslma::TestAllocator ca;
@@ -6044,13 +6080,25 @@ void TestDriver<CONTAINER>::testCase2()
                 Obj *cCopyPtr;
                 switch (CONFIG) {
                   case 'a': {
-                    cCopyPtr = new (fa) Obj(C);
+                    cCopyPtr = subcfg == 0 ? new (fa) Obj(C) :
+                               subcfg == 1 ? new (fa) Obj(C.begin(), C.end()) :
+                                             new (fa) Obj(bsl::from_range, C);
                   } break;
                   case 'b': {
-                    cCopyPtr = new (fa) Obj(C, (bslma::Allocator *) 0);
+                    cCopyPtr = subcfg == 0 ?
+                                    new (fa) Obj(C, (bslma::Allocator *) 0) :
+                               subcfg == 1 ?
+                                    new (fa) Obj(C.begin(), C.end(),
+                                                 (bslma::Allocator *) 0) :
+                                    new (fa) Obj(bsl::from_range, C,
+                                                 (bslma::Allocator *) 0);
                   } break;
                   case 'c': {
-                    cCopyPtr = new (fa) Obj(C, &sa);
+                    cCopyPtr = subcfg == 0 ? new (fa) Obj(C, &sa) :
+                               subcfg == 1 ? new (fa) Obj(C.begin(), C.end(),
+                                                          &sa) :
+                                             new (fa) Obj(bsl::from_range, C,
+                                                          &sa);
                   } break;
                   default: {
                     ASSERTV(CONFIG, "Bad allocator config.", false);
@@ -6506,10 +6554,6 @@ void TestDriver<CONTAINER>::testCase1(int    *testValues,
 /// stack(ALLOC)
 /// ```
 struct TestDeductionGuides {
-
-#define ASSERT_SAME_TYPE(...) \
- static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
-
     /// Test that constructing a `bsl::stack` from various combinations of
     /// arguments deduces the correct type.
     /// ```
@@ -6523,6 +6567,15 @@ struct TestDeductionGuides {
     /// stack(      CONTAINER &&) -> stack<CONTAINER, CONTAINER::value_type)
     /// stack(      CONTAINER &&, ALLOC)
     ///                           -> stack<CONTAINER, CONTAINER::value_type)
+    /// stack(INPUT_ITER, INPUT_ITER) -> stack<iter-value-type<INPUT_ITER>>
+    /// stack(INPUT_ITER, INPUT_ITER, ALLOCATOR)
+    ///                 -> stack<iter-value-type<INPUT_ITER>,
+    ///                          deque<iter-value-type<INPUT_ITER>, ALLOCATOR>>
+    /// stack(from_range_t, t_RANGE&&) -> stack<ranges::range_value_t<t_RANGE>>
+    /// stack(from_range_t, t_RANGE&&, t_ALLOCATOR)
+    ///   -> stack<ranges::range_value_t<t_RANGE>,
+    ///            deque<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>>
+    /// ```
     static void SimpleConstructors ()
 
     {
@@ -6599,6 +6652,28 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(s8c), bsl::stack<T8, bsl::vector<T8>>);
         ASSERT_SAME_TYPE(decltype(s8d), bsl::stack<T8, bsl::vector<T8>>);
 
+        typedef int T9;
+        const T9   a9[] = {1, 2};
+        bsl::stack q9a(bsl::begin(a9), bsl::end(a9));
+        bsl::stack q9b(bsl::begin(a9), bsl::end(a9), bsl::allocator<T9>{});
+        ASSERT_SAME_TYPE(decltype(q9a), bsl::stack<T9>);
+        ASSERT_SAME_TYPE(decltype(q9b),
+                         bsl::stack<T9, bsl::deque<T9, bsl::allocator<T9>>>);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        {
+            typedef int T;
+            const T range[] = {1, 2, 3};
+
+            bsl::stack s1(bsl::from_range, range);
+            bsl::stack s2(bsl::from_range, range, std::allocator<T>{});
+
+            ASSERT_SAME_TYPE(decltype(s1), bsl::stack<T, bsl::allocator<T>>);
+            ASSERT_SAME_TYPE(decltype(s2), bsl::stack<T, std::allocator<T>>);
+        }
+#endif
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
 // #define BSLSTL_STACK_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
@@ -6617,8 +6692,6 @@ struct TestDeductionGuides {
         // non-allocator-aware container.)
 #endif
     }
-
-#undef ASSERT_SAME_TYPE
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -6650,6 +6723,58 @@ int main(int argc, char *argv[])
     ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
 
     switch (test) { case 0:
+      case 21: {
+        //---------------------------------------------------------------------
+        // TESTING CONCERN: `ranges::to<stack>`
+        //
+        // Concerns:
+        // 1. `ranges::to<stack>(range)` call compiles and returns the same as
+        //    `stack<ranges::range_value_t<decltype(range)>>(`
+        //    `from_range, range)`.
+        //
+        // 2. `ranges::to<stack<T>>(range)` call compiles and returns the same
+        //    as `stack<T>(from_range, range)`.
+        //
+        // Plan:
+        // 1. Create an array of `int`, that will be used as a range.
+        //
+        // 2. Call `ranges::to<stack>` with the array.
+        //
+        //   2.1. Verify that the returned type is `stack<int>`.
+        //
+        //   2.2. Verify that the returned object is equivalent to an object
+        //        constructed using the `from_range` constructor.
+        //
+        // 3. Call `ranges::to<stack<long>>` with the array.
+        //
+        //   3.1. Verify that the returned type is `stack<long>`.
+        //
+        //   3.2. Verify that the returned object is equivalent to an object
+        //        constructed using the `from_range` constructor.
+        //
+        // Testing:
+        //   CONCERN: `ranges::to<stack>`
+        //---------------------------------------------------------------------
+
+        if (verbose) printf("\nTESTING CONCERN: `ranges::to<stack>`"
+                            "\n====================================\n");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        const int nums[] = {1, 2, 3};
+        {
+            auto v = bsl::ranges::to<bsl::stack>(nums);
+            ASSERT_SAME_TYPE(decltype(v), bsl::stack<int>);
+            ASSERT(v.size() == bsl::size(nums));
+            ASSERT((v == decltype(v){bsl::from_range, nums}));
+        }
+        {
+            auto v = bsl::ranges::to<bsl::stack<long>>(nums);
+            ASSERT_SAME_TYPE(decltype(v), bsl::stack<long>);
+            ASSERT(v.size() == bsl::size(nums));
+            ASSERT((v == decltype(v){bsl::from_range, nums}));
+        }
+#endif
+      } break;
       case 20: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

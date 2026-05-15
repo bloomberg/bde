@@ -569,6 +569,23 @@ using std::is_corresponding_member;
 using std::is_constant_evaluated;
 # endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+using std::is_scoped_enum;
+using std::is_scoped_enum_v;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+using std::is_implicit_lifetime;
+using std::is_implicit_lifetime_v;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+using std::reference_constructs_from_temporary;
+using std::reference_constructs_from_temporary_v;
+using std::reference_converts_from_temporary;
+using std::reference_converts_from_temporary_v;
+#endif
+
 # if defined(BSLS_PLATFORM_CMP_GNU)
     // Silence deprecation warnings for declarations of alias templates and
     // variable templates where the native library implementation may have

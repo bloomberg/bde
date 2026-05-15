@@ -14,7 +14,9 @@
 #include <bsl_iostream.h>
 
 using namespace BloombergLP;
-using namespace bsl;
+using bsl::cout;
+using bsl::cerr;
+using bsl::endl;
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION

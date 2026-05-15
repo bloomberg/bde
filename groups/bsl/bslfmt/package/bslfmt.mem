@@ -27,6 +27,12 @@ bslfmt_formatterunicodedata
 bslfmt_mockformatcontext
 bslfmt_mockparsecontext
 bslfmt_padutil
+bslfmt_print
+bslfmt_print_imp
+bslfmt_print_imp_cpp03
+bslfmt_print_ostream
+bslfmt_print_ostream_imp
+bslfmt_print_ostream_imp_cpp03
 bslfmt_standardformatspecification
 bslfmt_streamed
 bslfmt_streamedformatter

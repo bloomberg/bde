@@ -15,6 +15,10 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the `std` namespace (if any) into the `bsl` namespace.
 
+#include <bslstl_iterator.h>
+
+#include <bslma_bslallocator.h>
+
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
@@ -22,7 +26,7 @@ BSLS_IDENT("$Id: $")
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
 #if !defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) || _LIBCPP_VERSION > 179999
-    #define BSL_RANGES_HAS_JOIN_VIEW                                         1
+    #define BSL_RANGES_HAS_JOIN_VIEW                                          1
 #endif
 
 #include <ranges>
@@ -31,20 +35,20 @@ namespace bsl {
 
 namespace ranges {
 
-    // Range access
-    using std::ranges::begin;
-    using std::ranges::end;
-    using std::ranges::cbegin;
-    using std::ranges::cend;
-    using std::ranges::rbegin;
-    using std::ranges::rend;
-    using std::ranges::crbegin;
-    using std::ranges::crend;
-    using std::ranges::size;
-    using std::ranges::ssize;
-    using std::ranges::empty;
-    using std::ranges::data;
-    using std::ranges::cdata;
+    // Range access (defined in `bststl_iterator.h`)
+    //using std::ranges::begin;
+    //using std::ranges::end;
+    //using std::ranges::cbegin;
+    //using std::ranges::cend;
+    //using std::ranges::rbegin;
+    //using std::ranges::rend;
+    //using std::ranges::crbegin;
+    //using std::ranges::crend;
+    //using std::ranges::size;
+    //using std::ranges::ssize;
+    //using std::ranges::empty;
+    //using std::ranges::data;
+    //using std::ranges::cdata;
 
     // Range primitives
     using std::ranges::iterator_t;
@@ -151,11 +155,99 @@ namespace views {
     // Enumerations
     using std::ranges::subrange_kind;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+    using std::ranges::as_rvalue_view;
+    using std::ranges::chunk_by_view;
+    using std::ranges::repeat_view;
+    namespace views {
+        using std::views::as_rvalue;
+        using std::views::chunk_by;
+        using std::views::repeat;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+    using std::ranges::to;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
+    using std::ranges::range_adaptor_closure;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+    using std::ranges::const_iterator_t;
+    using std::ranges::const_sentinel_t;
+    using std::ranges::range_const_reference_t;
+    using std::ranges::constant_range;
+    using std::ranges::as_const_view;
+    namespace views {
+        using std::views::as_const;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+    using std::ranges::cartesian_product_view;
+    namespace views {
+        using std::views::cartesian_product;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+    using std::ranges::chunk_view;
+    namespace views {
+        using std::views::chunk;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+    using std::ranges::enumerate_view;
+    namespace views {
+        using std::views::enumerate;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+    using std::ranges::join_with_view;
+    namespace views {
+        using std::views::join_with;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+    using std::ranges::slide_view;
+    namespace views {
+        using std::views::slide;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+    using std::ranges::stride_view;
+    namespace views {
+        using std::views::stride;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+    using std::ranges::adjacent_view;
+    using std::ranges::adjacent_transform_view;
+    using std::ranges::zip_view;
+    using std::ranges::zip_transform_view;
+    namespace views {
+        using std::views::adjacent;
+        using std::views::adjacent_transform;
+        using std::views::zip;
+        using std::views::zip_transform;
+    }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+    template<ranges::range R, class Alloc = bsl::allocator<>>
+    using elements_of = std::ranges::elements_of<R, Alloc>;
+#endif
+
 }  // close namespace ranges
 
-//#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
-#if defined(__cpp_lib_containers_ranges) && \
-            __cpp_lib_containers_ranges >= 202202L
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
 using std::from_range;
 using std::from_range_t;
 #endif
@@ -167,9 +259,7 @@ using std::from_range_t;
 
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
-//#ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
-#if !(defined(__cpp_lib_containers_ranges) && \
-              __cpp_lib_containers_ranges >= 202202L)
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
 namespace bsl {
 
 struct from_range_t {
@@ -178,7 +268,7 @@ struct from_range_t {
 #endif
 };
 
-#if defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
 inline constexpr from_range_t from_range = from_range_t();
 #else
 extern const from_range_t from_range;
@@ -190,7 +280,7 @@ extern const from_range_t from_range;
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2023 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

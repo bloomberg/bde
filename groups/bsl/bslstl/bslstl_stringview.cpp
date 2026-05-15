@@ -7,17 +7,17 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_assert.h>
 #include <bslmf_isbitwisecopyable.h>
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY) && \
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY) && \
     (!defined(BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED) ||        \
-     (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED >= 20))
+     (BSLS_LIBRARYFEATURES_FORCE_ABI_ENABLED >= 23))
     #if !defined(BSLSTL_STRING_VIEW_IS_ALIASED)
-        #error Must be aliased for C++20 and later.
+        #error Must be aliased for C++23 and later.
     #endif
 #else
     #if defined(BSLSTL_STRING_VIEW_IS_ALIASED)
-        #error Must *not* be aliased prior to C++20.
+        #error Must *not* be aliased prior to C++23.
     #endif
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
 
 //=============================================================================
 //                            // Implementation Note

@@ -178,6 +178,7 @@ BSLS_IDENT("$Id: $")
 // 'c'             - comparator providing an ordering for objects of type 'K'
 // 'al             - an STL-style memory allocator
 // 'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+// 'rg'            - range of objects convertable to 'value_type'
 // 'k'             - an object of type 'K'
 // 'rk'            - modifiable rvalue of type 'K'
 // 'v'             - an object of type 'value_type'
@@ -207,11 +208,16 @@ BSLS_IDENT("$Id: $")
 // | unordered_set<K> a(w, hf, eq, al);                 |                    |
 // +----------------------------------------------------+--------------------+
 // | unordered_set<K> a(i1, i2);                        | Average: O[N]      |
-// | unordered_set<K> a(i1, i2, w)                      | Worst:   O[N^2]    |
+// | unordered_set<K> a(i1, i2, w);                     | Worst:   O[N^2]    |
 // | unordered_set<K> a(i1, i2, w, hf);                 | where N =          |
-// | unordered_set<K> a(i1, i2, w, hf, eq);             |  distance(i1, i2)] |
+// | unordered_set<K> a(i1, i2, w, hf, eq);             |  distance(i1, i2)  |
 // | unordered_set<K> a(i1, i2, w, hf, eq, al);         |                    |
-// |                                                    |                    |
+// +----------------------------------------------------+--------------------+
+// | unordered_set<K> a(from_range, rg);                | Average: O[N]      |
+// | unordered_set<K> a(from_range, rg, w);             | Worst:   O[N^2]    |
+// | unordered_set<K> a(from_range, rg, w, hf);         | where N = range::  |
+// | unordered_set<K> a(from_range, rg, w, hf, eq);     |        distance(rg)|
+// | unordered_set<K> a(from_range, rg, w, hf, eq, al); |                    |
 // +----------------------------------------------------+--------------------+
 // | a.~unordered_set<K>(); (destruction)               | O[n]               |
 // +----------------------------------------------------+--------------------+
@@ -252,10 +258,17 @@ BSLS_IDENT("$Id: $")
 // | a.insert(p1, rk)                                   | Worst:   O[n]      |
 // | a.emplace_hint(p1, Args&&...)                      |                    |
 // +----------------------------------------------------+--------------------+
-// | a.insert(i1, i2)                                   | Average O[         |
+// | a.insert(i1, i2)                                   | Average: O[        |
 // |                                                    |   distance(i1, i2)]|
-// |                                                    | Worst:  O[ n *     |
+// |                                                    | Worst:   O[ n *    |
 // |                                                    |   distance(i1, i2)]|
+// +----------------------------------------------------+--------------------+
+// | a.insert_range(rg)                                 | Average: O[        |
+// |                                                    |   ranges::         |
+// |                                                    |       distance(rg)]|
+// |                                                    | Worst:   O[ n *    |
+// |                                                    |   ranges::         |
+// |                                                    |       distance(rg)]|
 // +----------------------------------------------------+--------------------+
 // | a.erase(p1)                                        | Average: O[1]      |
 // |                                                    | Worst:   O[n]      |
@@ -579,6 +592,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_hashtableiterator.h>
 #include <bslstl_iteratorutil.h>
 #include <bslstl_pair.h>  // result type of 'equal_range' method
+#include <bslstl_ranges.h>
 #include <bslstl_unorderedsetkeyconfiguration.h>
 
 #include <bslalg_bidirectionallink.h>
@@ -590,6 +604,7 @@ BSLS_IDENT("$Id: $")
                                  // not very user friendly
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isnothrowswappable.h>
@@ -610,6 +625,14 @@ BSLS_IDENT("$Id: $")
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 #include <type_traits>  // 'std::is_nothrow_move_assignable'
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -710,7 +733,6 @@ class unordered_set {
 
     typedef iterator                                   const_iterator;
     typedef local_iterator                             const_local_iterator;
-
 
   public:
     // TRAITS
@@ -919,6 +941,118 @@ class unordered_set {
                   const ALLOCATOR&           basicAllocator);
 #endif
 
+    /// Create an unordered set, and insert each `value_type` object in the
+    /// specified `range`, ignoring those keys having a value equivalent to
+    /// that which appears earlier in the `range`.  Optionally specify an
+    /// `initialNumBuckets` indicating the initial size of the array of
+    /// buckets of this container.  If `initialNumBuckets` is not supplied,
+    /// an implementation-defined value is used.  Optionally specify a
+    /// `hashFunction` used to generate the hash values for each key value
+    /// contained in this set.  If `hashFunction` is not supplied, a
+    /// default-constructed object of the (template parameter) type `HASH`
+    /// is used.  Optionally specify a key-equality functor `keyEqual` used
+    /// to determine whether two keys have the same value.  If `keyEqual` is
+    /// not supplied, a default-constructed object of the (template
+    /// parameter) type `EQUAL` is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), then `basicAllocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used.  This
+    /// operation has `O[N]` complexity, where `N` is the number of elements
+    /// in `range`.  Note that `RANGE` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to `value_type`.
+    template <class RANGE>
+    BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    unordered_set(
+         bsl::from_range_t                        ,
+         BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+         size_type                                initialNumBuckets = 0,
+         const HASH&                              hashFunction = HASH(),
+         const EQUAL&                             keyEqual = EQUAL(),
+         const ALLOCATOR&                         basicAllocator = ALLOCATOR())
+    : d_impl(hashFunction,
+                 keyEqual,
+                 initialNumBuckets,
+                 1.0f,
+                 basicAllocator)
+    {
+        // Defined inline for Windows.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+        constructFromRange(bsl::ranges::begin(range),
+                   bsl::ranges::end  (range),
+                   bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+        constructFromRange(bsl::ranges::begin(range),
+                   bsl::ranges::end  (range));
+        }
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    unordered_set(bsl::from_range_t                        ,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                  size_type                                initialNumBuckets,
+                  const HASH&                              hashFunction,
+                  const ALLOCATOR&                         basicAllocator)
+    : d_impl(hashFunction, EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+        unordered_set other(bsl::from_range,
+                            range,
+                            initialNumBuckets,
+                            hashFunction,
+                            EQUAL(),
+                            basicAllocator);
+        this->swap(other);
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    unordered_set(bsl::from_range_t                        ,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                  size_type                                initialNumBuckets,
+                  const ALLOCATOR&                         basicAllocator)
+    : d_impl(HASH(), EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+        unordered_set other(bsl::from_range,
+                            range,
+                            initialNumBuckets,
+                            HASH(),
+                            EQUAL(),
+                            basicAllocator);
+        this->swap(other);
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    unordered_set(bsl::from_range_t                        ,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                  const ALLOCATOR&                         basicAllocator)
+    : d_impl(HASH(), EQUAL(), 0, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+        unordered_set other(bsl::from_range,
+                            range,
+                            0,
+                            HASH(),
+                            EQUAL(),
+                            basicAllocator);
+        this->swap(other);
+    }
+
     /// Destroy this object.
     ~unordered_set();
 
@@ -1125,6 +1259,35 @@ class unordered_set {
     void insert(std::initializer_list<KEY> values);
 #endif
 
+    /// Insert into this set the value of each `value_type` object in the
+    /// specified `range` if a key equivalent to the object is not already
+    /// contained in this set.  The (template parameter) type `RANGE` must
+    /// meet the requirements the C++20 standard [ranges] providing access
+    /// to values of a type convertible to `value_type`, and `value_type`
+    /// must be `emplace-constructible` from `*i` into this set, where `i`
+    /// is a dereferenceable iterator obtained from `range` (see
+    /// {Requirements on `KEY`}).  The behavior is undefined if `range`
+    /// overlaps this set.
+    template <class RANGE>
+    BSLSTL_UNORDEREDSET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, value_type)
+    void insert_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+    {
+        // Defined inline for Windows.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+&& defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range),
+                            bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range));
+        }
+    }
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Insert into this unordered set a newly created `value_type` object,
     /// constructed by forwarding `get_allocator()` (if required) and the
@@ -1185,6 +1348,24 @@ class unordered_set {
     /// values of the `end()` iterator, and preserves the relative order of
     /// the elements not removed.
     size_type erase(const key_type& key);
+    template <class t_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, t_KEY>::value &&
+        BloombergLP::bslmf::IsTransparentPredicate<EQUAL,t_KEY>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        iterator>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        const_iterator>::value,
+    size_type>::type erase(BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY) key)
+    {
+        // Implemented inline due to Sun CC compilation error.
+        iterator it = this->find(key);
+        if (it == end()) {
+            return 0;                                                 // RETURN
+        }
+        erase(it);
+        return 1;
+    }
 
     /// Remove from this set the `value_type` objects starting at the
     /// specified `first` position up to, but including the specified `last`
@@ -1303,6 +1484,47 @@ class unordered_set {
     /// effect if `numElements <= size()`.
     void reserve(size_type numElements);
 
+  private:
+    // PRIVATE MANIPULATORS
+
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty set.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty set.  The specified `numElements` is used to improve
+    /// performance.  The behavior is undefined if the iterators support
+    /// the calculation of distance and `numElements` is not the distance
+    /// from `first` to `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first,
+                            SENTINEL       last,
+                            size_t         numElements);
+#endif
+
+    /// Insert the values between the specified `first` and `last` into this
+    /// set.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into this
+    /// set.  The specified `numElements` is used to improve performance.
+    /// The behavior is undefined if the iterators support the calculation of
+    /// distance and `numElements` is not the distance from `first` to `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last,
+                         size_t         numElements);
+#endif
+
+  public:
     // ACCESSORS
 
     /// Return (a copy of) the allocator used for memory allocation by this
@@ -1743,7 +1965,6 @@ unordered_set(std::initializer_list<KEY>,
               ALLOCATOR)
 -> unordered_set<KEY, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
 
-
 /// Deduce the template parameter `KEY` from the `value_type` of the
 /// initializer_list supplied to the constructor of `unordered_set`.  Deduce
 /// the template parameter `HASH` from the other parameters passed to the
@@ -1878,6 +2099,129 @@ void swap(unordered_set<KEY, HASH, EQUAL, ALLOCATOR>& a,
                         // class unordered_set
                         //--------------------
 
+// PRIVATE MANIPULATORS
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::constructFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    ///Implementation Notes
+    ///--------------------
+    // If we can calculate the number of elements, reserve space for them
+    // upfront to reduce rehashing.  The calculation is done once since
+    // `IteratorUtil::insertDistance` may be expensive for non-random-access
+    // iterators.
+
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (
+        BloombergLP::bslstl::IteratorUtil::
+                       canCalculateInsertDistance<INPUT_ITERATOR,SENTINEL>()) {
+        this->reserve(
+               BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+    }
+
+    bool isInsertedFlag;  // value is not used
+
+    while (first != last) {
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::constructFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_t>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+
+    if (0 < numElements) {
+        this->reserve(numElements);
+    }
+
+    bool isInsertedFlag;  // value is not used
+
+    while (first != last) {
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
+    }
+}
+
+#endif
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insertFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    ///Implementation Notes
+    ///--------------------
+    // If we can calculate the number of elements, reserve space for them
+    // upfront to reduce rehashing.  The calculation is done once since
+    // `IteratorUtil::insertDistance` may be expensive for non-random-access
+    // iterators.
+
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (BloombergLP::bslstl::IteratorUtil
+                    ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()) {
+        this->reserve(this->size()
+             + BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+    }
+
+    bool isInsertedFlag;  // value is not used
+
+    while (first != last) {
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insertFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_t>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    this->reserve(this->size() + numElements);
+
+    bool isInsertedFlag;  // value is not used
+
+    while (first != last) {
+        d_impl.insertIfMissing(&isInsertedFlag, *first);
+        ++first;
+    }
+}
+
+#endif
+
 // CREATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1972,7 +2316,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                             const ALLOCATOR& basicAllocator)
 : d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
-    this->insert(first, last);
+    constructFromRange(first, last);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1986,7 +2330,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                             const ALLOCATOR& basicAllocator)
 : d_impl(hashFunction, EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
 {
-    this->insert(first, last);
+    constructFromRange(first, last);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -1999,7 +2343,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                             const ALLOCATOR& basicAllocator)
 : d_impl(HASH(), EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
 {
-    this->insert(first, last);
+    constructFromRange(first, last);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -2011,7 +2355,7 @@ unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::unordered_set(
                                                const ALLOCATOR& basicAllocator)
 : d_impl(HASH(), EQUAL(), 0, 1.0f, basicAllocator)
 {
-    this->insert(first, last);
+    constructFromRange(first, last);
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2371,17 +2715,7 @@ inline
 void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                         INPUT_ITERATOR last)
 {
-    if (size_type maxInsertions = static_cast<size_type>(
-           ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))) {
-        this->reserve(this->size() + maxInsertions);
-    }
-
-    bool isInsertedFlag;  // value is not used
-
-    while (first != last) {
-        d_impl.insertIfMissing(&isInsertedFlag, *first);
-        ++first;
-    }
+    insertFromRange(first, last);
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)

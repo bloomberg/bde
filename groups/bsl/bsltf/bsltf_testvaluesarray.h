@@ -10,6 +10,7 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bsltf::TestValuesArray: container for values used for testing
 //  bsltf::TestValuesArrayIterator: iterator for the container
+//  bsltf::TestValuesArraySentinel: sentinel for the container
 //
 //@SEE_ALSO: bsltf_templatetestfacility
 //
@@ -60,6 +61,16 @@ BSLS_IDENT("$Id: $")
 ///-------------
 // This component is *not* thread-safe, by any definition of the term, and
 // should not be used in test scenarios concerned with concurrent code.
+//
+///C++20 Ranges
+///------------
+// `TestValueArray`, `TestValueArrayIterator`, and `TestValueArraySentinel`
+// collectively  meet the requirements of the Standard
+// "container-compatible-range" concept.  Template parameter `USE_SENTINEL`
+// (default `false`) determines whether the type returned by the `end` method
+// is TestValueArrayIterator` or `TestValuesArraySentinel`, a class that is
+// not a fully-functional iterator (e.g., it cannot be dereferenced) that can
+// also define the end of a range.
 //
 ///Usage
 ///-----
@@ -140,9 +151,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bsltf_templatetestfacility.h>
 
+#include <bslmf_conditional.h>   // `bsl::conditional`
+#include <bslmf_typeidentity.h>
+
 #include <bslma_bslallocator.h>
 
 #include <bsls_alignmentutil.h>
+#include <bsls_libraryfeatures.h>
 
 #include <iterator>
 #include <stddef.h>
@@ -161,6 +176,9 @@ struct TestValuesArray_DefaultConverter;
 
 template <class VALUE>
 class TestValuesArray_PostIncrementPtr;
+
+template <class VALUE>
+class TestValuesArraySentinel;
 
                        // =============================
                        // class TestValuesArrayIterator
@@ -189,6 +207,7 @@ class TestValuesArrayIterator {
                                        // not owned)
 
     const VALUE *d_end_p;              // end pointer (held, not owned)
+                                       // -- for defensive checks only
 
     bool        *d_dereferenceable_p;  // indicate if dereferenceable (held,
                                        // not owned)
@@ -198,14 +217,30 @@ class TestValuesArrayIterator {
 
   private:
     // FRIENDS
+ 
     template <class OTHER_VALUE>
-    friend bool operator==(const TestValuesArrayIterator<OTHER_VALUE>&,
-                           const TestValuesArrayIterator<OTHER_VALUE>&);
+    friend bool operator==(const TestValuesArrayIterator<OTHER_VALUE>& ,
+                           const TestValuesArrayIterator<OTHER_VALUE>& );
 
     template <class OTHER_VALUE>
-    friend bool operator!=(const TestValuesArrayIterator<OTHER_VALUE>&,
-                           const TestValuesArrayIterator<OTHER_VALUE>&);
+    friend bool operator!=(const TestValuesArrayIterator<OTHER_VALUE>& ,
+                           const TestValuesArrayIterator<OTHER_VALUE>& );
 
+    template <class OTHER_VALUE>
+    friend bool operator==(const TestValuesArrayIterator<OTHER_VALUE>& ,
+                           const TestValuesArraySentinel<OTHER_VALUE>& );
+
+    template <class OTHER_VALUE>
+    friend bool operator==(const TestValuesArraySentinel<OTHER_VALUE>& ,
+                           const TestValuesArrayIterator<OTHER_VALUE>& );
+
+    template <class OTHER_VALUE>
+    friend bool operator!=(const TestValuesArrayIterator<OTHER_VALUE>& ,
+                           const TestValuesArraySentinel<OTHER_VALUE>& );
+
+    template <class OTHER_VALUE>
+    friend bool operator!=(const TestValuesArraySentinel<OTHER_VALUE>& ,
+                           const TestValuesArrayIterator<OTHER_VALUE>& );
   public:
     // TYPES
     typedef std::input_iterator_tag  iterator_category;
@@ -218,6 +253,12 @@ class TestValuesArrayIterator {
 
   public:
     // CREATORS
+
+    /// Create a null-initialized iterator. Note that this iterator can be
+    /// used in the sentinel role for a C++20 standard range.  Also note that
+    /// sentinel default-constructibility is a requirement of the Standard
+    /// container-convertible-range concept.
+    TestValuesArrayIterator();
 
     /// Create an iterator referring to the specified `object` for a
     /// container with the specified `end`, with two arrays of boolean
@@ -262,8 +303,11 @@ class TestValuesArrayIterator {
 
     /// Return the address of the element (of the template parameter
     /// `VALUE`) at which this iterator is positioned.  The behavior is
-    /// undefined unless this iterator dereferenceable.
+    /// undefined unless this iterator is dereferenceable.
     const VALUE *operator->() const;
+
+    /// Return the position (address) referenced by this iterator.
+    const VALUE *address() const;
 };
 
 /// Return `true` if the specified `lhs` and the specified `rhs` refer to
@@ -280,6 +324,71 @@ template <class VALUE>
 bool operator!=(const TestValuesArrayIterator<VALUE>& lhs,
                 const TestValuesArrayIterator<VALUE>& rhs);
 
+                        // =============================
+                        // class TestValuesArraySentinel
+                        // =============================
+
+template <class VALUE>
+class TestValuesArraySentinel {
+
+    const VALUE *d_end_p;
+
+    // FRIENDS
+    template <class OTHER_VALUE>
+    friend bool operator==(const TestValuesArrayIterator<OTHER_VALUE>& ,
+                           const TestValuesArraySentinel<OTHER_VALUE>& );
+
+    template <class OTHER_VALUE>
+    friend bool operator==(const TestValuesArraySentinel<OTHER_VALUE>& ,
+                           const TestValuesArrayIterator<OTHER_VALUE>& );
+
+    template <class OTHER_VALUE>
+    friend bool operator!=(const TestValuesArrayIterator<OTHER_VALUE>& ,
+                           const TestValuesArraySentinel<OTHER_VALUE>& );
+
+    template <class OTHER_VALUE>
+    friend bool operator!=(const TestValuesArraySentinel<OTHER_VALUE>& ,
+                           const TestValuesArrayIterator<OTHER_VALUE>& );
+
+  public:
+
+    // CREATORS
+
+    /// Create a sentinel object that "refers" to `nullptr`.  Note that a
+    /// default constructor is required by the `bsl::sentinel_for` concept.
+    TestValuesArraySentinel();
+
+    /// Create a sentinel object that refers the specified `end` position
+    /// (address).  Note that no facility is provided to change the position of
+    /// a sentinel object.
+    TestValuesArraySentinel(const VALUE *end);
+
+    // ACCESSORS
+
+    /// Return the position (address) referenced by this sentinel.
+    const VALUE *address() const;
+};
+
+/// Return `true` if the specified `lhs` and the specified `rhs` refer to
+/// the same element, and `false` otherwise.  The behavior is undefined
+/// unless `lhs` and `rhs` are comparable.
+template <class VALUE>
+bool operator==(const TestValuesArrayIterator<VALUE>& lhs,
+                const TestValuesArraySentinel<VALUE>& rhs);
+template <class VALUE>
+bool operator==(const TestValuesArraySentinel<VALUE>& lhs,
+                const TestValuesArrayIterator<VALUE>& rhs);
+
+/// Return `true` if the specified `lhs` and the specified `rhs` do *not*
+/// refer to the same element, and `false` otherwise.  The behavior is
+/// undefined unless `lhs` and `rhs` are comparable.
+template <class VALUE>
+bool operator!=(const TestValuesArrayIterator<VALUE>& lhs,
+                const TestValuesArraySentinel<VALUE>& rhs);
+template <class VALUE>
+bool operator!=(const TestValuesArraySentinel<VALUE>& lhs,
+                const TestValuesArrayIterator<VALUE>& rhs);
+
                        // =====================
                        // class TestValuesArray
                        // =====================
@@ -290,15 +399,15 @@ bool operator!=(const TestValuesArrayIterator<VALUE>& lhs,
 /// iterator, and report any misuse of the iterator.
 template <class VALUE,
           class ALLOCATOR = bsl::allocator<VALUE>,
-          class CONVERTER =
-              TestValuesArray_DefaultConverter<VALUE, ALLOCATOR> >
-class TestValuesArray
-{
+          class CONVERTER = TestValuesArray_DefaultConverter<VALUE, ALLOCATOR>,
+          bool  USE_SENTINEL = false>
+class TestValuesArray {
 
   private:
     // PRIVATE TYPES
     typedef typename bsl::allocator_traits<ALLOCATOR>::template
-            rebind_traits<bsls::AlignmentUtil::MaxAlignedType> AllocatorTraits;
+            rebind_traits<bsls::AlignmentUtil::MaxAlignedType>
+                                                     AllocatorTraits;
     typedef typename AllocatorTraits::allocator_type AllocatorType;
     typedef typename AllocatorTraits::size_type      size_type;
 
@@ -317,10 +426,10 @@ class TestValuesArray
                                      // value is comparable (owned)
 
     // NOT IMPLEMENTED
-    TestValuesArray(const TestValuesArray&);             // = delete
-    TestValuesArray& operator=(const TestValuesArray&);  // = delete
+    TestValuesArray(const TestValuesArray& );             // = delete
+    TestValuesArray& operator=(const TestValuesArray& );  // = delete
 
-    // PRIVATE MANIPULATOR
+    // PRIVATE MANIPULATORS
 
     /// Initialize this container, using the specified `spec` to populate
     /// container with test values.
@@ -329,8 +438,26 @@ class TestValuesArray
   public:
     // TYPES
 
-    /// Iterator for this container.
-    typedef TestValuesArrayIterator<VALUE> iterator;
+    /// Iterator/Sentinel for this container.
+
+    typedef TestValuesArrayIterator<      VALUE>            iterator;
+    typedef TestValuesArraySentinel<      VALUE>            sentinel;
+    typedef TestValuesArrayIterator<const VALUE>      const_iterator;
+    typedef TestValuesArraySentinel<const VALUE>      const_sentinel;
+    typedef typename bsl::conditional<USE_SENTINEL,
+                                            sentinel,
+                                            iterator>::type      EndReturnType;
+    typedef typename bsl::conditional<USE_SENTINEL,
+                                      const_sentinel,
+                                      const_iterator>::type ConstEndReturnType;
+
+    // PRIVATE MANIPULATORS
+
+    sentinel privateEnd(BSLMF_TYPEIDENTITY_T(sentinel) );
+    iterator privateEnd(BSLMF_TYPEIDENTITY_T(iterator) );
+
+    const_sentinel privateEnd(BSLMF_TYPEIDENTITY_T(const_sentinel) ) const;
+    const_iterator privateEnd(BSLMF_TYPEIDENTITY_T(const_iterator) ) const;
 
   public:
     // CREATORS
@@ -358,9 +485,12 @@ class TestValuesArray
     /// container, or the `end` iterator if this container is empty.
     iterator begin();
 
-    /// Return an iterator providing access to the past-the-end position in
-    /// the sequence of `VALUE` objects maintained by this container.
-    iterator end();
+    /// Return an iterator (sentinel) referencing to one position past the end
+    /// of the sequence of `VALUE` objects maintained by this container.
+    /// The return type is determined by (template) parameter `USE_SENTINEL`
+    /// and `USE_SENTINEL` defaults to false` (i.e., `end()` returns an
+    /// `iterator`).
+    EndReturnType end();
 
     /// Return an iterator to the element at the specified `position`.  The
     /// behavior is undefined unless `position <= size()`.
@@ -370,6 +500,16 @@ class TestValuesArray
     void resetIterators();
 
     // ACCESSORS
+
+    /// Return an iterator providing non-modifiable access to the first
+    /// `VALUE` object in the sequence of `VALUE` objects maintained by this
+    /// container, or the `end` iterator if this container is empty.
+    const_iterator begin() const;
+
+    /// Return an iterator providing non-modifiable access to the past-the-end
+    /// position in the sequence of `VALUE` objects maintained by this
+    /// container.
+    ConstEndReturnType end() const;
 
     /// Return the address of the non-modifiable first element in this
     /// container.
@@ -443,6 +583,17 @@ class TestValuesArray_PostIncrementPtr
                        // -----------------------------
 
 // CREATORS
+
+template <class VALUE>
+inline
+TestValuesArrayIterator<VALUE>::TestValuesArrayIterator()
+: d_data_p(0)
+, d_end_p(0)
+, d_dereferenceable_p(0)
+, d_isValid_p(0)
+{
+}
+
 template <class VALUE>
 inline
 TestValuesArrayIterator<VALUE>::TestValuesArrayIterator(
@@ -540,6 +691,36 @@ const VALUE *TestValuesArrayIterator<VALUE>::operator->() const
     return d_data_p;
 }
 
+template <class VALUE>
+const VALUE *TestValuesArrayIterator<VALUE>::address() const
+{
+    return d_data_p;
+}
+
+                        // -----------------------------
+                        // class TestValuesArraySentinel
+                        // -----------------------------
+
+// CREATORS
+template <class VALUE>
+TestValuesArraySentinel<VALUE>::TestValuesArraySentinel()
+: d_end_p(0)
+{
+}
+
+template <class VALUE>
+TestValuesArraySentinel<VALUE>::TestValuesArraySentinel(const VALUE *end)
+: d_end_p(end)
+{
+}
+
+// ACCESSORS
+template <class VALUE>
+const VALUE *TestValuesArraySentinel<VALUE>::address() const
+{
+    return d_end_p;
+}
+
 }  // close package namespace
 
 // FREE OPERATORS
@@ -565,77 +746,44 @@ bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
     return !(lhs == rhs);
 }
 
+template <class VALUE>
+bool bsltf::operator==(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
+                       const bsltf::TestValuesArraySentinel<VALUE>& rhs)
+{
+    return lhs.d_data_p == rhs.d_end_p;
+}
+
+template <class VALUE>
+bool bsltf::operator==(const bsltf::TestValuesArraySentinel<VALUE>& lhs,
+                       const bsltf::TestValuesArrayIterator<VALUE>& rhs)
+{
+    return lhs.d_end_p == rhs.d_data_p;
+}
+
+template <class VALUE>
+bool bsltf::operator!=(const bsltf::TestValuesArrayIterator<VALUE>& lhs,
+                       const bsltf::TestValuesArraySentinel<VALUE>& rhs)
+{
+    return lhs.d_data_p != rhs.d_end_p;
+}
+
+template <class VALUE>
+bool bsltf::operator!=(const bsltf::TestValuesArraySentinel<VALUE>& lhs,
+                       const bsltf::TestValuesArrayIterator<VALUE>& rhs)
+{
+    return lhs.d_end_p != rhs.d_data_p;
+}
+
 namespace bsltf {
                        // ---------------------
                        // class TestValuesArray
                        // ---------------------
 
-// CREATORS
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray()
-: d_allocator(&bslma::MallocFreeAllocator::singleton())
-{
-    static const char DEFAULT_SPEC[] =
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-    initialize(DEFAULT_SPEC);
-}
-
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
-                                                      ALLOCATOR basicAllocator)
-: d_allocator(basicAllocator)
-{
-    static const char DEFAULT_SPEC[] =
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-    initialize(DEFAULT_SPEC);
-}
-
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-inline
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(const char *spec)
-: d_allocator(&bslma::MallocFreeAllocator::singleton())
-{
-    initialize(spec);
-}
-
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-inline
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::TestValuesArray(
-                                                    const char *spec,
-                                                    ALLOCATOR   basicAllocator)
-: d_allocator(basicAllocator)
-{
-    initialize(spec);
-}
-
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::~TestValuesArray()
-{
-    for (size_t i = 0; i < d_size; ++i) {
-        bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_data_p + i);
-    }
-
-    size_type numBytes = static_cast<size_type>(
-                     d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool));
-    size_type numMaxAlignedType =
-                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
-                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-
-    AllocatorType alignAlloc(d_allocator);
-    AllocatorTraits::deallocate(
-        alignAlloc,
-        reinterpret_cast<bsls::AlignmentUtil::MaxAlignedType *>(
-                                           reinterpret_cast<void *>(d_data_p)),
-        numMaxAlignedType);
-        // The redundant cast to 'void *' persuades gcc/Solaris that there are
-        // no alignment issues to warn about.
-}
-
 // PRIVATE MANIPULATORS
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::initialize(const char *spec)
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+void TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::initialize(
+                                                              const char *spec)
 {
     BSLS_ASSERT_SAFE(spec);
 
@@ -665,22 +813,12 @@ void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::initialize(const char *spec)
     memset(d_validIterator_p, true, (d_size + 1) * sizeof(bool));
 }
 
-// MANIPULATORS
-template <class VALUE, class ALLOCATOR, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
 inline
-typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::begin()
-{
-    return iterator(data(),
-                    data() + d_size,
-                    d_dereferenceable_p,
-                    d_validIterator_p);
-}
-
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-inline
-typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::end()
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
+                                    privateEnd(BSLMF_TYPEIDENTITY_T(iterator) )
 {
     return iterator(data() + d_size,
                     data() + d_size,
@@ -688,10 +826,132 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::end()
                     d_validIterator_p + d_size);
 }
 
-template <class VALUE, class ALLOCATOR, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
 inline
-typename TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::iterator
-TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::index(size_t position)
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::sentinel
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
+                                    privateEnd(BSLMF_TYPEIDENTITY_T(sentinel) )
+{
+    return sentinel(data() + d_size);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::const_iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
+                        privateEnd(BSLMF_TYPEIDENTITY_T(const_iterator) ) const
+{
+    return const_iterator(data() + d_size,
+                          data() + d_size,
+                          d_dereferenceable_p + d_size,
+                          d_validIterator_p + d_size);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::const_sentinel
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
+                        privateEnd(BSLMF_TYPEIDENTITY_T(const_sentinel) ) const
+{
+    return const_sentinel(data() + d_size);
+}
+
+// CREATORS
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::TestValuesArray()
+: d_allocator(&bslma::MallocFreeAllocator::singleton())
+{
+    static const char DEFAULT_SPEC[] =
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    initialize(DEFAULT_SPEC);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::TestValuesArray(
+                                                      ALLOCATOR basicAllocator)
+: d_allocator(basicAllocator)
+{
+    static const char DEFAULT_SPEC[] =
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    initialize(DEFAULT_SPEC);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::TestValuesArray(
+                                                              const char *spec)
+: d_allocator(&bslma::MallocFreeAllocator::singleton())
+{
+    initialize(spec);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::TestValuesArray(
+                                                    const char *spec,
+                                                    ALLOCATOR   basicAllocator)
+: d_allocator(basicAllocator)
+{
+    initialize(spec);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::~TestValuesArray()
+{
+    for (size_t i = 0; i < d_size; ++i) {
+        bsl::allocator_traits<ALLOCATOR>::destroy(d_allocator, d_data_p + i);
+    }
+
+    size_type numBytes = static_cast<size_type>(
+                     d_size * sizeof(VALUE) + 2 * (d_size + 1) * sizeof(bool));
+    size_type numMaxAlignedType =
+                       (numBytes + bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1)
+                                     / bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
+
+    AllocatorType alignAlloc(d_allocator);
+    AllocatorTraits::deallocate(
+        alignAlloc,
+        reinterpret_cast<bsls::AlignmentUtil::MaxAlignedType *>(
+                                           reinterpret_cast<void *>(d_data_p)),
+        numMaxAlignedType);
+        // The redundant cast to 'void *' persuades gcc/Solaris that there are
+        // no alignment issues to warn about.
+}
+
+// MANIPULATORS
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::begin()
+{
+    return iterator(data(),
+                    data() + d_size,
+                    d_dereferenceable_p,
+                    d_validIterator_p);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::EndReturnType
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::end()
+{
+    return privateEnd(BSLMF_TYPEIDENTITY_T(EndReturnType)());
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::index(
+                                                               size_t position)
 {
     BSLS_ASSERT_SAFE(position <= size());
 
@@ -701,8 +961,9 @@ TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::index(size_t position)
                     d_validIterator_p + position);
 }
 
-template <class VALUE, class ALLOCATOR, class CONVERTER>
-void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::resetIterators()
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+void TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
+                                                               resetIterators()
 {
     memset(d_dereferenceable_p, 1, d_size * sizeof(bool));
     d_dereferenceable_p[d_size] = false;
@@ -710,16 +971,39 @@ void TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::resetIterators()
 }
 
 // ACCESSORS
-template <class VALUE, class ALLOCATOR, class CONVERTER>
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
 inline
-const VALUE *TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::data() const
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::const_iterator
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::begin() const
+{
+    return const_iterator(data(),
+                          data() + d_size,
+                          d_dereferenceable_p,
+                          d_validIterator_p);
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+typename
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::ConstEndReturnType
+TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::end() const
+{
+    return privateEnd(BSLMF_TYPEIDENTITY_T(ConstEndReturnType)());
+}
+
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
+inline
+const VALUE *TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
+                                                                   data() const
 {
     return d_data_p;
 }
 
-template <class VALUE, class ALLOCATOR, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
 inline
-const VALUE& TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::
+const VALUE& TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::
 operator[](size_t index) const
 {
     BSLS_ASSERT_SAFE(0 < size() && index < size());
@@ -727,9 +1011,9 @@ operator[](size_t index) const
     return data()[index];
 }
 
-template <class VALUE, class ALLOCATOR, class CONVERTER>
+template <class VALUE, class ALLOCATOR, class CONVERTER, bool USE_SENTINEL>
 inline
-size_t TestValuesArray<VALUE, ALLOCATOR, CONVERTER>::size() const
+size_t TestValuesArray<VALUE, ALLOCATOR, CONVERTER, USE_SENTINEL>::size() const
 {
     return d_size;
 }

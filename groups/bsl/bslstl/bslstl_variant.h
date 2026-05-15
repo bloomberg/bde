@@ -163,6 +163,8 @@ BSLS_IDENT("$Id: $")
 // * In C++03, the majority of functions do not have constraints due to
 //   language limitations. The documentation for each specific function lists
 //   any constraints that are implemented.
+// * In C++03, the `visit` function does not support visitation of a class
+//   derived from `variant` due to language limitations.
 // * Visitation functionality is limited to one variant.  Before C++17,
 //   visitation only supports the `VISITOR(ALTERNATIVE)` form of invocation;
 //   cases where the visitor is a pointer to member are not supported.
@@ -1077,6 +1079,39 @@ struct Variant_IsSameReturnType<t_RET, t_VISITOR, t_VARIANT, 0>
 /// This `struct` provides a namespace for utility functions used implement
 /// various operations on `bsl::variant`.
 struct Variant_ImpUtil {
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES // $var-args=18
+    /// Returns a reference to the specified `v`.
+    template <class t_HEAD, class... t_TAIL>
+    static bsl::variant<t_HEAD, t_TAIL...>& asVariant(
+                                            bsl::variant<t_HEAD, t_TAIL...>& v)
+    {
+        return v;
+    }
+    template <class t_HEAD, class... t_TAIL>
+    static const bsl::variant<t_HEAD, t_TAIL...>& asVariant(
+                                      const bsl::variant<t_HEAD, t_TAIL...>& v)
+    {
+        return v;
+    }
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES) \
+ && defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+    /// Returns a reference to the specified `v`.
+    template <class t_HEAD, class... t_TAIL>
+    static bsl::variant<t_HEAD, t_TAIL...>&& asVariant(
+                                           bsl::variant<t_HEAD, t_TAIL...>&& v)
+    {
+        return std::move(v);
+    }
+    template <class t_HEAD, class... t_TAIL>
+    static const bsl::variant<t_HEAD, t_TAIL...>&& asVariant(
+                                     const bsl::variant<t_HEAD, t_TAIL...>&& v)
+    {
+        return std::move(v);
+    }
+#endif
 
     /// Return a reference to the alternative with index (template
     /// parameter) `t_INDEX` in the specified `variant`.  If `t_INDEX` is
@@ -2111,7 +2146,8 @@ t_RET visit(t_VISITOR&& visitor, t_VARIANT&& variant)
         BSLS_THROW(bsl::bad_variant_access());
     }
     return ImpUtil::visit<t_RET>(std::forward<t_VISITOR>(visitor),
-                                 std::forward<t_VARIANT>(variant));
+                                 ImpUtil::asVariant(
+                                            std::forward<t_VARIANT>(variant)));
 }
 
 /// Return the result of invoking the specified `visitor` with the currently
@@ -2126,27 +2162,31 @@ t_RET visit(t_VISITOR&& visitor, t_VARIANT&& variant)
 ///   supported; cases where the visitor is a pointer to member are not
 ///   supported.
 template <class t_VISITOR, class t_VARIANT>
+auto visit(t_VISITOR&& visitor, t_VARIANT&& variant) ->
 typename bsl::invoke_result<
-    t_VISITOR,
-    typename BloombergLP::bslstl::Variant_CVQualAlt<t_VARIANT, 0>::type>::type
-visit(t_VISITOR&& visitor, t_VARIANT&& variant)
+    t_VISITOR&&,
+    decltype(get<0>(BloombergLP::bslstl::Variant_ImpUtil::
+                    asVariant(std::forward<t_VARIANT>(variant))))>::type
 {
+    typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
+    typedef decltype(ImpUtil::asVariant(std::forward<t_VARIANT>(variant)))
+                                                             VariantFwdRefType;
     typedef typename bsl::invoke_result<
         t_VISITOR&&,
-        typename BloombergLP::bslstl::Variant_CVQualAlt<t_VARIANT&&,
-                                                        0>::type>::type RET;
-    typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
+        decltype(get<0>(ImpUtil::
+                      asVariant(std::forward<t_VARIANT>(variant))))>::type RET;
 
     static_assert(
         BloombergLP::bslstl::
-            Variant_IsSameReturnType<RET, t_VISITOR&&, t_VARIANT&&>::value,
+          Variant_IsSameReturnType<RET, t_VISITOR&&, VariantFwdRefType>::value,
         "The value type and category of invoking the visitor with "
         "every alternative is not the same");
     if (variant.valueless_by_exception()) {
         BSLS_THROW(bsl::bad_variant_access());
     }
     return ImpUtil::visit<RET>(std::forward<t_VISITOR>(visitor),
-                               std::forward<t_VARIANT>(variant));
+                               ImpUtil::asVariant(
+                                            std::forward<t_VARIANT>(variant)));
 }
 
 /// Return the result of invoking the specified `visitor` with the currently
@@ -2160,7 +2200,9 @@ visit(t_VISITOR&& visitor, t_VARIANT&& variant)
 template <class t_RET, class t_VISITOR, class t_VARIANT>
 t_RET visitR(t_VISITOR& visitor, t_VARIANT&& variant)
 {
-    return visit<t_RET>(visitor, std::forward<t_VARIANT>(variant));
+    typedef BloombergLP::bslstl::Variant_ImpUtil ImpUtil;
+    return visit<t_RET>(visitor,
+                        ImpUtil::asVariant(std::forward<t_VARIANT>(variant)));
 }
 #else  // BSL_VARIANT_FULL_IMPLEMENTATION
 
@@ -2185,7 +2227,7 @@ t_RET visitR(t_VISITOR& visitor, t_VARIANT& variant)
     if (variant.valueless_by_exception()) {
         BSLS_THROW(bsl::bad_variant_access());
     }
-    return ImpUtil::visit<t_RET>(visitor, variant);
+    return ImpUtil::visit<t_RET>(visitor, ImpUtil::asVariant(variant));
 }
 
 /// Return the result of invoking the specified `visitor` with a
@@ -2212,7 +2254,7 @@ t_RET visitR(t_VISITOR&                                visitor,
     if (lvalue.valueless_by_exception()) {
         BSLS_THROW(bsl::bad_variant_access());
     }
-    return ImpUtil::moveVisit<t_RET>(visitor, lvalue);
+    return ImpUtil::moveVisit<t_RET>(visitor, ImpUtil::asVariant(lvalue));
 }
 
 /// Return the result of invoking the specified `visitor` with the currently
@@ -2239,7 +2281,7 @@ visit(t_VISITOR& visitor, t_VARIANT& variant)
         (BloombergLP::bslstl::
              Variant_IsSameReturnType<Ret, t_VISITOR, t_VARIANT&>::value));
 
-    return ImpUtil::visit<Ret>(visitor, variant);
+    return ImpUtil::visit<Ret>(visitor, ImpUtil::asVariant(variant));
 }
 
 /// Return the result of invoking the specified `visitor` with a
@@ -2271,7 +2313,7 @@ visit(t_VISITOR& visitor, BloombergLP::bslmf::MovableRef<t_VARIANT> variant)
                   t_VISITOR,
                   BloombergLP::bslmf::MovableRef<t_VARIANT> >::value));
 
-    return ImpUtil::moveVisit<Ret>(visitor, lvalue);
+    return ImpUtil::moveVisit<Ret>(visitor, ImpUtil::asVariant(lvalue));
 }
 
 #endif  // BSL_VARIANT_FULL_IMPLEMENTATION

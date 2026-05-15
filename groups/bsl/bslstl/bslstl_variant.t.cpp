@@ -139,8 +139,9 @@ using namespace bsl;
 // [ 3] size_t variant_npos;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [17] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 // [16] CONCERN: SFINAE for `get` works on Solaris (DRQS 175366735)
+// [17] CONCERN: `visit` WORKS WITH DERIVED CLASSES
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -6732,6 +6733,33 @@ bool m(const t_TYPE& t) {
     return get<0>(t) && get<int>(t);
 }
 }  // close namespace test_case_16
+
+// ============================================================================
+//                              TEST CASE 16
+// ----------------------------------------------------------------------------
+
+                              // ========================
+                              // class DerivedFromVariant
+                              // ========================
+
+struct DerivedFromVariant : bsl::variant<int, char> {
+    explicit DerivedFromVariant(int v) : bsl::variant<int, char>(v) {}
+};
+
+                              // ========================
+                              // class DerivedFromVariant
+                              // ========================
+
+struct DerivedFromVariantVisitor {
+    bool visited;
+
+    template <class t_TYPE>
+    void operator()(const t_TYPE &value)
+    {
+        visited = true;
+        ASSERT(value == 3);
+    }
+};
 
 // ============================================================================
 //                          TEST DRIVER TEMPLATE
@@ -13993,7 +14021,7 @@ int main(int argc, char **argv)
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -14087,6 +14115,44 @@ int main(int argc, char **argv)
     ASSERT(bsl::holds_alternative<S>(v3));
 // ```
 
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // TESTING CONCERN: `visit` WORKS WITH DERIVED CLASSES
+        //
+        // Concerns:
+        // 1. `visit` works with classes derived from 'variant' if the
+        //    `BSL_VARIANT_FULL_IMPLEMENTATION` macro is defined.
+        //
+        // Plan:
+        // 1. Declare class `DerivedFromVariant` publicly derived from
+        //    `variant`.
+        //
+        // 2. Declare a generic visitor that sets a boolean flag to `true`
+        //    when called.
+        //
+        // 3. Call `bsl::visit` with the visitor and an instance of
+        //    `DerivedFromVariant`.  This code must compile.
+        //
+        // 4. Verify that the flag in the visitor is set to `true`.
+        //
+        // Testing:
+        //   CONCERN: `visit` WORKS WITH DERIVED CLASSES
+        // --------------------------------------------------------------------
+
+#ifdef BSL_VARIANT_FULL_IMPLEMENTATION
+        if (verbose) printf("\nCONCERN: `visit` WORKS WITH DERIVED CLASSES"
+                            "\n===========================================\n");
+
+        DerivedFromVariant v(3);
+
+        DerivedFromVariantVisitor visitor = {false};
+        bsl::visit(visitor, v);
+
+        ASSERT(visitor.visited);
+#else
+        if (verbose) printf("`visit`: no support for derived classes\n");
+#endif
       } break;
       case 16: {
         // --------------------------------------------------------------------

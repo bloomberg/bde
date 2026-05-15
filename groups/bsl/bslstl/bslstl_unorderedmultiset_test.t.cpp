@@ -19,6 +19,8 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_isbitwisecopyable.h>
@@ -121,6 +123,10 @@ using bsls::NameOf;
 // [12] unordered_multiset(ITER, ITER, size_type, allocator);
 // [12] unordered_multiset(ITER, ITER, size_type, hasher, allocator);
 // [12] unordered_multiset(ITER, ITER, size_type, hasher, key_equal, alloc);
+// [  ] unordered_multiset(fr_t , auto&& range, nb, hasher, key_equal, alloc);
+// [  ] unordered_multiset(fr_t , auto&& range, nb, hasher,            alloc);
+// [  ] unordered_multiset(fr_t , auto&& range, nb,                    alloc);
+// [  ] unordered_multiset(fr_t , auto&& range,                        alloc);
 //*[29] unordered_multiset(unordered_multiset&& original);
 //*[11] unordered_multiset(const A& allocator);
 //*[ 7] unordered_multiset(const unordered_multiset& original);
@@ -169,6 +175,7 @@ using bsls::NameOf;
 //*[31] iterator insert(const_iterator hint, const value_type&& value);
 // [34] iterator insert(initializer_list<value_type>);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [ 8] void swap(set& other);
 //
 // observers:
@@ -1659,19 +1666,20 @@ void testTransparentComparator(Container& container,
         const Count EXPECTED_C = initKeyValue ? initKeyValue : 1;
 
         const bsl::pair<Iterator, Iterator> EXISTING_ER =
-                                                container.equal_range(existingKey);
+                                            container.equal_range(existingKey);
         ASSERTV(isTransparent,
                   expectedConversionCount,   existingKey.conversionCount(),
                   expectedConversionCount == existingKey.conversionCount());
         ASSERT(EXPECTED_C ==
-         static_cast<Count>(bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
+         static_cast<Count>(bsl::distance(EXISTING_ER.first,
+                                          EXISTING_ER.second)));
 
         for (Iterator it = EXISTING_ER.first; it != EXISTING_ER.second; ++it) {
             ASSERT(existingKey.value() == *it);
         }
 
         const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
-                                             container.equal_range(nonExistingKey);
+                                         container.equal_range(nonExistingKey);
         ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
         ASSERTV(isTransparent,
                 expectedConversionCount,   nonExistingKey.conversionCount(),
@@ -1718,6 +1726,51 @@ void testTransparentComparator(Container& container,
         ASSERTV(isTransparent,
                 expectedConversionCount,   nonExistingKey.conversionCount(),
                 expectedConversionCount == nonExistingKey.conversionCount());
+    }
+}
+
+/// Search for a value equal to the specified `initKeyValue` in the specified
+/// `container`, and count the number of conversions expected based on the
+/// specified `isTransparent`.  Since these tests can modify the container, we
+/// make a copy of it for each test.
+template <class t_CONTAINER>
+void testTransparentComparatorMutable(const t_CONTAINER& container,
+                                      bool               isTransparent,
+                                      int                initKeyValue)
+{
+    typedef typename t_CONTAINER::size_type Count;
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    {
+        // Testing `erase`.
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        const Count size = container.size();
+
+        // with a non-existing key
+        {
+            Count n = c.erase(nonExistingKey);
+            ASSERT(n == 0);
+            ASSERT(c.size() == size);
+            ASSERT(isTransparent ? nonExistingKey.conversionCount() == 0
+                                 : nonExistingKey.conversionCount() >  0);
+        }
+
+        // with an existing key
+        {
+            Count expectedN = c.count(existingKey);
+            Count n         = c.erase(existingKey);
+            ASSERT(n == expectedN);
+            ASSERT(c.size() + n == size);
+            ASSERT(isTransparent ? existingKey.conversionCount() == 0
+                                 : existingKey.conversionCount() >  0);
+        }
     }
 }
 
@@ -1795,6 +1848,41 @@ class TestAllocatorUtil
         ASSERTV(&oa == value.arg09().allocator());
         ASSERTV(&oa == value.arg10().allocator());
     }
+};
+
+                        // =======================
+                        // class SubrangeContainer
+                        // =======================
+
+// Emulate `bsl::ranges::subrange` for pre-C++20 builds.
+template <class ITER>
+class SubrangeContainer {
+
+    // DATA
+    ITER d_begin;
+    ITER d_end;
+
+  public:
+    // TYPES
+    typedef       ITER       iterator;
+    typedef const ITER const_iterator;
+
+    // CREATORS
+    SubrangeContainer()
+    : d_begin(ITER())
+    , d_end  (ITER()) {}
+
+    SubrangeContainer(ITER begin, ITER end)
+    : d_begin(begin)
+    , d_end  (end)    {}
+
+    // MANIPULATORS
+    iterator begin() { return d_begin; }
+    iterator end  () { return d_end  ; }
+
+    // ACCESSORS  // Needed when testing at C++03 language level
+    const_iterator begin() const { return d_begin; }
+    const_iterator end  () const { return d_end  ; }
 };
 
 /// This templatized struct provide a namespace for testing the
@@ -1995,7 +2083,8 @@ class TestDriver {
     // TEST CASES
 
     /// Test whether `unordered_multiset` is a C++20 range.
-    static void testCase39_isRange();
+    static void testCase39_isRangeConcepts();
+    static void testCase39_isRangeFunctionality();
 
     /// Test free function `bsl::erase_if`
     static void testCase38();
@@ -2197,7 +2286,7 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::getIterForIndex(const Obj& obj,
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase39_isRange()
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase39_isRangeConcepts()
 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
     BSLMF_ASSERT((std::ranges::common_range<Obj>));
@@ -2207,6 +2296,112 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase39_isRange()
 
     BSLMF_ASSERT((!std::ranges::view<Obj>));
     BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
+
+template <class KEY, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase39_isRangeFunctionality()
+{
+    if (veryVerbose) {
+        Q(testCase39_isRangeFunctionality)
+        P(NameOf<KEY>())
+    }
+
+    if (veryVerbose) {
+        printf("Baseline\n");
+    }
+    {
+        TestValues rangeForCtor  ("ABCABC");
+        TestValues rangeForInsert("DEFFED");
+
+        Obj mX(bsl::from_range, rangeForCtor);                          // TEST
+        ASSERT(-1 == verifySpec(mX, "AABBCC"));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(-1 == verifySpec(mX, "AABBCCDDEEFF"));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `unordered_multiset` itself is a range-type.\n");
+    }
+    {
+        Obj mX(bsl::from_range, TestValues("ABCABC"));  const Obj& X = mX;
+        Obj mY(bsl::from_range, TestValues("DEFFED"));  const Obj& Y = mY;
+
+        ASSERT(-1 == verifySpec(X, "AABBCC"));
+        ASSERT(-1 == verifySpec(Y, "DDEEFF"));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(-1 == verifySpec(mX, "AABBCCDDEEFF"));
+
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValues("ABCABC"));
+        mW.insert_range(TestValues("DEFFED"));
+        ASSERT(-1 == verifySpec(W, "AABBCCDDEEFF"));
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    typedef bsltf::TestValuesArray<
+           typename Obj::value_type,
+           ALLOC,
+           bsltf::TestValuesArray_DefaultConverter<KEY, ALLOC>,
+           true>                                       TestValuesWithSentinel;
+    {
+        TestValuesWithSentinel tvws;
+
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                  decltype(tvws),
+                                                  typename Obj::value_type>);
+
+        static_assert(true  == bsl::sentinel_for<decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+
+        static_assert(false == bsl::is_same_v<   decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+    }
+
+    if (veryVerbose) {
+        printf("Confirm functionality with distinct sentinels.\n");
+    }
+    {
+        TestValuesWithSentinel rangeForCtor  ("ABCABC");
+        TestValuesWithSentinel rangeForInsert("DEFFED");
+
+        Obj  mX(bsl::from_range, rangeForCtor);                         // TEST
+        ASSERT(-1 == verifySpec(mX, "AABBCC"));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(-1 == verifySpec(mX, "AABBCCDDEEFF"));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `unordered_multiset` itself is a range-type.\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                  Obj,
+                                                  typename Obj::value_type>);
+
+        Obj  mX(bsl::from_range, TestValuesWithSentinel("ABCABC"));
+        Obj  mY(bsl::from_range, TestValuesWithSentinel("DEFFED"));
+
+        ASSERT(-1 == verifySpec(mX, "AABBCC"));
+        ASSERT(-1 == verifySpec(mY, "DDEEFF"));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(-1 == verifySpec(mX, "AABBCCDDEEFF"));
+
+        // Range insertion on a multiset produces the union with duplicates.
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValuesWithSentinel("ABCZ"));
+        mW.insert_range(TestValuesWithSentinel("DEFZ"));
+        ASSERT(-1 == verifySpec(W, "ABCDEFZZ"));
+    }
 #endif
 }
 
@@ -2322,7 +2517,7 @@ TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase32a_RunTest(Obj *target)
     Obj&                  mX = *target;
     const Obj&            X = mX;
 
-    bslma::TestAllocator aa("args", veryVeryVeryVerbose);
+    bslma::TestAllocator aa     ("args",    veryVeryVeryVerbose);
     bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
     Iter result;
@@ -7093,7 +7288,7 @@ template <class KEY, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase17()
 {
     // ------------------------------------------------------------------------
-    // RANGE `insert`
+    // RANGE `insert` AND `insert_range`
     //
     // Concern:
     // 1. All values within the range [first, last) are inserted.
@@ -7109,6 +7304,9 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase17()
     // 6. Inserting no elements allocates no memory.
     //
     // 7. Any memory allocation is exception neutral.
+    //
+    // 8. `insert_range` produces the same result as `insert` when the
+    //    iterators are prsented as a `range`.
     //
     // Plan:
     // 1. Using the table-driven technique:
@@ -7131,14 +7329,23 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase17()
     //
     //   6. Verify no memory is allocated from the default allocator (C-4)
     //
+    // 3. Duplicate the test `insert` test loop for `insert_range` except
+    //    the two iterators are presented as a range by use of the
+    //    `Subrange` container test class.  (C-8)
+    //
     // Testing:
     //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    //   void insert_range(CCR<KEY> auto&& range);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTesting `%s`.\n", NameOf<KEY>().name());
 
     const int    NUM_DATA                  = DEFAULT_NUM_DATA;
     const DefaultDataRow (&DATA)[NUM_DATA] = DEFAULT_DATA;
+
+    if (veryVerbose) {
+        printf("\nTesting `insert` with two iterators.\n");
+    }
 
     for (int ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE     = DATA[ti].d_line;
@@ -7164,13 +7371,63 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase17()
 
             bslma::TestAllocatorMonitor oam(&oa);
 
-            mX.insert(MID, END);
+            mX.insert(MID, END);                                        // TEST
 
             if (tj == CONT.size()) {
                 ASSERTV(LINE, oam.isTotalSame());
             }
             ASSERTV(LINE, EXP_SPEC, X, -1 == verifySpec(X, EXP_SPEC));
+            ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+    }
 
+    typedef SubrangeContainer<typename TestValues::iterator> SRC;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                          SRC,
+                                          typename SRC::iterator::value_type>);
+
+    static_assert(false == bsl::ranges::sized_range<SRC>);
+#endif
+
+    if (veryVerbose) {
+        printf("\nTesting `insert` with two iterators.\n");
+    }
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE     = DATA[ti].d_line;
+        const char *const SPEC     = DATA[ti].d_spec;
+        const char *const EXP_SPEC = DATA[ti].d_results;
+
+        TestValues CONT(SPEC);
+
+        for (size_t tj = 0; tj <= CONT.size(); ++tj) {
+
+            CONT.resetIterators();
+            typename TestValues::iterator BEGIN = CONT.begin();
+            typename TestValues::iterator MID   = CONT.index(tj);
+            typename TestValues::iterator END   = CONT.end();
+
+            bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object", veryVeryVerbose);
+            KeyAllocator         xoa(&oa);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(BEGIN, MID, xoa); const Obj& X = mX;
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+            SRC subrange(MID, END);
+
+            mX.insert_range(subrange);                                  // TEST
+
+            if (tj == CONT.size()) {
+                ASSERTV(LINE, oam.isTotalSame());
+            }
+            ASSERTV(LINE, EXP_SPEC, X, -1 == verifySpec(X, EXP_SPEC));
             ASSERTV(LINE, da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
     }
@@ -7828,6 +8085,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
     //   unordered_multiset(ITER, ITER, size_type, allocator);
     //   unordered_multiset(ITER, ITER, size_type, hasher, allocator);
     //   unordered_multiset(ITER, ITER, size_type, hasher, key_equal, alloc);
+    //   unordered_multiset(fr_t , auto&& range, nb, hasher, key_equal, alloc);
+    //   unordered_multiset(fr_t , auto&& range, nb, hasher,            alloc);
+    //   unordered_multiset(fr_t , auto&& range, nb,                    alloc);
+    //   unordered_multiset(fr_t , auto&& range,                        alloc);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTesting `%s`.\n", NameOf<KEY>().name());
@@ -7857,11 +8118,15 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
 
     if (verbose) printf("\tTest range creation\n");
     {
-        HASH  defaultHash(7);
-        EQUAL defaultEqual(9);
+        HASH  defaultHash;
+        EQUAL defaultEqual;
+    //  int   done = 0;
 
-        ASSERTV(!(HASH()  == defaultHash));
-        ASSERTV(!(EQUAL() == defaultEqual));
+        HASH  testHash(7);
+        EQUAL testEqual(9);
+
+        ASSERTV(!(HASH()  == testHash));
+        ASSERTV(!(EQUAL() == testEqual));
 
         for (int i = 0; i < DEFAULT_NUM_DATA; ++i) {
             const int     LINE    = DEFAULT_DATA[i].d_line;
@@ -7871,14 +8136,18 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
 
             if (veryVerbose) { T_ T_ P(SPEC); }
 
-            int done = 0;
-            for (char cfg = 'a'; cfg <= 'n'; ++cfg) {
+            const bsl::from_range_t fr;
+            const char              lastCfg = 'v';
+            int                     done    = 0;
+
+            for (char cfg = 'a'; cfg <= lastCfg ; ++cfg) {
                 const char CONFIG = cfg;
 
                 bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
                 KeyAllocator         xscratch(&scratch);
 
-                bsltf::TestValuesArray<KEY> tv(SPEC, xscratch);
+                bsltf::TestValuesArray<KEY>  tv(SPEC, xscratch);
+                bsltf::TestValuesArray<KEY>& rg = tv;
 
                 bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
                 bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
@@ -7887,8 +8156,10 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
 
                 bslma::DefaultAllocatorGuard dag(&da);
 
-                bslma::TestAllocator& oa = strchr("efghlmn", CONFIG) ? sa : da;
-                bslma::TestAllocator& noa = &oa == &da ? sa : da;
+                bslma::TestAllocator&  oa = strchr("efghlmnprtv", CONFIG)
+                                          ? sa
+                                          : da;
+                bslma::TestAllocator& noa = (&oa == &da) ? sa : da;
 
                 Obj *pmX;
                 int  numPasses = 0;
@@ -7910,28 +8181,28 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            0,
-                                           defaultHash);
+                                           testHash);
                       } break;
                       case 'd': {
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            0,
-                                           defaultHash,
-                                           defaultEqual);
+                                           testHash,
+                                           testEqual);
                       } break;
                       case 'e': {
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            0,
-                                           defaultHash,
-                                           defaultEqual,
+                                           testHash,
+                                           testEqual,
                                            xsa);
                       } break;
                       case 'f': {
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            0,
-                                           defaultHash,
+                                           testHash,
                                            xsa);
                       } break;
                       case 'g': {
@@ -7954,28 +8225,28 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            100,
-                                           defaultHash);
+                                           testHash);
                       } break;
                       case 'k': {
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            100,
-                                           defaultHash,
-                                           defaultEqual);
+                                           testHash,
+                                           testEqual);
                       } break;
                       case 'l': {
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            100,
-                                           defaultHash,
-                                           defaultEqual,
+                                           testHash,
+                                           testEqual,
                                            xsa);
                       } break;
                       case 'm': {
                         pmX = new (fa) Obj(tv.begin(),
                                            tv.end(),
                                            100,
-                                           defaultHash,
+                                           testHash,
                                            xsa);
                       } break;
                       case 'n': {
@@ -7983,32 +8254,94 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                                            tv.end(),
                                            100,
                                            xsa);
+                        // ++done;
+                      } break;
+                      case 'o': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           100,
+                                           testHash,
+                                           testEqual);
+                      } break;
+                      case 'p': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           100,
+                                           testHash,
+                                           testEqual,
+                                           xsa);
+                      } break;
+                      case 'q': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           100,
+                                           testHash);
+                      } break;
+                      case 'r': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           100,
+                                           testHash,
+                                           xsa);
+                      } break;
+                      case 's': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           100);
+                      } break;
+                      case 't': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           100,
+                                           xsa);
+                      } break;
+                      case 'u': {
+                        pmX = new (fa) Obj(fr,
+                                           rg);
+                      } break;
+                      case 'v': {
+                        pmX = new (fa) Obj(fr,
+                                           rg,
+                                           xsa);
                         ++done;
                       } break;
                       default: {
-                        ASSERTV(0);
+                        ASSERTV(CONFIG, 0);
                         return;                                       // RETURN
                       } break;
                     }
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-                ASSERTV(CONFIG, LENGTH,
-                                 (PLAT_EXC && (LENGTH > 0 || CONFIG >= 'i')) ==
-                                                              (numPasses > 1));
 
                 Obj& mX = *pmX; const Obj& X = mX;
 
+                const int  initialNumBuckets = strchr("ijklmnopqrst", CONFIG)
+                                             ? 100
+                                             :   0;
+                const bool expectAtLeast100  = 100 == initialNumBuckets;
+
+                ASSERTV(CONFIG, expectAtLeast100,    X.bucket_count(),
+                                expectAtLeast100 == (X.bucket_count() > 100));
+
+                ASSERTV(CONFIG, LENGTH,
+                        (PLAT_EXC && (LENGTH > 0 || expectAtLeast100))
+                     == (numPasses > 1));
+
                 ASSERTV(CONFIG, LENGTH, noa.numBlocksTotal(), &oa == &da,
-                                                    0 == noa.numBlocksTotal());
+                        0 == noa.numBlocksTotal());
 
                 ASSERT(-1 == verifySpec(X, RESULTS));
 
-                ASSERTV((strchr("cdefjklm", CONFIG) ?
-                                 defaultHash  : HASH())  == X.hash_function());
-                ASSERTV((strchr("dekl",   CONFIG) ?
-                                 defaultEqual : EQUAL()) == X.key_eq());
+                const HASH& EXP_HASH = strchr("cdefjklmopqr", CONFIG)
+                                     ? testHash
+                                     : HASH();
 
-                ASSERTV(CONFIG, SPEC, X.bucket_count(),
-                                      CONFIG < 'i' || 100 <= X.bucket_count());
+                ASSERTV(CONFIG, EXP_HASH == X.hash_function());
+
+                const EQUAL& EXP_EQUAL = strchr("deklop", CONFIG)
+                                       ? testEqual
+                                       : EQUAL();
+
+                ASSERTV(CONFIG, EXP_EQUAL == X.key_eq());
 
                 size_t sz = 0;
                 for (char c = 'A'; c <= 'Z'; ++c) {
@@ -8024,7 +8357,7 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase12()
                 fa.deleteObject(pmX);
             }
 
-            ASSERTV(1 == done);
+            ASSERTV(done, 1 == done);
         }
     }
 }
@@ -8489,6 +8822,10 @@ int main(int argc, char *argv[])
         veryVeryVerbose = argc > 4;
     veryVeryVeryVerbose = argc > 5;
 
+    Q(KILROY);
+
+    P_(argc); P(veryVeryVerbose);
+
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
@@ -8516,8 +8853,15 @@ int main(int argc, char *argv[])
         // 6. `unordered_multiset` doesn't model `ranges::borrowed_range`
         //    concept.
         //
+        // 7. `unordered_multiset` can be passed to the range CTOR and
+        //    `insert_range`.
+        //
         // Plan:
         // 1. `static_assert` every above-mentioned concept for different `T`.
+        //
+        // 2. Confirm that an `unordered_multiset` can be used with the
+        //    `from_range` CTOR and the `insert_range` manipulator and
+        //    generate the expected results.
         //
         // Testing:
         //   CONCERN: `unordered_multiset` IS A C++20 RANGE
@@ -8528,8 +8872,12 @@ int main(int argc, char *argv[])
                          "\n==============================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase39_isRange,
+                      testCase39_isRangeConcepts,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase39_isRangeFunctionality,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 38: {
         // --------------------------------------------------------------------
@@ -8601,6 +8949,7 @@ int main(int argc, char *argv[])
         //   CONCERN: `find`        properly handles transparent comparators.
         //   CONCERN: `count`       properly handles transparent comparators.
         //   CONCERN: `equal_range` properly handles transparent comparators.
+        //   CONCERN: `erase`       properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -8645,6 +8994,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting mutable non-transparent multiset.\n");
             }
             testTransparentComparator(mXNT, false, KEY);
+            testTransparentComparatorMutable(mXNT, false, KEY);
 
             if (veryVerbose) {
                 printf("\tTesting const transparent multiset.\n");
@@ -8655,6 +9005,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting mutable transparent multiset.\n");
             }
             testTransparentComparator(mXT,  true,  KEY);
+            testTransparentComparatorMutable(mXT, true, KEY);
         }
       } break;
       case 35: {

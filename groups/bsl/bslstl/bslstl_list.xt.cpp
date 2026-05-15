@@ -175,6 +175,7 @@ using namespace BloombergLP;
 // [12] list(size_type n);
 // [12] list(size_type n, const T& value = T(), const A& a = A());
 // [12] template <class iter> list(iter f, iter l, const A& a = A());
+// [12] list(from_range_t, t_RANGE&& range, const A& a = A());
 // [30] list(list&& orig, const A& = A());
 // [33] list(std::initializer_list, const A& = ALLOCATOR());
 //
@@ -186,6 +187,7 @@ using namespace BloombergLP;
 // [31] list& operator=(list&& rhs);
 // [33] list& operator=(std::initializer_list);
 // [13] template <class Iter> void assign(Iter first, Iter last);
+// [13] template <class t_RANGE> void assign_range(t_RANGE&& range);
 // [13] void assign(size_type numElements, const T& val);
 // [33] void assign(std::initializer_list);
 // [16] iterator begin();
@@ -203,6 +205,9 @@ using namespace BloombergLP;
 // [17] iterator insert(const_iterator pos, const T& value);
 // [17] iterator insert(const_iterator pos, size_type n, const T& value);
 // [17] template <class Iter> iterator insert(CIter pos, Iter f, Iter l);
+// [17] iterator insert_range(const_iterator pos, t_RANGE&& range);
+// [17] void prepend_range(t_RANGE&& range);
+// [17] void append_range(t_RANGE&& range);
 // [17] iterator emplace(const_iterator pos, Args&&... args);
 // [17] reference emplace_back(Args&&... args);
 // [17] reference emplace_front(Args&&... args);
@@ -342,6 +347,12 @@ void aSsErTF(bool condition, const char *message, const char *file, int line)
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
 #define TD BSLS_BSLTESTUTIL_FORMAT_TD
+
+// ============================================================================
+//              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAME_TYPE(...) ASSERT((bsl::is_same<__VA_ARGS__>::value))
 
 //=============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -1334,6 +1345,8 @@ class RandSeq {
   public:
     // TYPES
 
+    typedef TYPE value_type;
+
     /// Random-access iterator.
     typedef const TYPE *const_iterator;
 
@@ -1360,6 +1373,9 @@ class RandSeq {
 
     /// Return an iterator referring to the last element in this object.
     const_iterator end() const;
+
+    /// Return the number of elements.
+    size_t size() const { return d_len; }
 };
 
 // CREATORS
@@ -1470,6 +1486,8 @@ class InputSeqConstIterator {
     typedef typename BaseIterTraits::pointer         pointer;
     typedef typename BaseIterTraits::reference       reference;
 
+    InputSeqConstIterator() : d_main_p(0), d_imp() {}
+
     // Use compiler-generated copy constructor, assignment, and destructor:
     // InputSeqConstIterator(const InputSeqConstIterator&);
     // InputSeqConstIterator& operator=(const InputSeqConstIterator&);
@@ -1490,15 +1508,12 @@ class InputSeqConstIterator {
         return *this;
     }
 
-#if 0
     const InputSeqConstIterator operator++(int)
     {
-        InputSeqConstIterator ret(0,d_imp);
-
+        InputSeqConstIterator ret = *this;
         ++*this;
         return ret;
     }
-#endif
 
     // ACCESSORS
 
@@ -1546,6 +1561,7 @@ class InputSeq {
 
   public:
     // TYPES
+    typedef TYPE value_type;
     typedef InputSeqConstIterator<TYPE> const_iterator;
 
     // CREATORS
@@ -1598,6 +1614,182 @@ InputSeqConstIterator<TYPE> InputSeq<TYPE>::end() const
 {
     return InputSeqConstIterator<TYPE>(0, d_value.end());
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+                    // ==============================
+                    // class ContainerCompatibleRange
+                    // ==============================
+
+/// This type models the "container-compatible-range" exposition-only concept.
+template <class t_TYPE>
+class ContainerCompatibleRange {
+    // PRIVATE TYPES
+    using Container = RandSeq<t_TYPE>;
+
+    // DATA
+    Container d_value;
+  public:
+    // TYPES
+    struct const_sentinel {
+        // PUBLIC DATA
+        typename Container::const_iterator d_end;
+
+        // CREATORS
+        const_sentinel() = default;
+        explicit const_sentinel(typename Container::const_iterator end)
+            : d_end(end) {}
+    };
+    struct const_iterator {
+        // DATA
+        typename Container::const_iterator d_it;
+      public:
+        // TYPES
+        using iterator_category = bsl::forward_iterator_tag;
+        using value_type = t_TYPE;
+        using reference_type = const value_type&;
+        using pointer_type = const value_type *;
+        using difference_type = std::ptrdiff_t;
+
+        // CREATORS
+        const_iterator() = default;
+        explicit const_iterator(typename Container::const_iterator it)
+            : d_it(it) {}
+
+        // MANIPULATORS
+        const_iterator& operator++() { ++d_it; return *this; }
+        const_iterator operator++(int) { auto tmp{*this}; ++d_it; return tmp; }
+
+        // ACCESSORS
+        reference_type operator*() const { return *d_it; }
+        bool operator==(const const_iterator&) const = default;
+        bool operator==(const_sentinel s) const { return d_it == s.d_end; }
+    };
+    using value_type = t_TYPE;
+
+    // CREATORS
+    ContainerCompatibleRange() = default;
+    explicit ContainerCompatibleRange(const char *spec) : d_value(spec) {}
+
+    // ACCESSORS
+    auto begin() const { return const_iterator(d_value.begin()); }
+    auto end() const { return const_sentinel(d_value.end()); }
+};
+
+static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                                 ContainerCompatibleRange<int>,
+                                                 int>);
+static_assert(bsl::forward_iterator<
+                               ContainerCompatibleRange<int>::const_iterator>);
+
+                    // ===================================
+                    // class ContainerCompatibleSizedRange
+                    // ===================================
+
+/// This type models the "container-compatible-range" exposition-only concept
+//  and the `ranges::sized_range` concept.
+template <class t_TYPE>
+class ContainerCompatibleSizedRange {
+    // PRIVATE TYPES
+    using Container = RandSeq<t_TYPE>;
+
+    // DATA
+    Container d_value;
+  public:
+    // TYPES
+    struct const_sentinel {
+        // PUBLIC DATA
+        typename Container::const_iterator d_end;
+
+        // CREATORS
+        const_sentinel() = default;
+        explicit const_sentinel(typename Container::const_iterator end)
+            : d_end(end) {}
+    };
+    struct const_iterator {
+        // DATA
+        typename Container::const_iterator d_it;
+      public:
+        // TYPES
+        using iterator_category = bsl::random_access_iterator_tag;
+        using value_type = t_TYPE;
+        using reference_type = const value_type&;
+        using pointer_type = const value_type *;
+        using difference_type = std::ptrdiff_t;
+
+        // CREATORS
+        const_iterator() = default;
+        explicit const_iterator(typename Container::const_iterator it)
+            : d_it(it) {}
+
+        // MANIPULATORS
+        const_iterator& operator++() { ++d_it; return *this; }
+        const_iterator operator++(int) { auto tmp{*this}; ++d_it; return tmp; }
+        const_iterator& operator--() { --d_it; return *this; }
+        const_iterator operator--(int) { auto tmp{*this}; --d_it; return tmp; }
+        const_iterator& operator+=(difference_type n)
+        {
+            d_it += n;
+            return *this;
+        }
+        const_iterator& operator-=(difference_type n)
+        {
+            d_it -= n;
+            return *this;
+        }
+
+        // ACCESSORS
+        reference_type operator*() const { return *d_it; }
+        reference_type operator[](difference_type i) const { return d_it[i]; }
+        bool operator==(const const_iterator&) const = default;
+        auto operator<=>(const const_iterator&) const = default;
+        bool operator==(const_sentinel s) const { return d_it == s.d_end; }
+        auto operator<=>(const_sentinel s) const { return d_it <=> s.d_end; }
+        difference_type operator-(const_iterator i) const
+        {
+            return d_it - i.d_it;
+        }
+
+        // FRIENDS
+        friend difference_type operator-(const_iterator i, const_sentinel s)
+        {
+            return i.d_it - s.d_end;
+        }
+        friend difference_type operator-(const_sentinel s, const_iterator i)
+        {
+            return s.d_end - i.d_it;
+        }
+        friend const_iterator operator+(const_iterator i, difference_type n)
+        {
+            return i += n;
+        }
+        friend const_iterator operator+(difference_type n, const_iterator i)
+        {
+            return i + n;
+        }
+        friend const_iterator operator-(const_iterator i, difference_type n)
+        {
+            return i -= n;
+        }
+    };
+    using value_type = t_TYPE;
+
+    // CREATORS
+    ContainerCompatibleSizedRange() = default;
+    explicit ContainerCompatibleSizedRange(const char *spec) : d_value(spec) {}
+
+    // ACCESSORS
+    auto begin() const { return const_iterator(d_value.begin()); }
+    auto end() const { return const_sentinel(d_value.end()); }
+    auto size() const { return d_value.size(); }
+};
+
+static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                            ContainerCompatibleSizedRange<int>,
+                                            int>);
+static_assert(bsl::ranges::sized_range<ContainerCompatibleSizedRange<int>>);
+static_assert(bsl::random_access_iterator<
+                          ContainerCompatibleSizedRange<int>::const_iterator>);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
                               // ====================
                               // class LimitAllocator
@@ -2418,6 +2610,10 @@ struct TestDriver {
     template <class CONTAINER>
     static void test12_constructorRange(const CONTAINER&);
 
+    // Test C++20 range constructor.
+    template <class RANGE>
+    static void test12_constructorCxx20Range();
+
     static void test12_initialLengthConstructor();
     static void test12_initialLengthConstructor(bsl::true_type);
     static void test12_initialLengthConstructor(bsl::false_type);
@@ -2443,6 +2639,10 @@ struct TestDriver {
     static void test13_assignRange();
     template <class CONTAINER>
     static void test13_assignRange(const CONTAINER&);
+
+    // Test `assign_range`.
+    template <class RANGE>
+    static void test13_assignCxx20Range();
 
     static void test14_resize();
     static void test14_resize(bsl::false_type hasNoCopyCtor);
@@ -2477,6 +2677,10 @@ struct TestDriver {
     static void test17_insertRange();
     template <class CONTAINER>
     static void test17_insertRange(const CONTAINER&);
+
+    // Test `insert_range`, `prepend_range`, and `append_range`.
+    template <class RANGE>
+    static void test17_insertCxx20Range();
 
     /// Test `erase` and `pop_back`.
     static void test18_erase();
@@ -8532,6 +8736,318 @@ void TestDriver<TYPE,ALLOC>::test17_insertRange(const CONTAINER&)
             } // end for (ui)
         } // end for (posidx)
     } // end for (ti)
+
+    test17_insertCxx20Range<CONTAINER>();
+}
+
+template <class TYPE, class ALLOC>
+template <class RANGE>
+void TestDriver<TYPE,ALLOC>::test17_insertCxx20Range()
+{
+    const int           MAX_LEN    = 15;
+
+    // Starting data
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // container spec
+    } DATA[] = {
+        //line  spec                  length
+        //----  -----------------     ------
+        { L_,   ""                 }, // 0
+        { L_,   "A"                }, // 1
+        { L_,   "AB"               }, // 2
+        { L_,   "ABC"              }, // 3
+        { L_,   "ABCD"             }, // 4
+        { L_,   "ABCDA"            }, // 5
+        { L_,   "ABCDABCDABCDABC"  }, // 15
+    };
+    enum { NUM_DATA = sizeof(DATA) / sizeof *DATA };
+
+    // Data to insert
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // container spec
+    } U_DATA[] = {
+        //line  spec      length
+        //----  -----     ------
+        { L_,   ""     }, // 0
+        { L_,   "E"    }, // 1
+        { L_,   "EA"   }, // 2
+        { L_,   "EBA"  }, // 3
+    };
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
+
+    for (int ti = 0; ti < NUM_DATA; ++ti) {
+        const int       LINE   = DATA[ti].d_lineNum;
+        const char     *SPEC   = DATA[ti].d_spec_p;
+        const unsigned  LENGTH = static_cast<unsigned>(std::strlen(SPEC));
+
+        ASSERTV(LENGTH, LENGTH <= MAX_LEN);
+
+        for (unsigned posidx = 0; posidx <= LENGTH; ++posidx) {
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            const ALLOC          xoa(&oa);
+
+            for (unsigned ui = 0; ui < NUM_U_DATA; ++ui) {
+                const int     U_LINE = U_DATA[ui].d_lineNum;
+                const char   *U_SPEC = U_DATA[ui].d_spec_p;
+                const size_t  N      = std::strlen(U_SPEC);
+
+                RANGE mU(U_SPEC);  const RANGE& U = mU;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    const Int64 AL = oa.allocationLimit();
+                    oa.setAllocationLimit(-1);
+
+                    Obj        mX(xoa);
+                    const Obj& X = gg(&mX, SPEC);
+
+                    const Obj Y(X);  // Control
+
+                    // Save original iterators (including end iterator).  C++0x
+                    // allows insertion using const_iterator
+
+                    const_iterator orig_iters[MAX_LEN + 1];
+                    const_iterator it = X.begin();
+                    for (unsigned i = 0; i < LENGTH + 1; ++i, ++it) {
+                        orig_iters[i] = it;
+                    }
+
+                    oa.setAllocationLimit(AL);
+
+                    // C++0x allows insertion using const_iterator
+                    const_iterator   pos = orig_iters[posidx];
+                    iterator         ret;
+                    ExceptionProctor proctor(&mX, LINE);
+
+                    const Int64 B = oa.numBlocksInUse();
+
+                    if (N > 1) {
+                        // strong guarantee only for 0 or 1 insertions
+                        proctor.release();
+                    }
+
+                    ret = mX.insert_range(pos, U);
+                    proctor.release();
+
+                    // If got here, then there was no exception
+
+                    const Int64 A = oa.numBlocksInUse();
+
+                    // Test important values
+                    ASSERTV(LINE, posidx, U_LINE,
+                                                checkIntegrity(X, LENGTH + N));
+                    ASSERTV(LINE, posidx, U_LINE, LENGTH + N == X.size());
+                    ASSERTV(LINE, posidx, U_LINE, B + deltaBlocks(N) == A);
+                    ASSERTV(LINE, posidx, U_LINE,
+                                       posDistance(mX.begin(), ret) == posidx);
+
+                    const_iterator cit = X.begin();
+                    const_iterator yi = Y.begin();
+                    for (unsigned i = 0; i < X.size(); ++i, ++cit) {
+                        if (i < posidx) {
+                            // Test that part before insertion is unchanged
+                            ASSERTV(LINE, posidx, U_LINE, i, *yi++ == *cit);
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                                         orig_iters[i] == cit);
+                        }
+                        else if (i < posidx + N) {
+                            // Test inserted values
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                              nthElem(U,  i - posidx) == *cit);
+                        }
+                        else {
+                            // Test that part after insertion is unchanged
+                            ASSERTV(LINE, posidx, U_LINE, i, *yi++ == *cit);
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                                     orig_iters[i - N] == cit);
+                        }
+                    }
+                    // Test end iterator
+                    ASSERTV(LINE, posidx, U_LINE, X.end() == cit);
+                    ASSERTV(LINE, posidx, U_LINE, orig_iters[LENGTH] == cit);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, posidx, U_LINE, 0 == oa.numBlocksInUse());
+            } // end for (ui)
+        } // end for (posidx)
+
+        // `prepend_range`
+        {
+            unsigned posidx = 0;
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            const ALLOC          xoa(&oa);
+
+            for (unsigned ui = 0; ui < NUM_U_DATA; ++ui) {
+                const int     U_LINE = U_DATA[ui].d_lineNum;
+                const char   *U_SPEC = U_DATA[ui].d_spec_p;
+                const size_t  N      = std::strlen(U_SPEC);
+
+                RANGE mU(U_SPEC);  const RANGE& U = mU;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    const Int64 AL = oa.allocationLimit();
+                    oa.setAllocationLimit(-1);
+
+                    Obj        mX(xoa);
+                    const Obj& X = gg(&mX, SPEC);
+
+                    const Obj Y(X);  // Control
+
+                    // Save original iterators (including end iterator).  C++0x
+                    // allows insertion using const_iterator
+
+                    const_iterator orig_iters[MAX_LEN + 1];
+                    const_iterator it = X.begin();
+                    for (unsigned i = 0; i < LENGTH + 1; ++i, ++it) {
+                        orig_iters[i] = it;
+                    }
+
+                    oa.setAllocationLimit(AL);
+
+                    // C++0x allows insertion using const_iterator
+                    ExceptionProctor proctor(&mX, LINE);
+
+                    const Int64 B = oa.numBlocksInUse();
+
+                    if (N > 1) {
+                        // strong guarantee only for 0 or 1 insertions
+                        proctor.release();
+                    }
+
+                    mX.prepend_range(U);
+                    proctor.release();
+
+                    // If got here, then there was no exception
+
+                    const Int64 A = oa.numBlocksInUse();
+
+                    // Test important values
+                    ASSERTV(LINE, posidx, U_LINE,
+                                                checkIntegrity(X, LENGTH + N));
+                    ASSERTV(LINE, posidx, U_LINE, LENGTH + N == X.size());
+                    ASSERTV(LINE, posidx, U_LINE, B + deltaBlocks(N) == A);
+
+                    const_iterator cit = X.begin();
+                    const_iterator yi = Y.begin();
+                    for (unsigned i = 0; i < X.size(); ++i, ++cit) {
+                        if (i < posidx) {
+                            // Test that part before insertion is unchanged
+                            ASSERTV(LINE, posidx, U_LINE, i, *yi++ == *cit);
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                                         orig_iters[i] == cit);
+                        }
+                        else if (i < posidx + N) {
+                            // Test inserted values
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                               nthElem(U, i - posidx) == *cit);
+                        }
+                        else {
+                            // Test that part after insertion is unchanged
+                            ASSERTV(LINE, posidx, U_LINE, i, *yi++ == *cit);
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                                     orig_iters[i - N] == cit);
+                        }
+                    }
+                    // Test end iterator
+                    ASSERTV(LINE, posidx, U_LINE, X.end() == cit);
+                    ASSERTV(LINE, posidx, U_LINE, orig_iters[LENGTH] == cit);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, posidx, U_LINE, 0 == oa.numBlocksInUse());
+            } // end for (ui)
+        }
+
+        // `append_range`
+        {
+            unsigned posidx = LENGTH;
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            const ALLOC          xoa(&oa);
+
+            for (unsigned ui = 0; ui < NUM_U_DATA; ++ui) {
+                const int     U_LINE = U_DATA[ui].d_lineNum;
+                const char   *U_SPEC = U_DATA[ui].d_spec_p;
+                const size_t  N      = std::strlen(U_SPEC);
+
+                RANGE mU(U_SPEC);  const RANGE& U = mU;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    const Int64 AL = oa.allocationLimit();
+                    oa.setAllocationLimit(-1);
+
+                    Obj        mX(xoa);
+                    const Obj& X = gg(&mX, SPEC);
+
+                    const Obj Y(X);  // Control
+
+                    // Save original iterators (including end iterator).  C++0x
+                    // allows insertion using const_iterator
+
+                    const_iterator orig_iters[MAX_LEN + 1];
+                    const_iterator it = X.begin();
+                    for (unsigned i = 0; i < LENGTH + 1; ++i, ++it) {
+                        orig_iters[i] = it;
+                    }
+
+                    oa.setAllocationLimit(AL);
+
+                    // C++0x allows insertion using const_iterator
+                    ExceptionProctor proctor(&mX, LINE);
+
+                    const Int64 B = oa.numBlocksInUse();
+
+                    if (N > 1) {
+                        // strong guarantee only for 0 or 1 insertions
+                        proctor.release();
+                    }
+
+                    mX.append_range(U);
+                    proctor.release();
+
+                    // If got here, then there was no exception
+
+                    const Int64 A = oa.numBlocksInUse();
+
+                    // Test important values
+                    ASSERTV(LINE, posidx, U_LINE,
+                                                checkIntegrity(X, LENGTH + N));
+                    ASSERTV(LINE, posidx, U_LINE, LENGTH + N == X.size());
+                    ASSERTV(LINE, posidx, U_LINE, B + deltaBlocks(N) == A);
+
+                    const_iterator cit = X.begin();
+                    const_iterator yi = Y.begin();
+                    for (unsigned i = 0; i < X.size(); ++i, ++cit) {
+                        if (i < posidx) {
+                            // Test that part before insertion is unchanged
+                            ASSERTV(LINE, posidx, U_LINE, i, *yi++ == *cit);
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                                         orig_iters[i] == cit);
+                        }
+                        else if (i < posidx + N) {
+                            // Test inserted values
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                               nthElem(U, i - posidx) == *cit);
+                        }
+                        else {
+                            // Test that part after insertion is unchanged
+                            ASSERTV(LINE, posidx, U_LINE, i, *yi++ == *cit);
+                            ASSERTV(LINE, posidx, U_LINE, i,
+                                                     orig_iters[i - N] == cit);
+                        }
+                    }
+                    // Test end iterator
+                    ASSERTV(LINE, posidx, U_LINE, X.end() == cit);
+                    ASSERTV(LINE, posidx, U_LINE, orig_iters[LENGTH] == cit);
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(LINE, posidx, U_LINE, 0 == oa.numBlocksInUse());
+            } // end for (ui)
+        }
+    } // end for (ti)
 }
 
 template <class TYPE, class ALLOC>
@@ -8572,8 +9088,15 @@ void TestDriver<TYPE,ALLOC>::test17_insertRange()
     //    elements after the insertion by iterating to the same point in the
     //    resulting list and comparing the new iterators to the old ones.
     //
+    // 5. Repeat the above tests, but with a C++20 range instead of a pair of
+    //    iterators.  Also perform similar tests for `prepend_range` and
+    //    `append_range`.
+    //
     // Testing:
-    //   template <class Iter> void insert(CIter pos, Iter f, Iter l);
+    //   template <class Iter> iterator insert(CIter pos, Iter f, Iter l);
+    //   iterator insert_range(const_iterator pos, t_RANGE&& range);
+    //   void prepend_range(t_RANGE&& range);
+    //   void append_range(t_RANGE&& range);
     // -------------------------------------------------------------------
 
     if (verbose) printf("... with an arbitrary forward iterator.\n");
@@ -9783,6 +10306,182 @@ void TestDriver<TYPE,ALLOC>::test13_assignRange(const CONTAINER&)
             }
         }
     }
+
+    test13_assignCxx20Range<CONTAINER>();
+}
+
+template <class TYPE, class ALLOC>
+template <class RANGE>
+void TestDriver<TYPE,ALLOC>::test13_assignCxx20Range()
+{
+    TestValues VALUES("ABCDEFGH");
+    const int  NUM_VALUES = 8;
+
+    // Note that aix gives warnings for `const TYPE& X = TYPE()` for any type
+    // that has a private copy c'tor.  This will work for the set of `TYPE`s we
+    // actually test.
+
+    TYPE DEFAULT_VALUE;
+    if (bsl::is_trivially_default_constructible<TYPE>::value) {
+#ifdef BSLS_PLATFORM_CMP_MSVC
+  // False warning about memory leak (constructor *is* trivial, placement new)
+  #pragma warning( push )
+  #pragma warning( disable : 4291 )
+#endif
+        new (bsls::Util::addressOf(DEFAULT_VALUE)) TYPE();
+#ifdef BSLS_PLATFORM_CMP_MSVC
+ #pragma warning( pop )
+#endif
+    }
+
+    static const struct {
+        int d_lineNum;  // source line number
+        int d_length;   // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0 },
+        { L_,        1 },
+        { L_,        2 },
+        { L_,        3 },
+        { L_,        4 },
+        { L_,        5 },
+        { L_,        6 },
+        { L_,        7 },
+        { L_,        8 },
+        { L_,        9 },
+        { L_,       11 },
+        { L_,       12 },
+        { L_,       14 },
+        { L_,       15 },
+        { L_,       16 },
+        { L_,       17 }
+    };
+    enum { NUM_DATA = sizeof(DATA) / sizeof *DATA };
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // container spec
+    } U_DATA[] = {
+        //line  spec                   length
+        //----  -------------------    ------
+        { L_,   ""                  }, // 0
+        { L_,   "A"                 }, // 1
+        { L_,   "AB"                }, // 2
+        { L_,   "ABC"               }, // 3
+        { L_,   "ABCD"              }, // 4
+        { L_,   "ABCDE"             }, // 5
+        { L_,   "ABCDEAB"           }, // 7
+        { L_,   "ABCDEABC"          }, // 8
+        { L_,   "ABCDEABCD"         }, // 9
+        { L_,   "ABCDEABCDEABCDE"   }, // 15
+        { L_,   "ABCDEABCDEABCDEA"  }, // 16
+        { L_,   "ABCDEABCDEABCDEAB" }  // 17
+    };
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
+
+    if (verbose) printf("\tUsing C++20 ranges.\n");
+    {
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        ALLOC                xoa(&oa);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                printf("\t\tWith initial value of "); P_(INIT_LENGTH);
+                printf(" using default value.\n");
+            }
+
+            Obj        mX(INIT_LENGTH, VALUES[i % NUM_VALUES], xoa);
+            const Obj& X = mX;
+
+            for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                const int     LINE   = U_DATA[ti].d_lineNum;
+                const char   *SPEC   = U_DATA[ti].d_spec_p;
+                const size_t  LENGTH = std::strlen(SPEC);
+
+                RANGE mU(SPEC);  const RANGE& U = mU;
+
+                if (veryVerbose) {
+                    printf("\t\tAssign "); P_(LENGTH);
+                    printf(" using "); P(SPEC);
+                }
+
+                mX.assign_range(U);
+                const Int64 A = oa.numBlocksInUse();
+
+                if (veryVerbose) { T_; T_; T_; P(X); }
+
+                ASSERTV(INIT_LINE, LINE, i, ti, checkIntegrity(X, LENGTH));
+                ASSERTV(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                ASSERTV(INIT_LINE, LINE, i, ti, A == expectedBlocks(LENGTH));
+
+                Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+                ASSERTV(INIT_LINE, LINE, i, ti, Y == X);
+            }
+        }
+        ASSERT(0 == oa.numMismatches());
+        ASSERT(0 == oa.numBlocksInUse());
+    }
+
+    if (verbose) printf("\tWith exceptions.\n");
+    {
+        bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+        ALLOC                xoa(&oa);
+
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                printf("\t\tWith initial value of "); P_(INIT_LENGTH);
+                printf(" using default value.\n");
+            }
+
+            for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                const int     LINE   = U_DATA[ti].d_lineNum;
+                const char   *SPEC   = U_DATA[ti].d_spec_p;
+                const size_t  LENGTH = std::strlen(SPEC);
+
+                RANGE mU(SPEC);  const RANGE& U = mU;
+
+                if (veryVerbose) {
+                    printf("\t\tAssign "); P_(LENGTH);
+                    printf(" using "); P(SPEC);
+                }
+
+                Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    const Int64 AL = oa.allocationLimit();
+                    oa.setAllocationLimit(-1);
+
+                    Obj mX(INIT_LENGTH, DEFAULT_VALUE, xoa); const Obj& X = mX;
+
+                    oa.setAllocationLimit(AL);
+
+                    mX.assign_range(U);  // test here
+                    const Int64 A = oa.numBlocksInUse();
+
+                    if (veryVerbose) {
+                        T_; T_; T_; P(X);
+                    }
+
+                    ASSERTV(INIT_LINE, LINE, i, ti, checkIntegrity(X, LENGTH));
+                    ASSERTV(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+                    ASSERTV(INIT_LINE, LINE, i, ti,
+                                                  A == expectedBlocks(LENGTH));
+                    ASSERTV(INIT_LINE, LINE, i, ti, Y == X);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                ASSERTV(oa.numMismatches(),  0 == oa.numMismatches());
+                ASSERTV(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+            }
+        }
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -9818,12 +10517,16 @@ void TestDriver<TYPE,ALLOC>::test13_assignRange()
     //    - capacity
     //    - element value at each index position { 0 .. length - 1 }.
     //
+    // 3. Repeat the above tests, but with a C++20 range instead of a pair of
+    //    iterators.
+    //
     // Note that we relax the concerns about memory consumption, since this is
     // implemented as `erase + insert`, and insert will be tested more
     // completely in test case 17.
     //
     // Testing:
     //   template <class Iter> assign(Iter first, Iter last);
+    //   template <class t_RANGE> void assign_range(t_RANGE&& range);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("... with an arbitrary input iterator.\n");
@@ -10434,6 +11137,155 @@ void TestDriver<TYPE,ALLOC>::test12_constructorRange(const CONTAINER&)
             ASSERTV(LINE, ti, 0 == oa.numBlocksInUse());
         }
     }
+
+    test12_constructorCxx20Range<CONTAINER>();
+}
+
+template <class TYPE, class ALLOC>
+template <class RANGE>
+void TestDriver<TYPE,ALLOC>::test12_constructorCxx20Range()
+{
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // specification string
+    } DATA[] = {
+        //line spec
+        //---- -----------
+        { L_,  ""          },
+        { L_,  "A"         },
+        { L_,  "AB"        },
+        { L_,  "ABC"       },
+        { L_,  "ABCD"      },
+        { L_,  "ABCDE"     },
+        { L_,  "ABCDEAB"   },
+        { L_,  "ABCDEABC"  },
+        { L_,  "ABCDEABCD" }
+    };
+    enum { NUM_DATA = sizeof(DATA) / sizeof *DATA };
+
+    if (verbose) printf("\tWithout passing in an allocator.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = std::strlen(SPEC);
+
+            if (verbose) { printf("\t\tCreating object of "); P(SPEC); }
+
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            RANGE mU(SPEC);  const RANGE& U = mU;
+
+            Obj mX(bsl::from_range, U);  const Obj& X = mX;
+
+            if (veryVerbose) { T_; T_; P(X); }
+
+            ASSERTV(LINE, ti, checkIntegrity(X, LENGTH));
+            ASSERTV(LINE, ti, &da == X.get_allocator().mechanism());
+            ASSERTV(LINE, ti, LENGTH == X.size());
+
+            Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+            ASSERTV(LINE, ti, Y == X);
+        }
+    }
+
+    if (verbose) printf("\tWith passing in an allocator.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = std::strlen(SPEC);
+
+            if (verbose) { printf("\t\tCreating object "); P(SPEC); }
+
+            bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+            bslma::DefaultAllocatorGuard dag(&da);
+            bslma::TestAllocatorMonitor  dam(&da);
+
+            RANGE mU(SPEC);  const RANGE& U = mU;
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            ALLOC                xoa(&oa);
+
+            dam.reset();
+
+            Obj mX(bsl::from_range, U, xoa);  const Obj& X = mX;
+
+            const Int64 AA = oa.numBlocksTotal();
+            const Int64  A = oa.numBlocksInUse();
+
+            if (veryVerbose) {
+                T_; T_; P(X);
+                T_; T_; P_(AA); P(A);
+            }
+
+            ASSERTV(dam.isTotalSame());
+            ASSERTV(LINE, ti, checkIntegrity(X, LENGTH));
+            ASSERTV(LINE, ti, LENGTH == X.size());
+            ASSERTV(LINE, ti, xoa == X.get_allocator());
+            ASSERTV(LINE, ti, AA, AA == expectedBlocks(LENGTH));
+            ASSERTV(LINE, ti, A,  A  == expectedBlocks(LENGTH));
+
+            Obj mY; const Obj& Y = gg(&mY, SPEC);
+
+            ASSERTV(LINE, ti, Y == X);
+        }
+    }
+
+    if (verbose) printf("\tWith passing an allocator and checking for "
+                        "allocation exceptions.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = std::strlen(SPEC);
+
+            if (verbose) { printf("\t\tCreating object of "); P(SPEC); }
+
+            RANGE mU(SPEC);  const RANGE& U = mU;
+
+            Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+            ALLOC                xoa(&oa);
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                Obj mX(bsl::from_range, U, xoa); const Obj& X = mX;
+
+                if (veryVerbose) { T_; T_; P(X); }
+
+                ASSERTV(LINE, ti, checkIntegrity(X, LENGTH));
+                ASSERTV(LINE, ti, LENGTH == X.size());
+                ASSERTV(LINE, ti, Y == X);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            const Int64 AA = oa.numBlocksTotal();
+            const Int64  A = oa.numBlocksInUse();
+
+            if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
+
+            // The number of allocations, `ALLOCS`, needed for successful
+            // construction of a list of length `LENGTH` is
+            // `expectedBlocks(LENGTH)`.  Because we are retrying on each
+            // exception, the number of allocations by the time we succeed will
+            // be `SUM(1 .. ALLOCS)`, which is easily computed as
+            // `ALLOCS * (ALLOCS+1) / 2`.
+
+            const Int64 ALLOCS = expectedBlocks(LENGTH);
+#ifdef BDE_BUILD_TARGET_EXC
+            const Int64 TOTAL_ALLOCS = ALLOCS * (ALLOCS+1) / 2;
+#else
+            const Int64 TOTAL_ALLOCS = ALLOCS;
+#endif
+            ASSERTV(LINE, ti, TOTAL_ALLOCS == AA);
+            ASSERTV(LINE, ti, 0 == A);
+
+            ASSERTV(LINE, ti, 0 == oa.numBlocksInUse());
+        }
+    }
 }
 
 template <class TYPE, class ALLOC>
@@ -10467,12 +11319,16 @@ void TestDriver<TYPE,ALLOC>::test12_constructorRange()
     //    - size
     //    - element value at each index position { 0 .. length - 1 }.
     //
+    // 3. Repeat the above tests, but with a C++20 range instead of a pair of
+    //    iterators.
+    //
     // Note that this does NOT test the `std::initializer_list` c'tor, which is
     // tested in case 33.
     //
     // Testing:
     //   template <class InputIter>
     //     list(InputIter first, InputIter last, const A& a = A());
+    //   list(from_range_t, t_RANGE&& range, const A& a = A());
     // ------------------------------------------------------------------------
 
     if (veryVerbose) printf("... with an arbitrary input iterator.\n");
@@ -10498,10 +11354,6 @@ void TestDriver<TYPE,ALLOC>::test12_constructorRange()
 /// list(size_t, ALLOC)
 /// ```
 struct TestDeductionGuides {
-
-#define ASSERT_SAME_TYPE(...) \
- static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
-
     /// Test that constructing a `bsl::list` from various combinations of
     /// arguments deduces the correct type.
     /// ```
@@ -10515,6 +11367,10 @@ struct TestDeductionGuides {
     /// list(iter, iter, ALLOC) -> list<iter::VALUE_TYPE, ALLOC>
     /// list(initializer_list<T>)        -> list<T>
     /// list(initializer_list<T>, ALLOC) -> list<T>
+    /// list(from_range_t, t_RANGE&&)
+    ///   -> list<ranges::range_value_t<t_RANGE>>
+    /// list(from_range_t, t_RANGE&&, t_ALLOCATOR)
+    ///   -> list<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>
     /// ```
     static void SimpleConstructors ()
     {
@@ -10619,6 +11475,20 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(l10c), bsl::list<T10, bsl::allocator<T10>>);
         ASSERT_SAME_TYPE(decltype(l10d), bsl::list<T10, std::allocator<T10>>);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        {
+            typedef int T;
+            const T range[] = {1, 2, 3};
+
+            bsl::list l1(bsl::from_range, range);
+            bsl::list l2(bsl::from_range, range, std::allocator<T>{});
+
+            ASSERT_SAME_TYPE(decltype(l1), bsl::list<T, bsl::allocator<T>>);
+            ASSERT_SAME_TYPE(decltype(l2), bsl::list<T, std::allocator<T>>);
+        }
+#endif
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
 // #define BSLSTL_LIST_COMPILE_FAIL_POINTER_IS_NOT_A_VALUE_TYPE
@@ -10628,8 +11498,6 @@ struct TestDeductionGuides {
         // This should fail to compile (pointer is not a size)
 #endif
     }
-
-#undef ASSERT_SAME_TYPE
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -16960,6 +17828,10 @@ int main(int argc, char *argv[])
         //      point in the resulting list and comparing the new iterators to
         //      the old ones.
         //
+        //   5. Repeat the above tests, but with a C++20 range instead of a
+        //      pair of iterators.  Also perform similar tests for
+        //      `prepend_range` and `append_range`.
+        //
         // Testing:
         //   iterator insert(const_iterator pos, const T& value);
         //   iterator insert(const_iterator pos, size_type n, const T& value);
@@ -16969,6 +17841,9 @@ int main(int argc, char *argv[])
         //   reference emplace_back(Args&&... args);
         //   reference emplace_front(Args&&... args);
         //   template <class Iter> iterator insert(CIter pos, Iter f, Iter l);
+        //   iterator insert_range(const_iterator pos, t_RANGE&& range);
+        //   void prepend_range(t_RANGE&& range);
+        //   void append_range(t_RANGE&& range);
         // -------------------------------------------------------------------
 
         if (verbose) printf("TESTING INSERTION\n"
@@ -17096,6 +17971,17 @@ int main(int argc, char *argv[])
                 ASSERT(X.back()  == v);
             }
         }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        if (verbose) printf("\nTESTING C++20 RANGES"
+                            "\n=====================\n");
+        {
+            TestDriver<char>::test17_insertCxx20Range<
+                                             ContainerCompatibleRange<char>>();
+            TestDriver<char>::test17_insertCxx20Range<
+                                        ContainerCompatibleSizedRange<char>>();
+        }
+#endif
 //@bdetdsplit CODE SLICING END
       } break;
       case 16: {
@@ -17394,6 +18280,9 @@ int main(int argc, char *argv[])
         //
         //      - element value at each index position { 0 .. length - 1 }.
         //
+        //   3. Repeat the above tests, but with a C++20 range instead of a
+        //      pair of iterators.
+        //
         // Note that we relax the concerns about memory consumption, since this
         // is implemented as `erase + insert`, and insert will be tested more
         // completely in test case 17.
@@ -17401,6 +18290,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void assign(size_type numElements, const T& val);
         //   template <class Iter> void assign(Iter first, Iter last);
+        //   template <class t_RANGE> void assign_range(t_RANGE&& range);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING INITIAL-LENGTH AND RANGE ASSIGNMENT\n"
@@ -17435,6 +18325,17 @@ int main(int argc, char *argv[])
                       test13_assignRange,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        if (verbose) printf("\nTESTING C++20 RANGES"
+                            "\n=====================\n");
+        {
+            TestDriver<char>::test13_assignCxx20Range<
+                                             ContainerCompatibleRange<char>>();
+            TestDriver<char>::test13_assignCxx20Range<
+                                        ContainerCompatibleSizedRange<char>>();
+        }
+#endif
 //@bdetdsplit CODE SLICING END
       } break;
       case 12: {
@@ -17532,10 +18433,14 @@ int main(int argc, char *argv[])
         //
         //      - element value at each index position { 0 .. length - 1 }.
         //
+        //   3. Repeat the above tests, but with a C++20 range instead of a
+        //      pair of iterators.
+        //
         // Testing:
         //   list(size_type n);
         //   list(size_type n, const T& value = T(), const A& a = A());
         //   template <class iter> list(iter f, iter l, const A& a = A());
+        //   list(from_range_t, t_RANGE&& range, const A& a = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING INITIAL-LENGTH, RANGE CONSTRUCTORS\n"
@@ -17643,6 +18548,33 @@ int main(int argc, char *argv[])
                       test12_constructorRange,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        if (verbose) printf("\nTESTING C++20 RANGES"
+                            "\n=====================\n");
+        {
+            TestDriver<char>::test12_constructorCxx20Range<
+                                             ContainerCompatibleRange<char>>();
+            TestDriver<char>::test12_constructorCxx20Range<
+                                        ContainerCompatibleSizedRange<char>>();
+        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        // Test `bsl::ranges::to`
+        {
+            const int nums[] = {1, 2, 3};
+            {
+                auto v = std::ranges::to<bsl::list>(nums);
+                ASSERT_SAME_TYPE(decltype(v), bsl::list<int>);
+                ASSERT(bsl::ranges::equal(v, nums));
+            }
+            {
+                auto v = std::ranges::to<bsl::list<long>>(nums);
+                ASSERT_SAME_TYPE(decltype(v), bsl::list<long>);
+                ASSERT(bsl::ranges::equal(v, nums));
+            }
+        }
+#endif
+#endif
       } break;
       case 11: {
         // --------------------------------------------------------------------

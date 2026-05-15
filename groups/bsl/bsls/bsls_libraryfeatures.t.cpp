@@ -2,19 +2,19 @@
 #include <bsls_libraryfeatures.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_buildtarget.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
+#include <iostream>  // for `cout`
+#include <ostream>   // for `ostream`, `print`
 #include <stddef.h>  // for `size_t`
 #include <stdio.h>   // for `printf`, `puts`
 #include <stdlib.h>  // for `atoi`
+#include <string.h>  // for `strchr`
+
 #include <string>    // for `pmr::string`
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
-    #include <string.h>  // for `strchr`
-#endif
 
 // Verify assumption that the BASELINE C++11 library includes all of the new
 // library headers not covered by a more specific macro.  Note that we actively
@@ -129,6 +129,22 @@
     #include <version>
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+#include <generator>
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+#include <mdspan>
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+#include <spanstream>
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+#include <print>
+#endif
+
 // ============================================================================
 //                             TEST PLAN
 // ----------------------------------------------------------------------------
@@ -199,6 +215,7 @@
 // [ 3] BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_PROGRAM_TERMINATION
 // [12] BSLS_LIBRARYFEATURES_HAS_CPP11_RANGE_FUNCTIONS
+// [ 2] BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
 // [ 4] BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // [ 5] BSLS_LIBRARYFEATURES_HAS_CPP11_UNIQUE_PTR
@@ -240,8 +257,37 @@
 // [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
-// [  ] BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+// [25] BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
 // [  ] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+// [  ] BSLS_LIBRARYFEATURES_HAS_CPP23_STACKTRACE
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
 // [10] BSLS_LIBRARYFEATURES_STDCPP_GNU
 // [10] BSLS_LIBRARYFEATURES_STDCPP_IBM
 // [  ] BSLS_LIBRARYFEATURES_STDCPP_INTELLISENSE
@@ -309,14 +355,6 @@ void aSsErT(bool condition, const char *message, int line)
                 // Global constants for testing invariants
 
 static const
-bool   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES_defined =
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
 bool   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES_defined =
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES
                                                                           true;
@@ -327,6 +365,14 @@ bool   BSLS_COMPILERFEATURES_SUPPORT_ALIAS_TEMPLATES_defined =
 static const
 bool   BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES_defined =
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES_defined =
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
                                                                           true;
 #else
                                                                          false;
@@ -364,32 +410,8 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY_defined =
 #endif
 
 static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
                                                                           true;
 #else
                                                                          false;
@@ -398,14 +420,6 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined =
 static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_CHARCONV
                                                                           true;
 #else
                                                                          false;
@@ -428,62 +442,32 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING_defined =
 #endif
 
 static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
                                                                           true;
 #else
                                                                          false;
 #endif
 
 static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_FUNCTORS
                                                                           true;
 #else
                                                                          false;
 #endif
 
 static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_SEARCH_OVERLOAD
                                                                           true;
 #else
                                                                          false;
 #endif
 
 static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-                                                                          true;
-#else
-                                                                         false;
-#endif
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
-                                                                          true;
-#else
-                                                                         false;
-#endif
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
-                                                                          true;
-#else
-                                                                         false;
-#endif
-
-static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+bool   BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
                                                                           true;
 #else
                                                                          false;
@@ -498,8 +482,32 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_FLAG_TEST_FREE_FUNCTIONS_defined =
 #endif
 
 static const
-bool   BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE_defined =
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_LOCK_FREE_TYPE_ALIASES
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_REF
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_ATOMIC_WAIT_FREE_FUNCTIONS
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
                                                                           true;
 #else
                                                                          false;
@@ -522,8 +530,39 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV_defined =
 #endif
 
 static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+                                                                          true;
+#else
+                                                                         false;
+#endif
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
                                                                           true;
 #else
                                                                          false;
@@ -536,6 +575,247 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE_defined =
 #else
                                                                          false;
 #endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
 
                         // case 19
 
@@ -1098,11 +1378,11 @@ using namespace BloombergLP;
 //
 ///Example 1: Managing Library-Dependent Interfaces
 /// - - - - - - - - - - - - - - - - - - - - - - - -
-// When building software across multiple platforms may have to deal with
-// different versions of the native standard library, some providing features
-// that the others do not.  The macros defined in this component can be used
-// make features visible only if the required native standard library features
-// are present.
+// When building software across multiple platforms a programmer may have to
+// deal with different versions of the native standard library, some providing
+// features that the others do not.  The macros defined in this component can
+// be used make features visible only if the required native standard library
+// features are present.
 //
 // For example, the `tuple`-type is not available in older versions of the
 // native standard library.  Suppose we have a utility component that returns
@@ -1113,10 +1393,7 @@ using namespace BloombergLP;
 // interface that returns a `std::tuple`.
 // ```
     #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE)
-    # ifndef INCLUDED_TUPLE
     # include <tuple>
-    # define INCLUDED_TUPLE
-    # endif
     #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 // ```
 // Then, we declare the methods that will be unconditionally provided by our
@@ -1124,18 +1401,18 @@ using namespace BloombergLP;
 // ```
     struct MyStatisticalUtil
     {
-        static double     mean(const int *begin, const int *end);
-        static int      median(const int *begin, const int *end);
-
         /// Return the median (mean, variance) of the sequence of values in
         /// the specified non-empty, semi-open range `[begin, end)`.  The
         /// behavior is undefined unless `begin < end`.
+        static double     mean(const int *begin, const int *end);
+        static int      median(const int *begin, const int *end);
         static double variance(const int *begin, const int *end);
 // ```
-// Now, we conditionally define an interface that returns a `bsl::type`, if
+// Now, we conditionally define an interface that returns a `std::tuple`, if
 // that type is available.  Note that, if all three values are needed, calling
 // this interface is more efficient than calling the earlier three individually
-// because the input need be traversed one time, not three.
+// because the input need be traversed one time, not three, and if C++17 is
+// enabled the result may be used to create a structured binding.
 // ```
     #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
         /// Return the median, mean, and variance (in that order) of the
@@ -1146,7 +1423,6 @@ using namespace BloombergLP;
                                                               const int *end);
 
     #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
-
     };
 // ```
 // Finally, we find that our code compiles when we build our code against
@@ -1545,6 +1821,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST));
+#else
+    puts("UNDEFINED");
+#endif
+
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY));
@@ -1552,9 +1835,191 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE));
+#else
+    puts("UNDEFINED");
+#endif
+
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS));
 #else
     puts("UNDEFINED");
 #endif
@@ -1734,6 +2199,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    printf("\t__GLIBC__:\t");
+#ifdef __GLIBC__
+    puts(STRINGIFY(__GLIBC__));
+#else
+    puts("UNDEFINED");
+#endif
+
     printf("\t__GLIBCPP__:\t");
 #ifdef __GLIBCPP__
     puts(STRINGIFY(__GLIBCPP__));
@@ -1848,7 +2320,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:
-      case 25: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -1868,6 +2340,916 @@ int main(int argc, char *argv[])
 
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
+      } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // `BSLS_LIBRARYFEATURES_HAS_CPP23_*` MISCELLANY
+        //
+        // Concerns:
+        // 1. If `BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK` is defined, the
+        //    `std::bind_back` function is available.
+        //
+        // 2. If `BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE` is defined, the
+        //    `std::forward_like` function is available.
+        //
+        // 3. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA` is defined, the
+        //    `std::ranges::iota` function, the `bsl::ranges::iota_result`
+        //    class and the `bsl::ranges::out_value_result` class are
+        //    available.
+        //
+        // 4. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST` is defined,
+        //    the following names are available:
+        //     - `std::const_iterator`
+        //     - `std::const_sentinel`
+        //     - `std::basic_const_iterator`
+        //     - `std::make_const_iterator`
+        //     - `std::make_const_sentinel`
+        //     - `std::iter_const_reference_t`
+        //     - `std::ranges::const_iterator_t`
+        //     - `std::ranges::const_sentinel_t`
+        //     - `std::ranges::range_const_reference_t`
+        //     - `std::ranges::constant_range`
+        //     - `std::ranges::as_const_view`
+        //     - `std::views::as_const`
+        //
+        // 5. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT` is defined, the
+        //    `std::ranges::shift_left` and `std::ranges::shift_right`
+        //    functions are available.
+        //
+        // 6. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH` is
+        //    defined, the `std::ranges::starts_with` and
+        //    `std::ranges::ends_with` functions are available.
+        //
+        // 7. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST` is defined,
+        //    the `std::ranges::find_last`, `std::ranges::find_last_if` and
+        //    `std::ranges::find_last_if_not` functions are available.
+        //
+        // 8. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS` is defined,
+        //    the `std::ranges::contains` and `std::ranges::contains_subrange`
+        //    functions are available.
+        //
+        // 9. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD` is defined, the
+        //    `std::ranges::fold_*` family of functions and the
+        //    `std::ranges::in_value_result` class are available.
+        //
+        //10. If `BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME` is
+        //    defined, the `std::is_implicit_lifetime` and
+        //    `std::is_implicit_lifetime_v` traits are available.
+        //
+        //11. If `BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY` is
+        //    defined, the `std::reference_constructs_from_temporary`,
+        //    `std::reference_constructs_from_temporary_v`,
+        //    `std::reference_converts_from_temporary` and
+        //    `std::reference_converts_from_temporary` traits are available.
+        //
+        //12. If `BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES` is defined,
+        //    the `std::from_range_t` type and the `std::from_range` value are
+        //    available.
+        //
+        //13. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER` is
+        //    defined, the `std::ranges::to` function is available.
+        //
+        //14. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE` is
+        //    defined, the `std::ranges::range_adaptor_closure` class is
+        //    available.
+        //
+        //15. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT` is
+        //    defined, the `std::views::cartesian_product` view and the
+        //    `std::ranges::cartesian_product_view` class are available.
+        //
+        //16. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK` is defined,
+        //    the `std::views::chunk` view and the `std::ranges::chunk_view`
+        //    class are available.
+        //
+        //17. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE` is defined,
+        //    the `std::views::enumerate` view and the
+        //    `std::ranges::enumerate_view` class are available.
+        //
+        //18. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH` is defined,
+        //    the `std::views::join_with` view and the
+        //    `std::ranges::join_with_view` class are available.
+        //
+        //19. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE` is defined, the
+        //    `std::views::slide` view and the `std::ranges::slide_view` class
+        //    are available.
+        //
+        //20. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE` is defined, the
+        //    `std::views::stride` view and the `std::ranges::stride_view`
+        //    class are available.
+        //
+        //21. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP` is defined, the
+        //    following names are available:
+        //     - `std::views::adjacent`, `std::ranges::adjacent_view`
+        //     - `std::views::adjacent_transform',
+        //       `std::ranges::adjacent_transform_view`
+        //     - `std::views::zip`, `std::ranges::zip_view`
+        //     - `std::views::zip_transform`, `std::ranges::zip_transform_view`
+        //
+        //22. If `BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR` is defined, the
+        //    following names are available:
+        //     - `std::ranges::elements_of`
+        //     - `std::generator`
+        //
+        //23. If `BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST` is defined,
+        //    the following names are available:
+        //     - `std::allocator::allocate_at_least`
+        //     - `std::allocator_traits::allocate_at_least`
+        //     - `std::allocation_result`
+        //
+        //24. If `BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR` is defined, the
+        //    following names are available:
+        //     - `std::out_ptr`, `std::out_ptr_t`
+        //     - `std::inout_ptr`, `std::inout_ptr_t`
+        //
+        //25. If `BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS` is defined,
+        //    the `std::start_lifetime_as` and `std::start_lifetime_as_array`
+        //    functions are available.
+        //
+        //26. If `BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN` is defined, the
+        //    following names are available:
+        //     - `std::default_accessor`
+        //     - `std::dextents`
+        //     - `std::extents`
+        //     - `std::layout_left`
+        //     - `std::layout_right`
+        //     - `std::layout_stride`
+        //     - `std::mdspan`
+        //
+        //27. If `BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM` is defined, the
+        //    following names are available:
+        //     - `std::basic_ispanstream`
+        //     - `std::basic_ospanstream`
+        //     - `std::basic_spanbuf`
+        //     - `std::basic_spanstream`
+        //     - `std::ispanstream`
+        //     - `std::ospanstream`
+        //     - `std::spanbuf`
+        //     - `std::spanstream`
+        //     - `std::wspanbuf`
+        //     - `std::wispanstream`
+        //     - `std::wospanstream`
+        //     - `std::wspanstream`
+        //
+        //28. If `BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT` is defined, the
+        //    following names are available:
+        //     - `std::print`
+        //     - `std::println` (incl. no-args version)
+        //     - `std::vprint_nonunicode`
+        //     - `std::vprint_nonunicode_buffered`
+        //     - `std::vprint_unicode`
+        //     - `std::vprint_unicode_buffered`
+        //
+        //29. The corresponding standard feature test macros are defined and
+        //    have values in the expected range.
+        //
+        // Plan:
+        // 1. When these macros are defined include the appropriate headers and
+        //    use the expected names.
+        //
+        // 2. Verify the corresponding standard feature test macro if exists.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            puts("\n'`BSLS_LIBRARYFEATURES_HAS_CPP23_*` MISCELLANY'"
+                 "\n===============================================");
+
+        if (verbose) {
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT_defined)
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+        {
+            ASSERT(__cpp_lib_bind_back >= 202202L);
+            const auto f = std::bind_back([](double a1, int a2, char a3) {
+                                            ASSERT(a1 == 0.5);
+                                            ASSERT(a2 == 1);
+                                            ASSERT(a3 == 'A');
+                                          },
+                                          1,
+                                          'A');
+            f(0.5);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+        {
+            ASSERT(__cpp_lib_forward_like >= 202207L);
+            class C {};
+            int mem;
+            ASSERT((std::is_same_v<decltype(std::forward_like<const C&>(mem)),
+                                   const int &>));
+            ASSERT((std::is_same_v<decltype(std::forward_like<const C&&>(mem)),
+                                   const int &&>));
+            ASSERT((std::is_same_v<decltype(std::forward_like<const C>(mem)),
+                                   const int &&>));
+            ASSERT((std::is_same_v<decltype(std::forward_like<C&>(mem)),
+                                   int &>));
+            ASSERT((std::is_same_v<decltype(std::forward_like<C&&>(mem)),
+                                   int &&>));
+            ASSERT((std::is_same_v<decltype(std::forward_like<C>(mem)),
+                                   int &&>));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+        {
+            ASSERT(__cpp_lib_ranges_iota >= 202202L);
+            int buf[2] = {};
+            std::ranges::iota_result<int *, int> r =
+                          std::ranges::iota(std::begin(buf), std::end(buf), 1);
+            ASSERT(r.out == std::end(buf));
+            ASSERT(r.value == 3);
+            ASSERT(buf[0] == 1);
+            ASSERT(buf[1] == 2);
+
+            buf[0] = buf[1] = 0;
+            r = std::ranges::iota(buf, 1);
+            ASSERT(r.out == std::end(buf));
+            ASSERT(r.value == 3);
+            ASSERT(buf[0] == 1);
+            ASSERT(buf[1] == 2);
+
+            [[maybe_unused]]
+            std::ranges::out_value_result<int *, int> rr = r;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+        ASSERT(__cpp_lib_ranges_as_const >= 202207L);
+        {
+            char ch = 'A';
+            std::basic_const_iterator<char *> it{&ch};
+            ASSERT(*it == ch);
+        }
+        {
+            char ch = 'A';
+            std::const_iterator<char *> it = std::make_const_iterator(&ch);
+            ASSERT(*it == ch);
+        }
+        {
+            char ch = 'A';
+            std::const_sentinel<char *> end = std::make_const_sentinel(&ch);
+            (void) end;
+        }
+        {
+            char ch = 'A';
+            std::iter_const_reference_t<char *> ref = ch;
+            ASSERT(ref == ch);
+        }
+        {
+            char str[] = {'A', 'B'};
+            std::ranges::const_iterator_t<decltype(str)> it{str};
+            ASSERT(*it == str[0]);
+        }
+        {
+            char str[] = {'A', 'B'};
+            std::ranges::const_sentinel_t<decltype(str)> end{str};
+            (void) end;
+        }
+        {
+            char str[] = {'A', 'B'};
+            std::ranges::range_const_reference_t<decltype(str)> ref = str[0];
+            ASSERT(ref == str[0]);
+        }
+        {
+            ASSERT(std::ranges::constant_range<const char[2]>);
+        }
+        {
+            char str[] = {'A', 'B'};
+            std::ranges::as_const_view v{std::views::as_const(str)};
+            (void) v;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+        {
+            ASSERT(__cpp_lib_shift >= 202202L);
+            int nums[] = {1, 2, 3};
+            std::ranges::shift_left(nums, 1);
+            ASSERT(std::ranges::equal(nums, std::initializer_list{2, 3, 3}));
+
+            std::ranges::shift_right(nums, 1);
+            ASSERT(std::ranges::equal(nums, std::initializer_list{2, 2, 3}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+        {
+            ASSERT(__cpp_lib_ranges_starts_ends_with >= 202106L);
+            const int nums[] = {1, 2, 3, 4};
+            ASSERT( std::ranges::starts_with(nums,
+                                            std::initializer_list{1, 2}));
+            ASSERT(!std::ranges::starts_with(nums,
+                                            std::initializer_list{1, 1}));
+            ASSERT( std::ranges::ends_with(nums, std::initializer_list{3, 4}));
+            ASSERT(!std::ranges::ends_with(nums, std::initializer_list{3, 1}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+        {
+            ASSERT(__cpp_lib_ranges_find_last >= 202207L);
+            const int nums[] = {1, 2, 3, 4, 1, 6};
+
+            auto l1 = std::ranges::find_last(nums, 1);
+            ASSERT(std::distance(nums, l1.begin()) == 4);
+
+            const auto is_1 = [](auto v) { return v == 1; };
+            auto l2 = std::ranges::find_last_if(nums, is_1);
+            ASSERT(std::distance(nums, l2.begin()) == 4);
+
+            const auto more_than_1 = [](auto v) { return v > 1; };
+            auto l3 = std::ranges::find_last_if_not(nums, more_than_1);
+            ASSERT(std::distance(nums, l3.begin()) == 4);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+        {
+            ASSERT(__cpp_lib_ranges_contains >= 202207L);
+            const int nums[] = {1, 2, 3, 4};
+            ASSERT( std::ranges::contains(nums, 2));
+            ASSERT(!std::ranges::contains(nums, 5));
+            ASSERT( std::ranges::contains_subrange(nums,
+                                                 std::initializer_list{2, 3}));
+            ASSERT(!std::ranges::contains_subrange(nums,
+                                                 std::initializer_list{4, 5}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+        {
+            ASSERT(__cpp_lib_ranges_fold >= 202207L);
+            const int nums[] = {1, 2, 3, 4};
+            ASSERT(std::ranges::fold_left(nums, 0, std::plus<>{}) == 10);
+            ASSERT(std::ranges::fold_left_first(nums, std::plus<>{}) == 10);
+            ASSERT(std::ranges::fold_right(nums, 0, std::plus<>{}) == 10);
+            ASSERT(std::ranges::fold_right_last(nums, std::plus<>{}) == 10);
+
+            std::ranges::fold_left_with_iter_result<const int *, int>
+                 r1 = std::ranges::fold_left_with_iter(nums, 0, std::plus<>{});
+            ASSERT(r1.value == 10);
+            ASSERT(r1.in == std::end(nums));
+
+            std::ranges::fold_left_first_with_iter_result<const int *,
+                                                          std::optional<int>>
+                 r2 = std::ranges::fold_left_first_with_iter(nums,
+                                                             std::plus<>{});
+            ASSERT(r2.value == 10);
+            ASSERT(r2.in == std::end(nums));
+
+            [[maybe_unused]]
+            std::ranges::in_value_result<const int *, int> r11 = r1;
+            [[maybe_unused]]
+            std::ranges::in_value_result<const int *, std::optional<int>>
+                                                                      r22 = r2;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+        {
+            ASSERT(__cpp_lib_is_implicit_lifetime >= 202302L);
+            ASSERT(std::is_implicit_lifetime<int>::value);
+            ASSERT(std::is_implicit_lifetime_v<int>);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+        {
+            ASSERT(__cpp_lib_reference_from_temporary >= 202202L);
+            ASSERT((std::reference_constructs_from_temporary<int&&,
+                                                             int>::value));
+            ASSERT((std::reference_constructs_from_temporary_v<int&&,int>));
+            ASSERT((std::reference_converts_from_temporary<int&&,int>::value));
+            ASSERT((std::reference_converts_from_temporary_v<int&&,int>));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+        {
+            ASSERT(__cpp_lib_containers_ranges >= 202202L);
+            std::from_range_t v{std::from_range};
+            (void) v;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        {
+            ASSERT(__cpp_lib_ranges_to_container >= 202202L);
+            const int arr[] = {1, 2};
+            auto v = std::ranges::to<std::vector>(arr);
+            ASSERT(v.size() == 2);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
+        {
+            ASSERT(__cpp_lib_ranges >= 202202L);
+            struct FirstChar : std::ranges::range_adaptor_closure<FirstChar> {
+                std::string_view operator()(std::string_view s) const
+                {
+                    if (s.empty()) return {};
+                    return s.substr(0, 1);
+                }
+            } firstChar;
+            std::string_view char1 = std::string_view{"abc"} | firstChar;
+            ASSERT(char1 == "a");
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+        {
+            ASSERT(__cpp_lib_ranges_cartesian_product >= 202207L);
+            const int nums[] = {1, 2, 3};
+            const char chars[] = {'a', 'b'};
+            std::ranges::cartesian_product_view res{
+                                   std::views::cartesian_product(nums, chars)};
+            const std::pair<int, char> expected[] = {
+                {1, 'a'}, {1, 'b'},
+                {2, 'a'}, {2, 'b'},
+                {3, 'a'}, {3, 'b'}
+            };
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
+            ASSERT(std::ranges::equal(res, expected,
+                                       std::equal_to<std::pair<int, char>>{}));
+#else
+            ASSERT(std::ranges::equal(res, expected));
+#endif
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+        {
+            ASSERT(__cpp_lib_ranges_chunk >= 202202L);
+            const int nums[] = {1, 2, 3, 4, 5, 6};
+            std::ranges::chunk_view view{std::views::chunk(nums, 2)};
+            std::initializer_list<std::initializer_list<int>> expected =
+                {{1, 2}, {3, 4}, {5, 6}};
+            ASSERT(std::ranges::equal(view, expected, std::ranges::equal));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+        {
+            ASSERT(__cpp_lib_ranges_enumerate >= 202302L);
+            const char chars[] = {'a', 'b', 'c'};
+            std::ranges::enumerate_view view{std::views::enumerate(chars)};
+            const std::tuple<int, char> expected[] =
+                {{0, 'a'}, {1, 'b'}, {2, 'c'}};
+            ASSERT(std::ranges::equal(view, expected));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+        {
+            ASSERT(__cpp_lib_ranges_join_with >= 202202L);
+            const std::string_view words[] = {"w1", "w2", "w3"};
+            std::ranges::join_with_view view{std::views::join_with(words,' ')};
+            ASSERT(std::ranges::equal(view, std::string_view{"w1 w2 w3"}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+        {
+            ASSERT(__cpp_lib_ranges_slide >= 202202L);
+            const int nums[] = {1, 2, 3, 4, 5};
+            std::ranges::slide_view view{std::views::slide(nums, 3)};
+            std::initializer_list<std::initializer_list<int>> expected =
+                {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}};
+            ASSERT(std::ranges::equal(view, expected, std::ranges::equal));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+        {
+            ASSERT(__cpp_lib_ranges_stride >= 202207L);
+            const int nums[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+            std::ranges::stride_view view{std::views::stride(nums, 3)};
+            const int expected[] = {1, 4, 7};
+            ASSERT(std::ranges::equal(view, expected));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+        {
+            ASSERT(__cpp_lib_ranges_zip >= 202110L);
+            const int nums[] = {1, 2, 3, 4, 5};
+            const char chars[] = {'a', 'b', 'c'};
+            {
+                std::ranges::zip_view view{std::views::zip(nums, chars)};
+                const std::pair<int, char> expected[] =
+                    {{1, 'a'}, {2, 'b'}, {3, 'c'}};
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
+                ASSERT(std::ranges::equal(view, expected,
+                                       std::equal_to<std::pair<int, char>>{}));
+#else
+                ASSERT(std::ranges::equal(view, expected));
+#endif
+            }
+            {
+                const auto concat = [](int n, char c) {
+                    return std::to_string(n) + c;
+                };
+                std::ranges::zip_transform_view view{
+                               std::views::zip_transform(concat, nums, chars)};
+                const std::string_view expected[] = {"1a", "2b", "3c"};
+                ASSERT(std::ranges::equal(view, expected));
+            }
+            {
+                std::ranges::adjacent_view view{std::views::adjacent<3>(nums)};
+                const std::tuple<int, int, int> expected[] =
+                    {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}};
+                ASSERT(std::ranges::equal(view, expected));
+            }
+            {
+                const auto sum = [](auto... nums) { return (0 + ... + nums); };
+                std::ranges::adjacent_transform_view view{
+                                 std::views::adjacent_transform<3>(nums, sum)};
+                const int expected[] = {6, 9, 12};
+                ASSERT(std::ranges::equal(view, expected));
+            }
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+        {
+            ASSERT(__cpp_lib_generator >= 202207L);
+            const auto chars = [](std::string_view s) -> std::generator<char> {
+                for(char c : s) {
+                    co_yield c;
+                }
+            };
+            const auto gen = [&](std::string_view s) -> std::generator<char> {
+                co_yield std::ranges::elements_of(chars(s));
+            };
+            const std::string_view s{"str"};
+            const char expected[] = {'s', 't', 'r'};
+            ASSERT(std::ranges::equal(gen(s), expected));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+        {
+            ASSERT(__cpp_lib_allocate_at_least >= 202302L);
+            (void)[] {
+                std::allocator<int> alloc;
+                std::allocation_result<int *, std::size_t> res1 =
+                                                   alloc.allocate_at_least(1U);
+                using A = std::allocator_traits<std::allocator<int>>;
+                std::allocation_result<int *, std::size_t> res2 =
+                                               A::allocate_at_least(alloc, 1U);
+            };
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+        {
+            ASSERT(__cpp_lib_out_ptr >= 202106L);
+            {
+                const auto func = [](int **pp) { *pp = new int{}; };
+                std::unique_ptr<int> p;
+                func(std::out_ptr(p));
+                ASSERT(p);
+                ASSERT((std::is_same_v<decltype(std::out_ptr(p)),
+                                std::out_ptr_t<std::unique_ptr<int>, int *>>));
+            }
+            {
+                const auto func = [](int **) {};
+                auto p = std::make_unique<int>();
+                func(std::inout_ptr(p));
+                ASSERT(p);
+                ASSERT((std::is_same_v<decltype(std::inout_ptr(p)),
+                              std::inout_ptr_t<std::unique_ptr<int>, int *>>));
+            }
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
+        {
+            ASSERT(__cpp_lib_start_lifetime_as >= 202207L);
+            {
+                alignas(unsigned) unsigned char buf[sizeof(unsigned)] = {};
+                unsigned *uint_p = std::start_lifetime_as<unsigned>(buf);
+                ASSERT(*uint_p == 0U);
+            }
+            {
+                const std::size_t arrSize = 4;
+                alignas(unsigned) unsigned char buf[
+                                              arrSize * sizeof(unsigned)] = {};
+                unsigned *uint_arr =
+                          std::start_lifetime_as_array<unsigned>(buf, arrSize);
+                ASSERT(std::count(uint_arr, uint_arr + arrSize, 0U)== arrSize);
+            }
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+        ASSERT(__cpp_lib_mdspan >= 202207L);
+        {
+            int data[2][3] = {{1, 2, 3}, {4, 5, 6}};
+            std::mdspan<int, std::extents<size_t, 2, 3> > view(&data[0][0]);
+        }
+        {
+            using LeftMD =
+                  std::mdspan<int, std::dextents<size_t, 2>, std::layout_left>;
+            using RightMD = std::mdspan<int, std::dextents<size_t, 2>,
+                                std::layout_right, std::default_accessor<int>>;
+
+            int data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+            LeftMD  view_l(data, 3, 4);
+            RightMD view_r(data, 2, 6);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+        ASSERT(__cpp_lib_spanstream >= 202106L);
+        {
+            int a = 0;
+            char dataBuffer[50] = {};
+            std::span<char> dataSpan(+dataBuffer, 50);
+            std::spanbuf sbufOut(dataSpan, std::ios::out);
+            std::ostream os(&sbufOut);
+            os << "13 1 2";
+
+            std::ispanstream inputStream(dataSpan);
+            inputStream >> a;
+            ASSERT(13 == a);
+
+            a = 42;
+            std::spanstream dataStream(dataSpan);
+            dataStream >> a;
+            ASSERT(13 == a);
+
+            std::ospanstream outputStream(dataSpan);
+            const auto message = "I have something to say.";
+            outputStream << message;
+            ASSERT(!strcmp(+dataBuffer, +message));
+        }
+        {
+            ASSERT((std::is_same_v<std::ispanstream,
+                                   std::basic_ispanstream<char>>));
+            ASSERT((std::is_same_v<std::ospanstream,
+                                   std::basic_ospanstream<char>>));
+            ASSERT((std::is_same_v<std::spanbuf,
+                                   std::basic_spanbuf<char>>));
+            ASSERT((std::is_same_v<std::spanstream,
+                                   std::basic_spanstream<char>>));
+            ASSERT((std::is_same_v<std::wspanbuf,
+                                   std::basic_spanbuf<wchar_t>>));
+            ASSERT((std::is_same_v<std::wispanstream,
+                                   std::basic_ispanstream<wchar_t>>));
+            ASSERT((std::is_same_v<std::wospanstream,
+                                   std::basic_ospanstream<wchar_t>>));
+            ASSERT((std::is_same_v<std::wspanstream,
+                                   std::basic_spanstream<wchar_t>>));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+        (void) []{
+            // <print>
+            std::print("{}", 1);
+            std::print(stdout, "{}", 1);
+            std::println("{}", 1);
+            std::println(stdout, "{}", 1);
+            std::println();
+            std::println(stdout);
+
+            const int one = 1;
+            //std::vprint_nonunicode("{}", std::make_format_args(one));
+            std::vprint_nonunicode(stdout, "{}", std::make_format_args(one));
+            std::vprint_nonunicode_buffered(stdout,
+                                            "{}",
+                                            std::make_format_args(one));
+            //std::vprint_unicode("{}", std::make_format_args(1));
+            std::vprint_unicode(stdout, "{}", std::make_format_args(one));
+            std::vprint_unicode_buffered(stdout,
+                                         "{}",
+                                         std::make_format_args(one));
+
+            // <ostream>
+            std::print(std::cout, "{}", 1);
+            std::println(std::cout, "{}", 1);
+            std::println(std::cout);
+
+            std::vprint_nonunicode(std::cout,
+                                   "{}",
+                                   std::make_format_args(one));
+            std::vprint_unicode(std::cout, "{}", std::make_format_args(one));
+        };
+#endif
+      } break;
+      case 25: {
+        // --------------------------------------------------------------------
+        // `BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY`
+        //
+        // Concerns:
+        // 1. `BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY` is defined only
+        //    when the native standard library provides a baseline of C++23
+        //    library features, including:
+        //    - `std::byteswap`
+        //    - `std::invoke_r`
+        //    - `std::ios_base::noreplace`
+        //    - `std::views::as_rvalue`, `std::ranges::as_rvalue_view'
+        //    - `std::views::chunk_by`, `std::ranges::chunk_view'
+        //    - `std::views::repeat`, `std::ranges::repeat_view'
+        //    - `std::is_scoped_enum`, `std::is_scoped_enum_v`
+        //    - `std::to_underlying`
+        //    - `std::unreachable`
+        //    - `constexpr` `std::to_chars` and `std::from_chars` for integers.
+        //    - `constexpr` `std::unique_ptr`.
+        //    - `constexpr` `std::type_info::operator==`.
+        //    - Random access `std::move_iterator<T*>`.
+        //
+        // 2. The corresponding standard feature test macro is defined and has
+        //    a value in the expected range.
+        //
+        // Plan:
+        // 1. When `BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY` is
+        //    defined include the appropriate headers and use the expected
+        //    names.
+        //
+        // 2. Write a simple test for each component when possible.
+        //
+        // Testing:
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            puts("\n'BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY'"
+                 "\n=================================================");
+
+        if (verbose) {
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY_defined)
+        }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+        {
+            ASSERT(__cpp_lib_byteswap >= 202110L);
+            std::uint32_t value = 0x01020304U;
+            value = std::byteswap(value);
+            ASSERT(value == 0x04030201U);
+        }
+        {
+            ASSERT(__cpp_lib_invoke_r >= 202106L);
+            bool called = false;
+            std::invoke_r<void>(
+                [&](int arg){
+                    ASSERT(arg == 3);
+                    called = true;
+                },
+                3);
+            ASSERT(called);
+        }
+        {
+            ASSERT(__cpp_lib_ios_noreplace >= 202207L);
+            (void) std::ios_base::noreplace;
+        }
+        {
+            ASSERT(__cpp_lib_ranges_as_rvalue >= 202207L);
+            std::unique_ptr<int> values[] = {
+                std::make_unique<int>(1),
+                std::make_unique<int>(2)
+            };
+            std::ranges::as_rvalue_view view{values | std::views::as_rvalue};
+            for (auto v : view) {
+                auto vv = std::move(v);
+            }
+            for (auto& p : values) {
+                ASSERT(!p);
+            }
+        }
+        {
+            ASSERT(__cpp_lib_ranges_chunk_by >= 202202L);
+            const int values[] = {-1, 1, 2, -2, 3, 4};
+            const auto is_equal = [](const auto&                range,
+                                     std::initializer_list<int> list) {
+                return std::ranges::equal(range, list);
+            };
+            int i = 0;
+            const auto pred = [](int a, int b) { return a > 0 && b > 0; };
+            std::ranges::chunk_by_view view{ values
+                                           | std::views::chunk_by(pred)};
+            for(auto r : view) {
+                switch(i)
+                {
+                  case 0: ASSERT((is_equal(r, {-1}  ))); break;
+                  case 1: ASSERT((is_equal(r, {1, 2}))); break;
+                  case 2: ASSERT((is_equal(r, {-2}  ))); break;
+                  case 3: ASSERT((is_equal(r, {3, 4}))); break;
+                }
+                ++i;
+            }
+            ASSERT(i == 4);
+        }
+        {
+            ASSERT(__cpp_lib_ranges_repeat >= 202207L);
+            int value = 1;
+            int count = 0;
+            const int COUNT = 3;
+            std::ranges::repeat_view view{std::views::repeat(value, COUNT)};
+            for(auto v : view) {
+                ASSERT(v == value);
+                ++count;
+            }
+            ASSERT(count == COUNT);
+        }
+        {
+            ASSERT(__cpp_lib_is_scoped_enum >= 202011L);
+            enum E1 { E1_enumerator1 };
+            enum class E2 { enumerator1 };
+
+            ASSERT(!std::is_scoped_enum<E1>::value);
+            ASSERT(!std::is_scoped_enum_v<E1>);
+
+            ASSERT(std::is_scoped_enum<E2>::value);
+            ASSERT(std::is_scoped_enum_v<E2>);
+        }
+        {
+            ASSERT(__cpp_lib_to_underlying >= 202102L);
+            enum Enum : char { enumerator1 = 5 };
+            char underlyingValue{std::to_underlying(enumerator1)};
+            ASSERT(underlyingValue == 5);
+        }
+        for(;;) {
+            ASSERT(__cpp_lib_unreachable >= 202202L);
+            break;
+            std::unreachable();
+        }
+        {
+            ASSERT(__cpp_lib_constexpr_charconv >= 202207L);
+            static_assert([]{
+                const auto my_assert = [](bool c) { if (!c) throw 0; };
+                const int VALUE = 1;
+                char buf[8] = {};
+                {
+                    auto r = std::to_chars(buf, buf + sizeof(buf), VALUE);
+                    my_assert(r.ec == std::errc{});
+                    my_assert(r.ptr == buf + 1);
+                    my_assert(buf[0] == '1');
+                }
+                {
+                    int res = 0;
+                    auto r = std::from_chars(buf, buf + 1, res);
+                    my_assert(r.ec == std::errc{});
+                    my_assert(res == VALUE);
+                }
+                return true;
+            }());
+        }
+        {
+            ASSERT(__cpp_lib_constexpr_memory >= 202202L);
+            static_assert([]{
+                const auto my_assert = [](bool c) { if (!c) throw 0; };
+                const int VALUE = 5;
+                auto p = std::make_unique<int>(VALUE);
+                my_assert(p != nullptr);
+                my_assert(*p == VALUE);
+                return true;
+            }());
+        }
+        {
+            ASSERT(__cpp_lib_constexpr_typeinfo >= 202106L);
+            static_assert([]{
+                return typeid(0) == typeid(int);
+            }());
+        }
+        {
+            ASSERT(__cpp_lib_move_iterator_concept >= 202207L);
+            ASSERT(std::random_access_iterator<std::move_iterator<int*>>);
+        }
+#endif
+        if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;
       case 24: {
         // --------------------------------------------------------------------
@@ -3054,39 +4436,39 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
 
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_GNU
-#ifdef BSLS_PLATFORM_CMP_GNU
-#elif  BSLS_PLATFORM_CMP_CLANG
-#elif  BSLS_PLATFORM_CMP_SUN && BSLS_PLATFORM_CMP_VERSION >= 0x5130
-#else
-#error Unexpected compiler for GNU LibStdC++.
-#endif
+# ifdef BSLS_PLATFORM_CMP_GNU
+# elif  BSLS_PLATFORM_CMP_CLANG
+# elif  BSLS_PLATFORM_CMP_SUN && BSLS_PLATFORM_CMP_VERSION >= 0x5130
+# else
+#   error Unexpected compiler for GNU LibStdC++.
+# endif
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_MSVC)
-#ifdef BSLS_PLATFORM_CMP_MSVC
-#else
-#error Unexpected compiler for Microsoft STL.
-#endif
+# ifdef BSLS_PLATFORM_CMP_MSVC
+# else
+#   error Unexpected compiler for Microsoft STL.
+# endif
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#else
-#error Unexpected compiler for LLVM LibC++.
-#endif
+# ifdef BSLS_PLATFORM_CMP_CLANG
+# else
+#   error Unexpected compiler for LLVM LibC++.
+# endif
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD)
-#ifdef BSLS_PLATFORM_CMP_SUN
-#else
-#error Unexpected compiler for RogueWave STL.
-#endif
+# ifdef BSLS_PLATFORM_CMP_SUN
+# else
+#   error Unexpected compiler for RogueWave STL.
+# endif
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_STLPORT)
-#ifdef BSLS_PLATFORM_CMP_SUN
-#else
-#error Unexpected compiler for STLPort.
-#endif
+# ifdef BSLS_PLATFORM_CMP_SUN
+# else
+#   error Unexpected compiler for STLPort.
+# endif
 #elif defined(BSLS_LIBRARYFEATURES_STDCPP_IBM)
-#ifdef BSLS_PLATFORM_CMP_IBM
+# ifdef BSLS_PLATFORM_CMP_IBM
+# else
+#   error Unexpected compiler for IBM STL.
+# endif
 #else
-#error Unexpected compiler for IBM STL.
-#endif
-#else
-#error Unexpected standard library implementation.  Please update test driver.
+# error Unexpected standard library implementation.  Please update test driver.
 #endif
       } break;
       case 9: {
@@ -3523,6 +4905,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
+        //   BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -3546,6 +4929,50 @@ int main(int argc, char *argv[])
             (void)X;
         }
 #endif
+
+        {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
+            // Confirm that `a` and `b` do not alias the same string.
+            // If the implementation uses the CoW optimization then the
+            // two strings will share the same buffer until a non-`const`
+            // operation is called on either of them --- hence we declare
+            // the copied string as `const` to ensure we call the `const`
+            // qualified `data()` function.  Note that this test is
+            // carefully crafted to avoid undefined behavior associated
+            // with iterator invalidation, otherwise we might have looked
+            // into two calls to `begin()` returning different values for
+            // the same `string`, before and after overwriting the character
+            // at index 0.
+            std::string a = "short";    const std::string& A = a;
+            const void *pA = A.data();
+
+            const std::string b = a;
+            const void *pB = b.data();
+
+            ASSERTV(pA, pB, pA != pB);
+
+            a[0] = 'S';
+            const void *pA2 = A.data();
+
+            ASSERTV(pA, pA2, pA == pA2);
+#else       // Confirm the CoW string semantics instead
+            std::string a = "copy on Write";    const std::string& A = a;
+            const void *pA = A.data();
+
+            const std::string b = a;
+            const void *pB = b.data();
+
+            ASSERTV(pA, pB, pA == pB);
+
+            a[0] = 'C';
+            const void *pA2 = A.data();
+            const void *pB2 = b.data();
+
+            ASSERTV(pA2, pB2, pA2 != pB2);
+            ASSERTV(pA,  pA2, pA  != pA2);
+            ASSERTV(pB,  pB2, pB  == pB2);
+#endif
+        }
         if (veryVeryVerbose) P(BSLS_PLATFORM_CMP_VERSION);
       } break;
       case 1: {

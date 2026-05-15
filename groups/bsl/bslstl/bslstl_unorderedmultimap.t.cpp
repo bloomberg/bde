@@ -109,6 +109,10 @@ using bsls::NameOf;
 // [12] unordered_multimap(ITER, ITER, size_t, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, hash, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, hash, equal, allocator);
+// [12] unordered_multimap(fr_t , auto&& range, nb, hasher, key_equal, alloc);
+// [12] unordered_multimap(fr_t , auto&& range, nb, hasher,            alloc);
+// [12] unordered_multimap(fr_t , auto&& range, nb,                    alloc);
+// [12] unordered_multimap(fr_t , auto&& range,                        alloc);
 // [ 7] unordered_multimap(const unordered_multimap& original);
 // [ 7] unordered_multimap(const unordered_multimap& original, const A& alloc);
 // [26] unordered_multimap(unordered_multimap&& original);
@@ -149,6 +153,7 @@ using bsls::NameOf;
 // [29] iterator insert(const_iterator hint, const value_type&& value);
 // [32] iterator insert(initializer_list<value_type>);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [ 8] void swap(unordered_multimap& other);
 //
 // observers:
@@ -209,6 +214,9 @@ using bsls::NameOf;
 // [35] CONCERN: `unordered_multimap` supports incomplete types
 // [36] CONCERN: Methods qualifed `noexcept` in standard are so implemented.
 // [37] CONCERN: `erase` overload is deduced correctly.
+// [38] CONCERN: `find`        properly handles transparent comparators.
+// [38] CONCERN: `count`       properly handles transparent comparators.
+// [38] CONCERN: `equal_range` properly handles transparent comparators.
 // [40] CONCERN: `unordered_multimap` IS A C++20 RANGE
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -278,7 +286,6 @@ void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
-
 
 // ============================================================================
 //                      TEST CONFIGURATION MACROS
@@ -816,7 +823,6 @@ class TestEqualityComparator {
         return d_count;
     }
 };
-
 
 /// This test class provides a functor for equality comparison of objects
 /// where the `operator()` is not declared const.
@@ -3584,8 +3590,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
     // 10. `insert` adds an additional element to the object if the element
     //    being inserted does not already exist.
     //
-    // 11. `insert` returns a pair with an iterator of the element that was just
-    //    inserted or the element that already exist in the object, and a
+    // 11. `insert` returns a pair with an iterator of the element that was
+    //    just inserted or the element that already exist in the object, and a
     //    boolean indicating whether element being inserted already exist in
     //    the object.
     //
@@ -5549,7 +5555,6 @@ void testBuckets(CONTAINER& mX)
     typedef typename       CONTAINER::local_iterator       local_iterator;
     typedef typename CONTAINER::const_local_iterator const_local_iterator;
 
-
     const CONTAINER &x = mX;
 
     size_t                   bucketCount = x.bucket_count();
@@ -5598,7 +5603,6 @@ void testBuckets(CONTAINER& mX)
     }
     ASSERT(itemCount == x.size());
 }
-
 
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
@@ -6273,7 +6277,6 @@ int main(int argc, char *argv[])
         ASSERT(!(x == z));
         ASSERT(z != x);
         ASSERT(!(z == x));
-
 
         if (veryVerbose)
             printf("Confirm that `x` is unchanged by making the copy.\n");

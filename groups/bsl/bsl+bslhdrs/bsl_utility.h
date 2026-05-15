@@ -87,6 +87,14 @@ namespace bsl {
     using std::cmp_greater_equal;
     using std::in_range;
 #endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+    using std::to_underlying;
+    using std::unreachable;
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+    using std::forward_like;
+#endif
 }  // close package namespace
 
 // Include Bloomberg's implementation.

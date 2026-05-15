@@ -144,6 +144,8 @@ using bsls::NameOf;
 // [27] map(map&&, const A& allocator);
 // [12] map(ITER first, ITER last, const C& comparator, const A& allocator);
 // [12] map(ITER first, ITER last, const A& allocator);
+// [12] map(from_range_t , CCR<VALUE> auto&& range, const C& c,  a = A());
+// [12] map(from_range_t , CCR<VALUE> auto&& range, a);
 // [33] map(initializer_list<value_type>, const C& comp, const A& allocator);
 // [33] map(initializer_list<value_type>, const A& allocator);
 // [ 2] ~map();
@@ -186,6 +188,7 @@ using bsls::NameOf;
 // [30] iterator insert(const_iterator position, ALT_VALUE_TYPE&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [33] void insert(initializer_list<value_type>);
+// [17] void insert_range(CCR<VALUE> auto&& range);
 // [43] pair<iterator, bool> try_emplace(const key&, Args&&...);
 // [43] iterator try_emplace(const_iterator, const key&, Args&&...);
 // [43] pair<iterator, bool> try_emplace(key&&, Args&&...);
@@ -914,7 +917,8 @@ void testTransparentComparator(Container& container,
 
         TransparentlyComparable upperBoundValue(initKeyValue + 1);
         const Iterator          EXPECTED_UB = container.find(upperBoundValue);
-        const Iterator          EXISTING_UB = container.upper_bound(existingKey);
+        const Iterator          EXISTING_UB = container.upper_bound(
+                                                                  existingKey);
         ASSERT(EXPECTED_UB             == EXISTING_UB);
         ASSERTV(isTransparent,
                   expectedConversionCount,   existingKey.conversionCount(),
@@ -1014,11 +1018,11 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
 
         // with a non-existing key
 
-        // Note: We always get a conversion here; if we don't have a transparent
-        // comparator, then the value gets converted, and when the lookup fails,
-        // it gets inserted into the map.  If we do have a transparent comparator,
-        // the lookup is done w/o conversion, but then the value gets converted
-        // in order to put it into the map.
+        // Note: We always get a conversion here; if we don't have a
+        // transparent comparator, then the value gets converted, and when the
+        // lookup fails, it gets inserted into the map.  If we do have a
+        // transparent comparator, the lookup is done w/o conversion, but then
+        // the value gets converted in order to put it into the map.
         (void) c[nonExistingKey];
         ASSERT(size + 1 == c.size());
         ASSERTV(1 == nonExistingKey.conversionCount());
@@ -1071,7 +1075,9 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
         const Count size = container.size();
 
         // with an existing key
-        Iterator existingIter = c.insert_or_assign(c.cbegin(), existingKey, 1000);
+        Iterator existingIter = c.insert_or_assign(c.cbegin(),
+                                                   existingKey,
+                                                   1000);
         ASSERT(size == c.size());
         ASSERT(existingKey.value() == existingIter->first);
         ASSERT(1000 == existingIter->second);
@@ -1086,13 +1092,41 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
         // lookup fails, it gets inserted into the map.  If we do have a
         // transparent comparator, the lookup is done w/o conversion, but then
         // the value gets converted in order to put it into the map.
-        Iterator nonExistingIter = c.insert_or_assign(c.cbegin(), nonExistingKey, 1000);
+        Iterator nonExistingIter = c.insert_or_assign(c.cbegin(),
+                                                      nonExistingKey,
+                                                      1000);
         ASSERT(size + 1 == c.size());
         ASSERT(nonExistingKey.value() == nonExistingIter->first);
         ASSERT(1000 == nonExistingIter->second);
         ASSERTV(isTransparent,
                1, nonExistingKey.conversionCount(),
                1 == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `erase`.
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        const Count size = container.size();
+
+        // with a non-existing key
+        {
+            Count n = c.erase(nonExistingKey);
+            ASSERT(n == 0);
+            ASSERT(c.size() == size);
+            ASSERT(nonExistingKey.conversionCount() ==expectedConversionCount);
+        }
+
+        // with an existing key
+        {
+            Count n = c.erase(existingKey);
+            ASSERT(n == 1);
+            ASSERT(c.size() + n == size);
+            ASSERT(existingKey.conversionCount() == expectedConversionCount);
+        }
     }
 }
 
@@ -1268,7 +1302,6 @@ struct IntToPairConverter {
                    && !bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value
                    && !bsl::is_same<VALUE,
                                bsltf::WellBehavedMoveOnlyAllocTestType>::value;
-
 
         // Note that `allocator` and `pss` are of different types, and
         // sometimes this function is called with `ALLOC` being a type that has
@@ -1569,7 +1602,6 @@ bool operator<(const MoveHolder<TYPE>& lhs, const MoveHolder<TYPE>& rhs)
         ? lhs.d_value < rhs.d_value
         : lhs.hasBeenMoved();
 }
-
 
 /// Return `true` if the held value in the specified `lhs` is equal to the
 /// specified `rhs`, and `false` otherwise.  If `lhs` has been moved from,
@@ -5905,7 +5937,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(m5k), bsl::map<T5, T5, CompT5, BA5>);
         ASSERT_SAME_TYPE(decltype(m5l), bsl::map<T5, T5, CompT5, SA5>);
 
-
         typedef short T6;
         typedef bsl::allocator<bsl::pair<const T6, T6>> BA6;
         typedef std::allocator<bsl::pair<const T6, T6>> SA6;
@@ -5924,7 +5955,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(m6b), bsl::map<T6, T6, std::less<T6>, BA6>);
         ASSERT_SAME_TYPE(decltype(m6c), bsl::map<T6, T6, std::less<T6>, BA6>);
         ASSERT_SAME_TYPE(decltype(m6d), bsl::map<T6, T6, std::less<T6>, SA6>);
-
 
         typedef long T7;
         typedef std::greater<T7> CompT7;
@@ -6030,7 +6060,6 @@ int main(int argc, char *argv[])
         m2[key] = value;
         ASSERT(m2[key].value() == 123);
       } break;
-
 
       case 45: {
         if (verbose) printf(
@@ -6425,6 +6454,7 @@ int main(int argc, char *argv[])
         //   CONCERN: `equal_range` properly handles transparent comparators.
         //   CONCERN: `operator []` properly handles transparent comparators.
         //   CONCERN: `at`          properly handles transparent comparators.
+        //   CONCERN: `erase`       properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"

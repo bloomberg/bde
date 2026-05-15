@@ -35,6 +35,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_nestedtraitdeclaration.h>
@@ -119,6 +120,8 @@
 // [19] multiset(const C& comparator, const A& allocator);
 // [12] multiset(ITER first, ITER last, const C& comp, const A& alloc);
 // [12] multiset(ITER first, ITER last, const A& alloc);
+// [12] multiset(from_range_t, CCR<KEY> auto&& range, const C& c, a = A());
+// [12] multiset(from_range_t, CCR<KEY> auto&& range, a);
 // [32] multiset(initializer_list<value_type>, const C& comp, const A& alloc);
 // [32] multiset(initializer_list<value_type>, const A& allocator);
 // [ 7] multiset(const multiset& original);
@@ -158,6 +161,7 @@
 // [29] iterator insert(const_iterator position, value_type&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [32] void insert(initializer_list<value_type>);
+// [17] void insert_range(CCR<VALUE> auto&& range);
 //
 // [30] iterator emplace(Args&&... args);
 // [31] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -1051,7 +1055,8 @@ void testTransparentComparator(Container& container,
 
         TransparentlyComparable upperBoundValue(initKeyValue + 1);
         const Iterator          EXPECTED_UB = container.find(upperBoundValue);
-        const Iterator          EXISTING_UB = container.upper_bound(existingKey);
+        const Iterator          EXISTING_UB = container.upper_bound(
+                                                                  existingKey);
 
         ASSERT(EXPECTED_UB             == EXISTING_UB);
         ASSERTV(isTransparent,
@@ -1072,7 +1077,8 @@ void testTransparentComparator(Container& container,
         nonExistingKey.resetConversionCount();
 
         const bsl::pair<Iterator, Iterator> EXISTING_ER =
-                                                container.equal_range(existingKey);
+                                                container.equal_range(
+                                                                  existingKey);
         ASSERT(EXISTING_ER.first != EXISTING_ER.second);
         ASSERT(0 < static_cast<Count>(
                         bsl::distance(EXISTING_ER.first, EXISTING_ER.second)));
@@ -1085,12 +1091,58 @@ void testTransparentComparator(Container& container,
                   expectedConversionCount == existingKey.conversionCount());
 
         const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
-                                             container.equal_range(nonExistingKey);
+                                             container.equal_range(
+                                                               nonExistingKey);
 
         ASSERT(NON_EXISTING_ER.first == NON_EXISTING_ER.second);
         ASSERTV(isTransparent,
                 expectedConversionCount,   nonExistingKey.conversionCount(),
                 expectedConversionCount == nonExistingKey.conversionCount());
+    }
+}
+
+/// Search for a value equal to the specified `initKeyValue` in the specified
+/// `container`, and count the number of conversions expected based on the
+/// specified `isTransparent`.  Since these tests can modify the container, we
+/// make a copy of it for each test.
+template <class t_CONTAINER>
+void testTransparentComparatorMutable(const t_CONTAINER& container,
+                                      bool               isTransparent,
+                                      int                initKeyValue)
+{
+    typedef typename t_CONTAINER::size_type Count;
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    {
+        // Testing `erase`.
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        const Count size = container.size();
+
+        // with a non-existing key
+        {
+            Count n = c.erase(nonExistingKey);
+            ASSERT(n == 0);
+            ASSERT(c.size() == size);
+            ASSERT(isTransparent ? nonExistingKey.conversionCount() == 0
+                                 : nonExistingKey.conversionCount() >  0);
+        }
+
+        // with an existing key
+        {
+            Count expectedN = c.count(existingKey);
+            Count n         = c.erase(existingKey);
+            ASSERT(n == expectedN);
+            ASSERT(c.size() + n == size);
+            ASSERT(isTransparent ? existingKey.conversionCount() == 0
+                                 : existingKey.conversionCount() >  0);
+        }
     }
 }
 
@@ -1314,6 +1366,41 @@ struct EqPred
     {
         return d_ch == ch;
     }
+};
+
+                        // =======================
+                        // class SubrangeContainer
+                        // =======================
+
+// Emulate `bsl::ranges::subrange` for pre-C++20 builds.
+template <class ITER>
+class SubrangeContainer {
+
+    // DATA
+    ITER d_begin;
+    ITER d_end;
+
+  public:
+    // TYPES
+    typedef       ITER       iterator;
+    typedef const ITER const_iterator;
+
+    // CREATORS
+    SubrangeContainer()
+    : d_begin(ITER())
+    , d_end  (ITER()) {}
+
+    SubrangeContainer(ITER begin, ITER end)
+    : d_begin(begin)
+    , d_end  (end)    {}
+
+    // MANIPULATORS
+    iterator begin() { return d_begin; }
+    iterator end  () { return d_end  ; }
+
+    // ACCESSORS  // Needed when testing at C++03 language level
+    const_iterator begin() const { return d_begin; }
+    const_iterator end  () const { return d_end  ; }
 };
 
 // ============================================================================
@@ -1593,7 +1680,8 @@ class TestDriver {
     // TEST CASES
 
     /// Test whether `multiset` is a C++20 range.
-    static void testCase37_isRange();
+    static void testCase37_isRangeConcepts();
+    static void testCase37_isRangeFunctionality();
 
     /// Test free function `bsl::erase_if`
     static void testCase36();
@@ -1732,7 +1820,7 @@ bsl::multiset<KEY, COMP, ALLOC>& TestDriver<KEY, COMP, ALLOC>::gg(
 }
 
 template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase37_isRange()
+void TestDriver<KEY, COMP, ALLOC>::testCase37_isRangeConcepts()
 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
     BSLMF_ASSERT((std::ranges::common_range<Obj>));
@@ -1745,6 +1833,117 @@ void TestDriver<KEY, COMP, ALLOC>::testCase37_isRange()
 #endif
 }
 
+template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase37_isRangeFunctionality()
+{
+    if (veryVerbose) {
+        Q(testCase37_isRangeFunctionality)
+        P(NameOf<KEY>())
+    }
+
+    if (veryVerbose) {
+        printf("Baseline\n");
+    }
+    {
+        TestValues rangeForCtor  ("ABC");
+        TestValues rangeForInsert("DEF");
+
+        TestValues expectedPostCtor  ("ABC");
+        TestValues expectedPostInsert("ABCDEF");
+
+        Obj mX(bsl::from_range, rangeForCtor);                          // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostCtor, 3));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostInsert, 6));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `map` itself is a range-type.\n");
+    }
+    {
+        Obj mX(bsl::from_range, TestValues("ABC"));  const Obj& X = mX;
+        Obj mY(bsl::from_range, TestValues("DEF"));  const Obj& Y = mY;
+
+        ASSERT(0 == verifyContainer(X, TestValues("ABC"), 3));
+        ASSERT(0 == verifyContainer(Y, TestValues("DEF"), 3));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(0 == verifyContainer(mX, TestValues("ABCDEF"), 6));
+
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValues("ABC"));
+        mW.insert_range(TestValues("DEF"));
+        ASSERT(0 == verifyContainer(W, TestValues("ABCDEF"), 6));
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    typedef bsltf::TestValuesArray<
+           typename Obj::value_type,
+           ALLOC,
+           bsltf::TestValuesArray_DefaultConverter<KEY, ALLOC>,
+           true>                                        TestValuesWithSentinel;
+    {
+        TestValuesWithSentinel tvws;
+
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    decltype(tvws),
+                                                    typename Obj::value_type>);
+
+        static_assert(true  == bsl::sentinel_for<decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+
+        static_assert(false == bsl::is_same_v<   decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+    }
+
+    if (veryVerbose) {
+        printf("Confirm functionality with distinct sentinels.\n");
+    }
+    {
+        TestValuesWithSentinel rangeForCtor  ("ABC");
+        TestValuesWithSentinel rangeForInsert("DEF");
+
+        TestValuesWithSentinel expectedPostCtor  ("ABC");
+        TestValuesWithSentinel expectedPostInsert("ABCDEF");
+
+        Obj  mX(bsl::from_range, rangeForCtor);                         // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostCtor, 3));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostInsert, 6));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `map` itself is a range-type.\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    Obj,
+                                                    typename Obj::value_type>);
+
+        Obj  mX(bsl::from_range, TestValuesWithSentinel("ABC"));
+        Obj  mY(bsl::from_range, TestValuesWithSentinel("DEF"));
+
+        ASSERT(0 == verifyContainer(mX, TestValuesWithSentinel("ABC"), 3));
+        ASSERT(0 == verifyContainer(mY, TestValuesWithSentinel("DEF"), 3));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(0 == verifyContainer(mX, TestValuesWithSentinel("ABCDEF"), 6));
+
+        // Range insertion creates a union of its input.
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValuesWithSentinel("ABCZ"));
+        mW.insert_range(TestValuesWithSentinel("DEFZ"));
+        ASSERT(0 == verifyContainer(W, TestValuesWithSentinel("ABCDEFZZ"), 8));
+    }
+#endif
+}
 template <class KEY, class COMP, class ALLOC>
 void TestDriver<KEY, COMP, ALLOC>::testCase36()
 {
@@ -1818,7 +2017,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase36()
         ASSERTV(LINE, ret == initialLen - resultsLen);
         }
 }
-
 
 template <class KEY, class COMP, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
@@ -2927,8 +3125,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase33()
             == BSLS_KEYWORD_NOEXCEPT_OPERATOR(x.clear()));
     }
 }
-
-
 
 template <class KEY, class COMP, class ALLOC>
 void TestDriver<KEY, COMP, ALLOC>::testCase32()
@@ -5518,7 +5714,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
     //                   const Allocator& = Allocator());
     bsl::multiset<KEY, COMP, StlAlloc> A((COMP()), (StlAlloc()));
 
-
     // template <class InputIterator>
     // multiset(InputIterator first, InputIterator last,
     // const Compare& comp = Compare(), const Allocator& = Allocator());
@@ -5549,7 +5744,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
 
     // ~multiset();
     // destructor always exist
-
 
     {
         using namespace bsl;
@@ -5660,7 +5854,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
         typename Obj::const_iterator, const typename Obj::value_type&) =
                                                                   &Obj::insert;
     (void) methodInsert2;
-
 
     // iterator insert(const_iterator position, value_type&& x); <-
     // C++11 only
@@ -6701,7 +6894,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase18()
                     }
                 }
 
-
                 bslma::TestAllocatorMonitor oam(&oa);
 
                 const Iter R = mX.erase(FIRST, LAST);
@@ -6809,6 +7001,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase17()
     //
     // Testing:
     //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    //   void insert_range(CCR<VALUE> auto&& range);
     // ------------------------------------------------------------------------
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
@@ -7029,7 +7222,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase16()
                                 EXP_COMP == X.key_comp().count());
                         ASSERTV(LINE, tj, hint == ++RESULT);
                     }
-
 
                     if (expectToAllocate(SIZE + 1)) {
                         ASSERTV(LINE, tj, AA, BB,
@@ -7795,6 +7987,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     // Testing:
     //   multiset(ITER first, ITER last, const A& alloc);
     //   multiset(ITER first, ITER last, const C& comp, const A& alloc);
+    //   multiset(from_range_t, CCR<KEY> auto&& range, const C& c, a = A());
+    //   multiset(from_range_t, CCR<KEY> auto&& range, a);
     // ------------------------------------------------------------------------
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
@@ -8276,7 +8470,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(ms4c), bsl::multiset<T4>);
         ASSERT_SAME_TYPE(decltype(ms4d), bsl::multiset<T4>);
 
-
         typedef long T5;
         typedef std::greater<T5> CompT5;
         T5                          *p5b = nullptr;
@@ -8318,7 +8511,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(ms5l),
                                 bsl::multiset<T5, CompT5, std::allocator<T5>>);
 
-
         typedef short T6;
         T6                          *p6b = nullptr;
         T6                          *p6e = nullptr;
@@ -8338,7 +8530,6 @@ struct TestDeductionGuides {
                          bsl::multiset<T6, std::less<T6>, bsl::allocator<T6>>);
         ASSERT_SAME_TYPE(decltype(ms6d),
                          bsl::multiset<T6, std::less<T6>, std::allocator<T6>>);
-
 
         typedef long T7;
         typedef std::greater<T7> CompT7;
@@ -8449,8 +8640,14 @@ int main(int argc, char *argv[])
         //
         // 6. `multiset` doesn't model `ranges::borrowed_range` concept.
         //
+        // 6. `multiset` can be passed to the range CTOR and `insert_range`.
+        //
         // Plan:
         // 1. `static_assert` every above-mentioned concept for different `T`.
+        //
+        // 2. Confirm that a `multiset` can be used with the `from_range` CTOR
+        //    and the `insert_range` manipulator and generate the expected
+        //    results.
         //
         // Testing:
         //   CONCERN: `multiset` IS A C++20 RANGE
@@ -8460,8 +8657,12 @@ int main(int argc, char *argv[])
                             "\n====================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase37_isRange,
+                      testCase37_isRangeConcepts,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase37_isRangeFunctionality,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 36: {
         // --------------------------------------------------------------------
@@ -8536,6 +8737,7 @@ int main(int argc, char *argv[])
         //   CONCERN: `lower_bound` properly handles transparent comparators.
         //   CONCERN: `upper_bound` properly handles transparent comparators.
         //   CONCERN: `equal_range` properly handles transparent comparators.
+        //   CONCERN: `erase`       properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -8580,6 +8782,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting mutable non-transparent multiset.\n");
             }
             testTransparentComparator(mXNT, false, VALUE);
+            testTransparentComparatorMutable(mXNT, false, VALUE);
 
             if (veryVerbose) {
                 printf("\tTesting const transparent multiset.\n");
@@ -8590,6 +8793,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting mutable transparent multiset.\n");
             }
             testTransparentComparator(mXT,  true,  VALUE);
+            testTransparentComparatorMutable(mXT, true, VALUE);
         }
       } break;
       case 33: {

@@ -1,4 +1,5 @@
 // bslstl_string.h                                                    -*-C++-*-
+
 #ifndef INCLUDED_BSLSTL_STRING
 #define INCLUDED_BSLSTL_STRING
 
@@ -9,8 +10,8 @@ BSLS_IDENT("$Id: $")
 //
 //@CLASSES:
 //  bsl::basic_string: C++ standard compliant `basic_string` implementation
-//  bsl::string: `typedef` for `bsl::basic_string<char>`
-//  bsl::wstring: `typedef` for `bsl::basic_string<wchar_t>`/
+//  bsl::string:  `typedef` for `bsl::basic_string<char>`
+//  bsl::wstring: `typedef` for `bsl::basic_string<wchar_t>`
 //
 //@CANONICAL_HEADER: bsl_string.h
 //
@@ -163,11 +164,16 @@ BSLS_IDENT("$Id: $")
 // |-----------------------------------------+-------------------------------|
 // | a.assign(i1, i2)                        | O[distance(i1,i2)]            |
 // |-----------------------------------------+-------------------------------|
+// | a.assign_range(range))                  | O[distance(range)]            |
+// |-----------------------------------------+-------------------------------|
 // | a.insert(p1, v)                         | O[1 + distance(p1, a.end())]  |
 // |-----------------------------------------+-------------------------------|
 // | a.insert(p1, k, v)                      | O[k + distance(p1, a.end())]  |
 // |-----------------------------------------+-------------------------------|
 // | a.insert(p1, i1, i2)                    | O[distance(i1, i2)            |
+// |                                         |      + distance(p1, a.end())] |
+// |-----------------------------------------+-------------------------------|
+// | a.insert_range(p1, range)               | O[distance(range)             |
 // |                                         |      + distance(p1, a.end())] |
 // |-----------------------------------------+-------------------------------|
 // | a.erase(p1)                             | O[1 + distance(p1, a.end())]  |
@@ -638,11 +644,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_algorithm.h>
 #include <bslstl_compare.h>
+#include <bslstl_concepts.h>
 #include <bslstl_hash.h>
 #include <bslstl_isconvertibletocstring.h>
 #include <bslstl_isconvertibletostringview.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
+#include <bslstl_ranges.h>
 #include <bslstl_stdexceptutil.h>
 #include <bslstl_stringrefdata.h>
 #include <bslstl_stringview.h>
@@ -662,6 +670,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isaccessiblebaseof.h>
@@ -682,8 +691,17 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
+#include <bsls_nullptr.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
+#endif
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 # include <initializer_list>
@@ -1029,6 +1047,10 @@ class String_Imp {
     const CHAR_TYPE *dataPtr() const;
 };
 
+                              // =========================
+                              // class String_ClearProctor
+                              // =========================
+
 /// This component private `class` implements a proctor that sets the length
 /// of a string to zero, and, if `release` is not called, will restore that
 /// string upon it's destruction.  The intended usage is to implement
@@ -1041,7 +1063,7 @@ class String_Imp {
 /// template parameter was renamed from STRING_TYPE to FULL_STRING_TYPE due
 /// to a name clash with a define elsewhere in the code base (see DRQS
 /// 112049582).
-template<class FULL_STRING_TYPE>
+template <class FULL_STRING_TYPE>
 class String_ClearProctor {
 
     // PRIVATE TYPES
@@ -1253,28 +1275,58 @@ class basic_string
 
     /// Specialized append for input iterators, using repeated `push_back`
     /// operations.   Throw `length_error` with the specified `message` if
-    /// `length() > max_size() - distance(first, last)`.
-    template <class INPUT_ITER>
-    basic_string& privateAppend(INPUT_ITER  first,
-                                INPUT_ITER  last,
-                                const char *message,
-                                std::input_iterator_tag);
+    /// `length() > max_size() - distance(first, last)`.  The optionally
+    /// supplied `numChars` is ignored.  Note that, for the "basic"
+    /// `std::input_iterator`, one must assume that stepping the iterator, to
+    /// determine the number of characters, invalidates that iterator for
+    /// using that iterator to obtain characters to append.  Also note that the
+    /// implementation passes `npos` for `numChars` for these iterators.
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateAppend(INPUT_ITER               first,
+                                SENTINEL                 last,
+                                const char              *message,
+                                std::input_iterator_tag  tag);
+
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateAppend(INPUT_ITER               first,
+                                SENTINEL                 last,
+                                size_type                numChars,
+                                const char              *message,
+                                std::input_iterator_tag  );
 
     /// Specialized append for forward, bidirectional, and random-access
     /// iterators.  Throw `length_error` with the specified `message` if
-    /// `length() > max_size() - distance(first, last)`.
-    template <class INPUT_ITER>
-    basic_string& privateAppend(INPUT_ITER  first,
-                                INPUT_ITER  last,
-                                const char *message,
-                                std::forward_iterator_tag);
+    /// `length() > max_size() - distance(first, last)`.  Optionally, specify
+    /// `numChars` if that value can be precalculated.  The behavior is
+    /// undefined if the iterators support the calculation of distance,
+    /// `numchars` is provided, and `numchars` is not the distance from `first`
+    /// to `last`.
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateAppend(INPUT_ITER                 first,
+                                SENTINEL                   last,
+                                const char                *message,
+                                std::forward_iterator_tag  tag);
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateAppend(INPUT_ITER                 first,
+                                SENTINEL                   last,
+                                size_type                  numChars,
+                                const char                *message,
+                                std::forward_iterator_tag  );
 
     /// Dispatch the append operation to the correct `privateAppend`
     /// overload using `privateAppendDispatch`.
-    template<class INPUT_ITER>
+    template <class INPUT_ITER>
     basic_string& privateAppend(INPUT_ITER  first,
                                 INPUT_ITER  last,
                                 const char *message);
+
+    /// Dispatch the append operation to the correct `privateAppendRange`
+    /// overload.
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateAppendRange(INPUT_ITER  first,
+                                     SENTINEL    last,
+                                     size_type   numberChars,
+                                     const char *message);
 
     /// Match integral type for `INPUT_ITER`.
     template <class INPUT_ITER>
@@ -1282,8 +1334,8 @@ class basic_string
                               INPUT_ITER                               first,
                               INPUT_ITER                               last,
                               const char                              *message,
-                              BloombergLP::bslmf::MatchArithmeticType,
-                              BloombergLP::bslmf::Nil);
+                              BloombergLP::bslmf::MatchArithmeticType  ,
+                              BloombergLP::bslmf::Nil                  );
 
     /// Match non-integral type for `INPUT_ITER`.
     template <class INPUT_ITER>
@@ -1291,8 +1343,8 @@ class basic_string
                                      INPUT_ITER                        first,
                                      INPUT_ITER                        last,
                                      const char                       *message,
-                                     BloombergLP::bslmf::MatchAnyType,
-                                     BloombergLP::bslmf::MatchAnyType);
+                                     BloombergLP::bslmf::MatchAnyType  ,
+                                     BloombergLP::bslmf::MatchAnyType  );
 
     /// Assign to this string the value of the string described by the
     /// specified `first` and `second` values, and return a reference
@@ -1303,11 +1355,22 @@ class basic_string
     /// dispatches to the corresponding `privateAppend` function.  Throw
     /// `length_error` with the specified `message` if the length of the
     /// string described by `first` and `second` is greater than
-    /// `max_size()`.
-    template<class FIRST_TYPE, class SECOND_TYPE>
+    /// `max_size()`.  Provides the strong exception guarantee.
+    template <class FIRST_TYPE, class SECOND_TYPE>
     basic_string& privateAssignDispatch(FIRST_TYPE   first,
                                         SECOND_TYPE  second,
                                         const char  *message);
+
+    /// Assign to this string the value of the string described by the
+    /// specified `first` and `second` values, and return a reference
+    /// providing modifiable access to this string.  This method clears the
+    /// string and then dispatches to the corresponding `privateAppendRange`
+    /// function.  Provides the strong exception guarantee.
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateAssignRangeDispatch(INPUT_ITER  first,
+                                             SENTINEL    second,
+                                             size_type   numChars,
+                                             const char *message);
 
     /// Return a reference providing modifiable access to the base object
     /// of this string.
@@ -1342,6 +1405,20 @@ class basic_string
                                INPUT_ITER     first,
                                INPUT_ITER     last);
 
+    /// Dispatch the `insert_range` call to the appropriate `privateReplace`
+    /// specialization.  The specified `inNumChars` is the number of characters
+    /// between the specified `first` and `last`.  If that value cannot be
+    /// pre-calculated (e.g., the category of (template parameter)
+    /// `INPUT_ITERATOR` is`std::input_iterator`), `numChars` is ignored by
+    /// the resulting specialization.  Note that the implementation set
+    /// `numChars` to `npos` when the iterator category is
+    /// `std::input_iterator`.
+    template <class INPUT_ITER, class SENTINEL>
+    void privateInsertRange(const_iterator position,
+                            size_type      inNumChars,
+                            INPUT_ITER     first,
+                            SENTINEL       last);
+
     /// Insert into this object at the specified `outPosition` the specified
     /// initial `numChars` from the specified `characterString`.  The
     /// behavior is undefined unless `numChars <= max_size() - length()` and
@@ -1351,6 +1428,16 @@ class basic_string
     basic_string& privateInsertRaw(size_type        outPosition,
                                    const CHAR_TYPE *characterString,
                                    size_type        numChars);
+
+    /// Move-construct this object so that it is a substring of the specified
+    /// `numChars` length starting at the specified `position` in the specified
+    /// `original` string.  If `original` uses a heap-allocated buffer and an
+    /// equal allocator, the buffer is "stolen".  When this function is called,
+    /// the `String_Imp` subobject contains a copy of the corresponding
+    /// `original` subobject.
+    void privateMoveConstruct(basic_string& original,
+                              size_type     position,
+                              size_type     numChars = npos);
 
     /// Replace the specified `outNumChars` characters of this string
     /// starting at the specified `outPosition` with the specified initial
@@ -1383,57 +1470,86 @@ class basic_string
     /// Match integral type for `INPUT_ITER`.
     template <class INPUT_ITER>
     basic_string& privateReplaceDispatch(
-                              size_type                               position,
-                              size_type                               numChars,
-                              INPUT_ITER                              first,
-                              INPUT_ITER                              last,
-                              BloombergLP::bslmf::MatchArithmeticType ,
-                              BloombergLP::bslmf::Nil                 );
+                           size_type                               position,
+                           size_type                               outNumChars,
+                           INPUT_ITER                              first,
+                           INPUT_ITER                              last,
+                           BloombergLP::bslmf::MatchArithmeticType ,
+                           BloombergLP::bslmf::Nil                 );
 
     /// Match non-integral type for `INPUT_ITER`.
     template <class INPUT_ITER>
     basic_string& privateReplaceDispatch(
-                                     size_type                        position,
-                                     size_type                        numChars,
-                                     INPUT_ITER                       first,
-                                     INPUT_ITER                       last,
-                                     BloombergLP::bslmf::MatchAnyType ,
-                                     BloombergLP::bslmf::MatchAnyType );
+                           size_type                               position,
+                           size_type                               outNumChars,
+                           INPUT_ITER                              first,
+                           INPUT_ITER                              last,
+                           BloombergLP::bslmf::MatchAnyType        ,
+                           BloombergLP::bslmf::MatchAnyType        );
 
-    /// Specialized replacement for input iterators, using repeated
-    /// `push_back` operations.
+    /// Specialized replacement for input iterators using repeated `push_back`
+    /// operations.  The optionally supplied `inNumChars` is ignored for
+    /// this specialization.  Note that the implementation sets `inNumChars` to
+    /// `npos`.
     template <class INPUT_ITER>
-    basic_string& privateReplace(size_type  position,
-                                 size_type  numChars,
-                                 INPUT_ITER first,
-                                 INPUT_ITER last,
-                                 std::input_iterator_tag);
+    basic_string& privateReplace(size_type               position,
+                                 size_type               outNumChars,
+                                 INPUT_ITER              first,
+                                 INPUT_ITER              last,
+                                 std::input_iterator_tag tag);
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateReplace(size_type               position,
+                                 size_type               outNumChars,
+                                 size_type               inNumChars,
+                                 INPUT_ITER              first,
+                                 SENTINEL                last,
+                                 std::input_iterator_tag );
 
     /// Specialized replacement for forward, bidirectional, and
     /// random-access iterators.  Throw `length_error` if
     /// `length() - numChars > max_size() - distance(first, last)`.
+    /// Optionally supply the pre-calculated `numChars`.  The behavior is
+    /// undefined if the iterators support the calculation of distance,
+    /// `numchars` is provided, and `numchars` is not the distance from `first`
+    /// to `last`.
     template <class INPUT_ITER>
-    basic_string& privateReplace(size_type  position,
-                                 size_type  numChars,
-                                 INPUT_ITER first,
-                                 INPUT_ITER last,
-                                 std::forward_iterator_tag);
+    basic_string& privateReplace(size_type                 position,
+                                 size_type                 numChars,
+                                 INPUT_ITER                first,
+                                 INPUT_ITER                last,
+                                 std::forward_iterator_tag tag);
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateReplace(size_type                 position,
+                                 size_type                 numChars,
+                                 size_type                 inNumChars,
+                                 INPUT_ITER                first,
+                                 SENTINEL                  last,
+                                 std::forward_iterator_tag );
 
     /// Replace the specified `numChars` characters of this object starting
-    /// at the specified `position` with the string represented by the
-    /// specified `first` and `last` iterators.  The behavior is undefined
-    /// unless `first` and `last` refer to a sequence of valid values where
-    /// `first` is at a position at or before `last`.
-    basic_string& privateReplace(size_type      position,
-                                 size_type      numChars,
-                                 iterator       first,
-                                 iterator       last,
-                                 std::forward_iterator_tag);
-    basic_string& privateReplace(size_type      position,
-                                 size_type      numChars,
-                                 const_iterator first,
-                                 const_iterator last,
-                                 std::forward_iterator_tag);
+    /// at the specified `position` of this string  with the characters found
+    /// between the specified `first` and `last` iterators.  The behavior is
+    /// undefined unless `first` and `last` refer to a sequence of valid values
+    /// where `first` is at a position at or before `last`.
+    basic_string& privateReplace(size_type                 position,
+                                 size_type                 numChars,
+                                 iterator                  first,
+                                 iterator                  last,
+                                 std::forward_iterator_tag );
+    basic_string& privateReplace(size_type                 position,
+                                 size_type                 numChars,
+                                 const_iterator            first,
+                                 const_iterator            last,
+                                 std::forward_iterator_tag );
+
+    /// Dispatch the `replace_with_range` operation to the correct
+    /// `privateReplace` overload.
+    template <class INPUT_ITER, class SENTINEL>
+    basic_string& privateReplaceRange(size_type   position,
+                                      size_type   outNumChars,
+                                      size_type   inNumChars,
+                                      INPUT_ITER  first,
+                                      SENTINEL    last);
 
     /// Update the capacity of this object to be a value greater than or
     /// equal to the specified `newCapacity`.  The behavior is undefined
@@ -1497,6 +1613,22 @@ class basic_string
                           size_type        lhsNumChars,
                           const CHAR_TYPE *other,
                           size_type        otherNumChars) const;
+
+    /// Return the number of characters in the specified `range`.  If the
+    /// `range` iterator category is `std::input_iterator_tag`, `npos' is
+    /// returned without invalidating the iterator.  When possible, the number
+    /// of characters is calculated in constant time.
+    template <class RANGE>
+    BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+    size_type privateNumCharsInRange(
+                         BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range) const;
+
+    /// Return the number of characters in the range from the specified `first`
+    /// to `last`.  If the `INPUT_ITER` iterator category is
+    /// `std::input_iterator_tag`, `npos' is returned without invalidating the
+    /// iterator.
+    template <class INPUT_ITER, class SENTINEL>
+    size_type privateNumCharsInRange(INPUT_ITER first, SENTINEL last) const;
 
     // NOT IMPLEMENTED
 
@@ -1574,8 +1706,41 @@ class basic_string
     /// Create a string that has the same value as the substring starting at
     /// the specified `position` in the specified `original` string.
     /// Optionally specify the `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is not specified, a default-constructed allocator
-    /// is used.  Throw `out_of_range` if `position > original.length()`.
+    /// `basicAllocator` is not specified, a default-constructed allocator is
+    /// used.  The contents of `original` are moved (in constant time) to the
+    /// new string if `basicAllocator == original.get_allocator()`, and are
+    /// copied (in linear time) using `basicAllocator` otherwise.  `original`
+    /// is left in a valid but unspecified state.  Throw `out_of_range` if
+    /// `position > original.length()`.
+    basic_string(BloombergLP::bslmf::MovableRef<basic_string> original,
+                 size_type                                    position,
+                 const ALLOCATOR&                             basicAllocator =
+                                                                  ALLOCATOR());
+
+    /// Create a string that has the same value as the substring of the
+    /// specified `numChars` length starting at the specified `position` in
+    /// the specified `original` string.  If `numChars` is more than the
+    /// available string length, then the remaining length of the string is
+    /// used (i.e., `numChars` is set to `original.length() - position`).
+    /// Optionally specify the `basicAllocator` used to supply memory.  If
+    /// `basicAllocator` is not specified, a default-constructed allocator is
+    /// used.  The contents of `original` are moved (in constant time) to the
+    /// new string if `basicAllocator == original.get_allocator()`, and are
+    /// copied (in linear time) using `basicAllocator` otherwise.  `original`
+    /// is left in a valid but unspecified state.  Throw `out_of_range` if
+    /// `position > original.length()`.
+    basic_string(BloombergLP::bslmf::MovableRef<basic_string> original,
+                 size_type                                    position,
+                 size_type                                    numChars,
+                 const ALLOCATOR&                             basicAllocator =
+                                                                  ALLOCATOR());
+
+    /// Create a string that has the same value as the substring of the
+    /// specified `numChars` length starting at the specified `position` in the
+    /// specified `original` string.  Optionally specify the `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is not specified, a
+    /// default-constructed allocator is used.  Throw `out_of_range` if
+    /// `position > original.length()`.
     basic_string(const basic_string& original,
                  size_type           position,
                  const ALLOCATOR&    basicAllocator = ALLOCATOR());
@@ -1603,6 +1768,11 @@ class basic_string
 #endif
     basic_string(const CHAR_TYPE  *characterString,
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());   // IMPLICIT
+
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+    /// A view cannot be constructed from a `nullptr` or from a literal `0`.
+    basic_string(bsl::nullptr_t ) = delete;
+#endif
 
     /// Create a string that has the same value as the substring of the
     /// optionally specified `numChars` length starting at the beginning of
@@ -1638,6 +1808,19 @@ class basic_string
     basic_string(INPUT_ITER       first,
                  INPUT_ITER       last,
                  const ALLOCATOR& basicAllocator = ALLOCATOR());
+
+    /// Create a string that containing the characters from the specified
+    /// `range`.  Optionally specify a `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is not specified, a default-constructed allocator
+    /// is used.  Note that `range` must meet the requirements of an input
+    /// range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `CHAR_TYPE`.
+    template <class RANGE>
+    BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+    basic_string(from_range_t                             ,
+                 BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                 const ALLOCATOR&                         basicAllocator =
+                                                                  ALLOCATOR());
 
     /// Create a string that has the same value as the specified `original`
     /// string, where the type `original` is the string type native to the
@@ -1938,6 +2121,15 @@ class basic_string
     basic_string& append(std::initializer_list<CHAR_TYPE> values);
 #endif
 
+    /// Append to this string the characters from the specified `range`.
+    /// Return a reference providing modifiable access to this string.  Note
+    /// that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `CHAR_TYPE`.
+    template <class RANGE>
+    BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+    basic_string& append_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range);
+
     /// Append the specified `character` to this string.
     void push_back(CHAR_TYPE character);
 
@@ -2037,6 +2229,15 @@ class basic_string
     /// modifiable access to this string.
     basic_string& assign(std::initializer_list<CHAR_TYPE> values);
 #endif
+
+    /// Assign to this string the characters from the specified `range`.
+    /// Return a reference providing modifiable access to this string.  Note
+    /// that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `CHAR_TYPE`.
+    template <class RANGE>
+    BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+    basic_string& assign_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range);
 
     /// Insert at the specified `position` in this string a copy of the
     /// specified `other` string, and return a reference providing
@@ -2151,6 +2352,20 @@ class basic_string
                     std::initializer_list<CHAR_TYPE> values);
 #endif
 
+    /// Insert at the specified `position` in this string the characters
+    /// from the specified `range` and return an iterator providing
+    /// non-modifiable access to the first inserted character, or a non-`const`
+    /// copy of `position` if `true == bsl::ranges.empty()`.  The behavior is
+    /// undefined unless `position` is an iterator in the range
+    /// `[begin() .. end()]` (both endpoints included).  Note that `range` must
+    /// meet the requirements of an input range and the values from `range`
+    /// must have a type matching or convertible to (template parameter)
+    /// `CHAR_TYPE`>
+    template <class RANGE>
+    BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+    iterator insert_range(const_iterator                           position,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range);
+
     /// Erase from this string the substring of length the optionally
     /// specified `numChars` or `original.length() - position`, whichever is
     /// smaller, starting at the optionally specified `position`.  If
@@ -2256,7 +2471,6 @@ class basic_string
             size_type                    outNumChars,
             const STRING_VIEW_LIKE_TYPE& replacement);
 
-
     /// Replace the specified `outNumChars` characters starting at the
     /// specified `outPosition` in this string (or the suffix of this string
     /// starting at `outPosition` if `outPosition + outNumChars > length()`)
@@ -2334,18 +2548,33 @@ class basic_string
     /// Replace the substring in the range starting at the specified `first`
     /// position and ending right before the specified `last` position with
     /// the characters in the range starting at the specified `stringFirst`
-    /// iterator and ending right before the specified `stringLast` iterator
-    /// of the (template parameter) type `INPUT_ITER`.  Return a reference
-    /// providing modifiable access to this string.  The behavior is
-    /// undefined unless `first` and `last` are both within the range
+    /// and ending right before the specified `stringLast` iterator, both of
+    /// the (template parameter) type `INPUT_ITER`.  Return a reference
+    /// providing modifiable access to this string.  The behavior is undefined
+    /// unless `first` and `last` are both within the range
     /// `[cbegin() .. cend()]`, `first <= last`, and `stringFirst` and
-    /// `stringLast` refer to a sequence of valid values where `stringFirst`
-    /// is at a position at or before `stringLast`.
+    /// `stringLast` refer to a sequence of valid values where `stringFirst` is
+    /// at a position at or before `stringLast`.
     template <class INPUT_ITER>
     basic_string& replace(const_iterator first,
                           const_iterator last,
                           INPUT_ITER     stringFirst,
                           INPUT_ITER     stringLast);
+
+    /// Replace the substring in the range starting at the specified `first`
+    /// position and ending right before the specified `last` position with
+    /// the characters from the specified `range`. Return a reference providing
+    /// modifiable access to this string.  The behavior is undefined unless
+    /// `first` and `last` are both within the range `[cbegin() .. cend()]`.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// template parameter) `CHAR_TYPE`.
+    template <class RANGE>
+    BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+    basic_string& replace_with_range(
+                               const_iterator                           first,
+                               const_iterator                           last,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range);
 
                      // *** 21.3.7 string operations: ***
 
@@ -2863,8 +3092,15 @@ class basic_string
     /// substring is from the beginning of this string).  If `numChars` is
     /// not specified, `npos` is used (i.e., the entire suffix from
     /// `position` to the end of the string is returned).
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    basic_string substr(size_type position = 0,
+                        size_type numChars = npos) const &;
+    basic_string substr(size_type position = 0,
+                        size_type numChars = npos) &&;
+#else
     basic_string substr(size_type position = 0,
                         size_type numChars = npos) const;
+#endif
 
     /// Lexicographically compare this string with the specified `other`
     /// string, and return a negative value if this string is less than
@@ -3183,7 +3419,7 @@ basic_string(basic_string_view<CHAR_TYPE, CHAR_TRAITS>, ALLOC *)
 /// `initializer_list` passed to the constructor of `basic_string`.  This
 /// deduction guide does not participate unless the specified `ALLOC` is
 /// convertible to `bsl::allocator<CHAR_TYPE>`.
-template<
+template <
     class CHAR_TYPE,
     class ALLOC,
     class DEFAULT_ALLOCATOR = bsl::allocator<CHAR_TYPE>,
@@ -4074,7 +4310,7 @@ const typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::npos;
 
 // PRIVATE CLASS METHODS
-template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateThrowLengthError(
@@ -4087,7 +4323,7 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateThrowLengthError(
     }
 }
 
-template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 void
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateThrowOutOfRange(
@@ -4228,15 +4464,31 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-template <class INPUT_ITER>
+template <class INPUT_ITER, class SENTINEL>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                       INPUT_ITER  first,
-                                                       INPUT_ITER  last,
-                                                       const char *message,
-                                                       std::input_iterator_tag)
+                                             INPUT_ITER               first,
+                                             SENTINEL                 last,
+                                             const char              *message,
+                                             std::input_iterator_tag  tag)
 {
+    return privateAppend(first, last, npos, message, tag);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
+                                             INPUT_ITER               first,
+                                             SENTINEL                 last,
+                                             size_type                numChars,
+                                             const char              *message,
+                                             std::input_iterator_tag  )
+{
+    BSLS_ASSERT_SAFE(npos == numChars);  (void) numChars;
+
     basic_string temp(get_allocator());
     for (; first != last; ++first) {
         temp.push_back(*first);
@@ -4254,16 +4506,33 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-template <class INPUT_ITER>
+template <class INPUT_ITER, class SENTINEL>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
-                                                     INPUT_ITER  first,
-                                                     INPUT_ITER  last,
-                                                     const char *message,
-                                                     std::forward_iterator_tag)
+                                            INPUT_ITER                 first,
+                                            SENTINEL                   last,
+                                            const char                *message,
+                                            std::forward_iterator_tag  tag)
 {
-    size_type numChars = bsl::distance(first, last);
+    size_type numChars = privateNumCharsInRange(first, last);
+    return privateAppend(first, last, numChars, message, tag);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
+                                           INPUT_ITER                 first,
+                                           SENTINEL                   last,
+                                           size_type                  numChars,
+                                           const char                *message,
+                                           std::forward_iterator_tag  )
+{
+    BSLS_ASSERT_SAFE(numChars == static_cast<size_type>(
+              BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)));
+
     privateThrowLengthError(numChars > max_size() - length(), message);
 
     size_type  newLength  = this->d_length + numChars;
@@ -4293,8 +4562,8 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppend(
     return *this;
 }
 
-template<class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
-template<class INPUT_ITER>
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateAppend(
@@ -4310,14 +4579,28 @@ basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateAppend(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+inline
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
+basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::privateAppendRange(
+                                                          INPUT_ITER  first,
+                                                          SENTINEL    last,
+                                                          size_type   numChars,
+                                                          const char *message)
+{
+    typename iterator_traits<INPUT_ITER>::iterator_category tag;
+    return privateAppend(first, last, numChars, message, tag);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
                               INPUT_ITER                              first,
                               INPUT_ITER                              last,
-                              const char                             *message,
-                              BloombergLP::bslmf::MatchArithmeticType,
+                              const char                              *message,
+                              BloombergLP::bslmf::MatchArithmeticType ,
                               BloombergLP::bslmf::Nil                 )
 {
     return privateAppend((size_type)first, (CHAR_TYPE)last, message);
@@ -4328,11 +4611,11 @@ template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAppendDispatch(
-                                     INPUT_ITER                       first,
-                                     INPUT_ITER                       last,
-                                     const char                      *message,
-                                     BloombergLP::bslmf::MatchAnyType,
-                                     BloombergLP::bslmf::MatchAnyType )
+                                     INPUT_ITER                        first,
+                                     INPUT_ITER                        last,
+                                     const char                       *message,
+                                     BloombergLP::bslmf::MatchAnyType  ,
+                                     BloombergLP::bslmf::MatchAnyType  )
 {
     typename iterator_traits<INPUT_ITER>::iterator_category tag;
     return privateAppend(first, last, message, tag);
@@ -4350,6 +4633,25 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssignDispatch(
     {
         String_ClearProctor<basic_string> guard(this);
         privateAppend(first, second, message);
+        guard.release();
+    }
+
+    return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateAssignRangeDispatch(
+                                                         INPUT_ITER   first,
+                                                         SENTINEL     last,
+                                                         size_type    numChars,
+                                                         const char  *message)
+{
+    {
+        String_ClearProctor<basic_string> guard(this);
+        privateAppendRange(first, last, numChars, message);
         guard.release();
     }
 
@@ -4422,13 +4724,26 @@ void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertDispatch(
                                                        INPUT_ITER     first,
                                                        INPUT_ITER     last)
 {
-    size_type pos = position - cbegin();
+    size_type pos      = position - cbegin();
     privateReplaceDispatch(pos,
                            size_type(0),
                            first,
                            last,
                            first,
                            BloombergLP::bslmf::Nil());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+inline
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRange(
+                                                   const_iterator   position,
+                                                   size_type        inNumChars,
+                                                   INPUT_ITER       first,
+                                                   SENTINEL         last)
+{
+    size_type outPosition = position - cbegin();
+    privateReplaceRange(outPosition, size_type(0), inNumChars, first, last);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4487,6 +4802,45 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateInsertRaw(
 
     this->d_length = newLength;
     return *this;
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateMoveConstruct(
+                                                        basic_string& original,
+                                                        size_type     position,
+                                                        size_type     numChars)
+{
+    privateThrowOutOfRange(position > original.length(),
+                           "string(string&&,pos,n): invalid position");
+
+    size_type len = length() - position;
+    if (numChars < len) {
+        len = numChars;
+    }
+    this->d_length = len;
+
+    CHAR_TYPE *data = this->dataPtr();
+
+    if (original.isShortString()) {  // short -> short
+        CHAR_TRAITS::move(data, data + position, len);
+    }
+    else if (this->get_allocator() == original.get_allocator()) {
+        // long `original`, steal the buffer
+        original.resetFields();
+        CHAR_TRAITS::move(data, data + position, len);
+    }
+    else if (len <= this->SHORT_BUFFER_CAPACITY) {  // long -> short
+        this->d_capacity = this->SHORT_BUFFER_CAPACITY;
+        data = this->dataPtr();
+        CHAR_TRAITS::copy(data, original.data() + position, len);
+    }
+    else {
+        // long -> long, own buffer
+        this->d_start_p = data = privateAllocate(len);
+        this->d_capacity = len;
+        CHAR_TRAITS::copy(data, original.data() + position, len);
+    }
+    CHAR_TRAITS::assign(data[len], CHAR_TYPE());
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4651,12 +5005,12 @@ template <class INPUT_ITER>
 inline
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceDispatch(
-                                     size_type                        position,
-                                     size_type                        numChars,
-                                     INPUT_ITER                       first,
-                                     INPUT_ITER                       last,
-                                     BloombergLP::bslmf::MatchAnyType ,
-                                     BloombergLP::bslmf::MatchAnyType )
+                                 size_type                         position,
+                                 size_type                         numChars,
+                                 INPUT_ITER                        first,
+                                 INPUT_ITER                        last,
+                                 BloombergLP::bslmf::MatchAnyType  ,
+                                 BloombergLP::bslmf::MatchAnyType  )
 {
     typename iterator_traits<INPUT_ITER>::iterator_category tag;
     return privateReplace(position, numChars, first, last, tag);
@@ -4666,12 +5020,28 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
-                                                       size_type  outPosition,
-                                                       size_type  outNumChars,
-                                                       INPUT_ITER first,
-                                                       INPUT_ITER last,
-                                                       std::input_iterator_tag)
+                                           size_type               outPosition,
+                                           size_type               outNumChars,
+                                           INPUT_ITER              first,
+                                           INPUT_ITER              last,
+                                           std::input_iterator_tag tag)
 {
+    return privateReplace(outPosition, outNumChars, npos, first, last, tag);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
+                                           size_type               outPosition,
+                                           size_type               outNumChars,
+                                           size_type               inNumChars,
+                                           INPUT_ITER              first,
+                                           SENTINEL                last,
+                                           std::input_iterator_tag )
+{
+    BSLS_ASSERT_SAFE(npos == inNumChars);  (void) inNumChars;
+
     privateThrowOutOfRange(
                length() < outPosition,
                "string<...>::replace<InputIter>(pos,n,i,j): invalid position");
@@ -4697,27 +5067,49 @@ template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 template <class INPUT_ITER>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
-                                                     size_type  outPosition,
-                                                     size_type  outNumChars,
-                                                     INPUT_ITER first,
-                                                     INPUT_ITER last,
-                                                     std::forward_iterator_tag)
+                                         size_type                 outPosition,
+                                         size_type                 outNumChars,
+                                         INPUT_ITER                first,
+                                         INPUT_ITER                last,
+                                         std::forward_iterator_tag tag)
 {
+    size_type inNumChars = privateNumCharsInRange(first, last);
+    return privateReplace(outPosition, outNumChars,
+                          inNumChars,
+                          first,
+                          last,
+                          tag);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
+                                         size_type                 outPosition,
+                                         size_type                 outNumChars,
+                                         size_type                 inNumChars,
+                                         INPUT_ITER                first,
+                                         SENTINEL                  last,
+                                         std::forward_iterator_tag )
+{
+    BSLS_ASSERT_SAFE(inNumChars == static_cast<size_type>(
+              BloombergLP::bslstl::IteratorUtil::insertDistance(first, last)));
+    (void) last;
+
     privateThrowOutOfRange(
                     length() < outPosition,
                     "string<...>::replace<Iter>(pos,n,i,j): invalid position");
 
-    size_type numChars = bsl::distance(first, last);
     privateThrowLengthError(
-                     max_size() - (length() - outPosition) < numChars,
+                     max_size() - (length() - outPosition) < inNumChars,
                      "string<...>::replace<Iter>(pos,n,i,j): string too long");
 
     // Create a temp string because the 'first'/'last' iterator pair can alias
     // the current string; not using the constructor with two iterators because
     // it recurses back here.
-    basic_string temp(numChars, CHAR_TYPE());
+    basic_string temp(inNumChars, CHAR_TYPE());
 
-    for (size_type pos = 0; pos != numChars; ++first, ++pos) {
+    for (size_type pos = 0; pos != inNumChars; ++first, ++pos) {
         temp[pos] = *first;
     }
 
@@ -4767,6 +5159,26 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplace(
                           const_iterator(first),
                           const_iterator(last),
                           std::forward_iterator_tag());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateReplaceRange(
+                                                       size_type   position,
+                                                       size_type   outNumChars,
+                                                       size_type   inNumChars,
+                                                       INPUT_ITER  first,
+                                                       SENTINEL    last)
+{
+    typename iterator_traits<INPUT_ITER>::iterator_category tag;
+    return privateReplace(position,
+                          outNumChars,
+                          inNumChars,
+                          first,
+                          last,
+                          tag);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -4885,6 +5297,43 @@ int basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateCompareRaw(
     return 0;
 }
 
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class RANGE>
+BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+typename
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateNumCharsInRange(
+                          BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range) const
+{
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    if constexpr (ranges::sized_range<RANGE>) {
+        return ranges::size(range);                                   // RETURN
+    }
+
+#endif
+
+    return privateNumCharsInRange(ranges::begin(range),
+                                  ranges::end  (range));
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+typename
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::size_type
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::privateNumCharsInRange(
+                                                     INPUT_ITERATOR first,
+                                                     SENTINEL       last) const
+{
+    typedef typename iterator_traits<INPUT_ITERATOR>::iterator_category
+                                                               category;
+    return is_same<input_iterator_tag, category>::value
+        ? npos
+        : BloombergLP::bslstl::IteratorUtil::insertDistance(first,last);
+}
+
 // CREATORS
 
                 // *** 21.3.2 construct/copy/destroy: ***
@@ -4977,6 +5426,31 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+                   BloombergLP::bslmf::MovableRef<basic_string> original,
+                   size_type                                    position,
+                   const ALLOCATOR&                             basicAllocator)
+: Imp(original)
+, ContainerBase(basicAllocator)
+{
+    privateMoveConstruct(MoveUtil::access(original), position);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+                   BloombergLP::bslmf::MovableRef<basic_string> original,
+                   size_type                                    position,
+                   size_type                                    numChars,
+                   const ALLOCATOR&                             basicAllocator)
+: Imp(original)
+, ContainerBase(basicAllocator)
+{
+    privateMoveConstruct(MoveUtil::access(original), position, numChars);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
                                             const basic_string& original,
@@ -5057,6 +5531,20 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
 , ContainerBase(basicAllocator)
 {
     append(first, last);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class RANGE>
+BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::basic_string(
+                       from_range_t                             ,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                       const ALLOCATOR&                         basicAllocator)
+: Imp()
+, ContainerBase(basicAllocator)
+{
+    append_range(range);
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5608,6 +6096,21 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append(
 #endif
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class RANGE>
+BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::append_range(
+                                BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+{
+    size_type numChars = privateNumCharsInRange(range);
+    return privateAppendRange(ranges::begin(range),
+                              ranges::end  (range),
+                              numChars,
+                              "string<...>::append_range(r): string too long");
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 void basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::push_back(
                                                            CHAR_TYPE character)
 {
@@ -5742,10 +6245,9 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(size_type numChars,
                                                       CHAR_TYPE character)
 {
-    return privateAssignDispatch(
-                                  numChars,
-                                  character,
-                                  "string<...>::assign(n,c): string too long");
+    return privateAssignDispatch(numChars,
+                                 character,
+                                 "string<...>::assign(n,c): string too long");
 }
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
@@ -5774,6 +6276,22 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign(
                      "string<...>::assign(initializer_list): string too long");
 }
 #endif
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class RANGE>
+BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+BSLS_PLATFORM_AGGRESSIVE_INLINE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::assign_range(
+                                BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+{
+    size_type numChars = privateNumCharsInRange(range);
+    return privateAssignRangeDispatch(
+                             ranges::begin(range),
+                             ranges::end  (range),
+                             numChars,
+                             "string<...>::assign<Range>(r): string too long");
+}
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -5899,8 +6417,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(const_iterator position,
     return begin() + pos;
 }
 
-#undef BSLSTL_INSERT_RETURN_TYPE
-
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 inline
 typename basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::iterator
@@ -5979,6 +6495,29 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert(
     return begin() + pos;
 }
 #endif
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class RANGE>
+BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+inline
+BSLSTL_INSERT_RETURN_TYPE
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::insert_range(
+                             const_iterator                           position,
+                             BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+{
+    BSLS_ASSERT_SAFE(position >= cbegin());
+    BSLS_ASSERT_SAFE(position <= cend());
+
+    size_type pos = position - cbegin();
+    size_type inNumChars = privateNumCharsInRange(range);
+    privateInsertRange(position,
+                       inNumChars,
+                       ranges::begin(range),
+                       ranges::  end(range));
+    return begin() + pos;
+}
+
+#undef BSLSTL_INSERT_RETURN_TYPE
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
@@ -6295,7 +6834,6 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                              strView.length());
 }
 
-
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
@@ -6376,7 +6914,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
     BSLS_ASSERT_SAFE(first >= cbegin());
     BSLS_ASSERT_SAFE(first <= cend());
     BSLS_ASSERT_SAFE(first <= last);
-    BSLS_ASSERT_SAFE(last <= cend());
+    BSLS_ASSERT_SAFE(last  <= cend());
 
     size_type outPosition = first - cbegin();
     size_type outNumChars = last - first;
@@ -6386,6 +6924,33 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace(
                                   stringLast,
                                   stringFirst,
                                   BloombergLP::bslmf::Nil());
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+template <class RANGE>
+BSLSTL_STRING_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE, CHAR_TYPE)
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>&
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::replace_with_range(
+                                const_iterator                           first,
+                                const_iterator                           last,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+{
+    BSLS_ASSERT_SAFE(first >= cbegin());
+    BSLS_ASSERT_SAFE(first <= cend());
+    BSLS_ASSERT_SAFE(first <= last);
+    BSLS_ASSERT_SAFE(last  <= cend());
+
+    size_type outPosition = first - cbegin();
+    size_type outNumChars = last  - first;
+    size_type  inNumChars = privateNumCharsInRange(range);
+
+    return privateReplaceRange(outPosition,
+                               outNumChars,
+                               inNumChars,
+                               ranges::begin(range),
+                               ranges::  end(range));
+    return *this;
 }
 
                  // *** 21.3.7 string operations: ***
@@ -6532,7 +7097,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::max_size() const
     // Must take into account the null-terminating character.
 
     size_type stringMaxSize = ~size_type(0) / sizeof(CHAR_TYPE) - 1;
-    size_type allocMaxSize  = AllocatorTraits::max_size(get_allocator()) - 1;
+    size_type  allocMaxSize = AllocatorTraits::max_size(get_allocator()) - 1;
     return allocMaxSize < stringMaxSize ? allocMaxSize : stringMaxSize;
 }
 
@@ -7132,7 +7697,6 @@ bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::contains(
     return npos != find(characterString);
 }
 
-
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE bool
 basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::starts_with(
@@ -7203,6 +7767,30 @@ bool basic_string<CHAR_TYPE, CHAR_TRAITS, ALLOCATOR>::ends_with(
                                       strLength));
 }
 
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(
+                                                    size_type position,
+                                                    size_type numChars) const &
+{
+    return basic_string<CHAR_TYPE,
+                        CHAR_TRAITS,
+                        ALLOCATOR>(*this, position, numChars);
+}
+
+template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
+inline
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
+basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
+                                                      size_type numChars) &&
+{
+    return basic_string<CHAR_TYPE,
+                        CHAR_TRAITS,
+                        ALLOCATOR>(MoveUtil::move(*this), position, numChars);
+}
+#else
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
 basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>
@@ -7213,6 +7801,7 @@ basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>::substr(size_type position,
                         CHAR_TRAITS,
                         ALLOCATOR>(*this, position, numChars);
 }
+#endif
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -8064,7 +8653,6 @@ bsl::operator+(CHAR_TYPE                                               lhs,
         BloombergLP::bslmf::MovableRefUtil::move(lvalue));
 }
 #endif
-
 
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOCATOR>
 bsl::basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOCATOR>

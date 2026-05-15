@@ -1982,10 +1982,94 @@ static void printFlags()
 
                      // Standard library specific macros
 
+            // GNU LIBSTDC++
+
+#if defined(_GLIBCXX_HAVE_ALIGNED_ALLOC)
+    P_MACRO(_GLIBCXX_HAVE_ALIGNED_ALLOC);
+#else
+    D_MACRO(_GLIBCXX_HAVE_ALIGNED_ALLOC);
+#endif
+
+#if defined(_GLIBCXX_HAVE_AT_QUICK_EXIT)
+    P_MACRO(_GLIBCXX_HAVE_AT_QUICK_EXIT);
+#else
+    D_MACRO(_GLIBCXX_HAVE_AT_QUICK_EXIT);
+#endif
+
+#if defined(_GLIBCXX_HAVE_QUICK_EXIT)
+    P_MACRO(_GLIBCXX_HAVE_QUICK_EXIT);
+#else
+    D_MACRO(_GLIBCXX_HAVE_QUICK_EXIT);
+#endif
+
+#if defined(_GLIBCXX_HAVE_TIMESPEC_GET)
+    P_MACRO(_GLIBCXX_HAVE_TIMESPEC_GET);
+#else
+    D_MACRO(_GLIBCXX_HAVE_TIMESPEC_GET);
+#endif
+
+#if defined(_GLIBCXX_RELEASE)
+    P_MACRO(_GLIBCXX_RELEASE);
+#else
+    D_MACRO(_GLIBCXX_RELEASE);
+#endif
+
+#if defined(_GLIBCXX_USE_C99)
+    P_MACRO(_GLIBCXX_USE_C99);
+#else
+    D_MACRO(_GLIBCXX_USE_C99);
+#endif
+
 #if defined(_GLIBCXX_USE_CXX11_ABI)
     P_MACRO(_GLIBCXX_USE_CXX11_ABI);
 #else
     D_MACRO(_GLIBCXX_USE_CXX11_ABI);
+#endif
+
+#if defined(_GLIBCXX_USE_DEPRECATED)
+    P_MACRO(_GLIBCXX_USE_DEPRECATED);
+#else
+    D_MACRO(_GLIBCXX_USE_DEPRECATED);
+#endif
+
+#if defined(_GLIBCXX_USE_DUAL_ABI)
+    P_MACRO(_GLIBCXX_USE_DUAL_ABI);
+#else
+    D_MACRO(_GLIBCXX_USE_DUAL_ABI);
+#endif
+
+        // LLVM LIBC++
+
+#if defined(_LIBCPP_HAS_ALIGNED_ALLOC)
+    P_MACRO(_LIBCPP_HAS_ALIGNED_ALLOC);
+#else
+    D_MACRO(_LIBCPP_HAS_ALIGNED_ALLOC);
+#endif
+
+#if defined(_LIBCPP_HAS_TIMESPEC_GET)
+    P_MACRO(_LIBCPP_HAS_TIMESPEC_GET);
+#else
+    D_MACRO(_LIBCPP_HAS_TIMESPEC_GET);
+#endif
+
+#if defined(_LIBCPP_STD_VER)
+    P_MACRO(_LIBCPP_STD_VER);
+#else
+    D_MACRO(_LIBCPP_STD_VER);
+#endif
+
+        // Microsoft STL
+
+#if defined(_HAS_AUTO_PTR_ETC)
+    P_MACRO(_HAS_AUTO_PTR_ETC);
+#else
+    D_MACRO(_HAS_AUTO_PTR_ETC);
+#endif
+
+#if defined(_HAS_FEATURES_REMOVED_IN_CXX20)
+    P_MACRO(_HAS_FEATURES_REMOVED_IN_CXX20);
+#else
+    D_MACRO(_HAS_FEATURES_REMOVED_IN_CXX20);
 #endif
 
     puts("\n\n  printFlags: UNDEFINED MACROS:");

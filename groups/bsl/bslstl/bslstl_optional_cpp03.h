@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Jan 12 21:02:52 2026
+// Generated on Tue Apr 28 12:08:43 2026
 // Command line: sim_cpp11_features.pl bslstl_optional.h
 
 #ifdef COMPILING_BSLSTL_OPTIONAL_H
@@ -371,6 +371,18 @@ class optional;
 namespace BloombergLP {
 namespace bslstl {
 
+                // =============================
+                // struct Optional_IsBslOptional
+                // =============================
+
+template <class t_TYPE>
+struct Optional_IsBslOptional : bsl::false_type {
+};
+
+template <class t_TYPE>
+struct Optional_IsBslOptional<bsl::optional<t_TYPE> > : bsl::true_type {
+};
+
                 // =======================================
                 // struct Optional_IsTriviallyDestructible
                 // =======================================
@@ -469,6 +481,27 @@ struct Optional_ConstructsFromType
       BSLSTL_OPTIONAL_IS_CONSTRUCTIBLE(t_TYPE, t_ANY_TYPE, true)> {
 };
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+                     // ===============================
+                     // struct Optional_ImmovableHelper
+                     // ===============================
+
+/// This struct is used to implement direct initialization of the private data
+/// member of the `std::optional` class, which makes it possible to support
+/// immovable types returned from the `transform` member function.
+template <class t_TYPE, class t_INVOCABLE, class t_ARG>
+struct Optional_ImmovableHelper {
+    t_INVOCABLE&& invocable;
+    t_ARG&&       arg;
+
+    operator t_TYPE()
+    {
+        return std::invoke(std::forward<t_INVOCABLE>(invocable),
+                           std::forward<t_ARG>(arg));
+    }
+};
+#endif
+
                         // ===========================
                         // Component-Private Tag Types
                         // ===========================
@@ -482,6 +515,13 @@ struct Optional_CopyConstructFromOtherOptional {};
 struct Optional_MoveConstructFromOtherOptional {};
 struct Optional_CopyConstructFromStdOptional {};
 struct Optional_MoveConstructFromStdOptional {};
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+/// Constructor tag used to implement the `transform` function.
+struct Optional_InvokeConstructorTag {
+    explicit Optional_InvokeConstructorTag() = default;
+};
+#endif
 
                            // ======================
                            // class Optional_DataImp
@@ -516,6 +556,15 @@ struct Optional_DataImp {
 
     /// Create an empty `Optional_DataImp` object.
     Optional_DataImp() BSLS_KEYWORD_NOEXCEPT;
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    /// Create an `Optional_DataImp` object, which contains the result of
+    /// invocation of the specified `invocable` with the specified `arg`.
+    template <class t_INVOCABLE, class t_ARG>
+    Optional_DataImp(Optional_InvokeConstructorTag ,
+                     t_INVOCABLE&&                 invocable,
+                     t_ARG&&                       arg);
+#endif
 
     // MANIPULATORS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -930,6 +979,9 @@ struct Optional_Data : public Optional_DataImp<t_TYPE> {
 
   public:
     // CREATORS
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    using Optional_DataImp<t_TYPE>::Optional_DataImp;
+#endif
 
     /// Destroy the managed `value_type` object, if it exists.
     ~Optional_Data();
@@ -949,6 +1001,11 @@ struct Optional_Data<t_TYPE, true> : public Optional_DataImp<t_TYPE> {
     BSLMF_NESTED_TRAIT_DECLARATION_IF(Optional_Data,
                                       bslmf::IsBitwiseCopyable,
                                       bslmf::IsBitwiseCopyable<t_TYPE>::value);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // CREATORS
+    using Optional_DataImp<t_TYPE>::Optional_DataImp;
+#endif
 };
 
                          // ==========================
@@ -1472,6 +1529,15 @@ class Optional_Base {
                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)... args);
 #  endif
 // }}} END GENERATED CODE
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    /// Create an `Optional_Base` object, which contains the result of
+    /// invocation of the specified `invocable` with the specified `arg`.
+    template <class t_INVOCABLE, class t_ARG>
+    Optional_Base(Optional_InvokeConstructorTag ,
+                  t_INVOCABLE&&                 invocable,
+                  t_ARG&&                       arg);
 #endif
 
     // allocator-extended constructors
@@ -2580,6 +2646,15 @@ class Optional_Base<t_TYPE, false> : public std::optional<t_TYPE> {
     Optional_Base(bsl::in_place_t,
                   std::initializer_list<t_INIT_LIST_TYPE> il,
                   t_ARGS&&...                             args);
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    /// Create an `Optional_Base` object, which contains the result of
+    /// invocation of the specified `invocable` with the specified `arg`.
+    template <class t_INVOCABLE, class t_ARG>
+    Optional_Base(Optional_InvokeConstructorTag ,
+                  t_INVOCABLE&&                 invocable,
+                  t_ARG&&                       arg);
+#endif
 
     /// These allocator-extended constructors cannot be called, and are
     /// provided only to prevent compilation errors when 'optional' is
@@ -4063,6 +4138,20 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
 
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+    // FRIENDS
+    template <class t_ANY_TYPE> friend class optional;
+
+    // PRIVATE CREATORS
+
+    /// Create an `optional` object, which contains the result of invocation of
+    /// the specified `invocable` with the specified `arg`.
+    template <class t_INVOCABLE, class t_ARG>
+    optional(BloombergLP::bslstl::Optional_InvokeConstructorTag ,
+             t_INVOCABLE&&                                      invocable,
+             t_ARG&&                                            arg);
+#endif
+
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION_IF(
@@ -5301,6 +5390,63 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
     BSLSTL_OPTIONAL_ENABLE_ASSIGN_FROM_STD_OPTIONAL(t_TYPE, t_ANY_TYPE)&
     operator=(std::optional<t_ANY_TYPE>&& rhs);
 # endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+ 
+    // This macro indicates that `bsl::optional` provides `and_then`,
+    // `or_else`, and `transform` methods.
+    #define BSLSTL_OPTIONAL_PROVIDES_MONADICS
+
+    /// If this object contains a value, invoke the specified `func` with the
+    /// contained value as an argument and return `optional<U>` that contains
+    /// the result of that invocation, where `U` is the cv-unqualified `func`
+    /// return type, which can be different from `t_TYPE`; otherwise, return an
+    /// empty `optional<U>`.  Note that `func` must return an object type other
+    /// than array, `bsl::in_place_t` or `bsl::nullopt`.  Also note that there
+    /// is no requirement that `U` is movable.  Finally note that the returned
+    /// optional uses the allocator of the object returned by `func`, or the
+    /// default allocator if `func` is not invoked.
+    template <class t_FUNC> constexpr auto transform(t_FUNC&& func) &;
+    template <class t_FUNC> constexpr auto transform(t_FUNC&& func) &&;
+    template <class t_FUNC> constexpr auto transform(t_FUNC&& func) const &;
+    template <class t_FUNC> constexpr auto transform(t_FUNC&& func) const &&;
+
+    /// If this object contains a value, invoke the specified `func` with the
+    /// contained value as an argument and return the result of that
+    /// invocation; otherwise, return an empty optional.  Note that `func` must
+    /// return a specialization of `bsl::optional`.  Also note that the return
+    /// type of `func` does not have to be this object type.  Also note that
+    /// the optional object returned by `func` is returned as-is, without
+    /// copying or moving.  Finally note that the default allocator is used for
+    /// constructing the empty optional when `func` is not invoked.
+    template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) &;
+    template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) &&;
+    template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) const &;
+    template <class t_FUNC> constexpr auto and_then(t_FUNC&& func) const &&;
+
+    /// If this object does not contain a value, invoke the specified `func`
+    /// and return the result of that invocation.  Otherwise return a
+    /// copy-constructed value from this object.  Note that `func` must return
+    /// `bsl::optional`.  Also note that the optional object returned by `func`
+    /// is returned as-is, without copying or moving.
+    template <class t_FUNC>
+    constexpr
+    enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
+                              std::is_copy_constructible<t_TYPE>>,
+                optional> or_else(t_FUNC&& func) const &;
+
+    /// If this object does not contain a value, invoke the specified `func`
+    /// and return the result of that invocation; otherwise, return a
+    /// move-constructed value from this object, leaving this object in an
+    /// unspecified but valid state.  Note that `func` must return
+    /// `bsl::optional`.  Also note that the optional object returned by `func`
+    /// is returned as-is, without copying or moving.
+    template <class t_FUNC>
+    constexpr
+    enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
+                              std::is_move_constructible<t_TYPE>>,
+                optional> or_else(t_FUNC&& func) &&;
+#endif
 };
 
 }  // close namespace bsl
@@ -5547,33 +5693,33 @@ BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator>(const bsl::nullopt_t&,
                const bsl::optional<t_TYPE>&) BSLS_KEYWORD_NOEXCEPT;
 
-// Return 'true' if the specified 'value' is disengaged, and 'false' otherwise.
-// This function can be called in constant expressions only if `t_TYPE` is not
-// allocator-aware.
+/// Return `true` if the specified `value` is disengaged, and `false`
+/// otherwise.  This function can be called in constant expressions only if
+/// `t_TYPE` is not allocator-aware.
 template <class t_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator<=(const bsl::optional<t_TYPE>& value,
                 const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT;
 
-// Return 'true'.  Note that 'bsl::nullopt_t' is ordered before any
-// 'bsl::optional' that is engaged.  This function can be called in constant
-// expressions only if `t_TYPE` is not allocator-aware.
+/// Return `true`.  Note that `bsl::nullopt_t` is ordered before any
+/// `bsl::optional` that is engaged.  This function can be called in constant
+/// expressions only if `t_TYPE` is not allocator-aware.
 template <class t_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator<=(const bsl::nullopt_t&,
                 const bsl::optional<t_TYPE>&) BSLS_KEYWORD_NOEXCEPT;
 
-// Return 'true'.  Note that 'bsl::nullopt_t' is ordered before any
-// 'bsl::optional' that is engaged.  This function can be called in constant
-// expressions only if `t_TYPE` is not allocator-aware.
+/// Return `true`.  Note that `bsl::nullopt_t` is ordered before any
+/// `bsl::optional` that is engaged.  This function can be called in constant
+/// expressions only if `t_TYPE` is not allocator-aware.
 template <class t_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator>=(const bsl::optional<t_TYPE>&,
                 const bsl::nullopt_t&) BSLS_KEYWORD_NOEXCEPT;
 
-// Return 'true' if the specified 'value' is disengaged, and 'false' otherwise.
-// This function can be called in constant expressions only if `t_TYPE` is not
-// allocator-aware.
+/// Return `true` if the specified `value` is disengaged, and `false`
+/// otherwise.  This function can be called in constant expressions only if
+/// `t_TYPE` is not allocator-aware.
 template <class t_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17
 bool operator>=(const bsl::nullopt_t&,
@@ -6736,6 +6882,24 @@ Optional_DataImp<t_TYPE>::Optional_DataImp() BSLS_KEYWORD_NOEXCEPT
 : d_hasValue(false)
 {
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_TYPE>
+template <class t_INVOCABLE, class t_ARG>
+inline
+Optional_DataImp<t_TYPE>::Optional_DataImp(
+                                       Optional_InvokeConstructorTag ,
+                                       t_INVOCABLE&&                 invocable,
+                                       t_ARG&&                       arg)
+: d_hasValue(false)
+{
+    // Direct non-list initialization is mandated here
+    ::new((void*)d_buffer.address()) t_TYPE(
+                              std::invoke(std::forward<t_INVOCABLE>(invocable),
+                                          std::forward<t_ARG>(arg)));
+    d_hasValue = true;
+}
+#endif
 
 // MANIPULATORS
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -8266,6 +8430,21 @@ Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::Optional_Base(
 }
 #  endif
 // }}} END GENERATED CODE
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_TYPE, bool t_USES_BSLMA_ALLOC>
+template <class t_INVOCABLE, class t_ARG>
+inline
+Optional_Base<t_TYPE, t_USES_BSLMA_ALLOC>::Optional_Base(
+                                       Optional_InvokeConstructorTag tag,
+                                       t_INVOCABLE&&                 invocable,
+                                       t_ARG&&                       arg)
+: d_value(tag, std::forward<t_INVOCABLE>(invocable), std::forward<t_ARG>(arg))
+, d_allocator(bslma::AATypeUtil::getAllocatorFromSubobject<allocator_type>(
+                                                              d_value.value()))
+{
+}
 #endif
 
 template <class t_TYPE, bool t_USES_BSLMA_ALLOC>
@@ -10115,6 +10294,21 @@ Optional_Base<t_TYPE, false>::Optional_Base(
 {
 }
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_TYPE>
+template <class t_INVOCABLE, class t_ARG>
+inline
+Optional_Base<t_TYPE, false>::Optional_Base(
+                                       Optional_InvokeConstructorTag ,
+                                       t_INVOCABLE&&                 invocable,
+                                       t_ARG&&                       arg)
+: StdOptionalBase(Optional_ImmovableHelper<t_TYPE, t_INVOCABLE, t_ARG>{
+                                          std::forward<t_INVOCABLE>(invocable),
+                                          std::forward<t_ARG>(arg)})
+{
+}
+#endif
+
 template <class t_TYPE>
 inline
 Optional_Base<t_TYPE, false>::Optional_Base(bsl::allocator_arg_t, AllocType)
@@ -10255,6 +10449,7 @@ const t_TYPE& Optional_Base<t_TYPE, false>::dereferenceRaw() const
 
 }
 #  endif  // BDE_OMIT_INTERNAL_DEPRECATED
+
 # else  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 // ============================================================================
@@ -12477,6 +12672,20 @@ Optional_Base<t_TYPE, false>::operator bool() const BSLS_KEYWORD_NOEXCEPT
 
 namespace bsl {
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+// PRIVATE CREATORS
+template <class t_TYPE>
+template <class t_INVOCABLE, class t_ARG>
+inline
+optional<t_TYPE>::optional(
+                  BloombergLP::bslstl::Optional_InvokeConstructorTag tag,
+                  t_INVOCABLE&&                                      invocable,
+                  t_ARG&&                                            arg)
+: BaseType(tag, std::forward<t_INVOCABLE>(invocable), std::forward<t_ARG>(arg))
+{
+}
+#endif
+
 // CREATORS
 template <class t_TYPE>
 BSLSTL_OPTIONAL_CONSTEXPR17 optional<t_TYPE>::optional() BSLS_KEYWORD_NOEXCEPT
@@ -14191,6 +14400,201 @@ optional<t_TYPE>::operator=(std::optional<t_ANY_TYPE>&& rhs)
     return *this;
 }
 # endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) &
+{
+    using ResultType = std::remove_cv_t<std::invoke_result_t<t_FUNC, t_TYPE&>>;
+    static_assert(!std::is_array_v<ResultType>,
+                  "The callable must return an array");
+    static_assert(!std::is_same_v<ResultType, nullopt_t>,
+                  "The callable must not return nullopt_t");
+    static_assert(!std::is_same_v<ResultType, in_place_t>,
+                  "The callable must not return in_place_t");
+    static_assert(std::is_object_v<ResultType>,
+                  "The callable must return an object type");
+
+    if (this->has_value()) {
+        using BloombergLP::bslstl::Optional_InvokeConstructorTag;
+        return optional<ResultType>{Optional_InvokeConstructorTag{},
+                                    std::forward<t_FUNC>(func),
+                                    **this};
+    }
+    return optional<ResultType>{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) const &
+{
+    using ResultType =
+                 std::remove_cv_t<std::invoke_result_t<t_FUNC, const t_TYPE&>>;
+    static_assert(!std::is_array_v<ResultType>,
+                  "The callable must return an array");
+    static_assert(!std::is_same_v<ResultType, nullopt_t>,
+                  "The callable must not return nullopt_t");
+    static_assert(!std::is_same_v<ResultType, in_place_t>,
+                  "The callable must not return in_place_t");
+    static_assert(std::is_object_v<ResultType>,
+                  "The callable must return an object type");
+
+    if (this->has_value()) {
+        using BloombergLP::bslstl::Optional_InvokeConstructorTag;
+        return optional<ResultType>{Optional_InvokeConstructorTag{},
+                                    std::forward<t_FUNC>(func),
+                                    **this};
+    }
+    return optional<ResultType>{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) &&
+{
+    using ResultType =
+                      std::remove_cv_t<std::invoke_result_t<t_FUNC, t_TYPE&&>>;
+    static_assert(!std::is_array_v<ResultType>,
+                  "The callable must return an array");
+    static_assert(!std::is_same_v<ResultType, nullopt_t>,
+                  "The callable must not return nullopt_t");
+    static_assert(!std::is_same_v<ResultType, in_place_t>,
+                  "The callable must not return in_place_t");
+    static_assert(std::is_object_v<ResultType>,
+                  "The callable must return an object type");
+
+    if (this->has_value()) {
+        using BloombergLP::bslstl::Optional_InvokeConstructorTag;
+        return optional<ResultType>{Optional_InvokeConstructorTag{},
+                                    std::forward<t_FUNC>(func),
+                                    std::move(**this)};
+    }
+    return optional<ResultType>{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::transform(t_FUNC&& func) const &&
+{
+    using ResultType =
+                std::remove_cv_t<std::invoke_result_t<t_FUNC, const t_TYPE&&>>;
+    static_assert(!std::is_array_v<ResultType>,
+                  "The callable must return an array");
+    static_assert(!std::is_same_v<ResultType, nullopt_t>,
+                  "The callable must not return nullopt_t");
+    static_assert(!std::is_same_v<ResultType, in_place_t>,
+                  "The callable must not return in_place_t");
+    static_assert(std::is_object_v<ResultType>,
+                  "The callable must return an object type");
+
+    if (this->has_value()) {
+        using BloombergLP::bslstl::Optional_InvokeConstructorTag;
+        return optional<ResultType>{Optional_InvokeConstructorTag{},
+                                    std::forward<t_FUNC>(func),
+                                    std::move(**this)};
+    }
+    return optional<ResultType>{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::and_then(t_FUNC&& func) &
+{
+    using ResultType = std::remove_cv_t<std::remove_reference_t<
+                                       std::invoke_result_t<t_FUNC, t_TYPE&>>>;
+    using ::BloombergLP::bslstl::Optional_IsBslOptional;
+    static_assert(Optional_IsBslOptional<ResultType>::value,
+                  "The callable must return bsl::optional");
+
+    if (this->has_value()) {
+        return std::invoke(std::forward<t_FUNC>(func), **this);
+    }
+    return ResultType{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::and_then(t_FUNC&& func) const &
+{
+    using ResultType = std::remove_cv_t<std::remove_reference_t<
+                                 std::invoke_result_t<t_FUNC, const t_TYPE&>>>;
+    using ::BloombergLP::bslstl::Optional_IsBslOptional;
+    static_assert(Optional_IsBslOptional<ResultType>::value,
+                  "The callable must return bsl::optional");
+
+    if (this->has_value()) {
+        return std::invoke(std::forward<t_FUNC>(func), **this);
+    }
+    return ResultType{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::and_then(t_FUNC&& func) &&
+{
+    using ResultType = std::remove_cv_t<std::remove_reference_t<
+                                      std::invoke_result_t<t_FUNC, t_TYPE&&>>>;
+    using ::BloombergLP::bslstl::Optional_IsBslOptional;
+    static_assert(Optional_IsBslOptional<ResultType>::value,
+                  "The callable must return bsl::optional");
+
+    if (this->has_value()) {
+        return std::invoke(std::forward<t_FUNC>(func), std::move(**this));
+    }
+    return ResultType{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr auto optional<t_TYPE>::and_then(t_FUNC&& func) const &&
+{
+    using ResultType = std::remove_cv_t<std::remove_reference_t<
+                                std::invoke_result_t<t_FUNC, const t_TYPE&&>>>;
+    using ::BloombergLP::bslstl::Optional_IsBslOptional;
+    static_assert(Optional_IsBslOptional<ResultType>::value,
+                  "The callable must return bsl::optional");
+
+    if (this->has_value()) {
+        return std::invoke(std::forward<t_FUNC>(func), std::move(**this));
+    }
+    return ResultType{};
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr
+enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
+                          std::is_copy_constructible<t_TYPE>>,
+            optional<t_TYPE>> optional<t_TYPE>::or_else(t_FUNC&& func) const &
+{
+    static_assert(std::is_same_v<remove_cvref_t<std::invoke_result_t<t_FUNC>>,
+                                 optional<t_TYPE>>,
+                  "The callable must return bsl::optional<T>");
+
+    if (this->has_value()) {
+        return *this;
+    }
+    return std::forward<t_FUNC>(func)();
+}
+
+template <class t_TYPE>
+template <class t_FUNC>
+constexpr
+enable_if_t<conjunction_v<std::is_invocable<t_FUNC>,
+                          std::is_move_constructible<t_TYPE>>,
+            optional<t_TYPE>> optional<t_TYPE>::or_else(t_FUNC&& func) &&
+{
+    static_assert(std::is_same_v<remove_cvref_t<std::invoke_result_t<t_FUNC>>,
+                                 optional<t_TYPE>>,
+                  "The callable must return bsl::optional<T>");
+
+    if (this->has_value()) {
+        return std::move(*this);
+    }
+    return std::forward<t_FUNC>(func)();
+}
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 // ============================================================================
 //                      Section: Free Function Definitions

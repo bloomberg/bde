@@ -135,6 +135,8 @@ using bsls::NameOf;
 // [27] map(map&&, const A& allocator);
 // [12] map(ITER first, ITER last, const C& comparator, const A& allocator);
 // [12] map(ITER first, ITER last, const A& allocator);
+// [12] map(from_range_t , CCR<VALUE> auto&& range, const C& c,  a = A());
+// [12] map(from_range_t , CCR<VALUE> auto&& range, a);
 // [33] map(initializer_list<value_type>, const C& comp, const A& allocator);
 // [33] map(initializer_list<value_type>, const A& allocator);
 // [ 2] ~map();
@@ -177,6 +179,7 @@ using bsls::NameOf;
 // [30] iterator insert(const_iterator position, ALT_VALUE_TYPE&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [33] void insert(initializer_list<value_type>);
+// [17] void insert_range(CCR<VALUE> auto&& range);
 //
 // [31] iterator emplace(Args&&... args);
 // [32] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -737,7 +740,6 @@ struct IntToPairConverter {
                    && !bsl::is_same<VALUE, bsltf::MoveOnlyAllocTestType>::value
                    && !bsl::is_same<VALUE,
                                bsltf::WellBehavedMoveOnlyAllocTestType>::value;
-
 
         // Note that `allocator` and `pss` are of different types, and
         // sometimes this function is called with `ALLOC` being a type that has
@@ -1571,7 +1573,6 @@ struct MetaTestDriver {
                     // ------------------------------
                     // template struct MetaTestDriver
                     // ------------------------------
-
 
 template <class KEY, class VALUE, class COMP>
 void MetaTestDriver<KEY, VALUE, COMP>::testCase28()

@@ -13,6 +13,9 @@ BSLS_IDENT("$Id: $")
 // implementation of the C++ standard type (if one exists).  Finally, place the
 // included symbols from the 'std' namespace (if any) into the 'bsl' namespace.
 
+#include <bsls_libraryfeatures.h>
+#include <bslstl_iosfwd.h>
+
 #include <iosfwd>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
@@ -28,8 +31,8 @@ namespace bsl {
     //  using std::allocator;
     //  using std::basic_istringstream;
     //  using std::basic_ostringstream;
-    //  using std::basic_stringbuf
-    //  using std::basic_stringstream
+    //  using std::basic_stringbuf;
+    //  using std::basic_stringstream;
     //  using std::istringstream;
     //  using std::ostringstream;
     //  using std::stringbuf;
@@ -38,6 +41,13 @@ namespace bsl {
     //  using std::wostringstream;
     //  using std::wstringbuf;
     //  using std::wstringstream;
+    //
+    //  using basic_osyncstream
+    //  using basic_syncbuf
+    //  using osyncstream
+    //  using syncbuf
+    //  using wosyncstream
+    //  using wsyncbuf
     //..
 
     using std::basic_filebuf;
@@ -75,6 +85,30 @@ namespace bsl {
     using std::wstreambuf;
     using std::wstreampos;
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+    using std::u16streampos;
+    using std::u32streampos;
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+    using std::u8streampos;
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM)
+    using std::basic_ispanstream;
+    using std::basic_ospanstream;
+    using std::basic_spanbuf;
+    using std::basic_spanstream;
+    using std::ispanstream;
+    using std::ospanstream;
+    using std::spanbuf;
+    using std::spanstream;
+    using std::wspanbuf;
+    using std::wispanstream;
+    using std::wospanstream;
+    using std::wspanstream;
+#endif
+
 }  // close package namespace
 
 // Include Bloomberg's implementation.
@@ -83,7 +117,7 @@ namespace bsl {
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2013 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

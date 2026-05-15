@@ -64,7 +64,7 @@ using namespace BloombergLP;
 // not have those traits.
 //-----------------------------------------------------------------------------
 // bslalg::ArrayPrimitives public interface:
-// [ 3] void copyConstruct(T *dstB, FWD srcB, FWD srcE, ALLOCATOR a);
+// [ 3] void copyConstruct(T *dstB, FWD srcB, SNT srcE, ALLOCATOR a);
 // [ 3] void copyConstruct(T *dstB, S *srcB, S *srcE, ALLOCATOR a);
 // [10] void defaultConstruct(T *begin, size_type ne, ALLOCATOR a);
 // [ 4] void destructiveMove(T *dstB, T *srcB, T *srcE, ALLOCATOR a);
@@ -74,7 +74,7 @@ using namespace BloombergLP;
 // [ 9] void emplace(T *toBegin, T *toEnd, ALLOCATOR a, args...);
 // [ 7] void erase(T *first, T *middle, T *last, ALLOCATOR a);
 // [ 5] void insert(T *dstB, T *dstE, const T& v, ne, *a);
-// [ 5] void insert(T *dstB, T *dstE, FWD srcB, FWD srcE, ne, *a);
+// [ 5] void insert(T *dstB, T *dstE, FWD srcB, SNT srcE, ne, *a);
 // [  ] void moveConstruct(T *dstB, T *srcB, T *srcE, ALLOCATOR a);
 // [ 5] void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
 // [ 8] void rotate(T *first, T *middle, T *last);
@@ -779,6 +779,13 @@ struct ConstructEnabler {
     }
 };
 
+                           // ==============
+                           // class Sentinel
+                           // ==============
+
+struct Sentinel {
+};
+
                            // ===================
                            // class InputIterator
                            // ===================
@@ -817,6 +824,9 @@ class InputIterator {
     template <class OTHER_VALUE>
     friend bool operator!=(const InputIterator<OTHER_VALUE>&,
                            const InputIterator<OTHER_VALUE>&);
+
+    template <class OTHER_VALUE>
+    friend bool operator==(const InputIterator<OTHER_VALUE>&, const Sentinel&);
 
   public:
     // TYPES
@@ -875,6 +885,10 @@ class InputIterator {
 template <class VALUE>
 bool operator==(const InputIterator<VALUE>& lhs,
                 const InputIterator<VALUE>& rhs);
+template <class VALUE>
+bool operator==(const InputIterator<VALUE>& lhs, const Sentinel& rhs);
+template <class VALUE>
+bool operator==(const Sentinel& lhs, const InputIterator<VALUE>& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` iterators do *not* refer
 /// to the same element, and `false` otherwise.  The behavior is undefined
@@ -882,6 +896,10 @@ bool operator==(const InputIterator<VALUE>& lhs,
 template <class VALUE>
 bool operator!=(const InputIterator<VALUE>& lhs,
                 const InputIterator<VALUE>& rhs);
+template <class VALUE>
+bool operator!=(const InputIterator<VALUE>& lhs, const Sentinel& rhs);
+template <class VALUE>
+bool operator!=(const Sentinel& lhs, const InputIterator<VALUE>& rhs);
 
                        // -------------------
                        // class InputIterator
@@ -968,8 +986,36 @@ bool operator==(const InputIterator<VALUE>& lhs,
 
 template <class VALUE>
 inline
+bool operator==(const InputIterator<VALUE>& lhs,  const Sentinel&)
+{
+    return lhs.d_data_p == lhs.d_end_p;
+}
+
+template <class VALUE>
+inline
+bool operator==(const Sentinel& lhs,  const InputIterator<VALUE>& rhs)
+{
+    return rhs == lhs;
+}
+
+template <class VALUE>
+inline
 bool operator!=(const InputIterator<VALUE>& lhs,
                 const InputIterator<VALUE>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class VALUE>
+inline
+bool operator!=(const InputIterator<VALUE>& lhs,  const Sentinel& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <class VALUE>
+inline
+bool operator!=(const Sentinel& lhs,  const InputIterator<VALUE>& rhs)
 {
     return !(lhs == rhs);
 }
@@ -1347,6 +1393,13 @@ class BitwiseMoveableTestType : public TestType {
                             bslma::Allocator               *ba = 0)
     : TestType(original, ba)
     {
+    }
+
+    // MANIPULATORS
+    BitwiseMoveableTestType &operator=(const BitwiseMoveableTestType& original)
+    {
+        *static_cast<TestType*>(this) = original;
+        return *this;
     }
 };
 
@@ -3226,6 +3279,69 @@ void testDestructiveMoveAndInsertRange(bool bitwiseMoveableFlag,
             }
         }
 
+        if (veryVerbose) printf("\t\t...and SENTINEL\n");
+        {
+            if (exceptionSafetyFlag) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                    gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
+                    gg(dstBuf, DST_SPEC);  verify(dstBuf, DST_SPEC);
+
+                    srcEnd = &srcBuf[END];  // reset at each iteration
+                    CleanupGuard<TYPE> srcGuard(srcBuf, SRC_SPEC, &srcEnd);
+
+                    Obj::destructiveMoveAndInsert(
+                                 &dstBuf[BEGIN],
+                                 &srcEnd,
+                                 &srcBuf[BEGIN],
+                                 &srcBuf[DST],
+                                 &srcBuf[END],
+                                 InputIterator<ConstructEnabler>(&inputCe[0],
+                                                                 &inputCe[NE]),
+                                 Sentinel(),
+                                 NE,
+                                 Z);
+
+                    ASSERT(&srcBuf[BEGIN] == srcEnd);
+                    verify(srcBuf, SRC_EXP);
+                    verify(dstBuf, DST_EXP);
+                    srcGuard.release(SRC_EXP);
+                    cleanup(dstBuf, DST_EXP);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                if (veryVerbose) printf("\n");
+            } else {
+                gg(srcBuf, SRC_SPEC);  verify(srcBuf, SRC_SPEC);
+                gg(dstBuf, DST_SPEC);  verify(dstBuf, DST_SPEC);
+
+                const int NUM_COPIES = numCopyCtorCalls;
+                const int NUM_DESTRUCTIONS = numDestructorCalls;
+
+                Obj::destructiveMoveAndInsert(
+                                 &dstBuf[BEGIN],
+                                 &srcEnd,
+                                 &srcBuf[BEGIN],
+                                 &srcBuf[DST],
+                                 &srcBuf[END],
+                                 InputIterator<ConstructEnabler>(&inputCe[0],
+                                                                 &inputCe[NE]),
+                                 Sentinel(),
+                                 NE,
+                                 Z);
+
+                ASSERT(&srcBuf[BEGIN] == srcEnd);
+                if (bitwiseCopyableFlag) {
+                    ASSERT(NUM_COPIES == numCopyCtorCalls);
+                    ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
+                }
+                else if (bitwiseMoveableFlag) {
+                    ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
+                }
+                verify(srcBuf, SRC_EXP);
+                verify(dstBuf, DST_EXP);
+                cleanup(srcBuf, SRC_EXP);
+                cleanup(dstBuf, DST_EXP);
+            }
+        }
+
         if (veryVerbose) printf("\t\t...and FWD_ITER = TYPE*\n");
         {
             if (exceptionSafetyFlag) {
@@ -3661,6 +3777,52 @@ void testInsertRange(bool bitwiseMoveableFlag,
                                 &buf[END],
                                 &inputCe[0],
                                 &inputCe[NE],
+                                NE,
+                                Z);
+
+                    verify(buf, EXP);
+                    cleanup.release(EXP);
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                if (veryVerbose) printf("\n");
+            } else {
+                gg(buf, SPEC);  verify(buf, SPEC);
+
+                const int NUM_COPIES = numCopyCtorCalls;
+                const int NUM_DESTRUCTIONS = numDestructorCalls;
+
+                Obj::insert(&buf[DST],
+                            &buf[END],
+                            &inputCe[0],
+                            &inputCe[NE],
+                            NE,
+                            Z);
+
+                if (bitwiseCopyableFlag) {
+                    ASSERT(NUM_COPIES == numCopyCtorCalls);
+                    ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
+                }
+                else if (bitwiseMoveableFlag) {
+                    ASSERT(NUM_DESTRUCTIONS == numDestructorCalls);
+                }
+                verify(buf, EXP);
+                cleanup(buf, EXP);
+            }
+        }
+
+        if (veryVerbose) printf("\t\t...and SENTINEL\n");
+        {
+            TYPE *buf = static_cast<TYPE *>(static_cast<void *>(&u.d_raw[0]));
+
+            if (exceptionSafetyFlag) {
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                    gg(buf, SPEC);  verify(buf, SPEC);
+                    CleanupGuard<TYPE> cleanup(buf, SPEC);
+
+                    Obj::insert(&buf[DST],
+                                &buf[END],
+                                InputIterator<ConstructEnabler>(&inputCe[0],
+                                                                &inputCe[NE]),
+                                Sentinel(),
                                 NE,
                                 Z);
 
@@ -4167,6 +4329,55 @@ void testCopyConstructWithIterators(bool, // bitwiseMoveableFlag
             InputIterator<TYPE> end(&buf[SRC + NE], &buf[SRC + NE]);
 
             Obj::copyConstruct(&buf[DST], begin, end, Z);
+        }
+
+        if (veryVerbose) {
+            printf("LINE = %d, #copy ctors = %d, #char ctors = %d.\n",
+                   LINE,
+                   numCopyCtorCalls - NUM_COPIES,
+                   numCharCtorCalls - NUM_CTORS);
+        }
+        if (bitwiseCopyableFlag) {
+            ASSERT(NUM_COPIES == numCopyCtorCalls);
+            ASSERT(NUM_CTORS  == numCharCtorCalls);
+        }
+        else {
+            ASSERT(NUM_COPIES + NE <= numCopyCtorCalls);
+            ASSERT(NUM_CTORS       == numCharCtorCalls);
+        }
+        verify(buf, EXP);
+        cleanup(buf, EXP);
+    }
+
+    if (verbose) printf("\t\tdifferent sentinel type.\n");
+
+    for (size_t ti = 0; ti < NUM_DATA_3; ++ti) {
+        const int         LINE = DATA_3[ti].d_lineNum;
+        const char *const SPEC = DATA_3[ti].d_spec;
+        const int         SRC  = DATA_3[ti].d_src;
+        const int         NE   = DATA_3[ti].d_ne;
+        const int         DST  = DATA_3[ti].d_dst;
+        const char *const EXP  = DATA_3[ti].d_expected;
+        ASSERT(MAX_SIZE >= (int)std::strlen(SPEC));
+
+        if (veryVerbose) {
+            printf("LINE = %d, SPEC = %s, SRC = %d, "
+                   "NE = %d, DST = %d, EXP = %s\n",
+                   LINE, SPEC, SRC, NE, DST, EXP);
+        }
+        gg(buf, SPEC);  verify(buf, SPEC);
+
+        const int NUM_COPIES = numCopyCtorCalls;
+        const int NUM_CTORS  = numCharCtorCalls;
+
+        if (exceptionSafetyFlag) {
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(*Z) {
+                Obj::copyConstruct(&buf[DST], &buf[SRC], &buf[SRC + NE], Z);
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+            if (veryVerbose) printf("\n");
+        } else {
+            InputIterator<TYPE> begin(&buf[SRC], &buf[SRC + NE]);
+            Obj::copyConstruct(&buf[DST], begin, Sentinel(), Z);
         }
 
         if (veryVerbose) {
@@ -5037,7 +5248,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             printf("\nTesting 'destructiveMoveAndInsert(T *dstB, T *dstE, "
-                                             "FWD srcB, FWD srcE, ne, *a)'\n");
+                                             "FWD srcB, SNT srcE, ne, *a)'\n");
 
         GAUNTLET(testDestructiveMoveAndInsertRange);
 
@@ -5059,7 +5270,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   void insert(T *dstB, T *dstE, const T& v, ne, *a);
-        //   void insert(T *dstB, T *dstE, FWD srcB, FWD srcE, ne, *a);
+        //   void insert(T *dstB, T *dstE, FWD srcB, SNT srcE, ne, *a);
         //   void moveInsert(T *dstB, T *dstE, T **srcEp, srcB, srcE, ne, *a);
         // --------------------------------------------------------------------
 
@@ -5074,7 +5285,7 @@ int main(int argc, char *argv[])
 
         if (verbose)
             printf("\nTesting 'insert(T *dstB, T *dstE, "
-                                             "FWD srcB, FWD srcE, ne, *a)'\n");
+                                             "FWD srcB, SNT srcE, ne, *a)'\n");
 
         GAUNTLET(testInsertRange);
 
@@ -5116,7 +5327,7 @@ int main(int argc, char *argv[])
         //   (2) `dstB` + ne <= `srcB`.
         //
         // Testing:
-        //   void copyConstruct(T *dstB, FWD srcB, FWD srcE, ALLOCATOR a);
+        //   void copyConstruct(T *dstB, FWD srcB, SNT srcE, ALLOCATOR a);
         //   void copyConstruct(T *dstB, S *srcB, S *srcE, ALLOCATOR a);
         // --------------------------------------------------------------------
 
@@ -5128,7 +5339,7 @@ int main(int argc, char *argv[])
         GAUNTLET(testCopyConstruct);
 
         if (verbose) printf(
-               "\nTesting `copyConstruct(T *dstB, FWD_ITER, FWD_ITER, *a)`\n");
+               "\nTesting `copyConstruct(T *dstB, FWD_ITER, SENTINEL, *a)`\n");
         GAUNTLET(testCopyConstructWithIterators);
       } break;
       case 2: {

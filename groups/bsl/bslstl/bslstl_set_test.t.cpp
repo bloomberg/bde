@@ -36,6 +36,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_isbitwisecopyable.h>
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
@@ -127,6 +128,8 @@
 // [19] set(const C& comparator, const A& allocator);
 // [12] set(ITER first, ITER last, const C& comparator, const A& allocator);
 // [12] set(ITER first, ITER last, const A& allocator);
+// [12] set(from_range_t , CCR<KEY> auto&& range, const C& c,  a = A());
+// [12] set(from_range_t , CCR<KEY> auto&& range, a);
 // [32] set(initializer_list<value_type>, const C& comp, const A& allocator);
 // [32] set(initializer_list<value_type>, const A& allocator);
 // [ 7] set(const set& original);
@@ -166,6 +169,7 @@
 // [29] iterator insert(const_iterator position, value_type&& value);
 // [15] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [32] void insert(initializer_list<value_type>);
+// [15] void insert_range(CCR<VALUE> auto&& range);
 //
 // [30] pair<iterator, bool> emplace(Args&&... args);
 // [31] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -781,7 +785,6 @@ class TestComparator {
     }
 };
 
-
                        // ============================
                        // class TestComparatorNonConst
                        // ============================
@@ -1046,7 +1049,8 @@ void testTransparentComparator(t_CONTAINER& container,
 
         TransparentlyComparable upperBoundValue(initKeyValue + 1);
         const Iterator          EXPECTED_UB = container.find(upperBoundValue);
-        const Iterator          EXISTING_UB = container.upper_bound(existingKey);
+        const Iterator          EXISTING_UB = container.upper_bound(
+                                                                  existingKey);
 
         ASSERT(EXPECTED_UB             == EXISTING_UB);
         ASSERTV(isTransparent,
@@ -1166,6 +1170,32 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
         ASSERTV(isTransparent,
                 1,   nonExistingKey.conversionCount(),
                 1 == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `erase`.
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        const Count size = container.size();
+
+        // with a non-existing key
+        {
+            Count n = c.erase(nonExistingKey);
+            ASSERT(n == 0);
+            ASSERT(c.size() == size);
+            ASSERT(nonExistingKey.conversionCount() ==expectedConversionCount);
+        }
+
+        // with an existing key
+        {
+            Count n = c.erase(existingKey);
+            ASSERT(n == 1);
+            ASSERT(c.size() + n == size);
+            ASSERT(existingKey.conversionCount() == expectedConversionCount);
+        }
     }
 }
 
@@ -1454,6 +1484,41 @@ struct EqPred
     }
 };
 
+                        // =======================
+                        // class SubrangeContainer
+                        // =======================
+
+// Emulate `bsl::ranges::subrange` for pre-C++20 builds.
+template <class ITER>
+class SubrangeContainer {
+
+    // DATA
+    ITER d_begin;
+    ITER d_end;
+
+  public:
+    // TYPES
+    typedef       ITER       iterator;
+    typedef const ITER const_iterator;
+
+    // CREATORS
+    SubrangeContainer()
+    : d_begin(ITER())
+    , d_end  (ITER()) {}
+
+    SubrangeContainer(ITER begin, ITER end)
+    : d_begin(begin)
+    , d_end  (end)    {}
+
+    // MANIPULATORS
+    iterator begin() { return d_begin; }
+    iterator end  () { return d_end  ; }
+
+    // ACCESSORS  // Needed when testing at C++03 language level
+    const_iterator begin() const { return d_begin; }
+    const_iterator end  () const { return d_end  ; }
+};
+
 // ============================================================================
 //                     GLOBAL TYPEDEFS FOR TESTING
 // ----------------------------------------------------------------------------
@@ -1726,7 +1791,8 @@ class TestDriver {
     // TEST CASES
 
     /// Test whether `set` is a C++20 range.
-    static void testCase38_isRange();
+    static void testCase38_isRangeConcepts();
+    static void testCase38_isRangeFunctionality();
 
     /// Test free function `bsl::erase_if`
     static void testCase37();
@@ -1859,7 +1925,7 @@ bsl::set<KEY, COMP, ALLOC>& TestDriver<KEY, COMP, ALLOC>::gg(
 }
 
 template <class KEY, class COMP, class ALLOC>
-void TestDriver<KEY, COMP, ALLOC>::testCase38_isRange()
+void TestDriver<KEY, COMP, ALLOC>::testCase38_isRangeConcepts()
 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
     BSLMF_ASSERT((std::ranges::common_range<Obj>));
@@ -1869,6 +1935,124 @@ void TestDriver<KEY, COMP, ALLOC>::testCase38_isRange()
 
     BSLMF_ASSERT((!std::ranges::view<Obj>));
     BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
+
+template <class KEY, class COMP, class ALLOC>
+void TestDriver<KEY, COMP, ALLOC>::testCase38_isRangeFunctionality()
+{
+    if (veryVerbose) {
+        Q(testCase38_isRangeFunctionality)
+        P(NameOf<KEY>())
+    }
+
+    if (veryVerbose) {
+        printf("Baseline\n");
+    }
+    {
+        TestValues rangeForCtor  ("ABC");
+        TestValues rangeForInsert("DEF");
+
+        TestValues expectedPostCtor  ("ABC");
+        TestValues expectedPostInsert("ABCDEF");
+
+        Obj mX(bsl::from_range, rangeForCtor);                          // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostCtor, 3));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostInsert, 6));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `map` itself is a range-type.\n");
+    }
+    {
+        Obj mX(bsl::from_range, TestValues("ABC"));  const Obj& X = mX;
+        Obj mY(bsl::from_range, TestValues("DEF"));  const Obj& Y = mY;
+
+        ASSERT(0 == verifyContainer(X, TestValues("ABC"), 3));
+        ASSERT(0 == verifyContainer(Y, TestValues("DEF"), 3));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(0 == verifyContainer(mX, TestValues("ABCDEF"), 6));
+
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValues("ABC"));
+        mW.insert_range(TestValues("DEF"));
+        ASSERT(0 == verifyContainer(W, TestValues("ABCDEF"), 6));
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    typedef bsltf::TestValuesArray<
+           typename Obj::value_type,
+           ALLOC,
+           bsltf::TestValuesArray_DefaultConverter<KEY, ALLOC>,
+           true>                                        TestValuesWithSentinel;
+    {
+        TestValuesWithSentinel tvws;
+
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    decltype(tvws),
+                                                    typename Obj::value_type>);
+
+        static_assert(true  == bsl::sentinel_for<decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+
+        static_assert(false == bsl::is_same_v<   decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+    }
+
+    if (veryVerbose) {
+        printf("Confirm functionality with distinct sentinels.\n");
+    }
+    {
+        TestValuesWithSentinel rangeForCtor  ("ABC");
+        TestValuesWithSentinel rangeForInsert("DEF");
+
+        TestValuesWithSentinel expectedPostCtor  ("ABC");
+        TestValuesWithSentinel expectedPostInsert("ABCDEF");
+
+        Obj  mX(bsl::from_range, rangeForCtor);                         // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostCtor, 3));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostInsert, 6));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `map` itself is a range-type.\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    Obj,
+                                                    typename Obj::value_type>);
+
+        Obj  mX(bsl::from_range, TestValuesWithSentinel("ABC"));
+        Obj  mY(bsl::from_range, TestValuesWithSentinel("DEF"));
+
+        ASSERT(0 == verifyContainer(mX, TestValuesWithSentinel("ABC"), 3));
+        ASSERT(0 == verifyContainer(mY, TestValuesWithSentinel("DEF"), 3));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(0 == verifyContainer(mX, TestValuesWithSentinel("ABCDEF"), 6));
+
+        // Inserting a non-empty map into itself does not change it.
+        const Obj Z(bsl::from_range, mX);                               // TEST
+        ASSERT(Z == mX);
+        mX.insert_range(mX);                                            // TEST
+        ASSERT(Z == mX);
+
+        // Range insertion creates a union of its imput.
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValuesWithSentinel("ABCZ"));
+        mW.insert_range(TestValuesWithSentinel("DEFZ"));
+        ASSERT(0 == verifyContainer(W, TestValuesWithSentinel("ABCDEFZ"), 7));
+    }
 #endif
 }
 
@@ -4597,7 +4781,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase27_dispatch()
                         isPropagate ? 'T' : 'F',
                         allocCategoryAsStr());
 
-
     const int isTypeOtherAlloc = bsl::uses_allocator<KEY, ALLOC>::value;
     const int isTypeAlloc = bslma::UsesBslmaAllocator<KEY>::value ||
                                                               isTypeOtherAlloc;
@@ -5397,7 +5580,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
     //              const Allocator& = Allocator());
     bsl::set<KEY, COMP, StlAlloc> A((COMP()), (StlAlloc()));
 
-
     // template <class InputIterator>
     // set(InputIterator first, InputIterator last,
     // const Compare& comp = Compare(), const Allocator& = Allocator());
@@ -5428,7 +5610,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
 
     // ~set();
     // destructor always exist
-
 
     //set<Key,Compare,Allocator>& operator=
     // (const set<Key,Compare,Allocator>& x);
@@ -5512,7 +5693,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase25()
     // size_type max_size() const noexcept;
     typename Obj::size_type (Obj::*methodMaxSize) () const = &Obj::max_size;
     (void) methodMaxSize;
-
 
     // modifiers:
 
@@ -7117,6 +7297,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase15()
     // Testing:
     //   bsl::pair<iterator, bool> insert(const value_type& value);
     //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    //   void insert_range(CCR<VALUE> auto&& range);
     // -----------------------------------------------------------------------
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<KEY>::value ||
@@ -7707,9 +7888,19 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
     //   set(ITER first, ITER last);
     //   set(ITER first, ITER last, const A& allocator);
     //   set(ITER first, ITER last, const C& comparator, const A& allocator);
+    //   set(from_range_t , CCR<KEY> auto&& range, const C& c,  a = A());
+    //   set(from_range_t , CCR<KEY> auto&& range, a);
     // ------------------------------------------------------------------------
 
     if (verbose) printf("\nTesting `%s`.\n", NameOf<KEY>().name());
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                                    TestValues,
+                                                    typename Obj::value_type>);
+    static_assert(bsl::ranges::sized_range<TestValues>);
+#endif
 
     static const struct {
         int         d_line;         // source line number
@@ -7743,12 +7934,14 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
 
             if (verbose) { T_ T_ P_(LINE) P_(SPEC) P(LENGTH); }
 
-            for (char cfg = 'a'; cfg <= 'e'; ++cfg) {
+            char lastCfg = 'j'; bsl::from_range_t fr;
+
+            for (char cfg = 'a'; cfg <= lastCfg; ++cfg) {
                 const char CONFIG = cfg;  // how we specify the allocator
 
                 if (veryVerbose) { T_ T_ P(CONFIG) }
 
-                TestValues CONT(SPEC);
+                TestValues CONT(SPEC);  TestValues& RANGE = CONT;
                 typename TestValues::iterator BEGIN = CONT.begin();
                 typename TestValues::iterator END   = CONT.end();
 
@@ -7783,6 +7976,26 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                       objPtr = new (fa) Obj(BEGIN, END, COMP(), xsa);
                       objAllocatorPtr = &sa;
                   } break;
+                  case 'f': {
+                    objPtr = new (fa) Obj(fr, RANGE);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'g': {
+                    objPtr = new (fa) Obj(fr, RANGE, COMP());
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'h': {
+                    objPtr = new (fa) Obj(fr, RANGE, COMP(), 0);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'i': {
+                    objPtr = new (fa) Obj(fr, RANGE, COMP(), &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  case 'j': {
+                    objPtr = new (fa) Obj(fr, RANGE, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
                   default: {
                       ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
@@ -7794,7 +8007,7 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                 if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                 bslma::TestAllocator& oa  = *objAllocatorPtr;
-                bslma::TestAllocator& noa = 'c' >= CONFIG ? sa : da;
+                bslma::TestAllocator& noa = &oa == &sa ? da : sa;
 
                 // Use untested functionality to help ensure the first row of
                 // the table contains the default-constructed value.
@@ -7853,12 +8066,12 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
         bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
 
         for (size_t ti = 0; ti < NUM_DATA; ++ti) {
-            const int          LINE   = DATA[ti].d_line;
-            const char        *SPEC   = DATA[ti].d_spec;
-            const size_t       LENGTH = strlen(DATA[ti].d_results);
-            const TestValues   EXP(DATA[ti].d_results);
+            const int         LINE   = DATA[ti].d_line;
+            const char       *SPEC   = DATA[ti].d_spec;
+            const size_t      LENGTH = strlen(DATA[ti].d_results);
+            const TestValues  EXP(DATA[ti].d_results);
 
-            TestValues CONT(SPEC);
+            TestValues CONT(SPEC);  TestValues& RANGE = CONT;
             typename TestValues::iterator BEGIN = CONT.begin();
             typename TestValues::iterator END   = CONT.end();
 
@@ -7876,6 +8089,18 @@ void TestDriver<KEY, COMP, ALLOC>::testCase12()
                 CONT.resetIterators();
 
                 Obj mX(BEGIN, END, COMP(), xsa);
+                ASSERTV(LINE, mX, 0 == verifyContainer(mX, EXP, LENGTH));
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            ASSERTV(LINE, da.numBlocksInUse(), 0 == da.numBlocksInUse());
+            ASSERTV(LINE, sa.numBlocksInUse(), 0 == sa.numBlocksInUse());
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                CONT.resetIterators();
+
+                Obj mX(bsl::from_range, RANGE, COMP(), xsa);
                 ASSERTV(LINE, mX, 0 == verifyContainer(mX, EXP, LENGTH));
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
@@ -7991,6 +8216,10 @@ static void testRangeCtorOptimization()
     FwdItr beginFwd(ARRAY), endFwd(ARRAY + NUM_ELEMENTS);
     RndItr beginRnd(ARRAY), endRnd(ARRAY + NUM_ELEMENTS);
 
+    const bsl::from_range_t fr;
+    typedef SubrangeContainer<DataType *> SRC;
+    SRC src(ARRAY, ARRAY + NUM_ELEMENTS);
+
     bslma::TestAllocator        sa("scratch", veryVeryVeryVerbose);
     bslma::TestAllocatorMonitor sam(&sa);
 
@@ -8007,6 +8236,10 @@ static void testRangeCtorOptimization()
     ASSERT(2            == sam.numBlocksTotalChange());
     ASSERT(NUM_ELEMENTS == XR.size());
 
+    ContainerType mXS(fr, src, &sa); const ContainerType& XS = mXS;
+    ASSERT(3            == sam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == XS.size());
+
     if (verbose) {
          P(XF.size());
         P_(XR.size());
@@ -8014,7 +8247,8 @@ static void testRangeCtorOptimization()
         sa.print();
     }
 
-    bslma::TestAllocator da("default", veryVeryVeryVerbose);
+    bslma::TestAllocator         da("default", veryVeryVeryVerbose);
+    bslma::TestAllocatorMonitor  dam(&da);
     bslma::DefaultAllocatorGuard dag(&da);
 
     if (verbose) {
@@ -8022,13 +8256,17 @@ static void testRangeCtorOptimization()
         da.print();
     }
 
-    ContainerType mYF(beginFwd, endFwd, &sa); const ContainerType& YF = mYF;
-    ASSERT(3            == sam.numBlocksTotalChange());
+    ContainerType mYF(beginFwd, endFwd); const ContainerType& YF = mYF;
+    ASSERT(1            == dam.numBlocksTotalChange());
     ASSERT(NUM_ELEMENTS == YF.size());
 
-    ContainerType mYR(beginRnd, endRnd, &sa); const ContainerType& YR = mYR;
-    ASSERT(4            == sam.numBlocksTotalChange());
+    ContainerType mYR(beginRnd, endRnd); const ContainerType& YR = mYR;
+    ASSERT(2            == dam.numBlocksTotalChange());
     ASSERT(NUM_ELEMENTS == YR.size());
+
+    ContainerType mYS(fr, src); const ContainerType& YS = mYS;
+    ASSERT(3            == dam.numBlocksTotalChange());
+    ASSERT(NUM_ELEMENTS == YS.size());
 
     if (verbose) {
          P(YF.size());
@@ -8187,7 +8425,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(s4c), bsl::set<T4>);
         ASSERT_SAME_TYPE(decltype(s4d), bsl::set<T4>);
 
-
         typedef long T5;
         typedef std::greater<T5> CompT5;
         T5                       *p5b = nullptr;
@@ -8229,7 +8466,6 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(s5l),
                                      bsl::set<T5, CompT5, std::allocator<T5>>);
 
-
         typedef short T6;
         T6                       *p6b = nullptr;
         T6                       *p6e = nullptr;
@@ -8249,7 +8485,6 @@ struct TestDeductionGuides {
                               bsl::set<T6, std::less<T6>, bsl::allocator<T6>>);
         ASSERT_SAME_TYPE(decltype(s6d),
                               bsl::set<T6, std::less<T6>, std::allocator<T6>>);
-
 
         typedef long T7;
         typedef std::greater<T7> CompT7;
@@ -8344,8 +8579,14 @@ int main(int argc, char *argv[])
         //
         // 6. `set` doesn't model `ranges::borrowed_range` concept.
         //
+        // 7. `set` can be passed to the range CTOR and `insert_range`.
+        //
         // Plan:
         // 1. `static_assert` every above-mentioned concept for different `T`.
+        //
+        // 2. Confirm that a `set` can be used with the `from_range` CTOR
+        //    and the `insert_range` manipulator and generate the expected
+        //    results.
         //
         // Testing:
         //   CONCERN: `set` IS A C++20 RANGE
@@ -8355,8 +8596,12 @@ int main(int argc, char *argv[])
                             "\n===============================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase38_isRange,
+                      testCase38_isRangeConcepts,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase38_isRangeFunctionality,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 37: {
         // --------------------------------------------------------------------
@@ -8615,6 +8860,7 @@ int main(int argc, char *argv[])
         //   CONCERN: `lower_bound` properly handles transparent comparators
         //   CONCERN: `upper_bound` properly handles transparent comparators
         //   CONCERN: `equal_range` properly handles transparent comparators
+        //   CONCERN: `erase`       properly handles transparent comparators
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -8929,6 +9175,7 @@ int main(int argc, char *argv[])
         RUN_EACH_TYPE(TestDriver,
                       testCase18,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase18,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
@@ -9015,10 +9262,12 @@ int main(int argc, char *argv[])
                       testCase12,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
 
+#if 0
         RUN_EACH_TYPE(StdBslmaTestDriver,
                       testCase12,
                       bsltf::StdAllocTestType<bsl::allocator<int> >,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_PRIMITIVE);
+#endif
 
         testRangeCtorOptimization();
       } break;

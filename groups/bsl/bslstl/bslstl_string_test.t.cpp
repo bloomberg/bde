@@ -4,6 +4,7 @@
 #include <bslstl_algorithm.h>    // `count`, `sort`
 #include <bslstl_forwarditerator.h>
 #include <bslstl_string.h>
+#include <bslstl_ranges.h>       // `bsl::from_ranges_t`
 
 #include <bsla_maybeunused.h>
 
@@ -20,8 +21,10 @@
 #include <bslh_hash.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_integralconstant.h>  // `bsl::true_type`, `bsl::false_type`
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
+#include <bslmf_voidtype.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
@@ -32,6 +35,7 @@
 #include <bsls_libraryfeatures.h>
 #include <bsls_macrorepeat.h>
 #include <bsls_nameof.h>
+#include <bsls_nullptr.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_stopwatch.h>
@@ -51,9 +55,6 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <utility>      // `move`
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-#include <ranges>
-#endif
 
 #include <limits.h>     // `CHAR_MAX`
 #include <stddef.h>
@@ -165,10 +166,14 @@ using bsls::nameOfType;
 // [ 7] basic_string(MovableRef<basic_string> original, basicAllocator);
 // [12] basic_string(const basic_string& str, pos, a = A());
 // [12] basic_string(const basic_string& str, pos, n, a = A());
+// [12] basic_string(MovableRef<basic_string> str, pos, a = A());
+// [12] basic_string(MovableRef<basic_string> str, pos, n, a = A());
 // [12] basic_string(const CHAR_TYPE *s, a = A());
+// [47] basic_string(bsl::nullptr_t ) = delete;
 // [12] basic_string(const CHAR_TYPE *s, size_type n, a = A());
 // [12] basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
 // [12] template<class Iter> basic_string(Iter first, Iter last, a = A());
+// [12] basic_string(from_range_t , CCR<CHAR> auto&& range, a = A()):
 // [26] basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
 // [  ] basic_string(const StringRefData& strRefData, a = A());
 // [33] basic_string(initializer_list<CHAR_TYPE> values, basicAllocator);
@@ -207,6 +212,7 @@ using bsls::nameOfType;
 // [13] basic_string& assign(const STRING_VIEW_LIKE_TYPE& s, p, n = npos);
 // [13] basic_string& assign(size_type n, CHAR_TYPE c);
 // [13] template <class Iter> basic_string& assign(Iter first, Iter last);
+// [13] basic_string& assign_range(CCR<CHAR> auto&& range):
 // [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
 // [17] basic_string& append(const basic_string& str);
 // [17] basic_string& append(const basic_string& str, pos, n = npos);
@@ -216,6 +222,7 @@ using bsls::nameOfType;
 // [17] basic_string& append(const CHAR_TYPE *s);
 // [17] basic_string& append(size_type n, CHAR_TYPE c);
 // [17] template <class Iter> basic_string& append(Iter first, Iter last);
+// [17] basic_string& append_range(CCR<CHAR> auto&& range):
 // [33] basic_string& append(initializer_list<CHAR_TYPE> values);
 // [ 2] void push_back(CHAR_TYPE c);
 // [18] basic_string& insert(size_type pos1, const string& str);
@@ -228,6 +235,7 @@ using bsls::nameOfType;
 // [18] iterator insert(const_iterator pos, CHAR_TYPE value);
 // [18] iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
 // [18] template <class Iter> iterator insert(const_iterator, Iter, Iter);
+// [18] iterator insert_range(CCR<CHAR_TYPE> auto&& range):
 // [33] iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
 // [19] void pop_back();
 // [19] iterator erase(size_type pos = 0, size_type n = npos);
@@ -246,6 +254,7 @@ using bsls::nameOfType;
 // [20] basic_string& replace(const_iterator p, q, const C *s);
 // [20] basic_string& replace(const_iterator p, q, size_type n2, C c);
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
+// [20] basic_string& replace_with_range(Citr p, q, CCR<CHAR> auto&& r);
 // [36] CHAR_TYPE *data();
 // [21] void swap(basic_string& other);
 // [39] void shrink_to_fit();
@@ -302,7 +311,8 @@ using bsls::nameOfType;
 // [22] size_type find_last_not_of(const C *s, pos, n) const;
 // [22] size_type find_last_not_of(const C *s, pos = npos) const;
 // [22] size_type find_last_not_of(C c, pos = npos) const;
-// [23] string substr(pos, n) const;
+// [23] string substr(pos, n) const &;
+// [23] string substr(pos, n) &&;
 // [23] size_type copy(char *s, n, pos = 0) const;
 // [24] int compare(const string& str) const;
 // [24] int compare(pos1, n1, const string& str) const;
@@ -417,7 +427,8 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [47] USAGE EXAMPLE
+// [49] USAGE EXAMPLE
+// [48] CONCERN: STRING CLASS IS ITSELF A RANGE
 // [11] CONCERN: The object has the necessary type traits
 // [26] `npos` VALUE
 // [25] CONCERN: `std::length_error` is used properly
@@ -570,7 +581,6 @@ const char VL = 'L';
 /// number of characters to a default object causes a reallocation.
 const size_t SHORT_STRING_BUFFER_BYTES
                            = (20 + sizeof(size_t) - 1) & ~(sizeof(size_t) - 1);
-
 
 BSLA_MAYBE_UNUSED const size_t INITIAL_CAPACITY_FOR_NON_EMPTY_OBJECT = 1;
                                 // bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT - 1;
@@ -1383,7 +1393,6 @@ inline void InheritsFromStdString::set(const char *value)
     this->assign(value);
 }
 
-
 template <class TYPE>
 class FillN
 {
@@ -1432,6 +1441,107 @@ public:
         return d_len;
     }
 };
+
+// ============================================================================
+//              HELPER CLASSES FOR TESTING DELETED CONTRUCTORS
+// ----------------------------------------------------------------------------
+
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+
+                        // ==============================
+                        // struct CanConstructFromNullptr
+                        // ==============================
+
+template <class OBJ, class = void>
+struct CanConstructFromNullptr
+: bsl::false_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromNullptr<OBJ,
+                               bsl::void_t<decltype(OBJ(nullptr))> >
+: bsl::true_type
+{
+};
+
+                        // ===============================
+                        // struct CanConstructFromLiteral0
+                        // ===============================
+
+template <class OBJ, class = void>
+struct CanConstructFromLiteral0
+: bsl::false_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromLiteral0<OBJ,
+                                bsl::void_t<decltype(OBJ(0))> >
+: bsl::true_type
+{
+};
+
+                        // ====================================
+                        // struct CanConstructFromStringLiteral
+                        // ====================================
+
+template <class TYPE, class OBJ, class = void>
+struct CanConstructFromStringLiteral
+: bsl::false_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromStringLiteral<char,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ("hello world"))>
+                                     >
+: bsl::true_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromStringLiteral<wchar_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(L"hello world"))>
+                                    >
+: bsl::true_type
+{
+};
+
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+template <class OBJ>
+struct CanConstructFromStringLiteral<char8_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(u8"helloworld"))>
+                                    >
+: bsl::true_type
+{
+};
+# endif // BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+template <class OBJ>
+struct CanConstructFromStringLiteral<char16_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(u"hello world"))>
+                                    >
+: bsl::true_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromStringLiteral<char32_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(U"hello world"))>
+                                    >
+: bsl::true_type
+{
+};
+
+# endif // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+#endif  // BSLS_COMPILERFEATURES_FULL_CPP11
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
@@ -1623,6 +1733,11 @@ struct TestDriver {
 
     // TEST CASES
 
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+    /// Test the deletion of constructor accepting `nullptr`.
+    static void testCase47();
+#endif
+
     /// Testing `operator<<(ostream&, const basic_string_view&)`
     static void testCase46();
 
@@ -1807,7 +1922,12 @@ void TestDriver<TYPE,TRAITS,ALLOC>::checkCompare(const Obj& X,
     typename Obj::size_type rlen = min(X.length(), Y.length());
     int ret = TRAITS::compare(X.data(), Y.data(), rlen);
     if (ret) {
-        ASSERT(ret == result);
+        ASSERTV(ret,   result,
+                (ret < 0) == (result < 0));
+        ASSERTV(ret,   result,
+                (ret > 0) == (result > 0));
+        ASSERTV(ret,   result,
+                (ret == 0) == (result == 0));
         return;                                                       // RETURN
     }
     if (X.size() > Y.size()) {
@@ -1934,6 +2054,65 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE,TRAITS,ALLOC>::testCase47()
+    // ------------------------------------------------------------------------
+    // DELETED CONSTRUCTOR: NULL POINTER CONSTANTS
+    //
+    // Concern:
+    // 1. A string cannot be constructed from a `nullptr`.
+    //
+    // 2. A string cannot be constructed from a literal `0`.
+    //
+    // 3. A string can still be constructed from a string literal via the other
+    //    single-argument constructor.
+    //
+    // 4. The `CanConstructFrom*` traits created for this test report correct
+    //    results.
+    //
+    // Plan:
+    // 1. Create a set of traits that use the `bsl::void_t` idiom to determine
+    //    whether nor not construction from a specific literal is well-formed.
+    //    If so, the trait inherits from `bsl::true_type`, otherwise from
+    //    `bsl::false_type`.
+    //
+    //    * `CanConstructFromNullptr`,             expect `false`
+    //    * `CanConstructFromLiteral0`,            expect `false`
+    //    * `CanConstructFromStringLiteral<TYPE>`, expect `true`
+    //
+    // 2. Confirm the behavior of the `CanConstructFrom*` traits by showing
+    //    that the opposite values are returned from a test type,
+    //    `NullptrsWelcome`, that manifestly can be constructed from `nullptr`.
+    //
+    // Testing:
+    //   basic_string(bsl::nullptr_t ) = delete;
+    // ------------------------------------------------------------------------
+{
+    if (verbose) printf("value  type: %s\n", NameOf<TYPE>().name());
+    if (verbose) printf("object type: %s\n", NameOf<Obj> ().name());
+
+    // Test `CanConstructFrom*` traits.
+    struct NullptrsWelcome {
+        NullptrsWelcome(bsl::nullptr_t ) { }  // Not deleted!
+    };
+
+    typedef NullptrsWelcome NPsW;
+
+    NPsW a(nullptr);
+    NPsW b(0);
+
+    ASSERT(  CanConstructFromNullptr <NPsW>::value);
+    ASSERT(  CanConstructFromLiteral0<NPsW>::value);
+    ASSERT((!CanConstructFromStringLiteral<TYPE, NPsW>::value));
+
+    // Test `basic_string<TYPE>`
+    ASSERT( !CanConstructFromNullptr <Obj>::value);
+    ASSERT( !CanConstructFromLiteral0<Obj>::value);
+    ASSERT(( CanConstructFromStringLiteral<TYPE, Obj>::value));
+}
+#endif
 
 template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase46()
@@ -2305,13 +2484,13 @@ template <class TYPE, class TRAITS, class ALLOC>
 void TestDriver<TYPE, TRAITS, ALLOC>::testCase43_isRange()
 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-    BSLMF_ASSERT((std::ranges::common_range<Obj>));
-    BSLMF_ASSERT((std::ranges::contiguous_range<Obj>));
-    BSLMF_ASSERT((std::ranges::sized_range<Obj>));
-    BSLMF_ASSERT((std::ranges::viewable_range<Obj>));
+    BSLMF_ASSERT((bsl::ranges::    common_range<Obj>));
+    BSLMF_ASSERT((bsl::ranges::contiguous_range<Obj>));
+    BSLMF_ASSERT((bsl::ranges::     sized_range<Obj>));
+    BSLMF_ASSERT((bsl::ranges::  viewable_range<Obj>));
 
-    BSLMF_ASSERT((!std::ranges::view<Obj>));
-    BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+    BSLMF_ASSERT((!bsl::ranges::          view<Obj>));
+    BSLMF_ASSERT((!bsl::ranges::borrowed_range<Obj>));
 #endif
 }
 
@@ -7430,7 +7609,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase24()
                         checkCompare(UN, VN,
                                      U.compare(i, U_LEN, SVL, j, V_LEN));
 
-
                         checkCompare(U1, VN,
                                      U.compare(i,     1, V,   j       ));
                         checkCompare(UN, VN,
@@ -7601,7 +7779,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
     //   `copy` buffer and verify that padding has not been written into.
     //
     // Testing:
-    //   string substr(pos, n) const;
+    //   string substr(pos, n) const &;
+    //   string substr(pos, n) &&;
     //   size_type copy(char *s, n, pos = 0) const;
     // ------------------------------------------------------------------------
 
@@ -7680,6 +7859,22 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase23()
             }
         }
     }
+
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_REF_QUALIFIERS
+    if (verbose) printf("\tTesting substr(pos, n) &&.\n");
+    {
+        const size_t k_LONG_STRING_LENGTH = 2 * k_SHORT_BUFFER_CAPACITY_CHAR;
+        const TYPE ch('.');
+        Obj tmp(k_LONG_STRING_LENGTH, ch);
+        ASSERT(tmp.length() == k_LONG_STRING_LENGTH);
+        ASSERT(tmp.find_first_not_of(ch) == npos);
+
+        Obj sub = std::move(tmp).substr();
+        ASSERT(sub.length() == k_LONG_STRING_LENGTH);
+        ASSERT(sub.find_first_not_of(ch) == npos);
+        ASSERT(tmp.empty());
+    }
+#endif
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (verbose) printf("\t\tWith exceptions.\n");
@@ -9715,6 +9910,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     //   replace(const_iterator first, const_iterator last, const C *s, n2);
     //   replace(const_iterator first, const_iterator last, const C *s);
     //   basic_string& replace(const_iterator p,q,const STRING_VIEW_LIKE&);
+    //   basic_string& replace_with_range(Citr p, q, CCR<CHAR> auto&& r);
     // ------------------------------------------------------------------------
 
     typedef bslstl::StringRefData<TYPE>           StringRefData;
@@ -9759,7 +9955,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
         REPLACE_CONST_STRING_BY_ITERATOR_AT_ITERATOR = 19,
         REPLACE_CSTRING_N_AT_ITERATOR                = 20,
         REPLACE_CSTRING_AT_ITERATOR                  = 21,
-        REPLACE_STRING_MODE_LAST                     = 21
+        REPLACE_STRING_BY_RANGE_AT_ITERATOR          = 22,
+        REPLACE_CONST_STRING_BY_RANGE_AT_ITERATOR    = 23,
+        REPLACE_STRING_MODE_LAST                     = 23
     };
 
     static const struct {
@@ -9946,51 +10144,75 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                             // string& replace(iterator p,
                             //                 iterator q,
                             //                 const string& str);
-                            mX.replace(mX.begin() + BEGIN,
-                                       mX.begin() + END,
-                                       Y);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     Y);
+                            ASSERT(&result == &mX);
                           } break;
                           case REPLACE_STRINGREF_AT_ITERATOR: {
                             // string& replace(iterator p,
                             //                 iterator q,
                             //                 const StringRef& str);
-                            mX.replace(mX.begin() + BEGIN,
-                                       mX.begin() + END,
-                                       SR);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     SR);
+                            ASSERT(&result == &mX);
                           } break;
                           case REPLACE_STRINGVIEW_AT_ITERATOR: {
                             // string& replace(iterator p,
                             //                 iterator q,
                             //                 const string_view& str);
-                            mX.replace(mX.begin() + BEGIN,
-                                       mX.begin() + END,
-                                       SV);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     SV);
+                            ASSERT(&result == &mX);
                           } break;
                           case REPLACE_STRINGVIEWLIKE_AT_ITERATOR: {
                             // string& replace(iterator p,
                             //                 iterator q,
                             //                 const StringViewLike& str);
-                            mX.replace(mX.begin() + BEGIN,
-                                       mX.begin() + END,
-                                       SVL);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     SVL);
+                            ASSERT(&result == &mX);
                           } break;
                           case REPLACE_STRING_BY_ITERATOR_AT_ITERATOR: {
                             // template <class InputIter>
-                            //   void replace(iterator p, iterator q,
-                            //                InputIter first, last);
-                            mX.replace(mX.begin() + BEGIN,
-                                       mX.begin() + END,
-                                       mU.begin(),
-                                       mU.end());
+                            // string& replace(iterator p, iterator q,
+                            //                 InputIter first, last);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     mU.begin(),
+                                                     mU.end());
+                            ASSERT(&result == &mX);
                           } break;
                           case REPLACE_CONST_STRING_BY_ITERATOR_AT_ITERATOR: {
                             // template <class InputIter>
-                            //   void replace(iterator p, iterator q,
-                            //                InputIter first, last);
-                            mX.replace(mX.begin() + BEGIN,
-                                       mX.begin() + END,
-                                       U.begin(),
-                                       U.end());
+                            // string& replace(iterator p, iterator q,
+                            //                 InputIter first, last);
+                            Obj& result = mX.replace(mX.begin() + BEGIN,
+                                                     mX.begin() + END,
+                                                     U.begin(),
+                                                     U.end());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case REPLACE_STRING_BY_RANGE_AT_ITERATOR: {
+                            // string& replace(iterator p, iterator q,
+                            //                 auto&& range);
+                            Obj& result = mX.replace_with_range(
+                                                            mX.begin() + BEGIN,
+                                                            mX.begin() + END,
+                                                            mU);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case REPLACE_CONST_STRING_BY_RANGE_AT_ITERATOR: {
+                            // string& replace(iterator p, iterator q,
+                            //                 auto&& range);
+                            Obj& result = mX.replace_with_range(
+                                                            mX.begin() + BEGIN,
+                                                            mX.begin() + END,
+                                                            U);
+                            ASSERT(&result == &mX);
                           } break;
                           default: {
                             printf("***UNKNOWN REPLACE MODE***\n");
@@ -10461,6 +10683,20 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                                            U.begin(),
                                            U.end());
                               } break;
+                              case REPLACE_STRING_BY_RANGE_AT_ITERATOR: {
+                                // replace(const_iterator p, const_iterator q,
+                                //         auto&& range);
+                                mX.replace_with_range(mX.begin() + BEGIN,
+                                                      mX.begin() + END,
+                                                      mU);
+                              } break;
+                              case REPLACE_CONST_STRING_BY_RANGE_AT_ITERATOR: {
+                                // replace(const_iterator p, const_iterator q,
+                                //         auto&& range);
+                                mX.replace_with_range(mX.begin() + BEGIN,
+                                                      mX.begin() + END,
+                                                      U);
+                              } break;
                               default: {
                                 printf("***UNKNOWN REPLACE MODE***\n");
                                 ASSERT(0);
@@ -10488,7 +10724,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
-
 
 #ifdef BDE_BUILD_TARGET_EXC
     if (verbose) printf("\tWith `std::out_of_range` exceptions.\n");
@@ -10824,6 +11059,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
                             mX.replace(mX.begin() + BEGIN, mX.begin() + END,
                                        X.begin(), X.end());
                           } break;
+                          case REPLACE_STRING_BY_RANGE_AT_ITERATOR: {
+                            // replace(const_iterator p, q, auto&& r);
+                            mY.replace_with_range(
+                                       mY.begin() + BEGIN, mY.begin() + END,
+                                       mX);
+                            mX.replace_with_range(
+                                       mX.begin() + BEGIN, mX.begin() + END,
+                                       mX);
+                          } break;
+                          case REPLACE_CONST_STRING_BY_RANGE_AT_ITERATOR: {
+                            // replace_with_range(const_iterator p, q,
+                            //                    auto&& r);
+                            mY.replace_with_range(
+                                       mY.begin() + BEGIN, mY.begin() + END,
+                                       X);
+                            mX.replace_with_range(
+                                       mX.begin() + BEGIN, mX.begin() + END,
+                                       X);
+                          } break;
                           case REPLACE_CSTRING_N_AT_ITERATOR: {
                             // replace(const_iterator p, q, const C *s, n);
                             mY.replace(mY.begin() + BEGIN, mY.begin() + END,
@@ -10858,7 +11112,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Range(const CONTAINER&)
     }
     ASSERT(0 == testAllocator.numMismatches());
     ASSERT(0 == testAllocator.numBlocksInUse());
-
 
     for (int replaceMode  = REPLACE_SUBSTRING_AT_INDEX;
              replaceMode <= REPLACE_SUBSTRINGVIEWLIKE_AT_INDEX;
@@ -11205,39 +11458,41 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase20Negative()
         Obj        mY(g("AB"));  // replacement
         const Obj& Y = mY;
 
-        // first < begin()
+        if (veryVeryVerbose) printf("\t\tfirst < begin()\n");
         ASSERT_SAFE_FAIL(mX.replace(X.begin() - 1, X.end(),
                                     mY.begin(), mY.end()));
 
-        // first > end()
+        if (veryVeryVerbose) printf("\t\tfirst > end()\n");
         ASSERT_SAFE_FAIL(mX.replace(X.end() + 1, X.end(),
                                     mY.begin(), mY.end()));
 
-        // last < begin()
+        if (veryVeryVerbose) printf("\t\tlast < begin()\n");
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.begin() - 1,
                                     mY.begin(), mY.end()));
 
-        // last > end()
+        if (veryVeryVerbose) printf("\t\tlast > end()\n");
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end() + 1,
                                     mY.begin(), mY.end()));
 
-        // first > last
+        if (veryVeryVerbose) printf("\t\tfirst > last\n");
         ASSERT_SAFE_FAIL(mX.replace(X.begin() + 1, X.begin(),
                                     mY.begin(), mY.end()));
 
-        // stringFirst > stringLast (non-`const` iterators)
+        if (veryVeryVerbose)
+            printf("\t\tstringFirst > stringLast (non-`const` iterators)\n");
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(),
                                     mY.end(), mY.begin()));
 
-        // stringFirst > stringLast (const iterators)
+        if (veryVeryVerbose)
+            printf("\t\tstringFirst > stringLast (const iterators)\n");
         ASSERT_SAFE_FAIL(mX.replace(X.begin(), X.end(),
                                     Y.end(), Y.begin()));
 
-        // pass (non-`const` iterators)
+        if (veryVeryVerbose) printf("\t\tpass (non-`const` iterators)\n");
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(),
                                     mY.begin(), mY.end()));
 
-        // pass (const iterators)
+        if (veryVeryVerbose) printf("\t\tpass (const iterators)\n");
         ASSERT_SAFE_PASS(mX.replace(X.begin(), X.end(),
                                     Y.begin(), Y.end()));
     }
@@ -12536,6 +12791,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
     //   basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
     //   basic_string& insert(size_type pos1, const STRING_VIEW_LIKE_TYPE& s);
     //   basic_string& insert(p1, const STRING_VIEW_LIKE_TYPE& s, p2, n=npos);
+    //   iterator insert_range(CCR<CHAR_TYPE> auto&& range):
     // --------------------------------------------------------------------
 
     typedef bslstl::StringRefData<TYPE>           StringRefData;
@@ -12557,24 +12813,26 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                    >::value;
 
     enum {
-        INSERT_STRING_MODE_FIRST               =  0,
-        INSERT_SUBSTRING_AT_INDEX              =  0,
-        INSERT_SUBSTRING_AT_INDEX_NPOS         =  1,
-        INSERT_SUBSTRINGREF_AT_INDEX           =  2,
-        INSERT_SUBSTRINGVIEW_AT_INDEX          =  3,
-        INSERT_SUBSTRINGVIEWLIKE_AT_INDEX      =  4,
-        INSERT_SUBSTRINGREF_AT_INDEX_NPOS      =  5,
-        INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS     =  6,
-        INSERT_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS =  7,
-        INSERT_STRING_AT_INDEX                 =  8,
-        INSERT_STRINGREF_AT_INDEX              =  9,
-        INSERT_STRINGVIEW_AT_INDEX             = 10,
-        INSERT_STRINGVIEWLIKE_AT_INDEX         = 11,
-        INSERT_CSTRING_N_AT_INDEX              = 12,
-        INSERT_CSTRING_AT_INDEX                = 13,
-        INSERT_STRING_AT_ITERATOR              = 14,
-        INSERT_STRING_AT_CONST_ITERATOR        = 15,
-        INSERT_STRING_MODE_LAST                = 15
+        INSERT_STRING_MODE_FIRST                        =  0,
+        INSERT_SUBSTRING_AT_INDEX                       =  0,
+        INSERT_SUBSTRING_AT_INDEX_NPOS                  =  1,
+        INSERT_SUBSTRINGREF_AT_INDEX                    =  2,
+        INSERT_SUBSTRINGVIEW_AT_INDEX                   =  3,
+        INSERT_SUBSTRINGVIEWLIKE_AT_INDEX               =  4,
+        INSERT_SUBSTRINGREF_AT_INDEX_NPOS               =  5,
+        INSERT_SUBSTRINGVIEW_AT_INDEX_NPOS              =  6,
+        INSERT_SUBSTRINGVIEWLIKE_AT_INDEX_NPOS          =  7,
+        INSERT_STRING_AT_INDEX                          =  8,
+        INSERT_STRINGREF_AT_INDEX                       =  9,
+        INSERT_STRINGVIEW_AT_INDEX                      = 10,
+        INSERT_STRINGVIEWLIKE_AT_INDEX                  = 11,
+        INSERT_CSTRING_N_AT_INDEX                       = 12,
+        INSERT_CSTRING_AT_INDEX                         = 13,
+        INSERT_STRING_AT_ITERATOR_FROM_ITERATORS        = 14,
+        INSERT_STRING_AT_INTERATOR_FROM_CONST_ITERATORS = 15,
+        INSERT_STRING_AT_ITERATOR_FROM_RANGE            = 16,
+        INSERT_STRING_AT_INTERATOR_FROM_CONST_RANGE     = 17,
+        INSERT_STRING_MODE_LAST                         = 17
     };
 
     static const struct {
@@ -12732,15 +12990,32 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                             Obj &result = mX.insert(POS, Y.c_str());
                             ASSERT(&result == &mX);
                           } break;
-                          case INSERT_STRING_AT_ITERATOR: {
+                          case INSERT_STRING_AT_ITERATOR_FROM_ITERATORS: {
                             // template <class InputIter>
                             // insert(const_iterator p, InputIter first, last);
+                            typename Obj::iterator result =
                             mX.insert(mX.cbegin() + POS, mU.begin(), mU.end());
+                            ASSERT(mX.cbegin() + POS == result);
                           } break;
-                          case INSERT_STRING_AT_CONST_ITERATOR: {
+                          case INSERT_STRING_AT_INTERATOR_FROM_CONST_ITERATORS:
+                          {
                             // template <class InputIter>
                             // insert(const_iterator p, InputIter first, last);
+                            typename Obj::iterator result =
                             mX.insert(mX.cbegin() + POS, U.begin(), U.end());
+                            ASSERT(mX.cbegin() + POS == result);
+                          } break;
+                          case INSERT_STRING_AT_ITERATOR_FROM_RANGE: {
+                            // insert_range(const_iterator p, auto&& range);
+                            typename Obj::iterator result =
+                            mX.insert_range(mX.cbegin() + POS, mU);
+                            (void) result;
+                          } break;
+                          case INSERT_STRING_AT_INTERATOR_FROM_CONST_RANGE: {
+                            // insert(const_iterator p, auto&& range);
+                            typename Obj::iterator result =
+                            mX.insert_range(mX.cbegin() + POS, U);
+                            ASSERT(mX.cbegin() + POS == result);
                           } break;
                           default: {
                             printf("***UNKNOWN INSERT MODE***\n");
@@ -13150,19 +13425,38 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                                 Obj &result = mX.insert(POS, Y.c_str());
                                 ASSERT(&result == &mX);
                               } break;
-                              case INSERT_STRING_AT_ITERATOR: {
+                              case INSERT_STRING_AT_ITERATOR_FROM_ITERATORS: {
                             // template <class InputIter>
                             // insert(const_iterator p, InputIter first, last);
+                                typename Obj::iterator result =
                                 mX.insert(mX.cbegin() + POS,
                                           mU.begin(),
                                           mU.end());
+                                ASSERT(mX.cbegin() + POS == result);
                               } break;
-                              case INSERT_STRING_AT_CONST_ITERATOR: {
+                      //|-----^
+                        case INSERT_STRING_AT_INTERATOR_FROM_CONST_ITERATORS: {
                             // template <class InputIter>
                             // insert(const_iterator p, InputIter first, last);
+                                typename Obj::iterator result =
                                 mX.insert(mX.cbegin() + POS,
                                           U.begin(),
                                           U.end());
+                                ASSERT(mX.cbegin() + POS == result);
+                        } break;
+                      //|-----v
+                              case INSERT_STRING_AT_ITERATOR_FROM_RANGE: {
+                            // insert_range(const_iterator p, auto&& range);
+                                typename Obj::iterator result =
+                                mX.insert_range(mX.cbegin() + POS, mU);
+                                ASSERT(mX.cbegin() + POS == result);
+                              } break;
+                              case INSERT_STRING_AT_INTERATOR_FROM_CONST_RANGE:
+                              {
+                             // insert_range(const_iterator p, auto&& range);
+                                typename Obj::iterator result =
+                                mX.insert_range(mX.cbegin() + POS, U);
+                                ASSERT(mX.cbegin() + POS == result);
                               } break;
                               default: {
                                 printf("***UNKNOWN INSERT MODE***\n");
@@ -13461,15 +13755,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase18Range(const CONTAINER&)
                         mX.insert(POS, Y.c_str());
                         mY.insert(POS, Y.c_str());
                       } break;
-                      case INSERT_STRING_AT_ITERATOR: {
+                      case INSERT_STRING_AT_ITERATOR_FROM_ITERATORS: {
+                    // insert(const_iterator p, InputIter first, last);
+                        mX.insert(mX.cbegin() + POS, mY.begin(), mY.end());
+                        mY.insert(mY.cbegin() + POS, mY.begin(), mY.end());
+                      } break;
+                      case INSERT_STRING_AT_INTERATOR_FROM_CONST_ITERATORS: {
                     // insert(const_iterator p, InputIter first, last);
                         mX.insert(mX.cbegin() + POS, Y.begin(), Y.end());
                         mY.insert(mY.cbegin() + POS, Y.begin(), Y.end());
                       } break;
-                      case INSERT_STRING_AT_CONST_ITERATOR: {
-                    // insert(const_iterator p, InputIter first, last);
-                        mX.insert(mX.cbegin() + POS, mY.begin(), mY.end());
-                        mY.insert(mY.cbegin() + POS, mY.begin(), mY.end());
+                      case INSERT_STRING_AT_ITERATOR_FROM_RANGE: {
+                    // insert_range(const_iterator p, auto&& range);
+                        mX.insert_range(mX.cbegin() + POS, mY);
+                        mY.insert_range(mY.cbegin() + POS, mY);
+                      } break;
+                      case INSERT_STRING_AT_INTERATOR_FROM_CONST_RANGE: {
+                    // insert_range(const_iterator p, auto&& range);
+                        mX.insert_range(mX.cbegin() + POS, Y);
+                        mY.insert_range(mY.cbegin() + POS, Y);
                       } break;
                       default: {
                         printf("***UNKNOWN INSERT MODE***\n");
@@ -14135,6 +14439,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
     //   basic_string& append(const STRING_VIEW_LIKE_TYPE& strView);
     //   basic_string& append(const STRING_VIEW_LIKE_TYPE& strView, pos, n);
     //   template <class Iter> basic_string& append(Iter first, Iter last);
+    //   basic_string& append_range(CCR<CHAR> auto&& range):
     //   basic_string& operator+=(const basic_string& str);
     //   basic_string& operator+=(const STRING_VIEW_LIKE_TYPE& rhs);
     //   basic_string& operator+=(const CHAR_TYPE *rhs);
@@ -14174,14 +14479,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
         APPEND_CSTRING                = 12,
         APPEND_CSTRING_N              = 13,
         APPEND_CSTRING_NULL_0         = 14,
-        APPEND_RANGE                  = 15,
-        APPEND_CONST_RANGE            = 16,
+        APPEND_BEGIN_END              = 15,
+        APPEND_CONST_BEGIN_END        = 16,
         OPERATOR_STRING               = 17,
         OPERATOR_CSTRING              = 18,
         OPERATOR_STRINGREF            = 19,
         OPERATOR_STRINGVIEW           = 20,
         OPERATOR_STRINGVIEWLIKE       = 21,
-        APPEND_STRING_MODE_LAST       = 21
+        APPEND_RANGE                  = 22,
+        APPEND_CONST_RANGE            = 23,
+        APPEND_STRING_MODE_LAST       = 23
     };
 
     static const struct {
@@ -14342,14 +14649,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(NULL_PTR, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_RANGE: {
+                          case APPEND_BEGIN_END: {
                             // void append(InputIter first, last);
                             Obj &result = mX.append(mU.begin(), mU.end());
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_CONST_RANGE: {
+                          case APPEND_CONST_BEGIN_END: {
                             // void append(InputIter first, last);
                             Obj &result = mX.append(U.begin(), U.end());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_RANGE: {
+                            // void append_range(auto&& range);
+                            Obj &result = mX.append_range(mU);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CONST_RANGE: {
+                            // void append_range(auto&& range);
+                            Obj &result = mX.append_range(U);
                             ASSERT(&result == &mX);
                           } break;
                           case OPERATOR_STRING: {
@@ -14865,14 +15182,24 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                             Obj &result = mX.append(NULL_PTR, NUM_ELEMENTS);
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_RANGE: {
+                          case APPEND_BEGIN_END: {
                         // string& append(InputIter first, last);
                             Obj &result = mX.append(mU.begin(), mU.end());
                             ASSERT(&result == &mX);
                           } break;
-                          case APPEND_CONST_RANGE: {
+                          case APPEND_CONST_BEGIN_END: {
                         // string& append(InputIter first, last);
                             Obj &result = mX.append(U.begin(), U.end());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_RANGE: {
+                        // string& append_range(auto&& range);
+                            Obj &result = mX.append_range(mU);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case APPEND_CONST_RANGE: {
+                        // string& append_range(auto&& range);
+                            Obj &result = mX.append_range(U);
                             ASSERT(&result == &mX);
                           } break;
                           case OPERATOR_STRING: {
@@ -15132,15 +15459,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Range(const CONTAINER&)
                         mX.append(NULL_PTR, 0);
                         mY.append(NULL_PTR, 0);
                       } break;
-                      case APPEND_RANGE: {
-                    // void append(InputIter first, last);
+                      case APPEND_BEGIN_END: {
+                    // string& append(InputIter first, last);
                         mX.append(mY.begin(), mY.end());
                         mY.append(mY.begin(), mY.end());
                       } break;
-                      case APPEND_CONST_RANGE: {
-                    // void append(InputIter first, last);
+                      case APPEND_CONST_BEGIN_END: {
+                    // string& append(InputIter first, last);
                         mX.append(Y.begin(), Y.end());
                         mY.append(Y.begin(), Y.end());
+                      } break;
+                      case APPEND_RANGE: {
+                    // string& append_range(auto&& range);
+                        mX.append_range(mY);
+                        mY.append_range(mY);
+                      } break;
+                      case APPEND_CONST_RANGE: {
+                    // string& append_range(auto&& range);
+                        mX.append_range(Y);
+                        mY.append_range(Y);
                       } break;
                       case OPERATOR_STRING: {
                     // string& operator+=(const string<C,CT,A>& str);
@@ -15410,7 +15747,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase17Negative()
         const Obj& Y = mY;
         (void) Y; // to disable "unused variable" warning
 
+        if (veryVerbose) printf("\t\t'append' with non-`const` iterators\n");
         ASSERT_SAFE_FAIL(mX.append(mY.end(), mY.begin()));
+        if (veryVerbose) printf("\t\t'append' with     `const` iterators\n");
         ASSERT_SAFE_FAIL(mX.append(Y.end(), Y.begin()));
     }
 
@@ -16804,7 +17143,6 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
                             ASSERTV (INIT_LINE, i, &mX == mR);
                         }
 
-
                         ASSERTV(numAllocs,   ta.numAllocations(),
                                 numAllocs == ta.numAllocations());
 
@@ -16873,10 +17211,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13StrViewLike()
                                        &mX == mR);
                             }
 
-
                             ASSERTV(numAllocs,   ta.numAllocations(),
                                     numAllocs == ta.numAllocations());
-
 
                             if (veryVerbose) {
                                 T_; T_; T_; P_(X); P(X.capacity());
@@ -17454,6 +17790,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
     //
     // Testing:
     //   template <class Iter> basic_string& assign(Iter first, Iter last);
+    //   basic_string& assign_range(CCR<CHAR> auto&& range):
     // --------------------------------------------------------------------
 
     bslma::TestAllocator  testAllocator(veryVeryVerbose);
@@ -17663,7 +18000,9 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
         ASSIGN_CSTRING                    = 4,
         ASSIGN_STRING_FROM_ITERATOR       = 5,
         ASSIGN_STRING_FROM_CONST_ITERATOR = 6,
-        ASSIGN_STRING_MODE_LAST           = 6
+        ASSIGN_STRING_FROM_RANGE          = 7,
+        ASSIGN_STRING_FROM_CONST_RANGE    = 8,
+        ASSIGN_STRING_MODE_LAST           = 8
     };
 
     for (int assignMode  = ASSIGN_STRING;
@@ -17748,13 +18087,27 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                       } break;
                       case ASSIGN_STRING_FROM_ITERATOR: {
                         // template <class InputIter>
-                        //   void assign(InputIter first, last);
-                        mX.assign(mU.begin(), mU.end());
+                        //   string& assign(InputIter first, last);
+                        Obj& result = mX.assign(mU.begin(), mU.end());
+                        ASSERT(&result == &mX);
                       } break;
                       case ASSIGN_STRING_FROM_CONST_ITERATOR: {
                         // template <class InputIter>
-                        //   void assign(InputIter first, last);
-                        mX.assign(U.begin(), U.end());
+                        //   string& assign(InputIter first, last);
+                        Obj& result = mX.assign(U.begin(), U.end());
+                        ASSERT(&result == &mX);
+                      } break;
+                      case ASSIGN_STRING_FROM_RANGE: {
+                        // template <class InputIter>
+                        //   string& assign_range(auto&& range);
+                        Obj& result = mX.assign_range(mU);
+                        ASSERT(&result == &mX);
+                      } break;
+                      case ASSIGN_STRING_FROM_CONST_RANGE: {
+                        // template <class InputIter>
+                        //   string& assign_range(auto&& range);
+                        Obj& result = mX.assign_range(U);
+                        ASSERT(&result == &mX);
                       } break;
                       default: {
                         printf("***UNKNOWN ASSIGN MODE***\n");
@@ -17973,13 +18326,27 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                           } break;
                           case ASSIGN_STRING_FROM_ITERATOR: {
                             // template <class InputIter>
-                            //  assign(InputIter first, last);
-                            mX. assign(mU.begin(), mU.end());
+                            //  string& assign(InputIter first, last);
+                            Obj& result = mX.assign(mU.begin(), mU.end());
+                            ASSERT(&result == &mX);
                           } break;
                           case ASSIGN_STRING_FROM_CONST_ITERATOR: {
                             // template <class InputIter>
-                            //   assign(InputIter first, last);
-                            mX.assign(U.begin(), U.end());
+                            //   string& assign(InputIter first, last);
+                            Obj& result = mX.assign(U.begin(), U.end());
+                            ASSERT(&result == &mX);
+                          } break;
+                          case ASSIGN_STRING_FROM_RANGE: {
+                            // template <class InputIter>
+                            //  string& assign_range(InputIter first, last);
+                            Obj& result = mX.assign_range(mU);
+                            ASSERT(&result == &mX);
+                          } break;
+                          case ASSIGN_STRING_FROM_CONST_RANGE: {
+                            // template <class InputIter>
+                            //   string& assign_range(InputIter first, last);
+                            Obj& result = mX.assign_range(U);
+                            ASSERT(&result == &mX);
                           } break;
                           default: {
                             printf("***UNKNOWN ASSIGN MODE***\n");
@@ -18080,6 +18447,16 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase13Range(const CONTAINER&)
                     // string& assign(InputIter first, last);
                     mX.assign(Y.begin(), Y.end());
                     mY.assign(Y.begin(), Y.end());
+                  } break;
+                  case ASSIGN_STRING_FROM_RANGE: {
+                    // string& assign_range(auto&& range);
+                    mX.assign_range(mY);
+                    mY.assign_range(mY);
+                  } break;
+                  case ASSIGN_STRING_FROM_CONST_RANGE: {
+                    // string& assign_range(auto&& range);
+                    mX.assign(Y);
+                    mY.assign(Y);
                   } break;
                   default: {
                     printf("***UNKNOWN ASSIGN MODE***\n");
@@ -18189,6 +18566,8 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
     // Testing:
     //   basic_string(const basic_string& str, pos, a = A());
     //   basic_string(const basic_string& str, pos, n, a = A());
+    //   basic_string(MovableRef<basic_string> str, pos, a = A());
+    //   basic_string(MovableRef<basic_string> str, pos, n, a = A());
     //   basic_string(const CHAR_TYPE *s, a = A());
     //   basic_string(const CHAR_TYPE *s, size_type n, a = A());
     //   basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
@@ -18700,6 +19079,235 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
                           case 'c': {
                             minorStr = "\t\tWith passing in an allocator.\n";
                             objPtr = new (fa) Obj(Y, POS, EXP_LENGTH, &sa);
+                            objAllocatorPtr = &sa;
+                          } break;
+                          default: {
+                            ASSERTV(CONFIG, "Bad allocator config.", false);
+                          } return;                                   // RETURN
+                        }
+
+                        if (veryVerbose) {
+                            printf("%s", minorStr);
+                        }
+
+                        Obj&                   mX = *objPtr;
+                        const Obj&              X =  mX;
+                        bslma::TestAllocator&  oa = *objAllocatorPtr;
+                        bslma::TestAllocator& noa =  'c' != CONFIG ? sa : da;
+
+                        if (veryVerbose) {
+                            T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        LOOP3_ASSERT(LINE, ti, i, EXP_LENGTH == X.size());
+                        LOOP3_ASSERT(LINE, ti, i, EXP_LENGTH <= X.capacity());
+
+                        for (size_t k = POS; k < POS + EXP_LENGTH; ++k) {
+                            LOOP5_ASSERT(LINE, ti, i, j, k, Y[k] == X[k-POS]);
+                        }
+
+                        if (EXP_LENGTH <= DEFAULT_CAPACITY) {
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         0 ==  oa.numBlocksTotal());
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         0 ==  oa.numBlocksInUse());
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         0 == noa.numBlocksTotal());
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         0 == noa.numBlocksInUse());
+                        } else {
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         1 ==  oa.numBlocksTotal());
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         1 ==  oa.numBlocksInUse());
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         0 == noa.numBlocksTotal());
+                            LOOP4_ASSERT(LINE, ti, i, j,
+                                         0 == noa.numBlocksInUse());
+                        }
+
+                        // Reclaim dynamically allocated object under test.
+
+                        fa.deleteObject(objPtr);
+
+                        // Verify all memory is released on object destruction.
+
+                        ASSERTV(LENGTH, CONFIG, da.numBlocksInUse(),
+                                0 == da.numBlocksInUse());
+                        ASSERTV(LENGTH, CONFIG, fa.numBlocksInUse(),
+                                0 == fa.numBlocksInUse());
+                        ASSERTV(LENGTH, CONFIG, sa.numBlocksInUse(),
+                                0 == sa.numBlocksInUse());
+                    }
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\tTesting string(move(str), pos, a = A()).\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = strlen(SPEC);
+
+            if (veryVerbose) {
+                printf("\t\t\tCreating object up to "); P_(LENGTH);
+                printf("using "); P(SPEC);
+            }
+
+            Obj mY(g(SPEC));  // source object
+            const Obj Y(mY);   // copy
+
+            for (size_t i = 0; i < LENGTH; ++i) {
+                const size_t POS        = i;
+                const size_t EXP_LENGTH = LENGTH - POS;
+
+                for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                    const char CONFIG = cfg;
+
+                    bslma::TestAllocator da("default",   veryVeryVeryVerbose);
+                    bslma::TestAllocator fa("footprint", veryVeryVeryVerbose);
+                    bslma::TestAllocator sa("supplied",  veryVeryVeryVerbose);
+
+                    bslma::DefaultAllocatorGuard dag(&da);
+
+                    const char           *minorStr;
+                    Obj                  *objPtr;
+                    bslma::TestAllocator *objAllocatorPtr;
+
+                    switch (CONFIG) {
+                      case 'a': {
+                        minorStr = "\t\tWithout passing in an allocator.\n";
+                        objPtr = new (fa) Obj(MoveUtil::move(mY), POS);
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'b': {
+                        minorStr = "\t\tWith passing in null allocator.\n";
+                        objPtr = new (fa) Obj(
+                                  MoveUtil::move(mY),
+                                  POS,
+                                  reinterpret_cast<bslma::TestAllocator *>(0));
+                        objAllocatorPtr = &da;
+                      } break;
+                      case 'c': {
+                        minorStr = "\t\tWith passing in an allocator.\n";
+                        objPtr = new (fa) Obj(MoveUtil::move(mY), POS, &sa);
+                        objAllocatorPtr = &sa;
+                      } break;
+                      default: {
+                        ASSERTV(CONFIG, "Bad allocator config.", false);
+                      } return;                                       // RETURN
+                    }
+
+                    if (veryVerbose) {
+                        printf("%s", minorStr);
+                    }
+
+                    Obj&                   mX = *objPtr;
+                    const Obj&              X =  mX;
+                    bslma::TestAllocator&  oa = *objAllocatorPtr;
+                    bslma::TestAllocator& noa =  'c' != CONFIG ? sa : da;
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP3_ASSERT(LINE, ti, i, EXP_LENGTH == X.size());
+                    LOOP3_ASSERT(LINE, ti, i, EXP_LENGTH <= X.capacity());
+
+                    for (size_t j = POS; j < EXP_LENGTH; ++j) {
+                        LOOP4_ASSERT(LINE, ti, i, j, Y[j] == X[j-POS]);
+                    }
+
+                    if (EXP_LENGTH <= DEFAULT_CAPACITY) {
+                        LOOP3_ASSERT(LINE, ti, i, 0 ==  oa.numBlocksTotal());
+                        LOOP3_ASSERT(LINE, ti, i, 0 ==  oa.numBlocksInUse());
+                        LOOP3_ASSERT(LINE, ti, i, 0 == noa.numBlocksTotal());
+                        LOOP3_ASSERT(LINE, ti, i, 0 == noa.numBlocksInUse());
+                    } else {
+                        LOOP3_ASSERT(LINE, ti, i, 1 ==  oa.numBlocksTotal());
+                        LOOP3_ASSERT(LINE, ti, i, 1 ==  oa.numBlocksInUse());
+                        LOOP3_ASSERT(LINE, ti, i, 0 == noa.numBlocksTotal());
+                        LOOP3_ASSERT(LINE, ti, i, 0 == noa.numBlocksInUse());
+                    }
+
+                    // Reclaim dynamically allocated object under test.
+
+                    fa.deleteObject(objPtr);
+
+                    // Verify all memory is released on object destruction.
+
+                    ASSERTV(LENGTH, CONFIG, da.numBlocksInUse(),
+                            0 == da.numBlocksInUse());
+                    ASSERTV(LENGTH, CONFIG, fa.numBlocksInUse(),
+                            0 == fa.numBlocksInUse());
+                    ASSERTV(LENGTH, CONFIG, sa.numBlocksInUse(),
+                            0 == sa.numBlocksInUse());
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\tTesting string(move(str), pos, n, a = A()).\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = strlen(SPEC);
+
+            if (veryVerbose) {
+                printf("\t\t\tCreating object up to "); P_(LENGTH);
+                printf("using "); P(SPEC);
+            }
+
+            Obj       mY(g(SPEC));  // source object
+            const Obj Y(mY);        // copy
+
+            for (size_t i = 0; i < LENGTH; ++i) {
+                const size_t POS = i;
+                for (size_t j = 0; j < LENGTH - POS; ++j) {
+                    const size_t EXP_LENGTH = j;
+                    for (char cfg = 'a'; cfg <= 'c'; ++cfg) {
+                        const char CONFIG = cfg;
+
+                        bslma::TestAllocator da("default",
+                                                veryVeryVeryVerbose);
+                        bslma::TestAllocator fa("footprint",
+                                                veryVeryVeryVerbose);
+                        bslma::TestAllocator sa("supplied",
+                                                veryVeryVeryVerbose);
+
+                        bslma::DefaultAllocatorGuard dag(&da);
+
+                        const char           *minorStr;
+                        Obj                  *objPtr;
+                        bslma::TestAllocator *objAllocatorPtr;
+
+                        switch (CONFIG) {
+                          case 'a': {
+                            minorStr =
+                                      "\t\tWithout passing in an allocator.\n";
+                            objPtr = new (fa) Obj(MoveUtil::move(mY),
+                                                  POS,
+                                                  EXP_LENGTH);
+                            objAllocatorPtr = &da;
+                          } break;
+                          case 'b': {
+                            minorStr = "\t\tWith passing in null allocator.\n";
+                            objPtr = new (fa) Obj(
+                                  MoveUtil::move(mY),
+                                  POS,
+                                  EXP_LENGTH,
+                                  reinterpret_cast<bslma::TestAllocator *>(0));
+                            objAllocatorPtr = &da;
+                          } break;
+                          case 'c': {
+                            minorStr = "\t\tWith passing in an allocator.\n";
+                            objPtr = new (fa) Obj(MoveUtil::move(mY),
+                                                  POS,
+                                                  EXP_LENGTH,
+                                                  &sa);
                             objAllocatorPtr = &sa;
                           } break;
                           default: {
@@ -19652,6 +20260,43 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12()
 
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+
+                Obj        copy(Y);
+                Obj        mX(MoveUtil::move(copy),
+                              0,
+                              AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+                LOOP2_ASSERT(LINE, ti, Y == X);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+
+                Obj        copy(Y);
+                Obj        mX(MoveUtil::move(copy),
+                              0,
+                              LENGTH,
+                              AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+                LOOP2_ASSERT(LINE, ti, Y == X);
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
             StringRefData         mSR(Y);
             const StringRefData&  SR = mSR;
 
@@ -19872,6 +20517,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
     // Testing:
     //   template<class InputIter>
     //     string(InputIter first, InputIter last, a = A());
+    //   basic_string(from_range_t , CCR<CHAR> auto&& range, a = A()):
     // --------------------------------------------------------------------
 
     bslma::TestAllocator testAllocator(veryVeryVerbose);
@@ -19923,18 +20569,38 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
 
             CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
 
-            Obj mX(U.begin(), U.end());  const Obj& X = mX;
+            if (veryVerbose) printf("\tTest two-iterator constructor\n");
+            {
+                Obj mX(U.begin(), U.end());  const Obj& X = mX;
 
-            if (veryVerbose) {
-                T_; T_; P_(X); P(X.capacity());
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+                Obj mY(g(SPEC));  const Obj& Y = mY;
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                }
             }
 
-            LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
-            LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+            if (veryVerbose) printf("\tTest range constructor\n");
+            {
+                Obj mX(bsl::from_range, U);  const Obj& X = mX;
 
-            Obj mY(g(SPEC));  const Obj& Y = mY;
-            for (size_t j = 0; j < LENGTH; ++j) {
-                LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+                Obj mY(g(SPEC));  const Obj& Y = mY;
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                }
             }
         }
     }
@@ -19949,74 +20615,25 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
             if (veryVerbose) { printf("\t\tCreating object "); P(SPEC); }
 
             CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
-            Obj mY(g(SPEC));     const Obj& Y = mY;
+            Obj       mY(g(SPEC));  const Obj&       Y = mY;
 
             const Int64 BB = testAllocator.numBlocksTotal();
             const Int64  B = testAllocator.numBlocksInUse();
 
             AllocatorUseGuard guardG(globalAllocator_p);
             AllocatorUseGuard guardD(defaultAllocator_p);
-            Obj mX(U.begin(), U.end(), AllocType(&testAllocator));
-            const Obj& X = mX;
 
-            const Int64 AA = testAllocator.numBlocksTotal();
-            const Int64  A = testAllocator.numBlocksInUse();
-
-            if (veryVerbose) {
-                T_; T_; P_(X); P(X.capacity());
-                T_; T_; P_(AA - BB); P(A - B);
-            }
-
-            LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
-            LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
-
-            for (size_t j = 0; j < LENGTH; ++j) {
-                LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
-            }
-
-            if (LENGTH <= DEFAULT_CAPACITY) {
-                LOOP2_ASSERT(LINE, ti, BB + 0 == AA);
-                LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
-            }
-            else if (INPUT_ITERATOR_TAG) {
-             // LOOP2_ASSERT(LINE, ti, BB + 1 + NUM_ALLOCS[LENGTH] == AA);
-                LOOP2_ASSERT(LINE, ti,  B + 1 ==  A);
-            } else {
-             // LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
-                LOOP2_ASSERT(LINE, ti,  B + 1 ==  A);
-            }
-        }
-    }
-
-    if (verbose) printf("\tWith passing an allocator and checking for "
-                        "allocation exceptions.\n");
-    {
-        for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int     LINE   = DATA[ti].d_lineNum;
-            const char   *SPEC   = DATA[ti].d_spec;
-            const size_t  LENGTH = strlen(SPEC);
-
-            if (veryVerbose) {
-                printf("\t\tCreating object of "); P_(LENGTH);
-                printf("using "); P(SPEC);
-            }
-
-            CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
-            Obj mY(g(SPEC));        const Obj& Y = mY;
-
-            const Int64 BB = testAllocator.numBlocksTotal();
-            const Int64  B = testAllocator.numBlocksInUse();
-
-            if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
-
-            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
-
+            if (veryVerbose) printf("\tTest two-iterator constructor\n");
+            {
                 Obj mX(U.begin(), U.end(), AllocType(&testAllocator));
-
                 const Obj& X = mX;
+
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
 
                 if (veryVerbose) {
                     T_; T_; P_(X); P(X.capacity());
+                    T_; T_; P_(AA - BB); P(A - B);
                 }
 
                 LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
@@ -20026,29 +20643,183 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Range(const CONTAINER&)
                     LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
                 }
 
-            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
-            const Int64 AA = testAllocator.numBlocksTotal();
-            const Int64  A = testAllocator.numBlocksInUse();
-
-            if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
-
-            if (LENGTH <= DEFAULT_CAPACITY) {
-                LOOP2_ASSERT(LINE, ti, BB + 0 == AA);
-                LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                if (LENGTH <= DEFAULT_CAPACITY) {
+                    LOOP2_ASSERT(LINE, ti, BB + 0 == AA);
+                    LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                }
+                else if (INPUT_ITERATOR_TAG) {
+                 // LOOP2_ASSERT(LINE, ti, BB + 1 + NUM_ALLOCS[LENGTH] == AA);
+                    LOOP2_ASSERT(LINE, ti,  B + 1 ==  A);
+                } else {
+                 // LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
+                    LOOP2_ASSERT(LINE, ti,  B + 1 ==  A);
+                }
             }
-            else {
-                if (INPUT_ITERATOR_TAG) {
-                    LOOP2_ASSERT(LINE, ti, BB + 1 <= AA);
+
+            if (veryVerbose) printf("\tTest range constructor\n");
+            {
+                Obj mX(bsl::from_range, U, AllocType(&testAllocator));
+                const Obj& X = mX;
+
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                    T_; T_; P_(AA - BB); P(A - B);
+                }
+
+                LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                }
+
+                if (LENGTH <= DEFAULT_CAPACITY) {
+                    LOOP2_ASSERT(LINE, ti, BB + 0 == AA);
+                    LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                }
+                else if (INPUT_ITERATOR_TAG) {
+                 // LOOP2_ASSERT(LINE, ti, BB + 1 + NUM_ALLOCS[LENGTH] == AA);
+                    LOOP2_ASSERT(LINE, ti,  B + 1 ==  A);
+                } else {
+                 // LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
+                    LOOP2_ASSERT(LINE, ti,  B + 1 ==  A);
+                }
+            }
+        }
+    }
+
+    if (verbose) printf("\tWith passing an allocator and checking for "
+                        "allocation exceptions.\n");
+    {
+        if (veryVerbose) printf("\tTest two-iterator constructor\n");
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int     LINE   = DATA[ti].d_lineNum;
+                const char   *SPEC   = DATA[ti].d_spec;
+                const size_t  LENGTH = strlen(SPEC);
+
+                if (veryVerbose) {
+                    printf("\t\tCreating object of "); P_(LENGTH);
+                    printf("using "); P(SPEC);
+                }
+
+                CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
+                Obj mY(g(SPEC));        const Obj& Y = mY;
+
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
+
+                if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+
+                    Obj mX(U.begin(), U.end(), AllocType(&testAllocator));
+
+                    const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                    LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                    }
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
+
+                if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
+
+                if (LENGTH <= DEFAULT_CAPACITY) {
+                    LOOP2_ASSERT(LINE, ti, BB + 0 == AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
                 }
                 else {
-                    LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
+                    if (INPUT_ITERATOR_TAG) {
+                        LOOP2_ASSERT(LINE, ti, BB + 1 <= AA);
+                        LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                    }
+                    else {
+                        LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
+                        LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                    }
+                }
+
+                LOOP2_ASSERT(LINE, ti,
+                             0 == testAllocator.numBlocksInUse());
+            }
+        }
+
+        if (veryVerbose) printf("\tTest range constructor\n");
+        {
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int     LINE   = DATA[ti].d_lineNum;
+                const char   *SPEC   = DATA[ti].d_spec;
+                const size_t  LENGTH = strlen(SPEC);
+
+                if (veryVerbose) {
+                    printf("\t\tCreating object of "); P_(LENGTH);
+                    printf("using "); P(SPEC);
+                }
+
+                CONTAINER mU(g(SPEC));  const CONTAINER& U = mU;
+                Obj mY(g(SPEC));        const Obj& Y = mY;
+
+                const Int64 BB = testAllocator.numBlocksTotal();
+                const Int64  B = testAllocator.numBlocksInUse();
+
+                if (veryVerbose) { printf("\t\tBefore: "); P_(BB); P(B);}
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator) {
+
+                    Obj mX(bsl::from_range, U, AllocType(&testAllocator));
+
+                    const Obj& X = mX;
+
+                    if (veryVerbose) {
+                        T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                    LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                    }
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                const Int64 AA = testAllocator.numBlocksTotal();
+                const Int64  A = testAllocator.numBlocksInUse();
+
+                if (veryVerbose) { printf("\t\tAfter : "); P_(AA); P(A);}
+
+                if (LENGTH <= DEFAULT_CAPACITY) {
+                    LOOP2_ASSERT(LINE, ti, BB + 0 == AA);
                     LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
                 }
-            }
+                else {
+                    if (INPUT_ITERATOR_TAG) {
+                        LOOP2_ASSERT(LINE, ti, BB + 1 <= AA);
+                        LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                    }
+                    else {
+                        LOOP2_ASSERT(LINE, ti, BB + 1 == AA);
+                        LOOP2_ASSERT(LINE, ti,  B + 0 ==  A);
+                    }
+                }
 
-            LOOP2_ASSERT(LINE, ti, 0 == testAllocator.numBlocksInUse());
+                LOOP2_ASSERT(LINE, ti,
+                             0 == testAllocator.numBlocksInUse());
+            }
         }
     }
 }
@@ -20081,7 +20852,13 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase12Negative()
 
     bsls::AssertTestHandlerGuard guard;
 
+#if defined (BSLS_COMPILERFEATURES_FULL_CPP11)
+    // Except for C++03, a compiler error for literal `0` (and for `nullptr`).
+#else
     ASSERT_SAFE_FAIL_RAW(Obj(0));
+#endif
+    TYPE *const ZeroValuedPointer = 0;
+    ASSERT_SAFE_FAIL((Obj(ZeroValuedPointer)));
 
     ASSERT_SAFE_PASS_RAW(Obj(0, size_t(0)));
     ASSERT_SAFE_FAIL_RAW(Obj(0, size_t(10)));
@@ -21625,11 +22402,46 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 47: {
+      case 49: {
         if (verbose) printf(
                  "USAGE EXAMPLE TC %d IS DELEGATED TO `bslstl_string.t.cpp`"
                  "=========================================================\n",
                  test);
+      } break;
+      case 48: {
+        if (verbose) printf(
+                 "USAGE EXAMPLE TC %d IS DELEGATED TO `bslstl_string.t.cpp`"
+                 "=========================================================\n",
+                 test);
+      } break;
+      case 47: {
+        // --------------------------------------------------------------------
+        // DELETED CONSTRUCTOR: NULL POINTER CONSTANTS
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nDELETED CONSTRUCTOR: NULL POINTER CONSTANTS"
+                   "\n===========================================\n");
+
+#if defined (BSLS_COMPILERFEATURES_FULL_CPP11)
+
+        // Classic types
+        TestDriver<char   >::testCase47();
+        TestDriver<wchar_t>::testCase47();
+
+# if defined (BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TestDriver<char8_t>::testCase47();
+# endif
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TestDriver<char16_t>::testCase47();
+        TestDriver<char32_t>::testCase47();
+# endif
+#else
+        if (veryVerbose) {
+            printf("\nSKIP: `nullptr` not supported in C++03.\n");
+        }
+#endif
       } break;
       case 46: {
         // --------------------------------------------------------------------
@@ -22616,7 +23428,7 @@ int main(int argc, char *argv[])
             }
         }
 #else
-        if (veryVerbose) { printf("Cannot test 'operator ""_s' "
+        if (veryVerbose) { printf("Cannot test 'operator \"\"_s' "
                                   "in pre-C++11 mode or if the compiler "
                                   "does not support inline namespaces.\n"); }
 #endif
@@ -24954,7 +25766,8 @@ int main(int argc, char *argv[])
         //  See `TestDriver<CHAR_TYPE>::testCase23` for details.
         //
         // Testing:
-        //   string substr(pos, n) const;
+        //   string substr(pos, n) const &;
+        //   string substr(pos, n) &&;
         //   size_type copy(char *s, n, pos = 0) const;
         // --------------------------------------------------------------------
 
@@ -25154,6 +25967,7 @@ int main(int argc, char *argv[])
         //   basic_string& replace(const_iterator p, q, const C *s);
         //   basic_string& replace(const_iterator p, q, size_type n2, C c);
         //   template <It> basic_string& replace(const_iterator p, q, It f, l);
+        //   basic_string& replace_with_range(Citr p, q, CCR<CHAR> auto&& r);
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING `replace`"
@@ -25182,7 +25996,6 @@ int main(int argc, char *argv[])
             TestDriver<char32_t>::testCase20();
 #endif
         }
-
 
         if (verbose) printf("\n... with `char` & matching integral types.\n");
         TestDriver<char>::testCase20MatchTypes();
@@ -25358,6 +26171,7 @@ int main(int argc, char *argv[])
         //   iterator insert(const_iterator pos, CHAR_TYPE value);
         //   iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
         //   template <class Iter> iterator insert(const_iterator, Iter, Iter);
+        //   iterator insert_range_range(CCR<CHAR_TYPE> auto&& range):
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING INSERTION"
@@ -25432,7 +26246,6 @@ int main(int argc, char *argv[])
         TestDriver<char32_t>::testCase18Range(CharArray<char32_t>());
 #endif
 
-
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative Testing Insertion"
                             "\n==========================\n");
@@ -25477,6 +26290,7 @@ int main(int argc, char *argv[])
         //   basic_string& append(const CHAR_TYPE *s);
         //   basic_string& append(size_type n, CHAR_TYPE c);
         //   template <class Iter> basic_string& append(Iter first, Iter last);
+        //   basic_string& append_range(CCR<CHAR> auto&& range):
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING `append`"
@@ -25734,6 +26548,7 @@ int main(int argc, char *argv[])
         //   basic_string& assign(const STRING_VIEW_LIKE_TYPE& s, p, n = npos);
         //   basic_string& assign(size_type n, CHAR_TYPE c);
         //   template <class Iter> basic_string& assign(Iter first, Iter last);
+        //   basic_string& assign_range(CCR<CHAR> auto&& range):
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING ASSIGNMENT"
@@ -25760,7 +26575,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase13();
 #endif
-
 
         if (verbose) printf("\nTesting Initial-Range Assignment"
                             "\n================================\n");
@@ -25832,7 +26646,6 @@ int main(int argc, char *argv[])
                             "and `StringViewLike` object.\n");
         TestDriver<char16_t>::testCase13StrViewLike();
 
-
         if (verbose) printf("\n... with `char32_t` "
                             "and arbitrary input iterator.\n");
         TestDriver<char32_t>::testCase13InputIterator();
@@ -25882,11 +26695,15 @@ int main(int argc, char *argv[])
         //  See `TestDriver<CHAR_TYPE>::testCase12` for details.
         //
         // Testing:
-        //   basic_string(const basic_string& str, pos, n = npos, a = A());
+        //   basic_string(const basic_string& str, pos, a = A());
+        //   basic_string(const basic_string& str, pos, n, a = A());
+        //   basic_string(MovableRef<basic_string> str, pos, a = A());
+        //   basic_string(MovableRef<basic_string> str, pos, n, a = A());
         //   basic_string(const CHAR_TYPE *s, a = A());
         //   basic_string(const CHAR_TYPE *s, size_type n, a = A());
         //   basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
         //   template<class Iter> basic_string(Iter first, Iter last, a = A());
+        //   basic_string(from_range_t , CCR<CHAR> auto&& range, a = A()):
         // --------------------------------------------------------------------
 
         if (verbose) printf("\nTESTING CONSTRUCTORS"
@@ -25913,8 +26730,6 @@ int main(int argc, char *argv[])
         if (verbose) printf("\n... with `char32_t`.\n");
         TestDriver<char32_t>::testCase12();
 #endif
-
-
 
         if (verbose) printf("\nTesting Initial-Range Constructor"
                             "\n=================================\n");
@@ -25962,8 +26777,6 @@ int main(int argc, char *argv[])
                             "and arbitrary random-access iterator.\n");
         TestDriver<char32_t>::testCase12Range(CharArray<char32_t>());
 #endif
-
-
 
 #ifdef BDE_BUILD_TARGET_EXC
         if (verbose) printf("\nNegative testing of Constructors"

@@ -26,6 +26,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
 
@@ -108,6 +109,8 @@
 // [19] set(const C& comparator, const A& allocator);
 // [12] set(ITER first, ITER last, const C& comparator, const A& allocator);
 // [12] set(ITER first, ITER last, const A& allocator);
+// [12] set(from_range_t , CCR<KEY> auto&& range, const C& c,  a = A());
+// [12] set(from_range_t , CCR<KEY> auto&& range, a);
 // [32] set(initializer_list<value_type>, const C& comp, const A& allocator);
 // [32] set(initializer_list<value_type>, const A& allocator);
 // [ 7] set(const set& original);
@@ -147,6 +150,7 @@
 // [29] iterator insert(const_iterator position, value_type&& value);
 // [15] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [32] void insert(initializer_list<value_type>);
+// [15] void insert_range(CCR<VALUE> auto& range);
 //
 // [30] pair<iterator, bool> emplace(Args&&... args);
 // [31] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -204,6 +208,7 @@
 // [34] CONCERN: `lower_bound` properly handles transparent comparators.
 // [34] CONCERN: `upper_bound` properly handles transparent comparators.
 // [34] CONCERN: `equal_range` properly handles transparent comparators.
+// [34] CONCERN: `erase`       properly handles transparent comparators.
 // [36] CLASS TEMPLATE DEDUCTION GUIDES
 // [38] CONCERN: `set` IS A C++20 RANGE
 
@@ -684,7 +689,6 @@ class TestComparator {
         return d_count;
     }
 };
-
 
                        // ============================
                        // class TestComparatorNonConst
@@ -1591,7 +1595,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase9()
 
             Obj mZ(xscratch);  const Obj& Z  = gg(&mZ,  SPEC1);
             Obj mZZ(xscratch); const Obj& ZZ = gg(&mZZ, SPEC1);
-
 
             if (veryVerbose) { T_ P_(LINE1) P_(Z) P(ZZ) }
 
@@ -3096,8 +3099,8 @@ void TestDriver<KEY, COMP, ALLOC>::testCase2()
     // 10. `insert` adds an additional element to the object if the element
     //    being inserted does not already exist.
     //
-    // 11. `insert` returns a pair with an iterator of the element that was just
-    //    inserted or the element that already exist in the object, and a
+    // 11. `insert` returns a pair with an iterator of the element that was
+    //    just inserted or the element that already exist in the object, and a
     //    boolean indicating whether element being inserted already exist in
     //    the object.
     //
@@ -3470,7 +3473,6 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
             ASSERTV(X.end()       != RESULT.first);
             ASSERTV(true          == RESULT.second);
             ASSERTV(testKeys[i]   == *(RESULT.first));
-
 
             // Test size, empty.
             ASSERTV(i + 1 == X.size());

@@ -20,6 +20,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_istriviallycopyable.h>
@@ -120,6 +121,10 @@ using bsls::NameOf;
 // [12] unordered_multimap(ITER, ITER, size_t, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, hash, allocator);
 // [12] unordered_multimap(ITER, ITER, size_t, hash, equal, allocator);
+// [12] unordered_multimap(fr_t , auto&& range, nb, hasher, key_equal, alloc);
+// [12] unordered_multimap(fr_t , auto&& range, nb, hasher,            alloc);
+// [12] unordered_multimap(fr_t , auto&& range, nb,                    alloc);
+// [12] unordered_multimap(fr_t , auto&& range,                        alloc);
 // [ 7] unordered_multimap(const unordered_multimap& original);
 // [ 7] unordered_multimap(const unordered_multimap& original, const A& alloc);
 // [26] unordered_multimap(unordered_multimap&& original);
@@ -160,6 +165,7 @@ using bsls::NameOf;
 // [29] iterator insert(const_iterator hint, const value_type&& value);
 // [32] iterator insert(initializer_list<value_type>);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [ 8] void swap(unordered_multimap& other);
 //
 // observers:
@@ -168,6 +174,9 @@ using bsls::NameOf;
 // [ 4] allocator_type get_allocator() const;
 //
 // unordered_multimap operations:
+// [13] bool contains(const key_type& key);
+// [13] bool contains(const LOOKUP_KEY& key);
+// [13] size_type count(const KEY& key) const;
 // [13] iterator find(const key_type& key);
 // [13] const_iterator find(const key_type& key) const;
 // [13] size_type count(const key_type& key) const;
@@ -204,7 +213,7 @@ using bsls::NameOf;
 // [ 1] BREATHING TEST
 // [ 2] default construction (only)
 // [39] CLASS TEMPLATE DEDUCTION GUIDES
-// [41] USAGE EXAMPLE
+// [42] USAGE EXAMPLE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int ggg(unordered_multimap *object, const char *s, int verbose);
@@ -1521,7 +1530,87 @@ void testTransparentComparator(Container& container,
     }
 }
 
+/// Search for a value equal to the specified `initKeyValue` in the specified
+/// `container`, and count the number of conversions expected based on the
+/// specified `isTransparent`.  Since these tests can modify the container, we
+/// make a copy of it for each test.
+template <class t_CONTAINER>
+void testTransparentComparatorMutable(const t_CONTAINER& container,
+                                      bool               isTransparent,
+                                      int                initKeyValue)
+{
+    typedef typename t_CONTAINER::size_type Count;
+
+    TransparentlyComparable existingKey(initKeyValue);
+    TransparentlyComparable nonExistingKey(initKeyValue ? -initKeyValue
+                                                        : -100);
+
+    {
+        // Testing `erase`.
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        const Count size = container.size();
+
+        // with a non-existing key
+        {
+            Count n = c.erase(nonExistingKey);
+            ASSERT(n == 0);
+            ASSERT(c.size() == size);
+            ASSERT(isTransparent ? nonExistingKey.conversionCount() == 0
+                                 : nonExistingKey.conversionCount() >  0);
+        }
+
+        // with an existing key
+        {
+            Count expectedN = c.count(existingKey);
+            Count n         = c.erase(existingKey);
+            ASSERT(n == expectedN);
+            ASSERT(c.size() + n == size);
+            ASSERT(isTransparent ? existingKey.conversionCount() == 0
+                                 : existingKey.conversionCount() >  0);
+        }
+    }
+}
+
 }  // close unnamed namespace
+
+                        // =======================
+                        // class SubrangeContainer
+                        // =======================
+
+// Emulate `bsl::ranges::subrange` for pre-C++20 builds.
+template <class ITER>
+class SubrangeContainer {
+
+    // DATA
+    ITER d_begin;
+    ITER d_end;
+
+  public:
+    // TYPES
+    typedef       ITER       iterator;
+    typedef const ITER const_iterator;
+
+    // CREATORS
+    SubrangeContainer()
+    : d_begin(ITER())
+    , d_end  (ITER()) {}
+
+    SubrangeContainer(ITER begin, ITER end)
+    : d_begin(begin)
+    , d_end  (end)    {}
+
+    // MANIPULATORS
+    iterator begin() { return d_begin; }
+    iterator end  () { return d_end  ; }
+
+    // ACCESSORS  // Needed when testing at C++03 language level
+    const_iterator begin() const { return d_begin; }
+    const_iterator end  () const { return d_end  ; }
+};
 
 //=============================================================================
 //                              TestDriver
@@ -1763,7 +1852,8 @@ class TestDriver {
     static void testCase41();
 
     /// Test whether `unordered_multimap` is a C++20 range.
-    static void testCase40_isRange();
+    static void testCase40_isRangeConcepts();
+    static void testCase40_isRangeFunctionality();
 
     /// Test absence of `erase` method ambiguity.
     static void testCase37();
@@ -2608,7 +2698,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase41()
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase40_isRange()
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase40_isRangeConcepts()
 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
     BSLMF_ASSERT((std::ranges::common_range<Obj>));
@@ -2618,6 +2708,113 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase40_isRange()
 
     BSLMF_ASSERT((!std::ranges::view<Obj>));
     BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                                              testCase40_isRangeFunctionality()
+{
+    if (veryVerbose) {
+        Q(testCase40_isRangeFunctionality)
+        P(NameOf<KEY>())
+    }
+
+    if (veryVerbose) {
+        printf("Baseline\n");
+    }
+    {
+        TestValues rangeForCtor  ("ABCABC");
+        TestValues rangeForInsert("DEFFED");
+
+        Obj mX(bsl::from_range, rangeForCtor);                          // TEST
+        ASSERT(verifySpec(mX, "AABBCC"));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(verifySpec(mX, "AABBCCDDEEFF"));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `unordered_multimap` itself is a range-type.\n");
+    }
+    {
+        Obj mX(bsl::from_range, TestValues("ABCABC"));  const Obj& X = mX;
+        Obj mY(bsl::from_range, TestValues("DEFFED"));  const Obj& Y = mY;
+
+        ASSERT(verifySpec(X, "AABBCC"));
+        ASSERT(verifySpec(Y, "DDEEFF"));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(verifySpec(mX, "AABBCCDDEEFF"));
+
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValues("ABCABC"));
+        mW.insert_range(TestValues("DEFFED"));
+        ASSERT(verifySpec(W, "AABBCCDDEEFF"));
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    typedef bsltf::TestValuesArray<
+           ValueType,
+           ALLOC,
+           IntToPairConverter<const KEY, VALUE, ALLOC>,
+           true>                                       TestValuesWithSentinel;
+    {
+        TestValuesWithSentinel tvws;
+
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                  decltype(tvws),
+                                                  typename Obj::value_type>);
+
+        static_assert(true  == bsl::sentinel_for<decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+
+        static_assert(false == bsl::is_same_v<   decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+    }
+
+    if (veryVerbose) {
+        printf("Confirm functionality with distinct sentinels.\n");
+    }
+    {
+        TestValuesWithSentinel rangeForCtor  ("ABCABC");
+        TestValuesWithSentinel rangeForInsert("DEFFED");
+
+        Obj  mX(bsl::from_range, rangeForCtor);                         // TEST
+        ASSERT(verifySpec(mX, "AABBCC"));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(verifySpec(mX, "AABBCCDDEEFF"));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `unordered_multimap` itself is a range-type.\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                  Obj,
+                                                  typename Obj::value_type>);
+
+        Obj  mX(bsl::from_range, TestValuesWithSentinel("ABCABC"));
+        Obj  mY(bsl::from_range, TestValuesWithSentinel("DEFFED"));
+
+        ASSERT(verifySpec(mX, "AABBCC"));
+        ASSERT(verifySpec(mY, "DDEEFF"));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(verifySpec(mX, "AABBCCDDEEFF"));
+
+        // Range insertion on a multimap produces the union with duplicates.
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValuesWithSentinel("ABCZ"));
+        mW.insert_range(TestValuesWithSentinel("DEFZ"));
+        ASSERT(verifySpec(W, "ABCDEFZZ"));
+    }
 #endif
 }
 
@@ -6680,7 +6877,7 @@ template <class KEY, class MAPPED, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase17()
 {
     // ------------------------------------------------------------------------
-    // RANGE `insert`
+    // RANGE `insert` AND `insert_range`
     //
     // Concerns:
     // 1. All values within the range [first, last) are inserted.
@@ -6694,6 +6891,9 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase17()
     // 6. Inserting no elements allocates no memory.
     //
     // 7. Any memory allocation is exception neutral.
+    //
+    // 8. `insert_range` produces the same result as `insert` when the
+    //    iterators are presented as a `range`.
     //
     // Plan:
     // 1. Using the table-driven technique:
@@ -6716,8 +6916,13 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase17()
     //
     //   6. Verify no memory is allocated from the default allocator (C-4)
     //
+    // 3. Duplicate the test `insert` test loop for `insert_range` except
+    //    the two iterators are presented as a range by use of the
+    //    `Subrange` container test class.  (C-8)
+    //
     // Testing:
     //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    //   void insert_range(CCR<KEY> auto&& range);
     // ------------------------------------------------------------------------
 
     if (veryVerbose) printf("Testing `%s`\n", NameOf<KEY>().name());
@@ -6727,11 +6932,17 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase17()
 
     bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
 
+    if (veryVerbose) printf("\tTesting `insert` that takes two iterators\n");
+
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec;
         const char *const EXP    = DATA[ti].d_results;
         const size_t      LENGTH = strlen(EXP);
+
+        if (veryVerbose) {
+            P_(LINE); P_(SPEC); P_(EXP); P(LENGTH);
+        }
 
         TestValues CONT(SPEC);
         for (size_t tj = 0; tj <= CONT.size(); ++tj) {
@@ -6751,6 +6962,58 @@ void TestDriver<KEY, MAPPED, HASH, EQUAL, ALLOC>::testCase17()
             const Int64 A = oa.numAllocations();
 
             mX.insert(MID, END);
+
+            const Int64 AA = oa.numAllocations();
+
+            ASSERTV(LINE, tj < CONT.size() || AA == A);
+            ASSERTV(LINE, tj, X, LENGTH, X.size(), verifySpec(X, EXP));
+            ASSERTV(LINE, tj, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+    }
+
+    typedef SubrangeContainer<typename TestValues::iterator> SRC;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                          SRC,
+                                          typename SRC::iterator::value_type>);
+
+    static_assert(false == bsl::ranges::sized_range<SRC>);
+#endif
+
+    if (veryVerbose) printf("\tTesting `insert_range`\n");
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec;
+        const char *const EXP    = DATA[ti].d_results;
+        const size_t      LENGTH = strlen(EXP);
+
+        if (veryVerbose) {
+            P_(LINE); P_(SPEC); P_(EXP); P(LENGTH);
+        }
+
+        TestValues CONT(SPEC);
+        for (size_t tj = 0; tj <= CONT.size(); ++tj) {
+            CONT.resetIterators();
+
+            typename TestValues::iterator BEGIN = CONT.begin();
+            typename TestValues::iterator MID   = CONT.index(tj);
+            typename TestValues::iterator END   = CONT.end();
+
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(BEGIN, MID, &oa); const Obj& X = mX;
+
+            const Int64 A = oa.numAllocations();
+
+            SRC subrange(MID, END);
+            mX.insert_range(subrange);                                  // TEST
 
             const Int64 AA = oa.numAllocations();
 
@@ -7376,6 +7639,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     //   unordered_multimap(ITER, ITER, size_t, allocator);
     //   unordered_multimap(ITER, ITER, size_t, hash, allocator);
     //   unordered_multimap(ITER, ITER, size_t, hash, equal, allocator);
+    //   unordered_multimap(fr_t , auto&& range, nb, hasher, key_equal, alloc);
+    //   unordered_multimap(fr_t , auto&& range, nb, hasher,            alloc);
+    //   unordered_multimap(fr_t , auto&& range, nb,                    alloc);
+    //   unordered_multimap(fr_t , auto&& range,                        alloc);
     // ------------------------------------------------------------------------
 
     HASH  tstHash(7);
@@ -7384,14 +7651,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     ASSERTV(!(HASH()  == tstHash));
     ASSERTV(!(EQUAL() == tstEqual));
 
+    const bsl::from_range_t fr;
+
     for (size_t i = 0; i < DEFAULT_NUM_DATA; ++i) {
         const int     LINE   = DEFAULT_DATA[i].d_line;
         const char   *SPEC   = DEFAULT_DATA[i].d_spec;
         const size_t  LENGTH = strlen(SPEC);
 
         TestValues values(SPEC);
+        TestValues& range = values;
 
-        for (char config = 'a'; config <= 'n'; ++config) {
+        for (char config = 'a'; config <= 's'; ++config) {
             const char CONFIG = config;
 
             bslma::TestAllocator sa("scratch",   veryVeryVeryVerbose);
@@ -7399,8 +7669,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
             bslma::TestAllocator da("default",   veryVeryVeryVerbose);
             bslma::DefaultAllocatorGuard dag(&da);
 
-            bslma::TestAllocator&  oa = (1 == ((CONFIG - 'a') & 1)) ? sa : da;
-            bslma::TestAllocator& noa = &oa == &da                  ? sa : da;
+            bslma::TestAllocator&  oa = strchr("bdfhjlnprs", CONFIG) ? sa : da;
+            bslma::TestAllocator& noa = &oa == &da                   ? sa : da;
 
             Obj *objPtr;
             int numPasses = 0;
@@ -7461,6 +7731,40 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
                     objPtr = new (fa) Obj(values.begin(), values.end(), 100,
                                           tstHash, tstEqual, &sa);
                   } break;
+                  case 'o': {
+                    objPtr = new (fa) Obj(fr,
+                                          range,
+                                          100,
+                                          tstHash,
+                                          tstEqual);
+                  } break;
+                  case 'p': {
+                    objPtr = new (fa) Obj(fr,
+                                          range,
+                                          100,
+                                          tstHash,
+                                          tstEqual,
+                                          &sa);
+                  } break;
+                  case 'q': {
+                    objPtr = new (fa) Obj(fr,
+                                          range,
+                                          100,
+                                          tstHash);
+                  } break;
+                  case 'r': {
+                    objPtr = new (fa) Obj(fr,
+                                          range,
+                                          100,
+                                          tstHash,
+                                          &sa);
+                  } break;
+                  case 's': {
+                    objPtr = new (fa) Obj(fr,
+                                          range,
+                                          100,
+                                          &sa);
+                  } break;
                   default: {
                     ASSERTV(0 && "unrecognized CONFIG");
                     return;                                           // RETURN
@@ -7476,10 +7780,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
             ASSERTV(LINE, CONFIG, EXP0 == (0 == oa.numBlocksInUse()));
             ASSERTV(LINE, CONFIG, EXP0 == (0 == oa.numBlocksTotal()));
 
+            const bool expectAtLeast100  = strchr("ijklmnopqrs", CONFIG);
+
             ASSERTV(numPasses, CONFIG, EXP0,
                                   (PLAT_EXC && !EXP0)      == (numPasses > 1));
             ASSERTV(numPasses, CONFIG,
-                                  (PLAT_EXC && LENGTH > 0) == (numPasses > 2));
+                        (PLAT_EXC && (LENGTH > 0 || expectAtLeast100))
+                     == (numPasses > 1));
 
             ASSERTV(LENGTH == X.size());
             ASSERTV(verifySpec(X, SPEC));
@@ -7487,14 +7794,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
             Obj mY; const Obj& Y = gg(&mY, SPEC);
             ASSERTV(X == Y);
 
-            ASSERTV((CONFIG >= 'i') == (X.bucket_count() > 100));
+            ASSERTV(expectAtLeast100 == (X.bucket_count() > 100));
 
-            const HASH& EXP_HASH = strchr("efghklmn", CONFIG) ? tstHash
-                                                              : HASH();
+            const HASH& EXP_HASH = strchr("efghklmnopqr", CONFIG) ? tstHash
+                                                                   : HASH();
             ASSERTV(CONFIG, EXP_HASH == X.hash_function());
 
-            const EQUAL& EXP_EQUAL = strchr("ghmn", CONFIG) ? tstEqual
-                                                            : EQUAL();
+            const EQUAL& EXP_EQUAL = strchr("ghmnop", CONFIG) ? tstEqual
+                                                              : EQUAL();
             ASSERTV(CONFIG, EXP_EQUAL == X.key_eq());
 
             fa.deleteObject(objPtr);
@@ -8069,8 +8376,12 @@ int main(int argc, char *argv[])
                          "\n==============================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase40_isRange,
+                      testCase40_isRangeConcepts,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase40_isRangeFunctionality,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 39: {
         //---------------------------------------------------------------------
@@ -8131,6 +8442,7 @@ int main(int argc, char *argv[])
         //   CONCERN: `find`        properly handles transparent comparators.
         //   CONCERN: `count`       properly handles transparent comparators.
         //   CONCERN: `equal_range` properly handles transparent comparators.
+        //   CONCERN: `erase`       properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -8179,6 +8491,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting mutable non-transparent multimap.\n");
             }
             testTransparentComparator(mXNT, false, KEY);
+            testTransparentComparatorMutable(mXNT, false, KEY);
 
             if (veryVerbose) {
                 printf("\tTesting const transparent multimap.\n");
@@ -8189,6 +8502,7 @@ int main(int argc, char *argv[])
                 printf("\tTesting mutable transparent multimap.\n");
             }
             testTransparentComparator(mXT,  true,  KEY);
+            testTransparentComparatorMutable(mXT, true, KEY);
         }
       } break;
       case 37: {

@@ -141,6 +141,7 @@ BSLS_IDENT("$Id: $")
 // 'k'             - non-negative integer
 // 'al'            - an STL-style memory allocator
 // 'i1', 'i2'      - two iterators defining a sequence of 'V' objects
+// 'rg'            - range of objects convertible to 'V'
 // 'il'            - object of type 'std::initializer_list<V>'
 // 'lil'           - length of 'il'
 // 'vt'            - object of type 'VALUE_TYPE'
@@ -168,6 +169,9 @@ BSLS_IDENT("$Id: $")
 // | vector<V> a(i1, i2)                     | O[distance(i1, i2)]           |
 // | vector<V> a(i1, i2, al)                 |                               |
 // |-----------------------------------------+-------------------------------|
+// | vector<V> a(from_range, rg)             | O[ranges::distance(rg)]       |
+// | vector<V> a(from_range, rg, al)         |                               |
+// |-----------------------------------------+-------------------------------|
 // | vector<V> a(il)                         | O[lil]                        |
 // | vector<V> a(il, al)                     |                               |
 // |-----------------------------------------+-------------------------------|
@@ -177,6 +181,8 @@ BSLS_IDENT("$Id: $")
 // | a.assign(k, rvt)                        |                               |
 // |-----------------------------------------+-------------------------------|
 // | a.assign(i1, i2)                        | O[distance(i1, i2)]           |
+// |-----------------------------------------+-------------------------------|
+// | a.assign_range(rg)                      | O[ranges::distance(rg)]       |
 // |-----------------------------------------+-------------------------------|
 // | a.assign(il)                            | O[lil]                        |
 // |-----------------------------------------+-------------------------------|
@@ -215,6 +221,8 @@ BSLS_IDENT("$Id: $")
 // |-----------------------------------------+-------------------------------|
 // | a.emplace_back(args)                    | O[1]                          |
 // |-----------------------------------------+-------------------------------|
+// | a.append_range(rg)                      | O[ranges::distance(rg)]       |
+// |-----------------------------------------+-------------------------------|
 // | a.emplace(p1, args)                     | O[1 + distance(p1, a.end())]  |
 // |-----------------------------------------+-------------------------------|
 // | a.insert(p1, vt)                        | O[1 + distance(p1, a.end())]  |
@@ -225,6 +233,10 @@ BSLS_IDENT("$Id: $")
 // |-----------------------------------------+-------------------------------|
 // | a.insert(p1, i1, i2)                    | O[distance(i1, i2)            |
 // |                                         |      + distance(p1, a.end())] |
+// |-----------------------------------------+-------------------------------|
+// | a.insert_range(p1, rg)                  | O[ranges::distance(rg) +      |
+// |                                         |   ranges::distance(p1,        |
+// |                                         |                    a.end())]  |
 // |-----------------------------------------+-------------------------------|
 // | a.insert(p1, il)                        | O[lil                         |
 // |                                         |      + distance(p1, a.end())] |
@@ -562,6 +574,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_hash.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
+#include <bslstl_ranges.h>
 #include <bslstl_stdexceptutil.h>
 
 #include <bslalg_arraydestructionprimitives.h>
@@ -582,6 +595,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
@@ -598,6 +612,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_libraryfeatures.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
@@ -613,6 +628,14 @@ BSLS_IDENT("$Id: $")
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #include <stdexcept>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -696,6 +719,48 @@ struct Vector_DeduceIteratorCategory<BSLSTL_ITERATOR, true> {
 };
 
 
+                          // ==================================
+                          // class Vector_RangeIteratorCategory
+                          // ==================================
+
+/// This `struct` provides a primitive means to determine the iterator category
+/// for an iterator/sentinel pair where there is a preference to treat any
+/// iterator where the `insertDistance` can be computed as a forward iterator,
+/// even if it does not meet the ranges concepts needed to be treated as one.
+template <class t_ITERATOR,
+          class t_SENTINEL,
+          bool t_NOTSPECIALIZED =
+              is_fundamental<t_ITERATOR>::value
+           || is_fundamental<t_SENTINEL>::value>
+struct Vector_RangeIteratorCategory {
+
+    // PUBLIC TYPES
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    // Treat an iterator like an input iterator if we can compute an insert
+    // distance in a SFINAE-friendly manner, otherwise just treat it like an
+    // input iterator.
+    typedef bsl::conditional_t<
+        BloombergLP::bslstl::IteratorUtil
+            ::canCalculateInsertDistance<t_ITERATOR, t_SENTINEL>(),
+        typename bsl::iterator_traits<t_ITERATOR>::iterator_category,
+        std::input_iterator_tag>                                         type;
+#else
+    typedef typename bsl::iterator_traits<t_ITERATOR>::iterator_category type;
+#endif
+};
+
+/// This partial specialization of the `struct` template for fundamental
+/// types provides a nested `type` that is not an iterator category, so can
+/// be used to control the internal dispatch of function template overloads
+/// taking two arguments of the same type.
+template <class t_ITERATOR, class t_SENTINEL>
+struct Vector_RangeIteratorCategory<t_ITERATOR, t_SENTINEL, true> {
+
+    // PUBLIC TYPES
+    typedef BloombergLP::bslmf::Nil type;
+};
+
                         // ======================================
                         // class vector_UintPtrConversionIterator
                         // ======================================
@@ -754,11 +819,11 @@ struct Vector_RangeCheck {
 
     /// Return `false`.  Note that we know of no way to identify an input
     /// iterator range that is guaranteed to be invalid.
-    template <class BSLSTL_ITERATOR>
+    template <class BSLSTL_ITERATOR, class SENTINEL>
     static
     typename bsl::enable_if<
             !Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
-    isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR);
+    isInvalidRange(BSLSTL_ITERATOR, SENTINEL);
 
     /// Return `true` if `last < first`, and `false` otherwise.  The
     /// behavior is undefined unless both `first` and `last` are valid
@@ -768,6 +833,11 @@ struct Vector_RangeCheck {
     typename bsl::enable_if<
              Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
     isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last);
+    template <class BSLSTL_ITERATOR, class SENTINEL>
+    static
+    typename bsl::enable_if<
+             Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value, bool>::type
+    isInvalidRange(BSLSTL_ITERATOR first, SENTINEL last);
 };
 
 #endif
@@ -1056,19 +1126,43 @@ class vector : public  vectorBase<VALUE_TYPE>
     // PRIVATE MANIPULATORS
 
     /// Populate a default-constructed vector with the values held in the
+    /// specified `range`.  This method should be called only from a
+    /// constructor.  The behavior is undefined unless the specified `begin`
+    /// is the first element in `range`.
+    template <class t_RANGE, class t_ITERATOR>
+    void construct(from_range_t                               ,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                   t_ITERATOR                                 begin);
+
+    /// Populate a default-constructed vector with the values held in the
+    /// specified `range`.  This method should be called only from a
+    /// constructor.  The behavior is undefined unless the specified `begin`
+    /// is the first element in `range`.
+    template <class t_RANGE, class t_ITERATOR>
+    void construct(from_range_t                               ,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                   t_ITERATOR                                 begin,
+                   std::forward_iterator_tag);
+    template <class t_RANGE, class t_ITERATOR>
+    void construct(from_range_t                               ,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                   t_ITERATOR                                 begin,
+                   std::input_iterator_tag);
+
+    /// Populate a default-constructed vector with the values held in the
     /// specified range `[first, last)`.  The additional
     /// `std::*iterator__tag` should be a default-constructed tag that
     /// corresponds to that found in `std::iterator_traits` for the
     /// (template parameter) `*_ITER` type.  This method should be called
     /// only from a constructor.  The behavior is undefined unless
     /// `first != last`.
-    template <class FWD_ITER>
+    template <class FWD_ITER, class SENTINEL>
     void constructFromRange(FWD_ITER              first,
-                            FWD_ITER              last,
+                            SENTINEL              last,
                             std::forward_iterator_tag);
-    template <class INPUT_ITER>
+    template <class INPUT_ITER, class SENTINEL>
     void constructFromRange(INPUT_ITER          first,
-                            INPUT_ITER          last,
+                            SENTINEL            last,
                             std::input_iterator_tag);
 
     /// Populate a default-constructed vector with the specified
@@ -1082,6 +1176,39 @@ class vector : public  vectorBase<VALUE_TYPE>
                             INTEGRAL          value,
                             BloombergLP::bslmf::Nil);
 
+
+    /// Populate a default-constructed vector with the values held in the
+    /// specified `[first, last)` range.  The specified `size` is the number
+    /// of elements in the range.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void constructFromSizedRange(t_ITERATOR first,
+                                 t_SENTINEL last,
+                                 size_type  size);
+
+    /// Append the values from the specified `range`.  The behavior is
+    /// undefined unless the specified `begin` is the first element in `range`.
+    template <class t_RANGE, class t_ITERATOR>
+    void privateAppendRange(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                            t_ITERATOR begin);
+    template <class t_RANGE, class t_ITERATOR>
+    void privateAppendRange(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                            t_ITERATOR begin,
+                            std::forward_iterator_tag);
+    template <class t_RANGE, class t_ITERATOR>
+    void privateAppendRange(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                            t_ITERATOR begin,
+                            std::input_iterator_tag);
+
+    /// Append the values from the specified `[begin, end)` range.  The
+    /// specified `rangeSize` is the number of elements in the range.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void privateAppendSizedRange(t_ITERATOR begin,
+                                 t_SENTINEL end,
+                                 size_type  rangeSize);
+
+    /// Append the values from the specified `[begin, end)` range.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void privateAppendUnsizedRange(t_ITERATOR begin, t_SENTINEL end);
 
     /// Match integral type for `INPUT_ITER`.
     template <class INPUT_ITER>
@@ -1100,19 +1227,25 @@ class vector : public  vectorBase<VALUE_TYPE>
                                BloombergLP::bslmf::MatchAnyType ,
                                BloombergLP::bslmf::MatchAnyType );
 
+    /// Range insert implementation function.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void privateInsert(const_iterator position,
+                       t_ITERATOR     first,
+                       t_SENTINEL     last);
+
     /// Specialized insertion for input iterators.
-    template <class INPUT_ITER>
+    template <class INPUT_ITER, class SENTINEL>
     void privateInsert(const_iterator position,
                        INPUT_ITER     first,
-                       INPUT_ITER     last,
+                       SENTINEL       last,
                        const          std::input_iterator_tag&);
 
     /// Specialized insertion for forward, bidirectional, and random-access
     /// iterators.
-    template <class FWD_ITER>
+    template <class FWD_ITER, class SENTINEL>
     void privateInsert(const_iterator position,
                        FWD_ITER       first,
-                       FWD_ITER       last,
+                       SENTINEL       last,
                        const          std::forward_iterator_tag&);
 
     /// Destructive move insertion from a temporary vector, to avoid
@@ -1222,6 +1355,19 @@ class vector : public  vectorBase<VALUE_TYPE>
     vector(INPUT_ITER       first,
            INPUT_ITER       last,
            const ALLOCATOR& basicAllocator = ALLOCATOR());
+
+    /// Create a vector from the elements of the specifed `range`.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is not specified, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  Note that `range` must meet the
+    /// requirements of an input range and the values from `range` must have a
+    /// type matching or convertible to (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    vector(from_range_t                               ,
+           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+           const ALLOCATOR&                           basicAllocator =
+                                                                  ALLOCATOR());
 
     /// Create a vector having the same value as the specified `original`
     /// object.  Use the allocator returned by
@@ -1365,6 +1511,13 @@ class vector : public  vectorBase<VALUE_TYPE>
     /// (see {Requirements on `VALUE_TYPE`}).
     void assign(size_type numElements, const VALUE_TYPE& value);
 
+    /// Assign to this object the elements of the specified `range`.  Note that
+    /// `range` must meet the requirements of an input range and the values
+    /// from `range` must have a type matching or convertible to (template
+    /// parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    void assign_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
                              // *** capacity ***
 
@@ -1409,6 +1562,14 @@ class vector : public  vectorBase<VALUE_TYPE>
     void shrink_to_fit();
 
                             // *** modifiers ***
+
+    /// Append to the end of this object the elements of the specified `range`.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    void append_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Append to the end of this vector a newly created `value_type`
@@ -1616,6 +1777,15 @@ class vector : public  vectorBase<VALUE_TYPE>
     iterator insert(const_iterator                    position,
                     std::initializer_list<VALUE_TYPE> values);
 #endif
+
+    /// Insert at the specified `position` in this object the elements of the
+    /// specified `range`.  Note that `range` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    iterator insert_range(const_iterator                             position,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
     /// Remove from this vector the element at the specified `position`, and
     /// return an iterator providing modifiable access to the element
@@ -1837,8 +2007,10 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     typedef std::size_t                           size_type;
     typedef std::ptrdiff_t                        difference_type;
     typedef ALLOCATOR                             allocator_type;
-    typedef typename ALLOCATOR::pointer           pointer;
-    typedef typename ALLOCATOR::const_pointer     const_pointer;
+    typedef typename allocator_traits<ALLOCATOR>::pointer
+                                                  pointer;
+    typedef typename allocator_traits<ALLOCATOR>::const_pointer
+                                                  const_pointer;
     typedef bsl::reverse_iterator<iterator>       reverse_iterator;
     typedef bsl::reverse_iterator<const_iterator> const_reverse_iterator;
 
@@ -1860,6 +2032,13 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     vector(INPUT_ITER       first,
            INPUT_ITER       last,
            const ALLOCATOR& basicAllocator = ALLOCATOR());
+
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+    vector(from_range_t                               ,
+           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+           const ALLOCATOR&                           basicAllocator =
+                                                                  ALLOCATOR());
 
     vector(const vector& original);
 
@@ -1905,6 +2084,10 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     void assign(INPUT_ITER first, INPUT_ITER last);
     void assign(size_type numElements, VALUE_TYPE *value);
 
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+    void assign_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
 
                              // *** iterators ***
 
@@ -1933,6 +2116,10 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     void shrink_to_fit();
 
                             // *** modifiers ***
+
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+    void append_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
     value_type &emplace_back();
 
@@ -1980,6 +2167,11 @@ class vector<VALUE_TYPE *, ALLOCATOR>
     iterator insert(const_iterator position,
                     std::initializer_list<VALUE_TYPE *> values);
 #endif
+
+    template <class t_RANGE>
+    BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+    iterator insert_range(const_iterator                             position,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
     iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
@@ -2152,6 +2344,17 @@ template<
     >
 vector(std::initializer_list<VALUE>, ALLOC *)
 -> vector<VALUE>;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+/// Deduce the template parameters `VALUE_TYPE` and `ALLOCATOR` from the
+/// parameters supplied to the constructor of `vector`.
+template <ranges::input_range t_RANGE,
+          class               t_ALLOCATOR =
+                                     allocator<ranges::range_value_t<t_RANGE>>>
+vector(from_range_t, t_RANGE&&, t_ALLOCATOR = t_ALLOCATOR())
+-> vector<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>;
+#endif
 #endif
 
 
@@ -2193,6 +2396,9 @@ class vector_UintPtrConversionIterator {
 
     // CREATORS
 
+    /// Create an uninitialized proxy iterator.
+    vector_UintPtrConversionIterator();
+
     /// Create a proxy iterator adapting the specified `it`.
     vector_UintPtrConversionIterator(ITERATOR it);                  // IMPLICIT
 
@@ -2201,6 +2407,10 @@ class vector_UintPtrConversionIterator {
     /// Increment this iterator to refer to the next element in the underlying
     /// sequence, and return a reference to this object.
     vector_UintPtrConversionIterator& operator++();
+
+    /// Return this object, and increment this iterator to refer to the next
+    /// element in the underlying sequence.
+    vector_UintPtrConversionIterator operator++(int);
 
     // ACCESSORS
 
@@ -2263,6 +2473,20 @@ class vector_UintPtrConversionIterator {
         return lhs.d_iter < rhs.d_iter;
     }
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    bool operator==(bsl::sentinel_for<ITERATOR> auto rhs) const
+    {
+        return d_iter == rhs;
+    }
+    friend auto operator-(bsl::sentinel_for<ITERATOR> auto s,
+                          vector_UintPtrConversionIterator i)
+    requires random_access_iterator<ITERATOR>
+    {
+        return s - i.d_iter;
+    }
+#endif
+
     /// Return the distance between the specified `lhs` iterator and the
     /// specified `rhs` iterator.  The behavior is undefined if `lhs` and
     /// `rhs` do not iterate over the same sequence, or if the (template
@@ -2270,6 +2494,9 @@ class vector_UintPtrConversionIterator {
     friend
     difference_type operator-(const vector_UintPtrConversionIterator& lhs,
                               const vector_UintPtrConversionIterator& rhs)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+    requires requires { lhs.d_iter - rhs.d_iter; }
+#endif
     {
         return lhs.d_iter - rhs.d_iter;
     }
@@ -2280,6 +2507,13 @@ class vector_UintPtrConversionIterator {
                         // --------------------------------------
 
 // CREATORS
+template <class VALUE_TYPE, class ITERATOR>
+inline
+vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::
+vector_UintPtrConversionIterator()
+{
+}
+
 template <class VALUE_TYPE, class ITERATOR>
 inline
 vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::
@@ -2298,6 +2532,16 @@ vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::operator++()
     return *this;
 }
 
+template <class VALUE_TYPE, class ITERATOR>
+inline
+vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>
+vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::operator++(int)
+{
+    vector_UintPtrConversionIterator tmp(*this);
+    ++d_iter;
+    return tmp;
+}
+
 // ACCESSORS
 template <class VALUE_TYPE, class ITERATOR>
 inline
@@ -2308,6 +2552,43 @@ vector_UintPtrConversionIterator<VALUE_TYPE, ITERATOR>::operator*() const
     return reinterpret_cast<UintPtr>(ptr);
 }
 
+                        // =================================
+                        // struct vector_UintPtrRangeAdapter
+                        // =================================
+
+/// This class provides a minimal proxy range adapter, transforming pointers
+/// to `uintptr_t` values on the fly, for only the operations needed to
+/// implement the member functions and constructors of the `vector` partial
+/// template specialization that take iterator ranges as arguments.  While it
+/// does not provide a standard conforming iterator itself, if provides exactly
+/// sufficient behavior to implement all the needed members.  `t_VALUE_TYPE`
+/// shall be a pointer type, and `[d_begin, d_end)` is a range of the input
+/// values.
+template <class t_VALUE_TYPE, class t_ITERATOR, class t_SENTINEL>
+struct vector_UintPtrRangeAdapter {
+    // TYPES
+    typedef vector_UintPtrConversionIterator<t_VALUE_TYPE,t_ITERATOR> iterator;
+    typedef iterator const_iterator;
+
+    // PUBLIC DATA
+    t_ITERATOR d_begin;
+    t_SENTINEL d_end;
+
+    // ACCESSORS
+    iterator begin() const { return iterator(d_begin); }
+    t_SENTINEL end() const { return d_end; }
+};
+
+/// Factory function for `vector_UintPtrRangeAdapter`.
+template <class t_VALUE_TYPE, class t_ITERATOR, class t_SENTINEL>
+inline
+vector_UintPtrRangeAdapter<t_VALUE_TYPE, t_ITERATOR, t_SENTINEL>
+vector_makeUintPtrRangeAdapter(t_ITERATOR begin, t_SENTINEL end)
+{
+    vector_UintPtrRangeAdapter<t_VALUE_TYPE, t_ITERATOR, t_SENTINEL> range =
+                                                                  {begin, end};
+    return range;
+}
 
                         // ========================
                         // class Vector_PushProctor
@@ -2391,11 +2672,11 @@ void Vector_PushProctor<VALUE_TYPE,ALLOCATOR>::release()
                         // class Vector_RangeCheck
                         // -----------------------
 
-template <class BSLSTL_ITERATOR>
+template <class BSLSTL_ITERATOR, class SENTINEL>
 inline
 typename enable_if<!Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value,
                    bool>::type
-Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR, BSLSTL_ITERATOR)
+Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR, SENTINEL)
 {
     return false;
 }
@@ -2407,6 +2688,15 @@ typename enable_if<Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value,
 Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR first, BSLSTL_ITERATOR last)
 {
     return last < first;
+}
+
+template <class BSLSTL_ITERATOR, class SENTINEL>
+inline
+typename enable_if<Vector_IsRandomAccessIterator<BSLSTL_ITERATOR>::value,
+                   bool>::type
+Vector_RangeCheck::isInvalidRange(BSLSTL_ITERATOR first, SENTINEL last)
+{
+    return last - first < 0;
 }
 #endif
 
@@ -2714,46 +3004,88 @@ void vector<VALUE_TYPE, ALLOCATOR>::Proctor::release()
 
 // PRIVATE MANIPULATORS
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class FWD_ITER>
+template <class t_RANGE, class t_ITERATOR>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::construct(
+                              from_range_t                               ,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                              t_ITERATOR                                 begin)
+{
+    BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(begin,
+                                                        ranges::end(range)));
+
+    typedef typename Vector_DeduceIteratorCategory<t_ITERATOR>::type Tag;
+
+    construct(from_range,
+              BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+              begin,
+              Tag());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE, class t_ITERATOR>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::construct(
+                              from_range_t                               ,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                              t_ITERATOR                                 begin,
+                              std::forward_iterator_tag)
+{
+    constructFromSizedRange(begin,
+                            ranges::end(range),
+                            ranges::distance(range));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE, class t_ITERATOR>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::construct(
+                              from_range_t                               ,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                              t_ITERATOR                                 begin,
+                              std::input_iterator_tag)
+{
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    if constexpr (ranges::sized_range<t_RANGE>) {
+        constructFromSizedRange(begin,
+                                ranges::end(range),
+                                ranges::size(range));
+    }
+    else // ...
+#endif
+    if (begin != ranges::end(range)) {
+        constructFromRange(begin,
+                           ranges::end(range),
+                           std::input_iterator_tag());
+    }
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL>
+inline
 void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
                                                FWD_ITER                  first,
-                                               FWD_ITER                  last,
+                                               SENTINEL                  last,
                                                std::forward_iterator_tag)
 {
     // Specialization for all iterators except input iterators: 'size' can be
     // computed in advance.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT((BloombergLP::bslstl::IteratorUtil
+                          ::canCalculateInsertDistance<FWD_ITER, FWD_ITER>()));
 
-    const size_type maxSize = max_size();
-    const size_type newSize = bsl::distance(first, last);
-
-    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(newSize > maxSize)) {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
-                           "vector<...>::(range-constructor): input too long");
-    }
-
-    size_type newCapacity = Vector_Util::computeNewCapacity(newSize,
-                                                            0,
-                                                            maxSize);
-    this->privateReserveEmpty(newCapacity);
-    Proctor proctor(this->d_dataBegin_p,
-                    this->d_capacity,
-                    static_cast<ContainerBase *>(this));
-
-    ArrayPrimitives::copyConstruct(this->d_dataEnd_p,
-                                   first,
-                                   last,
-                                   this->allocatorRef());
-    proctor.release();
-    this->d_dataEnd_p += newSize;
+    constructFromSizedRange(
+        first,
+        last,
+        BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITER>
+template <class INPUT_ITER, class SENTINEL>
 void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
                                                  INPUT_ITER              first,
-                                                 INPUT_ITER              last,
+                                                 SENTINEL                last,
                                                  std::input_iterator_tag)
 {
     // IMPLEMENTATION NOTES: construct this vector by iterated 'push_back',
@@ -2811,6 +3143,128 @@ void vector<VALUE_TYPE, ALLOCATOR>::constructFromRange(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_ITERATOR, class t_SENTINEL>
+void vector<VALUE_TYPE, ALLOCATOR>::constructFromSizedRange(t_ITERATOR first,
+                                                            t_SENTINEL last,
+                                                            size_type  size)
+{
+    if (size == 0) {
+        return;                                                       // RETURN
+    }
+
+    const size_type maxSize = max_size();
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(size > maxSize)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                           "vector<...>::(range-constructor): input too long");
+    }
+
+    size_type newCapacity = Vector_Util::computeNewCapacity(size, 0, maxSize);
+    this->privateReserveEmpty(newCapacity);
+    Proctor proctor(this->d_dataBegin_p,
+                    this->d_capacity,
+                    static_cast<ContainerBase *>(this));
+
+    ArrayPrimitives::copyConstruct(this->d_dataEnd_p,
+                                   first,
+                                   last,
+                                   this->allocatorRef());
+    proctor.release();
+    this->d_dataEnd_p += size;
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE, class t_ITERATOR>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::privateAppendRange(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                              t_ITERATOR begin)
+{
+    typedef typename Vector_DeduceIteratorCategory<t_ITERATOR>::type Tag;
+    privateAppendRange(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+                       begin,
+                       Tag());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE, class t_ITERATOR>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::privateAppendRange(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                              t_ITERATOR begin,
+                              std::forward_iterator_tag)
+{
+    privateAppendSizedRange(begin,
+                            ranges::end(range),
+                            ranges::distance(range));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE, class t_ITERATOR>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::privateAppendRange(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                              t_ITERATOR begin,
+                              std::input_iterator_tag)
+{
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    if constexpr (ranges::sized_range<t_RANGE>) {
+        privateAppendSizedRange(begin,
+                                ranges::end(range),
+                                ranges::size(range));
+    }
+    else // ...
+#endif
+    {
+        privateAppendUnsizedRange(begin, ranges::end(range));
+    }
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_ITERATOR, class t_SENTINEL>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::privateAppendSizedRange(
+                                                          t_ITERATOR begin,
+                                                          t_SENTINEL end,
+                                                          size_type  rangeSize)
+{
+    if (rangeSize == 0) {
+        return;                                                       // RETURN
+    }
+
+    size_type size = this->size();
+    size_type diff = max_size() - size;
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(rangeSize > diff)) {
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
+        BloombergLP::bslstl::StdExceptUtil::throwLengthError(
+                           "vector<...>::(range-constructor): input too long");
+    }
+
+    size += rangeSize;
+    if (size > this->capacity()) {
+        this->reserve(size);
+    }
+    BSLS_ASSERT_SAFE(this->capacity() >= size);
+    ArrayPrimitives::copyConstruct(this->d_dataEnd_p,
+                                   begin,
+                                   end,
+                                   this->allocatorRef());
+    this->d_dataEnd_p += rangeSize;
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_ITERATOR, class t_SENTINEL>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::privateAppendUnsizedRange(t_ITERATOR begin,
+                                                              t_SENTINEL end)
+{
+    for (; begin != end; ++begin) {
+        emplace_back(*begin);
+    }
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
 template <class INPUT_ITER>
 inline
 void vector<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
@@ -2841,16 +3295,29 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
     // Dispatch based on iterator category.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
-    typedef typename iterator_traits<INPUT_ITER>::iterator_category Tag;
+    typedef typename Vector_RangeIteratorCategory<INPUT_ITER,INPUT_ITER>::type
+                                                                           Tag;
     this->privateInsert(position, first, last, Tag());
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITER>
+template <class t_ITERATOR, class t_SENTINEL>
+inline
+void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(const_iterator position,
+                                                  t_ITERATOR     first,
+                                                  t_SENTINEL     last)
+{
+    typedef typename Vector_RangeIteratorCategory<t_ITERATOR, t_SENTINEL>::type
+                                                                           Tag;
+    this->privateInsert(position, first, last, Tag());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class INPUT_ITER, class SENTINEL>
 void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                       const_iterator                  position,
                                       INPUT_ITER                      first,
-                                      INPUT_ITER                      last,
+                                      SENTINEL                        last,
                                       const std::input_iterator_tag&)
 {
     // IMPLEMENTATION NOTES: We can't compute the size in advance.  Append onto
@@ -2990,21 +3457,24 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class FWD_ITER>
+template <class FWD_ITER, class SENTINEL>
 void vector<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                     const_iterator                    position,
                                     FWD_ITER                          first,
-                                    FWD_ITER                          last,
+                                    SENTINEL                          last,
                                     const std::forward_iterator_tag&)
 {
     // Specialization for all iterators except input iterators: 'size' can be
     // computed in advance.
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
+    BSLS_ASSERT_OPT((BloombergLP::bslstl::IteratorUtil
+                          ::canCalculateInsertDistance<FWD_ITER, SENTINEL>()));
 
     const iterator& pos = const_cast<iterator>(position);
 
     const size_type maxSize = max_size();
-    const size_type n = bsl::distance(first, last);
+    const size_type n =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
 
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(n > maxSize - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -3309,7 +3779,8 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(INPUT_ITER       first,
 {
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
-    typedef typename Vector_DeduceIteratorCategory<INPUT_ITER>::type Tag;
+    typedef typename Vector_RangeIteratorCategory<INPUT_ITER, INPUT_ITER>::type
+                                                                           Tag;
 
     if (is_same<Tag, BloombergLP::bslmf::Nil>::value || first != last) {
         // Range-check avoids allocating on an empty sequence.
@@ -3422,6 +3893,21 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(
 
 #endif
 
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+inline
+vector<VALUE_TYPE, ALLOCATOR>::vector(
+                     from_range_t                               ,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                     const ALLOCATOR&                           basicAllocator)
+: vectorBase<VALUE_TYPE>()
+, ContainerBase(basicAllocator)
+{
+    construct(from_range,
+              BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+              ranges::begin(range));
+}
 
 template <class VALUE_TYPE, class ALLOCATOR>
 BSLS_PLATFORM_AGGRESSIVE_INLINE
@@ -3463,10 +3949,7 @@ vector<VALUE_TYPE, ALLOCATOR>::operator=(const vector& rhs)
                                 Propagate());
         }
         else {
-            // Invoke 'erase' only if the current vector is not empty.
-            if (!this->empty()) {
-                erase(this->begin(), this->end());
-            }
+            clear();
             insert(this->begin(), rhs.begin(), rhs.end());
         }
     }
@@ -3531,10 +4014,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::assign(INPUT_ITER first, INPUT_ITER last)
 {
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(first, last));
 
-    if (!this->empty()) {
-        erase(this->begin(), this->end());
-    }
-
+    clear();
     insert(this->begin(), first, last);
 }
 
@@ -3543,12 +4023,19 @@ inline
 void vector<VALUE_TYPE, ALLOCATOR>::assign(size_type         numElements,
                                            const VALUE_TYPE& value)
 {
-    if (!this->empty()) {
-        erase(this->begin(), this->end());
-    }
+    clear();
     insert(this->begin(), numElements, value);
 }
 
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+void vector<VALUE_TYPE, ALLOCATOR>::assign_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    clear();
+    append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+}
 
                              // *** capacity ***
 
@@ -3672,6 +4159,16 @@ void vector<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 }
 
                             // *** modifiers ***
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+void vector<VALUE_TYPE, ALLOCATOR>::append_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    privateAppendRange(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+                       ranges::begin(range));
+}
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -3868,6 +4365,28 @@ vector<VALUE_TYPE, ALLOCATOR>::insert(
 #endif
 
 template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+typename vector<VALUE_TYPE, ALLOCATOR>::iterator
+vector<VALUE_TYPE, ALLOCATOR>::insert_range(
+                           const_iterator                             position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    BSLS_ASSERT_SAFE(this->begin() <= position);
+    BSLS_ASSERT_SAFE(position      <= this->end());
+
+    if (position == this->cend()) {
+        const size_type oldSize = this->size();
+        append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+        return this->begin() + oldSize;                               // RETURN
+    }
+
+    const size_type index = position - this->begin();
+    this->privateInsert(position, ranges::begin(range), ranges::end(range));
+    return this->begin() + index;
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename vector<VALUE_TYPE, ALLOCATOR>::iterator
 vector<VALUE_TYPE, ALLOCATOR>::erase(const_iterator position)
@@ -3940,15 +4459,12 @@ template <class VALUE_TYPE, class ALLOCATOR>
 inline
 void vector<VALUE_TYPE, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 {
-    if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(!this->empty())) {
+    if (!this->empty()) {
         BloombergLP::bslalg::ArrayDestructionPrimitives::destroy(
                                                    this->d_dataBegin_p,
                                                    this->d_dataEnd_p,
                                                    this->allocatorRef());
         this->d_dataEnd_p = this->d_dataBegin_p;
-    }
-    else {
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
     }
 }
 
@@ -4155,6 +4671,21 @@ vector<VALUE_TYPE *, ALLOCATOR>::vector(INPUT_ITER       first,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+inline
+vector<VALUE_TYPE *, ALLOCATOR>::vector(
+                     from_range_t                               ,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                     const ALLOCATOR&                           basicAllocator)
+: d_impl(from_range,
+         vector_makeUintPtrRangeAdapter<VALUE_TYPE *>(ranges::begin(range),
+                                                      ranges::end(range)),
+         basicAllocator)
+{
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
 inline
 vector<VALUE_TYPE *, ALLOCATOR>::vector(const vector& original)
 : d_impl(original.d_impl)
@@ -4265,6 +4796,18 @@ void vector<VALUE_TYPE *, ALLOCATOR>::assign(size_type   numElements,
                                              VALUE_TYPE *value)
 {
     d_impl.assign(numElements, (UintPtr) value);
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+inline
+void vector<VALUE_TYPE *, ALLOCATOR>::assign_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    d_impl.assign_range(
+             vector_makeUintPtrRangeAdapter<VALUE_TYPE *>(ranges::begin(range),
+                                                          ranges::end(range)));
 }
 
                              // *** iterators ***
@@ -4403,6 +4946,18 @@ void vector<VALUE_TYPE *, ALLOCATOR>::shrink_to_fit()
                             // *** modifiers ***
 
 template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+inline
+void vector<VALUE_TYPE *, ALLOCATOR>::append_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    d_impl.append_range(
+             vector_makeUintPtrRangeAdapter<VALUE_TYPE *>(ranges::begin(range),
+                                                          ranges::end(range)));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
 inline
 typename vector<VALUE_TYPE *, ALLOCATOR>::reference
 vector<VALUE_TYPE *, ALLOCATOR>::emplace_back()
@@ -4517,6 +5072,21 @@ vector<VALUE_TYPE *, ALLOCATOR>::insert(
         (const UintPtr *)position, Iter(values.begin()), Iter(values.end()));
 }
 #endif
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE*)
+inline
+typename vector<VALUE_TYPE *, ALLOCATOR>::iterator
+vector<VALUE_TYPE *, ALLOCATOR>::insert_range(
+                           const_iterator                             position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    return (iterator) d_impl.insert_range(
+             (const UintPtr*) position,
+             vector_makeUintPtrRangeAdapter<VALUE_TYPE *>(ranges::begin(range),
+                                                          ranges::end(range)));
+}
 
 template <class VALUE_TYPE, class ALLOCATOR>
 inline
@@ -4763,6 +5333,8 @@ extern template class bsl::vector<const char *>;
 #endif
 
 #endif // End C++11 code
+
+#undef BSLSTL_VECTOR_REQUIRES_CONTAINER_COMPATIBLE_RANGE
 
 #endif
 

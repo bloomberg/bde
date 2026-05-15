@@ -156,6 +156,7 @@ BSLS_IDENT("$Id: $")
 // 'n', 'm'        - number of elements in 'a' and 'b', respectively
 // 'al'            - an STL-style memory allocator
 // 'i1', 'i2'      - two iterators defining a sequence of 'V' objects
+// 'rg'            - range of objects convertible to 'V'
 // 'v'             - an object of type 'V'
 // 'rv'            - modifiable rvalue object of type 'V&&'
 // 'p1', 'p2'      - two iterators belonging to 'a'
@@ -188,6 +189,9 @@ BSLS_IDENT("$Id: $")
 // +----------------------------------------------------+--------------------+
 // | list<V> a(i1, i2);                                 | O[distance(i1, i2)]|
 // | list<V> a(i1, i2, al);                             |                    |
+// +----------------------------------------------------+--------------------+
+// | list<V> a(from_range, rg);                         | O[ranges::         |
+// | list<V> a(from_range, rg, al);                     |       distance(rg)]|
 // +----------------------------------------------------+--------------------+
 // | list<V> a({*}, al = A())                           | O[ni]              |
 // +----------------------------------------------------+--------------------+
@@ -231,6 +235,9 @@ BSLS_IDENT("$Id: $")
 // +----------------------------------------------------+--------------------+
 // | a.insert(p1, i1, i2)                               | O[distance(i1, i2)]|
 // +----------------------------------------------------+--------------------+
+// | a.insert_range(p1, rg)                             | O[ranges::         |
+// |                                                    |       distance(rg)]|
+// +----------------------------------------------------+--------------------+
 // | a.insert(p1, rv)                                   | O[1]               |
 // +----------------------------------------------------+--------------------+
 // | a.insert(p1, {*})                                  | O[ni]              |
@@ -242,6 +249,9 @@ BSLS_IDENT("$Id: $")
 // | a.clear()                                          | O[n]               |
 // +----------------------------------------------------+--------------------+
 // | a.assign(i1,i2)                                    | O[distance(i1, i2)]|
+// +----------------------------------------------------+--------------------+
+// | a.assign_range(rg)                                 | O[ranges::         |
+// |                                                    |       distance(rg)]|
 // +----------------------------------------------------+--------------------+
 // | a.assign(k, v)                                     | O[max(n, k)]       |
 // +----------------------------------------------------+--------------------+
@@ -256,6 +266,9 @@ BSLS_IDENT("$Id: $")
 // +----------------------------------------------------+--------------------+
 // | a.push_front(rv),                                  |                    |
 // | a.push_back(rv)                                    | O[1]               |
+// +----------------------------------------------------+--------------------+
+// | a.prepend_range(rg),                               | O[ranges::         |
+// | a.append_range(rv)                                 |       distance(rg)]|
 // +----------------------------------------------------+--------------------+
 // | a.pop_front(), a.pop_back()                        | O[1]               |
 // +----------------------------------------------------+--------------------+
@@ -579,6 +592,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_algorithm.h>
 #include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
+#include <bslstl_ranges.h>
 
 #include <bslalg_rangecompare.h>
 #include <bslalg_synththreewayutil.h>
@@ -592,6 +606,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isarithmetic.h>
 #include <bslmf_isbitwisemoveable.h>
@@ -619,6 +634,14 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #include <utility>   // for std::swap in C++11 or later
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
+#endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
@@ -1096,6 +1119,10 @@ class list {
                      NodePtr finish,
                      COMPARE comparator);
 
+    /// Append the values from the specified `[first, last)` range.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void privateAppendRange(t_ITERATOR first, t_SENTINEL last);
+
     /// Efficiently exchange the value of this object with that of the
     /// specified `other` object.  This method provides the no-throw
     /// exception-safety guarantee.  The behavior is undefined unless this
@@ -1229,6 +1256,19 @@ class list {
         tmp.insert(tmp.cbegin(), first, last);
         quickSwap(&tmp);
     }
+
+    /// Create a list from the elements of the specifed `range`.  Optionally
+    /// specify an `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is not specified, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  Note that `range` must meet the
+    /// requirements of an input range and the values from `range` must have a
+    /// type matching or convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    list(from_range_t                               ,
+         BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+         const ALLOCATOR&                           basicAllocator =
+                                                                  ALLOCATOR());
 
     /// Create a list having the same value as the specified `original`
     /// object.  Use the allocator returned by
@@ -1391,6 +1431,14 @@ class list {
     void assign(std::initializer_list<value_type> values);
 #endif
 
+    /// Assign to this object the elements of the specified `range`.  Note that
+    /// `range` must meet the requirements of an input range and the values
+    /// from `range` must have a type matching or convertible to (template
+    /// parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void assign_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
                               // *** iterators ***
 
     /// Return an iterator providing modifiable access to the first element
@@ -1470,6 +1518,14 @@ class list {
 
                             // *** end inserts ***
 
+    /// Append to the end of this object the elements of the specified `range`.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void append_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Append to the back of this list a newly created `value_type` object,
     /// constructed by forwarding `get_allocator()` (if required) and the
@@ -1499,6 +1555,14 @@ class list {
     template <class... ARGS>
     reference emplace_front(ARGS&&... arguments);
 #endif
+
+    /// Prepend to the front of this object the elements of the specified
+    /// `range`.  Note that `range` must meet the requirements of an input
+    /// range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void prepend_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
     /// Append to the back of this list a copy of the specified `value`.
     /// This method offers full guarantee of rollback in case an exception
@@ -1638,6 +1702,15 @@ class list {
     iterator insert(const_iterator                    dstPosition,
                     std::initializer_list<value_type> values);
 #endif
+
+    /// Insert at the specified `position` in this object the elements of the
+    /// specified `range`.  Note that `range` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    iterator insert_range(const_iterator                             position,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
                           // *** list operations ***
 
@@ -1895,6 +1968,17 @@ template<
     >
 list(std::initializer_list<VALUE>, ALLOC *)
 -> list<VALUE>;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+/// Deduce the template parameters `VALUE_TYPE` and `ALLOCATOR` from the
+/// parameters supplied to the constructor of `list`.
+template <ranges::input_range t_RANGE,
+          class               t_ALLOCATOR =
+                                     allocator<ranges::range_value_t<t_RANGE>>>
+list(from_range_t, t_RANGE&&, t_ALLOCATOR = t_ALLOCATOR())
+-> list<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>;
+#endif
 #endif
 
 // FREE OPERATORS
@@ -2359,6 +2443,17 @@ list<VALUE, ALLOCATOR>::mergeImp(NodePtr node1,
 }
 
 template <class VALUE, class ALLOCATOR>
+template <class t_ITERATOR, class t_SENTINEL>
+inline
+void list<VALUE, ALLOCATOR>::privateAppendRange(t_ITERATOR first,
+                                                t_SENTINEL last)
+{
+    for (; first != last; ++first) {
+        emplace_back(*first);
+    }
+}
+
+template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::quickSwap(list *other)
 {
@@ -2501,6 +2596,21 @@ list<VALUE, ALLOCATOR>::list(size_type        numElements,
     tmp.insert(tmp.cbegin(), numElements, value);    // 'tmp's destructor will
                                                      // clean up on throw.
     quickSwap(&tmp);      // Leave 'tmp' in an invalid but destructible state.
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+list<VALUE, ALLOCATOR>::list(
+                     from_range_t                               ,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                     const ALLOCATOR&                           basicAllocator)
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
+{
+    list tmp(this->allocatorImp());
+    tmp.append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+    quickSwap(&tmp);
 }
 
 template <class VALUE, class ALLOCATOR>
@@ -2749,6 +2859,16 @@ void list<VALUE, ALLOCATOR>::assign(std::initializer_list<VALUE> values)
 }
 #endif
 
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void list<VALUE, ALLOCATOR>::assign_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    clear();
+    append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+}
+
                               // *** iterators ***
 
 template <class VALUE, class ALLOCATOR>
@@ -2926,6 +3046,16 @@ list<VALUE, ALLOCATOR>::erase(const_iterator dstBegin, const_iterator dstEnd)
 
                             // *** end inserts ***
 
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void list<VALUE, ALLOCATOR>::append_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    privateAppendRange(ranges::begin(range), ranges::end(range));
+}
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class VALUE, class ALLOCATOR>
 template <class... ARGS>
@@ -2949,6 +3079,15 @@ list<VALUE, ALLOCATOR>::emplace_front(ARGS&&... arguments)
     return front();
 }
 #endif
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void list<VALUE, ALLOCATOR>::prepend_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    insert_range(begin(), BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+}
 
 template <class VALUE, class ALLOCATOR>
 inline
@@ -3046,6 +3185,22 @@ list<VALUE, ALLOCATOR>::insert(const_iterator               dstPosition,
     return insert(dstPosition, values.begin(), values.end());
 }
 #endif
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+typename list<VALUE, ALLOCATOR>::iterator
+list<VALUE, ALLOCATOR>::insert_range(
+                           const_iterator                             position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    list tmp(from_range,
+             BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+             get_allocator());
+    iterator it = !tmp.empty() ? tmp.begin() : position.unconst();
+    splice(position, tmp);
+    return it;
+}
 
                           // *** list operations ***
 
@@ -3665,6 +3820,8 @@ struct IsBitwiseMoveable<bsl::list<VALUE, ALLOCATOR> >
 }  // close enterprise namespace
 
 #endif // End C++11 code
+
+#undef BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE
 
 #endif
 

@@ -362,6 +362,55 @@ namespace ranges {
 }
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+namespace ranges {
+    using std::ranges::shift_left;
+    using std::ranges::shift_right;
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+namespace ranges {
+    using std::ranges::starts_with;
+    using std::ranges::ends_with;
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+namespace ranges {
+    using std::ranges::find_last;
+    using std::ranges::find_last_if;
+    using std::ranges::find_last_if_not;
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+namespace ranges {
+    using std::ranges::contains;
+    using std::ranges::contains_subrange;
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+namespace ranges {
+    using std::ranges::fold_left;
+    using std::ranges::fold_left_with_iter;
+    using std::ranges::fold_left_with_iter_result;
+    using std::ranges::fold_left_first;
+    using std::ranges::fold_left_first_with_iter;
+    using std::ranges::fold_left_first_with_iter_result;
+    using std::ranges::fold_right;
+    using std::ranges::fold_right_last;
+    using std::ranges::in_value_result;
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+namespace ranges {
+    using std::ranges::out_value_result;
+}
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.

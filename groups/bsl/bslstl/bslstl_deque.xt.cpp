@@ -150,6 +150,7 @@
 // [11] deque(size_type n, const A& a = A());
 // [11] deque(size_type n, const T& value, const A& a = A());
 // [11] deque(ITER first, ITER last, const A& a = A());
+// [11] deque(from_range_t, t_RANGE&& range, const A& a = A());
 // [23] deque(deque&& original);
 // [23] deque(deque&& original, const A& basicAllocator);
 // [29] deque(initializer_list<T>, const A& = A());
@@ -159,6 +160,7 @@
 // [ 8] deque& operator=(const deque& rhs);
 // [12] void assign(size_type n, const T& value);
 // [12] void assign(ITER first, ITER last);
+// [12] void assign_range(t_RANGE&& t_RANGE);
 // [13] void reserve(size_type n);
 // [13] void resize(size_type n);
 // [13] void resize(size_type n, const T& value);
@@ -169,6 +171,9 @@
 // [17] iterator insert(const_iterator pos, const T& value);
 // [17] iterator insert(const_iterator pos, size_type n, const T& value);
 // [18] iterator insert(const_iterator pos, ITER first, ITER last);
+// [18] iterator insert_range(const_iterator pos, t_RANGE&& range);
+// [18] void prepend_range(t_RANGE&& range);
+// [18] void append_range(t_RANGE&& range);
 // [19] iterator erase(const_iterator pos);
 // [19] iterator erase(const_iterator first, const_iterator last);
 // [20] void swap(deque& other);
@@ -334,13 +339,13 @@ enum {
 //              ADDITIONAL TEST MACROS FOR THIS TEST DRIVER
 // ----------------------------------------------------------------------------
 
-/// The macro `DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)` provides a compact
-/// syntax that can fit on one line of a test table to define a local variable
-/// with the specified `NAME` of type `bsl::bool_constant<VALUE>` where `VALUE`
-/// is the result of the specified `EXPRESSION`.
-#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
-    /// The BDE type traits library provides `bool_constant` in C++11 mode as
-    /// well as the Standard C++17.
+#define ASSERT_SAME_TYPE(...) ASSERT((bsl::is_same<__VA_ARGS__>::value))
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BOOL_CONSTANT)
+    /// This leading branch is the preferred version for C++17, but the
+    /// feature test macro is (currently) for documentation purposes only,
+    /// and never defined.  This is the ideal (simplest) form for such
+    /// declarations.
     #define DECLARE_BOOL_CONSTANT(NAME, EXPRESSION)                           \
         constexpr bsl::bool_constant<EXPRESSION> NAME{}
 #else
@@ -701,6 +706,21 @@ void debugprint(const bsl::deque<TYPE,ALLOC>& v)
 }
 
 }  // close namespace bsl
+
+/// Return `container[index]` even if `operator[]` is not provided.
+template <class t_CONTAINER>
+const typename t_CONTAINER::value_type&
+nthElem(const t_CONTAINER& container, ptrdiff_t index)
+{
+    typename t_CONTAINER::const_iterator it = container.begin();
+#ifndef BSLS_PLATFORM_CMP_SUN
+    bsl::advance(it, index);
+#else
+    ASSERT(index >= 0);
+    while(index-- > 0) ++it;
+#endif
+    return *it;
+}
 
                              // verifySpec
 
@@ -1416,6 +1436,8 @@ class CharList {
   public:
     // TYPES
 
+    typedef TYPE value_type;
+
     /// Input iterator.
     typedef bslstl::ForwardIterator<const TYPE, const TYPE *> const_iterator;
 
@@ -1475,6 +1497,8 @@ class CharArray {
   public:
     // TYPES
 
+    typedef TYPE value_type;
+
     /// Random-access iterator.
     typedef const TYPE *const_iterator;
 
@@ -1513,6 +1537,184 @@ typename CharArray<TYPE>::const_iterator CharArray<TYPE>::end() const
 {
     return const_iterator(d_value.end());
 }
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+                    // ==============================
+                    // class ContainerCompatibleRange
+                    // ==============================
+
+/// This type models the "container-compatible-range" exposition-only concept.
+template <class t_TYPE>
+class ContainerCompatibleRange {
+    // PRIVATE TYPES
+    using Container = bsl::vector<t_TYPE>;
+
+    // DATA
+    Container d_value;
+  public:
+    // TYPES
+    struct const_sentinel {
+        // PUBLIC DATA
+        typename Container::const_iterator d_end;
+
+        // CREATORS
+        const_sentinel() = default;
+        explicit const_sentinel(typename Container::const_iterator end)
+            : d_end(end) {}
+    };
+    struct const_iterator {
+        // DATA
+        typename Container::const_iterator d_it;
+      public:
+        // TYPES
+        using iterator_category = bsl::forward_iterator_tag;
+        using value_type = t_TYPE;
+        using reference_type = const value_type&;
+        using pointer_type = const value_type *;
+        using difference_type = std::ptrdiff_t;
+
+        // CREATORS
+        const_iterator() = default;
+        explicit const_iterator(typename Container::const_iterator it)
+            : d_it(it) {}
+
+        // MANIPULATORS
+        const_iterator& operator++() { ++d_it; return *this; }
+        const_iterator operator++(int) { auto tmp{*this}; ++d_it; return tmp; }
+
+        // ACCESSORS
+        reference_type operator*() const { return *d_it; }
+        bool operator==(const const_iterator&) const = default;
+        bool operator==(const_sentinel s) const { return d_it == s.d_end; }
+    };
+    using value_type = t_TYPE;
+
+    // CREATORS
+    ContainerCompatibleRange() = default;
+    explicit ContainerCompatibleRange(Container value)
+        : d_value(std::move(value)) {}
+
+    // ACCESSORS
+    auto begin() const { return const_iterator(d_value.begin()); }
+    auto end() const { return const_sentinel(d_value.end()); }
+};
+
+static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                                 ContainerCompatibleRange<int>,
+                                                 int>);
+static_assert(bsl::forward_iterator<
+                               ContainerCompatibleRange<int>::const_iterator>);
+
+                    // ===================================
+                    // class ContainerCompatibleSizedRange
+                    // ===================================
+
+/// This type models the "container-compatible-range" exposition-only concept
+//  and the `ranges::sized_range` concept.
+template <class t_TYPE>
+class ContainerCompatibleSizedRange {
+    // PRIVATE TYPES
+    using Container = bsl::vector<t_TYPE>;
+
+    // DATA
+    Container d_value;
+  public:
+    // TYPES
+    struct const_sentinel {
+        // PUBLIC DATA
+        typename Container::const_iterator d_end;
+
+        // CREATORS
+        const_sentinel() = default;
+        explicit const_sentinel(typename Container::const_iterator end)
+            : d_end(end) {}
+    };
+    struct const_iterator {
+        // DATA
+        typename Container::const_iterator d_it;
+      public:
+        // TYPES
+        using iterator_category = bsl::random_access_iterator_tag;
+        using value_type = t_TYPE;
+        using reference_type = const value_type&;
+        using pointer_type = const value_type *;
+        using difference_type = std::ptrdiff_t;
+
+        // CREATORS
+        const_iterator() = default;
+        explicit const_iterator(typename Container::const_iterator it)
+            : d_it(it) {}
+
+        // MANIPULATORS
+        const_iterator& operator++() { ++d_it; return *this; }
+        const_iterator operator++(int) { auto tmp{*this}; ++d_it; return tmp; }
+        const_iterator& operator--() { --d_it; return *this; }
+        const_iterator operator--(int) { auto tmp{*this}; --d_it; return tmp; }
+        const_iterator& operator+=(difference_type n)
+        {
+            d_it += n;
+            return *this;
+        }
+        const_iterator& operator-=(difference_type n)
+        {
+            d_it -= n;
+            return *this;
+        }
+
+        // ACCESSORS
+        reference_type operator*() const { return *d_it; }
+        reference_type operator[](difference_type i) const { return d_it[i]; }
+        bool operator==(const const_iterator&) const = default;
+        auto operator<=>(const const_iterator&) const = default;
+        bool operator==(const_sentinel s) const { return d_it == s.d_end; }
+        auto operator<=>(const_sentinel s) const { return d_it <=> s.d_end; }
+        difference_type operator-(const_iterator i) const
+        {
+            return d_it - i.d_it;
+        }
+
+        // FRIENDS
+        friend difference_type operator-(const_iterator i, const_sentinel s)
+        {
+            return i.d_it - s.d_end;
+        }
+        friend difference_type operator-(const_sentinel s, const_iterator i)
+        {
+            return s.d_end - i.d_it;
+        }
+        friend const_iterator operator+(const_iterator i, difference_type n)
+        {
+            return i += n;
+        }
+        friend const_iterator operator+(difference_type n, const_iterator i)
+        {
+            return i + n;
+        }
+        friend const_iterator operator-(const_iterator i, difference_type n)
+        {
+            return i -= n;
+        }
+    };
+    using value_type = t_TYPE;
+
+    // CREATORS
+    ContainerCompatibleSizedRange() = default;
+    explicit ContainerCompatibleSizedRange(Container value)
+        : d_value(std::move(value)) {}
+
+    // ACCESSORS
+    auto begin() const { return const_iterator(d_value.begin()); }
+    auto end() const { return const_sentinel(d_value.end()); }
+    auto size() const { return d_value.size(); }
+};
+
+static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                            ContainerCompatibleSizedRange<int>,
+                                            int>);
+static_assert(bsl::ranges::sized_range<ContainerCompatibleSizedRange<int>>);
+static_assert(bsl::random_access_iterator<
+                          ContainerCompatibleSizedRange<int>::const_iterator>);
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
                               // ====================
                               // class LimitAllocator
@@ -2299,6 +2501,10 @@ struct TestDriver {
     template <class CONTAINER>
     static void testCase18(const CONTAINER&);
 
+    /// Test `insert_range`, `prepend_range`, and `append_range` members.
+    template <class RANGE>
+    static void testCase18Cxx20Range();
+
     /// Test value `insert` members.
     static void testCase17();
 
@@ -2321,12 +2527,20 @@ struct TestDriver {
     template <class CONTAINER>
     static void testCase12Range(const CONTAINER&);
 
+    /// Test `assign_range` member template.
+    template <class RANGE>
+    static void testCase12Cxx20Range();
+
     /// Test value constructors.
     static void testCase11();
 
     /// Test range constructor.
     template <class CONTAINER>
     static void testCase11Range(const CONTAINER&);
+
+    /// Test C++20 range constructor.
+    template <class RANGE>
+    static void testCase11Cxx20Range();
 
     /// Test allocator-related concerns.
     static void testCase10();
@@ -8719,6 +8933,9 @@ void TestDriver<TYPE,ALLOC>::testCase18(const CONTAINER&)
     //      - In the presence of exceptions during memory allocations using
     //        a `bslma::TestAllocator` and varying its *allocation* *limit*,
     //        but do not compute the number of allocations.
+    //      - Repeat the above tests, but with a C++20 range instead of a pair
+    //        of iterators.  Also perform similar tests for `prepend_range` and
+    //        `append_range`.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
@@ -8736,6 +8953,9 @@ void TestDriver<TYPE,ALLOC>::testCase18(const CONTAINER&)
     //
     // Testing:
     //   iterator insert(const_iterator pos, ITER first, ITER last);
+    //   iterator insert_range(const_iterator pos, t_RANGE&& range);
+    //   void prepend_range(t_RANGE&& range);
+    //   void append_range(t_RANGE&& range);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -8963,6 +9183,453 @@ void TestDriver<TYPE,ALLOC>::testCase18(const CONTAINER&)
                             }
                             for (; k < LENGTH; ++k) {
                                 LOOP5_ASSERT(INIT_LINE, LINE, i, j, k,
+                                             DEFAULT_VALUE == X[k]);
+                            }
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
+                }
+                ASSERT(0 == oa.numMismatches());
+                ASSERT(0 == oa.numBlocksInUse());
+            }
+        }
+    }
+    ASSERT(0 == oa.numMismatches());
+    ASSERT(0 == oa.numBlocksInUse());
+
+    testCase18Cxx20Range<CONTAINER>();
+}
+
+template <class TYPE, class ALLOC>
+template <class RANGE>
+void TestDriver<TYPE,ALLOC>::testCase18Cxx20Range()
+{
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    ALLOC                xoa(&oa);
+
+    const TYPE DEFAULT_VALUE = TYPE(::DEFAULT_VALUE);
+
+    const TYPE         *values     = 0;
+    const TYPE *const&  VALUES     = values;
+    const int           NUM_VALUES = getValues(&values);
+
+    static const struct {
+        int d_lineNum;  // source line number
+        int d_length;   // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0   },
+        { L_,        1   },
+        { L_,        2   },
+        { L_,        3   },
+        { L_,        4   },
+        { L_,        5   },
+        { L_,        6   },
+        { L_,        7   },
+        { L_,        8   },
+        { L_,        9   },
+        { L_,       11   },
+        { L_,       12   },
+        { L_,       14   },
+        { L_,       15   },
+        { L_,       16   },
+        { L_,       17   }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // container spec
+    } U_DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "A"                       }, // 1
+        { L_,   "AB"                      }, // 2
+        { L_,   "ABC"                     }, // 3
+        { L_,   "ABCD"                    }, // 4
+        { L_,   "ABCDE"                   }, // 5
+        { L_,   "ABCDEAB"                 }, // 7
+        { L_,   "ABCDEABC"                }, // 8
+        { L_,   "ABCDEABCD"               }, // 9
+        { L_,   "ABCDEABCDEABCDE"         }, // 15
+        { L_,   "ABCDEABCDEABCDEA"        }, // 16
+        { L_,   "ABCDEABCDEABCDEAB"       }  // 17
+    };
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
+
+    if (verbose) printf("\tUsing `CONTAINER::const_iterator`.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using default value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                    const int     LINE         = U_DATA[ti].d_lineNum;
+                    const char   *SPEC         = U_DATA[ti].d_spec_p;
+                    const int     NUM_ELEMENTS = (int) strlen(SPEC);
+                    const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+
+                    RANGE mU(gV(SPEC));  const RANGE& U = mU;
+
+                    for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                        const size_t POS = j;
+
+                        Obj mX(INIT_LENGTH, xoa); const Obj& X = mX;
+                        mX.reserve(INIT_CAP);
+
+                        size_t k;
+                        for (k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] = VALUES[k % NUM_VALUES];
+                        }
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(SPEC);
+                        }
+
+                        const Int64 BB = oa.numBlocksTotal();
+                        const Int64  B = oa.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBEFORE: "); P_(BB); P_(B); P(mX);
+                        }
+
+                        iterator result = mX.insert_range(X.begin() + POS, U);
+
+                        const Int64 AA = oa.numBlocksTotal();
+                        const Int64  A = oa.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAFTER : "); P_(AA); P_(A); P(mX);
+                            T_; T_; T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        LOOP4_ASSERT(INIT_LINE, LINE, i, j,
+                                     LENGTH == X.size());
+                        LOOP4_ASSERT(INIT_LINE, LINE, i, j,
+                                     X.begin() + POS == result);
+
+                        size_t m;
+                        for (k = 0; k < POS; ++k) {
+                            LOOP4_ASSERT(INIT_LINE, LINE, j, k,
+                                         VALUES[k % NUM_VALUES] == X[k]);
+                        }
+                        for (m = 0; k < POS + NUM_ELEMENTS; ++k, ++m) {
+                            LOOP5_ASSERT(INIT_LINE, LINE, j, k, m,
+                                         nthElem(U, m) == X[k]);
+                        }
+                        for (m = POS; k < LENGTH; ++k, ++m) {
+                            LOOP5_ASSERT(INIT_LINE, LINE, j, k, m,
+                                         VALUES[m % NUM_VALUES] == X[k]);
+                        }
+                    }
+
+                    // `prepend_range`
+                    {
+                        const size_t POS = 0;
+
+                        Obj mX(INIT_LENGTH, xoa); const Obj& X = mX;
+                        mX.reserve(INIT_CAP);
+
+                        size_t k;
+                        for (k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] = VALUES[k % NUM_VALUES];
+                        }
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(SPEC);
+                        }
+
+                        const Int64 BB = oa.numBlocksTotal();
+                        const Int64  B = oa.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBEFORE: "); P_(BB); P_(B); P(mX);
+                        }
+
+                        mX.prepend_range(U);
+
+                        const Int64 AA = oa.numBlocksTotal();
+                        const Int64  A = oa.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAFTER : "); P_(AA); P_(A); P(mX);
+                            T_; T_; T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        LOOP3_ASSERT(INIT_LINE, LINE, i, LENGTH == X.size());
+
+                        size_t m;
+                        k = 0;
+                        for (m = 0; k < POS + NUM_ELEMENTS; ++k, ++m) {
+                            LOOP4_ASSERT(INIT_LINE, LINE, k, m,
+                                         nthElem(U, m) == X[k]);
+                        }
+                        for (m = POS; k < LENGTH; ++k, ++m) {
+                            LOOP4_ASSERT(INIT_LINE, LINE, k, m,
+                                         VALUES[m % NUM_VALUES] == X[k]);
+                        }
+                    }
+
+                    // `append_range`
+                    {
+                        const size_t POS = INIT_LENGTH;
+
+                        Obj mX(INIT_LENGTH, xoa); const Obj& X = mX;
+                        mX.reserve(INIT_CAP);
+
+                        size_t k;
+                        for (k = 0; k < INIT_LENGTH; ++k) {
+                            mX[k] = VALUES[k % NUM_VALUES];
+                        }
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(SPEC);
+                        }
+
+                        const Int64 BB = oa.numBlocksTotal();
+                        const Int64  B = oa.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tBEFORE: "); P_(BB); P_(B); P(mX);
+                        }
+
+                        mX.append_range(U);
+
+                        const Int64 AA = oa.numBlocksTotal();
+                        const Int64  A = oa.numBlocksInUse();
+
+                        if (veryVerbose) {
+                            printf("\t\t\t\tAFTER : "); P_(AA); P_(A); P(mX);
+                            T_; T_; T_; T_; P_(X); P(X.capacity());
+                        }
+
+                        LOOP3_ASSERT(INIT_LINE, LINE, i, LENGTH == X.size());
+
+                        size_t m;
+                        for (k = 0; k < POS; ++k) {
+                            LOOP3_ASSERT(INIT_LINE, LINE, k,
+                                         VALUES[k % NUM_VALUES] == X[k]);
+                        }
+                        for (m = 0; k < POS + NUM_ELEMENTS; ++k, ++m) {
+                            LOOP4_ASSERT(INIT_LINE, LINE, k, m,
+                                         nthElem(U, m) == X[k]);
+                        }
+                        for (m = POS; k < LENGTH; ++k, ++m) {
+                            LOOP4_ASSERT(INIT_LINE, LINE, k, m,
+                                         VALUES[m % NUM_VALUES] == X[k]);
+                        }
+                    }
+                }
+                ASSERT(0 == oa.numMismatches());
+                ASSERT(0 == oa.numBlocksInUse());
+            }
+        }
+    }
+    ASSERT(0 == oa.numMismatches());
+    ASSERT(0 == oa.numBlocksInUse());
+
+    if (verbose) printf("\tWith exceptions.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (4 < INIT_LENGTH && NUM_DATA-1 != i) {
+                continue;
+            }
+
+            for (int l = i; l < NUM_DATA; ++l) {
+                const size_t INIT_CAP = DATA[l].d_length;
+                ASSERT(INIT_LENGTH <= INIT_CAP);
+
+                if (veryVerbose) {
+                    printf("\t\tWith initial value of ");
+                    P_(INIT_LENGTH); P_(INIT_CAP);
+                    printf("using default value.\n");
+                }
+
+                for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                    const int     LINE         = U_DATA[ti].d_lineNum;
+                    const char   *SPEC         = U_DATA[ti].d_spec_p;
+                    const int     NUM_ELEMENTS = (int) strlen(SPEC);
+                    const size_t  LENGTH       = INIT_LENGTH + NUM_ELEMENTS;
+
+                    if (4 < NUM_ELEMENTS && NUM_U_DATA-1 != ti) {
+                        continue;
+                    }
+
+                    RANGE mU(gV(SPEC));  const RANGE& U = mU;
+
+                    for (size_t j = 0; j <= INIT_LENGTH; ++j) {
+                        const size_t POS = j;
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(SPEC);
+                        }
+
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                            const int AL = (int) oa.allocationLimit();
+                            oa.setAllocationLimit(-1);
+
+                            Obj mX(INIT_LENGTH, DEFAULT_VALUE, xoa);
+                            mX.reserve(INIT_CAP);
+                            const Obj& X = mX;
+
+                            oa.setAllocationLimit(AL);
+
+                            if (veryVerbose) {
+                                printf("\t\t\tBefore "); P(mX);
+                            }
+
+                            iterator result =
+                                           mX.insert_range(X.begin() + POS, U);
+                                                         // test insertion here
+
+                            if (veryVerbose) {
+                                printf("\t\t\tAfter "); P(mX);
+                            }
+
+                            if (veryVerbose) {
+                                T_; T_; T_; P_(X); P(X.capacity());
+                            }
+
+                            LOOP4_ASSERT(INIT_LINE, LINE, i, j,
+                                         LENGTH == X.size());
+                            LOOP4_ASSERT(INIT_LINE, LINE, i, j,
+                                         X.begin() + POS == result);
+
+                            size_t k;
+                            for (k = 0; k < POS; ++k) {
+                                LOOP5_ASSERT(INIT_LINE, LINE, i, j, k,
+                                             DEFAULT_VALUE == X[k]);
+                            }
+                            for (; k < POS + NUM_ELEMENTS; ++k) {
+                                LOOP5_ASSERT(INIT_LINE, LINE, i, j, k,
+                                             nthElem(U, k - POS) == X[k]);
+                            }
+                            for (; k < LENGTH; ++k) {
+                                LOOP5_ASSERT(INIT_LINE, LINE, i, j, k,
+                                             DEFAULT_VALUE == X[k]);
+                            }
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
+
+                    // `prepend_range`
+                    {
+                        const size_t POS = 0;
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(SPEC);
+                        }
+
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                            const int AL = (int) oa.allocationLimit();
+                            oa.setAllocationLimit(-1);
+
+                            Obj mX(INIT_LENGTH, DEFAULT_VALUE, xoa);
+                            mX.reserve(INIT_CAP);
+                            const Obj& X = mX;
+
+                            oa.setAllocationLimit(AL);
+
+                            if (veryVerbose) {
+                                printf("\t\t\tBefore "); P(mX);
+                            }
+
+                            mX.prepend_range(U);  // test insertion here
+
+                            if (veryVerbose) {
+                                printf("\t\t\tAfter "); P(mX);
+                            }
+
+                            if (veryVerbose) {
+                                T_; T_; T_; P_(X); P(X.capacity());
+                            }
+
+                            LOOP3_ASSERT(INIT_LINE, LINE, i,
+                                         LENGTH == X.size());
+
+                            size_t k;
+                            for (k = 0; k < POS + NUM_ELEMENTS; ++k) {
+                                LOOP4_ASSERT(INIT_LINE, LINE, i, k,
+                                             nthElem(U, k - POS) == X[k]);
+                            }
+                            for (; k < LENGTH; ++k) {
+                                LOOP4_ASSERT(INIT_LINE, LINE, i, k,
+                                             DEFAULT_VALUE == X[k]);
+                            }
+                        } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+                    }
+
+                    // `append_range`
+                    {
+                        const size_t POS = INIT_LENGTH;
+
+                        if (veryVerbose) {
+                            printf("\t\t\tInsert "); P_(NUM_ELEMENTS);
+                            printf("at "); P_(POS);
+                            printf("using "); P(SPEC);
+                        }
+
+                        BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                            const int AL = (int) oa.allocationLimit();
+                            oa.setAllocationLimit(-1);
+
+                            Obj mX(INIT_LENGTH, DEFAULT_VALUE, xoa);
+                            mX.reserve(INIT_CAP);
+                            const Obj& X = mX;
+
+                            oa.setAllocationLimit(AL);
+
+                            if (veryVerbose) {
+                                printf("\t\t\tBefore "); P(mX);
+                            }
+
+                            mX.append_range(U);  // test insertion here
+
+                            if (veryVerbose) {
+                                printf("\t\t\tAfter "); P(mX);
+                            }
+
+                            if (veryVerbose) {
+                                T_; T_; T_; P_(X); P(X.capacity());
+                            }
+
+                            LOOP3_ASSERT(INIT_LINE, LINE, i,
+                                         LENGTH == X.size());
+
+                            size_t k;
+                            for (k = 0; k < POS; ++k) {
+                                LOOP4_ASSERT(INIT_LINE, LINE, i, k,
+                                             DEFAULT_VALUE == X[k]);
+                            }
+                            for (; k < POS + NUM_ELEMENTS; ++k) {
+                                LOOP4_ASSERT(INIT_LINE, LINE, i, k,
+                                             nthElem(U, k - POS) == X[k]);
+                            }
+                            for (; k < LENGTH; ++k) {
+                                LOOP4_ASSERT(INIT_LINE, LINE, i, k,
                                              DEFAULT_VALUE == X[k]);
                             }
                         } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -10966,6 +11633,8 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     //    - Using `CONTAINER::const_iterator`.
     //    - In the presence of exceptions during memory allocations using
     //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
+    //    - Repeat the above tests, but with a C++20 range instead of a pair
+    //        of iterators.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
@@ -10976,6 +11645,7 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
     //
     // Testing:
     //   void assign(ITER first, ITER last);
+    //   void assign_range(t_RANGE&& t_RANGE);
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
@@ -11110,6 +11780,164 @@ void TestDriver<TYPE,ALLOC>::testCase12Range(const CONTAINER&)
                     oa.setAllocationLimit(AL);
 
                     mX.assign(U.begin(), U.end());  // test here
+                    proctor.release();
+
+                    if (veryVerbose) {
+                        T_; T_; T_; P_(X); P(X.capacity());
+                    }
+
+                    LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+
+                    for (size_t j = 0; j < LENGTH; ++j) {
+                        LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, Y[j] == X[j]);
+                    }
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+                LOOP_ASSERT(oa.numMismatches(),  0 == oa.numMismatches());
+                LOOP_ASSERT(oa.numBlocksInUse(), 0 == oa.numBlocksInUse());
+            }
+        }
+    }
+
+    testCase12Cxx20Range<CONTAINER>();
+}
+
+template <class TYPE, class ALLOC>
+template <class RANGE>
+void TestDriver<TYPE,ALLOC>::testCase12Cxx20Range()
+{
+    bslma::TestAllocator  oa("object", veryVeryVeryVerbose);
+    ALLOC                 xoa(&oa);
+
+    const TYPE          *values     = 0;
+    const TYPE *const&   VALUES     = values;
+    const int            NUM_VALUES = getValues(&values);
+
+    static const struct {
+        int d_lineNum;  // source line number
+        int d_length;   // expected length
+    } DATA[] = {
+        //line  length
+        //----  ------
+        { L_,        0   },
+        { L_,        1   },
+        { L_,        2   },
+        { L_,        3   },
+        { L_,        4   },
+        { L_,        5   },
+        { L_,        6   },
+        { L_,        7   },
+        { L_,        8   },
+        { L_,        9   },
+        { L_,       11   },
+        { L_,       12   },
+        { L_,       14   },
+        { L_,       15   },
+        { L_,       16   },
+        { L_,       17   }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // container spec
+    } U_DATA[] = {
+        //line  spec                            length
+        //----  ----                            ------
+        { L_,   ""                        }, // 0
+        { L_,   "A"                       }, // 1
+        { L_,   "AB"                      }, // 2
+        { L_,   "ABC"                     }, // 3
+        { L_,   "ABCD"                    }, // 4
+        { L_,   "ABCDE"                   }, // 5
+        { L_,   "ABCDEAB"                 }, // 7
+        { L_,   "ABCDEABC"                }, // 8
+        { L_,   "ABCDEABCD"               }, // 9
+        { L_,   "ABCDEABCDEABCDE"         }, // 15
+        { L_,   "ABCDEABCDEABCDEA"        }, // 16
+        { L_,   "ABCDEABCDEABCDEAB"       }  // 17
+    };
+    enum { NUM_U_DATA = sizeof U_DATA / sizeof *U_DATA };
+
+    if (verbose) printf("\tUsing `CONTAINER::const_iterator`.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                printf("\t\tWith initial value of "); P_(INIT_LENGTH);
+                printf("using default value.\n");
+            }
+
+            Obj mX(INIT_LENGTH, VALUES[i % NUM_VALUES], xoa);
+            const Obj& X = mX;
+
+            for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                const int     LINE   = U_DATA[ti].d_lineNum;
+                const char   *SPEC   = U_DATA[ti].d_spec_p;
+                const size_t  LENGTH = strlen(SPEC);
+
+                RANGE mU(gV(SPEC));  const RANGE& U = mU;
+
+                if (veryVerbose) {
+                    printf("\t\tAssign "); P_(LENGTH);
+                    printf(" using "); P(SPEC);
+                }
+
+                mX.assign_range(U);
+
+                if (veryVerbose) {
+                    T_; T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP4_ASSERT(INIT_LINE, LINE, i, ti, LENGTH == X.size());
+
+                Obj mY;  const Obj& Y = gg(&mY, SPEC);
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP5_ASSERT(INIT_LINE, LINE, i, ti, j, Y[j] == X[j]);
+                }
+            }
+        }
+        ASSERT(0 == oa.numMismatches());
+        ASSERT(0 == oa.numBlocksInUse());
+    }
+
+    if (verbose) printf("\tWith exceptions.\n");
+    {
+        for (int i = 0; i < NUM_DATA; ++i) {
+            const int    INIT_LINE   = DATA[i].d_lineNum;
+            const size_t INIT_LENGTH = DATA[i].d_length;
+
+            if (veryVerbose) {
+                printf("\t\tWith initial value of "); P_(INIT_LENGTH);
+                printf("using default value.\n");
+            }
+
+            for (int ti = 0; ti < NUM_U_DATA; ++ti) {
+                const int     LINE   = U_DATA[ti].d_lineNum;
+                const char   *SPEC   = U_DATA[ti].d_spec_p;
+                const size_t  LENGTH = strlen(SPEC);
+
+                RANGE mU(gV(SPEC));  const RANGE& U = mU;
+
+                if (veryVerbose) {
+                    printf("\t\tAssign "); P_(LENGTH);
+                    printf(" using "); P(SPEC);
+                }
+
+                Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                    const int AL = (int) oa.allocationLimit();
+                    oa.setAllocationLimit(-1);
+
+                    Obj mX(INIT_LENGTH, xoa);  const Obj& X = mX;
+                    ExceptionProctor<Obj, ALLOC> proctor(&mX, Obj(), L_);
+
+                    oa.setAllocationLimit(AL);
+
+                    mX.assign_range(U);  // test here
                     proctor.release();
 
                     if (veryVerbose) {
@@ -11494,6 +12322,8 @@ void TestDriver<TYPE,ALLOC>::testCase11Range(const CONTAINER&)
     //    - With and without passing in an allocator.
     //    - In the presence of exceptions during memory allocations using
     //        a `bslma::TestAllocator` and varying its *allocation* *limit*.
+    //    - Repeat the above tests, but with a C++20 range instead of a pair
+    //        of iterators.
     //   and use basic accessors to verify
     //      - size
     //      - capacity
@@ -11501,6 +12331,7 @@ void TestDriver<TYPE,ALLOC>::testCase11Range(const CONTAINER&)
     //
     // Testing:
     //   deque(ITER first, ITER last, const A& a = A());
+    //   deque(from_range_t, t_RANGE&& range, const A& a = A());
     // ------------------------------------------------------------------------
 
     bslma::TestAllocator oa("object", veryVeryVeryVerbose);
@@ -11610,6 +12441,145 @@ void TestDriver<TYPE,ALLOC>::testCase11Range(const CONTAINER&)
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
                 Obj mX(U.begin(), U.end(), xoa);
+
+                const Obj& X = mX;
+
+                if (veryVerbose) {
+                    T_; T_; P_(X); P(X.capacity());
+                }
+
+                LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+                LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+                for (size_t j = 0; j < LENGTH; ++j) {
+                    LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+                }
+
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            const Int64 AA = oa.numBlocksTotal();
+            const Int64  A = oa.numBlocksInUse();
+
+            if (veryVerbose) { printf("\t\tAFTER : "); P_(AA); P(A);}
+
+            LOOP2_ASSERT(LINE, ti, 0 == oa.numBlocksInUse());
+        }
+    }
+
+    testCase11Cxx20Range<CONTAINER>();
+}
+
+template <class TYPE, class ALLOC>
+template <class RANGE>
+void TestDriver<TYPE,ALLOC>::testCase11Cxx20Range()
+{
+    bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+    ALLOC                xoa(&oa);
+
+    static const struct {
+        int         d_lineNum;  // source line number
+        const char *d_spec_p;   // initial
+    } DATA[] = {
+        { L_,  ""                },
+        { L_,  "A"               },
+        { L_,  "AB"              },
+        { L_,  "ABC"             },
+        { L_,  "ABCD"            },
+        { L_,  "ABCDE"           },
+        { L_,  "ABCDEAB"         },
+        { L_,  "ABCDEABC"        },
+        { L_,  "ABCDEABCD"       }
+    };
+    enum { NUM_DATA = sizeof DATA / sizeof *DATA };
+
+    if (verbose) printf("\tWithout passing in an allocator.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = strlen(SPEC);
+
+            if (verbose) {
+                printf("\t\tCreating object of "); P_(LENGTH);
+                printf("using "); P(SPEC);
+            }
+
+            RANGE mU(gV(SPEC));  const RANGE& U = mU;
+
+            Obj mX(bsl::from_range, U);  const Obj& X = mX;
+
+            if (veryVerbose) {
+                T_; T_; P_(X); P(X.capacity());
+            }
+
+            LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+            LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+            Obj mY;  const Obj& Y = gg(&mY, SPEC);
+            for (size_t j = 0; j < LENGTH; ++j) {
+                LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+            }
+        }
+    }
+
+    if (verbose) printf("\tWith passing in an allocator.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = strlen(SPEC);
+
+            if (verbose) { printf("\t\tCreating object "); P(SPEC); }
+
+            RANGE mU(gV(SPEC));  const RANGE& U = mU;
+            Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+            const Int64 BB = oa.numBlocksTotal();
+            const Int64  B = oa.numBlocksInUse();
+
+            Obj        mX(bsl::from_range, U, xoa);
+            const Obj& X = mX;
+
+            const Int64 AA = oa.numBlocksTotal();
+            const Int64  A = oa.numBlocksInUse();
+
+            if (veryVerbose) {
+                T_; T_; P_(X); P(X.capacity());
+                T_; T_; P_(AA - BB); P(A - B);
+            }
+
+            LOOP2_ASSERT(LINE, ti, LENGTH == X.size());
+            LOOP2_ASSERT(LINE, ti, LENGTH <= X.capacity());
+
+            for (size_t j = 0; j < LENGTH; ++j) {
+                LOOP3_ASSERT(LINE, ti, j, Y[j] == X[j]);
+            }
+        }
+    }
+
+    if (verbose) printf("\tWith passing an allocator and checking for "
+                        "allocation exceptions.\n");
+    {
+        for (int ti = 0; ti < NUM_DATA; ++ti) {
+            const int     LINE   = DATA[ti].d_lineNum;
+            const char   *SPEC   = DATA[ti].d_spec_p;
+            const size_t  LENGTH = strlen(SPEC);
+
+            if (verbose) {
+                printf("\t\tCreating object of "); P_(LENGTH);
+                printf("using "); P(SPEC);
+            }
+
+            RANGE mU(gV(SPEC));  const RANGE& U = mU;
+            Obj mY;  const Obj& Y = gg(&mY, SPEC);
+
+            const Int64 BB = oa.numBlocksTotal();
+            const Int64  B = oa.numBlocksInUse();
+
+            if (veryVerbose) { printf("\t\tBEFORE: "); P_(BB); P(B);}
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                Obj mX(bsl::from_range, U, xoa);
 
                 const Obj& X = mX;
 
@@ -15677,10 +16647,6 @@ void MetaTestDriver<TYPE>::testCase20()
 /// deque(size_t, ALLOC)
 /// ```
 struct TestDeductionGuides {
-
-#define ASSERT_SAME_TYPE(...) \
- static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
-
     /// Test that constructing a `bsl::deque` from various combinations of
     /// arguments deduces the correct type.
     /// ```
@@ -15694,6 +16660,10 @@ struct TestDeductionGuides {
     /// deque(iter, iter, ALLOC) -> deque<iter::VALUE_TYPE, ALLOC>
     /// deque(initializer_list<T>)        -> deque<T>
     /// deque(initializer_list<T>, ALLOC) -> deque<T>
+    /// deque(from_range_t, t_RANGE&&)
+    ///   -> deque<ranges::range_value_t<t_RANGE>>
+    /// deque(from_range_t, t_RANGE&&, t_ALLOCATOR)
+    ///   -> deque<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>
     /// ```
     static void SimpleConstructors ()
     {
@@ -15800,6 +16770,20 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(d10c), bsl::deque<T10, bsl::allocator<T10>>);
         ASSERT_SAME_TYPE(decltype(d10d), bsl::deque<T10, std::allocator<T10>>);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        {
+            typedef int T;
+            const T range[] = {1, 2, 3};
+
+            bsl::deque d1(bsl::from_range, range);
+            bsl::deque d2(bsl::from_range, range, std::allocator<T>{});
+
+            ASSERT_SAME_TYPE(decltype(d1), bsl::deque<T, bsl::allocator<T>>);
+            ASSERT_SAME_TYPE(decltype(d2), bsl::deque<T, std::allocator<T>>);
+        }
+#endif
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
 // #define BSLSTL_DEQUE_COMPILE_FAIL_POINTER_IS_NOT_A_SIZE
@@ -15809,8 +16793,6 @@ struct TestDeductionGuides {
         // This should fail to compile (pointer is not a size)
 #endif
     }
-
-#undef ASSERT_SAME_TYPE
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -16675,6 +17657,9 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   iterator insert(const_iterator pos, ITER first, ITER last);
+        //   iterator insert_range(const_iterator pos, t_RANGE&& range);
+        //   void prepend_range(t_RANGE&& range);
+        //   void append_range(t_RANGE&& range);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING INPUT-RANGE INSERTION\n"
@@ -16717,6 +17702,17 @@ int main(int argc, char *argv[])
 
         typedef bsltf::StdAllocTestType<bsl::allocator<int> > AllocInt;
         StdBslmaTestDriver<AllocInt>::testCase18(CharArray<AllocInt>());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        if (verbose) printf("\nTESTING C++20 RANGES"
+                            "\n=====================\n");
+        {
+            TestDriver<char>::testCase18Cxx20Range<
+                                             ContainerCompatibleRange<char>>();
+            TestDriver<char>::testCase18Cxx20Range<
+                                        ContainerCompatibleSizedRange<char>>();
+        }
+#endif
       } break;
       case 17: {
         // --------------------------------------------------------------------
@@ -16876,6 +17872,7 @@ int main(int argc, char *argv[])
         // Testing:
         //   void assign(size_t n, const T& value);
         //   void assign(ITER first, ITER last);
+        //   void assign_range(t_RANGE&& t_RANGE);
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING ASSIGNMENT\n"
@@ -16927,6 +17924,17 @@ int main(int argc, char *argv[])
         TestDriver<BCTT>::testCase12Range(CharArray<BCTT>());
 
         StdBslmaTestDriver<AllocInt>::testCase12Range(CharArray<AllocInt>());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        if (verbose) printf("\nTESTING C++20 RANGES"
+                            "\n=====================\n");
+        {
+            TestDriver<char>::testCase12Cxx20Range<
+                                             ContainerCompatibleRange<char>>();
+            TestDriver<char>::testCase12Cxx20Range<
+                                        ContainerCompatibleSizedRange<char>>();
+        }
+#endif
       } break;
       case 11: {
         // --------------------------------------------------------------------
@@ -16936,6 +17944,7 @@ int main(int argc, char *argv[])
         //   deque(size_type n, const A& a = A());
         //   deque(size_type n, const T& value, const A& a = A());
         //   deque(ITER first, ITER last, const A& a = A());
+        //   deque(from_range_t, t_RANGE&& range, const A& a = A());
         // --------------------------------------------------------------------
 
         if (verbose) printf("TESTING RANGE AND INITIAL-LENGTH CONSTRUCTORS\n"
@@ -17002,6 +18011,33 @@ int main(int argc, char *argv[])
         TestDriver<BCTT>::testCase11Range(CharArray<BCTT>());
 
         StdBslmaTestDriver<AllocInt>::testCase11Range(CharArray<AllocInt>());
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+        if (verbose) printf("\nTESTING C++20 RANGES"
+                            "\n=====================\n");
+        {
+            TestDriver<char>::testCase11Cxx20Range<
+                                             ContainerCompatibleRange<char>>();
+            TestDriver<char>::testCase11Cxx20Range<
+                                        ContainerCompatibleSizedRange<char>>();
+        }
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        // Test `bsl::ranges::to`
+        {
+            const int nums[] = {1, 2, 3};
+            {
+                auto v = std::ranges::to<bsl::deque>(nums);
+                ASSERT_SAME_TYPE(decltype(v), bsl::deque<int>);
+                ASSERT(bsl::ranges::equal(v, nums));
+            }
+            {
+                auto v = std::ranges::to<bsl::deque<long>>(nums);
+                ASSERT_SAME_TYPE(decltype(v), bsl::deque<long>);
+                ASSERT(bsl::ranges::equal(v, nums));
+            }
+        }
+#endif
+#endif
       } break;
       case 10: {
         // --------------------------------------------------------------------

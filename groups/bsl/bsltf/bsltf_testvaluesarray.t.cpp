@@ -9,18 +9,25 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_outputredirector.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#include <ranges>  // Cannot use `bsl::ranges` from higher package.
+#endif
 
 using namespace BloombergLP;
 using namespace BloombergLP::bsltf;
@@ -83,6 +90,8 @@ using bsls::NameOf;
 // [15] iterator begin();
 // [15] iterator index(size_t position);
 // [15] iterator end();
+// [15] const_iterator begin() const;
+// [15] const_iterator end() const;
 // [15] void resetIterators();
 //
 // ACCESSORS
@@ -109,8 +118,9 @@ using bsls::NameOf;
 //
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [17] USAGE EXAMPLE
+// [18] USAGE EXAMPLE
 // [16] CONCERN: all values in the array are printable with `P()` macro
+// [17] CONCERN: `TestValueArray` IS CPP20-RANGE COMPLIANT
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -279,10 +289,12 @@ class TestDriver
     // TYPES
 
     /// The type under testing.
-    typedef bsltf::TestValuesArray<VALUE, ALLOCATOR, CONVERTER> Obj;
+    typedef bsltf::TestValuesArray<VALUE, ALLOCATOR, CONVERTER, false>  Obj;
+    typedef bsltf::TestValuesArray<VALUE, ALLOCATOR, CONVERTER, true>  SObj;
 
     /// The iterator for the type under testing.
-    typedef TestValuesArrayIterator<VALUE> Iterator;
+    typedef TestValuesArrayIterator<      VALUE>      Iterator;
+    typedef TestValuesArrayIterator<const VALUE> ConstIterator;
 
     enum { k_IS_BSL_ALLOCATOR = bsl::is_same<ALLOCATOR,
                                              bsl::allocator<VALUE> >::value,
@@ -290,6 +302,12 @@ class TestDriver
 
   public:
     // TEST CASES
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    // TESTING RANGE CONCERNS
+    static void testCase17();
+#endif
 
     /// TESTING PRINT CONCERNS.
     static void testCase16();
@@ -343,6 +361,93 @@ class TestDriver
                               // ----------
                               // TEST CASES
                               // ----------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class VALUE, class ALLOCATOR, class CONVERTER>
+void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase17()
+{
+    // --------------------------------------------------------------------
+    // RANGE COMPLIANCE
+    //
+    // Concerns:
+    // 1. `TestValueArray` meets the constraints of the concept:
+    //     Container Compatible Range
+    //
+    // Plan:
+    // 1. Test the required type traits in `static_assert` statements.
+    //
+    // Testing:
+    //   CONCERN: `TestValueArray` IS RANGE COMPLIANT
+    // --------------------------------------------------------------------
+
+    if (verbose) printf("\nVALUE: %s\n", NameOf<VALUE>().name());
+
+    static_assert(std::ranges::range<Obj>);
+    static_assert(bslmf::ContainerCompatibleRange<Obj, VALUE>);
+
+    Obj tva; // `end` returns an `iterator`.
+
+    static_assert(true  == std::sentinel_for<decltype(tva.end()  ),
+                                             decltype(tva.begin())>);
+
+    static_assert(true  == std::is_same_v<   decltype(tva.end()  ),
+                                             decltype(tva.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::iterator,
+                                             decltype(tva.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::iterator,
+                                             decltype(tva.end())>);
+
+    const Obj& TVA = tva; // `const` qualified
+
+    static_assert(true  == std::sentinel_for<decltype(TVA.end()  ),
+                                             decltype(TVA.begin())>);
+
+    static_assert(true  == std::is_same_v<   decltype(TVA.end()  ),
+                                             decltype(TVA.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::const_iterator,
+                                             decltype(TVA.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::const_iterator,
+                                             decltype(TVA.end())>);
+
+    static_assert(std::ranges::range<SObj>);
+    static_assert(bslmf::ContainerCompatibleRange<SObj, VALUE>);
+
+    SObj stva;  // `end` returns an `sentinel`.
+
+    static_assert(true  == std::sentinel_for<decltype(stva.end()  ),
+                                             decltype(stva.begin())>);
+
+    static_assert(false == std::is_same_v<   decltype(stva.end()  ),
+                                             decltype(stva.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::iterator,
+                                             decltype(stva.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::sentinel,
+                                             decltype(stva.end())>);
+
+    const SObj& STVA = stva; // `const` qualified
+
+    static_assert(true  == std::sentinel_for<decltype(STVA.end()  ),
+                                             decltype(STVA.begin())>);
+
+    static_assert(false == std::is_same_v<   decltype(STVA.end()  ),
+                                             decltype(STVA.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::const_iterator,
+                                             decltype(STVA.begin())>);
+
+    static_assert(true  == std::is_same_v<   typename Obj::const_sentinel,
+                                             decltype(STVA.end())>);
+}
+
+#endif
 
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
@@ -408,7 +513,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
             }
 
             if (redirector.outputSize() < 12 ) {
-                ASSERT(0 == "Redirected output buffer is shorted than expected.");
+                ASSERT(0 ==
+                         "Redirected output buffer is shorted than expected.");
                 break;
             }
 
@@ -497,7 +603,6 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase16()
     }
 }
 
-
 template <class VALUE, class ALLOCATOR, class CONVERTER>
 void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
 {
@@ -519,6 +624,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     //
     // 5. QoI: Asserted precondition violations are detected when enabled.
     //
+    // 6. The behavior of `const_iterator` matches that of `iterator` when
+    //    the object under test is `const`-qualified.
+    //
+    // 7. The behavior of `iterator` and `const_iterator` are preserved when
+    //    the object under test returns `sentinel` (`const_sentinel`).
+    //
     // Plan:
     // 1. Using the table-driven technique:
     //
@@ -534,6 +645,12 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     //
     //   3. Iterate through the whole TestValuesArray and verify iterator
     //      values.  (C-2)
+    //
+    //   4. Repeat the P-2.1 .. P-2.3 for a `const`-qualified object when
+    //      `begin()` returns a `const_iterator`.  (C-6)
+    //
+    //   5. Repeat P-2.4 when the object under test sets the `USE_SENTINEL`
+    //      template parameter to `true`. (C-7)
     //
     // 3. For each row (representing a distinct object value, `V`) in the table
     //    described in P-1:
@@ -557,6 +674,8 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
     // Testing:
     //  iterator begin();
     //  iterator end();
+    //  const_iterator end()   const;
+    //  const_iterator begin() const;
     //  iterator index(size_t position);
     //  void resetIterators();
     // ------------------------------------------------------------------------
@@ -571,13 +690,16 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
             const char   *SPEC = DATA[ti].d_spec;
             const size_t  SIZE = strlen(SPEC);
 
-            if (veryVeryVerbose) { T_ T_ P_(LINE) P(SPEC); }
+            if (veryVeryVerbose) { T_ T_ P_(LINE) P_(SIZE) P(SPEC) }
 
-            Obj        mX(SPEC);
-            const Obj& X = mX;
+             Obj mX(SPEC); const  Obj& X = mX;  // `end()` returns iterator
+            SObj mY(SPEC); const SObj& Y = mY;  // `end()` returns sentinel
 
             Iterator it = mX.begin();
             for (size_t i = 0; i < SIZE; ++i) {
+                if (veryVeryVerbose) {
+                    T_ T_ T_ P_(i) P(X[i])
+                }
                 ASSERTV(SPEC, i,
                         CONVERTER::getIdentifier(X[i]) ==
                                                 CONVERTER::getIdentifier(*it));
@@ -585,6 +707,59 @@ void TestDriver<VALUE, ALLOCATOR, CONVERTER>::testCase15()
                 ++it;
             }
             ASSERTV(SPEC, it == mX.end());
+
+            mX.resetIterators();
+
+            ConstIterator cit = X.begin();
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(SPEC, i,
+                        CONVERTER::getIdentifier(X[i]) ==
+                                               CONVERTER::getIdentifier(*cit));
+                ASSERTV(SPEC, i, cit != X.end());
+                ++cit;
+            }
+            ASSERTV(SPEC, cit == X.end());
+
+            Iterator sit = mY.begin();
+            for (size_t i = 0; i < SIZE; ++i) {
+                if (veryVeryVerbose) {
+                    T_ T_ T_ P_(i) P(Y[i])
+                }
+                ASSERTV(SPEC, i,
+                        CONVERTER::getIdentifier(Y[i]) ==
+                                               CONVERTER::getIdentifier(*sit));
+                ASSERTV(SPEC, i, sit != mY.end());
+                ++sit;
+            }
+            ASSERTV(SPEC, sit == mY.end());
+
+            mY.resetIterators();
+
+            ConstIterator scit = Y.begin();
+            for (size_t i = 0; i < SIZE; ++i) {
+                ASSERTV(SPEC, i,
+                        CONVERTER::getIdentifier(Y[i]) ==
+                                              CONVERTER::getIdentifier(*scit));
+                ASSERTV(SPEC, i, scit != Y.end());
+                ++scit;
+            }
+            ASSERTV(SPEC, scit == Y.end());
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+            {
+                Obj mX(SPEC);
+                ASSERTV(SPEC, mX.begin() == std::ranges::begin(mX));
+                ASSERTV(SPEC, mX.end()   == std::ranges::end  (mX));
+            }
+#endif
+#ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
+            {
+                Obj mX(SPEC); const Obj& X = mX;
+                ASSERTV(SPEC, mX.begin().address() == X.begin().address());
+                ASSERTV(SPEC, mX.end  ().address() == X.end  ().address());
+            }
+#endif
         }
     }
 
@@ -2496,7 +2671,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -2522,6 +2697,36 @@ int main(int argc, char *argv[])
 // ```
     runTest<char>();
 // ```
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // RANGE COMPLIANCE
+        //
+        // Concerns:
+        // 1. `TestValueArray` my meet the constrains of the concept:
+        //     Container Compatible Range
+        //
+        // 2. Statically assert compliance with
+        //    `bslmf::ContainerCompatibleRange`.
+        //
+        // Testing:
+        //   CONCERN: `TestValueArray` IS RANGE COMPLIANT
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nRANGE COMPLIANCE"
+                            "\n================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase17,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
+#else
+        if (veryVerbose) printf(
+                              "SKIP: C++20 range/concepts required to test\n");
+#endif
+
       } break;
       case 16: {
         // --------------------------------------------------------------------

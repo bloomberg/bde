@@ -117,6 +117,22 @@ namespace bsl {
 #endif
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+    using std::allocation_result;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+    using std::out_ptr;
+    using std::out_ptr_t;
+    using std::inout_ptr;
+    using std::inout_ptr_t;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
+    using std::start_lifetime_as;
+    using std::start_lifetime_as_array;
+#endif
+
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
     // Import additional names expected by existing code, but not mandated by
     // the standard header.  This may get tricky if some standard library

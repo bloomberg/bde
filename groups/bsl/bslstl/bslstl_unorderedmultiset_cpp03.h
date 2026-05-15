@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Nov  7 07:41:40 2024
+// Generated on Thu Mar 19 20:53:55 2026
 // Command line: sim_cpp11_features.pl bslstl_unorderedmultiset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMULTISET_H
@@ -326,6 +326,119 @@ class unordered_multiset
                        const ALLOCATOR&           basicAllocator);
 #endif
 
+    /// Create an unordered multiset, and insert each `value_type` object in
+    /// the specified `range`.  Optionally specify an `initialNumBuckets`
+    /// indicating the initial size of the array of buckets of this
+    /// container.  If `initialNumBuckets` is not supplied, an
+    /// implementation-defined value is used.  Optionally specify a
+    /// `hashFunction` used to generate the hash values for each key value
+    /// contained in this unordered multiset.  If `hashFunction` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `HASH` is used.  Optionally specify a key-equality functor
+    /// `keyEqual` used to determine whether two keys have the same value.
+    /// If `keyEqual` is not supplied, a default-constructed object of the
+    /// (template parameter) type `EQUAL` is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), then `basicAllocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used.  This
+    /// operation has `O[N]` complexity, where `N` is the number of elements
+    /// in `range`.  Note that `RANGE` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to `value_type`.
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTISET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multiset(
+         bsl::from_range_t                        ,
+         BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+         size_type                                initialNumBuckets = 0,
+         const HASH&                              hashFunction = HASH(),
+         const EQUAL&                             keyEqual = EQUAL(),
+         const ALLOCATOR&                         basicAllocator = ALLOCATOR())
+    : d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+&& defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range),
+                            bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range));
+        }
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTISET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multiset(
+                    bsl::from_range_t                        ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                    size_type                                initialNumBuckets,
+                    const HASH&                              hashFunction,
+                    const ALLOCATOR&                         basicAllocator)
+    : d_impl(hashFunction, EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+        unordered_multiset other(bsl::from_range,
+                                 range,
+                                 initialNumBuckets,
+                                 hashFunction,
+                                 EQUAL(),
+                                 basicAllocator);
+        this->swap(other);
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTISET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multiset(
+                    bsl::from_range_t                        ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                    size_type                                initialNumBuckets,
+                    const ALLOCATOR&                         basicAllocator)
+    : d_impl(HASH(), EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+        unordered_multiset other(bsl::from_range,
+                                 range,
+                                 initialNumBuckets,
+                                 HASH(),
+                                 EQUAL(),
+                                 basicAllocator);
+        this->swap(other);
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTISET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multiset(bsl::from_range_t                        ,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                       const ALLOCATOR&                         basicAllocator)
+    : d_impl(HASH(), EQUAL(), 0, 1.0f, basicAllocator)
+    {
+        // Defined inline for Windows.
+
+        unordered_multiset other(bsl::from_range,
+                                 range,
+                                 0,
+                                 HASH(),
+                                 EQUAL(),
+                                 basicAllocator);
+        this->swap(other);
+    }
+
     /// Destroy this object.
     ~unordered_multiset();
 
@@ -444,6 +557,28 @@ class unordered_multiset
     /// element and previously saved values of the `end()` iterator, and
     /// preserves the relative order of the elements not removed.
     size_type erase(const key_type& key);
+    template <class t_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, t_KEY>::value &&
+        BloombergLP::bslmf::IsTransparentPredicate<EQUAL,t_KEY>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        iterator>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        const_iterator>::value,
+    size_type>::type erase(BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY) key)
+    {
+        // Implemented inline due to Sun CC compilation error.
+        size_type count = 0;
+        // Our implementation always finds the first element
+        iterator it = this->find(key);
+        if (it != end()) {
+            do {
+                it = erase(it);
+                count++;
+            } while (it != end() && key_eq()(*it, key));
+        }
+        return count;
+    }
 
     /// Remove from this unordered multiset the `value_type` object at the
     /// specified `position`, and return an iterator referring to the
@@ -570,6 +705,35 @@ class unordered_multiset
     /// `KEY`}).
     void insert(std::initializer_list<KEY> values);
 #endif
+
+    /// Insert into this unordered multiset the value of each `value_type`
+    /// object in the specified `range`.  The (template parameter) type
+    /// `RANGE` must meet the requirements the C++20 standard [ranges]
+    /// providing access to values of a type convertible to `value_type`,
+    /// and `value_type` must be `emplace-constructible` from `*i` into this
+    /// unordered multiset, where `i` is a dereferenceable iterator obtained
+    /// from `range` (see {Requirements on `KEY`}).  The behavior is
+    /// undefined if `range` overlaps this unordered multiset.
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTISET_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    void insert_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+    {
+        // Defined inline for Windows.
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+&& defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range),
+                            bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range));
+        }
+    }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -933,6 +1097,48 @@ class unordered_multiset
                                   &&  bsl::is_nothrow_swappable<HASH>::value
                                   &&  bsl::is_nothrow_swappable<EQUAL>::value);
 
+  private:
+    // PRIVATE MANIPULATORS
+
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty unordered multiset.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into an
+    /// initially empty unordered multiset.  The specified `numElements` is
+    /// used to improve performance.  The behavior is undefined if the iterators
+    /// support the calculation of distance and `numElements` is not the
+    /// distance from `first` to `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first,
+                            SENTINEL       last,
+                            size_t         numElements);
+#endif
+
+    /// Insert the values between the specified `first` and `last` into this
+    /// unordered multiset.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    /// Insert the values between the specified `first` and `last` into this
+    /// unordered multiset.  The specified `numElements` is used to improve
+    /// performance.  The behavior is undefined if the iterators support the
+    /// calculation of distance and `numElements` is not the distance from
+    /// `first` to `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last,
+                         size_t         numElements);
+#endif
+
+  public:
     // ACCESSORS
 
     /// Return (a copy of) the allocator used for memory allocation by this
@@ -1076,7 +1282,6 @@ class unordered_multiset
             return ResultType(const_iterator(first), const_iterator(last));
         }
 
-
     /// Return a pair of iterators providing non-modifiable access to the
     /// sequence of `value_type` objects in this unordered multiset
     /// equivalent to the specified `key`, where the first iterator is
@@ -1142,7 +1347,6 @@ class unordered_multiset
     /// container.  The behavior is undefined unless 'index <
     /// bucket_count()'.
     size_type bucket_size(size_type index) const;
-
 
     /// Return the current ratio between the `size` of this container and
     /// the number of buckets.  The `load_factor` is a measure of how full
@@ -1379,7 +1583,6 @@ unordered_multiset(std::initializer_list<KEY>,
                    ALLOCATOR)
 -> unordered_multiset<KEY, HASH, bsl::equal_to<KEY>, ALLOCATOR>;
 
-
 /// Deduce the template parameter `KEY` from the `value_type` of the
 /// initializer_list supplied to the constructor of `unordered_multiset`.
 /// Deduce the template parameter `HASH` from the other parameters passed to
@@ -1517,6 +1720,120 @@ void swap(unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>& a,
                         // class unordered_multiset
                         //-------------------------
 
+// PRIVATE MANIPULATORS
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::constructFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    ///Implementation Notes
+    ///--------------------
+    // If we can calculate the number of elements, reserve space for them
+    // upfront to reduce rehashing.  The calculation is done once since
+    // `IteratorUtil::insertDistance` may be expensive for non-random-access
+    // iterators.
+
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (
+        BloombergLP::bslstl::IteratorUtil::
+                       canCalculateInsertDistance<INPUT_ITERATOR,SENTINEL>()) {
+        this->reserve(
+               BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+    }
+
+    while (first != last) {
+        d_impl.insert(*first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::constructFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_t>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    if (0 < numElements) {
+        this->reserve(numElements);
+    }
+
+    while (first != last) {
+        d_impl.insert(*first);
+        ++first;
+    }
+}
+
+#endif
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insertFromRange(
+                                                          INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    ///Implementation Notes
+    ///--------------------
+    // If we can calculate the number of elements, reserve space for them
+    // upfront to reduce rehashing.  The calculation is done once since
+    // `IteratorUtil::insertDistance` may be expensive for non-random-access
+    /// iterators.
+
+    if BSLS_KEYWORD_CONSTEXPR_CPP17 (BloombergLP::bslstl::IteratorUtil
+                    ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()) {
+        this->reserve(this->size()
+             + BloombergLP::bslstl::IteratorUtil::insertDistance(first, last));
+    }
+
+    while (first != last) {
+        d_impl.insert(*first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insertFromRange(
+                                                    INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE((
+        !BloombergLP::bslstl::IteratorUtil
+                       ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()
+        || numElements == static_cast<size_t>(
+             BloombergLP::bslstl::IteratorUtil::insertDistance(first, last))));
+
+    this->reserve(this->size() + numElements);
+
+    while (first != last) {
+        d_impl.insert(*first);
+        ++first;
+    }
+}
+
+#endif
+
 // CREATORS
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -1611,7 +1928,7 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::unordered_multiset(
                                             const ALLOCATOR& basicAllocator)
 : d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
-    this->insert(first, last);
+    constructFromRange(first, last);
 }
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
@@ -2566,16 +2883,7 @@ void
 unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::insert(INPUT_ITERATOR first,
                                                         INPUT_ITERATOR last)
 {
-    difference_type maxInsertions =
-              ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-    if (maxInsertions) {
-        this->reserve(this->size() + maxInsertions);
-    }
-
-    while (first != last) {
-        d_impl.insert(*first);
-        ++first;
-    }
+    insertFromRange(first, last);
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2692,7 +3000,6 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::end(size_type index) const
     return const_local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 typename
@@ -2782,7 +3089,6 @@ bool unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::contains(
     return find(key) != end();
 }
 
-
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline
 bool
@@ -2849,7 +3155,6 @@ unordered_multiset<KEY, HASH, EQUAL, ALLOCATOR>::max_bucket_count() const
 {
     return d_impl.maxNumBuckets();
 }
-
 
 template <class KEY, class HASH, class EQUAL, class ALLOCATOR>
 inline

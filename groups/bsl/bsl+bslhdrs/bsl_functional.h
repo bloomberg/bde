@@ -116,6 +116,14 @@ namespace bsl {
     using std::bind_front;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+    using std::invoke_r;
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+    using std::bind_back;
+#endif
+
 }  // close package namespace
 
 // Include Bloomberg's implementation.

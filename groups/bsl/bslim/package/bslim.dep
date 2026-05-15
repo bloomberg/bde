@@ -1,8 +1,10 @@
 bsl+bslhdrs
 bslalg
+bslfmt
 bslh
 bslma
 bslmf
 bsls
 bslscm
+bslstl
 bsltf

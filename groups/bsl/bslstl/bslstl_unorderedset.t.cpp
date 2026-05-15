@@ -108,6 +108,10 @@ using bsls::NameOf;
 // [  ] unordered_set(ITER, ITER, size_type, hasher, allocator);
 // [  ] unordered_set(ITER, ITER, size_type, allocator);
 // [  ] unordered_set(ITER, ITER, allocator);
+// [  ] unordered_set(fr_t , auto&& range, nb, hasher, key_equal, allocator);
+// [  ] unordered_set(fr_t , auto&& range, nb, hasher,            allocator);
+// [  ] unordered_set(fr_t , auto&& range, nb,                    allocator);
+// [  ] unordered_set(fr_t , auto&& range,                        allocator);
 //*[ 7] unordered_set(const unordered_set& original);
 //*[28] unordered_set(unordered_set&& original);
 //*[11] unordered_set(const A& allocator);
@@ -146,6 +150,7 @@ using bsls::NameOf;
 //*[15] iterator insert(const_iterator position, const value_type& value);
 // [30] iterator insert(const_iterator position, value_type&& value);
 //*[17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [32] bsl::pair<iterator, bool> insert(initializer_list<value_type>);
 //
 // [30] pair<iterator, bool> emplace(Args&&... args);
@@ -213,6 +218,12 @@ using bsls::NameOf;
 //*[23] TBD: Not yet working for all types.
 //*[  ] CONCERN: The type provides the full interface defined by the standard.
 // [33] CONCERN: Methods qualifed `noexcept` in standard are so implemented.
+// [34] CONCERN: `find`             properly handles t-parent comparators.
+// [34] CONCERN: `count`            properly handles t-parent comparators.
+// [34] CONCERN: `equal_range`      properly handles t-parent comparators.
+// [34] CONCERN: `insert`           properly handles t-parent comparators.
+// [34] CONCERN: `insert_or_assign` properly handles t-parent comparators.
+// [34] CONCERN: `erase`            properly handles t-parent comparators.
 // [35] CLASS TEMPLATE DEDUCTION GUIDES
 // [37] CONCERN: `unordered_set` IS A C++20 RANGE
 
@@ -568,7 +579,6 @@ void testBuckets(CONTAINER& mX)
     typedef typename CONTAINER::local_iterator       local_iterator;
     typedef typename CONTAINER::const_local_iterator const_local_iterator;
 
-
     const CONTAINER &x = mX;
 
     SizeType bucketCount = x.bucket_count();
@@ -619,7 +629,6 @@ void testBuckets(CONTAINER& mX)
     }
     LOOP2_ASSERT(itemCount, x.size(), itemCount == x.size());
 }
-
 
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
@@ -772,7 +781,6 @@ void testErase(CONTAINER& mX)
     for (iterator it = mX.begin(); it != x.end(); it = mX.erase(it)) {}
     testEmptyContainer(mX);
 }
-
 
 //------ Test machinery borrowed from associative container test drivers ------
 
@@ -945,7 +953,6 @@ class StatefulStlAllocator : public bsltf::StdTestAllocator<VALUE>
     }
 };
 
-
                             // ======================
                             // class ExceptionProctor
                             // ======================
@@ -1097,7 +1104,6 @@ class TestEqualityComparator {
         return d_count;
     }
 };
-
 
 /// This test class provides a functor for equality comparison of objects
 /// where the `operator()` is not declared const.
@@ -2729,7 +2735,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
 #if 0       // Unlike `set`, `uordered set` does not support swapping with
             // unequal bslma allocators.
 
-
             bslma::TestAllocator oaz("z_object", veryVeryVeryVerbose);
 
             Obj mZ(&oaz);  const Obj& Z = gg(&mZ, SPEC2);
@@ -2751,7 +2756,6 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase8()
                     proctorX.release();
                     proctorZ.release();
                 } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
-
 
                 ASSERTV(LINE1, LINE2, ZZ, X, ZZ == X);
                 ASSERTV(LINE1, LINE2, XX, Z, XX == Z);
@@ -3849,8 +3853,8 @@ void TestDriver<KEY, HASH, EQUAL, ALLOC>::testCase2()
     // 10. `insert` adds an additional element to the object if the element
     //    being inserted does not already exist.
     //
-    // 11. `insert` returns a pair with an iterator of the element that was just
-    //    inserted or the element that already exist in the object, and a
+    // 11. `insert` returns a pair with an iterator of the element that was
+    //    just inserted or the element that already exist in the object, and a
     //    boolean indicating whether element being inserted already exist in
     //    the object.
     //
@@ -5146,7 +5150,6 @@ if (verbose) {
             dataSamples[i] = i;
         }
 
-
         if (veryVerbose)  printf(
                "Range-construct an unordered_set, `y`, from the test array\n");
         TestType mY(dataSamples, dataSamples + MAX_SAMPLE);
@@ -5160,7 +5163,6 @@ if (verbose) {
         testContainerHasData(Y, 1, dataSamples, MAX_SAMPLE);
         validateIteration(mY);
 
-
         if (veryVerbose) {
             printf("Assert equality relationships, noting `x != y`\n");
         }
@@ -5173,7 +5175,6 @@ if (verbose) {
         ASSERT(!(X == Y));
         ASSERT(Y == Y);
         ASSERT(!(Y != Y));
-
 
         if (veryVerbose) printf("Swap `x` and `y`\n");
         swap(mX, mY);

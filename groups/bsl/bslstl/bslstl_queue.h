@@ -207,6 +207,9 @@ BSLS_IDENT("$Id: $")
 
 #include <bslstl_compare.h>
 #include <bslstl_deque.h>
+#include <bslstl_iterator.h>
+#include <bslstl_iteratorutil.h>
+#include <bslstl_ranges.h>
 
 #include <bslalg_swaputil.h>
 
@@ -214,6 +217,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
@@ -227,6 +231,14 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 #include <bsls_util.h>     // 'forward<T>(V)'
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
+#endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
@@ -298,6 +310,13 @@ class queue {
     /// This `typedef` is a convenient alias for the utility associated with
     /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil  MoveUtil;
+
+    // PRIVATE MANIPULATORS
+
+    /// Push onto the back of this queue the elements of the specified
+    /// `[first, last)` range.
+    template <class INPUT_ITER, class SENTINEL>
+    void privatePushRange(INPUT_ITER first, SENTINEL last);
 
   public:
     // PUBLIC TYPES
@@ -411,6 +430,37 @@ class queue {
           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                              ALLOCATOR>::type * = 0);
 
+    /// Create a queue passing the specified `first` and `last` to the
+    /// constructor of the underlying container.  Optionally specify an
+    /// `allocator` used to supply memory.  If `allocator` is not specified, a
+    /// default-constructed object of the (template parameter) type `ALLOCATOR`
+    /// is used.
+    template <class INPUT_ITER>
+    queue(INPUT_ITER first, INPUT_ITER last);
+    template <class INPUT_ITER, class ALLOCATOR>
+    queue(INPUT_ITER       first,
+          INPUT_ITER       last,
+          const ALLOCATOR& allocator,
+          typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                             ALLOCATOR>::type * = 0);
+
+    /// Create a queue from the elements of the specifed `range`.  Optionally
+    /// specify an `allocator` used to supply memory.  If `allocator` is not
+    /// specified, a default-constructed object of the (template parameter)
+    /// type `t_ALLOCATOR` is used.  Note that `range` must meet the
+    /// requirements of an input range and the values from `range` must have a
+    /// type matching or convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    queue(from_range_t, BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+    template <class t_RANGE, class t_ALLOCATOR>
+    BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    queue(from_range_t                               ,
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+          const t_ALLOCATOR&                         allocator,
+          typename enable_if<bsl::uses_allocator<CONTAINER,t_ALLOCATOR>::value,
+                             t_ALLOCATOR>::type * = 0);
+
     // MANIPULATORS
 
     /// Assign to this queue the value of the specified `rhs`, and return a
@@ -445,15 +495,23 @@ class queue {
     /// left in a valid but unspecified state.
     void push(BloombergLP::bslmf::MovableRef<value_type> value);
 
+    /// Push onto the back of this queue the elements of the specified `range`.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void push_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
     /// Remove the front (the earliest pushed) element from this `queue`
     /// object.
     void pop();
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  In effect, performs
+    /// `using bsl::swap; swap(c, other.c);`.
     void swap(queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                   bsl::is_nothrow_swappable<CONTAINER>::value);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  In effect, performs
-        // 'using bsl::swap; swap(c, other.c);'.
 
     /// Return a reference providing modifiable access to the front (the
     /// earliest pushed) element from this `queue` object.
@@ -504,6 +562,43 @@ template<
     class = bsl::enable_if_t<bsl::uses_allocator_v<CONTAINER, ALLOCATOR>>
     >
 queue(CONTAINER, ALLOCATOR) -> queue<typename CONTAINER::value_type, CONTAINER>;
+
+/// Deduce the template parameter `VALUE` from the parameters supplied to the
+/// constructor of `queue`.
+template <class INPUT_ITER,
+          class TYPE = BloombergLP::bslstl::IteratorUtil::
+                                                         IterVal_t<INPUT_ITER>>
+queue(INPUT_ITER, INPUT_ITER) -> queue<TYPE>;
+
+/// Deduce the template parameters `VALUE` and `CONTAINER` from the parameters
+/// supplied to the constructor of `queue`.  This deduction guide does not
+/// participate unless the `ALLOCATOR` parameter meets the requirements for a
+/// standard allocator.
+template <class INPUT_ITER,
+          class ALLOCATOR,
+          class TYPE = BloombergLP::bslstl::IteratorUtil::
+                                                         IterVal_t<INPUT_ITER>,
+          class = enable_if_t<IsStdAllocator_v<ALLOCATOR>>>
+queue(INPUT_ITER, INPUT_ITER, ALLOCATOR)-> queue<TYPE, deque<TYPE, ALLOCATOR>>;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+/// Deduce the template parameter `VALUE` from the parameters supplied to the
+/// constructor of `queue`.
+template <ranges::input_range t_RANGE>
+queue(from_range_t, t_RANGE&&) -> queue<ranges::range_value_t<t_RANGE>>;
+
+/// Deduce the template parameters `VALUE` and `ALLOCATOR` from the parameters
+/// supplied to the constructor of `queue`.  This deduction guide does not
+/// participate unless the `t_ALLOCATOR` parameter meets the requirements for a
+/// standard allocator.
+template <ranges::input_range t_RANGE,
+          class               t_ALLOCATOR,
+          class               t_TYPE = ranges::range_value_t<t_RANGE>>
+requires IsStdAllocator_v<t_ALLOCATOR>
+queue(from_range_t, t_RANGE&&, t_ALLOCATOR)
+-> queue<t_TYPE, deque<t_TYPE, t_ALLOCATOR>>;
+#endif
 #endif
 
 // FREE OPERATORS
@@ -691,6 +786,74 @@ queue<VALUE, CONTAINER>::queue(
 {
 }
 
+template <class VALUE, class CONTAINER>
+template <class INPUT_ITER>
+inline
+queue<VALUE, CONTAINER>::queue(INPUT_ITER first, INPUT_ITER last)
+: c(first, last)
+{
+}
+
+template <class VALUE, class CONTAINER>
+template <class INPUT_ITER, class ALLOCATOR>
+inline
+queue<VALUE, CONTAINER>::queue(
+           INPUT_ITER       first,
+           INPUT_ITER       last,
+           const ALLOCATOR& allocator,
+           typename enable_if<bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
+                              ALLOCATOR>::type *)
+: c(first, last, allocator)
+{
+}
+
+template <class VALUE, class CONTAINER>
+template <class t_RANGE>
+BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+inline
+queue<VALUE, CONTAINER>::queue(
+                              from_range_t                               ,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+: c(ranges::to<CONTAINER>(std::forward<t_RANGE>(range)))
+#else
+: c(bsl::from_range, BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range))
+#endif
+{
+}
+
+template <class VALUE, class CONTAINER>
+template <class t_RANGE, class t_ALLOCATOR>
+BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+inline
+queue<VALUE, CONTAINER>::queue(
+                          from_range_t                               ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                          const t_ALLOCATOR&                         allocator,
+                          typename enable_if<
+                             bsl::uses_allocator<CONTAINER,t_ALLOCATOR>::value,
+                             t_ALLOCATOR>::type *)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+: c(ranges::to<CONTAINER>(std::forward<t_RANGE>(range), allocator))
+#else
+: c(bsl::from_range, BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range), allocator)
+#endif
+{
+}
+
+// PRIVATE MANIPULATORS
+template <class VALUE, class CONTAINER>
+template <class INPUT_ITER, class SENTINEL>
+inline
+void queue<VALUE, CONTAINER>::privatePushRange(INPUT_ITER first,
+                                               SENTINEL   last)
+{
+    while (first != last) {
+        push(*first);
+        ++first;
+    }
+}
+
 // MANIPULATORS
 template <class VALUE, class CONTAINER>
 inline
@@ -734,6 +897,25 @@ void queue<VALUE, CONTAINER>::push(BloombergLP::bslmf::MovableRef<value_type>
                                                                          value)
 {
     c.push_back(MoveUtil::move(value));
+}
+
+template <class VALUE, class CONTAINER>
+template <class t_RANGE>
+BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void queue<VALUE, CONTAINER>::push_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    if constexpr (requires{ c.append_range(std::forward<t_RANGE>(range)); }) {
+        c.append_range(std::forward<t_RANGE>(range));
+    }
+    else {
+        ranges::copy(range, back_inserter(c));
+    }
+#else
+    privatePushRange(bsl::begin(range), bsl::end(range));
+#endif
 }
 
 template <class VALUE, class CONTAINER>
@@ -873,6 +1055,8 @@ void swap(queue<VALUE, CONTAINER>& lhs,
 }  // close namespace bsl
 
 #endif // End C++11 code
+
+#undef BSLSTL_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE
 
 #endif
 

@@ -207,6 +207,7 @@
 // [36] CONCERN: `lower_bound` properly handles transparent comparators.
 // [36] CONCERN: `upper_bound` properly handles transparent comparators.
 // [36] CONCERN: `equal_range` properly handles transparent comparators.
+// [36] CONCERN: `erase`       properly handles transparent comparators.
 // [38] CONCERN: `multimap` IS A C++20 RANGE
 
 // ============================================================================

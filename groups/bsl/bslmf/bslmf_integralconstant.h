@@ -154,7 +154,6 @@ BSLS_IDENT("$Id: $")
 #endif // BSLS_COMPILERFEATURES_FULL_CPP11
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-# include <bsls_libraryfeatures.h>
 # include <bsls_nativestd.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 

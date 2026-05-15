@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Nov  1 20:56:35 2024
+// Generated on Thu Mar 12 11:34:18 2026
 // Command line: sim_cpp11_features.pl bslstl_deque.h
 
 #ifdef COMPILING_BSLSTL_DEQUE_H
@@ -396,17 +396,24 @@ class deque : public  Deque_Base<VALUE_TYPE>
     void deallocateBlockPtrs(BlockPtr *p, std::size_t n);
 
     /// Append the elements in the range specified by `[first .. last)` to
+    /// this deque, and return the number of elements appended.  The behavior
+    /// is undefined unless `first` and `last` refer to a sequence of valid
+    /// values where `first` is at a position at or before `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    size_type privateAppend(INPUT_ITERATOR first, SENTINEL last);
+
+    /// Append the elements in the range specified by `[first .. last)` to
     /// this deque, and return the number of elements appended.  The third
     /// argument is used for overload resolution.  The behavior is undefined
     /// unless `first` and `last` refer to a sequence of valid values where
     /// `first` is at a position at or before `last`.
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     size_type privateAppend(INPUT_ITERATOR                  first,
-                            INPUT_ITERATOR                  last,
+                            SENTINEL                        last,
                             std::input_iterator_tag);
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     size_type privateAppend(INPUT_ITERATOR                  first,
-                            INPUT_ITERATOR                  last,
+                            SENTINEL                        last,
                             std::random_access_iterator_tag);
 
     /// Append the specified `numElements` value-inititalized objects to
@@ -416,6 +423,11 @@ class deque : public  Deque_Base<VALUE_TYPE>
     /// Append the specified `numElements` copies of the specified `value`
     /// to this deque.
     void privateAppendRaw(size_type numElements, const VALUE_TYPE& value);
+
+    /// Assign the elements in the range specified by `[first .. last)` to this
+    /// deque.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void privateAssign(t_ITERATOR first, t_SENTINEL last);
 
     /// Initialize `d_start` and `d_finish` for eventual insertion of the
     /// specified `numElements` elements.  After this method returns, this
@@ -454,19 +466,26 @@ class deque : public  Deque_Base<VALUE_TYPE>
                                BloombergLP::bslmf::MatchAnyType,
                                BloombergLP::bslmf::MatchAnyType);
 
+    /// Insert the elements in the range specified by `[first .. last)` into
+    /// this deque at the specified `position`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void privateInsert(const_iterator position,
+                       INPUT_ITERATOR first,
+                       SENTINEL       last);
+
     /// Specialized insertion for input iterators.
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     void privateInsert(const_iterator                  position,
                        INPUT_ITERATOR                  first,
-                       INPUT_ITERATOR                  last,
+                       SENTINEL                        last,
                        std::input_iterator_tag);
 
     /// Specialized insertion for forward, bidirectional, and random-access
     /// iterators.
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     void privateInsert(const_iterator                  position,
                        INPUT_ITERATOR                  first,
-                       INPUT_ITERATOR                  last,
+                       SENTINEL                        last,
                        std::random_access_iterator_tag);
 
     /// Join `*this` and the specified `other` deque into one.  After the
@@ -480,21 +499,28 @@ class deque : public  Deque_Base<VALUE_TYPE>
     void privateJoinAppend(deque *other);
 
     /// Prepend the elements in the range specified by `[first .. last)` to
+    /// this deque, and return the number of elements prepended.  The behavior
+    /// is undefined unless `first` and `last` refer to a sequence of valid
+    /// values where `first` is at a position at or before `last`.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    size_type privatePrepend(INPUT_ITERATOR first, SENTINEL last);
+
+    /// Prepend the elements in the range specified by `[first .. last)` to
     /// this deque, and return the number of elements prepended.  The third
     /// argument is used for overload resolution only.  The behavior is
     /// undefined unless `first` and `last` refer to a sequence of valid
     /// values where `first` is at a position at or before `last`.
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     size_type privatePrepend(INPUT_ITERATOR                  first,
-                             INPUT_ITERATOR                  last,
+                             SENTINEL                        last,
                              std::input_iterator_tag);
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     size_type privatePrepend(INPUT_ITERATOR                  first,
-                             INPUT_ITERATOR                  last,
+                             SENTINEL                        last,
                              std::bidirectional_iterator_tag);
-    template <class INPUT_ITERATOR>
+    template <class INPUT_ITERATOR, class SENTINEL>
     size_type privatePrepend(INPUT_ITERATOR                  first,
-                             INPUT_ITERATOR                  last,
+                             SENTINEL                        last,
                              std::random_access_iterator_tag);
 
     /// Prepend the specified `numElements` copies of the specified `value`
@@ -593,6 +619,19 @@ class deque : public  Deque_Base<VALUE_TYPE>
     deque(INPUT_ITERATOR   first,
           INPUT_ITERATOR   last,
           const ALLOCATOR& basicAllocator = ALLOCATOR());
+
+    /// Create a deque from the elements of the specifed `range`.  Optionally
+    /// specify an `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is not specified, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  Note that `range` must meet the
+    /// requirements of an input range and the values from `range` must have a
+    /// type matching or convertible to (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    deque(from_range_t                               ,
+          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+          const ALLOCATOR&                           basicAllocator =
+                                                                  ALLOCATOR());
 
     /// Create a deque that has the same value as the specified `original`
     /// object.  Use the allocator returned by
@@ -726,6 +765,14 @@ class deque : public  Deque_Base<VALUE_TYPE>
     void assign(std::initializer_list<value_type> values);
 #endif
 
+    /// Assign to this object the elements of the specified `range`.  Note that
+    /// `range` must meet the requirements of an input range and the values
+    /// from `range` must have a type matching or convertible to (template
+    /// parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    void assign_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
     // *** capacity ***
 
     /// Change the capacity of this deque such that, after this method
@@ -759,6 +806,22 @@ class deque : public  Deque_Base<VALUE_TYPE>
     void shrink_to_fit();
 
     // *** modifiers ***
+
+    /// Append to the end of this object the elements of the specified `range`.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    void append_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
+    /// Prepend to the front of this object the elements of the specified
+    /// `range`.  Note that `range` must meet the requirements of an input
+    /// range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    void prepend_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
     /// Prepend to the front of this deque a copy of the specified `value`.
     /// This method offers full guarantee of rollback in case an exception
@@ -1384,6 +1447,15 @@ class deque : public  Deque_Base<VALUE_TYPE>
                     std::initializer_list<value_type> values);
 #endif
 
+    /// Insert at the specified `position` in this object the elements of the
+    /// specified `range`.  Note that `range` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE_TYPE`.
+    template <class t_RANGE>
+    BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+    iterator insert_range(const_iterator                             position,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
     /// Remove from this deque the element at the specified `position`, and
     /// return an iterator providing modifiable access to the element
     /// immediately following the removed element, or the position returned
@@ -1509,6 +1581,17 @@ template<
     >
 deque(std::initializer_list<VALUE>, ALLOC *)
 -> deque<VALUE>;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+/// Deduce the template parameters `VALUE_TYPE` and `ALLOCATOR` from the
+/// parameters supplied to the constructor of `deque`.
+template <ranges::input_range t_RANGE,
+          class               t_ALLOCATOR =
+                                     allocator<ranges::range_value_t<t_RANGE>>>
+deque(from_range_t, t_RANGE&&, t_ALLOCATOR = t_ALLOCATOR())
+-> deque<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>;
+#endif
 #endif
 
 // FREE OPERATORS
@@ -2179,17 +2262,32 @@ deque<VALUE_TYPE, ALLOCATOR>::deallocateBlockPtrs(BlockPtr *p, std::size_t n)
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+typename deque<VALUE_TYPE, ALLOCATOR>::size_type
+deque<VALUE_TYPE, ALLOCATOR>::privateAppend(INPUT_ITERATOR first,
+                                            SENTINEL       last)
+{
+    if (first == last) {
+        return 0;                                                     // RETURN
+    }
+    typedef typename iterator_traits<INPUT_ITERATOR>::iterator_category Tag;
+    return privateAppend(first, last, Tag());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::privateAppend(
                                          INPUT_ITERATOR                  first,
-                                         INPUT_ITERATOR                  last,
+                                         SENTINEL                        last,
                                          std::random_access_iterator_tag)
 {
     BlockCreator newBlocks(this);
     Guard guard(this, true);
 
-    const size_type numElements = bsl::distance(first, last);
+    const size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                     numElements > max_size() - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2225,10 +2323,10 @@ deque<VALUE_TYPE, ALLOCATOR>::privateAppend(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::privateAppend(INPUT_ITERATOR          first,
-                                            INPUT_ITERATOR          last,
+                                            SENTINEL                last,
                                             std::input_iterator_tag)
 {
     BlockCreator newBlocks(this);
@@ -2306,6 +2404,44 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateAppendRaw(
                                             numElements,
                                             value,
                                             this->allocatorRef());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_ITERATOR, class t_SENTINEL>
+void deque<VALUE_TYPE, ALLOCATOR>::privateAssign(t_ITERATOR first,
+                                                 t_SENTINEL last)
+{
+    typedef typename iterator_traits<t_ITERATOR>::iterator_category Tag;
+
+    // If an exception is thrown, clear the deque to provide standard behavior,
+    // which is:
+    // ```
+    // erase(begin(), end());
+    // insert(begin(), first, last);
+    // ```
+
+    ClearGuard guard(this);
+
+    // Copy over existing elements.
+
+    IteratorImp i;
+    for (i = this->d_start; !(i == this->d_finish) && first != last;
+                                                                ++i, ++first) {
+        *i = *first;
+    }
+
+    if (!(i == this->d_finish)) {
+        // Erase elements past the last one copied.
+
+        erase(i, this->end());
+    }
+    else {
+        // Still more elements to copy.  Append them.
+
+        privateAppend(first, last, Tag());
+    }
+
+    guard.release();
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -2388,11 +2524,34 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateInsertDispatch(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+void deque<VALUE_TYPE, ALLOCATOR>::privateInsert(const_iterator position,
+                                                 INPUT_ITERATOR first,
+                                                 SENTINEL       last)
+{
+    if (first == last) {
+        return;                                                       // RETURN
+    }
+
+    typedef typename iterator_traits<INPUT_ITERATOR>::iterator_category Tag;
+    if (position == this->cbegin()) {
+        privatePrepend(first, last, Tag());
+    }
+    else if (position == this->cend()) {
+        privateAppend(first, last, Tag());
+    }
+    else {
+        privateInsert(position, first, last, Tag());
+    }
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 void deque<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                               const_iterator          position,
                                               INPUT_ITERATOR          first,
-                                              INPUT_ITERATOR          last,
+                                              SENTINEL                last,
                                               std::input_iterator_tag tag)
 {
     BSLS_ASSERT(first != last);
@@ -2607,11 +2766,11 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateJoinAppend(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 void deque<VALUE_TYPE, ALLOCATOR>::privateInsert(
                                       const_iterator                  position,
                                       INPUT_ITERATOR                  first,
-                                      INPUT_ITERATOR                  last,
+                                      SENTINEL                        last,
                                       std::random_access_iterator_tag tag)
 {
     BSLS_ASSERT(first != last);
@@ -2627,7 +2786,8 @@ void deque<VALUE_TYPE, ALLOCATOR>::privateInsert(
     }
 
     const size_type currentSize = this->size();
-    const size_type numElements = bsl::distance(first, last);
+    const size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                      numElements > max_size() - currentSize)) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2694,10 +2854,24 @@ void deque<VALUE_TYPE, ALLOCATOR>::privatePrependRaw(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+inline
+typename deque<VALUE_TYPE, ALLOCATOR>::size_type
+deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(INPUT_ITERATOR first,
+                                             SENTINEL       last)
+{
+    if (first == last) {
+        return 0;                                                     // RETURN
+    }
+    typedef typename iterator_traits<INPUT_ITERATOR>::iterator_category Tag;
+    return privatePrepend(first, last, Tag());
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(INPUT_ITERATOR          first,
-                                             INPUT_ITERATOR          last,
+                                             SENTINEL                last,
                                              std::input_iterator_tag tag)
 {
     deque temp(k_RAW_INIT, this->get_allocator());
@@ -2718,11 +2892,11 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(INPUT_ITERATOR          first,
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
                                          INPUT_ITERATOR                  first,
-                                         INPUT_ITERATOR                  last,
+                                         SENTINEL                        last,
                                          std::bidirectional_iterator_tag)
 {
 
@@ -2764,15 +2938,17 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
-template <class INPUT_ITERATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
 typename deque<VALUE_TYPE, ALLOCATOR>::size_type
 deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
                                          INPUT_ITERATOR                  first,
-                                         INPUT_ITERATOR                  last,
+                                         SENTINEL                        last,
                                          std::random_access_iterator_tag)
 {
-
-    const size_type numElements = bsl::distance(first, last);
+    BSLS_ASSERT_OPT((BloombergLP::bslstl::IteratorUtil
+                    ::canCalculateInsertDistance<INPUT_ITERATOR, SENTINEL>()));
+    const size_type numElements =
+                BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(
                                     numElements > max_size() - this->size())) {
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
@@ -2784,6 +2960,18 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
     BlockCreator newBlocks(this);
     Guard guard(this, false);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+    INPUT_ITERATOR end;
+    if constexpr (std::is_same_v<INPUT_ITERATOR, SENTINEL>) {
+        end = last;
+    }
+    else {
+        end = first + numElements;
+        BSLS_ASSERT_SAFE(end == last);
+    }
+#else
+    INPUT_ITERATOR end = last;
+#endif
     do {
         IteratorImp insertPoint = guard.begin();
 
@@ -2798,9 +2986,9 @@ deque<VALUE_TYPE, ALLOCATOR>::privatePrepend(
         --insertPoint;
         AllocatorTraits::construct(this->allocatorRef(),
                                    BSLS_UTIL_ADDRESSOF(*insertPoint),
-                                   *--last);
+                                   *--end);
         ++guard;
-    } while (first != last);
+    } while (first != end);
 
     this->d_start -= guard.count();
     guard.release();
@@ -2876,6 +3064,22 @@ deque<VALUE_TYPE, ALLOCATOR>::deque(INPUT_ITERATOR   first,
     deque temp(k_RAW_INIT, this->get_allocator());
     temp.privateInit(0);
     temp.insert(temp.begin(), first, last);
+    Deque_Util::move(static_cast<Base *>(this), static_cast<Base *>(&temp));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+deque<VALUE_TYPE, ALLOCATOR>::deque(
+                     from_range_t                               ,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                     const ALLOCATOR&                           basicAllocator)
+: Deque_Base<VALUE_TYPE>()
+, ContainerBase(basicAllocator)
+{
+    deque temp(k_RAW_INIT, this->get_allocator());
+    temp.privateInit(0);
+    temp.append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
     Deque_Util::move(static_cast<Base *>(this), static_cast<Base *>(&temp));
 }
 
@@ -3085,37 +3289,7 @@ template <class INPUT_ITERATOR>
 void deque<VALUE_TYPE, ALLOCATOR>::assign(INPUT_ITERATOR first,
                                           INPUT_ITERATOR last)
 {
-    typedef typename iterator_traits<INPUT_ITERATOR>::iterator_category Tag;
-
-    // If an exception is thrown, clear the deque to provide standard behavior,
-    // which is:
-    //..
-    //  erase(begin(), end());
-    //  insert(begin(), first, last);
-    //..
-
-    ClearGuard guard(this);
-
-    // Copy over existing elements.
-
-    IteratorImp i;
-    for (i = this->d_start; !(i == this->d_finish) && first != last;
-                                                                ++i, ++first) {
-        *i = *first;
-    }
-
-    if (!(i == this->d_finish)) {
-        // Erase elements past the last one copied.
-
-        erase(i, this->end());
-    }
-    else {
-        // Still more elements to copy.  Append them.
-
-        privateAppend(first, last, Tag());
-    }
-
-    guard.release();
+    privateAssign(first, last);
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -3168,6 +3342,15 @@ void deque<VALUE_TYPE, ALLOCATOR>::assign(
     assign(values.begin(), values.end());
 }
 #endif
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+void deque<VALUE_TYPE, ALLOCATOR>::assign_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    privateAssign(ranges::begin(range), ranges::end(range));
+}
 
 template <class VALUE_TYPE, class ALLOCATOR>
 void deque<VALUE_TYPE, ALLOCATOR>::reserve(size_type numElements)
@@ -3325,6 +3508,24 @@ void deque<VALUE_TYPE, ALLOCATOR>::shrink_to_fit()
 
     this->d_finish.setBlock(newBlocks + newBlocksLength - 1);
     this->d_finish += offsetFinish;
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+void deque<VALUE_TYPE, ALLOCATOR>::append_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    privateAppend(ranges::begin(range), ranges::end(range));
+}
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+void deque<VALUE_TYPE, ALLOCATOR>::prepend_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    privatePrepend(ranges::begin(range), ranges::end(range));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -6061,6 +6262,19 @@ deque<VALUE_TYPE, ALLOCATOR>::insert(
     return insert(position, values.begin(), values.end());
 }
 #endif
+
+template <class VALUE_TYPE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_DEQUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE_TYPE)
+typename deque<VALUE_TYPE, ALLOCATOR>::iterator
+deque<VALUE_TYPE, ALLOCATOR>::insert_range(
+                           const_iterator                             position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    const size_type posIdx = position - this->cbegin();
+    privateInsert(position, ranges::begin(range), ranges::end(range));
+    return this->begin() + posIdx;
+}
 
 template <class VALUE_TYPE, class ALLOCATOR>
 typename deque<VALUE_TYPE, ALLOCATOR>::iterator

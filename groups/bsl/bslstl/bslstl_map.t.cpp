@@ -33,6 +33,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
@@ -104,7 +105,7 @@
 // pool, such as after an `erase` or `clear`.  This concern might be scattered
 // through each appropriate test case, or handled as a specific below-the-line
 // concern that tests each insert/emplace overload with a type making
-// appopriate use of memory (no need to test for every imaginable type).
+// appropriate use of memory (no need to test for every imaginable type).
 #endif
 
 // ============================================================================
@@ -164,8 +165,11 @@
 // [27] map(map&&, const A& allocator);
 // [12] map(ITER first, ITER last, const C& comparator, const A& allocator);
 // [12] map(ITER first, ITER last, const A& allocator);
+// [12] map(from_range_t , CCR<VALUE> auto&& range, const C& c,  a = A());
+// [12] map(from_range_t , CCR<VALUE> auto&& range, a);
 // [33] map(initializer_list<value_type>, const C& comp, const A& allocator);
 // [33] map(initializer_list<value_type>, const A& allocator);
+
 // [ 2] ~map();
 // [ 9] map& operator=(const map& rhs);
 // [28] map& operator=(map&& rhs);
@@ -206,6 +210,7 @@
 // [30] iterator insert(const_iterator position, ALT_VALUE_TYPE&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [33] void insert(initializer_list<value_type>);
+// [17] void insert_range(CCR<VALUE> auto&& range);
 //
 // [31] iterator emplace(Args&&... args);
 // [32] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -248,7 +253,7 @@
 //
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [45] USAGE EXAMPLE
+// [44] USAGE EXAMPLE
 //
 // TEST APPARATUS
 // [ 3] int ggg(map *object, const char *spec, bool verbose = true);
@@ -270,7 +275,8 @@
 // [39] CONCERN: `equal_range` properly handles transparent comparators.
 // [39] CONCERN: `operator []` properly handles transparent comparators.
 // [39] CONCERN: `at`          properly handles transparent comparators.
-// [44] CONCERN: `map` IS A C++20 RANGE
+// [39] CONCERN: `erase`       properly handles transparent comparators.
+// [43] CONCERN: `map` IS C++20 RANGE COMPLIANT
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -564,7 +570,7 @@ int verifyContainer(const CONTAINER& container,
         ASSERTV(i, expectedValues[i], *it, expectedValues[i] == *it);
 
         if (bsltf::TemplateTestFacility::getIdentifier(expectedValues[i].first)
-            != bsltf::TemplateTestFacility::getIdentifier(it->first)) {
+         != bsltf::TemplateTestFacility::getIdentifier(it->first)) {
             return static_cast<int>(i + 1);                           // RETURN
         }
         ++it;
@@ -1190,7 +1196,9 @@ class TestDriver {
     typedef typename Obj::size_type               SizeType;
     typedef typename Obj::value_type              ValueType;
 
-    typedef bsltf::TestValuesArray<typename Obj::value_type, ALLOC,
+    typedef bsltf::TestValuesArray<
+                      typename Obj::value_type,
+                      ALLOC,
                       IntToPairConverter<const KEY, VALUE, ALLOC> > TestValues;
 
     typedef bslma::ConstructionUtil               ConstrUtil;
@@ -1328,9 +1336,11 @@ class TestDriver {
         return t;
     }
 
-
   public:
     // TEST CASES
+
+    // Test range compatibility concerns.
+    static void testCase43();
 
     /// Test `swap` member and free functions.
     static void testCase8_dispatch();
@@ -1487,6 +1497,157 @@ TestDriver<KEY, VALUE, COMP, ALLOC>::primaryManipulator(Obj   *container,
     bslma::DestructorGuard<TValueType> guard(buffer.address());
 
     return container->insert(MoveUtil::move(buffer.object()));
+}
+
+// ----------------------------------------------------------------------------
+// CONCERN: `map` IS C++20 RANGE COMPLIANT
+//   The range constructor and `insert_range` methods have already been tested
+//   in concert with the other constructors and the two-iterator `insert`
+//   method.
+//
+// Concerns:
+// 1. Range construction and range insertion work identically irrespective of
+//    whether the sentinel is itself an iterator or some other (valid) type.
+//
+// 2. `map` itself is a valid range
+//     1. `map` can be used with the range constructor and range insertion.
+//     2. `map` shows the traits expected of a range.
+//
+// Plan:
+// 1. Use `bsltf::TestValuesArray` as ranges to construct a `map` and as an
+//    argument to `insert_range`.  Confirm that the results are the same
+//    when range's `end` method returns an iterator (the default) or a
+//    distinct sentinel class (the fourth template parameter set to `true`).
+//
+// 2. Confirm that `insert_range` of several maps result in a union of the
+//    contributing maps.  Special case: `insert_map` of a map on itself
+//    produces no change.
+//
+// 3. When available, use `static_assert` to check for compliance of `map`
+//    for "range" and "container compatible range" concepts.
+//
+// Testing:
+//   CONCERN: `map` IS C++20 RANGE COMPLIANT
+// ----------------------------------------------------------------------------
+
+template <class KEY, class VALUE, class COMP, class ALLOC>
+void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase43()
+{
+    if (veryVerbose) {
+        Q(testCase43)
+        P(NameOf<KEY>())
+        P(NameOf<VALUE>());
+    }
+
+    if (veryVerbose) {
+        printf("Baseline\n");
+    }
+    {
+        TestValues rangeForCtor  ("ABC");
+        TestValues rangeForInsert("DEF");
+
+        TestValues expectedPostCtor  ("ABC");
+        TestValues expectedPostInsert("ABCDEF");
+
+        Obj mX(bsl::from_range, rangeForCtor);                          // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostCtor, 3));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostInsert, 6));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `map` itself is a range-type.\n");
+    }
+    {
+        Obj mX(bsl::from_range, TestValues("ABC"));  const Obj& X = mX;
+        Obj mY(bsl::from_range, TestValues("DEF"));  const Obj& Y = mY;
+
+        ASSERT(0 == verifyContainer(X, TestValues("ABC"), 3));
+        ASSERT(0 == verifyContainer(Y, TestValues("DEF"), 3));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(0 == verifyContainer(mX, TestValues("ABCDEF"), 6));
+
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValues("ABC"));
+        mW.insert_range(TestValues("DEF"));
+        ASSERT(0 == verifyContainer(W, TestValues("ABCDEF"), 6));
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    typedef bsltf::TestValuesArray<
+           typename Obj::value_type,
+           ALLOC,
+           IntToPairConverter<const KEY, VALUE, ALLOC>,
+           true>                                        TestValuesWithSentinel;
+    {
+        TestValuesWithSentinel tvws;
+
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    decltype(tvws),
+                                                    typename Obj::value_type>);
+
+        static_assert(true  == bsl::sentinel_for<decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+
+        static_assert(false == bsl::is_same_v<   decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+    }
+
+    if (veryVerbose) {
+        printf("Confirm functionality with distinct sentinels.\n");
+    }
+    {
+        TestValuesWithSentinel rangeForCtor  ("ABC");
+        TestValuesWithSentinel rangeForInsert("DEF");
+
+        TestValuesWithSentinel expectedPostCtor  ("ABC");
+        TestValuesWithSentinel expectedPostInsert("ABCDEF");
+
+        Obj  mX(bsl::from_range, rangeForCtor);                         // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostCtor, 3));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(0 == verifyContainer(mX, expectedPostInsert, 6));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `map` itself is a range-type.\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    Obj,
+                                                    typename Obj::value_type>);
+
+        Obj  mX(bsl::from_range, TestValuesWithSentinel("ABC"));
+        Obj  mY(bsl::from_range, TestValuesWithSentinel("DEF"));
+
+        ASSERT(0 == verifyContainer(mX, TestValuesWithSentinel("ABC"), 3));
+        ASSERT(0 == verifyContainer(mY, TestValuesWithSentinel("DEF"), 3));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(0 == verifyContainer(mX, TestValuesWithSentinel("ABCDEF"), 6));
+
+        // Inserting a non-empty map into itself does not change it.
+        const Obj Z(bsl::from_range, mX);                               // TEST
+        ASSERT(Z == mX);
+        mX.insert_range(mX);                                            // TEST
+        ASSERT(Z == mX);
+
+        // Range insertion creates a union of its imput.
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValuesWithSentinel("ABCZ"));
+        mW.insert_range(TestValuesWithSentinel("DEFZ"));
+        ASSERT(0 == verifyContainer(W, TestValuesWithSentinel("ABCDEFZ"), 7));
+    }
+#endif
+
 }
 
 template <class KEY, class VALUE, class COMP, class ALLOC>
@@ -2869,8 +3030,8 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase2()
     // 10. `insert` adds an additional element to the object if the element
     //    being inserted does not already exist.
     //
-    // 11. `insert` returns a pair with an iterator of the element that was just
-    //    inserted or the element that already exist in the object, and a
+    // 11. `insert` returns a pair with an iterator of the element that was
+    //    just inserted or the element that already exist in the object, and a
     //    boolean indicating whether element being inserted already exist in
     //    the object.
     //
@@ -3260,7 +3421,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
             ASSERTV(testKeys[i]   == result.first->first);
             ASSERTV(testValues[i] == result.first->second);
 
-
             // Test size, empty.
             ASSERTV(i + 1 == X.size());
             ASSERTV(false == X.empty());
@@ -3284,7 +3444,6 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase1(const COMP&  comparator,
             ASSERTV(testValues[i] == z[testKeys[i]]);
             ASSERTV( (X == Z));
             ASSERTV(!(X != Z));
-
 
             ASSERTV(X != Y);
             ASSERTV(!(X == Y));
@@ -3730,7 +3889,6 @@ void MetaTestDriver<KEY, VALUE, COMP>::testCase8()
     TestDriver<KEY, VALUE, COMP, S11>::testCase8_dispatch();
 }
 
-
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -3940,7 +4098,6 @@ TradeMatcher::BuyOrdersConstIterator TradeMatcher::endBuyOrders() const
 
 }  // close namespace UsageExample
 
-
 // ============================================================================
 //                              MAIN PROGRAM
 // ----------------------------------------------------------------------------
@@ -3965,7 +4122,7 @@ int main(int argc, char *argv[])
     bslma::Default::setGlobalAllocator(&globalAllocator);
 
     switch (test) { case 0:
-      case 43: {
+      case 44: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -4010,6 +4167,18 @@ int main(int argc, char *argv[])
             ASSERT(0 == defaultAllocator.numBytesInUse());
             ASSERT(0 <  objectAllocator.numBytesInUse());
         }
+      } break;
+      case 43: {
+        // --------------------------------------------------------------------
+        // CONCERN: `map` IS C++20 RANGE COMPLIANT
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nCONCERN: `map` IS C++20 RANGE COMPLIANT"
+                            "\n=======================================\n");
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase43,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 42: // falls through
       case 41: // falls through

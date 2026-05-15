@@ -26,8 +26,10 @@
 #include <bslim_testutil.h>
 
 #include <bslma_constructionutil.h>
+#include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
+#include <bslma_testallocatormonitor.h>
 
 #include <bslmf_assert.h>
 #include <bslmf_integralconstant.h>
@@ -36,6 +38,7 @@
 #include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_review.h>
 #include <bsls_util.h>
 
 #include <bsltf_templatetestfacility.h>
@@ -51,7 +54,7 @@
 #include <bsl_version.h>          // C++20 header
 
 // Now we can check the availability of the feature-test macros, being sure
-// that at the moment they could only be defined in the standard <version>
+// that at the moment they could be defined only in the standard <version>
 // header.
 
 #if defined(__cpp_lib_generic_associative_lookup) &&                          \
@@ -127,6 +130,7 @@
 #include <bsl_fstream.h>
 #include <bsl_functional.h>
 #include <bsl_future.h>              // C++11 header
+#include <bsl_generator.h>           // C++23 header
 #include <bsl_initializer_list.h>    // C++11 header
 #include <bsl_iomanip.h>
 #include <bsl_ios.h>
@@ -139,6 +143,7 @@
 #include <bsl_list.h>
 #include <bsl_locale.h>
 #include <bsl_map.h>
+#include <bsl_mdspan.h>              // C++23 header
 #include <bsl_memory.h>
 #include <bsl_mutex.h>               // C++11 header
 #include <bsl_new.h>
@@ -146,6 +151,8 @@
 #include <bsl_numeric.h>
 #include <bsl_ostream.h>
 #include <bsl_optional.h>            // C++17 header ported to C++03
+#include <bsl_print.h>               // C++23 header
+#include <bsl_print_ostream.h>       // C++23 header extension
 #include <bsl_queue.h>
 #include <bsl_random.h>              // C++11 header
 #include <bsl_ranges.h>              // C++20 header
@@ -156,15 +163,19 @@
 #include <bsl_set.h>
 #include <bsl_shared_mutex.h>        // C++14 header
 #include <bsl_span.h>                // C++20 header ported to C++03
+#include <bsl_spanstream.h>          // C++23 header
 #include <bsl_source_location.h>     // C++20 header
 #include <bsl_sstream.h>
 #include <bsl_stack.h>
+#include <bsl_stacktrace.h>          // C++23 header
 #include <bsl_stop_token.h>          // C++20 header ported to C++03
 #include <bsl_stdexcept.h>
+#include <bsl_stdfloat.h>            // C++23 header
 #include <bsl_streambuf.h>
 #include <bsl_string.h>
 #include <bsl_strstream.h>
 #include <bsl_string_view.h>         // C++17 header ported to C++03
+#include <bsl_syncstream.h>          // C++20 header ported to C++03
 #include <bsl_system_error.h>        // C++11 header ported to C++03
 #include <bsl_thread.h>              // C++11 header
 #include <bsl_tuple.h>               // C++11 header
@@ -228,7 +239,22 @@ using namespace BloombergLP;
 // defined in `bslstl`.
 //
 //-----------------------------------------------------------------------------
-// [44] CONCERN: `bsl::hash<std::thread::id>` is provided.
+// [59] CONCERN: `bsl::hash<std::thread::id>` is provided.
+// [58] C++23 `print` FUNCTIONS
+// [57] C++23 `bsl_stacktrace.h`
+// [56] C++23 `bsl_generator.h`
+// [55] C++23 `bsl_spanstream.h` ADDITIONS
+// [54] C++23 `bsl_memory.h` ADDITIONS
+// [53] C++23 `bsl_ranges.h` ADDITIONS
+// [52] C++23 `bsl_type_traits.h` ADDITIONS
+// [51] C++23 `bsl_algorithm.h` ADDITIONS
+// [50] C++23 `bsl_stdfloat.h`
+// [49] C++23 `bsl_mdspan.h`
+// [48] C++23 `bsl_iterator.h` ADDITIONS
+// [47] C++23 `bsl_numeric.h` ADDITIONS
+// [46] C++23 `bsl_utility.h` ADDITIONS
+// [45] C++23 `bsl_functional.h` ADDITIONS
+// [44] C++23 `bsl_bit.h` ADDITIONS
 // [43] CONCERN: `bsl::aligned_storage` allows deduction.
 // [42] BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
 // [42] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
@@ -430,13 +456,82 @@ void aSsErT(bool condition, const char *message, int line)
 #define RUN_EACH_TYPE BSLTF_TEMPLATETESTFACILITY_RUN_EACH_TYPE
 
 // ============================================================================
-//                     GLOBAL TYPEDEFS FOR TESTING
+//                     GLOBAL VARIABLES FOR TESTING
 // ----------------------------------------------------------------------------
 
 static bool verbose;
 static bool veryVerbose;
 static bool veryVeryVerbose;
 static bool veryVeryVeryVerbose;
+
+//=============================================================================
+//                       GLOBAL HELPER CLASSES FOR TESTING
+//-----------------------------------------------------------------------------
+
+namespace {
+
+ #if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES)
+
+                        // ===========================
+                        // trait aliases_same_template
+                        // ===========================
+
+/// This `struct` template provides a meta-function to determine whether the
+/// (template template) parameter `t_TEMPLATE1` and the (template template)
+/// parameter `t_TEMPLATE2` are the same.  The primary template derives from
+/// `bsl::false_type`.  The template partial specialization provided below
+/// derives from `bsl::true_type` and is selected when the template arguments
+/// are the same.
+template < template<class ...> class t_TEMPLATE1
+         , template<class ...> class t_TEMPLATE2>
+struct aliases_same_template : bsl::false_type {
+};
+
+template <template<class ...> class t_TEST_TEMPLATE>
+struct aliases_same_template<t_TEST_TEMPLATE, t_TEST_TEMPLATE>
+     : bsl::true_type {
+};
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
+template < template<class ...> class t_TEMPLATE1
+         , template<class ...> class t_TEMPLATE2>
+BSLS_KEYWORD_INLINE_CONSTEXPR
+bool aliases_same_template_v = aliases_same_template< t_TEMPLATE1
+                                                    , t_TEMPLATE2>::value;
+# endif
+
+                        // =================================
+                        // trait aliases_same_index_template
+                        // =================================
+
+/// This `struct` template provides a meta-function to determine whether the
+/// (template template) parameter `t_TEMPLATE1` and the (template template)
+/// parameter `t_TEMPLATE2` are the same.  Each template shall have a type
+/// parameter as the first template parameter, followed by an arbitrary number
+/// of constant `std::size_t` parameters.  The primary template derives from
+/// `bsl::false_type`.  The template partial specialization provided below
+/// derives from `bsl::true_type` and is selected when the template arguments
+/// are the same.
+template < template<class, std::size_t ...> class t_TEMPLATE1
+         , template<class, std::size_t ...> class t_TEMPLATE2>
+struct aliases_same_index_template : bsl::false_type {
+};
+
+template <template<class, std::size_t ...> class t_TEST_TEMPLATE>
+struct aliases_same_index_template<t_TEST_TEMPLATE, t_TEST_TEMPLATE>
+     : bsl::true_type {
+};
+
+# if defined(BSLS_COMPILERFEATURES_SUPPORT_VARIABLE_TEMPLATES)
+template < template<class, std::size_t ...> class t_TEMPLATE1
+         , template<class, std::size_t ...> class t_TEMPLATE2>
+BSLS_KEYWORD_INLINE_CONSTEXPR
+bool aliases_same_index_template_v =
+                  aliases_same_index_template<t_TEMPLATE1, t_TEMPLATE2>::value;
+# endif
+#endif // BSLS_COMPILERFEATURES_SUPPORT_VARIADIC_TEMPLATES
+
+}
 
                             // ===================
                             // class MapTestDriver
@@ -947,6 +1042,44 @@ void testCase43b(bsl::aligned_storage<t_SIZE, t_ALIGNMENT>) {}
 #endif
 #endif
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+template<class t_GENERATOR>
+struct GeneratorUsesBslAllocator : bsl::false_type {};
+
+template<class t_REF, class t_VALUE, class t_ALLOC_TYPE>
+struct GeneratorUsesBslAllocator<
+    std::generator<t_REF, t_VALUE, bsl::allocator<t_ALLOC_TYPE>>
+> : bsl::true_type {};
+#endif
+
+/// Implement the test case for `print` functions.
+void testPrintFunctions()
+{
+    // <print>
+    bsl::print("{}", 1);
+    bsl::print(stdout, "{}", 1);
+    bsl::println("{}", 1);
+    bsl::println(stdout, "{}", 1);
+    bsl::println();
+    bsl::println(stdout);
+
+    const int one = 1;
+    bsl::vprint_nonunicode("{}", bsl::make_format_args(one));
+    bsl::vprint_nonunicode(stdout, "{}", bsl::make_format_args(one));
+    bsl::vprint_nonunicode_buffered(stdout, "{}", bsl::make_format_args(one));
+    bsl::vprint_unicode("{}", bsl::make_format_args(one));
+    bsl::vprint_unicode(stdout, "{}", bsl::make_format_args(one));
+    bsl::vprint_unicode_buffered(stdout, "{}", bsl::make_format_args(one));
+
+    // <ostream>
+    bsl::print(bsl::cout, "{}", 1);
+    bsl::println(bsl::cout, "{}", 1);
+    bsl::println(bsl::cout);
+
+    bsl::vprint_nonunicode(bsl::cout, "{}", bsl::make_format_args(one));
+    bsl::vprint_unicode(bsl::cout, "{}", bsl::make_format_args(one));
+}
+
 //=============================================================================
 //                              MAIN PROGRAM
 //-----------------------------------------------------------------------------
@@ -959,16 +1092,29 @@ int main(int argc, char *argv[])
     veryVeryVerbose     = argc > 4;
     veryVeryVeryVerbose = argc > 4;
 
-    (void)veryVerbose;
     (void)veryVeryVerbose;
-    (void)veryVeryVeryVerbose;
 
     setbuf(stdout, NULL);    // Use unbuffered output
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
+    // CONCERN: `BSLS_REVIEW` failures should lead to test failures.
+    bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
+
+    // CONCERN: In no case does memory come from the default allocator.
+
+    bslma::TestAllocator defaultAllocator("default", veryVeryVeryVerbose);
+    ASSERT(0 == bslma::Default::setDefaultAllocator(&defaultAllocator));
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    bslma::TestAllocator globalAllocator("global", veryVeryVeryVerbose);
+    bslma::Default::setGlobalAllocator(&globalAllocator);
+    bslma::TestAllocatorMonitor gam(&globalAllocator);
+
     switch (test) { case 0:  // Zero is always the leading case.
-      case 44: {
+      case 59: {
         // --------------------------------------------------------------------
         // `bsl::hash<std::thread::id>`
         //
@@ -1000,6 +1146,1121 @@ int main(int argc, char *argv[])
         ASSERT((std::is_same<std::size_t, decltype(hasher(id))>::value));
         ASSERT(hasher(id) == hasher(id));
         ASSERT(std::is_copy_constructible<bsl::hash<std::thread::id>>::value);
+#endif
+      } break;
+      case 58: {
+        // --------------------------------------------------------------------
+        // C++23 `print` FUNCTIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<print>` defined by the C++23 Standard, and
+        //    similar definitions from `<ostream>` are available in the `bsl`
+        //    namespace to users who include `bsl_print.h` and `bsl_ostream.h`,
+        //    respectively.
+        //
+        // Plan:
+        // 1. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `print` FUNCTIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `print` FUNCTIONS"
+                          "\n=======================");
+
+        //testPrintFunctions();
+      } break;
+      case 57: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_stacktrace.h`
+        //
+        // Concerns:
+        // 1. The definitions from `<stacktrace>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_stacktrace.h`.
+        //
+        // 2. The feature test macros defined in `<stacktrace>` are available
+        //    and have appropriate values.
+        //
+        // 3. `bsl::allocator` is used to allocate memory.
+        //
+        // Plan:
+        // 1. Verify that `__cpp_lib_stacktrace >= 202011L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // 3. Verify that the `bsl::stacktrace` class uses `bsl::allocator`.
+        //
+        // 4. Verify that memory is allocated using the default allocator and
+        //    deallocated after use.
+        //
+        // Testing
+        //   C++23 `bsl_stacktrace.h`
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_stacktrace.h`"
+                          "\n========================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_STACKTRACE
+        BSLMF_ASSERT(__cpp_lib_stacktrace >= 202011L);
+        bslma::TestAllocatorMonitor tam(&defaultAllocator);
+        {
+            auto prevAllocs = defaultAllocator.numAllocations();
+            [[maybe_unused]] bsl::stacktrace st = bsl::stacktrace::current();
+            ASSERT((std::is_same_v<bsl::stacktrace,
+               bsl::basic_stacktrace<bsl::allocator<bsl::stacktrace_entry>>>));
+            ASSERT(defaultAllocator.numAllocations() > prevAllocs);
+        }
+        ASSERT(tam.isInUseSame());
+#endif
+      } break;
+      case 56: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_generator.h`
+        //
+        // Concerns:
+        // 1. The definitions from `<generator>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_generator.h`.
+        //
+        // 2. The feature test macros defined in `<generator>` are available
+        //    and have appropriate values.
+        //
+        // 3. `bsl::allocator` is used to allocate memory.
+        //
+        // Plan:
+        // 1. Verify that `__cpp_lib_generator >= 202207L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // 3. Verify that the `bsl::generator` class uses `bsl::allocator`.
+        //
+        // 4. Verify that memory is allocated using the default allocator and
+        //    deallocated after use.
+        //
+        // Testing
+        //   C++23 `bsl_generator.h`
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_generator.h`"
+                          "\n=======================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+        BSLMF_ASSERT(__cpp_lib_generator >= 202207L);
+        BSLMF_ASSERT(GeneratorUsesBslAllocator<bsl::generator<char>>::value);
+        bslma::TestAllocatorMonitor tam(&defaultAllocator);
+        const std::string_view s{"str"};
+
+        if (veryVerbose) puts("Breathing test");
+        {
+            const auto genChars =
+                               [](std::string_view s) -> bsl::generator<char> {
+                for(char c : s) {
+                    co_yield c;
+                }
+            };
+            const char expected[] = {'s', 't', 'r'};
+            auto prevAllocs = defaultAllocator.numAllocations();
+            ASSERT(std::ranges::equal(genChars(s), expected));
+            ASSERT(defaultAllocator.numAllocations() > prevAllocs);
+        }
+
+        if (veryVerbose) puts("Testing allocator");
+        {
+            const auto genStrings =
+                        [](std::string_view s) -> bsl::generator<bsl::string> {
+                co_yield bsl::string{s};
+            };
+
+            auto prevAllocs = defaultAllocator.numAllocations();
+            int i = 0;
+            for(const auto& ss : genStrings(s)) {
+                ASSERT(ss.get_allocator() == &defaultAllocator);
+                i++;
+            }
+            ASSERT(i == 1);
+            ASSERT(defaultAllocator.numAllocations() > prevAllocs);
+        }
+
+        ASSERT(tam.isInUseSame());
+#endif
+      } break;
+      case 55: {
+        // --------------------------------------------------------------------
+        // TESTING C++23 `bsl_spanstream.h`
+        //
+        // Concerns:
+        // 1. The definitions from `<spanstream>` defined by the C++23
+        //    Standard are available in C++23 mode in both the `bsl` and
+        //    `std` namespaces to users who include `bsl_spanstream.h`.
+        //
+        // 2. The feature test macros defined in `<spanstream>` are
+        //    available and have appropriate values.
+        //
+        // 3. The aliases refer to definitions and not just to forward
+        //     declarations.
+        //
+        // Plan:
+        // 1. Verify that if `BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM`
+        //    is defined
+        //     o `__cpp_lib_spanstream >= 202106L`
+        //
+        // 2. Verify every name in the `bsl` namespace is an alias for the
+        //    same type that is visible in the `std` namespace.
+        //
+        // 3. Perform a breathing test with each narrow charater type alias.
+        //
+        // 4. Assert that the narrow and wide character aliases are the
+        //    specified instantions of the `basic` templates, which have
+        //    already been demonstrated to be present and working by (3).
+        //
+        // Testing
+        //   C++23 `bsl_spanstream.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nTESTING C++23 `bsl_spanstream.h`"
+                          "\n===============================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+        if (veryVerbose) puts("Testing standard library feature macro");
+        {
+            ASSERT(__cpp_lib_spanstream >= 202106L);
+        }
+
+        if (veryVerbose) puts("Testing bsl types alias std");
+        {
+            ASSERT((aliases_same_template_v<bsl::basic_ispanstream,
+                                            std::basic_ispanstream>));
+            ASSERT((aliases_same_template_v<bsl::basic_ospanstream,
+                                            std::basic_ospanstream>));
+            ASSERT((aliases_same_template_v<bsl::basic_spanbuf,
+                                            std::basic_spanbuf>));
+            ASSERT((aliases_same_template_v<bsl::basic_spanstream,
+                                            std::basic_spanstream>));
+
+            ASSERT((bsl::is_same_v<bsl::ispanstream, std::ispanstream>));
+            ASSERT((bsl::is_same_v<bsl::ospanstream, std::ospanstream>));
+            ASSERT((bsl::is_same_v<bsl::spanbuf, std::spanbuf>));
+            ASSERT((bsl::is_same_v<bsl::spanstream, std::spanstream>));
+            ASSERT((bsl::is_same_v<bsl::wspanbuf, std::wspanbuf>));
+            ASSERT((bsl::is_same_v<bsl::wispanstream, std::wispanstream>));
+            ASSERT((bsl::is_same_v<bsl::wospanstream, std::wospanstream>));
+            ASSERT((bsl::is_same_v<bsl::wspanstream, std::wspanstream>));
+        }
+
+        if (veryVerbose) puts("Testing `ispanstream`");
+        {
+            bsl::string sourceData = "1 -2 13";
+            bsl::span<char> sourceSpan(sourceData.data(), sourceData.size());
+            bsl::ispanstream inputStream(sourceSpan);
+
+            int a, b, c;
+            inputStream >> a >> b >> c;
+            ASSERT( 1 == a);
+            ASSERT(-2 == b);
+            ASSERT(13 == c);
+        }
+
+        if (veryVerbose) puts("Testing `ospanstream`");
+        {
+            char outputBuffer[50] = {}; // Preallocate buffer
+            bsl::span<char> outputSpan(+outputBuffer, 50);
+            bsl::ospanstream outputStream(outputSpan);
+
+            const auto message = "This is ospanstream.";
+            outputStream << message;
+            ASSERT(!strcmp(+outputBuffer, +message));
+        }
+
+        if (veryVerbose) puts("Testing `spanstream`");
+        {
+            char dataBuffer[50] = "1 -2 13";
+            bsl::span<char> dataSpan(+dataBuffer, 50);
+            bsl::spanstream dataStream(dataSpan);
+
+            int a, b, c;
+            dataStream >> a >> b >> c;
+            ASSERT( 1 == a);
+            ASSERT(-2 == b);
+            ASSERT(13 == c);
+
+            const auto message = "Testing spanstream, 1, 2, 3!";
+            dataStream << message;
+            ASSERT(!strcmp(+dataBuffer, +message));
+        }
+
+        if (veryVerbose) puts("Testing `spanbuf`");
+        {
+            char dataBuffer[50] = {};
+            bsl::span<char> dataSpan(+dataBuffer, 50);
+            bsl::spanbuf sbufOut(dataSpan, bsl::ios::out);
+
+            int x = 42;
+            bsl::ostream out(&sbufOut);
+            out << x;
+
+            bsl::spanbuf sbufIn(dataSpan, bsl::ios::in);
+            bsl::istream in(&sbufIn);
+            int y = 0;
+            in >> y;
+            ASSERT(42 == y);
+        }
+
+        if (veryVerbose) puts("Validating `basic` aliases");
+        {
+            ASSERT((bsl::is_same_v<bsl::ispanstream,
+                                   bsl::basic_ispanstream<char>>));
+            ASSERT((bsl::is_same_v<bsl::ospanstream,
+                                   bsl::basic_ospanstream<char>>));
+            ASSERT((bsl::is_same_v<bsl::spanbuf,
+                                   bsl::basic_spanbuf<char>>));
+            ASSERT((bsl::is_same_v<bsl::spanstream,
+                                   bsl::basic_spanstream<char>>));
+            ASSERT((bsl::is_same_v<bsl::wspanbuf,
+                                   bsl::basic_spanbuf<wchar_t>>));
+            ASSERT((bsl::is_same_v<bsl::wispanstream,
+                                   bsl::basic_ispanstream<wchar_t>>));
+            ASSERT((bsl::is_same_v<bsl::wospanstream,
+                                   bsl::basic_ospanstream<wchar_t>>));
+            ASSERT((bsl::is_same_v<bsl::wspanstream,
+                                   bsl::basic_spanstream<wchar_t>>));
+        }
+#endif
+      } break;
+      case 54: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_memory.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<memory>` defined by the C++23 Standard are
+        //    available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_memory.h`.
+        //
+        // 2. The feature test macros defined in `<memory>` are available and
+        //    have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_allocate_at_least >= 202302L`,
+        //     o `__cpp_lib_out_ptr >= 202106L`,
+        //     o `__cpp_lib_start_lifetime_as >= 202207L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_memory.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_memory.h` ADDITIONS"
+                          "\n==============================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_ALLOCATE_AT_LEAST
+        {
+            BSLMF_ASSERT(__cpp_lib_allocate_at_least >= 202302L);
+            std::allocation_result<int *, std::size_t> res;
+            (void) res;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
+        {
+            BSLMF_ASSERT(__cpp_lib_out_ptr >= 202106L);
+            {
+                const auto func = [](int **pp) { *pp = new int{}; };
+                std::unique_ptr<int> p;
+                func(bsl::out_ptr(p));
+                ASSERT(p);
+                ASSERT((std::is_same_v<decltype(bsl::out_ptr(p)),
+                                bsl::out_ptr_t<std::unique_ptr<int>, int *>>));
+            }
+            {
+                const auto func = [](int **) {};
+                auto p = std::make_unique<int>();
+                func(bsl::inout_ptr(p));
+                ASSERT(p);
+                ASSERT((std::is_same_v<decltype(bsl::inout_ptr(p)),
+                              bsl::inout_ptr_t<std::unique_ptr<int>, int *>>));
+            }
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_START_LIFETIME_AS
+        {
+            ASSERT(__cpp_lib_start_lifetime_as >= 202207L);
+            {
+                alignas(unsigned) unsigned char buf[sizeof(unsigned)] = {};
+                unsigned *uint_p = bsl::start_lifetime_as<unsigned>(buf);
+                ASSERT(*uint_p == 0U);
+            }
+            {
+                const std::size_t arrSize = 4;
+                alignas(unsigned) unsigned char buf[
+                                              arrSize * sizeof(unsigned)] = {};
+                unsigned *uint_arr =
+                          bsl::start_lifetime_as_array<unsigned>(buf, arrSize);
+                ASSERT(std::count(uint_arr, uint_arr + arrSize, 0U)== arrSize);
+            }
+        }
+#endif
+      } break;
+      case 53: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_ranges.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<ranges>` defined by the C++23 Standard are
+        //    available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_ranges.h`.
+        //
+        // 2. The feature test macros defined in `<ranges>` are available and
+        //    have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_containers_ranges >= 202202L`,
+        //     o `__cpp_lib_ranges_to_container >= 202202L`,
+        //     o `__cpp_lib_ranges >= 202202L`,
+        //     o `__cpp_lib_ranges_cartesian_product >= 202207L`,
+        //     o `__cpp_lib_ranges_chunk >= 202202L`,
+        //     o `__cpp_lib_ranges_enumerate >= 202302L`,
+        //     o `__cpp_lib_ranges_join_with >= 202202L`,
+        //     o `__cpp_lib_ranges_slide >= 202202L`,
+        //     o `__cpp_lib_ranges_stride >= 202207L`,
+        //     o `__cpp_lib_ranges_zip >= 202110L`,
+        //     o `__cpp_lib_generator >= 202207L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_ranges.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_ranges.h` ADDITIONS"
+                          "\n==============================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
+        {
+            BSLMF_ASSERT(__cpp_lib_containers_ranges >= 202202L);
+            bsl::from_range_t v{bsl::from_range};
+            (void) v;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_to_container >= 202202L);
+            const int arr[] = {1, 2};
+            auto v = bsl::ranges::to<std::vector>(arr);
+            ASSERT(v.size() == 2);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_ADAPTOR_CLOSURE
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges >= 202202L);
+            struct FirstChar : bsl::ranges::range_adaptor_closure<FirstChar> {
+                std::string_view operator()(std::string_view s) const
+                {
+                    if (s.empty()) return {};
+                    return s.substr(0, 1);
+                }
+            } firstChar;
+            std::string_view char1 = std::string_view{"abc"} | firstChar;
+            ASSERT(char1 == "a");
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CARTESIAN_PRODUCT
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_cartesian_product >= 202207L);
+            const int nums[] = {1, 2, 3};
+            const char chars[] = {'a', 'b'};
+            bsl::ranges::cartesian_product_view res{
+                                   bsl::views::cartesian_product(nums, chars)};
+            const std::pair<int, char> expected[] = {
+                {1, 'a'}, {1, 'b'},
+                {2, 'a'}, {2, 'b'},
+                {3, 'a'}, {3, 'b'}
+            };
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
+            ASSERT(bsl::ranges::equal(res, expected,
+                                       std::equal_to<std::pair<int, char>>{}));
+#else
+            ASSERT(bsl::ranges::equal(res, expected));
+#endif
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CHUNK
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_chunk >= 202202L);
+            const int nums[] = {1, 2, 3, 4, 5, 6};
+            bsl::ranges::chunk_view view{bsl::views::chunk(nums, 2)};
+            std::initializer_list<std::initializer_list<int>> expected =
+                {{1, 2}, {3, 4}, {5, 6}};
+            ASSERT(bsl::ranges::equal(view, expected, bsl::ranges::equal));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ENUMERATE
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_enumerate >= 202302L);
+            const char chars[] = {'a', 'b', 'c'};
+            bsl::ranges::enumerate_view view{bsl::views::enumerate(chars)};
+            const std::tuple<int, char> expected[] =
+                {{0, 'a'}, {1, 'b'}, {2, 'c'}};
+            ASSERT(bsl::ranges::equal(view, expected));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_JOIN_WITH
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_join_with >= 202202L);
+            const std::string_view words[] = {"w1", "w2", "w3"};
+            bsl::ranges::join_with_view view{bsl::views::join_with(words,' ')};
+            ASSERT(bsl::ranges::equal(view, std::string_view{"w1 w2 w3"}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SLIDE
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_slide >= 202202L);
+            const int nums[] = {1, 2, 3, 4, 5};
+            bsl::ranges::slide_view view{bsl::views::slide(nums, 3)};
+            std::initializer_list<std::initializer_list<int>> expected =
+                {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}};
+            ASSERT(bsl::ranges::equal(view, expected, bsl::ranges::equal));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STRIDE
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_stride >= 202207L);
+            const int nums[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+            bsl::ranges::stride_view view{bsl::views::stride(nums, 3)};
+            const int expected[] = {1, 4, 7};
+            ASSERT(bsl::ranges::equal(view, expected));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_ZIP
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_zip >= 202110L);
+            const int nums[] = {1, 2, 3, 4, 5};
+            const char chars[] = {'a', 'b', 'c'};
+            {
+                bsl::ranges::zip_view view{bsl::views::zip(nums, chars)};
+                const std::pair<int, char> expected[] =
+                    {{1, 'a'}, {2, 'b'}, {3, 'c'}};
+#if defined(_GLIBCXX_RELEASE) && _GLIBCXX_RELEASE == 13
+                ASSERT(bsl::ranges::equal(view, expected,
+                                       std::equal_to<std::pair<int, char>>{}));
+#else
+                ASSERT(bsl::ranges::equal(view, expected));
+#endif
+            }
+            {
+                const auto concat = [](int n, char c) {
+                    return std::to_string(n) + c;
+                };
+                bsl::ranges::zip_transform_view view{
+                               bsl::views::zip_transform(concat, nums, chars)};
+                const std::string_view expected[] = {"1a", "2b", "3c"};
+                ASSERT(bsl::ranges::equal(view, expected));
+            }
+            {
+                bsl::ranges::adjacent_view view{bsl::views::adjacent<3>(nums)};
+                const std::tuple<int, int, int> expected[] =
+                    {{1, 2, 3}, {2, 3, 4}, {3, 4, 5}};
+                ASSERT(bsl::ranges::equal(view, expected));
+            }
+            {
+                const auto sum = [](auto... nums) { return (0 + ... + nums); };
+                bsl::ranges::adjacent_transform_view view{
+                                 bsl::views::adjacent_transform<3>(nums, sum)};
+                const int expected[] = {6, 9, 12};
+                ASSERT(bsl::ranges::equal(view, expected));
+            }
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+        {
+            BSLMF_ASSERT(__cpp_lib_generator >= 202207L);
+            const int nums[] = {1, 2};
+            (void) bsl::ranges::elements_of(nums);
+        }
+#endif
+      } break;
+      case 52: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_type_traits.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<type_traits>` defined by the C++23
+        //    Standard are available in C++23 mode in the `bsl` namespace to
+        //    users who include `bsl_type_traits.h`.
+        //
+        // 2. The feature test macros defined in `<type_traits>` are available
+        //    and have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_is_scoped_enum >= 202011L`,
+        //     o `__cpp_lib_is_implicit_lifetime >= 202302L`,
+        //     o `__cpp_lib_reference_from_temporary >= 202202L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_type_traits.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_type_traits.h` ADDITIONS"
+                          "\n===================================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+        {
+            BSLMF_ASSERT(__cpp_lib_is_scoped_enum >= 202011L);
+            enum E1 { E1_enumerator1 };
+            enum class E2 { enumerator1 };
+
+            ASSERT(!bsl::is_scoped_enum<E1>::value);
+            ASSERT(!bsl::is_scoped_enum_v<E1>);
+
+            ASSERT(bsl::is_scoped_enum<E2>::value);
+            ASSERT(bsl::is_scoped_enum_v<E2>);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
+        {
+            BSLMF_ASSERT(__cpp_lib_is_implicit_lifetime >= 202302L);
+            ASSERT(bsl::is_implicit_lifetime<int>::value);
+            ASSERT(bsl::is_implicit_lifetime_v<int>);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_REFERENCE_FROM_TEMPORARY
+        {
+            BSLMF_ASSERT(__cpp_lib_reference_from_temporary >= 202202L);
+            ASSERT((bsl::reference_constructs_from_temporary<int&&,
+                                                             int>::value));
+            ASSERT((bsl::reference_constructs_from_temporary_v<int&&,int>));
+            ASSERT((bsl::reference_converts_from_temporary<int&&,int>::value));
+            ASSERT((bsl::reference_converts_from_temporary_v<int&&,int>));
+        }
+#endif
+      } break;
+      case 51: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_algorithm.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<algorithm>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_algorithm.h`.
+        //
+        // 2. The feature test macros defined in `<algorithm>` are available
+        //    and have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_shift >= 202202L`,
+        //     o `__cpp_lib_ranges_starts_ends_with >= 202106L`,
+        //     o `__cpp_lib_ranges_find_last >= 202207L`,
+        //     o `__cpp_lib_ranges_contains >= 202207L`,
+        //     o `__cpp_lib_ranges_fold >= 202207L`,
+        //     o `__cpp_lib_ranges_iota >= 202202L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_algorithm.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_algorithm.h` ADDITIONS"
+                          "\n=================================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_SHIFT
+        {
+            BSLMF_ASSERT(__cpp_lib_shift >= 202202L);
+            int nums[] = {1, 2, 3};
+            bsl::ranges::shift_left(nums, 1);
+            ASSERT(bsl::ranges::equal(nums, std::initializer_list{2, 3, 3}));
+
+            bsl::ranges::shift_right(nums, 1);
+            ASSERT(bsl::ranges::equal(nums, std::initializer_list{2, 2, 3}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_STARTS_ENDS_WITH
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_starts_ends_with >= 202106L);
+            const int nums[] = {1, 2, 3, 4};
+            ASSERT( bsl::ranges::starts_with(nums,
+                                            std::initializer_list{1, 2}));
+            ASSERT(!bsl::ranges::starts_with(nums,
+                                            std::initializer_list{1, 1}));
+            ASSERT( bsl::ranges::ends_with(nums, std::initializer_list{3, 4}));
+            ASSERT(!bsl::ranges::ends_with(nums, std::initializer_list{3, 1}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FIND_LAST
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_find_last >= 202207L);
+            const int nums[] = {1, 2, 3, 4, 1, 6};
+
+            auto l1 = bsl::ranges::find_last(nums, 1);
+            ASSERT(bsl::distance(nums, l1.begin()) == 4);
+
+            const auto is_1 = [](auto v) { return v == 1; };
+            auto l2 = bsl::ranges::find_last_if(nums, is_1);
+            ASSERT(bsl::distance(nums, l2.begin()) == 4);
+
+            const auto more_than_1 = [](auto v) { return v > 1; };
+            auto l3 = bsl::ranges::find_last_if_not(nums, more_than_1);
+            ASSERT(bsl::distance(nums, l3.begin()) == 4);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_CONTAINS
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_contains >= 202207L);
+            const int nums[] = {1, 2, 3, 4};
+            ASSERT( bsl::ranges::contains(nums, 2));
+            ASSERT(!bsl::ranges::contains(nums, 5));
+            ASSERT( bsl::ranges::contains_subrange(nums,
+                                                 std::initializer_list{2, 3}));
+            ASSERT(!bsl::ranges::contains_subrange(nums,
+                                                 std::initializer_list{4, 5}));
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_FOLD
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_fold >= 202207L);
+            const int nums[] = {1, 2, 3, 4};
+            ASSERT(bsl::ranges::fold_left(nums, 0, bsl::plus<>{}) == 10);
+            ASSERT(bsl::ranges::fold_left_first(nums, bsl::plus<>{}) == 10);
+            ASSERT(bsl::ranges::fold_right(nums, 0, bsl::plus<>{}) == 10);
+            ASSERT(bsl::ranges::fold_right_last(nums, bsl::plus<>{}) == 10);
+
+            bsl::ranges::fold_left_with_iter_result<const int *, int>
+                 r1 = bsl::ranges::fold_left_with_iter(nums, 0, bsl::plus<>{});
+            ASSERT(r1.value == 10);
+            ASSERT(r1.in == bsl::end(nums));
+
+            bsl::ranges::fold_left_first_with_iter_result<const int *,
+                                                          std::optional<int>>
+                 r2 = bsl::ranges::fold_left_first_with_iter(nums,
+                                                             bsl::plus<>{});
+            ASSERT(r2.value == 10);
+            ASSERT(r2.in == bsl::end(nums));
+
+            [[maybe_unused]]
+            bsl::ranges::in_value_result<const int *, int> r11 = r1;
+            [[maybe_unused]]
+            bsl::ranges::in_value_result<const int *, std::optional<int>>
+                                                                      r22 = r2;
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+        {
+            BSLMF_ASSERT(__cpp_lib_ranges_iota >= 202202L);
+            int n = 2;
+            bsl::ranges::out_value_result<int *, int> r{&n, n};
+            ASSERT(r.out == &n);
+            ASSERT(r.value == n);
+        }
+#endif
+      } break;
+      case 50: {
+            // --------------------------------------------------------------------
+            // C++23 `bsl_stdfloat.h`
+            //
+            // Concerns:
+            // 1. The definitions from `<stdfloat>` defined by the C++23 Standard
+            //    are available in C++23 mode in the `bsl` namespace to users who
+            //    include `bsl_stdfloat.h`.
+            //
+            // 2. The typedefs corresponding to the C++23 feature macro for each
+            //    fixed representation floating point type are availabe if that
+            //    macro is defined. (Untested until we have reflection to test
+            //    for type names without forcing a compile error.)
+            //
+            // Plan:
+            // 1. For each type that is conditionally supported, declare an `auto`
+            //    local variable initalized with a literal of that type.
+            //
+            // 2. Verify that the deduced type of the local variable is that of
+            //    corresponding type alias using the `is_same_v` type trait.
+            //
+            // Testing
+            //   C++23 `bsl_stdfloat.h`
+            // --------------------------------------------------------------------
+            if (verbose) puts("\nC++23 `bsl_stdfloat.h`"
+                              "\n======================");
+
+            // Note that there is no library-specific feature macro for this
+            // header in either BDE or the C++ Standard.
+
+#if defined(__STDCPP_FLOAT16_T__)
+            {
+                auto float16 = 0.F16;
+                ASSERT(( bsl::is_same_v<bsl::float16_t, decltype(float16)>));
+            }
+#endif
+#if defined(__STDCPP_FLOAT32_T__)
+            {
+                auto float32 = 0.F32;
+                ASSERT(( bsl::is_same_v<bsl::float32_t, decltype(float32)>));
+            }
+#endif
+#if defined(__STDCPP_FLOAT64_T__)
+            {
+                auto float64 = 0.F64;
+                ASSERT(( bsl::is_same_v<bsl::float64_t, decltype(float64)>));
+            }
+#endif
+#if defined(__STDCPP_FLOAT128_T__)
+            {
+                auto float128 = 0.F128;
+                ASSERT(( bsl::is_same_v<bsl::float128_t, decltype(float128)>));
+            }
+#endif
+#if defined(__STDCPP_BFLOAT16_T__)
+            {
+                auto bfloat16 = 0.BF16;
+                ASSERT(( bsl::is_same_v<bsl::bfloat16_t, decltype(bfloat16)>));
+            }
+#endif
+      } break;
+      case 49: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_mdspan.h`
+        //
+        // Concerns:
+        // 1. The definitions from `<mdspan>` defined by the C++23 Standard
+        //    are available in C++23 mode in both the `bsl` and `std`
+        //    namespaces to users who include `bsl_mdspan.h`.
+        //
+        // 2. The feature test macros defined in `<mdspan>` are available and
+        //    have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that if `BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN` is defined
+        //     o `__cpp_lib_mdspan >= 202207L`
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // 3. Verify every name in the `bsl` namespace is an alias for the
+        //    same type that is visible in the `std` namespace.
+        //
+        // Testing
+        //   C++23 `bsl_mdspan.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_mdspan.h`"
+                          "\n====================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
+        if (veryVerbose) puts("Testing standard library feature macro");
+        {
+            ASSERT(__cpp_lib_mdspan >= 202207L);
+        }
+
+        if (veryVerbose) puts("Testing `mdspan` and `extents");
+        {
+            int data[2][3] = {{1, 2, 3}, {4, 5, 6}};
+            bsl::mdspan<int, bsl::extents<size_t, 2, 3> > view(&data[0][0]);
+
+            for (size_t i = 0; i < view.extent(0); ++i) {
+                for (size_t j = 0; j < view.extent(1); ++j) {
+                    ASSERT((view[i, j] == i*3 + j+1));
+                }
+            }
+        }
+
+        if (veryVerbose) puts("Testing `dextents` and `default_accessor");
+        if (veryVerbose) puts("Testing `layout_left` and `layout_right");
+        {
+            using LeftMD =
+                  bsl::mdspan<int, bsl::dextents<size_t, 2>, bsl::layout_left>;
+            using RightMD = bsl::mdspan<int, bsl::dextents<size_t, 2>,
+                                bsl::layout_right, bsl::default_accessor<int>>;
+
+            int data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+            LeftMD  view_l(data, 3, 4);
+            RightMD view_r(data, 2, 6);
+
+            for (size_t i = 0; i < view_l.extent(0); ++i) {
+                for (size_t j = 0; j < view_l.extent(1); ++j) {
+                    ASSERT((view_l[i, j] == j*3 + i+1));
+                }
+            }
+
+            for (size_t i = 0; i < view_r.extent(0); ++i) {
+                for (size_t j = 0; j < view_r.extent(1); ++j) {
+                    ASSERT((view_r[i, j] == i*6 + j+1));
+                }
+            }
+        }
+
+        if (veryVerbose) puts("Validating `mdspan`-related aliases");
+        {
+            ASSERT((aliases_same_template_v< bsl::mdspan, std::mdspan>));
+            ASSERT((aliases_same_template_v< bsl::default_accessor
+                                           , std::default_accessor>));
+            ASSERT((aliases_same_index_template_v< bsl::dextents
+                                                 , std::dextents>));
+            ASSERT((aliases_same_index_template_v< bsl::extents
+                                                 , std::extents>));
+            ASSERT((bsl::is_same_v< bsl::layout_left
+                                  , std::layout_left>));
+            ASSERT((bsl::is_same_v< bsl::layout_right
+                                  , std::layout_right>));
+            ASSERT((bsl::is_same_v< bsl::layout_stride
+                                  , std::layout_stride>));
+        }
+#elif defined(__cpp_lib_mdspan)
+        {
+            ASSERT(__cpp_lib_mdspan < 202207L);
+        }
+#endif
+      } break;
+      case 48: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_iterator.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<iterator>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_iterator.h`.
+        //
+        // 2. The feature test macros defined in `<iterator>` are available and
+        //    have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_ranges_as_const >= 202207L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_iterator.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_iterator.h` ADDITIONS"
+                          "\n================================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+        BSLMF_ASSERT(__cpp_lib_ranges_as_const >= 202207L);
+        {
+            char ch = 'A';
+            bsl::basic_const_iterator<char *> it{&ch};
+            ASSERT(*it == ch);
+        }
+        {
+            char ch = 'A';
+            bsl::const_iterator<char *> it = bsl::make_const_iterator(&ch);
+            ASSERT(*it == ch);
+        }
+        {
+            char ch = 'A';
+            bsl::const_sentinel<char *> end = bsl::make_const_sentinel(&ch);
+            (void) end;
+        }
+        {
+            char ch = 'A';
+            bsl::iter_const_reference_t<char *> ref = ch;
+            ASSERT(ref == ch);
+        }
+#endif
+      } break;
+      case 47: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_numeric.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<numeric>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_numeric.h`.
+        //
+        // 2. The feature test macros defined in `<numeric>` are available and
+        //    have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_ranges_iota >= 202202L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_numeric.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_numeric.h` ADDITIONS"
+                          "\n===============================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_IOTA
+        BSLMF_ASSERT(__cpp_lib_ranges_iota >= 202202L);
+        int buf[2] = {};
+        bsl::ranges::iota_result<int *, int> r =
+                          bsl::ranges::iota(bsl::begin(buf), bsl::end(buf), 1);
+        ASSERT(r.out == bsl::end(buf));
+        ASSERT(r.value == 3);
+        ASSERT(buf[0] == 1);
+        ASSERT(buf[1] == 2);
+
+        buf[0] = buf[1] = 0;
+        r = bsl::ranges::iota(buf, 1);
+        ASSERT(r.out == bsl::end(buf));
+        ASSERT(r.value == 3);
+        ASSERT(buf[0] == 1);
+        ASSERT(buf[1] == 2);
+#endif
+      } break;
+      case 46: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_utility.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<utility>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_utility.h`.
+        //
+        // 2. The feature test macros defined in `<utility>` are available and
+        //    have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_to_underlying >= 202102L`,
+        //     o `__cpp_lib_unreachable >= 202202L`,
+        //     o `__cpp_lib_forward_like >= 202207L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_utility.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_utility.h` ADDITIONS"
+                          "\n===============================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+        {
+            BSLMF_ASSERT(__cpp_lib_to_underlying >= 202102L);
+            enum Enum : char { enumerator1 = 5 };
+            char underlyingValue{bsl::to_underlying(enumerator1)};
+            ASSERT(underlyingValue == 5);
+        }
+        for(;;) {
+            BSLMF_ASSERT(__cpp_lib_unreachable >= 202202L);
+            break;
+            bsl::unreachable();
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
+        {
+            BSLMF_ASSERT(__cpp_lib_forward_like >= 202207L);
+            class C {};
+            int mem;
+            ASSERT((bsl::is_same_v<decltype(bsl::forward_like<const C&>(mem)),
+                                   const int &>));
+            ASSERT((bsl::is_same_v<decltype(bsl::forward_like<const C&&>(mem)),
+                                   const int &&>));
+            ASSERT((bsl::is_same_v<decltype(bsl::forward_like<const C>(mem)),
+                                   const int &&>));
+            ASSERT((bsl::is_same_v<decltype(bsl::forward_like<C&>(mem)),
+                                   int &>));
+            ASSERT((bsl::is_same_v<decltype(bsl::forward_like<C&&>(mem)),
+                                   int &&>));
+            ASSERT((bsl::is_same_v<decltype(bsl::forward_like<C>(mem)),
+                                   int &&>));
+        }
+#endif
+      } break;
+      case 45: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_functional.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<functional>` defined by the C++23 Standard
+        //    are available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_functional.h`.
+        //
+        // 2. The feature test macros defined in `<functional>` are available
+        //    and have appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_invoke_r >= 202106L`,
+        //     o `__cpp_lib_bind_back >= 202202L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_functional.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_functional.h` ADDITIONS"
+                          "\n==================================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+        {
+            BSLMF_ASSERT(__cpp_lib_invoke_r >= 202106L);
+            bool called = false;
+            bsl::invoke_r<void>(
+                [&](int arg){
+                    ASSERT(arg == 3);
+                    called = true;
+                },
+                3);
+            ASSERT(called);
+        }
+#endif
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
+        {
+            BSLMF_ASSERT(__cpp_lib_bind_back >= 202202L);
+            const auto f = bsl::bind_back([](double a1, int a2, char a3) {
+                                            ASSERT(a1 == 0.5);
+                                            ASSERT(a2 == 1);
+                                            ASSERT(a3 == 'A');
+                                          },
+                                          1,
+                                          'A');
+            f(0.5);
+
+        }
+#endif
+      } break;
+      case 44: {
+        // --------------------------------------------------------------------
+        // C++23 `bsl_bit.h` ADDITIONS
+        //
+        // Concerns:
+        // 1. The definitions from `<bit>` defined by the C++23 Standard are
+        //    available in C++23 mode in the `bsl` namespace to users who
+        //    include `bsl_bit.h`.
+        //
+        // 2. The feature test macros defined in `<bit>` are available and have
+        //    appropriate values.
+        //
+        // Plan:
+        // 1. Verify that
+        //     o `__cpp_lib_byteswap >= 202110L`.
+        //
+        // 2. Form some valid expressions with every name with `bsl` prefix and
+        //    perform couple of sanity tests.
+        //
+        // Testing
+        //   C++23 `bsl_bit.h` ADDITIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nC++23 `bsl_bit.h ADDITIONS`"
+                          "\n===========================");
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+        BSLMF_ASSERT(__cpp_lib_byteswap >= 202110L);
+        bsl::uint32_t value = 0x01020304U;
+        value = bsl::byteswap(value);
+        ASSERT(value == 0x04030201U);
 #endif
       } break;
       case 43: {
@@ -1737,9 +2998,9 @@ int main(int argc, char *argv[])
                 // Known Windows bug.   Hopefully fixed in future release.
 
                 const bool expected = false;
-#else   // MSVC up to 19.43
+#else   // MSVC up to 19.44
                 const bool expected = true;
-#endif  // Not MSVC or later than 19.43
+#endif  // Not MSVC or later than 19.44
                 ASSERTV(expected, res,   expected == res);
                 ASSERTV(expected, res_v, expected == res_v);
             }
@@ -4253,7 +5514,14 @@ int main(int argc, char *argv[])
         //   other headers and made a check for the availability of
         //   feature-test macros (see the definition of the
         //   `BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED` macro
-        //   above).
+        //   above).  However, the <version> header is available in some
+        //   standard library implementations even prior to C++20, and that
+        //   is relied upon by the <bsls_libraryfeatures.h> library detection
+        //   code when trying to determine which standard library is in use.
+        //   Hence, the `BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION` macro may be
+        //   defined when building with C++17 or earlier, and would not pass
+        //   this test unless we restrict testing to only C++20 builds and
+        //   later.
         //
         // Concerns:
         // 1. Standard feature-test macros are available when <bsl_version.h>
@@ -4271,7 +5539,8 @@ int main(int argc, char *argv[])
         if (verbose) puts("\nC++20 `bsl_version.h`"
                           "\n=====================");
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION) \
+ && BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L
 
 #ifndef BSLIM_BSLSTANDARDHEADERTEST_VERSION_HEADER_WAS_INCLUDED
        ASSERTV("<version> is not included", false);
@@ -5617,6 +6886,14 @@ int main(int argc, char *argv[])
       }
     }
 
+    // CONCERN: In no case does memory come from the default allocator.
+
+    ASSERT(dam.isInUseSame());
+
+    // CONCERN: In no case does memory come from the global allocator.
+
+    ASSERT(gam.isTotalSame());
+
     if (testStatus > 0) {
         bsl::cerr << "Error, non-zero test status = " << testStatus << ".\n";
     }
@@ -5624,7 +6901,7 @@ int main(int argc, char *argv[])
 }
 
 // ----------------------------------------------------------------------------
-// Copyright 2019 Bloomberg Finance L.P.
+// Copyright 2025 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

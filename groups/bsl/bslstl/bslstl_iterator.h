@@ -187,7 +187,7 @@ BSLS_IDENT("$Id: $")
 #endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-    #include <type_traits>    // 'common_type', 'make_signed'
+    #include <type_traits>    // `common_type`, `make_signed`
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
@@ -202,7 +202,7 @@ BSLS_IDENT("$Id: $")
 #endif  // BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
 
 namespace bsl {
-// Import selected symbols into the 'bsl' namespace
+// Import selected symbols into the `bsl` namespace
 
 // 24.3 primitives
 using std::input_iterator_tag;
@@ -351,18 +351,26 @@ using std::next;
 using std::prev;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_AS_CONST
+using std::const_iterator;
+using std::const_sentinel;
+using std::basic_const_iterator;
+using std::make_const_iterator;
+using std::make_const_sentinel;
+using std::iter_const_reference_t;
+#endif
+
 #ifdef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES
-// Sun does not provide 'std::iterator_traits' at all.  We will provide our own
-// in namespace 'bsl'.
+// Sun does not provide `std::iterator_traits` at all.  We will provide our own
+// in namespace `bsl`.
 
                         // =========================
                         // class bsl::IteratorTraits
                         // =========================
 
+/// This `struct` provides access to iterator traits.
 template <class ITER>
 struct iterator_traits {
-    // This 'struct' provides access to iterator traits.
-
     // TYPES
     typedef typename ITER::iterator_category iterator_category;
     typedef typename ITER::value_type        value_type;
@@ -372,11 +380,11 @@ struct iterator_traits {
 };
 
 // SPECIALIZATIONS
+
+/// This specialization of `iterator_traits` will match pointer types to a
+/// parameterized non-modifiable `TYPE`.
 template <class TYPE>
 struct iterator_traits<const TYPE *> {
-    // This specialization of 'iterator_traits' will match pointer types to a
-    // parameterized non-modifiable 'TYPE'.
-
     // TYPES
     typedef std::random_access_iterator_tag iterator_category;
     typedef TYPE                            value_type;
@@ -385,11 +393,10 @@ struct iterator_traits<const TYPE *> {
     typedef const TYPE&                     reference;
 };
 
+/// This specialization of `iterator_traits` will match pointer types to a
+/// parameterized modifiable `TYPE`.
 template <class TYPE>
 struct iterator_traits<TYPE *> {
-    // This specialization of 'iterator_traits' will match pointer types to a
-    // parameterized modifiable 'TYPE'.
-
     // TYPES
     typedef std::random_access_iterator_tag iterator_category;
     typedef TYPE                            value_type;
@@ -403,24 +410,34 @@ using std::iterator_traits;
 #endif  // else-of BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES
 
 #ifdef BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR
-// Working around a Solaris Studio compiler bug where 'std::reverse_iterator'
+// Working around a Solaris Studio compiler bug where `std::reverse_iterator`
 // takes 6 template arguments (of which 3 have defaults) instead of 1, which is
-// not standard compliant.  Inherit from 'std::reverse_iterator'.  For
-// reference, the signature of the Solaris Studio 'std::reverse_iterator' is:
-//..
-//  template <class Iterator,
-//            class Category,
-//            class T,
-//            class Reference = T &,
-//            class Pointer = T *,
-//            class Distance = ptrdiff_t>
-//  class reverse_iterator;
-//..
+// not standard compliant.  Inherit from `std::reverse_iterator`.  For
+// reference, the signature of the Solaris Studio `std::reverse_iterator` is:
+// ```
+// template <class Iterator,
+//           class Category,
+//           class T,
+//           class Reference = T &,
+//           class Pointer = T *,
+//           class Distance = ptrdiff_t>
+// class reverse_iterator;
+// ```
 
                         // ===========================
                         // class bsl::reverse_iterator
                         // ===========================
 
+/// This class provides a template iterator adaptor that iterates from the end
+/// of the sequence defined by the (template parameter) type `ITER` to the
+/// beginning of that sequence.  The type `ITER` shall meet all the
+/// requirements of a bidirectional iterator [24.2.6].  The element sequence
+/// generated in this reversed iteration is referred as "reverse iteration
+/// sequence" in the following class level documentation.  The fundamental
+/// relation between a reverse iterator and its corresponding iterator `i` of
+/// type `ITER` is established by the identity
+/// `&*(reverse_iterator(i)) == &*(i - 1)`.  This template meets the
+/// requirement of reverse iterator adaptor defined in C++11 standard [24.5.1].
 template <class ITER>
 class reverse_iterator :
     public std::reverse_iterator<
@@ -429,18 +446,6 @@ class reverse_iterator :
                              typename iterator_traits<ITER>::value_type,
                              typename iterator_traits<ITER>::reference,
                              typename iterator_traits<ITER>::pointer> {
-    // This class provides a template iterator adaptor that iterates from the
-    // end of the sequence defined by the (template parameter) type 'ITER' to
-    // the beginning of that sequence.  The type 'ITER' shall meet all the
-    // requirements of a bidirectional iterator [24.2.6].  The element sequence
-    // generated in this reversed iteration is referred as "reverse iteration
-    // sequence" in the following class level documentation.  The fundamental
-    // relation between a reverse iterator and its corresponding iterator 'i'
-    // of type 'ITER' is established by the identity
-    // '&*(reverse_iterator(i)) == &*(i - 1)'.  This template meets the
-    // requirement of reverse iterator adaptor defined in C++11 standard
-    // [24.5.1].
-
     // PRIVATE TYPES
     typedef std::reverse_iterator<
                  ITER,
@@ -455,263 +460,260 @@ class reverse_iterator :
     typedef typename reverse_iterator::difference_type difference_type;
 
     // CREATORS
+
+    /// Create the default value for this reverse iterator.  The
+    /// default-constructed reverse iterator does not have a singular value
+    /// unless an object of the type specified by the template parameter `ITER`
+    /// has a singular value after default construction.
     reverse_iterator();
-        // Create the default value for this reverse iterator.  The
-        // default-constructed reverse iterator does not have a singular value
-        // unless an object of the type specified by the template parameter
-        // 'ITER' has a singular value after default construction.
 
+    /// Create a reverse iterator using the specified `base` of the (template
+    /// parameter) type `ITER`.
     explicit reverse_iterator(ITER base);
-        // Create a reverse iterator using the specified 'base' of the
-        // (template parameter) type 'ITER'.
 
+    /// Create a reverse iterator having the same value as the specified
+    /// `original`.
     template <class OTHER_ITER>
     reverse_iterator(const reverse_iterator<OTHER_ITER>& original);
-        // Create a reverse iterator having the same value as the specified
-        // 'original'.
 
     // MANIPULATORS
+
+    /// Increment to the next element in the reverse iteration sequence and
+    /// return a reference providing modifiable access to this reverse
+    /// iterator.  The behavior is undefined if, on entry, this reverse
+    /// iterator has the past-the-end value for a reverse iterator over the
+    /// underlying sequence.
     reverse_iterator& operator++();
-        // Increment to the next element in the reverse iteration sequence and
-        // return a reference providing modifiable access to this reverse
-        // iterator.  The behavior is undefined if, on entry, this reverse
-        // iterator has the past-the-end value for a reverse iterator over the
-        // underlying sequence.
 
+    /// Increment to the next element in the reverse iteration sequence and
+    /// return a reverse iterator having the pre-increment value of this
+    /// reverse iterator.  The behavior is undefined if, on entry, this reverse
+    /// iterator has the past-the-end value for a reverse iterator over the
+    /// underlying sequence.
     reverse_iterator  operator++(int);
-        // Increment to the next element in the reverse iteration sequence and
-        // return a reverse iterator having the pre-increment value of this
-        // reverse iterator.  The behavior is undefined if, on entry, this
-        // reverse iterator has the past-the-end value for a reverse iterator
-        // over the underlying sequence.
 
+    /// Increment by the specified `n` number of elements in the reverse
+    /// iteration sequence and return a reference providing modifiable access
+    /// to this reverse iterator.  The behavior is undefined unless this
+    /// reverse iterator, after incrementing by `n`, is within the bounds of
+    /// the underlying sequence.  Note that the (template parameter) type
+    /// `ITER` shall meet the requirements of a random access iterator.
     reverse_iterator& operator+=(difference_type n);
-        // Increment by the specified 'n' number of elements in the reverse
-        // iteration sequence and return a reference providing modifiable
-        // access to this reverse iterator.  The behavior is undefined unless
-        // this reverse iterator, after incrementing by 'n', is within the
-        // bounds of the underlying sequence.  Note that the (template
-        // parameter) type 'ITER' shall meet the requirements of a random
-        // access iterator.
 
+    /// Decrement to the previous element in the reverse iteration sequence and
+    /// return a reference providing modifiable access to this reverse
+    /// iterator.  The behavior is undefined if, on entry, this reverse
+    /// iterator has the same value as a reverse iterator to the start of the
+    /// underlying sequence.
     reverse_iterator& operator--();
-        // Decrement to the previous element in the reverse iteration sequence
-        // and return a reference providing modifiable access to this reverse
-        // iterator.  The behavior is undefined if, on entry, this reverse
-        // iterator has the same value as a reverse iterator to the start of
-        // the underlying sequence.
 
+    /// Decrement to the previous element in the reverse iteration sequence and
+    /// return a reverse iterator having the pre-decrement value of this
+    /// reverse iterator.  The behavior is undefined if, on entry, this reverse
+    /// iterator has the same value as a reverse iterator to the start of the
+    /// underlying sequence.
     reverse_iterator  operator--(int);
-        // Decrement to the previous element in the reverse iteration sequence
-        // and return a reverse iterator having the pre-decrement value of this
-        // reverse iterator.  The behavior is undefined if, on entry, this
-        // reverse iterator has the same value as a reverse iterator to the
-        // start of the underlying sequence.
 
+    /// Decrement by the specified `n` number of elements in the reverse
+    /// iteration sequence and return a reference providing modifiable access
+    /// to this reverse iterator.  The behavior is undefined unless this
+    /// reverse iterator, after decrementing by `n`, is within the bounds of
+    /// the underlying sequence.  Note that the (template parameter) type
+    /// `ITER` shall meet the requirements of a random access iterator.
     reverse_iterator& operator-=(difference_type n);
-        // Decrement by the specified 'n' number of elements in the reverse
-        // iteration sequence and return a reference providing modifiable
-        // access to this reverse iterator.  The behavior is undefined unless
-        // this reverse iterator, after decrementing by 'n', is within the
-        // bounds of the underlying sequence.  Note that the (template
-        // parameter) type 'ITER' shall meet the requirements of a random
-        // access iterator.
 
     // ACCESSORS
-    reverse_iterator operator+(difference_type n) const;
-        // Return a reverse iterator having the same value as that of
-        // incrementing this reverse iterator by the specified 'n' number of
-        // elements in the reverse iteration sequence.  The behavior is
-        // undefined unless this reverse iterator, if increments by 'n', would
-        // be within the bounds of the underlying sequence.  Note that the
-        // (template parameter) type 'ITER' shall meet the requirements of a
-        // random access iterator.
 
+    /// Return a reverse iterator having the same value as that of incrementing
+    /// this reverse iterator by the specified `n` number of elements in the
+    /// reverse iteration sequence.  The behavior is undefined unless this
+    /// reverse iterator, if increments by `n`, would be within the bounds of
+    /// the underlying sequence.  Note that the (template parameter) type
+    /// `ITER` shall meet the requirements of a random access iterator.
+    reverse_iterator operator+(difference_type n) const;
+
+    /// Return a reverse iterator having the same value as that of decrementing
+    /// this reverse iterator by the specified `n` number of elements in the
+    /// reverse iteration sequence.  The behavior is undefined unless this
+    /// reverse iterator, if decrements by `n`, would be within the bounds of
+    /// the underlying sequence.  Note that the (template parameter) type
+    /// `ITER` shall meet the requirements of a random access iterator.
     reverse_iterator operator-(difference_type n) const;
-        // Return a reverse iterator having the same value as that of
-        // decrementing this reverse iterator by the specified 'n' number of
-        // elements in the reverse iteration sequence.  The behavior is
-        // undefined unless this reverse iterator, if decrements by 'n', would
-        // be within the bounds of the underlying sequence.  Note that the
-        // (template parameter) type 'ITER' shall meet the requirements of a
-        // random access iterator.
 };
 
 // FREE OPERATORS
+
+/// Return `true` if the specified `lhs` reverse iterator has the same value as
+/// the specified `rhs` reverse iterator, and `false` otherwise.  Two reverse
+/// iterators have the same value if they refer to the same element, or both
+/// have the past-the-end value for a reverse iterator over the underlying
+/// reverse iteration sequence.  The behavior is undefined unless both reverse
+/// iterators refer to the same underlying sequence.
 template <class ITER>
 inline
 bool operator==(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
-    // Return 'true' if the specified 'lhs' reverse iterator has the same value
-    // as the specified 'rhs' reverse iterator, and 'false' otherwise.  Two
-    // reverse iterators have the same value if they refer to the same element,
-    // or both have the past-the-end value for a reverse iterator over the
-    // underlying reverse iteration sequence.  The behavior is undefined unless
-    // both reverse iterators refer to the same underlying sequence.
 
+/// Return `true` if the specified `lhs` reverse iterator of the (template
+/// parameter) type `ITER1` has the same value as the specified `rhs` reverse
+/// iterator of the (template parameter) type `ITER2`, and `false` otherwise.
+/// Two reverse iterators have the same value if they refer to the same
+/// element, or both have the past-the-end value for a reverse iterator over
+/// the underlying reverse iteration sequence.  The behavior is undefined
+/// unless both reverse iterators refer to the same underlying sequence.
 template <class ITER1, class ITER2>
 inline
 bool operator==(const reverse_iterator<ITER1>& lhs,
                 const reverse_iterator<ITER2>& rhs);
-    // Return 'true' if the specified 'lhs' reverse iterator of the (template
-    // parameter) type 'ITER1' has the same value as the specified 'rhs'
-    // reverse iterator of the (template parameter) type 'ITER2', and 'false'
-    // otherwise.  Two reverse iterators have the same value if they refer to
-    // the same element, or both have the past-the-end value for a reverse
-    // iterator over the underlying reverse iteration sequence.  The behavior
-    // is undefined unless both reverse iterators refer to the same underlying
-    // sequence.
 
+/// Return `true` if the specified `lhs` reverse iterator does not have the
+/// same value as the specified `rhs` reverse iterator, and `false` otherwise.
+/// Two reverse iterators do not have the same value if (1) they do not refer
+/// to the same element and (2) both do not have the past-the-end value for a
+/// reverse iterator over the underlying reverse iteration sequence.  The
+/// behavior is undefined unless both reverse iterators refer to the same
+/// underlying sequence.
 template <class ITER>
 inline
 bool operator!=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
-    // Return 'true' if the specified 'lhs' reverse iterator does not have the
-    // same value as the specified 'rhs' reverse iterator, and 'false'
-    // otherwise.  Two reverse iterators do not have the same value if (1) they
-    // do not refer to the same element and (2) both do not have the
-    // past-the-end value for a reverse iterator over the underlying reverse
-    // iteration sequence.  The behavior is undefined unless both reverse
-    // iterators refer to the same underlying sequence.
 
+/// Return `true` if the specified `lhs` reverse iterator of the (template
+/// parameter) type `ITER1` does not have the same value as the specified `rhs`
+/// reverse iterator of the (template parameter) type `ITER2`, and `false`
+/// otherwise.  Two reverse iterators do not have the same value if (1) they do
+/// not refer to the same element and (2) both do not have the past-the-end
+/// value for a reverse iterator over the underlying reverse iteration
+/// sequence.  The behavior is undefined unless both reverse iterators refer to
+/// the same underlying sequence.
 template <class ITER1, class ITER2>
 inline
 bool operator!=(const reverse_iterator<ITER1>& lhs,
                 const reverse_iterator<ITER2>& rhs);
-    // Return 'true' if the specified 'lhs' reverse iterator of the (template
-    // parameter) type 'ITER1' does not have the same value as the specified
-    // 'rhs' reverse iterator of the (template parameter) type 'ITER2', and
-    // 'false' otherwise.  Two reverse iterators do not have the same value if
-    // (1) they do not refer to the same element and (2) both do not have the
-    // past-the-end value for a reverse iterator over the underlying reverse
-    // iteration sequence.  The behavior is undefined unless both reverse
-    // iterators refer to the same underlying sequence.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator refers to an
+/// element before the specified `rhs` reverse iterator in the reverse
+/// iteration sequence, or (2) `rhs` (and not `lhs`) has the past-the-end value
+/// for a reverse iterator over this sequence, and `false` otherwise.  The
+/// behavior is undefined unless both reverse iterators refer to the same
+/// underlying sequence.  Note that the (template parameter) type `ITER` shall
+/// meet the requirements of random access iterator.
 template <class ITER>
 inline
 bool operator<(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator refers to an
-    // element before the specified 'rhs' reverse iterator in the reverse
-    // iteration sequence, or (2) 'rhs' (and not 'lhs') has the past-the-end
-    // value for a reverse iterator over this sequence, and 'false' otherwise.
-    // The behavior is undefined unless both reverse iterators refer to the
-    // same underlying sequence.  Note that the (template parameter) type
-    // 'ITER' shall meet the requirements of random access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator of the (template
+/// parameter) type `ITER1` refers to an element before the specified `rhs`
+/// reverse iterator of the (template parameter) type `ITER2` in the reverse
+/// iteration sequence, or (2) `rhs` (and not `lhs`) has the past-the-end value
+/// for a reverse iterator over this sequence, and `false` otherwise.  The
+/// behavior is undefined unless both reverse iterators refer to the same
+/// underlying sequence.  Note that both `ITER1` and `ITER2` shall meet the
+/// requirements of random access iterator.
 template <class ITER1, class ITER2>
 inline
 bool operator<(const reverse_iterator<ITER1>& lhs,
                const reverse_iterator<ITER2>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator of the
-    // (template parameter) type 'ITER1' refers to an element before the
-    // specified 'rhs' reverse iterator of the (template parameter) type
-    // 'ITER2' in the reverse iteration sequence, or (2) 'rhs' (and not 'lhs')
-    // has the past-the-end value for a reverse iterator over this sequence,
-    // and 'false' otherwise.  The behavior is undefined unless both reverse
-    // iterators refer to the same underlying sequence.  Note that both 'ITER1'
-    // and 'ITER2' shall meet the requirements of random access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator refers to an
+/// element after the specified `rhs` reverse iterator in the reverse iteration
+/// sequence, or (2) `lhs` (and not `rhs`) has the past-the-front value of an
+/// reverse iterator over this sequence, and `false` otherwise.  The behavior
+/// is undefined unless both reverse iterators refer to the same underlying
+/// sequence.  Note that the (template parameter) type `ITER` shall meet the
+/// requirements of random access iterator.
 template <class ITER>
 inline
 bool operator>(const reverse_iterator<ITER>& lhs,
                const reverse_iterator<ITER>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator refers to an
-    // element after the specified 'rhs' reverse iterator in the reverse
-    // iteration sequence, or (2) 'lhs' (and not 'rhs') has the past-the-front
-    // value of an reverse iterator over this sequence, and 'false' otherwise.
-    // The behavior is undefined unless both reverse iterators refer to the
-    // same underlying sequence.  Note that the (template parameter) type
-    // 'ITER' shall meet the requirements of random access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator of the (template
+/// parameter) type `ITER1` refers to an element after the specified `rhs`
+/// reverse iterator of the (template parameter) type `ITER2` in the reverse
+/// iteration sequence, or (2) `lhs` (and not `rhs`) has the past-the-front
+/// value of an reverse iterator over this sequence, and `false` otherwise.
+/// The behavior is undefined unless both reverse iterators refer to the same
+/// underlying sequence.  Note that both `ITER1` and `ITER2` shall meet the
+/// requirements of random access iterator.
 template <class ITER1, class ITER2>
 inline
 bool operator>(const reverse_iterator<ITER1>& lhs,
                const reverse_iterator<ITER2>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator of the
-    // (template parameter) type 'ITER1' refers to an element after the
-    // specified 'rhs' reverse iterator of the (template parameter) type
-    // 'ITER2' in the reverse iteration sequence, or (2) 'lhs' (and not 'rhs')
-    // has the past-the-front value of an reverse iterator over this sequence,
-    // and 'false' otherwise.  The behavior is undefined unless both reverse
-    // iterators refer to the same underlying sequence.  Note that both 'ITER1'
-    // and 'ITER2' shall meet the requirements of random access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator has the same
+/// value as the specified `rhs` reverse iterator, or (2) `lhs` refers to an
+/// element before `rhs` in the reverse iteration sequence, or (3) `rhs` has
+/// the past-the-end value for a reverse iterator over this sequence, and
+/// `false` otherwise.  The behavior is undefined unless both reverse
+/// iterators refer to the same underlying sequence.  Note that the (template
+/// parameter) type `ITER` shall meet the requirements of a random access
+/// iterator.
 template <class ITER>
 inline
 bool operator<=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator has the same
-    // value as the specified 'rhs' reverse iterator, or (2) 'lhs' refers to an
-    // element before 'rhs' in the reverse iteration sequence, or (3) 'rhs' has
-    // the past-the-end value for a reverse iterator over this sequence, and
-    // 'false' otherwise.  The behavior is undefined unless both reverse
-    // iterators refer to the same underlying sequence.  Note that the
-    // (template parameter) type 'ITER' shall meet the requirements of a random
-    // access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator of the (template
+/// parameter) type `ITER1` has the same value as the specified `rhs` reverse
+/// iterator of the (template parameter) type `ITER2`, or (2) `lhs` refers to
+/// an element before `rhs` in the reverse iteration sequence, or (3) `rhs` has
+/// the past-the-end value for a reverse iterator over this sequence, and
+/// `false` otherwise.  The behavior is undefined unless both reverse iterators
+/// refer to the same underlying sequence.  Note that both `ITER1` and `ITER2`
+/// shall meet the requirements of a random access iterator.
 template <class ITER1, class ITER2>
 inline
 bool operator<=(const reverse_iterator<ITER1>& lhs,
                 const reverse_iterator<ITER2>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator of the
-    // (template parameter) type 'ITER1' has the same value as the specified
-    // 'rhs' reverse iterator of the (template parameter) type 'ITER2', or (2)
-    // 'lhs' refers to an element before 'rhs' in the reverse iteration
-    // sequence, or (3) 'rhs' has the past-the-end value for a reverse iterator
-    // over this sequence, and 'false' otherwise.  The behavior is undefined
-    // unless both reverse iterators refer to the same underlying sequence.
-    // Note that both 'ITER1' and 'ITER2' shall meet the requirements of a
-    // random access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator has the same
+/// value as the specified `rhs` reverse iterator, or (2) `lhs` has the
+/// past-the-end value for a reverse iterator over the underlying reverse
+/// iteration sequence, or (3) `lhs` refers to an element after `rhs` in this
+/// sequence, and `false` otherwise.  The behavior is undefined unless both
+/// reverse iterators refer to the same underlying sequence.  Note that the
+/// (template parameter) type `ITER` shall meet the requirements of random
+/// access iterator.
 template <class ITER>
 inline
 bool operator>=(const reverse_iterator<ITER>& lhs,
                 const reverse_iterator<ITER>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator has the same
-    // value as the specified 'rhs' reverse iterator, or (2) 'lhs' has the
-    // past-the-end value for a reverse iterator over the underlying reverse
-    // iteration sequence, or (3) 'lhs' refers to an element after 'rhs' in
-    // this sequence, and 'false' otherwise.  The behavior is undefined unless
-    // both reverse iterators refer to the same underlying sequence.  Note that
-    // the (template parameter) type 'ITER' shall meet the requirements of
-    // random access iterator.
 
+/// Return `true` if (1) the specified `lhs` reverse iterator of the (template
+/// parameter) type `ITER1` has the same value as the specified `rhs` reverse
+/// iterator of the (template parameter) type `ITER2`, or (2) `lhs` has the
+/// past-the-end value for a reverse iterator over the underlying reverse
+/// iteration sequence, or (3) `lhs` refers to an element after `rhs` in this
+/// sequence, and `false` otherwise.  The behavior is undefined unless both
+/// reverse iterators refer to the same underlying sequence.  Note that both
+/// type `ITER1` and type `ITER2` shall meet the requirements of random access
+/// iterator.
 template <class ITER1, class ITER2>
 inline
 bool operator>=(const reverse_iterator<ITER1>& lhs,
                 const reverse_iterator<ITER2>& rhs);
-    // Return 'true' if (1) the specified 'lhs' reverse iterator of the
-    // (template parameter) type 'ITER1' has the same value as the specified
-    // 'rhs' reverse iterator of the (template parameter) type 'ITER2', or (2)
-    // 'lhs' has the past-the-end value for a reverse iterator over the
-    // underlying reverse iteration sequence, or (3) 'lhs' refers to an element
-    // after 'rhs' in this sequence, and 'false' otherwise.  The behavior is
-    // undefined unless both reverse iterators refer to the same underlying
-    // sequence.  Note that both type 'ITER1' and type 'ITER2' shall meet the
-    // requirements of random access iterator.
 
+/// Return the distance from the specified `rhs` reverse iterator to the
+/// specified `lhs` reverse iterator.  The behavior is undefined unless `lhs`
+/// and `rhs` are reverse iterators into the same underlying sequence.  Note
+/// that the (template parameter) type `ITER` shall meet the requirements of
+/// random access iterator.  Also note that the result might be negative.
 template <class ITER>
 inline
 typename reverse_iterator<ITER>::difference_type
 operator-(const reverse_iterator<ITER>& lhs,
           const reverse_iterator<ITER>& rhs);
-    // Return the distance from the specified 'rhs' reverse iterator to the
-    // specified 'lhs' reverse iterator.  The behavior is undefined unless
-    // 'lhs' and 'rhs' are reverse iterators into the same underlying sequence.
-    // Note that the (template parameter) type 'ITER' shall meet the
-    // requirements of random access iterator.  Also note that the result might
-    // be negative.
 
+/// Return a reverse iterator to the element at the specified `n` positions
+/// past the specified `rhs` reverse iterator.  The behavior is undefined
+/// unless `rhs`, after incrementing by `n`, is within the bounds of the
+/// underlying sequence.  Note that the (template parameter) type `ITER` shall
+/// meet the requirements of random access iterator.
 template <class ITER, class DIFF_TYPE>
 inline
 reverse_iterator<ITER>
 operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs);
-    // Return a reverse iterator to the element at the specified 'n' positions
-    // past the specified 'rhs' reverse iterator.  The behavior is undefined
-    // unless 'rhs', after incrementing by 'n', is within the bounds of the
-    // underlying sequence.  Note that the (template parameter) type 'ITER'
-    // shall meet the requirements of random access iterator.
 #else   // BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR
 // Just use the native version
 using std::reverse_iterator;
@@ -723,53 +725,58 @@ using std::reverse_iterator;
                         // struct IteratorDistanceImp
                         // ==========================
 
+/// This utility class provides a namespace for functions that operate on
+/// iterators.
 struct IteratorDistanceImp {
-    // This utility class provides a namespace for functions that operate on
-    // iterators.
-
     // CLASS METHODS
-    template <class FWD_ITER, class DIFFERENCE_TYPE>
-    static void getDistance(DIFFERENCE_TYPE *ret,
-                            FWD_ITER         start,
-                            FWD_ITER         finish,
-                            input_iterator_tag);
-        // Return in the specified '*ret' the distance from the specified
-        // 'start' iterator to the specified 'finish' iterator.  The behavior
-        // is undefined unless 'start' and 'finish' both have the
-        // 'input_iterator_tag' into the same underlying sequence, and 'start'
-        // is before 'finish' in that sequence.
 
+    /// Return in the specified `*ret` the distance from the specified `start`
+    /// iterator to the specified `finish` iterator.  The behavior is undefined
+    /// unless `start` and `finish` both have the `input_iterator_tag` into the
+    /// same underlying sequence, and `start` is before `finish` in that
+    /// sequence.  Note that input iterators are valid only for single-pass
+    /// use.
+    template <class INPUT_ITER, class DIFFERENCE_TYPE>
+    static void getDistance(DIFFERENCE_TYPE *ret,
+                            INPUT_ITER       start,
+                            INPUT_ITER       finish,
+                            input_iterator_tag);
+
+    /// Return in the specified `*ret` the distance from the specified `start`
+    /// iterator to the specified `finish` iterator.  The behavior is undefined
+    /// unless `start` and `finish` both have the `forward_iterator_tag` into
+    /// the same underlying sequence, and `start` is before `finish` in that
+    /// sequence.
     template <class FWD_ITER, class DIFFERENCE_TYPE>
     static void getDistance(DIFFERENCE_TYPE *ret,
                             FWD_ITER         start,
                             FWD_ITER         finish,
                             forward_iterator_tag);
-        // Return in the specified '*ret' the distance from the specified
-        // 'start' iterator to the specified 'finish' iterator.  The behavior
-        // is undefined unless 'start' and 'finish' both have the
-        // 'forward_iterator_tag' into the same underlying sequence, and
-        // 'start' is before 'finish' in that sequence.
 
+    /// Return in the specified `*ret` the distance from the specified `start`
+    /// iterator to the specified `finish` iterator.  The behavior is undefined
+    /// unless `start` and `finish` both have the `random_access_iterator_tag`
+    /// into the same underlying sequence.  Note that the result might be
+    /// negative.
     template <class RANDOM_ITER, class DIFFERENCE_TYPE>
     static void getDistance(DIFFERENCE_TYPE *ret,
                             RANDOM_ITER      start,
                             RANDOM_ITER      finish,
                             random_access_iterator_tag);
-        // Return in the specified '*ret' the distance from the specified
-        // 'start' iterator to the specified 'finish' iterator.  The behavior
-        // is undefined unless 'start' and 'finish' both have the
-        // 'random_access_iterator_tag' into the same underlying sequence.
-        // Note that the result might be negative.
 };
 
+/// Return the distance from the specified `start` iterator to the specified
+/// `finish` iterator.  The behavior is undefined unless `start` and `finish`
+/// are both into the same underlying sequence, and `start` is before `finish`
+/// in that sequence.  Note that the (template parameter) type `ITER` shall
+/// at least meet the requirements of input iterator.  Note that if `ITER` is
+/// *only* an input iterator, the iterators are valid only for a single pass
+/// and cannot be reused on return from this function.  Also note that many
+/// supersets of input iterators (e.g, forward iterator, random iterator) can
+/// be reused.
 template <class ITER>
 typename iterator_traits<ITER>::difference_type
 distance(ITER start, ITER finish);
-    // Return the distance from the specified 'start' iterator to the specified
-    // 'finish' iterator.  The behavior is undefined unless 'start' and
-    // 'finish' are both into the same underlying sequence, and 'start' is
-    // before 'finish' in that sequence.  Note that the (template parameter)
-    // type 'ITER' shall meet the requirements of input iterator.
 #else   // BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES
 // Just use the native version
 using std::distance;
@@ -857,10 +864,10 @@ template <class T, size_t N>
 reverse_iterator<T *> rbegin(T (&array)[N]);
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+/// Return the reverse iterator providing non-modifiable access to the last
+/// element of the specified `initializerList`.
 template <class T>
 reverse_iterator<const T *> rbegin(std::initializer_list<T> initializerList);
-    // Return the reverse iterator providing non-modifiable access to the last
-    // element of the specified 'initializerList'.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
 /// Return the reverse iterator providing non-modifiable access to the last
@@ -900,11 +907,10 @@ template <class T, size_t N>
 reverse_iterator<T *> rend(T (&array)[N]);
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+/// Return the reverse iterator providing non-modifiable access to the
+/// position one before the first element in the specified `initializerList`.
 template <class T>
 reverse_iterator<const T *> rend(std::initializer_list<T> initializerList);
-    // Return the reverse iterator providing non-modifiable access to the
-    // position one before the first element in the specified
-    // 'initializerList'.
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 
 /// Return the reverse iterator providing non-modifiable access to the
@@ -918,8 +924,22 @@ template <class T, size_t N>
 reverse_iterator<const T *> crend(const T (&array)[N]);
 #endif  // else-of BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 namespace ranges {
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+
+using std::ranges::begin;
+using std::ranges::end;
+using std::ranges::cbegin;
+using std::ranges::cend;
+using std::ranges::rbegin;
+using std::ranges::rend;
+using std::ranges::crbegin;
+using std::ranges::crend;
+using std::ranges::size;
+using std::ranges::ssize;
+using std::ranges::empty;
+using std::ranges::data;
+using std::ranges::cdata;
 
 using std::ranges::advance;
 using std::ranges::distance;
@@ -928,8 +948,19 @@ using std::ranges::iter_swap;
 using std::ranges::next;
 using std::ranges::prev;
 
-}  // close namespace ranges
+#else  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGE
+
+using bsl::begin;
+using bsl::end;
+using bsl::cbegin;
+using bsl::cend;
+using bsl::rbegin;
+using bsl::rend;
+using bsl::crbegin;
+using bsl::crend;
+
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+}  // close namespace ranges
 
 // ============================================================================
 //                      INLINE FUNCTION DEFINITIONS
@@ -1188,6 +1219,9 @@ operator+(DIFF_TYPE n, const reverse_iterator<ITER>& rhs)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 using std::data;
 #else   // BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
+/// Return an pointer providing modifiable access to the first valid element of
+/// the specified `container`.  The `CONTAINER` template parameter type must
+/// provide a `data` accessor.
 template <class CONTAINER>
 inline BSLS_KEYWORD_CONSTEXPR
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
@@ -1195,10 +1229,6 @@ auto data(CONTAINER& container) -> decltype(container.data())
 #else   // BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
 typename CONTAINER::value_type *data(CONTAINER& container)
 #endif  // else-of BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
-    // Return an pointer providing modifiable access to the first valid
-    // element of the specified 'container'.  The 'CONTAINER' template
-    // parameter type must provide a 'data' accessor.
-
 {
     return container.data();
 }
@@ -1216,6 +1246,14 @@ typename CONTAINER::value_type const *data(const CONTAINER& container)
 {
     return container.data();
 }
+
+/// Return the address of the first element in the specified `array`.
+template<class T, size_t N>
+inline BSLS_KEYWORD_CONSTEXPR
+T *data(T (&array)[N])
+{
+    return array;
+}
 #endif  // else-of BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 
                                   // =====
@@ -1226,12 +1264,12 @@ typename CONTAINER::value_type const *data(const CONTAINER& container)
 using std::empty;
 #else   // BSLS_LIBRARYFEATURES_HAS_CPP17_RANGE_FUNCTIONS
 # ifdef BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE
+/// Return whether or not the specified `container` contains zero elements.
+/// The `CONTAINER` template parameter type must provide a `empty` accessor.
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR auto empty(const CONTAINER& container)->
                                                     decltype(container.empty())
-    // Return whether or not the specified 'container' contains zero elements.
-    // The 'CONTAINER' template parameter type must provide a 'empty' accessor.
 {
     return container.empty();
 }
@@ -1256,12 +1294,12 @@ BSLS_KEYWORD_CONSTEXPR bool empty(const TYPE (&)[DIMENSION])
 }
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+/// Return whether of not the specified `initializerList` contains zero
+/// elements.  This is a separate specialization because
+/// `std::initializer_list<TYPE>` does not have an `empty` member function.
 template <class TYPE>
 inline
 BSLS_KEYWORD_CONSTEXPR bool empty(std::initializer_list<TYPE> initializerList)
-    // Return whether of not the specified 'initializerList' contains zero
-    // elements.  This is a separate specialization because
-    // 'std::initializer_list<TYPE>' does not have an 'empty' member function.
 {
     return 0 == initializerList.size();
 }
@@ -1272,23 +1310,23 @@ BSLS_KEYWORD_CONSTEXPR bool empty(std::initializer_list<TYPE> initializerList)
                                   // size
                                   // ====
 
-// If the underlying standard library implements 'std::size', then we need to
+// If the underlying standard library implements `std::size`, then we need to
 // use it.  Consider the following code:
-//..
-//  bsl::set<int, std::less<int> > s;
-//  if (size(s) == 0) { .. }
-//..
-// Because the set 's' has hooks into both namespace 'bsl' and 'std', an
-// unqualified call to 'size' will find both, and fail to compile.  MSVC
-// provides 'std::size' in all language modes.
+// ```
+// bsl::set<int, std::less<int> > s;
+// if (size(s) == 0) { .. }
+// ```
+// Because the set `s` has hooks into both namespace `bsl` and `std`, an
+// unqualified call to `size` will find both, and fail to compile.  MSVC
+// provides `std::size` in all language modes.
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) ||               \
                                                 defined(BSLS_PLATFORM_CMP_MSVC)
-// The implementation has 'std::ssize()' defined, we can use it.
+// The implementation has `std::ssize()` defined, we can use it.
 using std::size;
-#else  // end - we can just use 'std::size()'
-// The implementation does not define 'std::size()', we need to implement it.
+#else  // end - we can just use `std::size()`
+// The implementation does not define `std::size()`, we need to implement it.
 
-                    // 'bsl::size' Overload for Arrays
+                    // `bsl::size` Overload for Arrays
 
 /// Return the dimension of the specified array argument.
 template <class TYPE, size_t DIMENSION>
@@ -1299,27 +1337,27 @@ BSLS_KEYWORD_CONSTEXPR size_t size(
     return DIMENSION;
 }
 
-                   // 'bsl::size' Overload for Containers
+                   // `bsl::size` Overload for Containers
 
-// For containers we have two possible implementations for 'bsl::size()',
+// For containers we have two possible implementations for `bsl::size()`,
 // depending on the level of compiler support we can use:
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
                              201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
-// We have both 'decltype' and trailing return types, we can deduce the return
-// type of the 'size()' method of containers.
+// We have both `decltype` and trailing return types, we can deduce the return
+// type of the `size()` method of containers.
 
+/// Return the size of the specified `container`.  The `CONTAINER` template
+/// parameter type must provide a `size` accessor.
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR auto size(const CONTAINER& container) ->
                                                      decltype(container.size())
-    // Return the size of the specified 'container'.  The 'CONTAINER' template
-    // parameter type must provide a 'size' accessor.
 {
     return container.size();
 }
-#else  // end - 'bsl::size()' implementation that deduces the return type
-// The language features to deduce the return type of the 'size()' method of
-// containers are not present, we fall back to using 'bsl::size_t'.
+#else  // end - `bsl::size()` implementation that deduces the return type
+// The language features to deduce the return type of the `size()` method of
+// containers are not present, we fall back to using `bsl::size_t`.
 
 /// Return the size of the specified `container`.  The `CONTAINER` template
 /// parameter type must provide a `size` accessor.
@@ -1329,29 +1367,29 @@ BSLS_KEYWORD_CONSTEXPR size_t size(const CONTAINER& container)
 {
     return container.size();
 }
-#endif  // end - cannot deduce return type, return 'size_t' from 'bsl::size()'
-#endif  // end - have to implement 'bsl::size()' ourselves
+#endif  // end - cannot deduce return type, return `size_t` from `bsl::size()`
+#endif  // end - have to implement `bsl::size()` ourselves
 
                                     // =====
                                     // ssize
                                     // =====
 
-// If the underlying standard library implements 'std::ssize', then we need to
+// If the underlying standard library implements `std::ssize`, then we need to
 // use it.  Consider the following code:
-//..
-//  bsl::set<int, std::less<int> > s;
-//  if (ssize(s) == 0) { .. }
-//..
-// Because the set 's' has hooks into both namespace 'bsl' and 'std', an
-// unqualified call to 'ssize' will find both, and fail to compile.
+// ```
+// bsl::set<int, std::less<int> > s;
+// if (ssize(s) == 0) { .. }
+// ```
+// Because the set `s` has hooks into both namespace `bsl` and `std`, an
+// unqualified call to `ssize` will find both, and fail to compile.
 #if 201703L < BSLS_COMPILERFEATURES_CPLUSPLUS &&                              \
                          defined(__cpp_lib_ssize) && __cpp_lib_ssize >= 201902L
-// The implementation has 'std::ssize()' defined, we can use it.
+// The implementation has `std::ssize()` defined, we can use it.
 using std::ssize;
-#else   // end - we can just use 'std::ssize()'
-// The implementation does not define 'std::ssize()', we need to implement it.
+#else   // end - we can just use `std::ssize()`
+// The implementation does not define `std::ssize()`, we need to implement it.
 
-                    // 'bsl::ssize' Overload for Arrays
+                    // `bsl::ssize` Overload for Arrays
 
 /// Return the dimension of the specified array argument.
 template <class TYPE, std::ptrdiff_t DIMENSION>
@@ -1362,29 +1400,29 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(
     return DIMENSION;
 }
 
-                   // 'bsl::ssize' Overload for Containers
+                   // `bsl::ssize` Overload for Containers
 
-// For containers we have two possible implementations for 'bsl::ssize()',
+// For containers we have two possible implementations for `bsl::ssize()`,
 // depending on the level of compiler support we can use:
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_DECLTYPE) &&                        \
                              201103L <= BSLS_COMPILERFEATURES_SUPPORT_CPLUSPLUS
-// We have both 'decltype' and trailing return types, we can deduce the return
-// type of the 'size()' method of containers, and pick its signed counterpart.
+// We have both `decltype` and trailing return types, we can deduce the return
+// type of the `size()` method of containers, and pick its signed counterpart.
 
+// Return the size of the specified `container`.  The `CONTAINER` template
+// parameter type must provide a `size` accessor.
 template <class CONTAINER>
 inline
 BSLS_KEYWORD_CONSTEXPR auto ssize(const CONTAINER& container) ->
                        std::common_type_t<
                                 std::ptrdiff_t,
                                 std::make_signed_t<decltype(container.size())>>
-    // Return the size of the specified 'container'.  The 'CONTAINER' template
-    // parameter type must provide a 'size' accessor.
 {
     return container.size();
 }
-#else   // end - 'bsl::ssize()' implementation that deduces the return type
-// The language features to deduce the return type of the 'size()' method of
-// containers are not present, we fall back to using 'bsl::ptrdiff_t'.
+#else   // end - `bsl::ssize()` implementation that deduces the return type
+// The language features to deduce the return type of the `size()` method of
+// containers are not present, we fall back to using `bsl::ptrdiff_t`.
 
 /// Return the size of the specified `container`.  The `CONTAINER` template
 /// parameter type must provide a `size` accessor.
@@ -1394,8 +1432,8 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
 {
     return container.size();
 }
-# endif  // end - cannot deduce return type, return 'ptrdiff_t' from 'ssize()'
-#endif  // end - have to implement 'bsl::ssize()' ourselves
+# endif  // end - cannot deduce return type, return `ptrdiff_t` from `ssize()`
+#endif  // end - have to implement `bsl::ssize()` ourselves
 
 #ifdef BSLSTL_ITERATOR_PROVIDE_SUN_CPP98_FIXES
 
@@ -1403,11 +1441,11 @@ BSLS_KEYWORD_CONSTEXPR std::ptrdiff_t ssize(const CONTAINER& container)
                          // struct IteratorDistanceImp
                          // --------------------------
 
-template <class FWD_ITER, class DIFFERENCE_TYPE>
-void IteratorDistanceImp::getDistance(DIFFERENCE_TYPE *ret,
-                                      FWD_ITER         start,
-                                      FWD_ITER         finish,
-                                      input_iterator_tag)
+template <class INPUT_ITER, class DIFFERENCE_TYPE>
+void IteratorDistanceImp::getDistance(DIFFERENCE_TYPE    *ret,
+                                      INPUT_ITER          start,
+                                      INPUT_ITER          finish,
+                                      input_iterator_tag  )
 {
     DIFFERENCE_TYPE count = 0;
     for ( ; start != finish; ++start) {
@@ -1628,6 +1666,35 @@ reverse_iterator<const T *> crend(const T (&array)[N])
     return reverse_iterator<const T *>(array);
 }
 #endif  // !BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
+
+#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+namespace ranges {
+
+using bsl::size;
+using bsl::ssize;
+using bsl::empty;
+using bsl::data;
+
+using bsl::advance;
+using bsl::distance;
+
+template <class t_RANGE>
+inline
+typename iterator_traits<typename t_RANGE::const_iterator>::difference_type
+distance(const t_RANGE& range)
+{
+    return distance(begin(range), end(range));
+}
+
+template <class T, size_t N>
+inline
+ptrdiff_t distance(const T (&)[N])
+{
+    return N;
+}
+
+}  // close namespace ranges
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
 }  // close namespace bsl
 

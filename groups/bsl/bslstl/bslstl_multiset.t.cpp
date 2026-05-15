@@ -103,6 +103,8 @@
 // [19] multiset(const C& comparator, const A& allocator);
 // [12] multiset(ITER first, ITER last, const C& comp, const A& alloc);
 // [12] multiset(ITER first, ITER last, const A& alloc);
+// [12] multiset(from_range_t , CCR<KEY> auto&& range, const C& c,  a = A());
+// [12] multiset(from_range_t , CCR<KEY> auto&& range, a);
 // [32] multiset(initializer_list<value_type>, const C& comp, const A& alloc);
 // [32] multiset(initializer_list<value_type>, const A& allocator);
 // [ 7] multiset(const multiset& original);
@@ -142,6 +144,7 @@
 // [29] iterator insert(const_iterator position, value_type&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [32] void insert(initializer_list<value_type>);
+// [17] void insert_range(CCR<VALUE> auto&& range);
 //
 // [30] iterator emplace(Args&&... args);
 // [31] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -198,6 +201,7 @@
 // [34] CONCERN: `lower_bound` properly handles transparent comparators.
 // [34] CONCERN: `upper_bound` properly handles transparent comparators.
 // [34] CONCERN: `equal_range` properly handles transparent comparators.
+// [34] CONCERN: `erase`       properly handles transparent comparators.
 // [35] CLASS TEMPLATE DEDUCTION GUIDES
 // [37] CONCERN: `multiset` IS A C++20 RANGE
 
@@ -3077,13 +3081,11 @@ void TestDriver<KEY, COMP, ALLOC>::testCase1(const COMP&  comparator,
             ASSERTV(X == Y);
             ASSERTV(!(X != Y));
 
-
             // Test `insert`.
             Value value(testKeys[i]);
             iterator result = x.insert(value);
             ASSERTV(X.end()       != result);
             ASSERTV(testKeys[i]   == *result);
-
 
             // Test size, empty.
             ASSERTV(i + 1 == X.size());
@@ -3605,7 +3607,6 @@ bool operator>(const string& lhs, const string& rhs)
     return rhs < lhs;
 }
 
-
 const char *string::EMPTY_STRING = "";
 
 ///Usage
@@ -3828,7 +3829,6 @@ bool operator!=(const ShoppingCart& lhs, const ShoppingCart& rhs)
 // ```
 
 }  // close namespace UsageExample
-
 
 // ============================================================================
 //                            MAIN PROGRAM

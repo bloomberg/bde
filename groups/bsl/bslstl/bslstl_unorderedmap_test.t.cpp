@@ -62,6 +62,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_isbitwisecopyable.h>
 #include <bslmf_issame.h>
@@ -187,6 +188,14 @@ using bsl::pair;
 // [12] Obj(ITER, ITER, size_t, HASH, const ALLOC&);
 // [12] Obj(ITER, ITER, size_t, HASH, EQUAL);
 // [12] Obj(ITER, ITER, size_t, HASH, EQUAL, const ALLOC&);
+// [12] Obj(fr_t, auto&& range);
+// [12] Obj(fr_t, auto&& range, const ALLOC&);
+// [12] Obj(fr_t, auto&& range, size_t);
+// [12] Obj(fr_t, auto&& range, size_t, const ALLOC&);
+// [12] Obj(fr_t, auto&& range, size_t, HASH);
+// [12] Obj(fr_t, auto&& range, size_t, HASH, const ALLOC&);
+// [12] Obj(fr_t, auto&& range, size_t, HASH, EQUAL);
+// [12] Obj(fr_t, auto&& range, size_t, HASH, EQUAL, const ALLOC&);
 // [27] Obj(Obj&&);
 // [27] Obj(Obj&&, const ALLOC&);
 // [33] void Obj(initializer_list<Pair>);
@@ -214,6 +223,7 @@ using bsl::pair;
 // [15] pair<Iter, bool> insert(const Pair&);
 // [15] Iter insert(CIter, const Pair&);
 // [17] void insert(ITER, ITER);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [29] pair<iterator, bool> insert(Pair&&);
 // [29] pair<iterator, bool> insert(ALT_PAIR&&);
 // [29] iterator insert(CIter, Pair&&);
@@ -1629,7 +1639,6 @@ struct HashAnyStr
     }
 };
 
-
 /// Search for a key equal to the specified `initKeyValue` in the specified
 /// `container`, and count the number of conversions expected based on the
 /// specified `isTransparent`.  Note that `Container` may resolve to a
@@ -1713,7 +1722,7 @@ void testTransparentComparator(t_CONTAINER& container,
         }
 
         const bsl::pair<Iterator, Iterator> NON_EXISTING_ER =
-                                             container.equal_range(nonExistingKey);
+                                         container.equal_range(nonExistingKey);
         ASSERT(NON_EXISTING_ER.first   == NON_EXISTING_ER.second);
         ASSERT(expectedConversionCount == nonExistingKey.conversionCount());
     }
@@ -1722,7 +1731,6 @@ void testTransparentComparator(t_CONTAINER& container,
         // Testing `at`.
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
-
 
         try {
             ASSERT(existingKey.value() == container.at(existingKey));
@@ -1738,10 +1746,10 @@ void testTransparentComparator(t_CONTAINER& container,
         catch (const std::out_of_range &) {
         }
 
-        ASSERTV(expectedConversionCount, existingKey.conversionCount(),
-                      expectedConversionCount == existingKey.conversionCount());
-        ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
-                      expectedConversionCount == nonExistingKey.conversionCount());
+        ASSERTV(expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
+        ASSERTV(expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
     }
 
     {
@@ -1764,8 +1772,8 @@ void testTransparentComparator(t_CONTAINER& container,
             }
         }
         ASSERT(found_it);
-        ASSERTV(expectedConversionCount,    existingKey.conversionCount(),
-                      expectedConversionCount ==    existingKey.conversionCount());
+        ASSERTV(expectedConversionCount,   existingKey.conversionCount(),
+                expectedConversionCount == existingKey.conversionCount());
 
         const Count bucketNotFound = container.bucket(nonExistingKey);
 
@@ -1779,8 +1787,8 @@ void testTransparentComparator(t_CONTAINER& container,
             }
         }
         ASSERT(!found_it);
-        ASSERTV(expectedConversionCount, nonExistingKey.conversionCount(),
-                      expectedConversionCount == nonExistingKey.conversionCount());
+        ASSERTV(expectedConversionCount,   nonExistingKey.conversionCount(),
+                expectedConversionCount == nonExistingKey.conversionCount());
 
     }
 }
@@ -1879,7 +1887,9 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
         const Count size = container.size();
 
         // with an existing key
-        Iterator existingIter = c.insert_or_assign(c.cbegin(), existingKey, 1000);
+        Iterator existingIter = c.insert_or_assign(c.cbegin(),
+                                                   existingKey,
+                                                   1000);
         ASSERT(size == c.size());
         ASSERT(existingKey.value() == existingIter->first);
         ASSERT(1000 == existingIter->second);
@@ -1894,13 +1904,41 @@ void testTransparentComparatorMutable(const t_CONTAINER& container,
         // lookup fails, it gets inserted into the map.  If we do have a
         // transparent comparator, the lookup is done w/o conversion, but then
         // the value gets converted in order to put it into the map.
-        Iterator nonExistingIter = c.insert_or_assign(c.cbegin(), nonExistingKey, 1000);
+        Iterator nonExistingIter = c.insert_or_assign(c.cbegin(),
+                                                      nonExistingKey,
+                                                      1000);
         ASSERT(size + 1 == c.size());
         ASSERT(nonExistingKey.value() == nonExistingIter->first);
         ASSERT(1000 == nonExistingIter->second);
         ASSERTV(isTransparent,
                1,   nonExistingKey.conversionCount(),
                1 == nonExistingKey.conversionCount());
+    }
+
+    {
+        // Testing `erase`.
+
+        existingKey.resetConversionCount();
+        nonExistingKey.resetConversionCount();
+
+        t_CONTAINER c(container);
+        const Count size = container.size();
+
+        // with a non-existing key
+        {
+            Count n = c.erase(nonExistingKey);
+            ASSERT(n == 0);
+            ASSERT(c.size() == size);
+            ASSERT(nonExistingKey.conversionCount() ==expectedConversionCount);
+        }
+
+        // with an existing key
+        {
+            Count n = c.erase(existingKey);
+            ASSERT(n == 1);
+            ASSERT(c.size() + n == size);
+            ASSERT(existingKey.conversionCount() == expectedConversionCount);
+        }
     }
 }
 
@@ -1998,7 +2036,6 @@ struct MoveHolder {
     bool d_moved;
 };
 
-
 /// Provide a hash operation for all MoveHolder objects.  Return the
 /// `bsl::hash` of the underlying object held in `value`.
 template <class TYPE>
@@ -2041,6 +2078,44 @@ bool operator==(const TYPE& lhs, const MoveHolder<TYPE>& rhs)
 }
 
 }  // close unnamed namespace
+
+namespace {
+                        // =======================
+                        // class SubrangeContainer
+                        // =======================
+
+// Emulate `bsl::ranges::subrange` for pre-C++20 builds.
+template <class ITER>
+class SubrangeContainer {
+
+    // DATA
+    ITER d_begin;
+    ITER d_end;
+
+  public:
+    // TYPES
+    typedef       ITER       iterator;
+    typedef const ITER const_iterator;
+
+    // CREATORS
+    SubrangeContainer()
+    : d_begin(ITER())
+    , d_end  (ITER()) {}
+
+    SubrangeContainer(ITER begin, ITER end)
+    : d_begin(begin)
+    , d_end  (end)    {}
+
+    // MANIPULATORS
+    iterator begin() { return d_begin; }
+    iterator end  () { return d_end  ; }
+
+    // ACCESSORS  // Needed when testing at C++03 language level
+    const_iterator begin() const { return d_begin; }
+    const_iterator end  () const { return d_end  ; }
+};
+
+} // close unnamed namespace
 
 //=============================================================================
 //                              TestDriver
@@ -2271,7 +2346,8 @@ class TestDriver {
     // TEST CASES
 
     /// Test whether `unordered_map` is a C++20 range.
-    static void testCase44_isRange();
+    static void testCase44_isRangeConcepts();
+    static void testCase44_isRangeFunctionality();
 
     /// Test `try_emplace` and `insert_or_assign`
     static void testCase43();
@@ -2460,7 +2536,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
-void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase44_isRange()
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase44_isRangeConcepts()
 {
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
     BSLMF_ASSERT((std::ranges::common_range<Obj>));
@@ -2470,6 +2546,133 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase44_isRange()
 
     BSLMF_ASSERT((!std::ranges::view<Obj>));
     BSLMF_ASSERT((!std::ranges::borrowed_range<Obj>));
+#endif
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
+void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::
+                                              testCase44_isRangeFunctionality()
+{
+    if (veryVerbose) {
+        Q(testCase44_isRangeFunctionality)
+        P(NameOf<KEY>())
+        P(NameOf<VALUE>())
+    }
+
+    if (veryVerbose) {
+        printf("Baseline\n");
+    }
+#if 1
+    {
+        TestValues rangeForCtor  ("ABC");
+        TestValues rangeForInsert("DEF");
+
+        TestValues expectedPostCtor  ("ABC");
+        TestValues expectedPostInsert("ABCDEF");
+
+        Obj mX(bsl::from_range, rangeForCtor); const Obj& X = mX;       // TEST
+        ASSERT(u::verifySpec(X, "ABC"));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(u::verifySpec(X, "ABCDEF"));
+    }
+#endif
+
+    if (veryVerbose) {
+        printf("Confirm that `unordered_map` itself is a range-type.\n");
+    }
+#if 1
+    {
+        Obj mX(bsl::from_range, TestValues("ABC"));  const Obj& X = mX;
+        Obj mY(bsl::from_range, TestValues("DEF"));  const Obj& Y = mY;
+
+        ASSERT(u::verifySpec(X, "ABC"));
+        ASSERT(u::verifySpec(Y, "DEF"));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(u::verifySpec(X, "ABCDEF"));
+
+        // Inserting a non-empty set into itself does not change it.
+        const Obj Z(bsl::from_range, mX);                               // TEST
+        ASSERT(Z == mX);
+        mX.insert_range(mX);                                            // TEST
+        ASSERT(Z == mX);
+
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValues("ABC"));                             // TEST
+        mW.insert_range(TestValues("DEF"));                             // TEST
+        ASSERT(u::verifySpec(W, "ABCDEF"));
+    }
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    typedef bsltf::TestValuesArray<
+                        TValueType,
+                        ALLOC,
+                        u::CharToPairConverter<TValueType, ALLOC>,
+                        true>                           TestValuesWithSentinel;
+    {
+        TestValuesWithSentinel tvws;
+
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    decltype(tvws),
+                                                    typename Obj::value_type>);
+
+        static_assert(true  == bsl::sentinel_for<decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+
+        static_assert(false == bsl::is_same_v<   decltype(tvws.end()  ),
+                                                 decltype(tvws.begin())>);
+    }
+
+    if (veryVerbose) {
+        printf("Confirm functionality with distinct sentinels.\n");
+    }
+    {
+        TestValuesWithSentinel rangeForCtor  ("ABC");
+        TestValuesWithSentinel rangeForInsert("DEF");
+
+        Obj mX(bsl::from_range, rangeForCtor); const Obj& X = mX;       // TEST
+        ASSERT(u::verifySpec(X, "ABC"));
+
+        mX.insert_range(rangeForInsert);                                // TEST
+        ASSERT(u::verifySpec(X, "ABCDEF"));
+    }
+
+    if (veryVerbose) {
+        printf("Confirm that `unordered_map` itself is a range-type.\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    Obj,
+                                                    typename Obj::value_type>);
+
+        Obj  mX(bsl::from_range, TestValuesWithSentinel("ABC"));
+        Obj  mY(bsl::from_range, TestValuesWithSentinel("DEF"));
+
+        ASSERT(u::verifySpec(mX, "ABC"));
+        ASSERT(u::verifySpec(mY, "DEF"));
+
+        mX.insert_range(mY);                                            // TEST
+
+        ASSERT(u::verifySpec(mX, "ABCDEF"));
+
+        // Inserting a non-empty set into itself does not change it.
+        const Obj Z(bsl::from_range, mX);                               // TEST
+        ASSERT(Z == mX);
+        mX.insert_range(mX);                                            // TEST
+        ASSERT(Z == mX);
+
+        // Range insertion creates a union of its input.
+        Obj mW; const Obj& W = mW;
+        mW.insert_range(TestValuesWithSentinel("ABCZ"));                // TEST
+        mW.insert_range(TestValuesWithSentinel("DEFZ"));                // TEST
+        ASSERT(u::verifySpec(W, "ABCDEFZ"));
+    }
 #endif
 }
 
@@ -2716,7 +2919,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase43()
         }
     }
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase42()
@@ -8316,6 +8518,9 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
     //
     // 7. Any memory allocation is exception neutral.
     //
+    // 8. `insert_range` produces the same result as `insert` when the
+    //    iterators are prsented as a `range`.
+    //
     // Plan:
     // 1. Using the table-driven technique:
     //
@@ -8337,9 +8542,15 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
     //
     //   6. Verify no memory is allocated from the default allocator (C-4)
     //
+    // 3. Duplicate the test `insert` test loop for `insert_range` except
+    //    the two iterators are presented as a range by use of the
+    //    `Subrange` container test class.  (C-8)
+    //
     // Testing:
     //   void insert(ITER, ITER);
+    //   void insert_range(CCR<KEY> auto&& range);
     // ------------------------------------------------------------------------
+
     if (verbose) printf("TESTING RANGE `insert`: %s\n"
                         "----------------------\n",
                         NameOf<KEY>().name());
@@ -8349,11 +8560,17 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
 
     bslma::TestAllocator sa("scratch", veryVeryVeryVerbose);
 
+    if (veryVerbose) printf("Testing `insert` that takes two iterators\n");
+
     for (size_t ti = 0; ti < NUM_DATA; ++ti) {
         const int         LINE   = DATA[ti].d_line;
         const char *const SPEC   = DATA[ti].d_spec_p;
         const char *const EXP    = DATA[ti].d_results_p;
         const size_t      LENGTH = strlen(EXP);
+
+        if (veryVerbose) {
+            P_(LINE); P_(SPEC); P_(EXP); P(LENGTH);
+        }
 
         TestValues CONT(SPEC);
 
@@ -8378,7 +8595,66 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase17()
 
                 CONT.resetIterators();
 
-                mX.insert(MID, END);
+                mX.insert(MID, END);                                    // TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            const Int64 AA = oa.numAllocations();
+
+            ASSERTV(LINE, tj < CONT.size() || AA == A);
+            ASSERTV(LINE, tj, X.size(), LENGTH, u::verifySpec(X, EXP));
+            ASSERTV(LINE, tj, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+    }
+
+    typedef SubrangeContainer<typename TestValues::iterator> SRC;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                          SRC,
+                                          typename SRC::iterator::value_type>);
+
+    static_assert(false == bsl::ranges::sized_range<SRC>);
+#endif
+
+    if (veryVerbose) printf("Testing `insert_range`\n");
+
+    for (size_t ti = 0; ti < NUM_DATA; ++ti) {
+        const int         LINE   = DATA[ti].d_line;
+        const char *const SPEC   = DATA[ti].d_spec_p;
+        const char *const EXP    = DATA[ti].d_results_p;
+        const size_t      LENGTH = strlen(EXP);
+
+        if (veryVerbose) {
+            P_(LINE); P_(SPEC); P_(EXP); P(LENGTH);
+        }
+
+        TestValues CONT(SPEC);
+
+        for (size_t tj = 0; tj <= CONT.size(); ++tj) {
+            CONT.resetIterators();
+
+            typename TestValues::iterator BEGIN = CONT.begin();
+            typename TestValues::iterator MID   = CONT.index(tj);
+            typename TestValues::iterator END   = CONT.end();
+
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(BEGIN, MID, &oa);  const Obj& X = mX;
+
+            const Int64 A = oa.numAllocations();
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                CONT.resetIterators();
+
+                SRC subrange(MID, END);
+                mX.insert_range(subrange);                              // TEST
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             const Int64 AA = oa.numAllocations();
@@ -9114,6 +9390,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     //    the default constructed comparator.
     // 5. The state of the `unordered_map` created correctly represents the
     //    range passed.
+    // 6. The constructors that accept `bsl::from_range_t` and a `range`
+    //    produce the same result as the equivalent iterators.
     //
     // Plan:
     // 1. Create `tstHash`, a hash functor object with state distinguishable
@@ -9132,6 +9410,27 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
     // 10. Observe that the hash function of the container is as expected.
     // 11. Observe that the key equality comparator of the container is as
     //     expected.
+    // 12. Since `TestValues` is itself a valid `range`, add test cases that
+    //     use `bsl::from_range_t` and  `TestValues` object itself instead
+    //     of the `begin()` and `end()` values of that object.
+    //
+    // Testing:
+    //   Obj(ITER, ITER);
+    //   Obj(ITER, ITER, const ALLOC&);
+    //   Obj(ITER, ITER, size_t);
+    //   Obj(ITER, ITER, size_t, const ALLOC&);
+    //   Obj(ITER, ITER, size_t, HASH);
+    //   Obj(ITER, ITER, size_t, HASH, const ALLOC&);
+    //   Obj(ITER, ITER, size_t, HASH, EQUAL);
+    //   Obj(ITER, ITER, size_t, HASH, EQUAL, const ALLOC&);
+    //   Obj(fr_t, auto&& range);
+    //   Obj(fr_t, auto&& range, const ALLOC&);
+    //   Obj(fr_t, auto&& range, size_t);
+    //   Obj(fr_t, auto&& range, size_t, const ALLOC&);
+    //   Obj(fr_t, auto&& range, size_t, HASH);
+    //   Obj(fr_t, auto&& range, size_t, HASH, const ALLOC&);
+    //   Obj(fr_t, auto&& range, size_t, HASH, EQUAL);
+    //   Obj(fr_t, auto&& range, size_t, HASH, EQUAL, const ALLOC&);
     // ------------------------------------------------------------------------
 
     HASH  tstHash(7);
@@ -9149,9 +9448,12 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
 
         ASSERT(LENGTH <= 17);
 
-        TestValues values(SPEC);
+        TestValues  values(SPEC);
+        TestValues& rg = values;
 
-        for (char config = 'a'; config <= 'n'; ++config) {
+        const bsl::from_range_t fr;
+
+        for (char config = 'a'; config <= 'v'; ++config) {
             const char CONFIG = config;
 
             bslma::TestAllocator sa("scratch",   veryVeryVeryVerbose);
@@ -9170,60 +9472,144 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
 
                 switch (CONFIG) {
                   case 'a': {
-                    objPtr = new (fa) Obj(values.begin(), values.end());
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end());
                   } break;
                   case 'b': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), &sa);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          &sa);
                   } break;
                   case 'c': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 0);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          0);
                   } break;
                   case 'd': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 0,
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          0,
                                           &sa);
                   } break;
                   case 'e': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 0,
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          0,
                                           tstHash);
                   } break;
                   case 'f': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 0,
-                                          tstHash, &sa);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          0,
+                                          tstHash,
+                                          &sa);
                   } break;
                   case 'g': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 0,
-                                          tstHash, tstEqual);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          0,
+                                          tstHash,
+                                          tstEqual);
                   } break;
                   case 'h': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 0,
-                                          tstHash, tstEqual, &sa);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          0,
+                                          tstHash,
+                                          tstEqual,
+                                          &sa);
                   } break;
                   case 'i': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 100);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          100);
                   } break;
                   case 'j': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 100,
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          100,
                                           &sa);
                   } break;
                   case 'k': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 100,
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          100,
                                           tstHash);
                   } break;
                   case 'l': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 100,
-                                          tstHash, &sa);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          100,
+                                          tstHash,
+                                          &sa);
                   } break;
                   case 'm': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 100,
-                                          tstHash, tstEqual);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          100,
+                                          tstHash,
+                                          tstEqual);
                   } break;
                   case 'n': {
-                    objPtr = new (fa) Obj(values.begin(), values.end(), 100,
-                                          tstHash, tstEqual, &sa);
+                    objPtr = new (fa) Obj(values.begin(),
+                                          values.end(),
+                                          100,
+                                          tstHash,
+                                          tstEqual,
+                                          &sa);
+                 // done += DEFAULT_MAX_LENGTH == LENGTH;
+                  } break;
+                  case 'o': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          100,
+                                          tstHash,
+                                          tstEqual);
+                  } break;
+                  case 'p': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          100,
+                                          tstHash,
+                                          tstEqual,
+                                          &sa);
+                  } break;
+                  case 'q': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          100,
+                                          tstHash);
+                  } break;
+                  case 'r': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          100,
+                                          tstHash,
+                                          &sa);
+                  } break;
+                  case 's': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          100);
+                  } break;
+                  case 't': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          100,
+                                          &sa);
+                  } break;
+                  case 'u': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg);
+                  } break;
+                  case 'v': {
+                    objPtr = new (fa) Obj(fr,
+                                          rg,
+                                          &sa);
                     done += DEFAULT_MAX_LENGTH == LENGTH;
                   } break;
                   default: {
-                    ASSERTV(0 && "unrecognized CONFIG");
+                    ASSERTV(CONFIG, 0 && "unrecognized CONFIG");
                   } return;                                           // RETURN
                 }
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
@@ -9233,7 +9619,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
             ASSERTV(0 == noa.numBlocksTotal());
             ASSERTV(X.get_allocator().mechanism() == &oa);
 
-            const bool EXP0 = CONFIG <= 'h' && 0 == LENGTH;
+            const bool EXP0 = (   CONFIG <= 'h'
+                               || CONFIG == 'u'
+                               || CONFIG == 'v') && 0 == LENGTH;
+
             ASSERTV(LINE, CONFIG, EXP0 == (0 == oa.numBlocksInUse()));
             ASSERTV(LINE, CONFIG, EXP0 == (0 == oa.numBlocksTotal()));
 
@@ -9246,14 +9635,24 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
             Obj mY;            const Obj& Y = gg(&mY, SPEC);
             ASSERTV(X == Y);
 
-            ASSERTV((CONFIG >= 'i') == (X.bucket_count() > 100));
+            const int  initialNumBuckets = strchr("ijklmnopqrst", CONFIG)
+                                         ? 100
+                                         :   0;
+            const bool expectAtLeast100  = 100 == initialNumBuckets;
 
-            const HASH& EXP_HASH = strchr("efghklmn", CONFIG) ? tstHash
-                                                              : HASH();
+            ASSERTV(CONFIG, expectAtLeast100,    X.bucket_count(),
+                            expectAtLeast100 == (X.bucket_count() > 100));
+
+            const HASH& EXP_HASH = strchr("efghklmnopqr", CONFIG)
+                                 ? tstHash
+                                 : HASH();
+
             ASSERTV(CONFIG, EXP_HASH == X.hash_function());
 
-            const EQUAL& EXP_EQUAL = strchr("ghmn", CONFIG) ? tstEqual
-                                                            : EQUAL();
+            const EQUAL& EXP_EQUAL = strchr("ghmnop", CONFIG)
+                                   ? tstEqual
+                                   : EQUAL();
+
             ASSERTV(CONFIG, EXP_EQUAL == X.key_eq());
 
             fa.deleteObject(objPtr);
@@ -9262,7 +9661,6 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase12()
 
     ASSERTV(DEFAULT_NUM_MAX_LENGTH == done);
 }
-
 
 namespace DRQS173573936 {
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
@@ -9852,9 +10250,16 @@ int main(int argc, char *argv[])
         //
         // 6. `unordered_map` doesn't model `ranges::borrowed_range` concept.
         //
+        // 7. `unordered_map ` can be passed to the range CTOR and
+        //    `insert_range`.
+        //
         // Plan:
         // 1. `static_assert` every above-mentioned concept for different `KEY`
         //    and `VALUE`.
+        //
+        // 2. Confirm that an `unordered` can be used with the `from_range`
+        //    CTOR and the `insert_range` manipulator and generate the expected
+        //    results.
         //
         // Testing:
         //   CONCERN: `unordered_map` IS A C++20 RANGE
@@ -9864,8 +10269,12 @@ int main(int argc, char *argv[])
                             "\n=========================================\n");
 
         RUN_EACH_TYPE(TestDriver,
-                      testCase44_isRange,
+                      testCase44_isRangeConcepts,
                       BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_ALL);
+
+        RUN_EACH_TYPE(TestDriver,
+                      testCase44_isRangeFunctionality,
+                      BSLTF_TEMPLATETESTFACILITY_TEST_TYPES_REGULAR);
       } break;
       case 43: {
         // --------------------------------------------------------------------
@@ -10041,6 +10450,7 @@ int main(int argc, char *argv[])
         //   CONCERN: `bucket`      properly handles transparent comparators.
         //   CONCERN: `operator []` properly handles transparent comparators.
         //   CONCERN: `at`          properly handles transparent comparators.
+        //   CONCERN: `erase`       properly handles transparent comparators.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"

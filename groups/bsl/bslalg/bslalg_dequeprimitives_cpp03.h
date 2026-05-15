@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Tue Dec  2 21:32:49 2025
+// Generated on Tue Feb  3 19:14:28 2026
 // Command line: sim_cpp11_features.pl bslalg_dequeprimitives.h
 
 #ifdef COMPILING_BSLALG_DEQUEPRIMITIVES_H
@@ -227,12 +227,12 @@ struct DequePrimitives {
     /// undefined unless `fromEnd + numElements` is a valid iterator (i.e.,
     /// the block pointer array holds enough room after the `fromEnd`
     /// position to insert `numElements`).
-    template <class FWD_ITER, class ALLOCATOR>
+    template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
     static void insertAndMoveToBack(Iterator  *toEnd,
                                     Iterator   fromEnd,
                                     Iterator   position,
                                     FWD_ITER   first,
-                                    FWD_ITER   last,
+                                    SENTINEL   last,
                                     size_type  numElements,
                                     ALLOCATOR  allocator);
 
@@ -358,12 +358,12 @@ struct DequePrimitives {
     /// undefined unless `fromBegin - numElements` is a valid iterator
     /// (i.e., the block pointer array holds enough room before the
     /// `fromBefore` position to insert `numElements`).
-    template <class FWD_ITER, class ALLOCATOR>
+    template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
     static void insertAndMoveToFront(Iterator  *toBegin,
                                      Iterator   fromBegin,
                                      Iterator   position,
                                      FWD_ITER   first,
-                                     FWD_ITER   last,
+                                     SENTINEL   last,
                                      size_type  numElements,
                                      ALLOCATOR  allocator);
 
@@ -2284,12 +2284,12 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                     const VALUE_TYPE&  value,
                                     ALLOCATOR          allocator);
 
-    template <class FWD_ITER, class ALLOCATOR>
+    template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
     static void insertAndMoveToBack(Iterator  *toEnd,
                                     Iterator   fromEnd,
                                     Iterator   position,
                                     FWD_ITER   first,
-                                    FWD_ITER   last,
+                                    SENTINEL   last,
                                     size_type  numElements,
                                     ALLOCATOR  allocator);
 
@@ -2301,12 +2301,12 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                      const VALUE_TYPE&  value,
                                      ALLOCATOR          allocator);
 
-    template <class FWD_ITER, class ALLOCATOR>
+    template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
     static void insertAndMoveToFront(Iterator  *toBegin,
                                      Iterator   fromBegin,
                                      Iterator   position,
                                      FWD_ITER   first,
-                                     FWD_ITER   last,
+                                     SENTINEL   last,
                                      size_type  numElements,
                                      ALLOCATOR  allocator);
 
@@ -2318,12 +2318,13 @@ struct DequePrimitives<VALUE_TYPE, 1> {
                                        ALLOCATOR          allocator);
     template <class ALLOCATOR>
     static void uninitializedFillNBack(
-               Iterator          *toEnd,
-               Iterator           fromEnd,
-               size_type          numElements,
-               const VALUE_TYPE&  value,
-               ALLOCATOR          allocator,
-               bsl::integral_constant<int, BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
+                     Iterator                                    *toEnd,
+                     Iterator                                     fromEnd,
+                     size_type                                    numElements,
+                     const VALUE_TYPE&                            value,
+                     ALLOCATOR                                    allocator,
+                     bsl::integral_constant<int,
+                                           BSLALG_DEQUEPRIMITIVES_NIL_TRAITS>);
     template <class ALLOCATOR>
     static void uninitializedFillNBack(
            Iterator          *toEnd,
@@ -2971,14 +2972,14 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToBack(
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-template <class FWD_ITER, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                                   ::insertAndMoveToBack(Iterator  *toEnd,
                                                         Iterator   fromEnd,
                                                         Iterator   position,
                                                         FWD_ITER   first,
-                                                        FWD_ITER   /*last*/,
+                                                        SENTINEL   /*last*/,
                                                         size_type  numElements,
                                                         ALLOCATOR  allocator)
 {
@@ -3375,14 +3376,14 @@ void DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>::insertAndMoveToFront(
 }
 
 template <class VALUE_TYPE, int BLOCK_LENGTH>
-template <class FWD_ITER, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, BLOCK_LENGTH>
                            ::insertAndMoveToFront(Iterator  *toBegin,
                                                   Iterator   fromBegin,
                                                   Iterator   position,
                                                   FWD_ITER   first,
-                                                  FWD_ITER   /*last*/,
+                                                  SENTINEL   /*last*/,
                                                   size_type  numElements,
                                                   ALLOCATOR  allocator)
 {
@@ -8929,14 +8930,14 @@ DequePrimitives<VALUE_TYPE, 1>
 }
 
 template <class VALUE_TYPE>
-template <class FWD_ITER, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, 1>
                            ::insertAndMoveToFront(Iterator  *toBegin,
                                                   Iterator   fromBegin,
                                                   Iterator   position,
                                                   FWD_ITER   first,
-                                                  FWD_ITER   /*last*/,
+                                                  SENTINEL   /*last*/,
                                                   size_type  numElements,
                                                   ALLOCATOR  allocator)
 {
@@ -9062,13 +9063,13 @@ DequePrimitives<VALUE_TYPE, 1>::insertAndMoveToBack(
 }
 
 template <class VALUE_TYPE>
-template <class FWD_ITER, class ALLOCATOR>
+template <class FWD_ITER, class SENTINEL, class ALLOCATOR>
 void
 DequePrimitives<VALUE_TYPE, 1>::insertAndMoveToBack(Iterator  *toEnd,
                                                     Iterator   fromEnd,
                                                     Iterator   position,
                                                     FWD_ITER   first,
-                                                    FWD_ITER   /*last*/,
+                                                    SENTINEL   /*last*/,
                                                     size_type  numElements,
                                                     ALLOCATOR  allocator)
 {

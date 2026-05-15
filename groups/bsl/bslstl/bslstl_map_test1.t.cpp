@@ -44,6 +44,7 @@
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_issame.h>
@@ -87,6 +88,11 @@
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 #include <initializer_list>
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#include <ranges>
 #endif
 
 #include <ctype.h>   // `isalpha`, `tolower`, `toupper`
@@ -158,6 +164,8 @@ using bsls::NameOf;
 // [27] map(map&&, const A& allocator);
 // [12] map(ITER first, ITER last, const C& comparator, const A& allocator);
 // [12] map(ITER first, ITER last, const A& allocator);
+// [12] map(from_range_t , CCR<VALUE> auto&& range, const C& c,  a = A());
+// [12] map(from_range_t , CCR<VALUE> auto&& range, a);
 // [33] map(initializer_list<value_type>, const C& comp, const A& allocator);
 // [33] map(initializer_list<value_type>, const A& allocator);
 // [ 2] ~map();
@@ -200,6 +208,7 @@ using bsls::NameOf;
 // [30] iterator insert(const_iterator position, ALT_VALUE_TYPE&& value);
 // [17] void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
 // [33] void insert(initializer_list<value_type>);
+// [17] void insert_range(CCR<VALUE> auto&& range);
 //
 // [31] iterator emplace(Args&&... args);
 // [32] iterator emplace_hint(const_iterator position, Args&&... args);
@@ -951,7 +960,6 @@ struct IntToPairConverter {
                    && !bsl::is_same<VALUE,
                                bsltf::WellBehavedMoveOnlyAllocTestType>::value;
 
-
         // Note that `allocator` and `pss` are of different types, and
         // sometimes this function is called with `ALLOC` being a type that has
         // no c'tor that takes an `bslma::Allocator *` arg, so we can't use a
@@ -999,6 +1007,47 @@ bool lessThanFunction(const TYPE& lhs, const TYPE& rhs)
 }
 
 }  // close unnamed namespace
+
+                        // =======================
+                        // class SubrangeContainer
+                        // =======================
+
+// Emulate `bsl::ranges::subrange` for pre-C++20 builds.
+template <class ITER>
+class SubrangeContainer {
+
+    // DATA
+    ITER d_begin;
+    ITER d_end;
+
+  public:
+    // TYPES
+    typedef       ITER       iterator;
+    typedef const ITER const_iterator;
+
+    // CREATORS
+    SubrangeContainer()
+    : d_begin(ITER())
+    , d_end  (ITER()) {}
+
+    SubrangeContainer(ITER begin, ITER end)
+    : d_begin(begin)
+    , d_end  (end)    {}
+
+    // MANIPULATORS
+    iterator begin() { return d_begin; }
+    iterator end  () { return d_end  ; }
+
+    // ACCESSORS  // Needed when testing at C++03 language level
+    const_iterator begin() const { return d_begin; }
+    const_iterator end  () const { return d_end  ; }
+};
+
+template <class ITER>
+const ITER begin(const SubrangeContainer<ITER>& container)
+{
+    return container.begin();
+}
 
 // ============================================================================
 //                      GLOBAL TYPEDEFS FOR TESTING
@@ -3554,6 +3603,13 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase17()
     //    number of elements can be determined and no free nodes are available.
     //    (The contained elements may require additional allocations.)
     //
+    // 9. The `insert_range` method (where supported) provides the same
+    //    behavior as the `insert` overload that accepts input iterators.
+    //
+    //10.  The C++20 ranges `insert_range` method has two execution paths, one
+    //     when used when the given range is "sized", the other when it is not.
+    //     Both must produce the same result.
+    //
     // Plan:
     // 1. Using the table-driven technique:
     //
@@ -3575,7 +3631,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase17()
     //
     //   6. Verify no memory is allocated from the default allocator (C-4)
     //
-    // 5. Invoke the `testRangeInsertOptimization` function that creates a
+    // 3. Replicate the tests done for input iterators with an equivalent
+    //    range.
+    //
+    // 4. Invoke the `testRangeInsertOptimization` function that creates a
     //    container for a non-allocating type that uses a test allocator to
     //    supply memory.  `insert` elements using forward, random access, and
     //    input (only) iterators.  `clear` the elements and re-insert them.
@@ -3583,8 +3642,15 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase17()
     //    step of the scenario.  (C-8).  TBD TODO - that function is called in
     //    test case 18, not from here.
     //
+    // 5. The C++20 ranges `insert_range` method  prefers the "sized" code path
+    //    when available.  The class, `TestValues` used below is a "sized"
+    //    range and will test the "sized" paths in builds of C++20 and above.
+    //    Tests of pre-C++20 builds test the alternative path, as the "sized"
+    //    path is not supported in those builds.
+    //
     // Testing:
     //   void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+    //   void insert_range(CCR<VALUE> auto&& range);
     // ------------------------------------------------------------------------
 
     const size_t NUM_DATA                  = DEFAULT_NUM_DATA;
@@ -3618,10 +3684,57 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase17()
 
                 CONT.resetIterators();
 
-                mX.insert(MID, END);
+                mX.insert(MID, END);                                    // TEST
             } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
 
             if (CONT.size() == tj) {
+                ASSERTV(LINE, oam.isTotalSame());
+            }
+
+            ASSERTV(LINE, tj, 0 == verifyContainer(X, EXP, LENGTH));
+            ASSERTV(LINE, tj, da.numBlocksTotal(), 0 == da.numBlocksTotal());
+        }
+
+        TestValues CONT_FOR_RANGES(SPEC);
+        for (size_t tj = 0; tj <= CONT_FOR_RANGES.size(); ++tj) {
+
+            CONT_FOR_RANGES.resetIterators();
+            typename TestValues::iterator BEGIN = CONT_FOR_RANGES.begin();
+            typename TestValues::iterator MID   = CONT_FOR_RANGES.index(tj);
+            typename TestValues::iterator END   = CONT_FOR_RANGES.end();
+
+            bslma::TestAllocator da("default", veryVeryVeryVerbose);
+            bslma::TestAllocator oa("object",  veryVeryVeryVerbose);
+
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            Obj mX(BEGIN, MID, COMP(), &oa);  const Obj& X = mX;
+
+            bslma::TestAllocatorMonitor oam(&oa);
+
+           typedef SubrangeContainer<typename TestValues::iterator> SRC;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+            static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                          SRC,
+                                          typename SRC::iterator::value_type>);
+
+            static_assert(false == bsl::ranges::sized_range<SRC>);
+#endif
+
+            BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(oa) {
+                if (veryVeryVerbose) { T_ T_ Q(ExceptionTestBody) }
+
+                CONT_FOR_RANGES.resetIterators();
+
+                SRC subrangeContainer(MID, END);
+
+                mX.insert_range(subrangeContainer);                     // TEST
+            } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END
+
+            if (CONT_FOR_RANGES.size() == tj) {
                 ASSERTV(LINE, oam.isTotalSame());
             }
             ASSERTV(LINE, tj, 0 == verifyContainer(X, EXP, LENGTH));
@@ -4508,6 +4621,10 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
     //    number of elements can be determined and no free nodes are available.
     //    (The contained elements may require additional allocations.)
     //
+    // 15. The C++20 ranges constructor has two execution paths, one when used
+    //     when the given range is "sized", the other when it is not.  Both
+    //     must produce the same result.
+    //
     // TBD Missing concerns that the correct comparator is used.  We should be
     // testing with a stateful comparator (testing two states) and the default
     // comparator.  A (stateful) comparator that simply holds an ID would be
@@ -4582,9 +4699,17 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
     //    to supply memory.  The test allocator is state compared to the
     //    expected state in each step of the scenario.  (C-14)
     //
+    // 5. The C++20 ranges constructor prefers the "sized" code path when
+    //    available.  The class, `TestValues` used below is a "sized" range
+    //    and will test the "sized" paths in builds of C++20 and above.  Tests
+    //    of pre-C++20 builds test the alternative path, as the "sized" path is
+    //    not supported in those builds.
+    //
     // Testing:
     //   map(ITER first, ITER last, const C& comparator, const A& allocator);
     //   map(ITER first, ITER last, const A& allocator);
+    //   map(from_range_t , CCR<VALUE> auto&& range, const C& c,  a = A());
+    //   map(from_range_t , CCR<VALUE> auto&& range, a);
     // ------------------------------------------------------------------------
 
     static const struct {
@@ -4619,12 +4744,22 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
 
             if (verbose) { P_(LINE) P_(SPEC) P(LENGTH); }
 
-            for (char cfg = 'a'; cfg <= 'e'; ++cfg) {
-                const char CONFIG = cfg;  // how we specify the allocator
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+            static_assert(BloombergLP::bslmf::ContainerCompatibleRange<
+                                                    TestValues,
+                                                    typename Obj::value_type>);
+            static_assert(bsl::ranges::sized_range<TestValues>);
+#endif
+            char lastCfg = 'j'; bsl::from_range_t fr;
+
+            for (char cfg = 'a'; cfg <= lastCfg; ++cfg) {
+                const char CONFIG = cfg;  // how we specify the allocator and
+                                          // how we specify the range
 
                 if (veryVerbose) { T_ T_ P(CONFIG) }
 
-                TestValues CONT(SPEC);
+                TestValues CONT(SPEC);  TestValues& RANGE = CONT;
                 typename TestValues::iterator BEGIN = CONT.begin();
                 typename TestValues::iterator END   = CONT.end();
 
@@ -4658,6 +4793,26 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                     objPtr = new (fa) Obj(BEGIN, END, &sa);
                     objAllocatorPtr = &sa;
                   } break;
+                  case 'f': {
+                    objPtr = new (fa) Obj(fr, RANGE);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'g': {
+                    objPtr = new (fa) Obj(fr, RANGE, COMP());
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'h': {
+                    objPtr = new (fa) Obj(fr, RANGE, COMP(), 0);
+                    objAllocatorPtr = &da;
+                  } break;
+                  case 'i': {
+                    objPtr = new (fa) Obj(fr, RANGE, COMP(), &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
+                  case 'j': {
+                    objPtr = new (fa) Obj(fr, RANGE, &sa);
+                    objAllocatorPtr = &sa;
+                  } break;
                   default: {
                     ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                   } return;                                           // RETURN
@@ -4669,9 +4824,9 @@ void TestDriver<KEY, VALUE, COMP, ALLOC>::testCase12()
                 if (veryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = 'c' == CONFIG || 'e' == CONFIG
-                                            ? da
-                                            : sa;
+                bslma::TestAllocator& noa = &oa == &sa
+                                          ? da
+                                          : sa;
 
                 // Use untested functionality to help ensure the first row of
                 // the table contains the default-constructed value.
@@ -5386,70 +5541,93 @@ static void testRangeInsertOptimization()
     }
 
     ContainerType mX(&sa); const ContainerType& X = mX;
-    ASSERT(0            == X.size());
-    ASSERT(0            == sam.numBlocksTotalChange());
 
-    mX.insert(beginFwd, endFwd);        // Insert entire range.
-    ASSERT(NUM_ELEMENTS == X.size());   // Added elements.
-    ASSERT(1            == sam.numBlocksTotalChange());
-                                        // Had to allocate nodes.
-                                        // No free nodes left.
+    ASSERTV(     X.size(),
+            0 == X.size());
+    ASSERTV(     sam.numBlocksTotalChange(),
+            0 == sam.numBlocksTotalChange());
 
-    sam.reset();
-    mX.insert(beginFwd, endFwd);       // Re-insert entire range.
-    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
-    ASSERT(1            == sam.numBlocksTotalChange());
-                                       // No free nodes so allocated more;
-                                       // however, did not use them.
+    mX.insert(beginFwd, endFwd);         // Insert entire range.
+    ASSERTV(NUM_ELEMENTS == X.size(),
+            NUM_ELEMENTS == X.size());   // Added elements.
+    ASSERTV(                sam.numBlocksTotalChange(),
+            1            == sam.numBlocksTotalChange());
+                                         // Had to allocate nodes.
+                                         // No free nodes left.
 
     sam.reset();
-    mX.insert(beginFwd, endFwd);       // Re-re-insert entire range.
-    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
-    ASSERT(0            == sam.numBlocksTotalChange());
+    mX.insert(beginFwd, endFwd);        // Re-insert entire range.
+    ASSERTV(NUM_ELEMENTS,   X.size(),
+            NUM_ELEMENTS == X.size());   // No-change since already in map.
+    ASSERTV(                sam.numBlocksTotalChange(),
+            1            == sam.numBlocksTotalChange());
+                                        // No free nodes so allocated more;
+                                        // however, did not use them.
+
+    sam.reset();
+    mX.insert(beginFwd, endFwd);        // Re-re-insert entire range.
+    ASSERTV(NUM_ELEMENTS,   X.size(),
+            NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERTV(                sam.numBlocksTotalChange(),
+            0            == sam.numBlocksTotalChange());
                                        // Have free nodes so no new allocation.
                                        // The free nodes remain unused.
 
     sam.reset();
-    mX.insert(beginFwd, endFwd);       // Re-re-re-insert entire range.
-    ASSERT(NUM_ELEMENTS == X.size());  // No-change since already in map.
-    ASSERT(0            == sam.numBlocksTotalChange());
+    mX.insert(beginFwd, endFwd);        // Re-re-re-insert entire range.
+    ASSERTV(NUM_ELEMENTS,   X.size(),
+            NUM_ELEMENTS == X.size());  // No-change since already in map.
+    ASSERTV(                sam.numBlocksTotalChange(),
+            0            == sam.numBlocksTotalChange());
                                        // Have free nodes so no new allocation.
                                        // The free nodes remain unused.
     // ...
 
     sam.reset();
     ContainerType mY(&sa); const ContainerType& Y = mY;
-    ASSERT(0              == Y.size());
-    ASSERT(0              == sam.numBlocksInUseChange());
+    ASSERTV(                  Y.size(),
+            0              == Y.size());
+    ASSERTV(                  sam.numBlocksInUseChange(),
+            0              == sam.numBlocksInUseChange());
 
     mY.insert(beginFwd, midFwd);        // Insert first half of `DATA`.
-    ASSERT(NUM_ELEMENTS/2 == Y.size());
-    ASSERT(1              == sam.numBlocksInUseChange());
+    ASSERTV(NUM_ELEMENTS/2,   Y.size(),
+            NUM_ELEMENTS/2 == Y.size());
+    ASSERTV(                  sam.numBlocksInUseChange(),
+            1              == sam.numBlocksInUseChange());
 
     sam.reset();
     mY.clear();                         // Clear
-    ASSERT(0              == Y.size());
-    ASSERT(0              == sam.numBlocksInUseChange());
+    ASSERTV(                  Y.size(),
+            0              == Y.size());
+    ASSERTV(                  sam.numBlocksInUseChange(),
+            0              == sam.numBlocksInUseChange());
 
     mY.insert(beginFwd, midFwd);       // Re-insert previous elements
-    ASSERT(NUM_ELEMENTS/2 == Y.size());
-    ASSERT(0              == sam.numBlocksInUseChange());
+    ASSERTV(NUM_ELEMENTS/2,   Y.size(),
+            NUM_ELEMENTS/2 == Y.size());
+    ASSERTV(                  sam.numBlocksInUseChange(),
+            0              == sam.numBlocksInUseChange());
                                       // Reused nodes.  No new allocation.
                                       // No free nodes left.
 
     mY.insert(midRnd, endRnd);        // Insert additional elements
-    ASSERT(NUM_ELEMENTS   == Y.size());
-    ASSERT(1              == sam.numBlocksInUseChange());
+    ASSERTV(NUM_ELEMENTS,     Y.size(),
+            NUM_ELEMENTS   == Y.size());
+    ASSERTV(                  sam.numBlocksInUseChange(),
+            1              == sam.numBlocksInUseChange());
                                       // Allocated more nodes.
 
     sam.reset();
     ContainerType mZ(&sa); const ContainerType& Z = mZ;
-    ASSERT(0              == Z.size());
-    ASSERT(0              == sam.numBlocksInUseChange());
+    ASSERTV(0              == Z.size());
+    ASSERTV(0              == sam.numBlocksInUseChange());
 
     mZ.insert(beginInp, endInp);
-    ASSERT(NUM_ELEMENTS  == Z.size());
-    ASSERT(1             <  sam.numBlocksInUseChange());
+    ASSERTV(NUM_ELEMENTS,    Z.size(),
+            NUM_ELEMENTS  == Z.size());
+    ASSERTV(                 sam.numBlocksInUseChange(),
+            1             <  sam.numBlocksInUseChange());
 
     if (verbose) {
         P(X.size());

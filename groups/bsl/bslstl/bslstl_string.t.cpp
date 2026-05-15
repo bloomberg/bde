@@ -2,8 +2,10 @@
 #include <bslstl_string.h>
 
 #include <bslstl_forwarditerator.h>
+#include <bslstl_ranges.h>
 
 #include <bsla_fallthrough.h>
+
 #include <bslma_allocator.h>
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
@@ -13,9 +15,14 @@
 #include <bslma_testallocator.h>
 #include <bslma_testallocatorexception.h>
 #include <bslma_testallocatormonitor.h>
+
+#include <bsltf_stdstatefulallocator.h>
+
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
+
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
@@ -28,8 +35,6 @@
 #include <bsls_stopwatch.h>
 #include <bsls_types.h>
 
-#include <bsltf_stdstatefulallocator.h>
-
 #include <algorithm>    // `adjacent_find`, `sort`
 #include <cstring>      // `memcmp`
 #include <iomanip>
@@ -40,6 +45,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <typeinfo>
+#include <vector>
 
 #include <limits.h>     // `CHAR_MAX`
 #include <stddef.h>
@@ -47,6 +53,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#include <string>
+#include <type_traits> // `std::is_convertible` `std::is_same`,
+                       // `std::input_iterator_tag`
+#endif
 
 #if defined(std)
 // This is a workaround for the way test drivers are built in an IDE-friendly
@@ -143,10 +156,14 @@ using bsls::nameOfType;
 // [ 7] basic_string(MovableRef<basic_string> original, basicAllocator);
 // [12] basic_string(const basic_string& str, pos, a = A());
 // [12] basic_string(const basic_string& str, pos, n, a = A());
+// [12] basic_string(MovableRef<basic_string> str, pos, a = A());
+// [12] basic_string(MovableRef<basic_string> str, pos, n, a = A());
 // [12] basic_string(const CHAR_TYPE *s, a = A());
+// [47] basic_string(bsl::nullptr_t ) = delete;
 // [12] basic_string(const CHAR_TYPE *s, size_type n, a = A());
 // [12] basic_string(size_type n, CHAR_TYPE c = CHAR_TYPE(), a = A());
 // [12] template<class Iter> basic_string(Iter first, Iter last, a = A());
+// [12] basic_string(from_range_t , CCR<CHAR> auto&& range, a = A()):
 // [26] basic_string(const std::basic_string<CHAR, TRAITS, A2>&);
 // [12] basic_string(const STRING_VIEW_LIKE_TYPE& object, a = A());
 // [12] basic_string(const STRING_VIEW_LIKE_TYPE& object, pos, n, a = A());
@@ -188,6 +205,7 @@ using bsls::nameOfType;
 // [13] basic_string& assign(size_type n, CHAR_TYPE c);
 // [13] template <class Iter> basic_string& assign(Iter first, Iter last);
 // [33] basic_string& assign(initializer_list<CHAR_TYPE> values);
+// [13] basic_string& assign_range(CCR<CHAR> auto&& range);
 // [17] basic_string& append(const basic_string& str);
 // [17] basic_string& append(const basic_string& str, pos, n = npos);
 // [17] basic_string& append(const STRING_VIEW_LIKE_TYPE& strView);
@@ -197,6 +215,7 @@ using bsls::nameOfType;
 // [17] basic_string& append(size_type n, CHAR_TYPE c);
 // [17] template <class Iter> basic_string& append(Iter first, Iter last);
 // [33] basic_string& append(initializer_list<CHAR_TYPE> values);
+// [17] basic_string& append_range(CCR<CHAR> auto&& range);
 // [ 2] void push_back(CHAR_TYPE c);
 // [18] basic_string& insert(size_type pos1, const string& str);
 // [18] basic_string& insert(size_type pos1, const string& str, pos2, n=npos);
@@ -209,6 +228,7 @@ using bsls::nameOfType;
 // [18] iterator insert(const_iterator pos, size_type n, CHAR_TYPE value);
 // [18] template <class Iter> iterator insert(const_iterator, Iter, Iter);
 // [33] iterator insert(const_iterator pos, initializer_list<CHAR_TYPE>);
+// [18] iterator insert_range(CCR<CHAR_TYPE> auto&& range);
 // [19] void pop_back();
 // [19] iterator erase(size_type pos = 0, size_type n = npos);
 // [19] iterator erase(const_iterator position);
@@ -226,6 +246,7 @@ using bsls::nameOfType;
 // [20] basic_string& replace(const_iterator p, q, const C *s);
 // [20] basic_string& replace(const_iterator p, q, size_type n2, C c);
 // [20] template <It> basic_string& replace(const_iterator p, q, It f, l);
+// [20] basic_string& replace_with_range(cItr p, q, CCR<CHAR> auto&& range);
 // [36] CHAR_TYPE *data();
 // [21] void swap(basic_string& other);
 // [39] void shrink_to_fit();
@@ -282,7 +303,8 @@ using bsls::nameOfType;
 // [22] size_type find_last_not_of(const C *s, pos, n) const;
 // [22] size_type find_last_not_of(const C *s, pos = npos) const;
 // [22] size_type find_last_not_of(C c, pos = npos) const;
-// [23] string substr(pos, n) const;
+// [23] string substr(pos, n) const &;
+// [23] string substr(pos, n) &&;
 // [23] size_type copy(char *s, n, pos = 0) const;
 // [24] int compare(const string& str) const;
 // [24] int compare(pos1, n1, const string& str) const;
@@ -381,7 +403,7 @@ using bsls::nameOfType;
 // [42] size_type erase_if(basic_string& str, const UNARY_PRED& pred);
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [47] USAGE EXAMPLE
+// [49] USAGE EXAMPLE
 // [11] CONCERN: The object has the necessary type traits
 // [26] `npos` VALUE
 // [25] CONCERN: `std::length_error` is used properly
@@ -392,6 +414,8 @@ using bsls::nameOfType;
 // [43] CONCERN: `string` IS A C++20 RANGE
 // [45] CONVERSION of `string_view` W.R.T. `std::basic_string`
 // [46] Testing `operator<<(ostream&, const basic_string_view&)`\n
+// [47] CONCERN: RANGE WITH DISTINCT SENTINEL CLASS
+// [48] CONCERN: STRING CLASS IS ITSELF A RANGE
 //
 // TEST APPARATUS: GENERATOR FUNCTIONS
 // [ 3] int TestDriver:ggg(Obj *object, const char *spec, int vF = 1);
@@ -1148,6 +1172,315 @@ size_t ConvertibleToStringViewType<TYPE, TRAITS>::length() const
     return TRAITS::length(d_value_p);
 }
 
+// ============================================================================
+//              HELPER CLASSES FOR TESTING RANGES INTERFACES
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+                        // ==================
+                        // class TestIterator
+                        // ==================
+
+template <class CHAR_TYPE, class ITR_TAG>
+class TestIterator {
+    // This class is used to test the constructor that accepts an iterator type
+    // (and a sentinel type).
+
+  public:
+    // TYPES
+    typedef const CHAR_TYPE (*Position);
+
+    // Standard iterator types
+    typedef ITR_TAG         iterator_category;
+    typedef CHAR_TYPE       value_type;
+    typedef std::ptrdiff_t  difference_type;
+    typedef CHAR_TYPE      *pointer;
+    typedef CHAR_TYPE&      reference;
+
+  private:
+    Position d_position;
+
+  public:
+    // CREATORS
+
+    /// Create a `TestIterator` in an invalid state.
+    TestIterator();
+
+    /// Create a `TestIterator` object that refers to the specified
+    /// `position` (address) of a `CHAR_TYPE`.
+    explicit TestIterator(const CHAR_TYPE *position);
+
+    TestIterator(const TestIterator& original);
+
+    // MANIPULATORS
+
+    /// Increment the position of this object to refer to the next higher
+    /// position (address) of a `CHAR_TYPE`.
+    TestIterator& operator++();
+    TestIterator  operator++(int );
+
+    // ACCESSORS
+    /// Return the value at the current position of this object.
+    const CHAR_TYPE& operator*() const;
+
+    /// Return the position (address) referenced by this object.
+    operator Position() const;
+
+    /// Return the position (address) referenced by this object.
+    const CHAR_TYPE *addr() const;
+};
+
+                        // ------------------
+                        // class TestIterator
+                        // ------------------
+
+// CREATORS
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>::TestIterator()
+: d_position(0)
+{
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>::TestIterator(const CHAR_TYPE *position)
+: d_position(position)
+{
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>::TestIterator(const TestIterator& original)
+: d_position(original.addr())
+{
+}
+
+// MANIPULATORS
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>&
+TestIterator<CHAR_TYPE, ITR_TAG>::operator++()
+{
+    ++d_position;
+    return *this;
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>::operator++(int )
+{
+    TestIterator<CHAR_TYPE, ITR_TAG> output(*this);
+    d_position++;
+    return output;
+}
+
+// ACCESSORS
+template <class CHAR_TYPE, class ITR_TAG>
+const CHAR_TYPE& TestIterator<CHAR_TYPE, ITR_TAG>::operator*() const
+{
+    return *d_position;
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator<CHAR_TYPE, ITR_TAG>::operator Position() const
+{
+    return  d_position;
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+const CHAR_TYPE *TestIterator<CHAR_TYPE, ITR_TAG>::addr() const
+{
+    return  d_position;
+}
+
+                        // ==================
+                        // class TestSentinel
+                        // ==================
+
+template <class CHAR_TYPE>
+class TestSentinel {
+
+    const CHAR_TYPE *d_end_p;
+
+  public:
+    // CREATORS
+    TestSentinel();  // Required by `sentinel_for` concept.
+        // Create a `TestSentinel` object that "refers" to `nullptr`.
+
+    TestSentinel(const CHAR_TYPE *end);
+        // Create a `TestSentinel` object that refers the specified `end`
+        // position (address).  Note that no facility is provided to change
+        // the position of a `TestSentinel` object.
+
+    // ACCESSORS
+    const CHAR_TYPE *addr() const;
+        // Return the position (address) referenced by this object.
+};
+
+                        // ------------------
+                        // class TestSentinel
+                        // ------------------
+
+// CREATORS
+template <class CHAR_TYPE>
+TestSentinel<CHAR_TYPE>::TestSentinel()
+: d_end_p(nullptr)
+{
+}
+
+template <class CHAR_TYPE>
+TestSentinel<CHAR_TYPE>::TestSentinel(const CHAR_TYPE *end)
+: d_end_p(end)
+{
+}
+
+// ACCESSORS
+template <class CHAR_TYPE>
+const CHAR_TYPE *TestSentinel<CHAR_TYPE>::addr() const
+{
+    return d_end_p;
+}
+
+// FREE OPERATORS
+template <class CHAR_TYPE, class ITR_TAG>
+std::ptrdiff_t operator-(const TestSentinel<CHAR_TYPE         >& lhs,
+                         const TestIterator<CHAR_TYPE, ITR_TAG>& rhs)
+    // Return the difference between the specified `lhs` and `rhs`.  Note that
+    // the two operands have different types.
+{
+    return lhs.addr() - rhs.addr();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+std::ptrdiff_t operator-(const TestIterator<CHAR_TYPE, ITR_TAG>& lhs,
+                         const TestSentinel<CHAR_TYPE         >& rhs)
+    // Return the difference between the specified `lhs` and `rhs`.  Note that
+    // the two operands have different types.
+{
+    return lhs.addr() - rhs.addr();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+bool operator==(const TestSentinel<CHAR_TYPE         >& lhs,
+                const TestIterator<CHAR_TYPE, ITR_TAG>& rhs)
+    // Return `true` if the specified `lhs` and `rhs` refer to the same
+    // position (address), and `false` otherwise.  Note that the two operands
+    // have different types.
+{
+    return lhs.addr() == rhs.addr();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+bool operator==(const TestIterator<CHAR_TYPE, ITR_TAG>& lhs,
+                const TestSentinel<CHAR_TYPE         >& rhs)
+    // Return `true` if the specified `lhs` and `rhs` refer to the same
+    // position (address), and `false` otherwise.  Note that the two operands
+{
+    return lhs.addr() == rhs.addr();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+bool operator!=(const TestSentinel<CHAR_TYPE         >& lhs,
+                const TestIterator<CHAR_TYPE, ITR_TAG>& rhs)
+    // Return `true` if the specified `lhs` and `rhs` refer to the same
+    // position (address), and `false` otherwise.  Note that the two operands
+    // have different types.
+{
+    return lhs.addr() != rhs.addr();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+bool operator!=(const TestIterator<CHAR_TYPE, ITR_TAG>& lhs,
+                const TestSentinel<CHAR_TYPE         >& rhs)
+    // Return `true` if the specified `lhs` and `rhs` refer to the same
+    // position (address), and `false` otherwise.  Note that the two operands
+    // have different types.
+{
+    return lhs.addr() != rhs.addr();
+}
+
+                        // ===================
+                        // class TestContainer
+                        // ===================
+
+template <class CHAR_TYPE, class ITR_TAG>
+class TestContainer {
+
+    enum { k_MAX_LENGTH = 1024 };
+
+    CHAR_TYPE  d_buffer[k_MAX_LENGTH];
+    CHAR_TYPE *d_end_p;
+
+  public:
+    // CREATORS
+    TestContainer(const CHAR_TYPE *data, std::size_t numChars);
+
+    // MANIPULATORS
+    TestIterator<CHAR_TYPE, ITR_TAG> begin();
+    TestSentinel<CHAR_TYPE>          end()  ;
+};
+
+                        // -------------------
+                        // class TestContainer
+                        // -------------------
+
+// CREATORS
+template <class CHAR_TYPE, class ITR_TAG>
+TestContainer<CHAR_TYPE, ITR_TAG>::TestContainer(const CHAR_TYPE *data,
+                                                 std::size_t      numChars)
+{
+    BSLS_ASSERT(data);
+    BSLS_ASSERT(numChars <= k_MAX_LENGTH);
+
+    std::memcpy(d_buffer, data, numChars * sizeof(CHAR_TYPE));
+    d_end_p = d_buffer + numChars;
+}
+
+// MANIPULATORS
+template <class CHAR_TYPE, class ITR_TAG>
+TestIterator <CHAR_TYPE, ITR_TAG>
+TestContainer<CHAR_TYPE, ITR_TAG>::begin()
+{
+    return TestIterator<CHAR_TYPE, ITR_TAG>(d_buffer);
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+TestSentinel <CHAR_TYPE>
+TestContainer<CHAR_TYPE, ITR_TAG>::end()
+{
+    return TestSentinel<CHAR_TYPE>(d_end_p);
+}
+
+// FREE FUNCTIONS
+template <class CHAR_TYPE, class ITR_TAG>
+      TestIterator <CHAR_TYPE, ITR_TAG>
+begin(TestContainer<CHAR_TYPE, ITR_TAG>& testContainer)
+{
+    return testContainer.begin();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+            TestIterator <CHAR_TYPE, ITR_TAG>
+begin(const TestContainer<CHAR_TYPE, ITR_TAG>& testContainer)
+{
+    return testContainer.begin();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+    TestSentinel <CHAR_TYPE>
+end(TestContainer<CHAR_TYPE, ITR_TAG>& testContainer)
+{
+    return testContainer.end();
+}
+
+template <class CHAR_TYPE, class ITR_TAG>
+    TestSentinel<       CHAR_TYPE>
+end(const TestContainer<CHAR_TYPE, ITR_TAG>& testContainer)
+{
+    return testContainer.end();
+}
+
+#endif
+
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
 //-----------------------------------------------------------------------------
@@ -1197,8 +1530,8 @@ struct TestDriver {
     // CONSTANTS
     enum {
         DEFAULT_CAPACITY = SHORT_STRING_BUFFER_BYTES / sizeof(TYPE) > 0
-                                ? SHORT_STRING_BUFFER_BYTES / sizeof(TYPE) - 1
-                                : 0
+                         ? SHORT_STRING_BUFFER_BYTES / sizeof(TYPE) - 1
+                         : 0
     };
 
     // TYPES
@@ -1324,6 +1657,14 @@ struct TestDriver {
     static size2& fromStringView(const Obj &);
 
     // TEST CASES
+    static void testCase48();
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    template <class ITR_TAG>
+    static void testCase47(ITR_TAG );
+#endif
+
     template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
               bool OTHER_FLAGS>
     static void testCase9_propagate_on_container_copy_assignment_dispatch();
@@ -1491,6 +1832,205 @@ void TestDriver<TYPE,TRAITS,ALLOC>::stretchRemoveAll(Obj         *object,
                                 // ----------
                                 // TEST CASES
                                 // ----------
+
+template <class TYPE, class TRAITS, class ALLOC>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase48()
+{
+    if (veryVerbose) {
+        P(NameOf<TYPE>());
+    }
+
+    if (veryVerbose) {
+        printf("Define initial values and precalculate the results.\n");
+    }
+
+    int rc = -2;
+
+    Obj         rangeData;
+    Obj initialStringData;
+
+    rc = ggg(        &rangeData, "ABC"   ); ASSERTV(rc, -1 == rc);
+    rc = ggg(&initialStringData, "DEF"   ); ASSERTV(rc, -1 == rc);
+
+    Obj resultAppend = initialStringData + rangeData;
+
+    Obj resultReplace;  // Replace 2nd letter of "DEF with "ABC"
+    rc = ggg(    &resultReplace, "DABCF" ); ASSERTV(rc, -1 == rc);
+
+    Obj resultInsert;   // Insert "ABC" at 2nd letter of "DEF".
+    rc = ggg(     &resultInsert, "DABCEF"); ASSERTV(rc, -1 == rc);
+
+    if (veryVeryVerbose) {
+        P(initialStringData);
+        P(rangeData);
+        P(resultAppend);
+        P(resultReplace);
+        P(resultInsert);
+    }
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+    if (veryVerbose) {
+        printf("Check range compliance of string class `Obj`\n");
+    }
+    {
+        static_assert(bsl::ranges::range<Obj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                    Obj,
+                                                    typename Obj::value_type>);
+
+        using StdObj = std::basic_string<TYPE, TRAITS, ALLOC>;
+
+        static_assert(bsl::ranges::range<StdObj>);
+        static_assert(bslmf::ContainerCompatibleRange<
+                                                 StdObj,
+                                                 typename StdObj::value_type>);
+    }
+
+#endif
+
+    if (veryVerbose) {
+        printf("Test the functionality using string class as a range.\n");
+    }
+    {
+        if (veryVeryVerbose) printf("\trange CTOR\n");
+        Obj testStringForCtor(bsl::from_range, rangeData);              // TEST
+        ASSERTV(rangeData,   testStringForCtor,
+                rangeData == testStringForCtor);
+
+        Obj testStringForAppend(initialStringData);
+        if (veryVeryVerbose) printf("\tappend_range\n");
+        testStringForAppend.append_range(rangeData);                    // TEST
+        ASSERTV(resultAppend,   testStringForAppend,
+                resultAppend == testStringForAppend);
+
+        Obj testStringForAssign(initialStringData);
+        if (veryVeryVerbose) printf("\tassign_range\n");
+        testStringForAssign.assign_range(rangeData);                    // TEST
+        ASSERTV(rangeData,   testStringForAssign,
+                rangeData == testStringForAssign);
+
+        Obj testStringForReplace(initialStringData);
+        if (veryVeryVerbose) printf("\treplace_with_range\n");
+        testStringForReplace.replace_with_range(
+                                          testStringForReplace.begin() + 1,
+                                          testStringForReplace.begin() + 1 + 1,
+                                          rangeData);                   // TEST
+        ASSERTV(resultReplace,   testStringForReplace,
+                resultReplace == testStringForReplace);
+
+        Obj testStringForInsert(initialStringData);
+        if (veryVeryVerbose) printf("\tinsert_range\n");
+        testStringForInsert.insert_range(testStringForInsert.begin() + 1,
+                                         rangeData);                    // TEST
+        ASSERTV(resultInsert,   testStringForInsert,
+                resultInsert == testStringForInsert);
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+template <class TYPE, class TRAITS, class ALLOC>
+template <class ITR_TAG>
+void TestDriver<TYPE, TRAITS, ALLOC>::testCase47(ITR_TAG )
+{
+    if (veryVerbose) {
+        P(NameOf<TYPE>());
+        P(NameOf<ITR_TAG>());
+    }
+
+    if (veryVerbose) {
+        printf("Define initial values and precalculate the results.\n");
+    }
+
+    int rc = -2;
+
+    Obj         rangeData;
+    Obj initialStringData;
+
+    rc = ggg(        &rangeData, "ABC"   ); ASSERTV(rc, -1 == rc);
+    rc = ggg(&initialStringData, "DEF"   ); ASSERTV(rc, -1 == rc);
+
+    Obj resultAppend = initialStringData + rangeData;
+
+    Obj resultReplace;  // Replace 2nd letter of "DEF with "ABC"
+    rc = ggg(    &resultReplace, "DABCF" ); ASSERTV(rc, -1 == rc);
+
+    Obj resultInsert;   // Insert "ABC" at 2nd letter of "DEF".
+    rc = ggg(     &resultInsert, "DABCEF"); ASSERTV(rc, -1 == rc);
+
+    TestContainer<TYPE, ITR_TAG> tc(rangeData.data(), 3);
+
+    if (veryVerbose) {
+        printf("Validate `TestContainer`.\n");
+    }
+    {
+        static_assert(bslmf::ContainerCompatibleRange<decltype(tc), TYPE>);
+
+        static_assert(true  == bsl::sentinel_for<     decltype(tc.end()  ),
+                                                      decltype(tc.begin())>);
+
+        static_assert(false == bsl::is_same_v<        decltype(tc.end()  ),
+                                                      decltype(tc.begin())>);
+
+        if constexpr (std::is_same_v<ITR_TAG, std::input_iterator_tag>)
+        {
+            static_assert(true == bsl::input_iterator<decltype(tc.begin())>);
+            static_assert(false == bsl::forward_iterator<decltype(tc.begin())>);
+        }
+
+        if constexpr (std::is_same_v<ITR_TAG, std::forward_iterator_tag>)
+        {
+            static_assert(true == bsl::input_iterator<decltype(tc.begin())>);
+            static_assert(true == bsl::forward_iterator<decltype(tc.begin())>);
+        }
+
+        Obj tcContent;
+        for (TYPE charValue : tc) {
+            tcContent += charValue;
+        }
+        ASSERTV(rangeData.length(), 3 == rangeData.length());
+        ASSERTV(rangeData,   tcContent,
+                rangeData == tcContent);
+    }
+
+    if (veryVerbose) {
+        printf("Test the functionality.\n");
+    }
+    {
+        Obj testStringForCtor(bsl::from_range, tc);                     // TEST
+        ASSERTV(rangeData,   testStringForCtor,
+                rangeData == testStringForCtor);
+
+        Obj testStringForAppend(initialStringData);
+        testStringForAppend.append_range(tc);                           // TEST
+        ASSERTV(resultAppend,   testStringForAppend,
+                resultAppend == testStringForAppend);
+
+        Obj testStringForAssign(initialStringData);
+        testStringForAssign.assign_range(tc);                           // TEST
+        ASSERTV(rangeData,   testStringForAssign,
+                rangeData == testStringForAssign);
+
+        Obj testStringForReplace(initialStringData);
+        testStringForReplace.replace_with_range(
+                                          testStringForReplace.begin() + 1,
+                                          testStringForReplace.begin() + 1 + 1,
+                                          tc);                          // TEST
+        ASSERTV(resultReplace,   testStringForReplace,
+                resultReplace == testStringForReplace);
+
+        Obj testStringForInsert(initialStringData);
+        testStringForInsert.insert_range(testStringForInsert.begin() + 1,
+                                         tc);                           // TEST
+        ASSERTV(resultInsert,   testStringForInsert,
+                resultInsert == testStringForInsert);
+    }
+}
+
+#endif
 
 template <class TYPE, class TRAITS, class ALLOC>
 template <bool PROPAGATE_ON_CONTAINER_COPY_ASSIGNMENT_FLAG,
@@ -1991,7 +2531,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
                             stretchRemoveAll(&mU, U_N, VALUES[0]);
                             gg(&mU, U_SPEC);
                             {
-                    // v--------
+                    // ---------v
                     Obj mV(Z);  const Obj& V = mV;
                     stretchRemoveAll(&mV, V_N, VALUES[0]);
                     gg(&mV, V_SPEC);
@@ -2065,7 +2605,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
         static const char *SPECS[] = {
             // spec                              length
             // ----                              ------
-            "",                                   // 0
+            "",                                  // 0
             "A",                                 // 1
             "AB",                                // 2
             "ABC",                               // 3
@@ -2267,7 +2807,7 @@ void TestDriver<TYPE,TRAITS,ALLOC>::testCase9()
             const Obj X = g(SPEC);
             LOOP_ASSERT(ti, curLen == (int)X.size());  // same lengths
 
-            for (int assignMode = SELF_ASSIGN_MODE_FIRST;
+            for (int assignMode  = SELF_ASSIGN_MODE_FIRST;
                      assignMode <= SELF_ASSIGN_MODE_LAST;
                      ++assignMode)
             for (int tj = 0; tj < NUM_EXTEND; ++tj) {
@@ -6101,7 +6641,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 47: {
+      case 49: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -6313,6 +6853,118 @@ int main(int argc, char *argv[])
             }
         }
       } break;
+      case 48: {
+        // --------------------------------------------------------------------
+        // STRING CLASS IS ITSELF A RANGE
+        //
+        // Concerns:
+        // 1. The string class itself can be used as a range.
+        //
+        // Plan:
+        // 1. Use `static_assert` to confirm that each of the string classes
+        //    satisfies the concept of (basic) range as well as the stricter
+        //    `bslmf::ContainerCompatibleRange` concept.
+        //
+        // 2. Pass a string to the range constructor and each of the
+        //    other range methods and confirm that the results are correct.
+        //
+        // Testing:
+        //   CONCERN: STRING CLASS IS ITSELF A RANGE
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nSTRING IS ITSELF A RANGE"
+                            "\n========================\n");
+
+        if (verbose) printf("\n... with `char`.\n");
+        TestDriver<char>::testCase48();
+
+        if (verbose) printf("\n... with `wchar_t`.\n");
+        TestDriver<wchar_t>::testCase48();
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with `char8_t`.\n");
+        TestDriver<char8_t>::testCase48();
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with `char16_t`.\n");
+        TestDriver<char16_t>::testCase48();
+
+        if (verbose) printf("\n... with `char32_t`.\n");
+        TestDriver<char32_t>::testCase48();
+#endif
+      } break;
+      case 47: {
+        // --------------------------------------------------------------------
+        // RANGE WITH DISTINCT SENTINEL CLASS
+        //
+        // Concerns:
+        // 1. Each of the "ranges" methods must be accept ranges where the
+        //    sentinel class (marking the end of the range) is a district
+        //    class from the iterator.
+        //
+        // 2. The iterator obtained from the range must be an input iterator;
+        //    however, when a forward iterator is detected (by trait) there
+        //    are specializations that provide additonal efficiency.  Both
+        //    code paths must be tests.
+        //
+        // 3. The range methods must handle all supported character types.
+        //
+        // Plan:
+        // 1. The `TestContainer` class (template) defines a range where the
+        //    the `end` method returns a type that is different from -- but
+        //    compatible with -- the iterator type returned by `begin`.
+        //
+        // 2. Confirm that `TestContainer` meets the requirements of range.
+        //
+        // 3. Confirm that sentinel type does *not* match the iterator type.
+        //
+        // 4. Confirm that "range" constructor and each of the four "range"
+        //    methods work as expected.
+        //
+        // 5. Confirm that tests pass both when `TestContainer` provides a
+        //    simple input iterator and when it provide a forward iterator.
+        //    Note that `TestContainer` can supply either according to a
+        //    template parameter.
+        //
+        // Testing:
+        //   CONCERN: RANGE WITH DISTINCT SENTINEL CLASS
+        // --------------------------------------------------------------------
+
+        if (verbose) printf("\nRANGE WITH DISTINCT SENTINEL CLASS"
+                            "\n==================================\n");
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+
+        if (verbose) printf("\n... with `char`.\n");
+        TestDriver<char>::testCase47(std::  input_iterator_tag());
+        TestDriver<char>::testCase47(std::forward_iterator_tag());
+
+        if (verbose) printf("\n... with `wchar_t`.\n");
+        TestDriver<wchar_t>::testCase47(std::  input_iterator_tag());
+        TestDriver<wchar_t>::testCase47(std::forward_iterator_tag());
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        if (verbose) printf("\n... with `char8_t`.\n");
+        TestDriver<char8_t>::testCase47(std::  input_iterator_tag());
+        TestDriver<char8_t>::testCase47(std::forward_iterator_tag());
+#endif
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        if (verbose) printf("\n... with `char16_t`.\n");
+        TestDriver<char16_t>::testCase47(std::  input_iterator_tag());
+        TestDriver<char16_t>::testCase47(std::forward_iterator_tag());
+
+        if (verbose) printf("\n... with `char32_t`.\n");
+        TestDriver<char32_t>::testCase47(std::  input_iterator_tag());
+        TestDriver<char32_t>::testCase47(std::forward_iterator_tag());
+#endif
+
+#else
+        if (veryVerbose) printf("SKIP: Requires C++20 ranges\n");
+#endif
+      } break;
       case 46:     BSLA_FALLTHROUGH;
       case 45:     BSLA_FALLTHROUGH;
       case 44:     BSLA_FALLTHROUGH;
@@ -6398,7 +7050,6 @@ int main(int argc, char *argv[])
         ASSERT(bslalg::HasStlIterators<bsl::string>::value);
         ASSERT(EXP_NOTHROW ==
                        bsl::is_nothrow_move_constructible<bsl::string>::value);
-
 
         if (veryVerbose) printf("\tTesting `bsl::wstring`.\n");
 

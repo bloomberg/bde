@@ -4,14 +4,11 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bslstl_ranges_cpp,"$Id$ $CSID$")
 
-//#ifndef BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
-#if !(defined(__cpp_lib_containers_ranges) && \
-              __cpp_lib_containers_ranges >= 202202L)
+#if !defined(BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES) \
+ && !defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 namespace bsl {
 
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES)
 const from_range_t from_range = from_range_t();
-#endif
 
 }  // close namespace bsl
 #endif

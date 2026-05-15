@@ -328,8 +328,10 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslstl_vector.h>
+#include <bslstl_iterator.h>
 #include <bslstl_iteratorutil.h>
+#include <bslstl_ranges.h>
+#include <bslstl_vector.h>
 
 #include <bslalg_swaputil.h>
 
@@ -338,6 +340,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_issame.h>
@@ -353,6 +356,14 @@ BSLS_IDENT("$Id: $")
 
 #include <algorithm>
 #include <functional>
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
+#endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
@@ -396,6 +407,13 @@ class priority_queue {
     /// This `typedef` is a convenient alias for the utility associated with
     /// movable references.
     typedef BloombergLP::bslmf::MovableRefUtil MoveUtil;
+
+    // PRIVATE MANIPULATORS
+
+    /// Push onto the back of the underlying container the elements of the
+    /// specified `[first, last)` range.
+    template <class INPUT_ITER, class SENTINEL>
+    void privatePushRange(INPUT_ITER first, SENTINEL last);
 
   public:
     // PUBLIC TYPES
@@ -576,6 +594,40 @@ class priority_queue {
                               bsl::uses_allocator<CONTAINER, ALLOCATOR>::value,
                               ALLOCATOR>::type * = 0);
 
+    /// Create a priority queue from the elements of the specified `range`.
+    /// Optionally specify a `comparator` used to order elements in the
+    /// priority queue.  Optionally supply an `allocator` to supply memory.  If
+    /// `allocator` is not supplied and if `CONTAINER` is allocator aware, the
+    /// currently installed default allocator is used.  Note that `range` must
+    /// (minimally) meet the requirements of an input range and the values from
+    /// the range must have a type matching or convertible to (template
+    /// parameter) `VALUE`.  Also note that the constructor overloads that take
+    /// allocators are defined only if the underlying `CONTAINTER` is allocator
+    /// aware.
+    template <class t_RANGE>
+    BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    priority_queue(
+         from_range_t                               ,
+         BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+         const COMPARATOR&                          comparator = COMPARATOR());
+    template <class t_RANGE, class t_ALLOCATOR>
+    BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    priority_queue(from_range_t                               ,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                   const COMPARATOR&                          comparator,
+                   const t_ALLOCATOR&                         allocator,
+                   typename enable_if<bsl::uses_allocator<CONTAINER,
+                                                          t_ALLOCATOR>::value,
+                                      t_ALLOCATOR>::type * = 0);
+    template <class t_RANGE, class t_ALLOCATOR>
+    BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    priority_queue(from_range_t                               ,
+                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                   const t_ALLOCATOR&                         allocator,
+                   typename enable_if<bsl::uses_allocator<CONTAINER,
+                                                          t_ALLOCATOR>::value,
+                                      t_ALLOCATOR>::type * = 0);
+
     // MANIPULATORS
 
     /// Assign to this object the value and comparator of the specified
@@ -598,6 +650,14 @@ class priority_queue {
     /// performs `c.push_back(value);`.
     void push(BloombergLP::bslmf::MovableRef<value_type> value);
 
+    /// Insert the elements of the specified `range` into this priority queue.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void push_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// Insert into this priority queue a newly created `value_type` object,
     /// constructed by forwarding the specified (variable number of) `args`
@@ -613,12 +673,12 @@ class priority_queue {
     /// object.
     void pop();
 
+    /// Efficiently exchange the value of this object with the value of the
+    /// specified `other` object.  In effect, performs
+    /// `using bsl::swap; swap(c, other.c);`.
     void swap(priority_queue& other) BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(
                                  bsl::is_nothrow_swappable<CONTAINER>::value &&
                                  bsl::is_nothrow_swappable<COMPARATOR>::value);
-        // Efficiently exchange the value of this object with the value of the
-        // specified 'other' object.  In effect, performs 'using bsl::swap;
-        // swap(c, other.c);'.
 
     // ACCESSORS
 
@@ -686,6 +746,43 @@ template <
     >
 priority_queue(INPUT_ITERATOR, INPUT_ITERATOR, COMPARATOR, CONTAINER)
   -> priority_queue<VALUE, CONTAINER, COMPARATOR>;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+/// Deduce the template parameters `VALUE` and `COMPARATOR` from the parameters
+/// supplied to the constructor of `priority_queue`.
+template <ranges::input_range t_RANGE,
+          class               t_COMPARATOR =
+                                     std::less<ranges::range_value_t<t_RANGE>>,
+          class               t_TYPE = ranges::range_value_t<t_RANGE>,
+          class               = enable_if_t<!IsStdAllocator_v<t_COMPARATOR>>>
+priority_queue(from_range_t, t_RANGE&&, t_COMPARATOR = t_COMPARATOR())
+-> priority_queue<t_TYPE, vector<t_TYPE>, t_COMPARATOR>;
+
+/// Deduce the template parameters `VALUE`, `COMPARATOR`, and `ALLOCATOR` from
+/// the parameters supplied to the constructor of `priority_queue`.  This
+/// deduction guide does not participate if the `t_ALLOCATOR` parameter does
+/// not meet the requirements for a standard allocator or the `t_COMPARATOR`
+/// parameter meets the requirements for a standard allocator.
+template <ranges::input_range t_RANGE,
+          class               t_COMPARATOR,
+          class               t_ALLOCATOR,
+          class               t_TYPE = ranges::range_value_t<t_RANGE>>
+requires (!IsStdAllocator_v<t_COMPARATOR> && IsStdAllocator_v<t_ALLOCATOR>)
+priority_queue(from_range_t, t_RANGE&&, t_COMPARATOR, t_ALLOCATOR)
+-> priority_queue<t_TYPE, vector<t_TYPE, t_ALLOCATOR>, t_COMPARATOR>;
+
+/// Deduce the template parameters `VALUE` and `ALLOCATOR` from the parameters
+/// supplied to the constructor of `priority_queue`.  This deduction guide does
+/// not participate unless the `t_ALLOCATOR` parameter meets the requirements
+/// for a standard allocator.
+template <ranges::input_range t_RANGE,
+          class               t_ALLOCATOR,
+          class               t_TYPE = ranges::range_value_t<t_RANGE>,
+          class               = enable_if_t<IsStdAllocator_v<t_ALLOCATOR>>>
+priority_queue(from_range_t, t_RANGE&&, t_ALLOCATOR)
+-> priority_queue<t_TYPE, vector<t_TYPE, t_ALLOCATOR>>;
+#endif
 #endif
 
 // FREE FUNCTIONS
@@ -888,6 +985,80 @@ priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
 {
 }
 
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class t_RANGE>
+BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                         from_range_t                               ,
+                         BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                         const COMPARATOR&                          comparator)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+: c(ranges::to<CONTAINER>(std::forward<t_RANGE>(range)))
+#else
+: c(from_range, BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range))
+#endif
+, comp(comparator)
+{
+    std::make_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class t_RANGE, class t_ALLOCATOR>
+BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                    from_range_t                               ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                    const COMPARATOR&                          comparator,
+                    const t_ALLOCATOR&                         allocator,
+                    typename enable_if<bsl::uses_allocator<CONTAINER,
+                                                           t_ALLOCATOR>::value,
+                                       t_ALLOCATOR>::type *)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+: c(ranges::to<CONTAINER>(std::forward<t_RANGE>(range), allocator))
+#else
+: c(from_range, BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range), allocator)
+#endif
+, comp(comparator)
+{
+    std::make_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class t_RANGE, class t_ALLOCATOR>
+BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+inline
+priority_queue<VALUE, CONTAINER, COMPARATOR>::priority_queue(
+                    from_range_t                               ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                    const t_ALLOCATOR&                         allocator,
+                    typename enable_if<bsl::uses_allocator<CONTAINER,
+                                                           t_ALLOCATOR>::value,
+                                       t_ALLOCATOR>::type *)
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+: c(ranges::to<CONTAINER>(std::forward<t_RANGE>(range), allocator))
+#else
+: c(from_range, BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range), allocator)
+#endif
+{
+    std::make_heap(c.begin(), c.end(), comp);
+}
+
+// PRIVATE MANIPULATORS
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class INPUT_ITER, class SENTINEL>
+inline
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::privatePushRange(
+                                                              INPUT_ITER first,
+                                                              SENTINEL   last)
+{
+    while (first != last) {
+        c.push_back(*first);
+        ++first;
+    }
+}
+
 // MANIPULATORS
 template <class VALUE, class CONTAINER, class COMPARATOR>
 inline
@@ -928,6 +1099,26 @@ void priority_queue<VALUE, CONTAINER, COMPARATOR>::push(
 {
     c.push_back(MoveUtil::move(value));
     std::push_heap(c.begin(), c.end(), comp);
+}
+
+template <class VALUE, class CONTAINER, class COMPARATOR>
+template <class t_RANGE>
+BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void priority_queue<VALUE, CONTAINER, COMPARATOR>::push_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    if constexpr (requires{ c.append_range(std::forward<t_RANGE>(range)); }) {
+        c.append_range(std::forward<t_RANGE>(range));
+    }
+    else {
+        ranges::copy(range, back_inserter(c));
+    }
+#else
+    privatePushRange(bsl::begin(range), bsl::end(range));
+#endif
+    std::make_heap(c.begin(), c.end(), comp);
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -996,6 +1187,8 @@ void swap(priority_queue<VALUE, CONTAINER, COMPARATOR>& a,
 }  // close namespace bsl
 
 #endif // End C++11 code
+
+#undef BSLSTL_PRIORITY_QUEUE_REQUIRES_CONTAINER_COMPATIBLE_RANGE
 
 #endif
 

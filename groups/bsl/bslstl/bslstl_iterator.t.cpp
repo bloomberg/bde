@@ -2456,6 +2456,41 @@ int main(int argc, char *argv[])
             ASSERT(5 == bsl::size(x));
             ASSERT(5 == bsl::ssize(x));
         }
+
+        if (verbose) printf("Test names in `bsl::ranges`\n");
+        {
+            int arr[3] = {1, 2, 3};
+            ASSERT(!bsl::ranges::empty(arr));
+            ASSERT(bsl::ranges::data(arr) == arr);
+            ASSERT(bsl::ranges::size(arr) == sizeof arr / sizeof arr[0]);
+            ASSERT(bsl::ranges::ssize(arr) == bsl::ranges::ssize(arr));
+
+            long long n = bsl::ranges::distance(bsl::ranges::begin(arr),
+                                                bsl::ranges::end(arr));
+            ASSERT(n == bsl::ranges::ssize(arr));
+
+            long long n2 = bsl::ranges::distance(arr);
+            ASSERT(n == n2);
+
+            ASSERT(bsl::ranges::cbegin(arr) == arr);
+            ASSERT(bsl::ranges::cend(arr) == arr + bsl::ranges::size(arr));
+
+            ASSERT(*bsl::ranges::rbegin(arr) ==
+                   arr[bsl::ranges::size(arr) - 1U]);
+            ASSERT(*(bsl::ranges::rend(arr) - 1) == arr[0]);
+
+            ASSERT(*bsl::ranges::crbegin(arr) ==
+                   arr[bsl::ranges::size(arr) - 1U]);
+            ASSERT(*(bsl::ranges::crend(arr) - 1) == arr[0]);
+
+#ifndef BSLS_PLATFORM_CMP_SUN
+            {
+                int *p = arr;
+                bsl::ranges::advance(p, 2);
+                ASSERT(p == arr + 2);
+            }
+#endif
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);

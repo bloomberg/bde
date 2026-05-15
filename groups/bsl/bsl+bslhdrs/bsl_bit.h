@@ -39,6 +39,9 @@ namespace bsl {
     using std::countr_zero;
     using std::countr_one;
     using std::popcount;
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+    using std::byteswap;
+#endif  // BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
 
 }  // close package namespace
 

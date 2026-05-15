@@ -241,6 +241,7 @@ using std::chrono::ambiguous_local_time;
 
 using std::chrono::leap_second;
 using std::chrono::leap_second_info;
+using std::chrono::get_leap_second_info;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 #endif  // ndef BSLS_PLATFORM_OS_WINDOWS
 }  // close namespace chrono

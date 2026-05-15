@@ -140,6 +140,14 @@ using bsl::pair;
 // [12] Obj(ITER, ITER, size_t, HASH, const ALLOC&);
 // [12] Obj(ITER, ITER, size_t, HASH, EQUAL);
 // [12] Obj(ITER, ITER, size_t, HASH, EQUAL, const ALLOC&);
+// [12] Obj(fr_t, auto&& range);
+// [12] Obj(fr_t, auto&& range, const ALLOC&);
+// [12] Obj(fr_t, auto&& range, size_t);
+// [12] Obj(fr_t, auto&& range, size_t, const ALLOC&);
+// [12] Obj(fr_t, auto&& range, size_t, HASH);
+// [12] Obj(fr_t, auto&& range, size_t, HASH, const ALLOC&);
+// [12] Obj(fr_t, auto&& range, size_t, HASH, EQUAL);
+// [12] Obj(fr_t, auto&& range, size_t, HASH, EQUAL, const ALLOC&);
 // [27] Obj(Obj&&);
 // [27] Obj(Obj&&, const ALLOC&);
 // [33] void Obj(initializer_list<Pair>);
@@ -167,6 +175,7 @@ using bsl::pair;
 // [15] pair<Iter, bool> insert(const Pair&);
 // [15] Iter insert(CIter, const Pair&);
 // [17] void insert(ITER, ITER);
+// [17] void insert_range(CCR<KEY> auto&& range);
 // [29] pair<iterator, bool> insert(Pair&&);
 // [29] pair<iterator, bool> insert(ALT_PAIR&&);
 // [29] iterator insert(CIter, Pair&&);
@@ -252,7 +261,15 @@ using bsl::pair;
 // [36] CONCERN: `unordered_map` supports incomplete types.
 // [38] CONCERN: `erase` overload is deduced correctly.
 // [39] CONCERN: Simple test case fails to compile on MSVC.
+// [40] CONCERN: `find`        properly handles transparent comparators.
+// [40] CONCERN: `count`       properly handles transparent comparators.
+// [40] CONCERN: `equal_range` properly handles transparent comparators.
+// [40] CONCERN: `bucket`      properly handles transparent comparators.
+// [40] CONCERN: `operator []` properly handles transparent comparators.
+// [40] CONCERN: `at`          properly handles transparent comparators.
+// [40] CONCERN: `erase`       properly handles transparent comparators.
 // [44] CONCERN: `unordered_map` IS A C++20 RANGE
+// [45] CONCERN: `operator[]` with non-copyable type.
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -6192,7 +6209,6 @@ class DummyAllocator {
     {
     }
 
-
     template <class ELEMENT_TYPE>
     void construct(ELEMENT_TYPE *) {}
     template <class ELEMENT_TYPE>
@@ -6700,7 +6716,6 @@ TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::g(const char *spec)
     Obj object((bslma::Allocator *)0);
     return gg(&object, spec);
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOC>
 void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::matchFirstValues(
@@ -9505,8 +9520,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL, ALLOC>::testCase2()
     // 10. `insert` adds an additional element to the object if the element
     //    being inserted does not already exist.
     //
-    // 11. `insert` returns a pair with an iterator of the element that was just
-    //    inserted or the element that already exist in the object, and a
+    // 11. `insert` returns a pair with an iterator of the element that was
+    //    just inserted or the element that already exist in the object, and a
     //    boolean indicating whether element being inserted already exist in
     //    the object.
     //
@@ -10255,7 +10270,6 @@ void testBuckets(CONTAINER& mX)
     ASSERT(itemCount == x.size());
 }
 
-
 template <class CONTAINER>
 void testErase(CONTAINER& mX)
 {
@@ -10400,7 +10414,6 @@ void testErase(CONTAINER& mX)
     testEmptyContainer(mX);
 }
 
-
 template <class CONTAINER>
 void testMapLookup(CONTAINER& mX)
 {
@@ -10479,7 +10492,6 @@ void testMapLookup(CONTAINER& mX)
     }
 #endif
 }
-
 
 template <class CONTAINER>
 void testImplicitInsert(CONTAINER& mX)
@@ -11281,7 +11293,6 @@ int main(int argc, char *argv[])
             bsl::debugprint(mZ);
         }
         testErase(mZ);
-
 
         // quickly confirm assumptions on state of the containers
         ASSERT(z.empty());

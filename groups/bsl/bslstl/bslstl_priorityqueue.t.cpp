@@ -1,6 +1,7 @@
 // bslstl_priorityqueue.t.cpp                                         -*-C++-*-
 #include <bslstl_priorityqueue.h>
 
+#include <bslstl_span.h>
 #include <bslstl_vector.h>
 
 #include <bslma_allocator.h>
@@ -97,6 +98,9 @@ using namespace bsl;
 // [16] explicit priority_queue(const COMPARATOR&, MovableRef<CONTAINER>);
 // [12] explicit priority_queue(const COMPARATOR& comparator);
 // [12] priority_queue(INPUT_ITERATOR first, INPUT_ITERATOR last);
+// [ 7] priority_queue(from_range_t, t_RANGE&& range, COMP = {});
+// [ 7] priority_queue(from_range_t, t_RANGE&& range, COMP, ALLOC);
+// [ 7] priority_queue(from_range_t, t_RANGE&& range, ALLOC);
 // [12] priority_queue(ITER, ITER, const COMPARATOR&, const CONTAINER&);
 // [16] priority_queue(ITER, ITER, const COMPARATOR&, MovableRef<CONTAINER>);
 // [ 7] priority_queue(const priority_queue&);
@@ -112,6 +116,7 @@ using namespace bsl;
 // [18] priority_queue& operator=(MovableRef<priority_queue> rhs);
 // [ 2] void push(const value_type& value);
 // [17] void push(MovableRef<value_type> value);
+// [ 2] void push_range(t_RANGE&& range);
 // [ 2] void pop();
 // [ 8] void swap(priority_queue& other);
 // [19] void emplace(Args&&... args);
@@ -138,6 +143,7 @@ using namespace bsl;
 // [**] CONCERN: The object is compatible with STL allocator.
 // [22] CONCERN: Methods qualified `noexcept` in standard are so implemented.
 // [23] CLASS TEMPLATE DEDUCTION GUIDES
+// [24] CONCERN: `ranges::to<priority_queue>`
 
 // ============================================================================
 //                      STANDARD BDE ASSERT TEST MACROS
@@ -199,6 +205,12 @@ void aSsErT(bool b, const char *s, int i)
 // ----------------------------------------------------------------------------
 
 #define ZU BSLS_BSLTESTUTIL_FORMAT_ZU
+
+// ============================================================================
+//                     TEST DRIVER SPECIFIC MACROS
+// ----------------------------------------------------------------------------
+
+#define ASSERT_SAME_TYPE(...) ASSERT((bsl::is_same<__VA_ARGS__>::value))
 
 // ============================================================================
 //                       GLOBAL TEST VALUES
@@ -4739,9 +4751,25 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
     //      `f`: passing a comparator, and the address of a test allocator
     //           distinct from the default allocator;
     //
-    //      `g`: passing a comparator, a container populated with `V`, and the
+    //      `g`: passing a comparator, and the address of a test allocator
+    //           distinct from the default allocator.
+    //
+    //      `h`: passing a comparator, a container populated with `V`, and the
     //           address of a test allocator distinct from the default
     //           allocator.
+    //
+    //      `i`: passing `from_range`, and a container populated with `V`.
+    //
+    //      `j`: passing `from_range`, a container populated with `V`, and a
+    //           comparator.
+    //
+    //      `k`: passing `from_range`, a container populated with `V`, and the
+    //           address of a test allocator distinct from the default
+    //           allocator.
+    //
+    //      `l`: passing `from_range`, a container populated with `V`, a
+    //           comparator, and the address of a test allocator distinct from
+    //           the default allocator.
     //
     //   2. For each of the seven iterations in P-2.1:  (C-1..7)
     //
@@ -4789,6 +4817,9 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
     //  priority_queue(ITER, ITER, const COMPARATOR&, const CONTAINER&);
     //  priority_queue(const COMPARATOR& comp, const ALLOCATOR& allocator);
     //  priority_queue(const COMPARATOR&, const CONTAINER&, const ALLOCATOR&);
+    //  priority_queue(from_range_t, t_RANGE&& range, COMP = {});
+    //  priority_queue(from_range_t, t_RANGE&& range, COMP, ALLOC);
+    //  priority_queue(from_range_t, t_RANGE&& range, ALLOC);
     // ------------------------------------------------------------------------
 
     const int TYPE_ALLOC = bslma::UsesBslmaAllocator<VALUE>::value;
@@ -4858,7 +4889,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
 
             if (veryVerbose) { P_(LINE) P_(SPEC) P(LENGTH); }
 
-            for (char cfg = 'a'; cfg <= 'g'; ++cfg) {
+            for (char cfg = 'a'; cfg <= 'l'; ++cfg) {
                 const char CONFIG = cfg;  // how we specify the allocator
 
                 if (veryVerbose) { T_ T_ P(CONFIG) }
@@ -4935,6 +4966,33 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
                       objAllocatorPtr = &sa;
                       expectedValues = &EXP;
                   } break;
+                  case 'i': {
+                      objPtr = new (fa) Obj(bsl::from_range, copyContainer);
+                      objAllocatorPtr = &da;
+                      expectedValues = &EXP;
+                  } break;
+                  case 'j': {
+                      objPtr = new (fa) Obj(bsl::from_range,
+                                            copyContainer,
+                                            comparator);
+                      objAllocatorPtr = &da;
+                      expectedValues = &EXP;
+                  } break;
+                  case 'k': {
+                      objPtr = new (fa) Obj(bsl::from_range,
+                                            copyContainer,
+                                            &sa);
+                      objAllocatorPtr = &sa;
+                      expectedValues = &EXP;
+                  } break;
+                  case 'l': {
+                      objPtr = new (fa) Obj(bsl::from_range,
+                                            copyContainer,
+                                            comparator,
+                                            &sa);
+                      objAllocatorPtr = &sa;
+                      expectedValues = &EXP;
+                  } break;
                   default: {
                       ASSERTV(LINE, CONFIG, "Bad allocator config.", false);
                       return;                                         // RETURN
@@ -4948,7 +5006,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
                 if (veryVeryVerbose) { T_ T_ P_(CONFIG) P(X) }
 
                 bslma::TestAllocator&  oa = *objAllocatorPtr;
-                bslma::TestAllocator& noa = 'g' > CONFIG ? sa : da;
+                bslma::TestAllocator& noa = oa == sa ? da : sa;
 
                 // Ensure the first row of the table contains the
                 // default-constructed value.
@@ -4973,8 +5031,11 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase7()
 
                 // Verify no allocation from the non-object allocator.
 
-                ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
-                        0 == noa.numBlocksTotal());
+                if (oa != sa) {
+                    // This is not always satisfied. {DRQS 181178355}.
+                    ASSERTV(LINE, CONFIG, noa.numBlocksTotal(),
+                            0 == noa.numBlocksTotal());
+                }
 
                 // Reclaim dynamically allocated object under test.
 
@@ -5305,6 +5366,8 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
     //
     // 10. `pop` removes the largest element (in value) from the object.
     //
+    // 11. `push_range(r)` has the same effect as `for(v : r) push(v)`.
+    //
     // Plan:
     //   1. For each value of increasing length, `L`:
     //
@@ -5312,7 +5375,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
     //      objects, in turn, but configured differently: (a) without passing
     //      an allocator, (b) passing a null allocator address explicitly,
     //      and (c) passing the address of a test allocator distinct from the
-    //      default.  For each of these three iterations:  (C-1..10)
+    //      default.  For each of these three iterations:  (C-1..11)
     //
     //     1. Create three `bslma_TestAllocator` objects, and install one as as
     //        the current default allocator (note that a ubiquitous test
@@ -5333,11 +5396,15 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
     //        verify the container has the expected values.  Verify the number
     //        of allocation is as expected. (C-5..6)
     //
-    //     6. Invoke `pop` and verify that the container has one fewer element.
+    //     6. Create an empty queue.  Invoke `push_range` with the same range
+    //        of `L` elements.  Verify that the resulting object is equal to
+    //        `X`.  (C-11)
+    //
+    //     7. Invoke `pop` and verify that the container has one fewer element.
     //        Verify the removed element had the largest value in the
     //        container.  Verify that no memory is allocated.  (C-10)
     //
-    //     7. Verify that all object memory is released when the object is
+    //     8. Verify that all object memory is released when the object is
     //        destroyed.  (C-7)
     //
     // Testing:
@@ -5345,6 +5412,7 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
     //   priority_queue(const A& allocator);
     //   ~priority_queue();
     //   void push(const value_type& value);
+    //   void push_range(t_RANGE&& range);
     //   void pop();
     // ------------------------------------------------------------------------
 
@@ -5428,6 +5496,20 @@ void TestDriver<VALUE, CONTAINER, COMPARATOR>::testCase2()
                 if (0 < TYPE_ALLOC) {
                     ASSERTV(CONFIG, tam.isInUseUp());
                 }
+            }
+
+            // ----------------------------------------------------------------
+
+            if (veryVerbose) { printf("\n\tTesting `push_range`.\n"); }
+
+            {
+                bslma::DefaultAllocatorGuard guard(
+                                      &bslma::NewDeleteAllocator::singleton());
+                Obj q;
+                q.push_range(bsl::span<const value_type>(VALUES.data(),
+                                                         LENGTH));
+                Obj copy(X);
+                ASSERTV(LENGTH, CONFIG, is_equal(q, copy));
             }
 
             // ----------------------------------------------------------------
@@ -6056,10 +6138,6 @@ void taskFunction2(int taskId, int priority, int verbose)
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 struct TestDeductionGuides {
-
-#define ASSERT_SAME_TYPE(...) \
- static_assert((bsl::is_same<__VA_ARGS__>::value), "Types differ unexpectedly")
-
     /// Always return true
     template <class KEY_TYPE>
     struct StupidLess {
@@ -6102,6 +6180,10 @@ struct TestDeductionGuides {
     /// priority_queue(Iter, Iter)
     /// priority_queue(Iter, Iter, COMPARATOR, const CONTAINER &)
     /// priority_queue(Iter, Iter, COMPARATOR,       CONTAINER &&)
+    /// priority_queue(from_range_t, RANGE&&)
+    /// priority_queue(from_range_t, RANGE&&, COMPARATOR)
+    /// priority_queue(from_range_t, RANGE&&, ALLOCATOR)
+    /// priority_queue(from_range_t, RANGE&&, COMPARATOR, ALLOCATOR)
     /// ```
     void SimpleConstructors ()
     {
@@ -6314,6 +6396,45 @@ struct TestDeductionGuides {
                       decltype(pq11d),
                       bsl::priority_queue<T11, bsl::vector<T11>, CompFnT11 *>);
 
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        {
+            typedef int T;
+            const T range[] = {1, 2, 3};
+            using bsl::vector;
+            using std::less;
+
+            bsl::priority_queue q1(bsl::from_range, range);
+            bsl::priority_queue q2(bsl::from_range,
+                                   range,
+                                   std::allocator<T>{});
+            bsl::priority_queue q3(bsl::from_range,
+                                   range,
+                                   StupidLess<T>{});
+            bsl::priority_queue q4(bsl::from_range,
+                                   range,
+                                   StupidLess<T>{},
+                                   std::allocator<T>{});
+
+            ASSERT_SAME_TYPE(decltype(q1), bsl::priority_queue<
+                                                  T,
+                                                  vector<T, bsl::allocator<T>>,
+                                                  less<T>>);
+            ASSERT_SAME_TYPE(decltype(q2), bsl::priority_queue<
+                                                  T,
+                                                  vector<T, std::allocator<T>>,
+                                                  less<T>>);
+            ASSERT_SAME_TYPE(decltype(q3), bsl::priority_queue<
+                                                  T,
+                                                  vector<T, bsl::allocator<T>>,
+                                                  StupidLess<T>>);
+            ASSERT_SAME_TYPE(decltype(q4), bsl::priority_queue<
+                                                  T,
+                                                  vector<T, std::allocator<T>>,
+                                                  StupidLess<T>>);
+        }
+#endif
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Compile-fail tests
 // #define BSLSTL_PRIORITY_COMPILE_FAIL_ALLOCATOR_IS_NOT_A_CONTAINER
@@ -6336,8 +6457,6 @@ struct TestDeductionGuides {
         // non-allocator-aware container.)
 #endif
     }
-
-#undef ASSERT_SAME_TYPE
 };
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
@@ -6366,6 +6485,70 @@ int main(int argc, char *argv[])
     bslma::TestAllocator ta(veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 24: {
+        //---------------------------------------------------------------------
+        // TESTING CONCERN: `ranges::to<priority_queue>`
+        //
+        // Concerns:
+        // 1. `ranges::to<priority_queue>(range)` call compiles and returns the
+        //    same as `priority_queue<ranges::range_value_t<decltype(range)>>(`
+        //    `from_range, range)`.
+        //
+        // 2. `ranges::to<priority_queue<T>>(range)` call compiles and returns
+        //    the same as `priority_queue<T>(from_range, range)`.
+        //
+        // Plan:
+        // 1. Create an array of `int`, that will be used as a range.
+        //
+        // 2. Call `ranges::to<priority_queue>` with the array.
+        //
+        //   2.1. Verify that the returned type is `priority_queue<int>`.
+        //
+        //   2.2. Verify that the returned object is equivalent to an object
+        //        constructed using the `from_range` constructor.
+        //
+        // 3. Call `ranges::to<priority_queue<long>>` with the array.
+        //
+        //   3.1. Verify that the returned type is `priority_queue<long>`.
+        //
+        //   3.2. Verify that the returned object is equivalent to an object
+        //        constructed using the `from_range` constructor.
+        //
+        // Testing:
+        //   CONCERN: `ranges::to<priority_queue>`
+        //---------------------------------------------------------------------
+
+        if (verbose) printf(
+                          "\nTESTING CONCERN: `ranges::to<priority_queue>`"
+                          "\n=============================================\n");
+
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGES_TO_CONTAINER
+        const int nums[] = {1, 2, 3};
+        {
+            auto v = bsl::ranges::to<bsl::priority_queue>(nums);
+            ASSERT_SAME_TYPE(decltype(v), bsl::priority_queue<int>);
+            ASSERT(v.size() == bsl::size(nums));
+
+            int n = bsl::size(nums);
+            for(const int *p = nums + n; n; n--) {
+                ASSERT(v.top() == *--p);
+                v.pop();
+            }
+        }
+        {
+            auto v = bsl::ranges::to<bsl::priority_queue<long>>(nums);
+            ASSERT_SAME_TYPE(decltype(v), bsl::priority_queue<long>);
+            ASSERT(v.size() == bsl::size(nums));
+
+            int n = bsl::size(nums);
+            for(const int *p = nums + n; n; n--) {
+                ASSERT(v.top() == *--p);
+                v.pop();
+            }
+        }
+#endif
+      } break;
       case 23: {
         //---------------------------------------------------------------------
         // TESTING CLASS TEMPLATE DEDUCTION GUIDES (AT COMPILE TIME)

@@ -458,12 +458,12 @@ BSLS_IDENT("$Id: $")
 #include <bsla_deprecated.h>
 
 #include <bslmf_assert.h>
+#include <bslmf_enableif.h>
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_enableif.h>
 
 #include <bsls_keyword.h>
 #include <bsls_nullptr.h>

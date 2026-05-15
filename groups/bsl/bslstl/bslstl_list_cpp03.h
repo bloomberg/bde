@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct 16 12:44:09 2024
+// Generated on Fri Oct 10 04:51:21 2025
 // Command line: sim_cpp11_features.pl bslstl_list.h
 
 #ifdef COMPILING_BSLSTL_LIST_H
@@ -489,6 +489,10 @@ class list {
                      NodePtr finish,
                      COMPARE comparator);
 
+    /// Append the values from the specified `[first, last)` range.
+    template <class t_ITERATOR, class t_SENTINEL>
+    void privateAppendRange(t_ITERATOR first, t_SENTINEL last);
+
     /// Efficiently exchange the value of this object with that of the
     /// specified `other` object.  This method provides the no-throw
     /// exception-safety guarantee.  The behavior is undefined unless this
@@ -622,6 +626,19 @@ class list {
         tmp.insert(tmp.cbegin(), first, last);
         quickSwap(&tmp);
     }
+
+    /// Create a list from the elements of the specifed `range`.  Optionally
+    /// specify an `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is not specified, a default-constructed object of the (template
+    /// parameter) type `ALLOCATOR` is used.  Note that `range` must meet the
+    /// requirements of an input range and the values from `range` must have a
+    /// type matching or convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    list(from_range_t                               ,
+         BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+         const ALLOCATOR&                           basicAllocator =
+                                                                  ALLOCATOR());
 
     /// Create a list having the same value as the specified `original`
     /// object.  Use the allocator returned by
@@ -784,6 +801,14 @@ class list {
     void assign(std::initializer_list<value_type> values);
 #endif
 
+    /// Assign to this object the elements of the specified `range`.  Note that
+    /// `range` must meet the requirements of an input range and the values
+    /// from `range` must have a type matching or convertible to (template
+    /// parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void assign_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
                               // *** iterators ***
 
     /// Return an iterator providing modifiable access to the first element
@@ -862,6 +887,14 @@ class list {
     iterator erase(const_iterator dstBegin, const_iterator dstEnd);
 
                             // *** end inserts ***
+
+    /// Append to the end of this object the elements of the specified `range`.
+    /// Note that `range` must meet the requirements of an input range and the
+    /// values from `range` must have a type matching or convertible to
+    /// (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void append_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -1209,6 +1242,14 @@ class list {
 // }}} END GENERATED CODE
 #endif
 
+    /// Prepend to the front of this object the elements of the specified
+    /// `range`.  Note that `range` must meet the requirements of an input
+    /// range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    void prepend_range(BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
     /// Append to the back of this list a copy of the specified `value`.
     /// This method offers full guarantee of rollback in case an exception
     /// is thrown.  This method requires that the (template parameter)
@@ -1502,6 +1543,15 @@ class list {
                     std::initializer_list<value_type> values);
 #endif
 
+    /// Insert at the specified `position` in this object the elements of the
+    /// specified `range`.  Note that `range` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to (template parameter) `VALUE`.
+    template <class t_RANGE>
+    BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+    iterator insert_range(const_iterator                             position,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range);
+
                           // *** list operations ***
 
     /// Merge the specified sorted `other` list into this sorted list.  This
@@ -1758,6 +1808,17 @@ template<
     >
 list(std::initializer_list<VALUE>, ALLOC *)
 -> list<VALUE>;
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+/// Deduce the template parameters `VALUE_TYPE` and `ALLOCATOR` from the
+/// parameters supplied to the constructor of `list`.
+template <ranges::input_range t_RANGE,
+          class               t_ALLOCATOR =
+                                     allocator<ranges::range_value_t<t_RANGE>>>
+list(from_range_t, t_RANGE&&, t_ALLOCATOR = t_ALLOCATOR())
+-> list<ranges::range_value_t<t_RANGE>, t_ALLOCATOR>;
+#endif
 #endif
 
 // FREE OPERATORS
@@ -2222,6 +2283,17 @@ list<VALUE, ALLOCATOR>::mergeImp(NodePtr node1,
 }
 
 template <class VALUE, class ALLOCATOR>
+template <class t_ITERATOR, class t_SENTINEL>
+inline
+void list<VALUE, ALLOCATOR>::privateAppendRange(t_ITERATOR first,
+                                                t_SENTINEL last)
+{
+    for (; first != last; ++first) {
+        emplace_back(*first);
+    }
+}
+
+template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::quickSwap(list *other)
 {
@@ -2364,6 +2436,21 @@ list<VALUE, ALLOCATOR>::list(size_type        numElements,
     tmp.insert(tmp.cbegin(), numElements, value);    // 'tmp's destructor will
                                                      // clean up on throw.
     quickSwap(&tmp);      // Leave 'tmp' in an invalid but destructible state.
+}
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+list<VALUE, ALLOCATOR>::list(
+                     from_range_t                               ,
+                     BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                     const ALLOCATOR&                           basicAllocator)
+: d_sentinel()
+, d_alloc_and_size(basicAllocator, size_type(-1))
+{
+    list tmp(this->allocatorImp());
+    tmp.append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+    quickSwap(&tmp);
 }
 
 template <class VALUE, class ALLOCATOR>
@@ -2612,6 +2699,16 @@ void list<VALUE, ALLOCATOR>::assign(std::initializer_list<VALUE> values)
 }
 #endif
 
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void list<VALUE, ALLOCATOR>::assign_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    clear();
+    append_range(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+}
+
                               // *** iterators ***
 
 template <class VALUE, class ALLOCATOR>
@@ -2788,6 +2885,16 @@ list<VALUE, ALLOCATOR>::erase(const_iterator dstBegin, const_iterator dstEnd)
 }
 
                             // *** end inserts ***
+
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void list<VALUE, ALLOCATOR>::append_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    privateAppendRange(ranges::begin(range), ranges::end(range));
+}
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
@@ -3394,6 +3501,15 @@ list<VALUE, ALLOCATOR>::emplace_front(
 #endif
 
 template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+void list<VALUE, ALLOCATOR>::prepend_range(
+                              BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    insert_range(begin(), BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range));
+}
+
+template <class VALUE, class ALLOCATOR>
 inline
 void list<VALUE, ALLOCATOR>::push_back(const VALUE& value)
 {
@@ -3821,6 +3937,22 @@ list<VALUE, ALLOCATOR>::insert(const_iterator               dstPosition,
     return insert(dstPosition, values.begin(), values.end());
 }
 #endif
+
+template <class VALUE, class ALLOCATOR>
+template <class t_RANGE>
+BSLSTL_LIST_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
+typename list<VALUE, ALLOCATOR>::iterator
+list<VALUE, ALLOCATOR>::insert_range(
+                           const_iterator                             position,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
+{
+    list tmp(from_range,
+             BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+             get_allocator());
+    iterator it = !tmp.empty() ? tmp.begin() : position.unconst();
+    splice(position, tmp);
+    return it;
+}
 
                           // *** list operations ***
 

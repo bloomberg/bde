@@ -3,11 +3,14 @@
 
 #include <bslstl_algorithm.h>  // bsl::count()
 
+#include <bslmf_voidtype.h>    // `bsl::void_t`
+
 #include <bslma_default.h>
 #include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
+#include <bslmf_integralconstant.h>  // `bsl::true_type`, `bsl::false_type`
 #include <bslmf_isbitwisecopyable.h>
 #include <bslmf_istriviallycopyable.h>
 
@@ -65,6 +68,7 @@
 // [ 8] basic_string_view();
 // [ 2] basic_string_view(CONTG_ITER first, SENTINEL last);
 // [ 8] basic_string_view(const CHAR_TYPE *str);
+// [26] basic_string_view(bsl::nullptr_t ) = delete;
 //
 // MANIPULATORS
 // [ 6] swap(basic_string_view& rhs);
@@ -152,7 +156,7 @@
 //-----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
 // [ 2] CONCERN: HELPER CLASSES FOR ITERATOR INTERFACES WORK AS EXPECTED
-// [26] USAGE EXAMPLE
+// [27] USAGE EXAMPLE
 // [24] TRAITS
 
 // ============================================================================
@@ -993,17 +997,17 @@ class TestSentinel {
     // CREATORS
 
     /// Create an unitialized `TestSentinel` object.  Assignment is the only
-    /// valid operation for the resulting object; others cause UB.
+    /// valid operation.
     TestSentinel();
 
     /// Create a `TestSentinel` object associated with the specified `end`
-    /// position (address).  Note that no facility is provided to change the
-    /// position of a `TestSentinel` object.
+    /// position (address).  Note that no facility is provided to change
+    /// the position of a `TestSentinel` object.
     explicit TestSentinel(const CHAR_TYPE *end);
 
     // ACCESSORS
 
-    /// Return the address passed in the constructor.
+    /// Return the position (address) referenced by this object.
     const CHAR_TYPE *addr() const;
 };
 
@@ -1069,12 +1073,109 @@ bool operator==(const TestIterator<CHAR_TYPE>& lhs,
     return lhs.addr() == rhs.addr();
 }
 
-#endif // BSLSTL_STRING_VIEW_IS_ALIASED
+#endif // (NOT) BSLSTL_STRING_VIEW_IS_ALIASED
 
-#if  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY) \
-&&  !defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
-#define BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
-#endif
+
+// ============================================================================
+//              HELPER CLASSES FOR TESTING DELETED CONTRUCTORS
+// ----------------------------------------------------------------------------
+
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+
+                        // ==============================
+                        // struct CanConstructFromNullptr
+                        // ==============================
+
+template <class OBJ, class = void>
+struct CanConstructFromNullptr
+: bsl::false_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromNullptr<OBJ,
+                               bsl::void_t<decltype(OBJ(nullptr))> >
+: bsl::true_type
+{
+};
+
+                        // ===============================
+                        // struct CanConstructFromLiteral0
+                        // ===============================
+
+template <class OBJ, class = void>
+struct CanConstructFromLiteral0
+: bsl::false_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromLiteral0<OBJ,
+                                bsl::void_t<decltype(OBJ(0))> >
+: bsl::true_type
+{
+};
+
+                        // ====================================
+                        // struct CanConstructFromStringLiteral
+                        // ====================================
+
+template <class TYPE, class OBJ, class = void>
+struct CanConstructFromStringLiteral
+: bsl::false_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromStringLiteral<char,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ("hello world"))>
+                                     >
+: bsl::true_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromStringLiteral<wchar_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(L"hello world"))>
+                                    >
+: bsl::true_type
+{
+};
+
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+template <class OBJ>
+struct CanConstructFromStringLiteral<char8_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(u8"helloworld"))>
+                                    >
+: bsl::true_type
+{
+};
+# endif // BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE
+
+# ifdef BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+template <class OBJ>
+struct CanConstructFromStringLiteral<char16_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(u"hello world"))>
+                                    >
+: bsl::true_type
+{
+};
+
+template <class OBJ>
+struct CanConstructFromStringLiteral<char32_t,
+                                     OBJ,
+                                     bsl::void_t<decltype(OBJ(U"hello world"))>
+                                    >
+: bsl::true_type
+{
+};
+
+# endif // BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES
+#endif  // BSLS_COMPILERFEATURES_FULL_CPP11
 
 //=============================================================================
 //                       TEST DRIVER TEMPLATE
@@ -1094,7 +1195,7 @@ struct TestDriver {
     typedef typename Obj::const_reverse_iterator const_reverse_iterator;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
-&&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
     typedef std::basic_string_view<TYPE, TRAITS> StdObj;
     typedef std::basic_string     <TYPE, TRAITS> StdString;
 # endif
@@ -1140,10 +1241,15 @@ struct TestDriver {
 // BDE_VERIFY pragma: -FABC01  // not in alphanumeric order
 
     // TEST CASES
-#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+    /// Test the deletion of constructor accepting `nullptr`.
+    static void testCase26();
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     static void testCase25();
         // Test compatibility with `std::string_view`.
-#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
     /// Test `operator ""_sv`.
     static void testCase22();
@@ -1283,20 +1389,78 @@ TestDriver<TYPE,TRAITS>::assignFromStdObj()
 
     return obj;
 }
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
-
+# endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
 
                                 // ----------
                                 // TEST CASES
                                 // ----------
 
-#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+template <class TYPE, class TRAITS>
+void TestDriver<TYPE,TRAITS>::testCase26()
+    // ------------------------------------------------------------------------
+    // DELETED CONTRUCTOR: `nullptr`
+    //
+    // Concern:
+    // 1. A view cannot be constructed from a `nullptr`.
+    //
+    // 2. A view cannot be constructed from a literal `0`.
+    //
+    // 3. A view can still be constructed from a string literal via the other
+    //    single-argument constructor.
+    //
+    // 4. The `CanConstructFrom*` traits created for this test report correct
+    //    results.
+    //
+    // Plan:
+    // 1. Create a set of traits that use the `bsl::void_t` idiom to determine
+    //    whether or not construction from a specific literal is well formed.
+    //    If so, the trait inherits from `bsl::true_type`, otherwise from
+    //    `bsl::false_type`.
+    //
+    //    * `CanConstructFromNullptr`,             expect `false`
+    //    * `CanConstructFromLiteral0`,            expect `false`
+    //    * `CanConstructFromStringLiteral<TYPE>`, expect `true`
+    //
+    // 2. Confirm the behavior of the `CanConstructFrom*` traits by showing
+    //    that the opposite values are returned from a test type,
+    //    `NullptrsWelcome`, that manifestly can be constructed from `nullptr`.
+    //
+    // Testing:
+    //   basic_string_view(bsl::nullptr_t ) = delete;
+    // ------------------------------------------------------------------------
+{
+    if (verbose) printf("value  type: %s\n", NameOf<TYPE>().name());
+    if (verbose) printf("object type: %s\n", NameOf<Obj> ().name());
+
+    // Test `CanConstructFrom*` traits.
+    struct NullptrsWelcome {
+        NullptrsWelcome(bsl::nullptr_t ) { }  // Not deleted!
+    };
+
+    typedef NullptrsWelcome NPsW;
+
+    NPsW a(nullptr);
+    NPsW b(0);
+
+    ASSERT(  CanConstructFromNullptr <NPsW>::value);
+    ASSERT(  CanConstructFromLiteral0<NPsW>::value);
+    ASSERT((!CanConstructFromStringLiteral<TYPE, NPsW>::value));
+
+    // Test `basic_string_view<TYPE>`.
+    ASSERT( !CanConstructFromNullptr <Obj>::value);
+    ASSERT( !CanConstructFromLiteral0<Obj>::value);
+    ASSERT(( CanConstructFromStringLiteral<TYPE, Obj>::value));
+}
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase25()
 {
     // ------------------------------------------------------------------------
-    // COEXISTING `std::string_view`
+    // `std::string_view` compatability
     //
     // Concerns:
     // 1. A `std::string_view` can be used to construct a `bsl::string_view`
@@ -1345,7 +1509,11 @@ void TestDriver<TYPE,TRAITS>::testCase25()
 
     if (verbose) printf("for %s type.\n", NameOf<TYPE>().name());
 
+#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
     ASSERT((!bsl::is_same<Obj, std::basic_string_view<TYPE, TRAITS> >::value));
+#else
+    ASSERT(( bsl::is_same<Obj, std::basic_string_view<TYPE, TRAITS> >::value));
+#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 
     BSLS_KEYWORD_CONSTEXPR
     const TYPE      *const STRING        = s_testString;
@@ -1355,7 +1523,7 @@ void TestDriver<TYPE,TRAITS>::testCase25()
     if (verbose) printf("Check `constexpr` construction.\n");
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
-&&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
         constexpr StdObj ctv1(STRING, STRING_LENGTH);
         constexpr Obj    ctv2(ctv1);
         constexpr Obj    ctv3 = TestDriver<TYPE, TRAITS>::assignFromStdObj();
@@ -1440,7 +1608,7 @@ void TestDriver<TYPE,TRAITS>::testCase25()
         ASSERT(stdString == (StdString)bslStringViewFromStdString);     // TEST
     }
 }
-#endif // BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#endif // BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
 
 template <class TYPE, class TRAITS>
 void TestDriver<TYPE,TRAITS>::testCase22()
@@ -6271,9 +6439,15 @@ void TestDriver<TYPE, TRAITS>::testCase8()
 
         typedef typename bsl::basic_string_view<TYPE, DummyTrait<TYPE> >
                                                                DummyStringView;
+        TYPE *const NullValuedPointer = 0;
 
         ASSERT_SAFE_PASS((Obj(            STRING)));
+#if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
+        // Except for C++03, a comiler error for literal `0` (and `nullptr`).
+#else
         ASSERT_SAFE_FAIL((Obj(                 0)));
+#endif
+        ASSERT_SAFE_FAIL((Obj( NullValuedPointer)));
         ASSERT_SAFE_FAIL((DummyStringView(STRING)));
     }
 #endif
@@ -6356,7 +6530,7 @@ void TestDriver<TYPE, TRAITS>::testCase7()
     if (verbose) printf("Check `constexpr` operator.\n");
     {
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) \
-&&  defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
         constexpr Obj ctv = TestDriver<TYPE, TRAITS>::assignFromBslObj();
 
         (void) ctv;
@@ -7150,8 +7324,8 @@ void TestDriver<TYPE, TRAITS>::testCase2()
     {
 #ifdef BSLSTL_STRING_VIEW_IS_ALIASED
 
-        ASSERT((true ==std::is_same<bsl::string_view,  // confirm alias
-                                    std::string_view>::value));
+        ASSERT((true == std::is_same<bsl::string_view,  // confirm alias
+                                     std::string_view>::value));
 #else
 
 #ifdef  BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
@@ -7174,14 +7348,6 @@ void TestDriver<TYPE, TRAITS>::testCase2()
                                      TYPE
                                     >::value));
 #endif // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-
-#ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
-        ASSERT((bsl::BasicStringView_IsCompatibleIterator<TYPE,
-                                                         TestIterator<TYPE> >
-                                                                     ::value));
-        ASSERT( bsl::BasicStringView_IsCompatibleSentinel<TestSentinel<TYPE> >
-                                                                     ::value );
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 
         TestIterator<TYPE> iter (STRING);
         TestSentinel<TYPE> sentl_0(STRING);
@@ -7209,7 +7375,7 @@ void TestDriver<TYPE, TRAITS>::testCase2()
         const TYPE valueNext = *iter;
         ASSERTV(valueNext, 48 == valueNext);
 
-#endif // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+#endif // BSLSTL_STRING_VIEW_IS_ALIASED
     }
 
 #ifndef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
@@ -7500,7 +7666,7 @@ int main(int argc, char *argv[])
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 26: {
+      case 27: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -7571,18 +7737,47 @@ int main(int argc, char *argv[])
         svfa.deleteObject(svPtr);
 // ```
       } break;
+      case 26: {
+        // --------------------------------------------------------------------
+        // DELETED CONSTRUCTOR: NULL POINTER CONSTANTS
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            printf("\nDELETED CONSTRUCTOR: NULL POINTER CONSTANTS"
+                   "\n===========================================\n");
+
+#if defined (BSLS_COMPILERFEATURES_FULL_CPP11)
+
+        TestDriver<char   >::testCase26();
+        TestDriver<wchar_t>::testCase26();
+
+        #if defined (BSLS_COMPILERFEATURES_SUPPORT_UTF8_CHAR_TYPE)
+        TestDriver<char8_t>::testCase26();
+        #endif
+
+        #if defined(BSLS_COMPILERFEATURES_SUPPORT_UNICODE_CHAR_TYPES)
+        TestDriver<char16_t>::testCase26();
+        TestDriver<char32_t>::testCase26();
+        #endif
+
+#else
+        if (veryVerbose) {
+            printf("\nSKIP: `nullptr` not supported in this C++ version.\n");
+        }
+#endif
+      } break;
       case 25: {
         // --------------------------------------------------------------------
-        // COEXISTING `std::string_view`
+        // `std::string_view` compatability
         //   Prior to C++17 there is no native `std::string_view` so the
         //   `bsl::string_view` uses the BDE implementation.  As of C++20,
         //   `bsl::string_view` is aliased to the `std::string_view` (they are
-        //   the same class).  However, for C++17 `bsl::string_view` uses the
-        //   BDE implementation although `std::string_view` *also* exists
+        //   the same class).  However, in some builds `bsl::string_view` uses
+        //   the BDE implementation although `std::string_view` *also* exists
         //   (albeit lacking the `*_with` methods [see TC 21] and the iterator
-        //   CTOR [see TC 2]).  Thus, in C++17 exactly, `bsl::string_view` must
-        //   be convertible to and from, and assignable from
-        //   `std::string_view`.
+        //   CTOR [see TC 2]).  In all cases where `std::string_view` exists
+        //   `bsl::string_view` must be convertible to and from, and assignable
+        //   from `std::string_view`.
         //
         // Concerns:
         //
@@ -7596,10 +7791,10 @@ int main(int argc, char *argv[])
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nCOEXISTING `std::string_view`"
-                   "\n=============================\n");
+            printf("\n`std::string_view` compatability"
+                   "\n================================\n");
 
-#if defined(BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
 
         TestDriver<char>::testCase25();
         TestDriver<wchar_t>::testCase25();
@@ -7613,10 +7808,6 @@ int main(int argc, char *argv[])
         TestDriver<char32_t>::testCase25();
     #endif
 
-#elif defined(BSLSTL_STRING_VIEW_IS_ALIASED)
-        if (veryVerbose)
-            printf(
-                  "SKIP: `bsl::string_view` ALIASED to `std::string_view`.\n");
 #else
         if (veryVerbose)
             printf("SKIP: `std::string_view` is not available.\n");
@@ -8168,7 +8359,7 @@ int main(int argc, char *argv[])
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY &&
         // BSLS_COMPILERFEATURES_SUPPORT_INLINE_NAMESPACE
 
-#ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
         {
             bsl::string_view bs;
             std::string_view ss;
@@ -8192,6 +8383,11 @@ int main(int argc, char *argv[])
             ASSERT(!(bs > ss));
             ASSERT(ss >= bs);
             ASSERT(bs >= ss);
+
+            bsl::string_view bss(ss.begin(), ss.end());
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+            std::string_view sbs(bs.begin(), bs.end());
+#endif
         }
 #endif
       } break;

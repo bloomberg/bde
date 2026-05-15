@@ -194,6 +194,7 @@ BSLS_IDENT("$Id: $")
 // 'idx'           - bucket index
 // 'li'            - object of type 'initializer_list<value_type>'
 // 'i1', 'i2'      - two iterators defining a sequence of 'value_type' objects
+// 'rg'            - range of objects convertable to 'value_type'
 // 'p1', 'p2'      - two iterators belonging to 'a'
 // distance(i1,i2) - the number of elements in the range '[i1 .. i2)'
 // distance(p1,p2) - the number of elements in the range '[p1 .. p2)'
@@ -228,6 +229,14 @@ BSLS_IDENT("$Id: $")
 // | unordered_multimap<K, V> a(i1, i2, w, hf, al);     |                    |
 // | unordered_multimap<K, V> a(i1, i2, w, hf, eq);     |                    |
 // | unordered_multimap<K, V> a(i1, i2, w, hf, eq, al); |                    |
+// +----------------------------------------------------+--------------------+
+// | unordered_multimap<K, V> a(from_range, rg);        | Average: O[N]      |
+// | unordered_multimap<K, V> a(from_range, rg, w);     | Worst:   O[N^2]    |
+// | unordered_multimap<K, V> a(from_range, rg, w, hf); | where N = range::  |
+// | unordered_multimap<K, V> a(from_range, rg, w, hf,  |        distance(rg)|
+// |                                               eq); |                    |
+// | unordered_multimap<K, V> a(from_range, rg, w, hf,  |                    |
+// |                                           eq, al); |                    |
 // +----------------------------------------------------+--------------------+
 // | unordered_multimap<K, V> a(li);                    | Average: O[N]      |
 // | unordered_multimap<K, V> a(li, al);                | Worst:   O[N^2]    |
@@ -292,6 +301,13 @@ BSLS_IDENT("$Id: $")
 // |                                                    | Worst:   O[n * N]  |
 // |                                                    | where N =          |
 // |                                                    |         'li.size()'|
+// +----------------------------------------------------+--------------------+
+// | a.insert_range(rg)                                 | Average: O[        |
+// |                                                    |   ranges::         |
+// |                                                    |       distance(rg)]|
+// |                                                    | Worst:   O[ n *    |
+// |                                                    |   ranges::         |
+// |                                                    |       distance(rg)]|
 // +----------------------------------------------------+--------------------+
 // | a.erase(p1)                                        | Average: O[1]      |
 // |                                                    | Worst:   O[n]      |
@@ -582,6 +598,7 @@ BSLS_IDENT("$Id: $")
 #include <bslstl_hashtableiterator.h>
 #include <bslstl_iteratorutil.h>
 #include <bslstl_pair.h>
+#include <bslstl_ranges.h>
 #include <bslstl_unorderedmapkeyconfiguration.h>
 
 #include <bslalg_bidirectionallink.h>
@@ -593,6 +610,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_bslallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_containercompatiblerange.h>
 #include <bslmf_enableif.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isconvertible.h>
@@ -617,6 +635,14 @@ BSLS_IDENT("$Id: $")
     #ifndef BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
     #error Rvalue references curiously absent despite native 'type_traits'.
     #endif
+#endif
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+# define BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T) \
+                  requires ::BloombergLP::bslmf::ContainerCompatibleRange<R, T>
+#else
+# define BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(R, T)
 #endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -939,6 +965,120 @@ class unordered_multimap {
                        const ALLOCATOR&                  basicAllocator);
 #endif
 
+    /// Create an unordered multimap, and insert each `value_type` object in
+    /// the specified `range`.  Optionally specify an `initialNumBuckets`
+    /// indicating the initial size of the array of buckets of this
+    /// container.  If `initialNumBuckets` is not supplied, an
+    /// implementation-defined value is used.  Optionally specify a
+    /// `hashFunction` used to generate the hash values for each key value
+    /// contained in this unordered multimap.  If `hashFunction` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `HASH` is used.  Optionally specify a key-equality functor
+    /// `keyEqual` used to determine whether two keys have the same value.
+    /// If `keyEqual` is not supplied, a default-constructed object of the
+    /// (template parameter) type `EQUAL` is used.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is not
+    /// supplied, a default-constructed object of the (template parameter)
+    /// type `ALLOCATOR` is used.  If the type `ALLOCATOR` is
+    /// `bsl::allocator` (the default), then `basicAllocator`, if supplied,
+    /// shall be convertible to `bslma::Allocator *`.  If the type
+    /// `ALLOCATOR` is `bsl::allocator` and `basicAllocator` is not
+    /// supplied, the currently installed default allocator is used.  This
+    /// operation has `O[N]` complexity, where `N` is the number of elements
+    /// in `range`.  Note that `RANGE` must meet the requirements of an
+    /// input range and the values from `range` must have a type matching or
+    /// convertible to `value_type`.
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multimap(
+         bsl::from_range_t                        ,
+         BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+         size_type                                initialNumBuckets = 0,
+         const HASH&                              hashFunction = HASH(),
+         const EQUAL&                             keyEqual = EQUAL(),
+         const ALLOCATOR&                         basicAllocator = ALLOCATOR())
+    : d_impl(hashFunction,
+             keyEqual,
+             initialNumBuckets,
+             1.0f,
+             basicAllocator)
+    {
+        // Defined inline to avoid `clang` and Windows errors.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            constructFromRange(bsl::ranges::begin(range),
+                               bsl::ranges::end  (range),
+                               bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            constructFromRange(bsl::ranges::begin(range),
+                               bsl::ranges::end  (range));
+        }
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multimap(bsl::from_range_t                        ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                    size_type                                initialNumBuckets,
+                    const HASH&                              hashFunction,
+                    const ALLOCATOR&                         basicAllocator)
+    : d_impl(hashFunction, EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline to avoid `clang` error.
+
+        unordered_multimap other(bsl::from_range,
+                                 range,
+                                 initialNumBuckets,
+                                 hashFunction,
+                                 EQUAL(),
+                                 basicAllocator);
+        this->swap(other);
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multimap(bsl::from_range_t                        ,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                    size_type                                initialNumBuckets,
+                    const ALLOCATOR&                         basicAllocator)
+    : d_impl(HASH(), EQUAL(), initialNumBuckets, 1.0f, basicAllocator)
+    {
+        // Defined inline to avoid `clang` error.
+
+        unordered_multimap other(bsl::from_range,
+                                 range,
+                                 initialNumBuckets,
+                                 HASH(),
+                                 EQUAL(),
+                                 basicAllocator);
+        this->swap(other);
+    }
+
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    unordered_multimap(bsl::from_range_t                        ,
+                       BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range,
+                       const ALLOCATOR&                         basicAllocator)
+    : d_impl(HASH(), EQUAL(), 0, 1.0f, basicAllocator)
+    {
+        // Defined inline to avoid `clang` error.
+
+        unordered_multimap other(bsl::from_range,
+                                 range,
+                                 0,
+                                 HASH(),
+                                 EQUAL(),
+                                 basicAllocator);
+        this->swap(other);
+    }
+
     /// Destroy this object.
     ~unordered_multimap();
 
@@ -1063,6 +1203,28 @@ class unordered_multimap {
     /// iterator, and preserves the relative order of the elements not
     /// removed.
     size_type erase(const key_type& key);
+    template <class t_KEY>
+    typename enable_if<
+        BloombergLP::bslmf::IsTransparentPredicate<HASH, t_KEY>::value &&
+        BloombergLP::bslmf::IsTransparentPredicate<EQUAL,t_KEY>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        iterator>::value &&
+        !is_convertible<BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY),
+                        const_iterator>::value,
+    size_type>::type erase(BSLS_COMPILERFEATURES_FORWARD_REF(t_KEY) key)
+    {
+        // Implemented inline due to Sun CC compilation error.
+        size_type count = 0;
+        // Our implementation always finds the first element
+        iterator it = this->find(key);
+        if (it != end()) {
+            do {
+                it = erase(it);
+                count++;
+            } while (it != end() && key_eq()(it->first, key));
+        }
+        return count;
+    }
 
     /// Remove from this unordered multimap the `value_type` object at the
     /// specified `position`, and return an iterator referring to the
@@ -1216,6 +1378,30 @@ class unordered_multimap {
     /// at or before `last`.
     template <class INPUT_ITERATOR>
     void insert(INPUT_ITERATOR first, INPUT_ITERATOR last);
+
+    /// Insert into this unordered multimap the value of each `value_type`
+    /// object in the specified `range`.  Note that `RANGE` must meet the
+    /// requirements of an input range and the values from `range` must have
+    /// a type matching or convertible to `value_type`.
+    template <class RANGE>
+    BSLSTL_UNORDEREDMULTIMAP_REQUIRES_CONTAINER_COMPATIBLE_RANGE(RANGE,
+                                                                 value_type)
+    void insert_range(BSLS_COMPILERFEATURES_FORWARD_REF(RANGE) range)
+    {
+        // Defined inline to avoid `clang` and Windows errors.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+        if constexpr (ranges::sized_range<RANGE>) {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range),
+                            bsl::ranges::size (range));
+        } else // ...
+#endif
+        {
+            insertFromRange(bsl::ranges::begin(range),
+                            bsl::ranges::end  (range));
+        }
+    }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Insert into this unordered multimap the value of each `value_type`
@@ -1524,6 +1710,41 @@ class unordered_multimap {
     /// number of buckets and rehash the elements of the container into
     /// those buckets (see `rehash`).
     float max_load_factor() const BSLS_KEYWORD_NOEXCEPT;
+
+  private:
+    // PRIVATE MANIPULATORS
+
+    /// Create an empty unordered multimap, and insert each `value_type`
+    /// object in the range starting at the specified `first` iterator and
+    /// ending immediately before the specified `last` sentinel.  Optionally
+    /// specify the initial `numElements` size of the unordered multimap.
+    /// Note: this method is intended for internal use only.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void constructFromRange(INPUT_ITERATOR first,
+                            SENTINEL       last,
+                            size_t         numElements);
+#endif
+
+    /// Insert into this unordered multimap the value of each `value_type`
+    /// object in the range starting at the specified `first` iterator and
+    /// ending immediately before the specified `last` sentinel.  Optionally
+    /// specify the initial `numElements` size of the range.  Note: this
+    /// method is intended for internal use only.
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first, SENTINEL last);
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    template <class INPUT_ITERATOR, class SENTINEL>
+    void insertFromRange(INPUT_ITERATOR first,
+                         SENTINEL       last,
+                         size_t         numElements);
+#endif
 };
 
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
@@ -1943,6 +2164,94 @@ void swap(unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>& a,
                         // class unordered_multimap
                         //-------------------------
 
+// PRIVATE MANIPULATORS
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
+                                       constructFromRange(INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    BSLS_ASSERT_SAFE(this->empty());
+
+    const difference_type maxInsertions =
+              ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+    if (0 < maxInsertions) {
+        this->reserve(maxInsertions);
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 == maxInsertions);
+    }
+
+    while (first != last) {
+        d_impl.emplace(*first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
+                                 constructFromRange(INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    BSLS_ASSERT_SAFE(this->empty());
+
+    if (0 < numElements) {
+        this->reserve(numElements);
+    }
+
+    while (first != last) {
+        d_impl.emplace(*first);
+        ++first;
+    }
+}
+#endif
+
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
+                                          insertFromRange(INPUT_ITERATOR first,
+                                                          SENTINEL       last)
+{
+    const difference_type maxInsertions =
+              ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
+    if (0 < maxInsertions) {
+        this->reserve(this->size() + maxInsertions);
+    }
+    else {
+        BSLS_ASSERT_SAFE(0 == maxInsertions);
+    }
+
+    while (first != last) {
+        d_impl.emplace(*first);
+        ++first;
+    }
+}
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
+ && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
+template <class INPUT_ITERATOR, class SENTINEL>
+void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::
+                                    insertFromRange(INPUT_ITERATOR first,
+                                                    SENTINEL       last,
+                                                    size_t         numElements)
+{
+    if (0 < numElements) {
+        this->reserve(this->size() + numElements);
+    }
+
+    while (first != last) {
+        d_impl.emplace(*first);
+        ++first;
+    }
+}
+#endif
+
 // CREATORS
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
@@ -2037,7 +2346,7 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::unordered_multimap(
                                             const ALLOCATOR& basicAllocator)
 : d_impl(hashFunction, keyEqual, initialNumBuckets, 1.0f, basicAllocator)
 {
-    this->insert(first, last);
+    constructFromRange(first, last);
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
@@ -2273,7 +2582,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::end(size_type index)
     return local_iterator(0, &d_impl.bucketAtIndex(index));
 }
 
-
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
 void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
@@ -2410,19 +2718,7 @@ void unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::insert(
                                                           INPUT_ITERATOR first,
                                                           INPUT_ITERATOR last)
 {
-    difference_type maxInsertions =
-              ::BloombergLP::bslstl::IteratorUtil::insertDistance(first, last);
-    if (0 < maxInsertions) {
-        this->reserve(this->size() + maxInsertions);
-    }
-    else {
-        BSLS_ASSERT_SAFE(0 == maxInsertions);
-    }
-
-    while (first != last) {
-        d_impl.emplace(*first);
-        ++first;
-    }
+    insertFromRange(first, last);
 }
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -2622,7 +2918,6 @@ unordered_multimap<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::find(
 {
     return const_iterator(d_impl.find(key));
 }
-
 
 template <class KEY, class VALUE, class HASH, class EQUAL, class ALLOCATOR>
 inline
