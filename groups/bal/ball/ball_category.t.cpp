@@ -234,10 +234,10 @@ int main(int argc, char *argv[])
         bslma::DefaultAllocatorGuard guard(&oa);
 
         {
-            Obj mX("example", 1, 2, 3, 4);  const Obj& X = mX;
+            Obj mX("example", 1, 2, 3, 4, &oa);  const Obj& X = mX;
 
             ASSERTV(X.categoryName(),
-                                     0 == strcmp("example", X.categoryName()));
+                    0 == strcmp("example", X.categoryName()));
 
             ASSERTV(X.recordLevel(),     1 == X.recordLevel());
             ASSERTV(X.passLevel(),       2 == X.passLevel());
