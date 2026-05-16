@@ -1,5 +1,34 @@
-bsl-internal (4.37.0.0) unstable; urgency=low
+bsl-internal (4.38.0.0) unstable; urgency=low
 
+  * 341f2719f Bumped version to 4.38.0.0
+  * dae2e912f Assorted ball fixes. (#5860)
+  * b54df3f4b Fix allocator use in test driver. (#5850)
+  * e1e0cd02c fix warning (#5852)
+  * bbbdc81bb Fix TSan data races in bdlcc_timequeue test case 17 (#5824)
+  * bc0c31a87 Bdljsn list enhancements drqs 183177276 (#5820)
+  * 8c8e16a38 Fix formatting around doxygen's handling of % in inline code blocks drqs 183824689 (#5849)
+  * 9d0dd0b15 Assorted minor cleanups. (#5851)
+  * 8d4c1d3f9 bslstl_stoptoken: add `callback_type` template alias (#5832)
+  * af8d88319 bdlb::PairUtil: added pipe operator fot `adaptForRanges` (#5844)
+  * af3856a8a Fix ubsan issues. (#5846)
+  * 4f3b1fe04 Fix numericformatterutil gcc test run errors. (#5845)
+  * 2402312c7 Fix Datum clang error. (#5835)
+  * e3c1ba753 Add an optional fill pattern to bslma::TestAllocator (#5827)
+  * 0a0527aa2 Increase `bdld::Datum` short string optimisation size to 15 characters (#5829)
+  * 281c3104b bdlmt_eventscheduler: DRQS 183418932 -- zero out 'd_callback' when ca… (#5825)
+  * d4162537c Update conanfile.py (#5818)
+  * 9890c4ca6 bdlt_formatdoc: create component (#5773)
+  * d01f36a99 Remove BOM prefixes (#5828)
+  * 357130959 Fix for cancelEvent() (#5823)
+  * 68c706b84 Do not use bsl::format for concatenation (#5819)
+  * f22a6080c Add missing `explicit` qualifiers (#5817)
+  * f73e2651c Release fixes to ball_streamobserver and bslstl_stringstream (#5815)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 May 2026 21:49:31 -0400
+
+bsl-internal (4.37.0.0) git; urgency=low
+
+  * a4b6888f9 Changelog for version 4.37.0.0
   * c8878af48 Bumped version to 4.37.0.0
   * 54a4799c5 Bdlt format separate include drqs 183177406 (#5805)
   * 441c3043a Increase 64-bit `bdld::Datum` small-string size (#5664)
@@ -36,7 +65,7 @@ bsl-internal (4.37.0.0) unstable; urgency=low
   * 7c1423c29 Fix builds without transitive includes on Solaris (#5744)
   * c8fcf23f9 Drqs 182904194 clang libc++ std::format error (#5776)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 21 Mar 2026 16:36:41 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sat, 21 Mar 2026 16:40:25 -0400
 
 bsl-internal (4.36.0.0) git; urgency=low
 
