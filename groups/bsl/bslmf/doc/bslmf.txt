@@ -52,7 +52,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslmf' package currently has 99 components having 21 levels of physical
+ The 'bslmf' package currently has 100 components having 21 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -168,6 +168,7 @@
 
    2. bslmf_allocatorargt
       bslmf_booleantestable
+      bslmf_containercompatiblerange
       bslmf_integralconstant
       bslmf_voidtype
 
@@ -221,6 +222,9 @@
 :
 : 'bslmf_conjunction_cpp03':                                          !PRIVATE!
 :      Provide C++03 implementation for bslmf_conjunction.h
+:
+: 'bslmf_containercompatiblerange':
+:      Provide a concept for the Standard `container-compatible-range`.
 :
 : 'bslmf_decay':
 :      Convert a type to the type used for pass-by-value.

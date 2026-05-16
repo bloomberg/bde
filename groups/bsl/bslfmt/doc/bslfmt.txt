@@ -9,15 +9,19 @@ bslfmt.txt
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslfmt' package currently has 34 components having 14 levels of physical
+ The 'bslfmt' package currently has 40 components having 14 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
 ..
   14. bslfmt_enablestreamedformatter
+      bslfmt_print
+      bslfmt_print_ostream                                            !PRIVATE!
       bslfmt_streamed
 
   13. bslfmt_formattable
+      bslfmt_print_imp                                                !PRIVATE!
+      bslfmt_print_ostream_imp                                        !PRIVATE!
       bslfmt_streamedformatter
 
   12. bslfmt_format
@@ -61,6 +65,8 @@ bslfmt.txt
    1. bslfmt_format_arg_cpp03                                         !PRIVATE!
       bslfmt_format_args_cpp03                                        !PRIVATE!
       bslfmt_format_imp_cpp03                                         !PRIVATE!
+      bslfmt_print_imp_cpp03                                          !PRIVATE!
+      bslfmt_print_ostream_imp_cpp03                                  !PRIVATE!
 ..
 
 /Component Synopsis
@@ -151,6 +157,24 @@ bslfmt.txt
 :
 : 'bslfmt_padutil':
 :      Provide padding utilities for the `bslfmt` package and clients.
+:
+: 'bslfmt_print':
+:      Provide a standard compliant `print(FILE)` implementation.
+:
+: 'bslfmt_print_imp':                                                 !PRIVATE!
+:      Provide a standard compliant `print(FILE)` implementation.
+:
+: 'bslfmt_print_imp_cpp03':                                           !PRIVATE!
+:      Provide C++03 implementation for bslfmt_print_imp.h
+:
+: 'bslfmt_print_ostream':                                             !PRIVATE!
+:      Provide a standard compliant `print(ostream)` implementation.
+:
+: 'bslfmt_print_ostream_imp':                                         !PRIVATE!
+:      Provide a standard compliant `print(ostream)` implementation.
+:
+: 'bslfmt_print_ostream_imp_cpp03':                                   !PRIVATE!
+:      Provide C++03 implementation for bslfmt_print_ostream_imp.h
 :
 : 'bslfmt_standardformatspecification':
 :      Private utility for use within BSL `format` standard spec parsers

@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bdlt' package currently has 52 components having 9 levels of physical
+ The 'bdlt' package currently has 53 components having 9 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -32,7 +32,6 @@
   7. bdlt_currenttime
      bdlt_datetimetzformatter
      bdlt_fixutil
-     bdlt_formatdoc
      bdlt_fuzzutil
      bdlt_iso8601util
 
@@ -75,6 +74,7 @@
   1. bdlt_calendarreverseiteratoradapter
      bdlt_dayofweek
      bdlt_fixutilconfiguration
+     bdlt_formatdoc
      bdlt_formattestutil
      bdlt_formatutil
      bdlt_iso8601utilconfiguration
@@ -168,6 +168,9 @@
 :
 : 'bdlt_fixutilconfiguration':
 :      Provide an attribute class to configure FIX string generation.
+:
+: 'bdlt_formatdoc':
+:      Provide documentation for `bsl::format` of bdlt value types
 :
 : 'bdlt_formatter':
 :      Provide a standard compliant `format` implementation.

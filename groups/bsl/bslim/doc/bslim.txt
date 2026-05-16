@@ -18,7 +18,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslim' package currently has 7 components having 2 levels of physical
+ The 'bslim' package currently has 8 components having 2 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -26,7 +26,8 @@
   2. bslim_fuzzutil
      bslim_printer
 
-  1. bslim_bslstandardheadertest
+  1. bslim_bslforwardstdheaderstest
+     bslim_bslstandardheadertest
      bslim_formatguard
      bslim_fuzzdataview
      bslim_gtestutil
@@ -35,6 +36,9 @@
 
 /Component Synopsis
 /------------------
+: 'bslim_bslforwardstdheaderstest':
+:      Provide a location for testing `bsl` standard forwarding headers.
+:
 : 'bslim_bslstandardheadertest':
 :      Provide a location for testing `bsl` standard library headers.
 :
