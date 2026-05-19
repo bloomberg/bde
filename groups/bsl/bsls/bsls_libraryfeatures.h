@@ -75,6 +75,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES: C++23 `from_range`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE: C++23 `forward_like`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR: C++23 `generator`
+//  BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV: `constexpr` `<charconv>` ints
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME: `is_implicit_lifetime`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN: `<mdspan>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR: C++23 `out_ptr`, `inout_ptr`
@@ -1459,8 +1460,6 @@ BSLS_IDENT("$Id: $")
 // * The `<utility>` header defines:
 //   - `std::to_underlying`
 //   - `std::unreachable`
-// * The `<charconv>` header provides `constexpr` overloads of `std::to_chars`
-//   and `std::from_chars` for integral types.
 // * The `<memory>` header provides `constexpr` `std::unique_ptr`.
 // * The `<typeinfo>` header provides `constexpr` `std::type_info::operator==`.
 // * The `<iterator>` header provides random access `std::move_iterator<T*>`.
@@ -1535,6 +1534,21 @@ BSLS_IDENT("$Id: $")
 //
 //   - GNU libstdc++ 14
 //   - MSVC++ STL 19.43 (VS 2022 17.13)
+//
+///`BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV`
+///----------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV` macro is defined if the
+// `std::to_chars` and `std::from_chars` functions for all standard signed and
+// unsigned integer types and `char` provided by `<charconv>` are `constexpr`.
+//
+// Note that the standard feature test macro `__cpp_lib_constexpr_charconv` is
+// also defined and has a value of at least `202207L`.
+//
+// This macro is defined first for the following Standard Library
+// implementations:
+//
+//   - GNU libstdc++ 13
+//   - MSVC++ STL 19.36 (VS 2022 17.6)
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME`
 ///-----------------------------------------------------
@@ -2521,6 +2535,11 @@ BSLS_IDENT("$Id: $")
 #   define BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK                           1
 # endif
 
+# if defined(__cpp_lib_constexpr_charconv) &&                                \
+             __cpp_lib_constexpr_charconv >= 202207L
+#   define BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV                        1
+# endif
+
 # if defined(__cpp_lib_containers_ranges) &&                                 \
              __cpp_lib_containers_ranges >= 202202L
 #   define BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES                   1
@@ -3298,6 +3317,17 @@ BSLS_IDENT("$Id: $")
   // __cplusplus macro value for that standard was known, so we need to test
   // for "later standard than 2020".
 # undef BSLS_LIBRARYFEATURES_HAS_CPP11_GARBAGE_COLLECTION_API
+#endif
+
+// Then, as a final consistency check, remove feature macros for modern
+// features that rely on features defined by an earlier standard and that may
+// be absent for the current build.
+
+   /// Verify that we have full support for integer `<charconv>` functions
+   /// before enabling the `constexpr` versions.
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV) &&                  \
+   !defined(BSLS_LIBRARYFEATURES_HAS_CPP17_INT_CHARCONV)
+# undef BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
 #endif
 
 // ============================================================================

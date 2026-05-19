@@ -119,9 +119,12 @@
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
     #include <barrier>
+    #include <bit>
     #include <latch>
+    #include <numbers>
     #include <semaphore>
     #include <span>
+    #include <stop_token>
 #endif
 
 // Verify assumption that <version> can be included.
@@ -263,6 +266,7 @@
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_CONTAINERS_RANGES
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+// [26] BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
 // [26] BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
@@ -627,6 +631,14 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP23_FORWARD_LIKE_defined =
 static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
                                                                           true;
 #else
                                                                          false;
@@ -1863,6 +1875,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV));
+#else
+    puts("UNDEFINED");
+#endif
+
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_IS_IMPLICIT_LIFETIME));
@@ -2499,7 +2518,14 @@ int main(int argc, char *argv[])
         //     - `std::vprint_unicode`
         //     - `std::vprint_unicode_buffered`
         //
-        //29. The corresponding standard feature test macros are defined and
+        //29. If `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT` is defined,
+        //    `std::format` can format a range.
+        //
+        //30. If `BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV` is defined, the
+        //    `std::to_chars` and `std::from_chars` functions for integers in
+        //    `<charconv>` are `constexpr`.
+        //
+        //31. The corresponding standard feature test macros are defined and
         //    have values in the expected range.
         //
         // Plan:
@@ -2537,6 +2563,8 @@ int main(int argc, char *argv[])
         //   BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
         //   BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
         //   BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+        //   BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
         // --------------------------------------------------------------------
 
         if (verbose)
@@ -2572,6 +2600,7 @@ int main(int argc, char *argv[])
             P(BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN_defined)
             P(BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM_defined)
             P(BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT_defined)
+            P(BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV_defined)
         }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BIND_BACK
@@ -3068,6 +3097,39 @@ int main(int argc, char *argv[])
             std::vprint_unicode(std::cout, "{}", std::make_format_args(one));
         };
 #endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT
+        if (veryVerbose) puts("\tTesting `BSLS_LIBRARYFEATURES_HAS_CPP23_RANGE_FORMAT`");
+        {
+            const int aRange[] = {1, 2, 3, 4};
+            (void) std::format("{}", aRange);
+        }
+#endif
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV
+        if (veryVerbose) puts("\tTesting `BSLS_LIBRARYFEATURES_HAS_CPP23_INT_CHARCONV`");
+        {
+            ASSERT(__cpp_lib_constexpr_charconv >= 202207L);
+            static_assert([]{
+                const auto my_assert = [](bool c) { if (!c) throw 0; };
+                const int VALUE = 1;
+                char buf[8] = {};
+                {
+                    auto r = std::to_chars(buf, buf + sizeof(buf), VALUE);
+                    my_assert(r.ec == std::errc{});
+                    my_assert(r.ptr == buf + 1);
+                    my_assert(buf[0] == '1');
+                }
+                {
+                    int res = 0;
+                    auto r = std::from_chars(buf, buf + 1, res);
+                    my_assert(r.ec == std::errc{});
+                    my_assert(res == VALUE);
+                }
+                return true;
+            }());
+        }
+#endif
       } break;
       case 25: {
         // --------------------------------------------------------------------
@@ -3086,7 +3148,6 @@ int main(int argc, char *argv[])
         //    - `std::is_scoped_enum`, `std::is_scoped_enum_v`
         //    - `std::to_underlying`
         //    - `std::unreachable`
-        //    - `constexpr` `std::to_chars` and `std::from_chars` for integers.
         //    - `constexpr` `std::unique_ptr`.
         //    - `constexpr` `std::type_info::operator==`.
         //    - Random access `std::move_iterator<T*>`.
@@ -3205,27 +3266,6 @@ int main(int argc, char *argv[])
             ASSERT(__cpp_lib_unreachable >= 202202L);
             break;
             std::unreachable();
-        }
-        {
-            ASSERT(__cpp_lib_constexpr_charconv >= 202207L);
-            static_assert([]{
-                const auto my_assert = [](bool c) { if (!c) throw 0; };
-                const int VALUE = 1;
-                char buf[8] = {};
-                {
-                    auto r = std::to_chars(buf, buf + sizeof(buf), VALUE);
-                    my_assert(r.ec == std::errc{});
-                    my_assert(r.ptr == buf + 1);
-                    my_assert(buf[0] == '1');
-                }
-                {
-                    int res = 0;
-                    auto r = std::from_chars(buf, buf + 1, res);
-                    my_assert(r.ec == std::errc{});
-                    my_assert(res == VALUE);
-                }
-                return true;
-            }());
         }
         {
             ASSERT(__cpp_lib_constexpr_memory >= 202202L);

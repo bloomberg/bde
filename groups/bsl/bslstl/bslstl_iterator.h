@@ -181,20 +181,25 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 
 #include <cstddef>
+#include <iterator>
+
+#if BSLS_COMPILERFEATURES_FULL_CPP11
+    #include <initializer_list>
+    #include <type_traits>    // `common_type`, `make_signed`
+#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
+
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES) &&                        \
+    defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM) && _LIBCPP_VERSION < 220000
+    // libc++ prior to version 22.0.0 does not provide `std::ranges` objects
+    // for `rbegin`, `crbegin`, `rend`, and `crend` in the <iterator> header
+    // so we must include the full `<ranges>` header to provude the complete
+    // interface.
+    #include <ranges>
+#endif
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
     #include <bsls_nativestd.h>
 #endif  // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-    #include <type_traits>    // `common_type`, `make_signed`
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_TRAITS_HEADER
-
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-    #include <initializer_list>
-#endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
-
-#include <iterator>
 
 #ifdef BSLS_LIBRARYFEATURES_STDCPP_LIBCSTD
     #define BSLSTL_ITERATOR_IMPLEMENT_CPP11_REVERSE_ITERATOR                  1

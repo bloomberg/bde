@@ -2058,6 +2058,12 @@ static void printFlags()
     D_MACRO(_LIBCPP_STD_VER);
 #endif
 
+#if defined(_LIBCPP_VERSION)
+    P_MACRO(_LIBCPP_VERSION);
+#else
+    D_MACRO(_LIBCPP_VERSION);
+#endif
+
         // Microsoft STL
 
 #if defined(_HAS_AUTO_PTR_ETC)
