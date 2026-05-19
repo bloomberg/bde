@@ -106,10 +106,12 @@ namespace {
 
 bool isEqual(FILE *fp, const char *text)
 {
-    char buf[128];
-    rewind(fp);
-    size_t n = fread(buf, 1, sizeof buf, fp);
-    ASSERT(n < sizeof buf);
+    char buf[129];
+    const size_t k_DATA_SIZE = sizeof(buf) - 1;
+
+    ASSERT(0 == fseek(fp, 0, SEEK_SET));
+    const size_t n = fread(buf, 1, k_DATA_SIZE, fp);
+    ASSERT(n < k_DATA_SIZE);
     buf[n] = '\x0';
     return strcmp(buf, text) == 0;
 }
