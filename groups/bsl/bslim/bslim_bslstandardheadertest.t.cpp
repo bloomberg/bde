@@ -979,14 +979,18 @@ class RangesDummyView : public bsl::ranges::view_interface<RangesDummyView> {
     }
 };
 
+/// This class satisfies the basic requirements for a random generator, that
+/// can be used in constrained algorithms.
 class RangesDummyRandomGenerator{
-  // This class satisfies the basic requirements for a random generator, that
-  // can be used in constrained algorithms.
-
   public:
     // TYPES
     using result_type = unsigned int;
 
+  private:
+    // DATA
+    result_type d_nextValue;
+
+  public:
     // CLASS METHODS
 
     /// Unconditionally return `1u`.
@@ -1001,12 +1005,23 @@ class RangesDummyRandomGenerator{
         return 5u;
     }
 
+    // CREATORS
+
+    /// Create a `RangesDummyRandomGenerator` object with the initial value of
+    /// `min()`.
+    RangesDummyRandomGenerator() : d_nextValue(min()) {}
+
     // MANIPULATORS
 
-    /// Unconditionally return `1u`.
+    /// Return `1u`..`5u` in sequence.
     result_type operator()()
     {
-        return 1u;
+        const result_type retValue = d_nextValue;
+        ++d_nextValue;
+        if (d_nextValue > max()) {
+             d_nextValue = min();
+        }
+        return retValue;
     }
 };
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
@@ -2994,13 +3009,13 @@ int main(int argc, char *argv[])
                 const bool res_v = bsl::is_pointer_interconvertible_base_of_v
                                                             < Bar, Baz>;
 
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1944
+#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION <= 1951
                 // Known Windows bug.   Hopefully fixed in future release.
 
                 const bool expected = false;
-#else   // MSVC up to 19.44
+#else   // MSVC up to 19.51
                 const bool expected = true;
-#endif  // Not MSVC or later than 19.44
+#endif  // Not MSVC or later than 19.51
                 ASSERTV(expected, res,   expected == res);
                 ASSERTV(expected, res_v, expected == res_v);
             }
