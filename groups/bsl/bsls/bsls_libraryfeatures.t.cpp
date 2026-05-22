@@ -6,33 +6,54 @@
 #include <bsls_keyword.h>
 #include <bsls_platform.h>
 
-#include <iostream>  // for `cout`
-#include <ostream>   // for `ostream`, `print`
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <complex>
+#include <cstdio>
+#include <cstdlib>
+#include <ctime>
+#include <exception>
+#include <functional>
+#include <iomanip>
+#include <ios>
+#include <iostream>
+#include <iterator>
+#include <locale>
+#include <memory>
+#include <numeric>
+#include <ostream>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include <stddef.h>  // for `size_t`
 #include <stdio.h>   // for `printf`, `puts`
 #include <stdlib.h>  // for `atoi`
 #include <string.h>  // for `strchr`
 
-#include <string>    // for `pmr::string`
-
-
 // Verify assumption that the BASELINE C++11 library includes all of the new
-// library headers not covered by a more specific macro.  Note that we actively
-// #include each header to check for errors, though this could switch to using
-// `__has_include(<header>)` now that we no longer mess with standard include
-// files with intercept headers.
+// library headers not covered by a more specific macro, and note all the other
+// headers that are expected to be present in a C++11 library but are
+// separately accounted for.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
     #include <array>
     #include <atomic>
+    #include <cfenv>
     #include <chrono>
+    #include <cinttypes>
     #include <codecvt>
     #include <condition_variable>
+    #include <cstdint>
+    #include <cuchar>
     #include <forward_list>
     #include <future>
 //  #include <initializer_list>
                       // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
     #include <mutex>
     #include <random>
+    #include <ratio>
     #include <regex>
     #include <scoped_allocator>
     #include <system_error>
@@ -45,18 +66,17 @@
 #endif
 
 // Verify assumption that the BASELINE C++14 library includes all of the new
-// library headers not covered by a more specific macro.
+// library headers not covered by a more specific macro, and note all the other
+// headers that are expected to be present in a C++14 library but are
+// separately accounted for.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
     #include <shared_mutex>
 #endif
 
-// Verify assumption that <cstdlib> can be included.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
-    #include <cstdlib>
-#endif
-
 // Verify assumption that the BASELINE C++17 library includes all of the new
-// library headers not covered by a more specific macro.
+// library headers not covered by a more specific macro, and note all the other
+// headers that are expected to be present in a C++17 library but are
+// separately accounted for.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
     #include <any>
 //  #include <charconv>        // LIBRARYFEATURES_HAS_CPP17_CHARCONV
@@ -74,14 +94,14 @@
     #include <charconv>
 #endif
 
-// Verify assumption that <execution> can be included.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
-    #include <execution>
-#endif
-
 // Verify assumption that <filesystem> can be included.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_FILESYSTEM
     #include <filesystem>
+#endif
+
+// Verify assumption that <execution> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PARALLEL_ALGORITHMS
+    #include <execution>
 #endif
 
 // Verify assumption that <memory_resource> can be included.
@@ -89,22 +109,36 @@
     #include <memory_resource>
 #endif
 
-// Verify assumption that <ctime> can be included.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_TIMESPEC_GET
-    #include <ctime>
-#endif
-
 // Verify assumption that the BASELINE C++20 library includes all of the new
-// library headers not covered by a more specific macro.
-
-// Verify assumption that <format> can be included.
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
-#include <format>
+// library headers not covered by a more specific macro, and note all the other
+// headers that are expected to be present in a C++20 library but are
+// separately accounted for.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+    #include <barrier>
+    #include <bit>
+//  #include <compare>   // COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON
+//  #include <concepts>        // LIBRARYFEATURES_HAS_CPP20_CONCEPTS
+//  #include <coroutine>       // BSLS_COMPILERFEATURES_SUPPORT_COROUTINE
+//  #include <format>          // LIBRARYFEATURES_HAS_CPP20_FORMAT
+    #include <latch>
+    #include <numbers>
+//  #include <ranges>          // LIBRARYFEATURES_HAS_CPP20_RANGES
+    #include <semaphore>
+//  #include <source_location> // LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+    #include <span>
+    #include <stop_token>
+//  #include <syncstream>      // LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM
+//  #include <version>         // LIBRARYFEATURES_HAS_CPP20_VERSION
 #endif
 
 // Verify assumption that <concepts> can be included.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
     #include <concepts>
+#endif
+
+// Verify assumption that <format> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_FORMAT
+    #include <format>
 #endif
 
 // Verify assumption that <ranges> can be included.
@@ -117,14 +151,9 @@
     #include <source_location>
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
-    #include <barrier>
-    #include <bit>
-    #include <latch>
-    #include <numbers>
-    #include <semaphore>
-    #include <span>
-    #include <stop_token>
+// Verify assumption that <syncstream> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM
+    #include <syncstream>
 #endif
 
 // Verify assumption that <version> can be included.
@@ -132,20 +161,49 @@
     #include <version>
 #endif
 
+// Verify assumption that the BASELINE C++23 library includes all of the new
+// library headers not covered by a more specific macro, and note all the other
+// headers that are expected to be present in a C++23 library but are
+// separately accounted for.  Note that the C++23 baseline is defined
+// purely in terms of features in existing headers; all new C++23 headers
+// tracked by this component will have their own specific macros.  Note
+// that several headers remain unaccounted for, pending BDE providing its
+// own implementation of those headers.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
+//  #include <expected>        // not tracked by this component
+//  #include <flat_map>        // not tracked by this component
+//  #include <flat_set>        // not tracked by this component
+//  #include <generator>       // LIBRARYFEATURES_HAS_CPP23_GENERATOR
+//  #include <mdspan>          // LIBRARYFEATURES_HAS_CPP23_MDSPAN
+//  #include <print>           // LIBRARYFEATURES_HAS_CPP23_PRINT
+//  #include <spanstream>      // LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+//  #include <stacktrace>      // LIBRARYFEATURES_HAS_CPP23_STACKTRACE
+//  #include <stdfloat>        // not tracked by this component
+#endif
+
+// Verify assumption that <generator> can be included.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_GENERATOR
-#include <generator>
+    #include <generator>
 #endif
 
+// Verify assumption that <mdspan> can be included.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_MDSPAN
-#include <mdspan>
+    #include <mdspan>
 #endif
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
-#include <spanstream>
-#endif
-
+// Verify assumption that <print> can be included.
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
-#include <print>
+    #include <print>
+#endif
+
+// Verify assumption that <spanstream> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
+    #include <spanstream>
+#endif
+
+// Verify assumption that <stacktrace> can be included.
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_STACKTRACE
+    #include <stacktrace>
 #endif
 
 // ============================================================================
@@ -257,6 +315,7 @@
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
+// [19] BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM
 // [20] BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
 // [19] BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION
@@ -573,8 +632,24 @@ bool   BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION_defined =
 #endif
 
 static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
 bool   BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE_defined =
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE
+                                                                          true;
+#else
+                                                                         false;
+#endif
+
+static const
+bool   BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY_defined =
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY
                                                                           true;
 #else
                                                                          false;
@@ -1562,6 +1637,13 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_SHORT_STRING));
+#else
+    puts("UNDEFINED");
+#endif
+
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP11_STREAM_MOVE));
@@ -1600,6 +1682,13 @@ static void printFlags()
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP14_RANGE_FUNCTIONS));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP17_ALIGNED_ALLOC));
 #else
     puts("UNDEFINED");
 #endif
@@ -1741,6 +1830,20 @@ static void printFlags()
     puts("UNDEFINED");
 #endif
 
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_CALENDAR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_CHAR8_MB_CONV));
+#else
+    puts("UNDEFINED");
+#endif
+
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS));
@@ -1808,6 +1911,13 @@ static void printFlags()
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM));
 #else
     puts("UNDEFINED");
 #endif
@@ -1899,6 +2009,13 @@ static void printFlags()
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_OUT_PTR));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_PRINT:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_PRINT));
 #else
     puts("UNDEFINED");
 #endif
@@ -2032,6 +2149,13 @@ static void printFlags()
     printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM:\t");
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM
     puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_SPANSTREAM));
+#else
+    puts("UNDEFINED");
+#endif
+
+    printf("\tBSLS_LIBRARYFEATURES_HAS_CPP23_STACKTRACE:\t");
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_STACKTRACE
+    puts(STRINGIFY(BSLS_LIBRARYFEATURES_HAS_CPP23_STACKTRACE));
 #else
     puts("UNDEFINED");
 #endif

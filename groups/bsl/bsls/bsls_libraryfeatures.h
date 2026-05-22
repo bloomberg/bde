@@ -66,6 +66,7 @@ BSLS_IDENT("$Id: $")
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_MAKE_UNIQUE_FOR_OVERWRITE: `*_for_overwrite`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES: `<ranges>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION: `<source_location>`
+//  BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM: `<syncstream>`
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY: `to_array` factory function
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE: `<chrono>` subset of TZ features
 //  BSLS_LIBRARYFEATURES_HAS_CPP20_VERSION: `<version>`
@@ -505,13 +506,18 @@ BSLS_IDENT("$Id: $")
 // * The following headers can be included:
 //     - `<array>`
 //     - `<atomic>`
+//     - `<cfenv>`
 //     - `<chrono>`
+//     - `<cinttypes>`
 //     - `<codecvt>`
 //     - `<condition_variable>`
+//     - `<cstdint>`
+//     - `<cuchar>`
 //     - `<forward_list>`
 //     - `<future>`
 //     - `<mutex>`
 //     - `<random>`
+//     - `<ratio>`
 //     - `<regex>`
 //     - `<scoped_allocator>`
 //     - `<system_error>`
@@ -1345,14 +1351,29 @@ BSLS_IDENT("$Id: $")
 //       - libstdc++ version 11
 //   - Microsoft Visual Studio 2022 / MSVC 19.30
 //
+///`BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM`
+///--------------------------------------------
+// The `BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM` macro is defined if the
+// native standard library provides the `<syncstream>` header and implements
+// all required content with no major issues.
+//
+// This macro is defined if the standard `__cpp_lib_syncbuf` feature-test macro
+// is defined and `__cpp_lib_syncbuf >= 201803L`.
+//
+// This macro is defined first for the following compiler versions:
+//
+//   - GCC 11
+//   - LLVM libc++ 18
+//   - Microsoft Visual Studio 2019 16.10 / MSVC 19.29
+//
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY`
 ///-----------------------------------------
 // The `BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY` macro is defined if the native
 // standard library implements the `to_array` factory function in the `<array>`
-// header correctly with no major issues..
+// header correctly with no major issues.
 //
-// This macro is defined if the standard `__cpp_lib_ranges` feature-test macro
-// is defined and `__cpp_lib_to_array >= 201907L`.
+// This macro is defined if the standard `__cpp_lib_to_array` feature-test
+// macro is defined and `__cpp_lib_to_array >= 201907L`.
 //
 ///`BSLS_LIBRARYFEATURES_HAS_CPP20_TIMEZONE`
 ///----------------------------------------
@@ -2517,6 +2538,14 @@ BSLS_IDENT("$Id: $")
 # if defined(__cpp_lib_source_location) &&                                   \
       __cpp_lib_source_location >= 201907L
 #   define BSLS_LIBRARYFEATURES_HAS_CPP20_SOURCE_LOCATION                     1
+# endif
+
+# if defined(__cpp_lib_syncbuf) && __cpp_lib_syncbuf >= 201803L
+#   define BSLS_LIBRARYFEATURES_HAS_CPP20_SYNCSTREAM                          1
+# endif
+
+# if defined(__cpp_lib_to_array) && __cpp_lib_to_array >= 201907L
+#   define BSLS_LIBRARYFEATURES_HAS_CPP20_TO_ARRAY                            1
 # endif
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
 
