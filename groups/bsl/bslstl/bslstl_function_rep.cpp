@@ -9,8 +9,6 @@ BSLS_IDENT("$Id$ $CSID$")
 
 #include <bsls_assert.h>
 
-#include <bslstl_referencewrapper.h>  // For testing only
-
 namespace BloombergLP {
 
 #if !defined(BSLS_PLATFORM_CMP_MSVC) && !defined(BSLS_PLATFORM_CMP_SUN)

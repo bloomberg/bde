@@ -6,12 +6,12 @@
 
 #include <bslma_testallocator.h>
 
+#include <bslmf_referencewrapper.h>
+
 #include <bsls_alignmentfromtype.h>
 #include <bsls_asserttest.h>
 #include <bsls_keyword.h>
 #include <bsls_bsltestutil.h>
-
-#include <bslstl_referencewrapper.h>
 
 #include <bsltf_templatetestfacility.h>
 

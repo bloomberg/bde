@@ -1441,7 +1441,6 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslstl_compare.h>
 #include <bslstl_hash.h>
 #include <bslstl_pair.h>
-#include <bslstl_referencewrapper.h>
 #include <bslstl_sharedptrallocateinplacerep.h>
 #include <bslstl_sharedptrallocateoutofplacerep.h>
 
@@ -1470,6 +1469,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_ispointer.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_referencewrapper.h>
 #include <bslmf_removeextent.h>
 #include <bslmf_util.h>
 
@@ -1484,9 +1484,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_util.h>          // `forward<T>(V)`
 
 #include <functional>           // use `std::less` to order pointers
-
 #include <memory>               // `std::auto_ptr`, `std::unique_ptr`
-
 #include <ostream>              // `std::basic_ostream`
 
 #include <stddef.h>             // `size_t`, `ptrdiff_t`

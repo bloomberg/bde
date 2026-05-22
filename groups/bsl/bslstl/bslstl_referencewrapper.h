@@ -7,6 +7,8 @@ BSLS_IDENT("$Id: $")
 
 //@PURPOSE: Provide copyable, assignable object wrapper for references.
 //
+//@DEPRECATED: Use 'bslmf_referencewrapper' instead.
+//
 //@CLASSES:
 //  bsl::reference_wrapper: class object to hold a reference to an object
 //
@@ -20,10 +22,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_referencewrapper.h>
 
-#ifdef BSLMF_REFERENCEWRAPPER_IS_ALIASED
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
+# ifdef BSLMF_REFERENCEWRAPPER_IS_ALIASED
     // Typo in the name is intentional for backwards compatibility
-    #define BSLSTL_REFRENCEWRAPPER_IS_ALIASED
-#endif
+#    define BSLSTL_REFRENCEWRAPPER_IS_ALIASED
+# endif
+#endif // BDE_OMIT_INTERNAL_DEPRECATED
 
 #endif
 
