@@ -392,7 +392,7 @@ void TestDriver<t_TYPE>::testSingleModelType()
     typedef bslmf::MovableRef<const t_TYPE> MovableRefConst;
 #endif
 
-    t_TYPE obj;
+    t_TYPE obj = t_TYPE();  // Force value-initialization for `const` trivial types.
 
     testSingleCase<t_MODEL, t_TYPE>(&obj, U::forward_like<t_MODEL>(obj));
 
