@@ -12,10 +12,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
-#pragma GCC diagnostic ignored "-Wvolatile"
-#endif
-
 // ============================================================================
 //                                 TEST PLAN
 // ----------------------------------------------------------------------------
@@ -77,6 +73,20 @@ void aSsErT(bool condition, const char *message, int line)
 #define P_           BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_           BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLS_BSLTESTUTIL_L_  // current Line number
+
+//=============================================================================
+//                  GLOBAL WARNING SUPPRESSION
+//-----------------------------------------------------------------------------
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC
+# pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
+# pragma GCC diagnostic ignored "-Wunknown-warning-option"  // For older Clang
+# pragma GCC diagnostic ignored "-Wdeprecated-volatile"
+#endif
+
 
 // ============================================================================
 //                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
