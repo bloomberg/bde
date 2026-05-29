@@ -105,6 +105,33 @@ BSLS_IDENT("$Id: $")
 // provides a semantic comparison of two numbers (see `bdljsn_jsonnumber` for
 // more detail).
 //
+///Initializer Lists
+///-----------------
+// The `bdljsn::JsonArray` and `bdljsn::JsonObject` classes have constructors
+// and assorted manipulator methods (e.g., `assign`, `insert`) that accept
+// instances of `std::initializer_list` which are invoked when users supply
+// braced lists of values.  When values of the following types are used in
+// those braced lists, the values are converted to `bdljsn::Json` objects
+// (as the `JsonArray` elements or as the "value" portion of `JsonObject`
+// members).
+//
+//  * `JsonNull`
+//  * `bool`
+//  * integral types
+//  * `float`
+//  * `double`
+//  * `bdldfp::Decimal64`
+//  * `const char *`
+//  * `bsl::string`
+//  * `std::string`
+//  * `std::pmr::string` // where available
+//  * `bsl::string_view`
+//  * `std::string_view` // where available
+//  * `JsonObject`
+//  * `JsonArray`
+//  * `JsonNumber`
+//  * `Json`
+//
 ///Usage
 ///-----
 // This section illustrates the intended use of this component.
@@ -448,7 +475,7 @@ class JsonArray;
 class JsonObject;
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 class Json_Initializer;
-class Json_MemberInitializer;
+class JsonObject_MemberInitializer;
 #endif
 
                               // ===============
@@ -544,8 +571,8 @@ class JsonArray {
     /// unless `first` and `last` refer to a range of valid values where
     /// `first` is at a position at or before `last`.
     template <class t_INPUT_ITERATOR>
-    JsonArray(t_INPUT_ITERATOR    first,
-              t_INPUT_ITERATOR    last,
+    JsonArray(t_INPUT_ITERATOR  first,
+              t_INPUT_ITERATOR  last,
               bslma::Allocator *basicAllocator = 0);
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
@@ -1047,7 +1074,8 @@ class JsonObject {
     /// member initializer in `memberInitializers` is valid UTF-8 (see
     /// `bdlde::Utf8Util::isValid`).
     JsonObject(
-            std::initializer_list<Json_MemberInitializer>  memberInitializers,
+            std::initializer_list<JsonObject_MemberInitializer>
+                                                           memberInitializers,
             bslma::Allocator                              *basicAllocator = 0);
                                                                     // IMPLICIT
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
@@ -1069,13 +1097,14 @@ class JsonObject {
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
     /// Assign to this `JsonObject` members created (in order) from the
-    /// specified `members`.  List members having key values that were
-    /// previously inserted into the this object are ignored.  Previous members
-    /// of this object, if any, are destroyed.  The behavior is undefined
-    /// unless the key of each member in `members` is valid UTF-8 (see
-    /// `bdlde::Utf8Util::isValid`).
-    JsonObject& operator=(std::initializer_list<Json_MemberInitializer>
-                                                                      members);
+    /// specified `memberInitializerss`.  List members having key values that
+    /// were previously inserted into the this object are ignored.  Previous
+    /// members of this object, if any, are destroyed.  The behavior is
+    /// undefined unless the key of each member in `members` is valid UTF-8
+    /// (see `bdlde::Utf8Util::isValid`).
+    JsonObject& operator=(std::initializer_list<
+                                                JsonObject_MemberInitializer>
+                                                           memberInitializers);
 #endif
 
     /// Return a reference providing modifiable access to the `Json` object
@@ -1124,7 +1153,7 @@ class JsonObject {
     /// preserves the relative order of the elements not removed.  The
     /// behavior is undefined unless `position` refers to a `value_type`
     /// object in this unordered map.
-    Iterator erase(Iterator position);
+    Iterator erase(     Iterator position);
     Iterator erase(ConstIterator position);
 
     /// Return an iterator providing modifiable access to the `Member`
@@ -1182,8 +1211,8 @@ class JsonObject {
     /// `JsonObject`.  The behavior is undefined unless the keys of all
     /// `Member` objects inserted are valid UTF-8 (see
     /// `bdlde::Utf8Util::isValid`).
-    JsonObject& insert(std::initializer_list<Json_MemberInitializer>
-                                                           memberInitializers);
+    JsonObject& insert(std::initializer_list<JsonObject_MemberInitializer>
+                                                        memberInitializers);
 #endif
 
     /// Insert into this `JsonObject` a `Member` constructed from the
@@ -2256,38 +2285,47 @@ class Json_Initializer {
     Json_Initializer(const JsonNull& );                             // IMPLICIT
 
     /// Create a `Json_Initializer` object containing the boolean value of
-    /// the specified `b` in the internal variant.
-    Json_Initializer(bool b);                                       // IMPLICIT
+    /// the specified `value` in the internal variant.  Note that (template
+    /// parameter) `t_BOOL` must be `bool`; types that convert to `bool` (e.g.,
+    /// pointers) are disallowed.
+    template <class t_BOOL>
+    Json_Initializer(t_BOOL value, typename bsl::enable_if<
+                                      bsl::is_same<t_BOOL, bool>::value,
+                                                           bool>::type * = 0);
+                                                                    // IMPLICIT
 
     /// Create a `Json_Initializer` object containing the value of the
-    /// specified `num` in the internal variant.  If `num` is a signed
-    /// integral type, then the value is stored as a `long long`.  If `num`
+    /// specified `value` in the internal variant.  If `value` is a signed
+    /// integral type, then the value is stored as a `long long`.  If `value`
     /// is an unsigned integral type, then the value is stored as an
     /// `unsigned long long`.
-    template <class NUMBER, class = typename bsl::enable_if<
-                                        std::is_integral<NUMBER>::value>::type>
-    Json_Initializer(NUMBER num);                                   // IMPLICIT
+    template <class t_INTEGRAL>
+    Json_Initializer(t_INTEGRAL value, typename bsl::enable_if<
+                                   bsl::is_integral<t_INTEGRAL>  ::value
+                               && !bsl::is_same<t_INTEGRAL, bool>::value,
+                                                            int >::type * = 0);
+                                                                    // IMPLICIT
 
-    /// Create a `Json_Initializer` object containing the specified `f`.
-    Json_Initializer(float f);                                      // IMPLICIT
+    /// Create a `Json_Initializer` object containing the specified `value`.
+    Json_Initializer(float value);                                  // IMPLICIT
 
-    /// Create a `Json_Initializer` object containing the specified `d`.
-    Json_Initializer(double d);                                     // IMPLICIT
+    /// Create a `Json_Initializer` object containing the specified `value`.
+    Json_Initializer(double value);                                 // IMPLICIT
 
     /// Create a `Json_Initializer` object containing the specified `value`.
     Json_Initializer(bdldfp::Decimal64 value);                      // IMPLICIT
 
-    /// Create a `Json_Initializer` object containing a string_view
+    /// Create a `Json_Initializer` object containing a `string_view`
     /// referring to the null-terminated sequence pointed to by the
-    /// specified `p`.
-    Json_Initializer(const char *p);                                // IMPLICIT
+    /// specified `string`.
+    Json_Initializer(const char *string);                           // IMPLICIT
 
     /// Create a `Json_Initializer` object containing a `string_view` referring
-    /// to the contents of the specified `s`.
-    Json_Initializer(const bsl::string&      s);                    // IMPLICIT
-    Json_Initializer(const std::string&      s);                    // IMPLICIT
+    /// to the contents of the specified `string`.
+    Json_Initializer(const bsl::string&      string);               // IMPLICIT
+    Json_Initializer(const std::string&      string);               // IMPLICIT
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-    Json_Initializer(const std::pmr::string& s);                    // IMPLICIT
+    Json_Initializer(const std::pmr::string& string);               // IMPLICIT
 #endif
 
     /// Create a `Json_Initializer` object containing a `string_view`
@@ -2344,36 +2382,39 @@ Json_Initializer::Json_Initializer(const JsonNull &)
 {
 }
 
-inline
-Json_Initializer::Json_Initializer(bool b)
-: d_storage(b)
+template <class t_BOOL>
+Json_Initializer::Json_Initializer(t_BOOL value, typename bsl::enable_if<
+                                            bsl::is_same<t_BOOL, bool>::value,
+                                                                 bool>::type *)
+: d_storage(value)
 {
 }
 
-template <class NUMBER, class>
-inline
-Json_Initializer::Json_Initializer(NUMBER num)
+template <class t_INTEGRAL>
+Json_Initializer::Json_Initializer(t_INTEGRAL value, typename bsl::enable_if<
+                                        bsl::is_integral<t_INTEGRAL>  ::value
+                                    && !bsl::is_same<t_INTEGRAL, bool>::value,
+                                                                 int >::type *)
 {
-    BSLMF_ASSERT(bsl::is_unsigned<NUMBER>::value ||
-                 bsl::is_signed<NUMBER>::value);
+    BSLMF_ASSERT(bsl::is_unsigned<t_INTEGRAL>::value
+              || bsl::  is_signed<t_INTEGRAL>::value);
 
-    if (bsl::is_unsigned<NUMBER>::value) {
-        d_storage = static_cast<unsigned long long>(num);
+    if (bsl::is_unsigned<t_INTEGRAL>::value) {
+        d_storage = static_cast<unsigned long long>(value);
+    } else {
+        d_storage = static_cast<         long long>(value);
     }
-    else {
-        d_storage = static_cast<long long>(num);
-    }
 }
 
 inline
-Json_Initializer::Json_Initializer(float f)
-: d_storage(static_cast<double>(f))
+Json_Initializer::Json_Initializer(float value)
+: d_storage(static_cast<double>(value))
 {
 }
 
 inline
-Json_Initializer::Json_Initializer(double d)
-: d_storage(d)
+Json_Initializer::Json_Initializer(double value)
+: d_storage(value)
 {
 }
 
@@ -2384,27 +2425,27 @@ Json_Initializer::Json_Initializer(bdldfp::Decimal64 value)
 }
 
 inline
-Json_Initializer::Json_Initializer(const char *p)
-: d_storage(bsl::string_view(p))
+Json_Initializer::Json_Initializer(const char *string)
+: d_storage(bsl::string_view(string))
 {
 }
 
 inline
-Json_Initializer::Json_Initializer(const bsl::string &s)
-: d_storage(bsl::string_view(s))
+Json_Initializer::Json_Initializer(const bsl::string& string)
+: d_storage(bsl::string_view(string))
 {
 }
 
 inline
-Json_Initializer::Json_Initializer(const std::string &s)
-: d_storage(bsl::string_view(s))
+Json_Initializer::Json_Initializer(const std::string& string)
+: d_storage(bsl::string_view(string))
 {
 }
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
-Json_Initializer::Json_Initializer(const std::pmr::string &s)
-: d_storage(bsl::string_view(s))
+Json_Initializer::Json_Initializer(const std::pmr::string& string)
+: d_storage(bsl::string_view(string))
 {
 }
 #endif
@@ -2619,14 +2660,14 @@ void Json_ConstructVisitor::operator()(bslmf::Nil) const
     BSLS_ASSERT_INVOKE_NORETURN("Unreachable");
 }
 
-                        // ============================
-                        // class Json_MemberInitializer
-                        // ============================
+                        // ==================================
+                        // class JsonObject_MemberInitializer
+                        // ==================================
 
 /// This component-private class is designed capture a set of values that can
 /// be used to initialize an element in a `JsonObject`.  The purpose here is to
 /// enable list-initialization (including nested lists) of JSON objects.
-class Json_MemberInitializer {
+class JsonObject_MemberInitializer {
 
   private:
     // DATA
@@ -2639,26 +2680,32 @@ class Json_MemberInitializer {
 
     // CREATORS
 
-    /// Create a Json_MemberInitializer object a key whose value is equal to
-    /// the specified `s` and whose value is equal to the specified `ji`.
-    Json_MemberInitializer(const char         *s, const Json_Initializer& ji);
-    Json_MemberInitializer(const bsl::string&  s, const Json_Initializer& ji);
-    Json_MemberInitializer(const std::string&  s, const Json_Initializer& ji);
+    /// Create a `JsonObject_MemberInitializer` object a key whose value is
+    /// equal to the specified `s` and whose value is equal to the specified
+    /// `ji`.
+    JsonObject_MemberInitializer(const char              *s,
+                                 const Json_Initializer&  ji);
+    JsonObject_MemberInitializer(const bsl::string&       s,
+                                 const Json_Initializer&  ji);
+    JsonObject_MemberInitializer(const std::string&       s,
+                                 const Json_Initializer&  ji);
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
-    Json_MemberInitializer(const std::pmr::string& s,
-                                                  const Json_Initializer& ji);
+    JsonObject_MemberInitializer(const std::pmr::string&  s,
+                                 const Json_Initializer&  ji);
 #endif
 
-    /// Create a Json_MemberInitializer object a key whose value is equal to
-    /// the specified `sv` and whose value is equal to the specified `ji`.
-    Json_MemberInitializer(const bsl::string_view& sv,
-                           const Json_Initializer& ji);
+    /// Create a `JsonObject_MemberInitializer` object a key whose value is
+    /// equal to the specified `sv` and whose value is equal to the specified
+    /// `ji`.
+    JsonObject_MemberInitializer(const bsl::string_view& sv,
+                                 const Json_Initializer& ji);
 
 #ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
-    /// Create a `Json_MemberInitializer` object a key whose value is equal to
-    /// the specified `sv` and whose value is equal to the specified `ji`.
-    Json_MemberInitializer(const std::string_view& sv,
-                           const Json_Initializer& ji);
+    /// Create a `JsonObject_MemberInitializer` object a key whose value is
+    /// equal to the specified `sv` and whose value is equal to the specified
+    /// `ji`.
+    JsonObject_MemberInitializer(const std::string_view& sv,
+                                 const Json_Initializer& ji);
 #endif
 
     // ACCESSORS
@@ -2674,30 +2721,33 @@ class Json_MemberInitializer {
 
 };
 
-                        // ----------------------------
-                        // class Json_MemberInitializer
-                        // ----------------------------
+                        // ----------------------------------
+                        // class JsonObject_MemberInitializer
+                        // ----------------------------------
 
 // CREATORS
 inline
-Json_MemberInitializer::Json_MemberInitializer(const char              *s,
-                                               const Json_Initializer&  ji)
+JsonObject_MemberInitializer::JsonObject_MemberInitializer(
+                                                   const char              *s,
+                                                   const Json_Initializer&  ji)
 : d_first(s)
 , d_second(ji)
 {
 }
 
 inline
-Json_MemberInitializer::Json_MemberInitializer(const bsl::string&      s,
-                                               const Json_Initializer& ji)
+JsonObject_MemberInitializer::JsonObject_MemberInitializer(
+                                                    const bsl::string&      s,
+                                                    const Json_Initializer& ji)
 : d_first(s)
 , d_second(ji)
 {
 }
 
 inline
-Json_MemberInitializer::Json_MemberInitializer(const std::string&      s,
-                                               const Json_Initializer& ji)
+JsonObject_MemberInitializer::JsonObject_MemberInitializer(
+                                                    const std::string&      s,
+                                                    const Json_Initializer& ji)
 : d_first(s)
 , d_second(ji)
 {
@@ -2705,8 +2755,9 @@ Json_MemberInitializer::Json_MemberInitializer(const std::string&      s,
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_PMR_STRING
 inline
-Json_MemberInitializer::Json_MemberInitializer(const std::pmr::string& s,
-                                               const Json_Initializer& ji)
+JsonObject_MemberInitializer::JsonObject_MemberInitializer(
+                                                    const std::pmr::string& s,
+                                                    const Json_Initializer& ji)
 : d_first(s)
 , d_second(ji)
 {
@@ -2714,8 +2765,9 @@ Json_MemberInitializer::Json_MemberInitializer(const std::pmr::string& s,
 #endif
 
 inline
-Json_MemberInitializer::Json_MemberInitializer(const bsl::string_view& sv,
-                                               const Json_Initializer& ji)
+JsonObject_MemberInitializer::JsonObject_MemberInitializer(
+                                                    const bsl::string_view& sv,
+                                                    const Json_Initializer& ji)
 : d_first(sv)
 , d_second(ji)
 {
@@ -2723,8 +2775,9 @@ Json_MemberInitializer::Json_MemberInitializer(const bsl::string_view& sv,
 
 #ifdef BSLSTL_STRING_VIEW_AND_STD_STRING_VIEW_COEXIST
 inline
-Json_MemberInitializer::Json_MemberInitializer(const std::string_view& sv,
-                                               const Json_Initializer& ji)
+JsonObject_MemberInitializer::JsonObject_MemberInitializer(
+                                                    const std::string_view& sv,
+                                                    const Json_Initializer& ji)
 : d_first(sv)
 , d_second(ji)
 {
@@ -2733,13 +2786,13 @@ Json_MemberInitializer::Json_MemberInitializer(const std::string_view& sv,
 
 // ACCESSORS
 inline
-bsl::string_view Json_MemberInitializer::key() const
+bsl::string_view JsonObject_MemberInitializer::key() const
 {
     return d_first;
 }
 
 inline
-const Json_Initializer& Json_MemberInitializer::value() const
+const Json_Initializer& JsonObject_MemberInitializer::value() const
 {
     return d_second;
 }
@@ -3441,14 +3494,15 @@ JsonObject::JsonObject(t_INPUT_ITERATOR  first,
 #ifdef BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 inline
 JsonObject::JsonObject(
-             std::initializer_list<Json_MemberInitializer>  memberInitializers,
+             std::initializer_list<JsonObject_MemberInitializer>
+                                                            memberInitializers,
              bslma::Allocator                              *basicAllocator)
 : d_members(basicAllocator)
 {
     d_members.reserve(memberInitializers.size());
 
-    for (const Json_MemberInitializer& memberInitializer : memberInitializers)
-    {
+    for (const JsonObject_MemberInitializer& memberInitializer :
+                                             memberInitializers) {
         BSLS_ASSERT(bdlde::Utf8Util::isValid(memberInitializer.key()));
 
         d_members.emplace(memberInitializer.key(),
@@ -3483,13 +3537,13 @@ JsonObject& JsonObject::operator=(bslmf::MovableRef<JsonObject> rhs)
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
 JsonObject& JsonObject::operator=(
-              std::initializer_list<Json_MemberInitializer> memberInitializers)
+        std::initializer_list<JsonObject_MemberInitializer> memberInitializers)
 {
     Container newContainer(d_members.get_allocator());
     newContainer.reserve(memberInitializers.size());
 
-    for (const Json_MemberInitializer& memberInitializer : memberInitializers)
-    {
+    for (const JsonObject_MemberInitializer& memberInitializer :
+                                             memberInitializers) {
         BSLS_ASSERT(bdlde::Utf8Util::isValid(memberInitializer.key()));
 
         newContainer.emplace(memberInitializer.key(),
@@ -3592,11 +3646,12 @@ JsonObject::insert(t_INPUT_ITERATOR first, t_INPUT_ITERATOR last)
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 inline
-JsonObject& JsonObject::insert(std::initializer_list<Json_MemberInitializer>
-                                                          memberInitializers)
+JsonObject& JsonObject::insert(std::initializer_list<
+                                                 JsonObject_MemberInitializer>
+                                                            memberInitializers)
 {
-    for (const Json_MemberInitializer& memberInitializer : memberInitializers)
-    {
+    for (const JsonObject_MemberInitializer& memberInitializer :
+                                             memberInitializers) {
         BSLS_ASSERT(bdlde::Utf8Util::isValid(memberInitializer.key()));
 
         d_members.emplace(memberInitializer.key(), memberInitializer.value());

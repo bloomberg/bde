@@ -199,7 +199,7 @@ using bsl::flush;
 // [21] JsonObject(MovableRef<JsonObject> o, *a);
 // [16] JsonObject(INPUT_ITER first, INPUT_ITER last, *a);
 // [26] JsonObject(initializer_list<Member> members, *a);
-// [26] JsonObject(initializer_list<Json_MemberInitializer> members, *a);
+// [26] JsonObject(initializer_list<JO_MemberInitializer> members, *a);
 // [15] ~JsonObject();
 //
 // MANIPULATORS
@@ -482,6 +482,7 @@ using bsl::flush;
 // [45] const storage& get_storage() const;
 // ----------------------------------------------------------------------------
 // [41} CONCERN: USAGE EXAMPLE
+// [-1] DRQS 184322549: pointer to `bool` conversion
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -4814,17 +4815,17 @@ void testEqualityOverloadsStr()
     const char *const    nullStr = 0;
     const char *const notNullStr = "non-empty string literal";
 
-    ASSERT_FAIL(   nullStr    == objA);
-    ASSERT_PASS(notNullStr ==    objA);
+    ASSERT_FAIL((void)(   nullStr ==    objA));
+    ASSERT_PASS((void)(notNullStr ==    objA));
 
-    ASSERT_FAIL(   nullStr !=    objA);
-    ASSERT_PASS(notNullStr !=    objA);
+    ASSERT_FAIL((void)(   nullStr !=    objA));
+    ASSERT_PASS((void)(notNullStr !=    objA));
 
-    ASSERT_FAIL(   objA ==    nullStr);
-    ASSERT_PASS(   objA == notNullStr);
+    ASSERT_FAIL((void)(   objA    ==    nullStr));
+    ASSERT_PASS((void)(   objA    == notNullStr));
 
-    ASSERT_FAIL(   objA !=    nullStr);
-    ASSERT_PASS(   objA != notNullStr);
+    ASSERT_FAIL((void)(   objA    !=    nullStr));
+    ASSERT_PASS((void)(   objA    != notNullStr));
 #endif
 }
 
@@ -6935,7 +6936,6 @@ int main(int argc, char *argv[])
             JsonObject joc = {};  ASSERT(joc == JsonObject());
         }
 
-
         if (veryVerbose) cout << "`Json`: value CTORS" << endl;
         {
             bsl::string s = "ABC";
@@ -7093,7 +7093,6 @@ int main(int argc, char *argv[])
             ASSERT(j1 == j2);
             ASSERT(j1 == j3);
         }
-
 
         if (veryVerbose) cout << "`JsonObject`: scalar values" << endl;
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY)
@@ -7403,6 +7402,64 @@ int main(int argc, char *argv[])
             ASSERT(true  == joo5["a"].isNumber());
             ASSERT(ONE   == joo5["a"]);
         }
+
+        if (veryVerbose) cout <<
+            "DRQS 184322549: pointers converted to `bool`s?\n"
+            "                pointer pairs dispatch to iterator CTOR?" << endl;
+
+        {
+            const bsl::string SA[]   = {"tom", "dick" , "harry"};
+            const bsl::string *begin = bsl::begin(SA);
+            const bsl::string *end   = bsl::  end(SA);
+
+            // Dispatched to range constructor, not IL constructor
+            JsonArray j1  ({ begin, end });
+            JsonArray j2   { begin, end } ;
+            JsonArray j3 = { begin, end } ;
+
+            ASSERT(3       == j1.size());
+            ASSERT(true    == j1[0]. isString());
+            ASSERT(true    == j1[1]. isString());
+            ASSERT(true    == j1[2]. isString());
+            ASSERT("tom"   == j1[0].theString());
+            ASSERT("dick"  == j1[1].theString());
+            ASSERT("harry" == j1[2].theString());
+
+            ASSERT(j1      == j2);
+            ASSERT(j1      == j3);
+
+            // Dispatched to IL CTOR. No CTOR for `bsl::string` pointers.
+        //  JsonArray j4  ({ &SA[0], &SA[1], &SA[2] }); // No CTOR
+        //  JsonArray j5   { &SA[0], &SA[1], &SA[2] } ; // No CTOR
+        //  JsonArray j6 = { &SA[0], &SA[1], &SA[2] } ; // No CTOR
+
+            const char *cp0 = SA[0].data();
+            const char *cp1 = SA[1].data();
+            const char *cp2 = SA[2].data();
+
+            // Dispatched to IL constructor: `const char *` CTOR still works.
+            JsonArray j7  ({ cp0, cp1, cp2 });
+            JsonArray j8   { cp0, cp1, cp2 } ;
+            JsonArray j9 = { cp0, cp1, cp2 } ;
+
+            ASSERT(j1 == j7);
+            ASSERT(j1 == j8);
+            ASSERT(j1 == j9);
+
+            // Dispatched to IL constructor: `bool` CTOR still works.
+            JsonArray jA  ({ true, false });
+            JsonArray jB   { true, false } ;
+            JsonArray jC = { true, false } ;
+
+            ASSERT(2     == jA.size());
+            ASSERT(true  == jA[0]. isBoolean());
+            ASSERT(true  == jA[1]. isBoolean());
+            ASSERT(true  == jA[0].theBoolean());
+            ASSERT(false == jA[1].theBoolean());
+
+            ASSERT(jA == jB);
+            ASSERT(jA == jC);
+        }
 #else
         if (veryVerbose) {
             cout << "SKIP: No support for generalized initializers." << endl;
@@ -7487,8 +7544,7 @@ int main(int argc, char *argv[])
         }
 
         Json_Initializer ji7 = { false, "DEF", 42 };
-        ASSERT(ji7.get_storage().is<bsl::span<const Json_Initializer>>()
-                                                                             );
+        ASSERT(ji7.get_storage().is<bsl::span<const Json_Initializer>>());
         Json_Initializer ji8(jObj);
         ASSERT(ji8.get_storage().is<const JsonObject *>());
         ASSERT(&jObj == ji8.get_storage().the<const JsonObject *>());
@@ -13273,7 +13329,7 @@ int main(int argc, char *argv[])
         //
         // Testing:
         //   JsonObject(initializer_list<Member> members, *a);
-        //   JsonObject(initializer_list<Json_MemberInitializer> members, *a);
+        //   JsonObject(initializer_list<JO_MemberInitializer> members, *a);
         //   JsonObject::operator=(initializer_list<Json_MembInit> members);
         //   Iterator JsonObject::begin();
         //   Iterator JsonObject::end();
@@ -13355,7 +13411,8 @@ int main(int argc, char *argv[])
         }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
         {
-            Obj& (Obj::*funcPtr)(std::initializer_list<Json_MemberInitializer>)
+            Obj& (Obj::*funcPtr)(std::initializer_list<
+                                                 JsonObject_MemberInitializer>)
                                                              = &Obj::operator=;
             (void) funcPtr;
         }
