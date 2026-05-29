@@ -107,9 +107,9 @@ struct DayOfWeek {
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE2.22
 #ifndef BDE_OPENSOURCE_PUBLICATION  // pending deprecation
       , BDET_SUN = e_SUN, BDET_SUNDAY    = e_SUN
-      , BDET_MON = e_MON, BDET_MONDAY    = e_MON
+      , BDET_MON = e_MON
       , BDET_TUE = e_TUE, BDET_TUESDAY   = e_TUE
-      , BDET_WED = e_WED, BDET_WEDNESDAY = e_WED
+      , BDET_WED = e_WED
       , BDET_THU = e_THU, BDET_THURSDAY  = e_THU
       , BDET_FRI = e_FRI, BDET_FRIDAY    = e_FRI
       , BDET_SAT = e_SAT, BDET_SATURDAY  = e_SAT
