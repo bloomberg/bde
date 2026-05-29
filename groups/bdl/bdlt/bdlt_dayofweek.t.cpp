@@ -1011,9 +1011,7 @@ if (verbose) {  // added in test driver
             { L_,     Obj::BDET_SAT,              "SAT"              },
 
             { L_,     Obj::BDET_SUNDAY,           "SUN"              },
-            { L_,     Obj::BDET_MONDAY,           "MON"              },
             { L_,     Obj::BDET_TUESDAY,          "TUE"              },
-            { L_,     Obj::BDET_WEDNESDAY,        "WED"              },
             { L_,     Obj::BDET_THURSDAY,         "THU"              },
             { L_,     Obj::BDET_FRIDAY,           "FRI"              },
             { L_,     Obj::BDET_SATURDAY,         "SAT"              },
