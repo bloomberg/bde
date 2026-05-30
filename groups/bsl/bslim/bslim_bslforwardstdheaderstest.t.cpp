@@ -578,17 +578,30 @@ int main(int argc, char *argv[])
             ASSERT(type_is_incomplete<bsl::wostream>::value);
             ASSERT(type_is_incomplete<bsl::wstreambuf>::value);
 
-            // The standard library implementation happens to
-            // define several types in practice.
+            // The Standard Library implementation happens to define
+            // several complete types in practice, apart from LLVM libc++.
+#if defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
+            ASSERT(!type_is_incomplete<bsl::streamoff>::value);
+            ASSERT( type_is_incomplete<bsl::streampos>::value);
+            ASSERT( type_is_incomplete<bsl::wstreampos>::value);
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+            ASSERT( type_is_incomplete<bsl::u16streampos>::value);
+            ASSERT( type_is_incomplete<bsl::u32streampos>::value);
+# endif
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+            ASSERT( type_is_incomplete<bsl::u8streampos>::value);
+# endif
+#else
             ASSERT(!type_is_incomplete<bsl::streamoff>::value);
             ASSERT(!type_is_incomplete<bsl::streampos>::value);
             ASSERT(!type_is_incomplete<bsl::wstreampos>::value);
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY)
             ASSERT(!type_is_incomplete<bsl::u16streampos>::value);
             ASSERT(!type_is_incomplete<bsl::u32streampos>::value);
-#endif
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
+# endif
+# if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY)
             ASSERT(!type_is_incomplete<bsl::u8streampos>::value);
+# endif
 #endif
 
             // Finally test the templates.
@@ -607,8 +620,12 @@ int main(int argc, char *argv[])
             ASSERT(template_is_incomplete<bsl::ostreambuf_iterator>::value);
 
             // `fpos` must be complete so that the aliases for narrow and wide
-            // types can be declared to alias `fpos<T>::state`.
+            // types can be declared to alias `fpos<T>::state`,
+#if !defined(BSLS_LIBRARYFEATURES_STDCPP_LLVM)
             ASSERT(!template_is_incomplete<bsl::fpos>::value);
+# else      // but apparently not an issue for LLVM libc++.
+            ASSERT(template_is_incomplete<bsl::fpos>::value);
+# endif
 #endif
         }
 
