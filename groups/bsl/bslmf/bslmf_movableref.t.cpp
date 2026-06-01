@@ -7,24 +7,22 @@
 #include <bslmf_addpointer.h>
 #include <bslmf_addrvaluereference.h>
 #include <bslmf_addvolatile.h>
+#include <bslmf_integralconstant.h>
 #include <bslmf_isarray.h>  // MSVC workaround, pre-VC 2017
 #include <bslmf_isclass.h>
+#include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_issame.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_voidtype.h>
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_platform.h>
 
 #include <new>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef BSLS_PLATFORM_CMP_IBM
-#pragma report(disable, "1540-1297")
-#endif
 
 using namespace BloombergLP;
 
@@ -33,30 +31,53 @@ using namespace BloombergLP;
 // ----------------------------------------------------------------------------
 //                                   Overview
 //                                   --------
+// Cases 9 and 10 test `bsl::is_nothrow_move_constructible` on behalf of
+// `bslmf_isnothrowmoveconstructible`.  Historically, BDE supported
+// compilers with early `noexcept` support but without rvalue references, so
+// move constructors had to be written using `MovableRef<T>` (a C++03 class
+// type).  The vocabulary types to test the trait therefore needed
+// `bslmf_movableref.h`, creating a test-time cycle (that component's test
+// driver could not include this higher-level header).  We no longer
+// support such platforms; all supported compilers provide full C++11.
+//
+// TODO: Move cases 10 and 11 (and their vocabulary types) back to
+//       `bslmf_isnothrowmoveconstructible.t.cpp`.
 // ----------------------------------------------------------------------------
-// [ 6] MovableRef<TYPE>::operator TYPE&() const;
-// [ 7] TYPE& MovableRefUtil::access(TYPE& lvalue);
-// [ 7] TYPE& MovableRefUtil::access(MovableRef<TYPE> lvalue);
-// [ 5] MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue);
-// [ 5] MovableRef<RemoveRef<T>::type> MovableRefUtil::move(MovableRef<T> ref);
-// [  ] enable_if<true> move_if_noexcept(TYPE& lvalue);
-// [  ] enable_if<false> move_if_noexcept(TYPE& lvalue);
+//
+// bslmf::MovableRef
+// -----------------
+// [ 2] MovableRef<TYPE>
+// [  ] MovableRef<TYPE>(const MovableRef&)
+// [  ] ~MovableRef<TYPE>()
+// [  ] MovableRef<TYPE>& operator=(const MovableRef&)
+// [ 7] operator TYPE&() const;
+//
+// bslmf::MovableRefUtil
+// ---------------------
+// STATIC METHODS
+// [ 6] TYPE& access(TYPE& lvalue);
+// [ 6] TYPE& access(MovableRef<TYPE> lvalue);
+// [ 5] MovableRef<TYPE> move(TYPE& lvalue);
+// [ 5] MovableRef<RemoveRef<T>::type> move(MovableRef<T> ref);
+// [  ] auto move_if_noexcept(TYPE& lvalue);
+//
+// NESTED TYPES (property metafunctions)
+// [ 3] IsLvalueReference<TYPE>
+// [ 3] IsMovableReference<TYPE>
+// [ 3] IsReference<TYPE>
+//
+// NESTED TYPES (transformation metafunctions)
+// [ 4] AddLvalueReference<TYPE>
+// [ 4] AddMovableReference<TYPE>
+// [ 4] Decay<TYPE>
+// [ 4] RemoveReference<TYPE>
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [ 2] MovableRef<TYPE>
-// [ 3] MovableRefUtil::IsLvalueReference<TYPE>
-// [ 3] MovableRefUtil::IsMovableReference<TYPE>
-// [ 3] MovableRefUtil::IsReference<TYPE>
-// [ 4] MovableRefUtil::RemoveReference<TYPE>
-// [ 4] MovableRefUtil::AddLvalueReference<TYPE>
-// [ 4] MovableRefUtil::AddMovableReference<TYPE>
-// [ 4] MovableRefUtil::Decay<TYPE>
+// [12] USAGE EXAMPLE
 // [ 8] MovableRef<TYPE> VS. RVALUE
-// [ 9] COMPATIBILITY WITH `is_nothrow_move_constructible`
-// [10] EXTENDING `bsl::is_nothrow_move_constructible`
-// [11] CONCERN: IBM XL C++ functions with default arguments workaround
-// [12] BSLMF_MOVABLEREF_DEDUCE
-// [13] USAGE EXAMPLE
+// [ 9] BSLMF_MOVABLEREF_DEDUCE
+// [10] COMPATIBILITY WITH `is_nothrow_move_constructible`
+// [11] EXTENDING `bsl::is_nothrow_move_constructible`
 
 // ============================================================================
 //                     STANDARD BSL ASSERT TEST FUNCTION
@@ -113,6 +134,29 @@ void aSsErT(bool condition, const char *message, int line)
 // correct value for the `bsl::is_nothrow_move_constructible` trait.
 #endif
 
+// ============================================================================
+//                             WARNING SUPPRESSION
+// ----------------------------------------------------------------------------
+
+#if defined(BSLS_PLATFORM_CMP_CLANG)
+# pragma clang diagnostic ignored "-Wignored-reference-qualifiers"
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_GNU) &&                                        \
+    !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+# pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
+#if defined(BSLS_PLATFORM_CMP_SUN)
+# pragma error_messages(off, ptrarray0)
+#endif
+
+//=============================================================================
+//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
+//-----------------------------------------------------------------------------
+
+typedef bslmf::MovableRefUtil Util;
+
 //=============================================================================
 //                              USAGE EXAMPLE
 //-----------------------------------------------------------------------------
@@ -125,16 +169,16 @@ namespace {
 //
 ///Example 1: Difference In Moving Trivial And Non-trivial Fields
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// This example will show the definition of a couple simple move constructor
-// that use `MovableRef`, and highlight the difference in how different data
-// members are handled.
+// This example will show the definition of a couple of simple move
+// constructors that use `MovableRef`, and highlight the difference in how
+// different data members are handled.
 //
-// First, we create an minimal type similar to `string_view`.  For simplicity,
+// First, we create a minimal type similar to `string_view`.  For simplicity,
 // we implement methods we are interested in directly in the class declaration
 // and omit the rest:
 // ```
 
-    /// This class provides a view on a C-string.
+    /// This `class` provides a view on a C-string.
     class StringView {
 
         // DATA
@@ -142,23 +186,24 @@ namespace {
 
       public:
         // CREATORS
+
+        /// Create a `StringView` object that points to the specified
+        /// `characterString`.
         StringView(const char *characterString)
-        // Create a `StringView` object that points to the specified
-        // `characterString`.
         : d_string_p(characterString)
         {
         }
 
+        /// Create a `StringView` object that has the same value as the
+        /// specified `original` object.
         StringView(const StringView& original)
-        // Create a `StringView` object that has the same value as the
-        // specified `original` object.
         : d_string_p(original.d_string_p)
         {
         }
 // ```
 // Here we define the move constructor for `StringView`.  Note that the
-// `original` here is either an object of type 'MovableRef<StringView> (in
-// C++03), or an true r-value reference `StringView&&`, in C++11 or later.
+// `original` here is either an object of type `MovableRef<StringView>` (in
+// C++03), or a true r-value reference `StringView&&`, in C++11 or later.
 // Because the type of `original` may be different when built with different
 // language standards, we must take care to manipulate and access the value in
 // a way that is syntactically valid irrespective of the language-standard
@@ -167,10 +212,10 @@ namespace {
 // to set its value to 0.  These are both operations that support the same
 // syntax across language standards:
 // ```
+        /// Create a `StringView` object that refers to the same C-string
+        /// as the specified `original` object, and reset `original` to not
+        /// refer to any string.
         StringView(bslmf::MovableRef<StringView> original)
-        // Create a `StringView` object that refers to the same c-string
-        // as the specified `original` object, and reset `original` to not
-        // refer to any string.
         : d_string_p(bslmf::MovableRefUtil::access(original).d_string_p)
         {
             StringView& reference = original;
@@ -187,11 +232,11 @@ namespace {
         }
     };
 // ```
-// Now, we define a second class, `Employee`, that contains both non-trivial
+// Now, we define a second class, `Employee`, that contains both a non-trivial
 // `StringView` and a trivial integer field:
 // ```
 
-    /// This class represents an employee card.
+    /// This `class` represents an employee card.
     class Employee {
 
         // DATA
@@ -262,30 +307,30 @@ namespace {
 // 2. Users of a potentially move-enabled class may take advantage of moving
 //    objects by explicitly indicating that ownership of resources may be
 //    transferred.  When using C++11 the compiler can automatically detect
-//    some situations where it is safe to move objects but this features is
+//    some situations where it is safe to move objects but this feature is
 //    not available with C++03.
 //
-// The usage example below demonstrate both use cases using a simplified
-// version of `std::Vector<T>`.  The class template is simplified to
+// The usage example below demonstrates both use cases using a simplified
+// version of `std::vector<T>`.  The class template is simplified to
 // concentrate on the aspects relevant to `bslmf::MovableRef<T>`.  Most of the
 // operations are just normal implementations to create a container.  The last
 // two operations described are using move operations.
 //
 // Assume we want to implement a class template similar to the standard library
-// `vector` facility.  First we declare the class template `Vector<TYPE>`.  The
-// definition of the this class template is rather straight forward, and for
+// `vector` facility.  First we declare the class template `Vector<t_TYPE>`.
+// The definition of this class template is rather straightforward, and for
 // simplicity a few trivial operations are implemented directly in the class
 // definition:
 // ```
-    template <class TYPE>
+    template <class t_TYPE>
     class Vector
     {
-        TYPE *d_begin;
-        TYPE *d_end;
-        TYPE *d_endBuffer;
+        t_TYPE *d_begin;
+        t_TYPE *d_end;
+        t_TYPE *d_endBuffer;
 
         /// Swap the specified pointers `a` and `b`.
-        static void swap(TYPE*& a, TYPE*& b);
+        static void swap(t_TYPE*& a, t_TYPE*& b);
 
       public:
         /// Create an empty Vector.
@@ -309,16 +354,17 @@ namespace {
         ~Vector();
 
         /// Return a reference to the object at the specified `index`.
-        TYPE&       operator[](int index)      { return this->d_begin[index]; }
+        t_TYPE&       operator[](int index)    { return this->d_begin[index]; }
 
         /// Return a reference to the object at the specified `index`.
-        const TYPE& operator[](int index) const{ return this->d_begin[index]; }
+        const t_TYPE& operator[](int index) const
+                                               { return this->d_begin[index]; }
 
         /// Return a pointer to the first element.
-        TYPE       *begin()       { return this->d_begin; }
+        t_TYPE       *begin()       { return this->d_begin; }
 
         /// Return a pointer to the first element.
-        const TYPE *begin() const { return this->d_begin; }
+        const t_TYPE *begin() const { return this->d_begin; }
 
         /// Return the capacity of the Vector.
         int capacity() const { return int(this->d_endBuffer - this->d_begin); }
@@ -327,17 +373,16 @@ namespace {
         bool empty() const { return this->d_begin == this->d_end; }
 
         /// Return a pointer to the end of the range.
-        TYPE       *end()       { return this->d_end; }
+        t_TYPE       *end()       { return this->d_end; }
 
         /// Return a pointer to the end of the range.
-        const TYPE *end() const { return this->d_end; }
+        const t_TYPE *end() const { return this->d_end; }
 
         /// Append a copy of the specified `value` to the Vector.
-        void push_back(const TYPE& value);
+        void push_back(const t_TYPE& value);
 
-        /// Append an object moving the specified `value` to the new
-        /// location.
-        void push_back(bslmf::MovableRef<TYPE> value);
+        /// Append an object moving the specified `value` to the new location.
+        void push_back(bslmf::MovableRef<t_TYPE> value);
 
         /// Reserve enough capacity to fit at least as many elements as
         /// specified by `newCapacity`.
@@ -352,95 +397,95 @@ namespace {
 // ```
 // The class stores pointers to the begin and the end of the elements as well
 // as a pointer to the end of the allocated buffer.  If there are no elements,
-// null pointers are stored.  There a number of accessors similar to the
-// accessors used by `std::Vector<TYPE>`.
+// null pointers are stored.  There are a number of accessors similar to the
+// accessors used by `std::vector<t_TYPE>`.
 //
-// The default constructor creates an empty `Vector<TYPE>` by simply
+// The default constructor creates an empty `Vector<t_TYPE>` by simply
 // initializing all member pointers to be null pointers:
 // ```
-    template <class TYPE>
-    Vector<TYPE>::Vector()
+    template <class t_TYPE>
+    Vector<t_TYPE>::Vector()
         : d_begin()
         , d_end()
         , d_endBuffer()
     {
     }
 // ```
-// To leverage already implemented functionality some of the member functions
-// operate on a temporary `Vector<TYPE>` and move the result into place using
+// To leverage already implemented functionality, some of the member functions
+// operate on a temporary `Vector<t_TYPE>` and move the result into place using
 // the `swap()` member function that simply does a memberwise `swap()` (the
 // function swapping pointers is implemented here to avoid any dependency on
 // functions defined in another level):
 // ```
-    template <class TYPE>
-    void Vector<TYPE>::swap(TYPE*& a, TYPE*& b)
+    template <class t_TYPE>
+    void Vector<t_TYPE>::swap(t_TYPE*& a, t_TYPE*& b)
     {
-        TYPE *tmp = a;
+        t_TYPE *tmp = a;
         a = b;
         b = tmp;
     }
-    template <class TYPE>
-    void Vector<TYPE>::swap(Vector& other)
+    template <class t_TYPE>
+    void Vector<t_TYPE>::swap(Vector& other)
     {
         this->swap(this->d_begin, other.d_begin);
         this->swap(this->d_end, other.d_end);
         this->swap(this->d_endBuffer, other.d_endBuffer);
     }
 // ```
-// The member function `reserve()` arranges for the `Vector<TYPE>` to have
+// The member function `reserve()` arranges for the `Vector<t_TYPE>` to have
 // enough capacity for the number of elements specified as argument.  The
-// function first creates an empty `Vector<TYPE>` called `tmp` and sets `tmp`
+// function first creates an empty `Vector<t_TYPE>` called `tmp` and sets `tmp`
 // up to have enough capacity by allocating sufficient memory and assigning the
 // different members to point to the allocated buffer.  The function then
 // iterates over the elements of `this` and for each element it constructs a
 // new element in `tmp`.
 // ```
-    template <class TYPE>
-    void Vector<TYPE>::reserve(int newCapacity)
+    template <class t_TYPE>
+    void Vector<t_TYPE>::reserve(int newCapacity)
     {
         if (this->capacity() < newCapacity) {
             Vector tmp;
-            int    size = int(sizeof(TYPE) * newCapacity);
-            tmp.d_begin = static_cast<TYPE*>(operator new(size));
+            int    size = int(sizeof(t_TYPE) * newCapacity);
+            tmp.d_begin = static_cast<t_TYPE*>(operator new(size));
             tmp.d_end = tmp.d_begin;
             tmp.d_endBuffer = tmp.d_begin + newCapacity;
 
-            for (TYPE* it = this->d_begin; it != this->d_end; ++it) {
-                new (tmp.d_end) TYPE(*it);
+            for (t_TYPE* it = this->d_begin; it != this->d_end; ++it) {
+                new (tmp.d_end) t_TYPE(*it);
                 ++tmp.d_end;
             }
             this->swap(tmp);
         }
     }
 // ```
-// Any allocated data and constructed elements need to be release in the
+// Any allocated data and constructed elements need to be released in the
 // destructor.  The destructor does so by calling the destructor of the
 // elements in the buffer from back to front.  Once the elements are destroyed
 // the buffer is released:
 // ```
-    template <class TYPE>
-    Vector<TYPE>::~Vector()
+    template <class t_TYPE>
+    Vector<t_TYPE>::~Vector()
     {
         if (this->d_begin) {
             while (this->d_begin != this->d_end) {
                 --this->d_end;
-                this->d_end->~TYPE();
+                this->d_end->~t_TYPE();
             }
             operator delete(this->d_begin);
         }
     }
 // ```
-// Using `reserve()` and constructing the elements it is straight forward to
-// implement the copy constructor.  First the member pointers are initialed to
-// null.  If `other` is empty there is nothing further to do as it is desirable
-// to not allocate a buffer for an empty `Vector`.  If there are elements to
-// copy the buffer is set up by calling `reserve()` to create sufficient
-// capacity.  Once that is done elements are copied by iterating over the
-// elements of `other` and constructing elements using placement new in the
-// appropriate location.
+// Using `reserve()` and constructing the elements, it is straightforward to
+// implement the copy constructor.  First the member pointers are initialized
+// to null.  If `other` is empty there is nothing further to do as it is
+// desirable to not allocate a buffer for an empty `Vector`.  If there are
+// elements to copy the buffer is set up by calling `reserve()` to create
+// sufficient capacity.  Once that is done elements are copied by iterating
+// over the elements of `other` and constructing elements using placement new
+// in the appropriate location.
 // ```
-    template <class TYPE>
-    Vector<TYPE>::Vector(const Vector& other)
+    template <class t_TYPE>
+    Vector<t_TYPE>::Vector(const Vector& other)
         : d_begin()
         , d_end()
         , d_endBuffer()
@@ -449,8 +494,8 @@ namespace {
             this->reserve(4 < other.size()? other.size(): 4);
 
             ASSERT(other.size() <= this->capacity());
-            for (TYPE* it = other.d_begin; it != other.d_end; ++it) {
-                new (this->d_end) TYPE(*it);
+            for (t_TYPE* it = other.d_begin; it != other.d_end; ++it) {
+                new (this->d_end) t_TYPE(*it);
                 ++this->d_end;
             }
         }
@@ -463,36 +508,36 @@ namespace {
 // already constructed using copy or move construction (which may have been
 // elided), the content of `this` is swapped with the content of `other`
 // leaving this in the desired state, and the destructor will release the
-// former representation of `this` when `other` is destroyed':
+// former representation of `this` when `other` is destroyed:
 // ```
-    template <class TYPE>
-    Vector<TYPE>& Vector<TYPE>::operator= (Vector other)
+    template <class t_TYPE>
+    Vector<t_TYPE>& Vector<t_TYPE>::operator= (Vector other)
     {
         this->swap(other);
         return *this;
     }
 // ```
-// To complete the normal C++03 operations of `Vector<TYPE>` the only remaining
-// member function is `push_back()`.  This function calls `reserve()` to obtain
-// more capacity if the current capacity is filled and then constructs the new
-// element at the location pointed to by `d_end`:
+// To complete the normal C++03 operations of `Vector<t_TYPE>`, the only
+// remaining member function is `push_back()`.  This function calls `reserve()`
+// to obtain more capacity if the current capacity is filled and then
+// constructs the new element at the location pointed to by `d_end`:
 // ```
-    template <class TYPE>
-    void Vector<TYPE>::push_back(const TYPE& value)
+    template <class t_TYPE>
+    void Vector<t_TYPE>::push_back(const t_TYPE& value)
     {
         if (this->d_end == this->d_endBuffer) {
             this->reserve(this->size()? 2 * this->size() : 4);
         }
         ASSERT(this->d_end != this->d_endBuffer);
-        new(this->d_end) TYPE(value);
+        new(this->d_end) t_TYPE(value);
         ++this->d_end;
     }
 // ```
-// The first operation actually demonstrating the use of `MovableRef<TYPE>` is
-// the move constructor:
+// The first operation actually demonstrating the use of `MovableRef<t_TYPE>`
+// is the move constructor:
 // ```
-    template <class TYPE>
-    Vector<TYPE>::Vector(bslmf::MovableRef<Vector> other)
+    template <class t_TYPE>
+    Vector<t_TYPE>::Vector(bslmf::MovableRef<Vector> other)
         : d_begin(bslmf::MovableRefUtil::access(other).d_begin)
         , d_end(bslmf::MovableRefUtil::access(other).d_end)
         , d_endBuffer(bslmf::MovableRefUtil::access(other).d_endBuffer)
@@ -503,42 +548,42 @@ namespace {
         reference.d_endBuffer = 0;
     }
 // ```
-// This constructor gets an `MovableRef<Vector<TYPE> >` passed as argument that
-// indicates that the referenced objects can be modified as long as it is left
-// in a state meeting the class invariants.  The implementation of this
-// constructor first copies the `d_begin`, `d_end`, and `d_capacity` members of
-// `other`.  Since `other` is either an object of type
-// `MovableRef<Vector<TYPE> >` (when compiling using a C++03 compiler) or an
-// r-value reference `Vector<TYPE>&&` the members are accessed using
-// `MovableRefUtil::access(other)` to get a reference to a `Vector<TYPE>`.
+// This constructor gets a `MovableRef<Vector<t_TYPE> >` passed as argument
+// that indicates that the referenced object can be modified as long as it is
+// left in a state meeting the class invariants.  The implementation of this
+// constructor first copies the `d_begin`, `d_end`, and `d_endBuffer` members
+// of `other`.  Since `other` is either an object of type
+// `MovableRef<Vector<t_TYPE> >` (when compiling using a C++03 compiler) or an
+// r-value reference `Vector<t_TYPE>&&`, the members are accessed using
+// `MovableRefUtil::access(other)` to get a reference to a `Vector<t_TYPE>`.
 // Within the body of the constructor an l-value reference is obtained either
 // via the conversion operator of `MovableRef<T>` or directly as `other` is
 // just an l-value when compiling with a C++11 compiler.  This reference is
 // used to set the pointer members of the object referenced by `other` to `0`
 // completing the move of the content to the object under construction.
 //
-// Finally, a move version of `push_back()` is provided: it takes an
-// `MovableRef<TYPE>` as argument.  The type of this argument indicates that
+// Finally, a move version of `push_back()` is provided: it takes a
+// `MovableRef<t_TYPE>` as argument.  The type of this argument indicates that
 // the state can be transferred and after arranging enough capacity in the
-// `Vector<TYPE>` object a new element is move constructed at the position
+// `Vector<t_TYPE>` object a new element is move-constructed at the position
 // `d_end`:
 // ```
-    template <class TYPE>
-    void Vector<TYPE>::push_back(bslmf::MovableRef<TYPE> value)
+    template <class t_TYPE>
+    void Vector<t_TYPE>::push_back(bslmf::MovableRef<t_TYPE> value)
     {
         if (this->d_end == this->d_endBuffer) {
             this->reserve(this->size()? int(1.5 * this->size()): 4);
         }
         ASSERT(this->d_end != this->d_endBuffer);
-        new(this->d_end) TYPE(bslmf::MovableRefUtil::move(value));
+        new(this->d_end) t_TYPE(bslmf::MovableRefUtil::move(value));
         ++this->d_end;
     }
 // ```
 // Note that this implementation of `push_back()` uses
 // `bslmf::MovableRefUtil::move(value)` to move the argument.  For a C++03
-// implementation the argument would be moved even when using `value` directly
-// because the type of `value` stays `bslmf::MovableRef<TYPE>`.  However, for a
-// C++11 implementation the argument `value` is an l-value and using it
+// implementation, the argument would be moved even when using `value` directly
+// because the type of `value` stays `bslmf::MovableRef<t_TYPE>`.  However, for
+// a C++11 implementation, the argument `value` is an l-value and using it
 // directly would result in a copy.
 
 }  // close unnamed namespace
@@ -674,27 +719,34 @@ struct TestOverloadSelectionWithConstMovableRef {
 /// reference.
 template <class TYPE>
 struct TestMovableRefArgument {
+    /// Return `false`, indicating that the argument is not a movable
+    /// reference.
     static bool test(TYPE&) { return false; }
 
-    /// Return `false`, indicating that the argument is not an r-value
+    /// Return `false`, indicating that the argument is not a movable
     /// reference.
     static bool test(const TYPE&) { return false; }
 
-    /// Return `true`, indicating that the argument is an r-value reference.
+    /// Return `true`, indicating that the argument is a movable reference.
     static bool test(bslmf::MovableRef<TYPE>) { return true; }
 };
 
-/// Return a pointer to object referenced by the specified `movable`.
+/// This utility `struct` template provides a `get` function that returns
+/// the address of an object referenced by a movable reference for the
+/// specified (template parameter) `TYPE`.  A class template is used (rather
+/// than a free function template) to guarantee no type deduction for `TYPE`.
 template <class TYPE>
 struct MovableAddress {
+    /// Return the address of the object referenced by the specified
+    /// `movable`.
     static TYPE *get(bslmf::MovableRef<TYPE> movable)
     {
-        TYPE& reference(bslmf::MovableRefUtil::access(movable));
+        TYPE& reference(Util::access(movable));
         return &reference;
     }
 };
 
-/// This class is used to test some move operations.  It deliberately hides
+/// This `class` is used to test some move operations.  It deliberately hides
 /// the assignment operator, and poisons the address-of operator.
 class TestMoving {
 
@@ -708,10 +760,10 @@ class TestMoving {
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
   public:
 #endif
+    /// Create a `TestMoving` object that is a copy of the specified
+    /// `other`.  In this case copying `other` means allocating a new `int`
+    /// with a new unique pointer.
     TestMoving(const TestMoving& other)
-    // Create a `TestMoving` object that is a copy of the specified
-    // `other`.  In this case copying `other` means allocating a new `int`
-    // with a new unique pointer.
     : d_pointer(new int(1 + *other.d_pointer))
     {
     }
@@ -727,9 +779,9 @@ class TestMoving {
     /// Create a `TestMoving` object that moves the value referenced by the
     /// specified `rvalue`.
     explicit TestMoving(bslmf::MovableRef<TestMoving> rvalue)
-    : d_pointer(bslmf::MovableRefUtil::access(rvalue).d_pointer)
+    : d_pointer(Util::access(rvalue).d_pointer)
     {
-        bslmf::MovableRefUtil::access(rvalue).d_pointer = 0;
+        Util::access(rvalue).d_pointer = 0;
     }
 
     /// Destroy this object. Delete the allocated pointer.
@@ -752,55 +804,9 @@ template <class TYPE>
 bool testForwardRefArgument(BSLS_COMPILERFEATURES_FORWARD_REF(TYPE) arg)
 {
     // Return true if `arg` was moved from
-    TestMoving moveTo(bslmf::MovableRefUtil::move(arg));
-    return 0 == bslmf::MovableRefUtil::access(arg).getPointer();
+    TestMoving moveTo(Util::move(arg));
+    return 0 == Util::access(arg).getPointer();
 }
-
-/// This function takes a single integer argument, which does not have a
-/// default value, and returns nothing.  This function, along with `g`
-/// below, are used to test that the type traits provided by
-/// `bslmf::MovableRefUtil` work correctly when applied to deduced function
-/// types having arguments with and without default values using the IBM XL
-/// C++ compiler line.  Said line of compilers have a defect in which
-/// `typedef`s cannot be formed to function types coming from functions that
-/// have default arguments.
-void f(int)
-{
-}
-
-/// This function takes a single integer argument, which has a default
-/// value, and returns nothing.  This function, along with `f` above, are
-/// used to test that the type traits provided by `bslmf::MovableRefUtil`
-/// work correctly when applied to deduced function types having arguments
-/// with and without default values using the IBM XL C++ compiler line.
-/// Said line of compilers have a defect in which `typedef`s cannot be
-/// formed to function types coming from functions that have default
-/// arguments.
-void g(int = 0)
-{
-}
-
-/// Apply the specified `TYPE` to the specified `TRAIT` template and assert
-/// that the so-appplied `TRAIT` template provides a static, Boolean data
-/// member named `value` that is equal to the specified `EXPECTED_VALUE`.
-template <bool EXPECTED_VALUE, template <class> class TRAIT, class TYPE>
-void testBooleanTrait(int LINE, TYPE&)
-{
-    ASSERTV(LINE,
-            EXPECTED_VALUE,
-            TRAIT<TYPE>::value,
-            EXPECTED_VALUE == TRAIT<TYPE>::value);
-}
-
-/// Apply the specified `TYPE` to the specified `TRAIT` template and assert
-/// that the so-applied `TRAIT` template provides a member `typedef` named
-/// `type` that is the same as the specified `EXPECTED_TYPE`.
-template <class EXPECTED_TYPE, template <class> class TRAIT, class TYPE>
-void testTransformationTrait(int LINE, TYPE&)
-{
-    ASSERTV(LINE,
-            (bsl::is_same<EXPECTED_TYPE, typename TRAIT<TYPE>::type>::value));
-};
 
 }  // close unnamed namespace
 
@@ -809,15 +815,16 @@ void testTransformationTrait(int LINE, TYPE&)
 //-----------------------------------------------------------------------------
 
 // The following test types (and the macros defined further below) were
-// originally in the `bslmf_isnothrowmoveconstructible` test driver (to verify
-// that the `bsl::is_nothrow_move_constructible` metafunction can be correctly
-// extended), but were moved here to eliminate a cycle, i.e., a direct cycle
-// between that component and this one.  Note that `bslmf::MovableRef` must be
-// used to expose extensions of `bsl::is_nothrow_move_constructible` to C++03
-// environments.  Testing of such extensions is done in cases 9 and 10.
+// originally in the `bslmf_isnothrowmoveconstructible` test driver but were
+// moved here to break the test cycle (see Overview).  The test vocabulary
+// types needed `MovableRef`-based move constructors so that
+// `is_nothrow_move_constructible` has something meaningful to evaluate in
+// C++03; testing of such types is done in cases 10 and 11.
 
 namespace {
 
+/// This `class` provides a type for testing support for types that are neither
+/// movable nor copyable.
 class ImmovableClass {
   private:
     // NOT IMPLEMENTED
@@ -825,15 +832,18 @@ class ImmovableClass {
     ImmovableClass(bslmf::MovableRef<ImmovableClass>) BSLS_KEYWORD_NOEXCEPT;
 };
 
-class ImmovableUnion {
+/// This `union` provides a type for testing support for types that are neither
+/// movable nor copyable.
+union ImmovableUnion {
   private:
     // NOT IMPLEMENTED
     ImmovableUnion(const ImmovableUnion&) BSLS_KEYWORD_NOEXCEPT;  // = delete;
     ImmovableUnion(bslmf::MovableRef<ImmovableUnion>) BSLS_KEYWORD_NOEXCEPT;
 };
 
-/// This user-defined type, which is marked to have a no-throw move
-/// constructor using template specialization (below), is used for testing.
+/// This `struct` provides a type whose no-throw move constructible trait
+/// (marked by template specialization below) deliberately disagrees with
+/// its actual constructor specification (i.e., is not `noexcept`).
 struct LyingMovableClass {
 
     // CREATORS
@@ -846,9 +856,10 @@ struct LyingMovableClass {
     LyingMovableClass(bslmf::MovableRef<LyingMovableClass>); // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a no-throw move
-/// constructor using template specialization (below), is used for testing.
-struct LyingMovableUnion {
+/// This `union` provides a type whose no-throw move constructible trait
+/// (marked by template specialization below) deliberately disagrees with
+/// its actual constructor specification (i.e., is not `noexcept`).
+union LyingMovableUnion {
 
     // CREATORS
 
@@ -860,8 +871,9 @@ struct LyingMovableUnion {
     LyingMovableUnion(bslmf::MovableRef<LyingMovableUnion>); // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a no-throw move
-/// constructor using template specialization (below), is used for testing.
+/// This `struct` provides a type whose no-throw move constructible trait
+/// (marked by nested trait declaration) deliberately disagrees with its
+/// actual constructor specification (not `noexcept`).
 struct LyingNestedTraitMovableClass {
 
     BSLMF_NESTED_TRAIT_DECLARATION(LyingNestedTraitMovableClass,
@@ -878,27 +890,8 @@ struct LyingNestedTraitMovableClass {
                   bslmf::MovableRef<LyingNestedTraitMovableClass>); // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a no-throw move
-/// constructor using template specialization (below), is used for testing.
-struct LyingNestedTraitMovableUnion {
-
-    BSLMF_NESTED_TRAIT_DECLARATION(LyingNestedTraitMovableUnion,
-                                   bsl::is_nothrow_move_constructible);
-
-    // CREATORS
-
-    /// Explicitly supply constructors that do nothing, to ensure that this
-    /// class has no trivial traits detected with a conforming C++11 library
-    /// implementation.
-    LyingNestedTraitMovableUnion();
-    LyingNestedTraitMovableUnion(const LyingNestedTraitMovableUnion&);
-    LyingNestedTraitMovableUnion(
-                  bslmf::MovableRef<LyingNestedTraitMovableUnion>); // IMPLICIT
-};
-
-/// This user-defined type, which is marked to have a non-`nothrow`
-/// `MovableRef` move constructor, so is not no-throw move constructible in
-/// any dialect of C++, is used for testing.
+/// This `struct` provides a type for testing support for move-only types
+/// with a throwing move constructor.
 struct MoveOnlyThrowingClass {
 
     // CREATORS
@@ -909,10 +902,9 @@ struct MoveOnlyThrowingClass {
     }
 };
 
-/// This user-defined type, which is marked to have a non-`nothrow`
-/// `MovableRef` move constructor, so is not no-throw move constructible in
-/// any dialect of C++, is used for testing.
-struct MoveOnlyThrowingUnion {
+/// This `union` provides a type for testing support for move-only types with
+/// a throwing move constructor.
+union MoveOnlyThrowingUnion {
 
     // CREATORS
 
@@ -922,9 +914,8 @@ struct MoveOnlyThrowingUnion {
     }
 };
 
-/// This user-defined type, which is marked to have a `nothrow` `MovableRef`
-/// move constructor, so is no-throw move constructible in any dialect of
-/// C++ that supports `noexcept`, is used for testing.
+/// This `struct` provides a type for testing support for move-only types
+/// with a `noexcept` move constructor.
 struct MoveOnlyNothrowClass {
 
     // CREATORS
@@ -936,10 +927,9 @@ struct MoveOnlyNothrowClass {
     }
 };
 
-/// This user-defined type, which is marked to have a `nothrow` `MovableRef`
-/// move constructor, so is no-throw move constructible in any dialect of
-/// C++ that supports `noexcept`, is used for testing.
-struct MoveOnlyNothrowUnion {
+/// This `union` provides a type for testing support for move-only types with
+/// a `noexcept` move constructor.
+union MoveOnlyNothrowUnion {
 
     // CREATORS
 
@@ -950,45 +940,8 @@ struct MoveOnlyNothrowUnion {
     }
 };
 
-/// This user-defined type, which is marked to have a `nothrow` copy
-/// constructor using the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used
-/// for testing.
-struct NestedTraitNothrowCopyableClass {
-
-    BSLMF_NESTED_TRAIT_DECLARATION(NestedTraitNothrowCopyableClass,
-                                   bsl::is_nothrow_move_constructible);
-
-    // CREATORS
-
-    /// Explicitly supply constructors that do nothing, to ensure that this
-    /// class has no trivial traits detected with a conforming C++11 library
-    /// implementation.
-    NestedTraitNothrowCopyableClass();
-    NestedTraitNothrowCopyableClass(const NestedTraitNothrowCopyableClass&)
-                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
-};
-
-/// This user-defined type, which is marked to have a `nothrow` copy
-/// constructor using the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used
-/// for testing.
-struct NestedTraitNothrowCopyableUnion {
-
-    BSLMF_NESTED_TRAIT_DECLARATION(NestedTraitNothrowCopyableUnion,
-                                   bsl::is_nothrow_move_constructible);
-
-    // CREATORS
-
-    /// Explicitly supply constructors that do nothing, to ensure that this
-    /// class has no trivial traits detected with a conforming C++11 library
-    /// implementation.
-    NestedTraitNothrowCopyableUnion();
-    NestedTraitNothrowCopyableUnion(const NestedTraitNothrowCopyableUnion&)
-                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
-};
-
-/// This user-defined type, which is marked to have a `nothrow` move
-/// constructor using the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used
-/// for testing.
+/// This `struct` provides a type for testing support for types that are
+/// no-throw move constructible (marked by nested trait declaration).
 struct NestedTraitNothrowMovableClass {
 
     BSLMF_NESTED_TRAIT_DECLARATION(NestedTraitNothrowMovableClass,
@@ -1006,44 +959,16 @@ struct NestedTraitNothrowMovableClass {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a `nothrow` move
-/// constructor using the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used
-/// for testing.
-struct NestedTraitNothrowMovableUnion {
-
-    BSLMF_NESTED_TRAIT_DECLARATION(NestedTraitNothrowMovableUnion,
-                                   bsl::is_nothrow_move_constructible);
-
-    // CREATORS
-
-    /// Explicitly supply constructors that do nothing, to ensure that this
-    /// class has no trivial traits detected with a conforming C++11 library
-    /// implementation.
-    NestedTraitNothrowMovableUnion();
-    NestedTraitNothrowMovableUnion(const NestedTraitNothrowMovableUnion&);
-    NestedTraitNothrowMovableUnion(
-                             bslmf::MovableRef<NestedTraitNothrowMovableUnion>)
-                                             BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
-};
-
-/// This user-defined type, which is correctly marked as trivially copyable
-/// using the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used for testing.
+/// This `struct` provides a type for testing support for types that are
+/// trivially copyable (marked by nested trait declaration).
 struct NestedTraitTrivialClass {
 
     BSLMF_NESTED_TRAIT_DECLARATION(NestedTraitTrivialClass,
                                    bsl::is_trivially_copyable);
 };
 
-/// This user-defined type, which is correctly marked as trivially copyable
-/// using the `BSLMF_NESTED_TRAIT_DECLARATION` macro, is used for testing.
-struct NestedTraitTrivialUnion {
-
-    BSLMF_NESTED_TRAIT_DECLARATION(NestedTraitTrivialUnion,
-                                   bsl::is_trivially_copyable);
-};
-
-/// This user-defined type, which is marked to have a no-throw copy
-/// constructor using template specialization (below), is used for testing.
+/// This `struct` provides a type for testing support for types that are
+/// no-throw copy constructible (marked by template specialization below).
 struct NothrowCopyableTestClass {
 
     // CREATORS
@@ -1056,9 +981,9 @@ struct NothrowCopyableTestClass {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a no-throw copy
-/// constructor using template specialization (below), is used for testing.
-struct NothrowCopyableTestUnion {
+/// This `union` provides a type for testing support for types that are
+/// no-throw copy constructible (marked by template specialization below).
+union NothrowCopyableTestUnion {
 
     // CREATORS
 
@@ -1070,8 +995,8 @@ struct NothrowCopyableTestUnion {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a no-throw move
-/// constructor using template specialization (below), is used for testing.
+/// This `struct` provides a type for testing support for types that are
+/// no-throw move constructible (marked by template specialization below).
 struct NothrowMovableTestClass {
 
     // CREATORS
@@ -1085,9 +1010,9 @@ struct NothrowMovableTestClass {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is marked to have a no-throw move
-/// constructor using template specialization (below), is used for testing.
-struct NothrowMovableTestUnion {
+/// This `union` provides a type for testing support for types that are
+/// no-throw move constructible (marked by template specialization below).
+union NothrowMovableTestUnion {
 
     // CREATORS
 
@@ -1100,22 +1025,18 @@ struct NothrowMovableTestUnion {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is correctly marked as trivially copyable
-/// by explicit specialization of the `bsl::is_trivially_copyable` trait, is
-/// used for testing.
+/// This `struct` provides a type for testing support for types that are
+/// trivially copyable (marked by explicit trait specialization below).
 struct TrivialClass {
 };
 
-/// This user-defined type, which is correctly marked as trivially copyable
-/// by explicit specialization of the `bsl::is_trivially_copyable` trait, is
-/// used for testing.
-struct TrivialUnion {
+/// This `union` provides a type for testing support for types that are
+/// trivially copyable (marked by explicit trait specialization below).
+union TrivialUnion {
 };
 
-
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
+/// This `struct` provides a type for testing support for types that are
+/// no-throw copy constructible (without explicit trait marking).
 struct UnspecializedNothrowCopyableClass {
 
     // CREATORS
@@ -1128,10 +1049,9 @@ struct UnspecializedNothrowCopyableClass {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
-struct UnspecializedNothrowCopyableUnion {
+/// This `union` provides a type for testing support for types that are
+/// no-throw copy constructible (without explicit trait marking).
+union UnspecializedNothrowCopyableUnion {
 
     // CREATORS
 
@@ -1143,9 +1063,8 @@ struct UnspecializedNothrowCopyableUnion {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
+/// This `struct` provides a type for testing support for types that are
+/// no-throw move constructible (without explicit trait marking).
 struct UnspecializedNothrowMovableClass {
 
     // CREATORS
@@ -1160,10 +1079,9 @@ struct UnspecializedNothrowMovableClass {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
-struct UnspecializedNothrowMovableUnion {
+/// This `union` provides a type for testing support for types that are
+/// no-throw move constructible (without explicit trait marking).
+union UnspecializedNothrowMovableUnion {
 
     // CREATORS
 
@@ -1177,21 +1095,18 @@ struct UnspecializedNothrowMovableUnion {
                                              BSLS_KEYWORD_NOEXCEPT; // IMPLICIT
 };
 
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
+/// This `struct` provides a type for testing support for types that are
+/// trivially copyable (without explicit trait marking).
 struct UnspecializedTrivialClass {
 };
 
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
-struct UnspecializedTrivialUnion {
+/// This `union` provides a type for testing support for types that are
+/// trivially copyable (without explicit trait marking).
+union UnspecializedTrivialUnion {
 };
 
-/// This user-defined type, which is not explicitly marked using trait
-/// specialization as being no-throw move constructible, is used for
-/// testing.
+/// This `struct` provides a type for testing support for types with a
+/// throwing move constructor (without explicit trait marking).
 struct UserDefinedThrowTestType {
 
     // CREATORS
@@ -1200,7 +1115,6 @@ struct UserDefinedThrowTestType {
                       bslmf::MovableRef<UserDefinedThrowTestType>); // IMPLICIT
     UserDefinedThrowTestType(const UserDefinedThrowTestType&);
 };
-
 
 }  // close unnamed namespace
 
@@ -1232,7 +1146,6 @@ struct is_trivially_copyable<TrivialClass> : bsl::true_type {};
 template <>
 struct is_trivially_copyable<TrivialUnion> : bsl::true_type {};
 
-
 }  // close namespace bsl
 
 namespace test {
@@ -1246,8 +1159,6 @@ template <>
 struct IgnoreOracle<LyingMovableUnion> : bsl::true_type {};
 template <>
 struct IgnoreOracle<LyingNestedTraitMovableClass> : bsl::true_type {};
-template <>
-struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 
 }  // close namespace test
 
@@ -1283,7 +1194,7 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 #if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
 /// Confirm that the result of `bsl::is_nothrow_move_constructible<TYPE>`
 /// agrees with the oracle `std::is_nothrow_move_constructible`.
-#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)             \
+# define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CONSULT_ORACLE(TYPE)            \
     ASSERT( test::IgnoreOracle<TYPE>::value ||                                \
            (std::is_nothrow_move_constructible<TYPE>::value ==                \
             bsl::is_nothrow_move_constructible<TYPE>::value))
@@ -1318,7 +1229,7 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(                                     \
                                       bsl::add_rvalue_reference<TYPE>::type,  \
                                       !bsl::is_array<TYPE>::value)
-#elif defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
+#elif defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
 # define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_RVAL_REF(TYPE, RESULT)          \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(                                     \
                                  bsl::add_rvalue_reference<TYPE>::type, true)
@@ -1331,7 +1242,7 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 //   This macro tests that the `is_move_constructible` trait has the expected
 //   `RESULT` for the given `TYPE`, and pointers/references to that type.
 //   Pointers and references are always no-throw move constructible.
-# define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT)              \
+#define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, RESULT)               \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(TYPE, RESULT);                       \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(bsl::add_pointer<TYPE>::type, true); \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(                                     \
@@ -1340,7 +1251,8 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST
-//   This macro tests ...
+//   This macro tests that the `is_nothrow_move_constructible` trait has the
+//   expected result for each cv-qualification of the specified `TYPE`.
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(TYPE, NO_CVQ, CONST)     \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(TYPE, NO_CVQ);                  \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TYPE(bsl::add_const<TYPE>::type,     \
@@ -1363,7 +1275,7 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS
-//   This macro tests that a the trait for a type matches the expected result,
+//   This macro tests that the trait for a type matches the expected result,
 //   but that cv-qualified versions of that type are never no-throw movable.
 //   DO NOT CALL THIS MACRO FOR TRIVIAL CLASS TYPES, as the cv-qualified
 //   results will be wrong.  Use the `_TRIVIAL_` macro below instead.
@@ -1372,7 +1284,7 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
     ASSERT_ARRAYS_ARE_NOT_NOTHROW_MOVE_CONSTRUCTIBLE(TYPE)
 
 
-// Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS
+// Macro: ASSERT_IS_TRIVIAL_CLASS
 //   This macro confirms that the specified `TYPE` is a trivial class for
 //   platforms that can natively determine the property, and does nothing
 //   otherwise.
@@ -1385,11 +1297,10 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 
 
 // Macro: ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS
-//   This macro tests that a the trait for a trivial class type matches the
+//   This macro tests that the trait for a trivial class type matches the
 //   expected trait results: a trivial type is no-throw movable /and/ no-throw
-//   copyable, so a `const`-qualified, but not a `volatile`-qualified', version
-//   of the class will also detect as no-throw movable.  but that cv-qualified
-//   versions of that type are never no-throw movable.
+//   copyable, so a `const`-qualified, but not a `volatile`-qualified, version
+//   of the class will also detect as no-throw movable.
 #define ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TYPE)              \
     ASSERT_IS_TRIVIAL_CLASS(TYPE);                                            \
     ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(TYPE, true, true);           \
@@ -1402,14 +1313,19 @@ struct IgnoreOracle<LyingNestedTraitMovableUnion> : bsl::true_type {};
 
 int main(int argc, char *argv[])
 {
-    const int  test = argc > 1 ? atoi(argv[1]) : 0;
-    const bool verbose = argc > 2;
-    const bool veryVerbose = argc > 3;
+    const int                 test = argc > 1 ? atoi(argv[1]) : 0;
+    const bool             verbose = argc > 2;
+    const bool         veryVerbose = argc > 3;
+    const bool     veryVeryVerbose = argc > 4;
+    const bool veryVeryVeryVerbose = argc > 5;
+
+    (void)veryVeryVerbose;
+    (void)veryVeryVeryVerbose;
 
     printf("TEST " __FILE__ " CASE %d\n", test);
 
     switch (test) { case 0:
-      case 13: {
+      case 12: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -1425,12 +1341,12 @@ int main(int argc, char *argv[])
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nUSAGE EXAMPLE"
-                            "\n=============\n");
+        if (verbose) puts("\nUSAGE EXAMPLE"
+                          "\n=============");
 
         {
-///Example 1: Basic Syntax
-///- - - - - - - - - - - -
+///Example 1: Difference In Moving Trivial And Non-trivial Fields
+/// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Finally, we will copy one `Employee` object and move another to verify the
 // correctness of its constructors:
 // ```
@@ -1455,9 +1371,9 @@ int main(int argc, char *argv[])
         }
 
         {
-///Example 1: Basic Syntax
-///- - - - - - - - - - - -
-// To demonstrate the newly created `Vector<TYPE>` class in action, first a
+///Example 2: Basic `MovableRef<T>` Usage
+/// - - - - - - - - - - - - - - - - - - -
+// To demonstrate the newly created `Vector<t_TYPE>` class in action, first a
 // `Vector<int>` is created and filled with a few elements:
 // ```
     Vector<int> vector0;
@@ -1468,7 +1384,7 @@ int main(int argc, char *argv[])
         ASSERT(vector0[i] == i);
     }
 // ```
-// To verify that copying of `Vector<TYPE>` objects works, a copy is created:
+// To verify that copying of `Vector<t_TYPE>` objects works, a copy is created:
 // ```
     Vector<int> vector1(vector0);
     ASSERT(vector1.size() == 5);
@@ -1478,15 +1394,15 @@ int main(int argc, char *argv[])
         ASSERT(vector1[i] == vector0[i]);
     }
 // ```
-// When using moving this `vector0` to a new location the representation of the
+// When moving this `vector0` to a new location, the representation of the
 // new object should use the original `begin()`:
 // ```
     const int   *first = vector0.begin();
     Vector<int>  vector2(bslmf::MovableRefUtil::move(vector0));
     ASSERT(first == vector2.begin());
 // ```
-// When create a `Vector<Vector<int> >` and using `push_back()` on this object
-// with `vector2` a copy should be inserted:
+// When creating a `Vector<Vector<int> >` and using `push_back()` on this
+// object with `vector2` a copy should be inserted:
 // ```
     Vector<Vector<int> > vVector;
     vVector.push_back(vector2);                          // copy
@@ -1499,7 +1415,7 @@ int main(int argc, char *argv[])
         ASSERT(vector2[i] == i);
     }
 // ```
-// When adding another element by moving `vector2` the `begin()` of the newly
+// When adding another element by moving `vector2`, the `begin()` of the newly
 // inserted element will be the same as `first`, i.e., the representation is
 // transferred:
 // ```
@@ -1509,11 +1425,290 @@ int main(int argc, char *argv[])
     ASSERT(vVector[1].size() == 5);
 // ```
 // Compiling this code with both C++03 and C++11 compilers shows that there is
-// no need for conditional compilation in when using `MovableRef<TYPE>` while
+// no need for conditional compilation when using `MovableRef<t_TYPE>` while
 // move semantics is enabled in both modes.
         }
       } break;
-      case 12: {
+      case 11: {
+        // --------------------------------------------------------------------
+        // EXTENDING `bsl::is_nothrow_move_constructible`
+        //   Ensure the `bsl::is_nothrow_move_constructible` metafunction
+        //   returns the correct value for class types explicitly specified to
+        //   have a `nothrow` move constructor using trait customization
+        //   facilities.  This test case completes the
+        //   `bslmf_isnothrowmoveconstructible` test driver validating (only)
+        //   class types across all variations where explicit BDE traits may
+        //   agree or disagree with implicitly deduced C++11 traits.
+        //
+        // Concerns:
+        //  1. For a user-defined trivially copyable class type that is
+        //     correctly associated with either of the C++03 trait
+        //     customization facilities, both the native trait oracle and the
+        //     `bsl` trait return `true` for the potentially const-qualified
+        //     type, and `false` for volatile-qualified versions of that type.
+        //
+        //  2. For a user-defined type with a move constructor marked as
+        //     `noexcept` in C++11, which is properly associated with the
+        //     `bsl::is_nothrow_move_constructible` trait, both the native
+        //     oracle and the `bsl` trait are defined to inherit from
+        //     `true_type` for the non-cv-qualified type, and `false_type` for
+        //     cv-qualified versions of that type.
+        //
+        //  3. For a user-defined type with a move constructor not marked as
+        //     `noexcept` in C++11, and which is improperly associated with the
+        //     `bsl::is_nothrow_move_constructible` trait, the `bsl` trait will
+        //     return `true` in both C++03 and C++11, but the native oracle
+        //     will return `false`.
+        //
+        //              // GENERAL CONCERNS
+        //
+        //  4. Traits apply equally to unions as to classes.  Note that
+        //     `BSLMF_NESTED_TRAIT_DECLARATION` relies on inheritance, so
+        //     union coverage is limited to types that use explicit template
+        //     specialization (tested via `TrivialUnion`,
+        //     `NothrowMovableTestUnion`, and `LyingMovableUnion`).
+        //
+        //  5. For array of any of these types, the metafunction always returns
+        //     `false`.
+        //
+        // Plan:
+        //  1. Create a set of representative class types for all scenarios
+        //     where C++03 and C++11 compilers should agree:
+        //     o Trivial types that correctly associate with the C++03 trait
+        //       (C-1)
+        //     o Non-trivial types that associate with the trait, AND associate
+        //       explicitly with the trait (C-2, C-3)
+        //
+        //  2. Where possible, include a union type for the corresponding
+        //     concern; unions that use explicit template specialization are
+        //     tested in their respective concern.  Unions cannot use
+        //     `BSLMF_NESTED_TRAIT_DECLARATION`. (C-4)
+        //
+        //  3. For each type in steps 1-2, use the appropriate test macro to
+        //     confirm the correct result. (C-5)
+        //
+        // Testing:
+        //   EXTENDING `bsl::is_nothrow_move_constructible`
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            puts("\nEXTENDING `bsl::is_nothrow_move_constructible`"
+                 "\n==============================================");
+
+        // C-1
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
+                                                      NestedTraitTrivialClass);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialClass);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialUnion);
+
+        // C-2
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestClass,
+                                                   true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestUnion,
+                                                   true);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                                NestedTraitNothrowMovableClass,
+                                                true);
+
+        // C-3
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableClass, true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableUnion, true);
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                                  LyingNestedTraitMovableClass,
+                                                  true);
+
+      } break;
+      case 10: {
+        // --------------------------------------------------------------------
+        // COMPATIBILITY WITH `is_nothrow_move_constructible`
+        //   Ensure both the `bsl::is_nothrow_move_constructible` and
+        //   `std::is_nothrow_move_constructible` metafunctions return the
+        //   expected values for class types without explicit BDE trait
+        //   customization.
+        //
+        // Concerns:
+        //  1. The metafunction returns `false` for non-trivial user-defined
+        //     types with a throwing move constructor.
+        //
+        //  2. The metafunction returns `false` for types with deleted (or
+        //     private) copy and move constructors, even when declared
+        //     `noexcept`.
+        //
+        //  3. The metafunction returns `false` for non-trivial user-defined
+        //     types with a throwing move constructor and no copy constructor.
+        //
+        //              // TYPES THAT DISAGREE BETWEEN C++03 AND C++11
+        //
+        //  4. The metafunction returns `true` in C++11 but `false` in C++03
+        //     for non-trivial user-defined types with a nothrow move
+        //     constructor and no copy constructor that is not
+        //     associated with either of the trait customization facilities.
+        //
+        //  5. For a user-defined trivially copyable type that is not
+        //     associated with either of the trait customization facilities,
+        //     the trait returns `false` for all cv-qualified variations of
+        //     this type in C++03, but correctly deduces `true` for potentially
+        //     `const` (but not `volatile`) qualified versions of this type in
+        //     C++11.
+        //
+        //  6. For a user-defined type with a move constructor marked as
+        //     `noexcept` in C++11, that is not associated with either of the
+        //     trait customization facilities, both the native oracle and the
+        //     `bsl` trait are defined to inherit from `true_type` for the
+        //     non-cv-qualified type, and `false_type` for cv-qualified
+        //     versions of that type.
+        //
+        //  7. For a user-defined type with a copy constructor marked as
+        //     `noexcept` in C++11 and no declared move constructor, that is
+        //     not associated with either of the trait customization
+        //     facilities, both the native oracle and the `bsl` trait are
+        //     defined to inherit from `true_type` for the non-cv-qualified
+        //     type, and `false_type` for cv-qualified versions of that type.
+        //
+        //              // GENERAL CONCERNS
+        //
+        //  8. Traits apply equally to unions as to classes.  Note that
+        //     `BSLMF_NESTED_TRAIT_DECLARATION` relies on inheritance, so
+        //     union coverage is limited to types that use explicit template
+        //     specialization.
+        //
+        //  9. For array of any of these types, the metafunction always returns
+        //     `false`.
+        //
+        // Plan:
+        //  1. Create a set of representative class types for all scenarios
+        //     where C++03 and C++11 compilers should agree:
+        //     o Simple non-trivial types with a throwing move constructor that
+        //       do not satisfy the traits (C-1)
+        //     o Types with inaccessible copy and move constructors that do not
+        //       satisfy the traits (C-2)
+        //     o Simple types with a throwing move constructor that do not
+        //       satisfy the traits (C-3)
+        //
+        //  2. Create a set of representative class types for all scenarios
+        //     where C++03 and C++11 compilers should disagree:
+        //     o Simple types with a nothrow move constructor and no copy
+        //       constructor (C-4)
+        //     o Trivially copyable types (C-5)
+        //     o Simple types with a nothrow move constructor and a copy
+        //       constructor (C-6)
+        //     o Simple types with no move constructor and a copy
+        //       constructor (C-7)
+        //
+        //  3. For each category of type in concerns sets 1 and 2, include a
+        //     similar union type where possible; unions cannot use
+        //     `BSLMF_NESTED_TRAIT_DECLARATION` (C-8).
+        //
+        //  4. For each type in steps 1-3, use the appropriate test macro to
+        //     confirm the correct result. These macros also test arrays where
+        //     appropriate (C-9).
+        //
+        // Testing:
+        //   COMPATIBILITY WITH `is_nothrow_move_constructible`
+        // --------------------------------------------------------------------
+
+        if (verbose)
+            puts("\nCOMPATIBILITY WITH `is_nothrow_move_constructible`"
+                 "\n=================================================");
+
+        // C-0: Verify that the trait tests do not give different answers for
+        // fundamental types.  This is testing the test machinery, as this test
+        // concern was proven in test case 1 of
+        // `bslmf_isnothrowmoveconstructible.t.cpp`.
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(char, true );
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void, false);
+
+        // C-1: Verify that the trait tests do not give different answers for
+        // potentially-throwing types that do not customize our traits.
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(UserDefinedThrowTestType,
+                                                   false);
+
+        // C-2
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(ImmovableClass, false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(ImmovableUnion, false);
+
+        // C-3
+
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyThrowingClass,
+                                                   false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyThrowingUnion,
+                                                   false);
+
+        // C-4
+
+#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowClass,
+                                                   true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowUnion,
+                                                   true);
+#else
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowClass,
+                                                   false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowUnion,
+                                                   false);
+#endif
+
+        // C-5
+#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
+                                                    UnspecializedTrivialClass);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
+                                                    UnspecializedTrivialUnion);
+#else
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(UnspecializedTrivialClass,
+                                                   false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(UnspecializedTrivialUnion,
+                                                   false);
+#endif
+
+        // C-6
+
+#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                              UnspecializedNothrowMovableClass,
+                                              true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                              UnspecializedNothrowMovableUnion,
+                                              true);
+#else
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                              UnspecializedNothrowMovableClass,
+                                              false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                              UnspecializedNothrowMovableUnion,
+                                              false);
+#endif
+
+        // C-7
+
+#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(
+                                             UnspecializedNothrowCopyableClass,
+                                             true,
+                                             true);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(
+                                             UnspecializedNothrowCopyableUnion,
+                                             true,
+                                             true);
+#else
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                             UnspecializedNothrowCopyableClass,
+                                             false);
+        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
+                                             UnspecializedNothrowCopyableUnion,
+                                             false);
+#endif
+      } break;
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING DEDUCTION
         //   Ensure that the macro `BSLMF_MOVABLEREF_DEDUCE` expands to a type
@@ -1526,7 +1721,7 @@ int main(int argc, char *argv[])
         //
         // Concerns:
         // 1. The macro only deduces movable references and never lvalue
-        //    references, and does so in a sfinae-friendly way.
+        //    references, and does so in a SFINAE-friendly way.
         //
         // 2. The types that are deduced can be arguments to type templates,
         //    e.g., `BSLMF_MOVABLEREF_DEDUCE(bsl::pair<T1, T2>)` should be able
@@ -1583,9 +1778,8 @@ int main(int argc, char *argv[])
         //   BSLMF_MOVABLEREF_DEDUCE
         // --------------------------------------------------------------------
 
-        if (verbose)
-            printf("\nTESTING DEDUCTION"
-                   "\n=================\n");
+        if (verbose) puts("\nTESTING DEDUCTION"
+                          "\n=================");
 
         // Short for "Not Applicable"
         static const bool NA = false;
@@ -1593,46 +1787,44 @@ int main(int argc, char *argv[])
         static const bool YES = true;
         static const bool NO = false;
 
-        typedef bslmf::MovableRefUtil U;
-
         typedef int I;
-        typedef I& rI;
-        typedef const I cI;
+        typedef       I&  rI;
+        typedef const I   cI;
         typedef const I& rcI;
-        typedef bslmf::MovableRef<I> rrI;
+        typedef bslmf::MovableRef<I>  rrI;
         typedef bslmf::MovableRef<cI> rrcI;
-        I i = 0;
-        rI ri = i;
-        rrI rri = bslmf::MovableRefUtil::move(i);
-        cI ci = 0;
-        rcI rci = ci;
-        rrcI rrci = bslmf::MovableRefUtil::move(ci);
+        I       i = 0;
+        rI     ri = i;
+        rrI   rri = Util::move(i);
+        cI     ci = 0;
+        rcI   rci = ci;
+        rrcI rrci = Util::move(ci);
 
         typedef TrivialClass O;
-        typedef O& rO;
-        typedef const O cO;
+        typedef       O&  rO;
+        typedef const O   cO;
         typedef const O& rcO;
-        typedef bslmf::MovableRef<O> rrO;
+        typedef bslmf::MovableRef<O>  rrO;
         typedef bslmf::MovableRef<cO> rrcO;
-        O o;
-        rO ro = o;
-        rrO rro = bslmf::MovableRefUtil::move(o);
-        cO co;
-        rcO rco = co;
-        rrcO rrco = bslmf::MovableRefUtil::move(co);
+        O       o;
+        rO     ro = o;
+        rrO   rro = Util::move(o);
+        cO     co;
+        rcO   rco = co;
+        rrcO rrco = Util::move(co);
 
         typedef ClassTemplate<int, int, int> T;
-        typedef T& rT;
-        typedef const T cT;
+        typedef       T&  rT;
+        typedef const T   cT;
         typedef const T& rcT;
-        typedef bslmf::MovableRef<T> rrT;
+        typedef bslmf::MovableRef<T>       rrT;
         typedef bslmf::MovableRef<const T> rrcT;
-        T t;
-        rT rt = t;
-        rrT rrt = bslmf::MovableRefUtil::move(t);
-        cT ct;
-        rcT rct = ct;
-        rrcT rrct = bslmf::MovableRefUtil::move(ct);
+        T       t;
+        rT     rt = t;
+        rrT   rrt = Util::move(t);
+        cT     ct;
+        rcT   rct = ct;
+        rrcT rrct = Util::move(ct);
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         const bool IF_RVALUE_REF = true;
@@ -1645,502 +1837,144 @@ int main(int argc, char *argv[])
         //       LINE
         //      .----
         //     / IS MR DEDUCIBLE?   EXPRESSION
-        //    -- ---------------- ---------------
-        TEST1(L_,   IF_RVALUE_REF, I()           );
-        TEST1(L_,   IF_RVALUE_REF, cI()          );
-        TEST1(L_,   NO           , i             );
-        TEST1(L_,   NO           , ri            );
-        TEST1(L_, ! IF_RVALUE_REF, rri           );
-        TEST1(L_,   NO           , ci            );
-        TEST1(L_,   NO           , rci           );
-        TEST1(L_, ! IF_RVALUE_REF, rrci          );
+        //    -- ---------------- ------------------
+        TEST1(L_,   IF_RVALUE_REF, I()              );
+        TEST1(L_,   IF_RVALUE_REF, cI()             );
+        TEST1(L_,   NO           , i                );
+        TEST1(L_,   NO           , ri               );
+        TEST1(L_, ! IF_RVALUE_REF, rri              );
+        TEST1(L_,   NO           , ci               );
+        TEST1(L_,   NO           , rci              );
+        TEST1(L_, ! IF_RVALUE_REF, rrci             );
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST1(L_,   YES          , U::move(I())  );
+        TEST1(L_,   YES          , Util::move(I())  );
 #endif
-        TEST1(L_,   YES          , U::move(i)    );
-        TEST1(L_,   YES          , U::move(ri)   );
-        TEST1(L_,   YES          , U::move(rri)  );
-        TEST1(L_,   YES          , U::move(ci)   );
-        TEST1(L_,   YES          , U::move(rci)  );
-        TEST1(L_,   YES          , U::move(rrci) );
+        TEST1(L_,   YES          , Util::move(i)    );
+        TEST1(L_,   YES          , Util::move(ri)   );
+        TEST1(L_,   YES          , Util::move(rri)  );
+        TEST1(L_,   YES          , Util::move(ci)   );
+        TEST1(L_,   YES          , Util::move(rci)  );
+        TEST1(L_,   YES          , Util::move(rrci) );
 
-        TEST1(L_,   IF_RVALUE_REF, O()           );
-        TEST1(L_,   IF_RVALUE_REF, cO()          );
-        TEST1(L_,   NO           , o             );
-        TEST1(L_,   NO           , ro            );
-        TEST1(L_, ! IF_RVALUE_REF, rro           );
-        TEST1(L_,   NO           , co            );
-        TEST1(L_,   NO           , rco           );
-        TEST1(L_, ! IF_RVALUE_REF, rrco          );
+        TEST1(L_,   IF_RVALUE_REF, O()              );
+        TEST1(L_,   IF_RVALUE_REF, cO()             );
+        TEST1(L_,   NO           , o                );
+        TEST1(L_,   NO           , ro               );
+        TEST1(L_, ! IF_RVALUE_REF, rro              );
+        TEST1(L_,   NO           , co               );
+        TEST1(L_,   NO           , rco              );
+        TEST1(L_, ! IF_RVALUE_REF, rrco             );
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST1(L_,   YES          , U::move(O())  );
-        TEST1(L_,   YES          , U::move(cO()) );
+        TEST1(L_,   YES          , Util::move(O())  );
+        TEST1(L_,   YES          , Util::move(cO()) );
 #endif
-        TEST1(L_,   YES          , U::move(o)    );
-        TEST1(L_,   YES          , U::move(ro)   );
-        TEST1(L_,   YES          , U::move(rro)  );
-        TEST1(L_,   YES          , U::move(co)   );
-        TEST1(L_,   YES          , U::move(rco)  );
-        TEST1(L_,   YES          , U::move(rrco) );
+        TEST1(L_,   YES          , Util::move(o)    );
+        TEST1(L_,   YES          , Util::move(ro)   );
+        TEST1(L_,   YES          , Util::move(rro)  );
+        TEST1(L_,   YES          , Util::move(co)   );
+        TEST1(L_,   YES          , Util::move(rco)  );
+        TEST1(L_,   YES          , Util::move(rrco) );
 
         const TestTemplateIsDeducible TEST2;
 
         //       LINE
         //      .----
         //     / IS MR DEDUCIBLE?    CONST?     EXPRESSION
-        //    -- ---------------- ----------- ---------------
-        TEST2(L_,   IF_RVALUE_REF, NO        , T()           );
-        TEST2(L_,   IF_RVALUE_REF, YES       , cT()          );
-        TEST2(L_,   NO           , NA        , t             );
-        TEST2(L_,   NO           , NA        , rt            );
-        TEST2(L_, ! IF_RVALUE_REF, NO        , rrt           );
-        TEST2(L_,   NO           , NA        , ct            );
-        TEST2(L_,   NO           , NA        , rct           );
-        TEST2(L_, ! IF_RVALUE_REF, YES       , rrct          );
+        //    -- ---------------- ----------- ------------------
+        TEST2(L_,   IF_RVALUE_REF, NO        , T()              );
+        TEST2(L_,   IF_RVALUE_REF, YES       , cT()             );
+        TEST2(L_,   NO           , NA        , t                );
+        TEST2(L_,   NO           , NA        , rt               );
+        TEST2(L_, ! IF_RVALUE_REF, NO        , rrt              );
+        TEST2(L_,   NO           , NA        , ct               );
+        TEST2(L_,   NO           , NA        , rct              );
+        TEST2(L_, ! IF_RVALUE_REF, YES       , rrct             );
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST2(L_,   YES          , NO        , U::move(T())  );
-        TEST2(L_,   YES          , YES       , U::move(cT()) );
+        TEST2(L_,   YES          , NO        , Util::move(T())  );
+        TEST2(L_,   YES          , YES       , Util::move(cT()) );
 #endif
-        TEST2(L_,   YES          , NO        , U::move(t)    );
-        TEST2(L_,   YES          , NO        , U::move(rt)   );
-        TEST2(L_,   YES          , NO        , U::move(rrt)  );
-        TEST2(L_,   YES          , YES       , U::move(ct)   );
-        TEST2(L_,   YES          , YES       , U::move(rct)  );
-        TEST2(L_,   YES          , YES       , U::move(rrct) );
+        TEST2(L_,   YES          , NO        , Util::move(t)    );
+        TEST2(L_,   YES          , NO        , Util::move(rt)   );
+        TEST2(L_,   YES          , NO        , Util::move(rrt)  );
+        TEST2(L_,   YES          , YES       , Util::move(ct)   );
+        TEST2(L_,   YES          , YES       , Util::move(rct)  );
+        TEST2(L_,   YES          , YES       , Util::move(rrct) );
 
         const TestOverloadSelection TEST3;
 
         //       LINE
         //      .----
         //     / IS MR DEDUCIBLE?   EXPRESSION
-        //    -- ---------------- ---------------
-        TEST3(L_,   IF_RVALUE_REF, I()           );
-        TEST3(L_,   IF_RVALUE_REF, cI()          );
-        TEST3(L_,   NO           , i             );
-        TEST3(L_,   NO           , ri            );
-        TEST3(L_, ! IF_RVALUE_REF, rri           );
-        TEST3(L_,   NO           , ci            );
-        TEST3(L_,   NO           , rci           );
-        TEST3(L_, ! IF_RVALUE_REF, rrci          );
+        //    -- ---------------- ------------------
+        TEST3(L_,   IF_RVALUE_REF, I()              );
+        TEST3(L_,   IF_RVALUE_REF, cI()             );
+        TEST3(L_,   NO           , i                );
+        TEST3(L_,   NO           , ri               );
+        TEST3(L_, ! IF_RVALUE_REF, rri              );
+        TEST3(L_,   NO           , ci               );
+        TEST3(L_,   NO           , rci              );
+        TEST3(L_, ! IF_RVALUE_REF, rrci             );
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST3(L_,   YES          , U::move(I())  );
-        TEST3(L_,   YES          , U::move(cI()) );
+        TEST3(L_,   YES          , Util::move(I())  );
+        TEST3(L_,   YES          , Util::move(cI()) );
 #endif
-        TEST3(L_,   YES          , U::move(i)    );
-        TEST3(L_,   YES          , U::move(ri)   );
-        TEST3(L_,   YES          , U::move(rri)  );
-        TEST3(L_,   YES          , U::move(ci)   );
-        TEST3(L_,   YES          , U::move(rci)  );
-        TEST3(L_,   YES          , U::move(rrci) );
+        TEST3(L_,   YES          , Util::move(i)    );
+        TEST3(L_,   YES          , Util::move(ri)   );
+        TEST3(L_,   YES          , Util::move(rri)  );
+        TEST3(L_,   YES          , Util::move(ci)   );
+        TEST3(L_,   YES          , Util::move(rci)  );
+        TEST3(L_,   YES          , Util::move(rrci) );
 
-        TEST3(L_,   IF_RVALUE_REF, O()           );
-        TEST3(L_,   IF_RVALUE_REF, cO()          );
-        TEST3(L_,   NO           , o             );
-        TEST3(L_,   NO           , ro            );
-        TEST3(L_, ! IF_RVALUE_REF, rro           );
-        TEST3(L_,   NO           , co            );
-        TEST3(L_,   NO           , rco           );
-        TEST3(L_, ! IF_RVALUE_REF, rrco          );
+        TEST3(L_,   IF_RVALUE_REF, O()              );
+        TEST3(L_,   IF_RVALUE_REF, cO()             );
+        TEST3(L_,   NO           , o                );
+        TEST3(L_,   NO           , ro               );
+        TEST3(L_, ! IF_RVALUE_REF, rro              );
+        TEST3(L_,   NO           , co               );
+        TEST3(L_,   NO           , rco              );
+        TEST3(L_, ! IF_RVALUE_REF, rrco             );
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST3(L_,   YES          , U::move(O())  );
-        TEST3(L_,   YES          , U::move(cO()) );
+        TEST3(L_,   YES          , Util::move(O())  );
+        TEST3(L_,   YES          , Util::move(cO()) );
 #endif
-        TEST3(L_,   YES          , U::move(o)    );
-        TEST3(L_,   YES          , U::move(ro)   );
-        TEST3(L_,   YES          , U::move(rro)  );
-        TEST3(L_,   YES          , U::move(co)   );
-        TEST3(L_,   YES          , U::move(rco)  );
-        TEST3(L_,   YES          , U::move(rrco) );
+        TEST3(L_,   YES          , Util::move(o)    );
+        TEST3(L_,   YES          , Util::move(ro)   );
+        TEST3(L_,   YES          , Util::move(rro)  );
+        TEST3(L_,   YES          , Util::move(co)   );
+        TEST3(L_,   YES          , Util::move(rco)  );
+        TEST3(L_,   YES          , Util::move(rrco) );
 
         const TestOverloadSelectionWithConstMovableRef TEST4;
 
         //       LINE
         //      .----
         //     /   DEDUCE CONST?     EXPRESSION
-        //    -- ---------------- ---------------
+        //    -- ---------------- ------------------
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST4(L_,   NO           , I()           );
-        TEST4(L_,   NO           , cI()          );
-        TEST4(L_,   NO           , U::move(I())  );
-        TEST4(L_,   NO           , U::move(cI()) );
+        TEST4(L_,   NO           , I()              );
+        TEST4(L_,   NO           , cI()             );
+        TEST4(L_,   NO           , Util::move(I())  );
+        TEST4(L_,   NO           , Util::move(cI()) );
 #endif
-        TEST4(L_,   NO           , U::move(i)    );
-        TEST4(L_,   NO           , U::move(ri)   );
-        TEST4(L_,   NO           , U::move(rri)  );
-        TEST4(L_,   YES          , U::move(ci)   );
-        TEST4(L_,   YES          , U::move(rci)  );
-        TEST4(L_,   YES          , U::move(rrci) );
+        TEST4(L_,   NO           , Util::move(i)    );
+        TEST4(L_,   NO           , Util::move(ri)   );
+        TEST4(L_,   NO           , Util::move(rri)  );
+        TEST4(L_,   YES          , Util::move(ci)   );
+        TEST4(L_,   YES          , Util::move(rci)  );
+        TEST4(L_,   YES          , Util::move(rrci) );
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        TEST4(L_,   NO           , O()           );
-        TEST4(L_,   YES          , cO()          );
-        TEST4(L_,   NO           , U::move(O())  );
-        TEST4(L_,   YES          , U::move(cO()) );
+        TEST4(L_,   NO           , O()              );
+        TEST4(L_,   YES          , cO()             );
+        TEST4(L_,   NO           , Util::move(O())  );
+        TEST4(L_,   YES          , Util::move(cO()) );
 #endif
-        TEST4(L_,   NO           , U::move(o)    );
-        TEST4(L_,   NO           , U::move(ro)   );
-        TEST4(L_,   NO           , U::move(rro)  );
-        TEST4(L_,   YES          , U::move(co)   );
-        TEST4(L_,   YES          , U::move(rco)  );
-        TEST4(L_,   YES          , U::move(rrco) );
-
-      } break;
-      case 11: {
-        // --------------------------------------------------------------------
-        // TESTING IBM XL C++ FUNCTIONS WITH DEFAULT ARGUMENTS WORKAROUND
-        //   Ensure that the property and transformation traits provided by
-        //   the `bslmf::MovableRefUtil` utility `struct` provide correct
-        //   results when applied to function types deduced from functions,
-        //   where possible, including when compiled with the IBM XL C++ line
-        //   of compilers.  These compilers have a defect in which `typedef`s
-        //   to function types deduced from functions that have default
-        //   arguments cannot be formed.
-        //
-        // Concerns:
-        // 1. All property and transformation traits in
-        //    `bslmf::MovableRefUtil`, except `RemoveReference`, are
-        //    instantiable with function types deduced from functions with
-        //    default arguments when compiled with the IBM XL C++ line of
-        //    compilers.
-        //
-        // 2. All property and transformation traits in `bslmf::MovableRefUtil`
-        //    are instantiable with function types deduced from arbitrary
-        //    functions with all other compiler lines.
-        //
-        // 3. Such instantiations provide correct results.
-        //
-        // Plan:
-        // 1. For each property and transformation trait in
-        //    `bslmf::MovableRefUtil`, instantiate the trait template with
-        //    a type deduced from a function without default arguments, and
-        //    a function with default arguments, and verify that the value of
-        //    the trait is correct per its contract.  However, do not attempt
-        //    to instantiate the `RemoveReference` trait using a type deduced
-        //    from a function with default arguments using the IBM XL C++ line
-        //    of compilers.  Such an attempt will cause compilation to fail as
-        //    a result of triggering a compiler defect.
-        //
-        // Testing:
-        //   CONCERN: IBM XL C++ functions with default arguments workaround
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            printf("\nTESTING IBM XL C++ FUNCTIONS WITH DEFAULT ARGUMENTS "
-                   "WORKAROUND"
-                   "\n===================================================="
-                   "==========\n");
-
-        typedef bslmf::MovableRefUtil Util;
-
-        testBooleanTrait<false, Util::IsLvalueReference >(L_, f);
-        testBooleanTrait<false, Util::IsLvalueReference >(L_, g);
-        testBooleanTrait<false, Util::IsMovableReference>(L_, f);
-        testBooleanTrait<false, Util::IsMovableReference>(L_, g);
-        testBooleanTrait<false, Util::IsReference       >(L_, f);
-        testBooleanTrait<false, Util::IsReference       >(L_, g);
-
-#define MR ::BloombergLP::bslmf::MovableRef
-
-        typedef void F(int);
-
-        testTransformationTrait<F    , Util::RemoveReference    >(L_, f);
-#if !defined(BSLS_PLATFORM_CMP_IBM) || BSLS_PLATFORM_CMP_VERSION > 4097
-        testTransformationTrait<F    , Util::RemoveReference    >(L_, g);
-#endif
-        testTransformationTrait<F&   , Util::AddLvalueReference >(L_, f);
-        testTransformationTrait<F&   , Util::AddLvalueReference >(L_, g);
-        testTransformationTrait<MR<F>, Util::AddMovableReference>(L_, f);
-        testTransformationTrait<MR<F>, Util::AddMovableReference>(L_, g);
-        testTransformationTrait<F *  , Util::Decay              >(L_, f);
-        testTransformationTrait<F *  , Util::Decay              >(L_, g);
-
-#undef MR
-
-      } break;
-      case 10: {
-        // --------------------------------------------------------------------
-        // EXTENDING `bsl::is_nothrow_move_constructible`
-        //   Ensure the `bsl::is_nothrow_move_constructible` metafunction
-        //   returns the correct value for class types explicitly specified to
-        //   have a `nothrow` move constructor using trait customization
-        //   facilities.  This test case completes the
-        //   `bslmf_isnothrowmoveconstructible` test driver validating (only)
-        //   class types across all variations where explicit BDE traits may
-        //   agree or disagree with implicitly deduced C++11 traits.
-        //
-        // Concerns:
-        //  1. For a user-defined trivially copyable class type that is
-        //     correctly associated with either of the C++03 trait
-        //     customization facilities, both the native trait oracle and the
-        //     `bsl` trait return `true` for the potentially const-qualified
-        //     type, and `false` for volatile-qualified versions of that type.
-        //
-        //  2. For a user-defined type with a move constructor marked as
-        //     `noexcept` in C++11, which is properly associated with the
-        //     `bsl::is_nothrow_move_constructible` trait, both the native
-        //     oracle  and the `bsl` trait are defined to inherit from
-        //     `true_type` for the non-cv-qualified type, and `false_type` for
-        //     cv-qualified versions of that type.
-        //
-        //  3. For a user-defined type with a move constructor not marked as
-        //     `noexcept` in C++11, and which is improperly associated with the
-        //     `bsl::is_nothrow_move_constructible` trait, the `bsl` trait will
-        //     return `true` in both C++03 and C++11, but the native oracle
-        //     will return `false`.
-        //
-        //              // GENERAL CONCERNS
-        //
-        //  4. Traits apply equally to unions as to classes.  Note that unions
-        //     are known to cause problems in certain template metaprograms if
-        //     they rely on testing with mix-in inheritance, and this concern
-        //     is simply that this implementation does not have those problems.
-        //
-        //  5. For array of any of these types, the metafunction always returns
-        //    `false`.
-        //
-        // Plan:
-        //  1. Create a set of representative class types for all scenarios
-        //     where C++03 and C++11 compilers should agree:
-        //     o Trivial types that correctly associate with the C++03 trait
-        //       (C-1)
-        //     o Non-trivial types that associate with the trait, AND associate
-        //       explicitly with the trait (C-2, C-3)
-        //
-        //  2. For each category of type in the above, create a similar union
-        //     type. (C-4)
-        //
-        //  3. For each type in steps 1-2, use the appropriate test macro for
-        //     confirm the correct result. (C-5)
-        //
-        // Testing:
-        //   EXTENDING `bsl::is_nothrow_move_constructible`
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            printf("\nEXTENDING `bsl::is_nothrow_move_constructible`"
-                   "\n==============================================\n");
-
-        // C-1
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
-                                                      NestedTraitTrivialClass);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
-                                                      NestedTraitTrivialUnion);
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialClass);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(TrivialUnion);
-
-        // C-2
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestClass,
-                                                   true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(NothrowMovableTestUnion,
-                                                   true);
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                NestedTraitNothrowMovableClass,
-                                                true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                NestedTraitNothrowMovableUnion,
-                                                true);
-
-        // C-3
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableClass, true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(LyingMovableUnion, true);
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                  LyingNestedTraitMovableClass,
-                                                  true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                                  LyingNestedTraitMovableClass,
-                                                  true);
-
-      } break;
-      case 9: {
-        // --------------------------------------------------------------------
-        // COMPATIBILITY WITH `is_nothrow_move_constructible`
-        //   Ensure both the 'bsl::is_nothrow_move_constructible and
-        //   `std::is_nothrow_move_constructible` metafunctions return the
-        //   expected values for class types without explicit BDE trait
-        //   customization.
-        //
-        // Concerns:
-        //  1. The metafunction returns `false` for non-trivial user-defined
-        //     types with a throwing move constructor.
-        //
-        //  2. The metafunction returns `false` for types with deleted (or
-        //     private) copy and move constructors, even when declared
-        //     `noexcept`.
-        //
-        //  3. The metafunction returns `false` for non-trivial user-defined
-        //     types with a throwing move constructor and no copy constructor.
-        //
-        //              // TYPES THAT DISAGREE BETWEEN C++03 AND C++11
-        //
-        //  4. The metafunction returns `true` in C++11 but `false` in C++03
-        //     for non-trivial user-defined types with a nothrow move
-        //     constructor and no copy constructor that is not
-        //     associated with either of the trait customization facilities.
-        //
-        //  5. For a user-defined trivially copyable type that is not
-        //     associated with either of the trait customization facilities,
-        //     the trait returns `false` for all cv-qualified variations of
-        //     this type in C++03, but correctly deduces `true` for potentially
-        //     `const` (but not `volatile`) qualified versions of this type in
-        //     C++11.
-        //
-        //  6. For a user-defined type with a move constructor marked as
-        //     `noexcept` in C++11, that is not associated with either of the
-        //     trait customization facilities, both the native  oracle and the
-        //     `bsl` trait are defined to inherit from `true_type` for the
-        //     non-cv-qualified type, and `false_type` for cv-qualified
-        //     versions of that type.
-        //
-        //  7. For a user-defined type with a copy constructor marked as
-        //     `noexcept` in C++11 and no declared move constructor, that is
-        //     not associated with either of the trait customization
-        //     facilities, both the native oracle and the `bsl` trait are
-        //     defined to inherit from `true_type` for the non-cv-qualified
-        //     type, and `false_type` for cv-qualified versions of that type.
-        //
-        //              // GENERAL CONCERNS
-        //
-        //  8. Traits apply equally to unions as to classes.  Note that unions
-        //     are known to cause problems in certain template metaprograms if
-        //     they rely on testing with mix-in inheritance, and this concern
-        //     is simply that this implementation does not have those problems.
-        //
-        //  9. For array of any of these types, the metafunction always returns
-        //     `false`.
-        //
-        // Plan:
-        //  1. Create a set of representative class types for all scenarios
-        //     where C++03 and C++11 compilers should agree:
-        //     o Simple non-trivial types with a throwing move constructor that
-        //       do not satisfy the traits (C-1)
-        //     o Types with inaccessible copy and move constructors that do not
-        //       satisfy the traits (C-2)
-        //     o Simple types with a throwing move constructor that do not
-        //       satisfy the traits (C-3)
-        //
-        //  2. Create a set of representative class types for all scenarios
-        //     where C++03 and C++11 compilers should disagree:
-        //     o Simple types with a nothrow move constructor and no copy
-        //       constructor (C-4)
-        //     o Trivially copyable types (C-5)
-        //     o Simple types with a nothrow move constructor and a copy
-        //       constructor (C-6)
-        //     o Simple types with no move constructor and a copy
-        //       constructor (C-7)
-        //
-        //  3. For each category of type in concerns sets 1 and 2, create a
-        //     similar union type (C-8).
-        //
-        //  4. For each type in steps 1-3, use the appropriate test macro for
-        //     confirm the correct result. These macros also test arrays where
-        //     appropriate (C-10).
-        //
-        // Testing:
-        //   COMPATIBILITY WITH `is_nothrow_move_constructible`
-        // --------------------------------------------------------------------
-
-        if (verbose)
-            printf(
-                 "\nCOMPATIBILITY WITH `is_nothrow_move_constructible`"
-                 "\n=================================================\n");
-
-        // C-0: Verify that the trait tests do not give different answers for
-        // fundamental types.  This is testing the test machinery, as this test
-        // concern was proven in test case 1 of
-        // `bslmf_isnothrowmoveconstructible.t.cpp`.
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(char, true );
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE(void, false);
-
-        // C-1: Verify that the trait tests do not give different answers for
-        // potentially-throwing types that do not customize our traits.
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(UserDefinedThrowTestType,
-                                                   false);
-
-        // C-2
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(ImmovableClass, false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(ImmovableUnion, false);
-
-        // C-3
-
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyThrowingClass,
-                                                   false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyThrowingUnion,
-                                                   false);
-
-        // C-4
-
-#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowClass,
-                                                   true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowUnion,
-                                                   true);
-#else
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowClass,
-                                                   false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(MoveOnlyNothrowUnion,
-                                                   false);
-#endif
-
-        // C-5
-#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
-                                                    UnspecializedTrivialClass);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_TRIVIAL_CLASS(
-                                                    UnspecializedTrivialUnion);
-#else
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(UnspecializedTrivialClass,
-                                                   false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(UnspecializedTrivialClass,
-                                                   false);
-#endif
-
-        // C-6
-
-#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                              UnspecializedNothrowMovableClass,
-                                              true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                              UnspecializedNothrowMovableUnion,
-                                              true);
-#else
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                              UnspecializedNothrowMovableClass,
-                                              false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                              UnspecializedNothrowMovableUnion,
-                                              false);
-#endif
-
-        // C-7
-
-#if defined(BSLMF_MOVABLEREF_USE_NATIVE_ORACLE)
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(
-                                             UnspecializedNothrowCopyableClass,
-                                             true,
-                                             true);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CV_TEST(
-                                             UnspecializedNothrowCopyableUnion,
-                                             true,
-                                             true);
-#else
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                             UnspecializedNothrowCopyableClass,
-                                             false);
-        ASSERT_IS_NOTHROW_MOVE_CONSTRUCTIBLE_CLASS(
-                                             UnspecializedNothrowCopyableUnion,
-                                             false);
-#endif
-
+        TEST4(L_,   NO           , Util::move(o)    );
+        TEST4(L_,   NO           , Util::move(ro)   );
+        TEST4(L_,   NO           , Util::move(rro)  );
+        TEST4(L_,   YES          , Util::move(co)   );
+        TEST4(L_,   YES          , Util::move(rco)  );
+        TEST4(L_,   YES          , Util::move(rrco) );
       } break;
       case 8: {
         // --------------------------------------------------------------------
@@ -2169,11 +2003,11 @@ int main(int argc, char *argv[])
         //    well as the result of `MovableRefUtil::move`.
         //
         // Testing:
-        //   bslmf::MovableRef<TYPE> VS. RVALUE
+        //   MovableRef<TYPE> VS. RVALUE
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nMOVABLEREF<TYPE> VS. RVALUE"
-                            "\n===========================\n");
+        if (verbose) puts("\nMOVABLEREF<TYPE> VS. RVALUE"
+                          "\n===========================");
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         ASSERT(TestMovableRefArgument<int>::test(int(18)));
@@ -2185,65 +2019,10 @@ int main(int argc, char *argv[])
         ASSERT(!TestMovableRefArgument<TestMoving>::test(TestMoving()));
 #endif
         TestMoving tm;
-        ASSERT(testForwardRefArgument(bslmf::MovableRefUtil::move(tm)));
+        ASSERT(testForwardRefArgument(Util::move(tm)));
 
       } break;
       case 7: {
-        // --------------------------------------------------------------------
-        // TESTING `MovableRefUtil::access`
-        //
-        // Concerns:
-        // 1. `MovableRefUtil::access()` yields an lvalue reference the object
-        //    referenced by an lvalue or a (possibly const) `MovableRef<TYPE>`.
-        //
-        // Plan:
-        // 1. Call a function taking a `MovableRef<TYPE>` argument and verify
-        //    that the result of `MovableRefUtil::access()` can be bound to an
-        //    lvalue reference with the same address as the original object.
-        //
-        // Testing:
-        //   TYPE& MovableRefUtil::access(TYPE& lvalue);
-        //   TYPE& MovableRefUtil::access(MovableRef<TYPE> lvalue);
-        // --------------------------------------------------------------------
-
-        if (verbose) printf("\nTESTING `MovableRefUtil::access`"
-                            "\n================================\n");
-        {
-            int  value(19);
-            int *address(MovableAddress<int>::get(
-                                          bslmf::MovableRefUtil::move(value)));
-
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-            const
-#endif
-            bslmf::MovableRef<int> ref(bslmf::MovableRefUtil::move(value));
-
-            ASSERT(&value == address);
-            ASSERT(&value == &bslmf::MovableRefUtil::access(value));
-            ASSERT(&value == &bslmf::MovableRefUtil::access(ref));
-            ASSERT(&value == &bslmf::MovableRefUtil::access(
-                                          bslmf::MovableRefUtil::move(value)));
-            ASSERT(&value == &bslmf::MovableRefUtil::access(ref));
-        }
-        {
-            Vector<int>  value;
-            Vector<int> *address(MovableAddress<Vector<int> >::get(
-                                          bslmf::MovableRefUtil::move(value)));
-            ASSERT(&value == address);
-            ASSERT(&value == &bslmf::MovableRefUtil::access(value));
-        }
-        {
-            const int  value(19);
-            const int *address(MovableAddress<const int>::get(
-                                          bslmf::MovableRefUtil::move(value)));
-
-            ASSERT(&value == address);
-            ASSERT(&value == &bslmf::MovableRefUtil::access(value));
-            ASSERT(&value == &bslmf::MovableRefUtil::access(
-                                          bslmf::MovableRefUtil::move(value)));
-        }
-      } break;
-      case 6: {
         // --------------------------------------------------------------------
         // TESTING `MovableRef<TYPE>::operator TYPE&`
         //
@@ -2263,38 +2042,82 @@ int main(int argc, char *argv[])
         //   MovableRef<TYPE>::operator TYPE&() const;
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `MovableRef<TYPE>::operator TYPE&`"
-                            "\n==========================================\n");
+        if (verbose) puts("\nTESTING `MovableRef<TYPE>::operator TYPE&`"
+                          "\n==========================================");
 
         {
-            int                    value(17);
-#if !defined(BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES)
-            const
-#endif
-            bslmf::MovableRef<int> rvalue(bslmf::MovableRefUtil::move(value));
-            int&                   lvalue(rvalue);
+            int                          value(17);
+            const bslmf::MovableRef<int> rvalue(Util::move(value));
+            int&                         lvalue(rvalue);
             ASSERT(&value == &lvalue);
         }
         {
             Vector<int>                     value;
-            bslmf::MovableRef<Vector<int> > rvalue(
-                                           bslmf::MovableRefUtil::move(value));
+            bslmf::MovableRef<Vector<int> > rvalue(Util::move(value));
             Vector<int>&                    lvalue(rvalue);
             ASSERT(&value == &lvalue);
         }
         {
             TestMoving                    value;
-            bslmf::MovableRef<TestMoving> rvalue(
-                                           bslmf::MovableRefUtil::move(value));
+            bslmf::MovableRef<TestMoving> rvalue(Util::move(value));
             TestMoving&                   lvalue(rvalue);
             ASSERT(value.getAddress() == lvalue.getAddress());
         }
         {
             const int                    value(17);
-            bslmf::MovableRef<const int> rvalue(
-                                           bslmf::MovableRefUtil::move(value));
+            bslmf::MovableRef<const int> rvalue(Util::move(value));
             const int&                   lvalue(rvalue);
             ASSERT(&value == &lvalue);
+        }
+      } break;
+      case 6: {
+        // --------------------------------------------------------------------
+        // TESTING `MovableRefUtil::access`
+        //
+        // Concerns:
+        // 1. `MovableRefUtil::access()` yields an lvalue reference the object
+        //    referenced by an lvalue or a (possibly const) `MovableRef<TYPE>`.
+        //
+        // Plan:
+        // 1. Call a function taking a `MovableRef<TYPE>` argument and verify
+        //    that the result of `MovableRefUtil::access()` can be bound to an
+        //    lvalue reference with the same address as the original object.
+        //
+        // Testing:
+        //   TYPE& access(TYPE& lvalue);
+        //   TYPE& access(MovableRef<TYPE> lvalue);
+        // --------------------------------------------------------------------
+
+        if (verbose) puts("\nTESTING `MovableRefUtil::access`"
+                          "\n================================");
+        {
+            int  value(19);
+            int *address(MovableAddress<int>::get(
+                                          Util::move(value)));
+
+            const bslmf::MovableRef<int> ref(Util::move(value));
+
+            ASSERT(&value == address);
+            ASSERT(&value == &Util::access(value));
+            ASSERT(&value == &Util::access(ref));
+            ASSERT(&value == &Util::access(Util::move(value)));
+            ASSERT(&value == &Util::access(ref));
+        }
+        {
+            Vector<int>  value;
+            Vector<int> *address(MovableAddress<Vector<int> >::get(
+                                          Util::move(value)));
+            ASSERT(&value == address);
+            ASSERT(&value == &Util::access(value));
+        }
+        {
+            const int  value(19);
+            const int *address(MovableAddress<const int>::get(
+                                          Util::move(value)));
+            ASSERT(&value == address);
+            ASSERT(&value == &Util::access(value));
+            ASSERT(&value == &Util::access(
+                                          Util::move(value)));
         }
       } break;
       case 5: {
@@ -2330,42 +2153,40 @@ int main(int argc, char *argv[])
         //    than a substitution macro, to make it clear what we are testing.
         //
         // Testing:
-        //      MovableRef<TYPE> MovableRefUtil::move(TYPE& lvalue);
-        //      MovableRef<RemoveRef<T>::type> move(MovableRef<T> ref);
+        //   MovableRef<TYPE> move(TYPE& lvalue);
+        //   MovableRef<RemoveRef<T>::type> move(MovableRef<T> ref);
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nTESTING `MovableRefUtil::move`"
-                            "\n==============================\n");
+        if (verbose) puts("\nTESTING `MovableRefUtil::move`"
+                          "\n==============================");
 
         {
             int                    value(17);
-            bslmf::MovableRef<int> rvalue1(bslmf::MovableRefUtil::move(value));
+            bslmf::MovableRef<int> rvalue1(Util::move(value));
             ASSERT(!TestMovableRefArgument<int>::test(value));
-            ASSERT(TestMovableRefArgument<int>::test(
-                                          bslmf::MovableRefUtil::move(value)));
+            ASSERT(TestMovableRefArgument<int>::test(Util::move(value)));
             ASSERT(value == rvalue1);
 
-            bslmf::MovableRef<int> rvalue2(
-              bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value)));
+            bslmf::MovableRef<int> rvalue2(Util::move(Util::move(value)));
             ASSERT(value == rvalue2);
         }
         {
             Vector<int>            value;
             ASSERT(TestMovableRefArgument<Vector<int> >::test(
-                                          bslmf::MovableRefUtil::move(value)));
+                                          Util::move(value)));
             ASSERT(TestMovableRefArgument<Vector<int> >::test(
-             bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value))));
+                                          Util::move(Util::move(value))));
         }
         {
             TestMoving            value;
             ASSERT(TestMovableRefArgument<TestMoving>::test(
-                                          bslmf::MovableRefUtil::move(value)));
+                                          Util::move(value)));
             ASSERT(TestMovableRefArgument<TestMoving>::test(
-             bslmf::MovableRefUtil::move(bslmf::MovableRefUtil::move(value))));
+                                          Util::move(Util::move(value))));
         }
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR)
         {
-            constexpr int value(bslmf::MovableRefUtil::move(42));
+            constexpr int value(Util::move(42));
             ASSERT(value == 42);
         }
 #endif
@@ -2378,48 +2199,68 @@ int main(int argc, char *argv[])
         // 1. `MovableRefUtil::RemoveReference<TYPE>::type` evaluates to
         //    `TYPE` if `TYPE` is not a reference and to the type it refers to
         //    if `TYPE` is a reference.
+        //
         // 2. `MovableRefUtil::AddLvalueReference<TYPE>::type` evaluates to
         //    `TYPE&` if `TYPE` is not a reference and to `T1&` if `TYPE` is a
         //    (movable or lvalue) reference to `T1`.
+        //
         // 3. `MovableRefUtil::AddMovableReference<TYPE>::type` evaluates to
         //    `MovableRef<TYPE>` if `TYPE` is not a reference, `T1&` if `TYPE`
         //    is an lvalue reference to `T1`, and `MovableRef<T1>` if `TYPE`
         //    is a movable reference to `T1`.
+        //
         // 4. In C++03, `MovableRef<TYPE>` is an object type that simulates a
         //    reference type.  Ensure that these three traits work correctly
         //    for `const MovableRef<TYPE>` and reference to `MovableRef` types.
+        //
         // 5. `MovableRefUtil::Decay<TYPE>::type` evaluates to the same
         //    type as `bsl::decay<TYPE>::type` if `bsl::decay` also treated
         //    `MovableRef<T>` as a (movable) reference-qualified T.
         //
-        // Plan:
-        // 1. For concerns 1 through 4, use a compile-time table where the
-        //    first column is the type to test and the other three columns are
-        //    the expected types of the three reference addition and removal
-        //    traits.  Each row tests a different type.  Test that each trait
-        //    evaluation is the same as the expected type for that column.
+        // 6. Concerns 1 through 5 hold for all referenceable types.  We
+        //    must consider each of the following type categories:
+        //      o scalar object types (with cv-qualifications)
+        //      o pointer types (with cv-qualifications)
+        //      o array types (with and without extent)
+        //      o class object types
+        //      o function types
+        //      o pointer-to-function types (with cv-qualifications)
         //
-        // 2. For concern 5, use a compile-time table where the first column
-        //    is the type to test and the second column is the expected type
-        //    of `MovableRefUtil::Decay`.  Test that the trait evaluation is
-        //    the same as the expected type.
+        // 7. For non-referenceable types, `AddLvalueReference`,
+        //    `AddMovableReference`, and `RemoveReference` are identity
+        //    transformations.  `Decay` just strips cv-qualification.
+        //    The set of non-referenceable types is:
+        //      o cv-qualified `void`
+        //      o abominable function types (function types with cv-qualifiers)
+        //    Abominable function types are not tested.
+        //
+        // Plan:
+        // 1. For concerns 1 through 4, 6, and 7, use a compile-time table
+        //    where the first column is the type to test and the other three
+        //    columns are the expected types of the three reference addition
+        //    and removal traits.  Each row tests a different type.  Test
+        //    that each trait evaluation is the same as the expected type for
+        //    that column.  (C-1..4,6,7)
+        //
+        // 2. For concerns 5, 6, and 7, use a compile-time table where the
+        //    first column is the type to test and the second column is the
+        //    expected type of `MovableRefUtil::Decay`.  Test that the trait
+        //    evaluation is the same as the expected type.  (C-5..7)
         //
         // Testing:
-        //      MovableRefUtil::RemoveReference<TYPE>
-        //      MovableRefUtil::AddLvalueReference<TYPE>
-        //      MovableRefUtil::AddMovableReference<TYPE>
-        //      MovableRefUtil::Decay<TYPE>
+        //   AddLvalueReference<TYPE>
+        //   AddMovableReference<TYPE>
+        //   Decay<TYPE>
+        //   RemoveReference<TYPE>
         // --------------------------------------------------------------------
 
         if (verbose)
-            printf("\nTRANSFORMATION TRAITS"
-                   "\n=====================\n");
-
-        typedef bslmf::MovableRefUtil Util;
+            puts("\nTRANSFORMATION TRAITS"
+                 "\n=====================");
 
         if (veryVerbose)
-            printf("\nRemoveRef, AddLvalueRef, AddMovableRef"
-                   "\n--------------------------------------");
+            puts("\nRemoveRef, AddLvalueRef, AddMovableRef"
+                 "\n--------------------------------------");
 
 #define MR bslmf::MovableRef
 
@@ -2451,6 +2292,13 @@ int main(int argc, char *argv[])
         TEST(MR<int>             , int       , int&       , MR<int>       );
         TEST(MR<TestMoving>      , TestMoving, TestMoving&, MR<TestMoving>);
         TEST(MR<const int>       , const int , const int& , MR<const int> );
+
+        // function types
+        typedef void Fn(int);
+        TEST(Fn                  , Fn        , Fn&        , MR<Fn>        );
+        TEST(Fn&                 , Fn        , Fn&        , Fn&           );
+        TEST(MR<Fn>              , Fn        , Fn&        , MR<Fn>        );
+
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         // Test reference-to-MovableRef only for C++03
         TEST(MR<int>&            , int       , int&       , MR<int>       );
@@ -2460,9 +2308,8 @@ int main(int argc, char *argv[])
 
 #undef TEST
 
-        if (veryVerbose)
-            printf("\nDecay"
-                   "\n-----");
+        if (veryVerbose) puts("\nDecay"
+                              "\n-----");
 
 #define TEST(T, DECAY)                                                        \
     do {                                                                      \
@@ -2495,6 +2342,9 @@ int main(int argc, char *argv[])
         TEST(void ()                      , void (*)()          );
         TEST(void (&)()                   , void (*)()          );
         TEST(MR<void ()>                  , void (*)()          );
+        TEST(void (int)                   , void (*)(int)       );
+        TEST(void (&)(int)                , void (*)(int)       );
+        TEST(MR<void (int)>               , void (*)(int)       );
 
         // pointer-to-function types
         TEST(void (*)()                   , void (*)()          );
@@ -2554,7 +2404,6 @@ int main(int argc, char *argv[])
 
 #undef TEST
 #undef MR
-
       } break;
       case 3: {
         // --------------------------------------------------------------------
@@ -2563,33 +2412,42 @@ int main(int argc, char *argv[])
         // Concerns:
         // 1. `MovableRefUtil::IsLvalueReference<TYPE>::value` evaluates to
         //    true iff `TYPE` is an lvalue reference.
+        //
         // 2. `MovableRefUtil::IsMovableReference<TYPE>::value` evaluates to
         //    true iff `TYPE` is an rvalue reference (C++11 and later) or a
-        //    specialization of `MovableRef` (C++03)'.
+        //    specialization of `MovableRef` (C++03).
+        //
         // 3. `MovableRefUtil::IsReference<TYPE>::value` evaluates to true iff
         //    either `IsLvalueReference<TYPE>` or `IsMovableReference<TYPE>`
         //    are true.
-        // 4. In C++03, `MovableRef<TYPE>` is an object type that simulates a
-        //    reference type.  Ensure that these three traits work correctly
-        //    for `const MovableRef<TYPE>` and reference to `MovableRef` types.
+        //
+        // 4. Concerns 1 through 3 hold for all types.  We must consider
+        //    each of the following type categories:
+        //      o scalar object types (with cv-qualifications)
+        //      o class object types
+        //      o function types
+        //      o void types (with cv-qualifications)
+        //
+        // 5. In C++03, `MovableRef<TYPE>` for referenceable `TYPE` is an
+        //    object type that simulates a reference type.  Ensure that these
+        //    three traits work correctly for `const MovableRef<TYPE>` and
+        //    reference to `MovableRef` types.
         //
         // Plan:
         // 1. Use a compile-time table where the first column is the type to
-        //    test and the other tree columns are the expected values of the
+        //    test and the other three columns are the expected values of the
         //    three traits being tested here.  Each row tests a different
         //    type.  Test that each trait results in the same value as the
         //    expected value for that column.
         //
         // Testing:
-        //      MovableRefUtil::IsLvalueReference<TYPE>
-        //      MovableRefUtil::IsMovableReference<TYPE>
-        //      MovableRefUtil::IsReference<TYPE>
+        //   IsLvalueReference<TYPE>
+        //   IsMovableReference<TYPE>
+        //   IsReference<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nPREDICATE TRAITS"
-                            "\n================\n");
-
-        typedef bslmf::MovableRefUtil Util;
+        if (verbose) puts("\nPREDICATE TRAITS"
+                          "\n================");
 
 #define TEST(T, IS_LVREF, IS_MREF, IS_REF) do {                          \
         ASSERTV(#T, ! (IS_LVREF && IS_MREF));                            \
@@ -2614,6 +2472,13 @@ int main(int argc, char *argv[])
         TEST(bslmf::MovableRef<int>              , false, true , true );
         TEST(bslmf::MovableRef<TestMoving>       , false, true , true );
         TEST(bslmf::MovableRef<const int>        , false, true , true );
+
+        // function types
+        typedef void Fn(int);
+        TEST(Fn                                  , false, false, false);
+        TEST(Fn&                                 , true , false, true );
+        TEST(bslmf::MovableRef<Fn>               , false, true , true );
+
 #if !defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         // Test reference-to-MovableRef only for C++03
         TEST(bslmf::MovableRef<int>&             , false, true , true );
@@ -2622,7 +2487,6 @@ int main(int argc, char *argv[])
 #endif
 
 #undef TEST
-
       } break;
       case 2: {
         // --------------------------------------------------------------------
@@ -2640,8 +2504,8 @@ int main(int argc, char *argv[])
         //   MovableRef<TYPE>
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\n'MovableRef<TYPE>'"
-                            "\n==================\n");
+        if (verbose) puts("\n`MovableRef<TYPE>`"
+                          "\n==================");
 
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
         ASSERT((bsl::is_same<bslmf::MovableRef<int>, int&&>::value));
@@ -2664,47 +2528,52 @@ int main(int argc, char *argv[])
         //    `MovableRefUtil` can be used.
         //
         // Plan:
-        // 1. Use `MovableRefUtil::move()` to create an `MovableRef<int>` and
+        // 1. Use `MovableRefUtil::move()` to create a `MovableRef<int>` and
         //    use the implicit conversion to `int&` and
         //    `MovableRefUtil::access()` to obtain a reference to the original
         //    value.
         //
         // Testing:
-        //     BREATHING TEST
+        //   BREATHING TEST
         // --------------------------------------------------------------------
 
-        if (verbose) printf("\nBREATHING TEST"
-                            "\n==============\n");
+        if (verbose) puts("\nBREATHING TEST"
+                          "\n==============");
 
+        if (verbose) puts("Using `MovableRef`");
+        {
 #if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
-        typedef bslmf::MovableRef_Helper<int>::type MovableInt;
-        ASSERT((bsl::is_same<int&&, MovableInt>::value));
+            typedef bslmf::MovableRef<int> MovableInt;
+            ASSERT((bsl::is_same<int&&, MovableInt>::value));
 #endif
 
-        int                    value(0);
-        bslmf::MovableRef<int> rvalue(bslmf::MovableRefUtil::move(value));
-        int&                   reference(rvalue);
-        int&                   lvalue0(bslmf::MovableRefUtil::access(rvalue));
-        int&                   lvalue1(bslmf::MovableRefUtil::access(value));
-        int&                   lvalue2(bslmf::MovableRefUtil::access(
-                                          bslmf::MovableRefUtil::move(value)));
+            int                    value(0);
+            bslmf::MovableRef<int> rvalue(Util::move(value));
+            int&                   reference(rvalue);
+            int&                   lvalue0(Util::access(rvalue));
+            int&                   lvalue1(Util::access(value));
+            int&                   lvalue2(Util::access(Util::move(value)));
 
-        ASSERT(&reference == &value);
-        ASSERT(&reference == &lvalue0);
-        ASSERT(&reference == &lvalue1);
-        ASSERT(&reference == &lvalue2);
+            ASSERT(&reference == &value);
+            ASSERT(&reference == &lvalue0);
+            ASSERT(&reference == &lvalue1);
+            ASSERT(&reference == &lvalue2);
+        }
 
-        typedef bslmf::MovableRefUtil Util;
-
-        ASSERT(!Util::IsLvalueReference<int>::value);
-        ASSERT(!Util::IsMovableReference<int>::value);
-        ASSERT(!Util::IsReference<int>::value);
-        ASSERT( Util::IsLvalueReference<int&>::value);
-        ASSERT(!Util::IsMovableReference<int&>::value);
-        ASSERT( Util::IsReference<int&>::value);
-        ASSERT(!Util::IsLvalueReference<bslmf::MovableRef<int> >::value);
-        ASSERT( Util::IsMovableReference<bslmf::MovableRef<int> >::value);
-        ASSERT( Util::IsReference<bslmf::MovableRef<int> >::value);
+        if (verbose) puts("Checking the traits");
+        {
+            ASSERT(!Util::IsLvalueReference<int>::value);
+            ASSERT(!Util::IsMovableReference<int>::value);
+            ASSERT(!Util::IsReference<int>::value);
+            ASSERT( Util::IsLvalueReference<int&>::value);
+            ASSERT(!Util::IsMovableReference<int&>::value);
+            ASSERT( Util::IsReference<int&>::value);
+            ASSERT(!Util::IsLvalueReference<
+                                         bslmf::MovableRef<int> >::value);
+            ASSERT( Util::IsMovableReference<
+                                         bslmf::MovableRef<int> >::value);
+            ASSERT( Util::IsReference<bslmf::MovableRef<int> >::value);
+        }
       } break;
       default: {
         fprintf(stderr, "WARNING: CASE `%d' NOT FOUND.\n", test);
