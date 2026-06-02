@@ -174,7 +174,7 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 , d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
-, d_deffered(0)
+, d_deferred(0)
 , d_lastWasWS(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -205,7 +205,7 @@ QuotedPrintableEncoder::QuotedPrintableEncoder(
 , d_state(e_INITIAL_STATE)
 , d_bufferLength(0)
 , d_lineStart(0)
-, d_deffered(0)
+, d_deferred(0)
 , d_lastWasWS(false)
 , d_allocator_p(bslma::Default::allocator(basicAllocator))
 {
@@ -294,31 +294,31 @@ int QuotedPrintableEncoder::convert(char       *out,
             ++d_outputLength;
         }
 
-        if (d_deffered && d_outputLength != maxOutLen && begin < end) {
-            if (d_deffered == '\r') {
+        if (d_deferred && d_outputLength != maxOutLen && begin < end) {
+            if (d_deferred == '\r') {
                 if (LF == d_equivClass_p[static_cast<unsigned char>(*begin)]) {
                     appendHardLineBreak(out++);
                     ++begin;
                 }
                 else {
-                    appendAsHex(out++, d_deffered);
+                    appendAsHex(out++, d_deferred);
                 }
             }
             else {
                 if (LF == d_equivClass_p[static_cast<unsigned char>(*begin)]
                  || CR == d_equivClass_p[static_cast<unsigned char>(*begin)]) {
-                    appendAsHex(out++, d_deffered);
+                    appendAsHex(out++, d_deferred);
                 }
                 else {
-                    appendPrintable(out++, d_deffered);
+                    appendPrintable(out++, d_deferred);
                 }
             }
-            d_deffered = 0;
+            d_deferred = 0;
         }
 
         while (   d_outputLength != maxOutLen
                && begin < end
-               && 0 == d_deffered
+               && 0 == d_deferred
                && 0 == d_bufferLength) {
             switch (d_equivClass_p[static_cast<unsigned char>(*begin)]) {
               case PC: {
@@ -328,10 +328,10 @@ int QuotedPrintableEncoder::convert(char       *out,
                 appendAsHex(out++, *begin++);
               } break;
               case WS: {
-                d_deffered = *begin++;
+                d_deferred = *begin++;
               } break;
               case CR: {
-                d_deffered = *begin++;
+                d_deferred = *begin++;
               } break;
               case LF: {
                 if (   e_LF_MODE    == d_lineBreakMode
@@ -368,9 +368,9 @@ int QuotedPrintableEncoder::endConvert(char *out, int *numOut, int maxNumOut)
     const int originalOutputLength = d_outputLength;
     int maxOutLen = d_outputLength + maxNumOut;
 
-    if (d_deffered && d_outputLength != maxOutLen) {
-        appendAsHex(out++, d_deffered, true);
-        d_deffered = 0;
+    if (d_deferred && d_outputLength != maxOutLen) {
+        appendAsHex(out++, d_deferred, true);
+        d_deferred = 0;
     }
 
     while (d_bufferLength && d_outputLength != maxOutLen) {

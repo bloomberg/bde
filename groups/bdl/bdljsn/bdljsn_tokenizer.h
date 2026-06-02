@@ -49,7 +49,7 @@ BSLS_IDENT("$Id: $")
 // allowUnescapedControlCharacters  true     false
 // ```
 // The default-constructed `bdljsn::Tokenizer` is created having the options
-// shown above (in the"Default" column) and a `conformancemode` of
+// shown above (in the "Default" column) and a `conformanceMode` of
 // `bdljsn::e_RELAXED`.  Accordingly, users are free to change any of the
 // option values to any combination that may be needed; however, once a
 // tokenizer is set to strict mode the options are set to the values shown
@@ -443,24 +443,24 @@ class Tokenizer {
     /// Set the `allowConsecutiveSeparators` option to the specified
     /// `value` and return a non-`const` reference to this tokenizer.  JSON
     /// defines two separator tokens: the colon (`:`) and the comma (`,`).
-    /// If the `allowConsecutiveSeparartors` value is `true` this tokenizer
+    /// If the `allowConsecutiveSeparators` value is `true` this tokenizer
     /// will accept multiple consecutive sequences of a given separator
     /// (e.g., `"a"::b, "c":::d` and `"a":b,, "c":d`, ,, "e":f') as if a
     /// single separator had appeared (i.e., `"a":b, "c":d` and
     /// `"a":b, "c":d`, "e":f', respectively).  Otherwise the tokenizer
     /// returns an error when multiple consecutive colons are found.  By
-    /// default, the value of the `allo ConsecutiveSeparators` option is
+    /// default, the value of the `allowConsecutiveSeparators` option is
     /// `true`.  The behavior is undefined unless
     /// `e_RELAXED == conformanceMode()`.  Note that consecutive sequences
     /// using both tokens (e.g., `::,,::`) is always an error.
     Tokenizer& setAllowConsecutiveSeparators(bool value);
 
-    /// Set the `allowFormFeedAsWhitespace` option to the specifiedd value
+    /// Set the `allowFormFeedAsWhitespace` option to the specified value
     /// and return a non-`const` reference to this tokenizer.  If the
     /// `allowFormFeedAsWhitespace` value is `true` the formfeed character
-    /// ('\f') is recognized as a whitespace character in addition to '\n',
-    /// '\t', '\r', and '\v'.  Otherwise, formfeed is diallowed a
-    /// whitewpace.
+    /// (`\f`) is recognized as a whitespace character in addition to `\n`,
+    /// `\t`, `\r`, and `\v`.  Otherwise, formfeed is disallowed as a
+    /// whitespace character.
     Tokenizer& setAllowFormFeedAsWhitespace(bool value);
 
     /// Set the `allowHeterogenousArrays` option to the specified `value`
@@ -531,7 +531,7 @@ class Tokenizer {
     /// Note that the representation of these byte sequences as C/C++ string
     /// literals requires that the escape character itself must be escaped:
     /// ```
-    /// "Hello,\\tworld\\n";  // Can alwas initialize a JSON string with
+    /// "Hello,\\tworld\\n";  // Can always initialize a JSON string with
     ///                       // containing tab and a newline
     ///                       // escape sequences
     ///                       // whether the option is set or not.
@@ -551,7 +551,7 @@ class Tokenizer {
     ///
     /// Specifically, those option values are:
     /// ```
-    /// allowConsecutiveSeparartor       == false;
+    /// allowConsecutiveSeparators()     == false;
     /// allowFormFeedAsWhitespace()      == false;
     /// allowHeterogeneousArrays()       == true;
     /// allowNonUtf8StringLiterals()     == false;

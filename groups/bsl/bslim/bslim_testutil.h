@@ -40,7 +40,7 @@ BSLS_IDENT("$Id: $")
 // This component also defines a pair of methods, `setFunc` and `callFunc`,
 // that allow a test driver to set and call a function by going through another
 // compilation unit to preclude the optimizer from inlining the function call.
-
+//
 // Note that the 'bsltf' package resides below 'bsl+bslhdrs', in which
 // 'bsl::cout' is defined; therefore, the components in 'bsltf' cannot directly
 // define the overloads of the insertion operator to support printing the test
@@ -264,7 +264,7 @@ BSLS_IDENT("$Id: $")
 #define BSLIM_TESTUTIL_P(X)                                                   \
     bsl::cout << #X " = " << BSLIM_TESTUTIL_DEBUG_REP(X) << bsl::endl;
 
-/// `P(X)` without '\n'
+/// `P(X)` without `\n`
 #define BSLIM_TESTUTIL_P_(X)                                                  \
     bsl::cout << #X " = " << BSLIM_TESTUTIL_DEBUG_REP(X) << ", " << bsl::flush;
 

@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Dec 24 08:50:27 2025
+// Generated on Tue Jun  2 11:47:33 2026
 // Command line: sim_cpp11_features.pl bslfmt_print_imp.h
 
 #ifdef COMPILING_BSLFMT_PRINT_IMP_H
@@ -715,10 +715,10 @@ void println(std::FILE                      *stream,
 // }}} END GENERATED CODE
 #endif
 
-/// Write '\n' into `stdout`.
+/// Write `\n` into `stdout`.
 void println();
 
-/// Write '\n' to the specified `stream`.  The behavior is undefined unless
+/// Write `\n` to the specified `stream`.  The behavior is undefined unless
 /// `stream` is a valid pointer to an output C stream.
 void println(std::FILE *stream);
 

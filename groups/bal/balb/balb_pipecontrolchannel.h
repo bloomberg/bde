@@ -303,7 +303,7 @@ class PipeControlChannel {
     /// Return 0 on success, and a non-zero value otherwise.
     int readNamedPipe();
 
-    /// Writes a '\n' character, only, to the pipe.  Returns 0 on success, a
+    /// Writes a `\n` character, only, to the pipe.  Returns 0 on success, a
     /// value greater than 0 on error, and a value less than 0 in case of a
     /// timeout.  Used to unblock the reading thread so it can detect a
     /// shutdown condition.  Note that this method is not to be called

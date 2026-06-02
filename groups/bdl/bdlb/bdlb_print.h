@@ -139,7 +139,7 @@ struct Print {
                                 int           level,
                                 int           spacesPerLevel = 4);
 
-    /// Emit to the specified `stream` a newline ('\n') followed by the
+    /// Emit to the specified `stream` a newline (`\n`) followed by the
     /// number of spaces (` `) equal to the absolute value of the product
     /// of the specified `level` and `spacesPerLevel` or, if
     /// `spacesPerLevel` is negative, emit a single space (and *no*

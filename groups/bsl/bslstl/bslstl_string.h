@@ -3844,7 +3844,7 @@ getline(std::basic_istream<CHAR_TYPE, CHAR_TRAITS>&     is,
 
 /// Replace the contents of the specified `str` string by extracting
 /// characters from the specified `is` stream until a newline character
-/// (is.widen('\n') is extracted, and return `is`.  The newline character is
+/// (`is.widen('\n')`) is extracted, and return `is`.  The newline character is
 /// removed from the input stream but is not appended to `str`.  If an `eof`
 /// is detected before the newline, then the characters up to the `eof` are
 /// put into `str` and `is.eof()` becomes true.  If `is.good()` is false on

@@ -673,7 +673,7 @@ BSLS_IDENT("$Id: $")
 #define BSLMT_TESTUTIL_P(X)                                                   \
     BSLMT_TESTUTIL_COUT << #X " = " << (X) << bsl::endl
 
-/// `P(X)` without '\n'
+/// `P(X)` without `\n`
 #define BSLMT_TESTUTIL_P_(X)                                                  \
     BSLMT_TESTUTIL_COUT << #X " = " << (X) << ", " << bsl::flush
 

@@ -567,7 +567,7 @@ struct Utf8Util {
     /// number into the specified `utf8Column`, and the byte offset for the
     /// start of the line into `startOfLineByteOffset`.  Optionally specify
     /// `lineDelimeter` used to the determine line separator.   If
-    /// `lineDelimeter` is not supplied, lines are delimeted using '\n'.
+    /// `lineDelimeter` is not supplied, lines are delimited using `\n`.
     /// Return 0 on success, or a non-zero value if `location` cannot be
     /// found in `input` or if `input` contains non-UTF-8 characters.  The
     /// `utf8Column` is the number of UTF-8 code points between

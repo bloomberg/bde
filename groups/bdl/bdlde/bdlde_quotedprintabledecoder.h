@@ -265,11 +265,11 @@ class QuotedPrintableDecoder {
     /// strict or relaxed error-reporting mode according to whether the
     /// specified `detectError` flag is `true` or `false`, respectively, and
     /// also configured to the specified `lineBreakMode`.  The behavior is
-    /// undefined unless `lineBreakMode` is either e_CRLF_MODE or
-    /// e_LF_MODE.  Note that the decoder reports errors in the strict
-    /// mode and output offending characters in the relaxed mode.  Hard line
-    /// breaks ("\r\n") are decoded to "\r\n" in e_CRLF_MODE (default)
-    /// and to '\n' in e_LF_MODE.
+    /// undefined unless `lineBreakMode` is either e_CRLF_MODE or e_LF_MODE.
+    /// Note that the decoder reports errors in the strict mode and output
+    /// offending characters in the relaxed mode.  Hard line breaks (`\r\n`)
+    /// are decoded to `\r\n` in e_CRLF_MODE (default) and to `\n` in
+    /// e_LF_MODE.
     explicit
     QuotedPrintableDecoder(
         bool                                  detectError,

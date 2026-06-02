@@ -349,7 +349,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Note that because we are looping through a number of blocks, formatting the
 // output directly with `printf` produces more readable output than we would
-// get from callling the standard output macros.
+// get from calling the standard output macros.
 //
 // Calling `printf` directly will yield output similar to:
 // ```
@@ -562,7 +562,7 @@ BSLS_IDENT("$Id: $")
                 BloombergLP::bsls::                                           \
                                 BslTestUtil::callDebugprint(X, #X " = ", "\n");
 
-/// P(X) without '\n'.
+/// P(X) without `\n`.
 #define BSLS_BSLTESTUTIL_P_(X)                                                \
                 BloombergLP::bsls::                                           \
                                 BslTestUtil::callDebugprint(X, #X " = ", ", ");

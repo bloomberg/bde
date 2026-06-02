@@ -105,7 +105,7 @@ void print(std::FILE                      *stream,
            t_ARGS&&...                     args);
 
 /// Format the specified `args` using `bsl::format_to` according to the
-/// specification given by the specified `fmt`, append '\n', and write the
+/// specification given by the specified `fmt`, append `\n`, and write the
 /// result of this operation to `stdout`.  In the event of formatting error
 /// throw the exception `format_error`, in the event of I/O error throw the
 /// exception `system_error`, on allocation failure throw `bad_alloc`.
@@ -113,7 +113,7 @@ template <class... t_ARGS>
 void println(BSLFMT_FORMAT_STRING_PARAMETER fmt, t_ARGS&&... args);
 
 /// Format the specified `args` using `bsl::format_to` according to the
-/// specification given by the specified `fmt`, append '\n', and write the
+/// specification given by the specified `fmt`, append `\n`, and write the
 /// result of this operation to the specified `stream`.  In the event of
 /// formatting error throw the exception `format_error`, in the event of I/O
 /// error throw the exception `system_error`, on allocation failure throw
@@ -125,10 +125,10 @@ void println(std::FILE                      *stream,
              t_ARGS&&...                     args);
 #endif
 
-/// Write '\n' into `stdout`.
+/// Write `\n` into `stdout`.
 void println();
 
-/// Write '\n' to the specified `stream`.  The behavior is undefined unless
+/// Write `\n` to the specified `stream`.  The behavior is undefined unless
 /// `stream` is a valid pointer to an output C stream.
 void println(std::FILE *stream);
 

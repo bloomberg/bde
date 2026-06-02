@@ -507,7 +507,7 @@ class QuotedPrintableEncoder {
     int               d_lineStart;      // index of output character that
                                         // starts the current line
 
-    char              d_deffered;       // stores 0 or the deffered input
+    char              d_deferred;       // stores 0 or the deferred input
                                         // character
 
     bool              d_lastWasWS;      // stores whether last printed
@@ -565,9 +565,9 @@ class QuotedPrintableEncoder {
     /// 2045 maximum 76).  Optionally specify a `basicAllocator` used to
     /// supply memory.  If `basicAllocator` is 0, the currently installed
     /// default allocator is used.  The behavior is undefined unless
-    /// `4 <= maxLineLength <= 76`.  Note that e_CRLF_MODE passes "\r\n"
-    /// straight to output and converts '\n'; e_LF_MODE passes '\n' and
-    /// converts '\r'; e_MIXED_MODE passes both "\r\n" and '\n'.
+    /// `4 <= maxLineLength <= 76`.  Note that e_CRLF_MODE passes `\r\n`
+    /// straight to output and converts `\n`; e_LF_MODE passes `\n` and
+    /// converts `\r`; e_MIXED_MODE passes both `\r\n` and `\n`.
     explicit
     QuotedPrintableEncoder(
                        LineBreakMode     lineBreakMode = e_CRLF_MODE,
@@ -584,10 +584,10 @@ class QuotedPrintableEncoder {
     /// specified `maxLineLength` (default is the RFC 2045 maximum 76).
     /// Optionally specify a `basicAllocator` used to supply memory.  If
     /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.  The behavior is undefined unless `4 <= `maxLineLength <= 76'.
-    /// Note that e_CRLF_MODE passes "\r\n" straight to output and converts
-    /// '\n'; e_LF_MODE passes '\n' and converts '\r'; e_MIXED_MODE passes
-    /// both "\r\n" and '\n'.
+    /// used.  The behavior is undefined unless `4 <= maxLineLength <= 76`.
+    /// Note that e_CRLF_MODE passes `\r\n` straight to output and converts
+    /// `\n`; e_LF_MODE passes `\n` and converts `\r`; e_MIXED_MODE passes
+    /// both `\r\n` and `\n`.
     explicit
     QuotedPrintableEncoder(
                        const char       *extraCharsToEncode,
@@ -710,7 +710,7 @@ void QuotedPrintableEncoder::reset()
     d_outputLength = 0;
     d_lineLength = 0;
     d_bufferLength = 0;
-    d_deffered = 0;
+    d_deferred = 0;
 }
 
 // ACCESSORS
@@ -723,7 +723,7 @@ bool QuotedPrintableEncoder::isAccepting() const
 inline
 bool QuotedPrintableEncoder::isDone() const
 {
-    return e_DONE_STATE == d_state && 0 == d_deffered && 0 == d_bufferLength;
+    return e_DONE_STATE == d_state && 0 == d_deferred && 0 == d_bufferLength;
 }
 
 inline
@@ -754,7 +754,7 @@ int QuotedPrintableEncoder::maxLineLength() const
 inline
 int QuotedPrintableEncoder::numOutputPending() const
 {
-    return d_deffered ? 3 : d_bufferLength;
+    return d_deferred ? 3 : d_bufferLength;
 }
 
 inline
