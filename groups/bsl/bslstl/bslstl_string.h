@@ -1770,7 +1770,7 @@ class basic_string
                  const ALLOCATOR&  basicAllocator = ALLOCATOR());   // IMPLICIT
 
 #ifdef BSLS_COMPILERFEATURES_FULL_CPP11
-    /// A view cannot be constructed from a `nullptr` or from a literal `0`.
+    /// A string cannot be constructed from a `nullptr` or from a literal `0`.
     basic_string(bsl::nullptr_t ) = delete;
 #endif
 
