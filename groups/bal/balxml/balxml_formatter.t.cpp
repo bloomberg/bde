@@ -101,16 +101,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define T_           BSLIM_TESTUTIL_T_  // Print a tab (w/o newline).
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
-// ============================================================================
-//                   MACROS FOR TESTING WORKAROUNDS
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // `snprintf` on older Windows libraries outputs an additional '0' in the
-    // exponent for scientific notation.
-# define BALXML_FORMATTER_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
-#endif
-
 namespace {
 // ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
@@ -2284,21 +2274,12 @@ int main(int argc, char *argv[])
               { L_, 0, "Int64", (bsls::Types::Int64)0, 0 },
               { L_, 0, "Int64", (bsls::Types::Int64)LONG_MAX, 0 },
               { L_, 0, "Int64", (bsls::Types::Int64)LONG_MIN, 0 },
-
-#ifdef BALXML_FORMATTER_EXTRA_ZERO_PADDING_FOR_EXPONENTS
-              { L_, 0, "Float", (float)0.000000000314159, "3.14159e-010" },
-              { L_, 0, "Float", (float)3.14159e100, "+INF" },
-              { L_, 0, "Double", (double)0.0000000000000000314, "3.14e-017"  },
-#else
               { L_, 0, "Float", (float)0.000000000314159, 0 },
               { L_, 0, "Float", (float)3.14159e100, "+INF" },
               { L_, 0, "Double", (double)0.0000000000000000314, 0 },
-#endif
-
               { L_, 0, "Double", (double)3.14e200, 0 },
               { L_, 0, "Datetime", bdlt::Datetime(1, 1, 1, 0, 0, 0, 0),
                     "0001-01-01T00:00:00.000000" },
-
               { L_, 0, "Datetime", bdlt::Datetime(2005, 1, 22, 23, 59, 59, 999,
                                                  999),
                     "2005-01-22T23:59:59.999999" },

@@ -125,16 +125,6 @@ void aSsErT(bool condition, const char *message, int line)
 #define L_           BSLIM_TESTUTIL_L_  // current Line number
 
 // ============================================================================
-//                   MACROS FOR TESTING WORKAROUNDS
-// ----------------------------------------------------------------------------
-
-#if defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 1900
-    // `snprintf` on older Windows libraries outputs an additional '0' in the
-    // exponent for scientific notation.
-# define BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS 1
-#endif
-
-// ============================================================================
 //                   GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
 // ----------------------------------------------------------------------------
 
@@ -1178,16 +1168,6 @@ int main(int argc, char *argv[])
       { L_,     0.123456789012345678, 15,  "0.123456789012346"       },
       { L_,     0.123456789012345678, 16,  "0.1234567890123457"      },
       { L_,     0.123456789012345678, 17,  "0.12345678901234568"     },
-
-#if defined(BALJSN_PRINTUTIL_EXTRA_ZERO_PADDING_FOR_EXPONENTS)
-      { L_,                     10.0,  1, "1e+001"                   },
-      { L_,                   -1.5e1,  1, "-2e+001"                  },
-      { L_,  -1.2345678901234567e-20,  1, "-1e-020"                  },
-      { L_,  -1.2345678901234567e-20,  2, "-1.2e-020"                },
-      { L_,  -1.2345678901234567e-20, 15, "-1.23456789012346e-020"   },
-      { L_,  -1.2345678901234567e-20, 16, "-1.234567890123457e-020"  },
-      { L_,  -1.2345678901234567e-20, 17, "-1.2345678901234567e-020" },
-#else
       { L_,                     10.0,  1, "1e+01"                    },
       { L_,                   -1.5e1,  1, "-2e+01"                   },
       { L_,  -1.2345678901234567e-20,  1, "-1e-20"                   },
@@ -1195,7 +1175,6 @@ int main(int argc, char *argv[])
       { L_,  -1.2345678901234567e-20, 15, "-1.23456789012346e-20"    },
       { L_,  -1.2345678901234567e-20, 16, "-1.234567890123457e-20"   },
       { L_,  -1.2345678901234567e-20, 17, "-1.2345678901234567e-20"  },
-#endif
             };
             const int NUM_DATA = sizeof DATA / sizeof DATA[0];
 
