@@ -809,7 +809,7 @@ BSLS_IDENT("$Id: $")
 #ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
 #define BSLS_REVIEW_DISABLED_IMP(X,LVL)   [[ assert ignore : X ]]
 #else
-#define BSLS_REVIEW_DISABLED_IMP(X,LVL)
+#define BSLS_REVIEW_DISABLED_IMP(X,LVL)   [[ assert : true ]]
 #endif
 
 #else // BSLS_ASSERT_USE_CONTRACTS
@@ -828,9 +828,11 @@ BSLS_IDENT("$Id: $")
     } while (false)
 
 #ifdef BSLS_REVIEW_VALIDATE_DISABLED_MACROS
-#define BSLS_REVIEW_DISABLED_IMP(X,LVL) (void)sizeof((X)?true:false)
+#define BSLS_REVIEW_DISABLED_IMP(X,LVL) do {                                  \
+        static_cast<void>(sizeof(!(X)?true:false));                           \
+    } while (false)
 #else
-#define BSLS_REVIEW_DISABLED_IMP(X,LVL)
+#define BSLS_REVIEW_DISABLED_IMP(X,LVL) do {} while (false)
 #endif
 
 #endif

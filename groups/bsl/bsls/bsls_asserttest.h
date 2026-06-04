@@ -12,22 +12,22 @@ BSLS_IDENT("$Id: $")
 //  bsls::AssertTestHandlerGuard: guard for the negative testing assert-handler
 //
 //@MACROS:
-//  BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION): macro failure expected
-//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION): no origination check
-//  BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION): "opt" macro failure expected
-//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION): no origination check
-//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION): "safe" macro failure expected
-//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION): no origination check
-//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(EXPRESSION): "invoke" macro expected
-//  BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW(EXPRESSION): no origination check
-//  BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION): macro success expected
-//  BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(EXPRESSION): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_FAIL(STATEMENT): macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_FAIL_RAW(STATEMENT): no origination check
+//  BSLS_ASSERTTEST_ASSERT_PASS(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_PASS_RAW(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL(STATEMENT): "opt" macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(STATEMENT): no origination check
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(STATEMENT): "safe" macro failure expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(STATEMENT): no origination check
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(STATEMENT): "invoke" macro expected
+//  BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW(STATEMENT): no origination check
+//  BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(STATEMENT): macro success expected
+//  BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(STATEMENT): macro success expected
 //
 //@SEE_ALSO: bsls_assert, bsls_asserttestexception
 //
@@ -36,7 +36,8 @@ BSLS_IDENT("$Id: $")
 // expected effects.  The class `bsls::AssertTest` provides a small set of
 // static methods that can be used to support detailed test cases, especially
 // in table-driven test scenarios.  Additionally, a set of macros automate use
-// of these methods to support simple testing of single expressions.
+// of these methods to support simple testing of single statements or
+// expressions.
 //
 // A testing-specific handler guard, `bsls::AssertTestHandlerGuard`, is also
 // provided to be used wherever the `BSLS_ASSERTTEST_*` macros are used.
@@ -110,10 +111,10 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERTTEST_ASSERT_FAIL`
 // * `BSLS_ASSERTTEST_ASSERT_OPT_FAIL`
 // * `BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL`
-// Each of these macros takes a single expression as an argument, tests whether
-// an assertion is raised while evaluating that expression, and, if an
-// assertion is both raised and expected, whether that assertion was raised by
-// the component under test.
+// Each of these macros takes a single statement or expression as an argument,
+// tests whether  an assertion is raised while evaluating that expression, and, 
+// if an assertion is both raised and expected, whether that assertion was 
+// raised by the component under test.
 //
 // A test failure is indicated by invoking `ASSERT(EXPRESSION)`, where `ASSERT`
 // is either a macro or function that must be defined by the test driver, and
@@ -146,14 +147,16 @@ BSLS_IDENT("$Id: $")
 //   assertion-failure handler (preferably with an instance of
 //   `AssertTestHandlerGuard`).
 //
-///Validating Disabled Macro Expressions
+///Validating Disabled Macro Statements
 ///- - - - - - - - - - - - - - - - - - -
 // An additional external macro, `BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS`,
 // can be defined to control the compile time behavior of `bsls_asserttest`.
 // Enabling this macro configures all *disabled* asserttest macros to still
-// instantiate their expressions (in a non-evaluated context) to be sure that
-// the expression is still syntactically valid.  This can be used to ensure
-// tests that are rarely enabled have valid expressions.
+// instantiate their statements (in blocks that will not be evaluated) to be
+// sure that the statement is still syntactically valid.  This can be used to 
+// ensure tests that are rarely enabled remain syntactically valid.  
+//
+// Note: this behavior is currently always enabled and cannot be turned off.
 //
 ///Validating Macro Testing Levels
 ///- - - - - - - - - - - - - - - -
@@ -522,9 +525,21 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ASSERTTEST_CHECK_LEVEL_ARG false
 #endif
 
-#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, LVL, EXPRESSION_UNDER_TEST) { \
+#ifdef BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG
+#define BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST)              \
+    _Pragma("GCC diagnostic push")                                            \
+    _Pragma("GCC diagnostic ignored \"-Wunused-comparison\"")                 \
+    _Pragma("GCC diagnostic ignored \"-Wunused-value\"")                      \
+    STATEMENT_UNDER_TEST;                                                     \
+    _Pragma("GCC diagnostic pop")
+#else
+#define BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST)              \
+    STATEMENT_UNDER_TEST;
+#endif
+
+#define BSLS_ASSERTTEST_BRUTE_FORCE_IMP(RESULT, LVL, STATEMENT_UNDER_TEST) {  \
     try {                                                                     \
-        EXPRESSION_UNDER_TEST;                                                \
+        BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST)              \
                                                                               \
         ASSERT(BloombergLP::bsls::AssertTest::tryProbe(RESULT, LVL));         \
     }                                                                         \
@@ -540,10 +555,13 @@ BSLS_IDENT("$Id: $")
 
 #define BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS
 #ifdef BSLS_ASSERTTEST_VALIDATE_DISABLED_MACROS
-    #define BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)               \
-                               if (false) { EXPRESSION_UNDER_TEST ; } else {}
+    #define BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)                \
+        while (false) do {                                                    \
+            BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST)          \
+        } while (false);
 #else
-    #define BSLS_ASSERTTEST_DISABLED_IMP(EXPERSSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)                \
+        do {} while (false);
 #endif
 
 #if !defined(BDE_BUILD_TARGET_EXC)
@@ -558,53 +576,53 @@ BSLS_IDENT("$Id: $")
 // methods with in-contract values, and they may still be needed to guarantee
 // stateful side-effects required by the test-driver.
 
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST)               \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(STATEMENT_UNDER_TEST)                \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST)                    \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_PASS(STATEMENT_UNDER_TEST)                     \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST)                \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(STATEMENT_UNDER_TEST)                 \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION_UNDER_TEST)             \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(STATEMENT_UNDER_TEST)              \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST)           \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(STATEMENT_UNDER_TEST)            \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST)                \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(STATEMENT_UNDER_TEST)                 \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST)            \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(STATEMENT_UNDER_TEST)             \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(EXPRESSION_UNDER_TEST)         \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(STATEMENT_UNDER_TEST)          \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)               \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(STATEMENT_UNDER_TEST)                \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)                    \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_FAIL(STATEMENT_UNDER_TEST)                     \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST)                \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(STATEMENT_UNDER_TEST)                 \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)           \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(STATEMENT_UNDER_TEST)            \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)                \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(STATEMENT_UNDER_TEST)                 \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)            \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(STATEMENT_UNDER_TEST)             \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(EXPRESSION_UNDER_TEST)             \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(STATEMENT_UNDER_TEST)              \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW(EXPRESSION_UNDER_TEST)         \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW(STATEMENT_UNDER_TEST)          \
+    BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 
 #else // defined BDE_BUILD_TARGET_EXC
 
@@ -615,63 +633,63 @@ BSLS_IDENT("$Id: $")
 // of a buggy library by simply crashing, rather than capturing and reporting
 // the specific error detected.
 #if (defined(BSLS_PLATFORM_CMP_MSVC) && defined(BDE_BUILD_TARGET_OPT))
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST)               \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(STATEMENT_UNDER_TEST)                \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST)                    \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_PASS(STATEMENT_UNDER_TEST)                     \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST)                \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(STATEMENT_UNDER_TEST)                 \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION_UNDER_TEST)             \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(STATEMENT_UNDER_TEST)              \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 #else  // optimized msvc
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(EXPRESSION_UNDER_TEST)               \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'S', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS(STATEMENT_UNDER_TEST)                \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'S', STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_PASS(EXPRESSION_UNDER_TEST)                    \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'A', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_PASS(STATEMENT_UNDER_TEST)                     \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'A', STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(EXPRESSION_UNDER_TEST)                \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'O', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS(STATEMENT_UNDER_TEST)                 \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'O', STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(EXPRESSION_UNDER_TEST)             \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'I', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS(STATEMENT_UNDER_TEST)              \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP('P', 'I', STATEMENT_UNDER_TEST)
 #endif  // not (msvc and optimized)
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)            \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'S', EXPRESSION_UNDER_TEST)
+#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(STATEMENT_UNDER_TEST)             \
+             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'S', STATEMENT_UNDER_TEST)
 #else
-#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(EXPRESSION_UNDER_TEST)            \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+#   define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL(STATEMENT_UNDER_TEST)             \
+        BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 #endif
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)                \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'A', EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_FAIL(STATEMENT_UNDER_TEST)                 \
+        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'A', STATEMENT_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_FAIL(EXPRESSION_UNDER_TEST)                \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_FAIL(STATEMENT_UNDER_TEST)                 \
+        BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 #endif
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST)            \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'O', EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(STATEMENT_UNDER_TEST)             \
+        BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'O', STATEMENT_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(EXPRESSION_UNDER_TEST)            \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL(STATEMENT_UNDER_TEST)             \
+        BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 #endif
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(EXPRESSION_UNDER_TEST)             \
-             BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'I', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL(STATEMENT_UNDER_TEST)              \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP('F', 'I', STATEMENT_UNDER_TEST)
 
 #define BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW(RESULT,                           \
                                             LVL,                              \
-                                            EXPRESSION_UNDER_TEST) {          \
+                                            STATEMENT_UNDER_TEST) {           \
     try {                                                                     \
-        EXPRESSION_UNDER_TEST;                                                \
+        BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST)              \
                                                                               \
         ASSERT(BloombergLP::bsls::AssertTest::tryProbeRaw(RESULT, LVL));      \
     }                                                                         \
@@ -688,57 +706,57 @@ BSLS_IDENT("$Id: $")
 // The following MSVC-specific work-around avoids compilation issues with MSVC
 // optimized builds.
 
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST)           \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(STATEMENT_UNDER_TEST)            \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST)                \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(STATEMENT_UNDER_TEST)                 \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST)            \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(STATEMENT_UNDER_TEST)             \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(EXPRESSION_UNDER_TEST)         \
-                                                   { EXPRESSION_UNDER_TEST; }
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(STATEMENT_UNDER_TEST)          \
+    { BSLS_ASSERTTEST_EVAL_STATEMENT_IMP(STATEMENT_UNDER_TEST) }
 #else
-#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(EXPRESSION_UNDER_TEST)           \
-         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'S', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_SAFE_PASS_RAW(STATEMENT_UNDER_TEST)            \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'S', STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(EXPRESSION_UNDER_TEST)                \
-         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'A', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_PASS_RAW(STATEMENT_UNDER_TEST)                 \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'A', STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(EXPRESSION_UNDER_TEST)            \
-         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'O', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_OPT_PASS_RAW(STATEMENT_UNDER_TEST)             \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'O', STATEMENT_UNDER_TEST)
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(EXPRESSION_UNDER_TEST)         \
-         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'I', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_PASS_RAW(STATEMENT_UNDER_TEST)          \
+    BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('P', 'I', STATEMENT_UNDER_TEST)
 #endif
 
 #if defined(BSLS_ASSERT_SAFE_IS_ACTIVE)
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)       \
-         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'S', EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(STATEMENT_UNDER_TEST)        \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'S', STATEMENT_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(EXPRESSION_UNDER_TEST)       \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_SAFE_FAIL_RAW(STATEMENT_UNDER_TEST)        \
+                          BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 #endif
 
 #if defined(BSLS_ASSERT_IS_ACTIVE)
-    #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)            \
-         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'A', EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(STATEMENT_UNDER_TEST)             \
+         BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'A', STATEMENT_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(EXPRESSION_UNDER_TEST)            \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_FAIL_RAW(STATEMENT_UNDER_TEST)             \
+         BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 #endif
 
 #if defined(BSLS_ASSERT_OPT_IS_ACTIVE)
-    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)        \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'O', EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(STATEMENT_UNDER_TEST)         \
+        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'O', STATEMENT_UNDER_TEST)
 #else
-    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(EXPRESSION_UNDER_TEST)        \
-                          BSLS_ASSERTTEST_DISABLED_IMP(EXPRESSION_UNDER_TEST)
+    #define BSLS_ASSERTTEST_ASSERT_OPT_FAIL_RAW(STATEMENT_UNDER_TEST)         \
+        BSLS_ASSERTTEST_DISABLED_IMP(STATEMENT_UNDER_TEST)
 #endif
 
-#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW(EXPRESSION_UNDER_TEST)         \
-        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'I', EXPRESSION_UNDER_TEST)
+#define BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL_RAW(STATEMENT_UNDER_TEST)          \
+        BSLS_ASSERTTEST_BRUTE_FORCE_IMP_RAW('F', 'I', STATEMENT_UNDER_TEST)
 
 #endif  // BDE_BUILD_TARGET_EXC
 

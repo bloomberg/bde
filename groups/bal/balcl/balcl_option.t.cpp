@@ -3300,19 +3300,6 @@ int main(int argc, const char *argv[])  {
 
                     bsls::AssertTestHandlerGuard hG;
 
-                    // Redundant parentheses below suppress compilation
-                    // warnings on some platforms (Windows/MSVC).
-
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-value"
-// balcl_option.t.cpp:3240: warning: expression result unused [-Wunused-value]
-//                  ASSERT_FAIL(( LONG_TAG == X. longTag()));
-//                                ~~~~~~~~ ^  ~~~~~~~~~~~~
-// clang thinks we should not ignore the result of the equality operator.  We
-// could put a `void()` cast around it, but then it would not be clear why it
-// is there.  [[maybe_unused]] does not work in all C++ versions.
-#endif
                     if (OptionInfo::e_NON_OPTION == X.argType()) {
                         ASSERT_FAIL(( LONG_TAG == X. longTag()));
                         ASSERT_FAIL((SHORT_TAG == X.shortTag()));
@@ -3320,9 +3307,6 @@ int main(int argc, const char *argv[])  {
                         ASSERT_PASS(( LONG_TAG == X. longTag()));
                         ASSERT_PASS((SHORT_TAG == X.shortTag()));
                     }
-#ifdef BSLS_PLATFORM_CMP_CLANG
-#pragma clang diagnostic pop
-#endif
                 }
 
                 // Simple validating accessors.
