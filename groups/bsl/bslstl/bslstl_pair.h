@@ -366,7 +366,7 @@ BSLS_IDENT("$Id: $")
 
 #if  defined(BSLS_COMPILERFEATURES_FULL_CPP11)              \
  && !defined(BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE)
-#   error piecewise construtors assume this essential machinery from C++14
+#   error piecewise constructors assume this essential machinery from C++14
     // Note that this facility has been backported to C++11 for all library
     // implementations that we have tested and that also support
     // `BSLS_COMPILERFEATURES_FULL_CPP11`.
@@ -543,7 +543,7 @@ struct Pair_First {
     /// We must rely on implicitly declared special member functions to
     /// correctly support element types like `bslma::ManagedPtr` that have an
     /// unconventional copy constructor taking its argument by non-`const`
-    /// reference.  If we were to expliclty default these members then we would
+    /// reference.  If we were to explicitly default these members then we would
     /// be forcing the copy constructor parameter to be `const TYPE &` whereas
     /// the implicitly declared constructor parameter will be `TYPE &`.  We
     /// must then allow the move operations to be implicitly declared as if we
@@ -553,7 +553,7 @@ struct Pair_First {
     /// move operations) omitted according to the definition of (template
     /// parameter) `TYPE`.  Note that, to preserve its intended use as a
     /// structural base class, the rest of the class is declared as protected
-    /// while the implcitly declared members will be public.  Note that we
+    /// while the implicitly declared members will be public.  Note that we
     /// *must* define the default constructor as a) it would not be declared
     /// due to the declarations of additional constructors, and b) we need to
     /// ensure that trivial types are value initialized rather than not
@@ -569,7 +569,7 @@ struct Pair_First {
     //! ~Pair_First() = default;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS)
-    /// Value-intialize the 'first' member of a 'pair'.  This constructor is
+    /// Value-initialize the 'first' member of a 'pair'.  This constructor is
     /// declared only if (template parameter) `TYPE` is default constructible.
     constexpr Pair_First()
         requires std::is_default_constructible_v<TYPE>
@@ -580,7 +580,7 @@ struct Pair_First {
         // definition as matching this signature when placed out-of-line.
     }
 #elif defined(BSLS_COMPILERFEATURES_FULL_CPP11)
-    /// Value-intialize the 'first' member of a 'pair'.  This constructor is
+    /// Value-initialize the 'first' member of a 'pair'.  This constructor is
     /// declared only if (template parameter) `TYPE` is default constructible.
     template <class BSLSTL_DUMMY = TYPE,
               class = bsl::enable_if_t<
@@ -593,7 +593,7 @@ struct Pair_First {
         // definition as matching this signature when placed out-of-line.
     }
 #else
-    /// Value-intialize the 'first' member of a 'pair'.
+    /// Value-initialize the 'first' member of a 'pair'.
     Pair_First();
 #endif
 
@@ -692,7 +692,7 @@ struct Pair_First {
     /// Construct the `first` member of a `pair`, forwarding in order the
     /// elements in the specified `argsPack` to the corresponding
     /// constructor of (template parameter) `TYPE`.  The length of the
-    /// `argsPack` is equal to the lenght of the specified (template
+    /// `argsPack` is equal to the length of the specified (template
     /// parameter pack) `I...` and passed to the constructor via the
     /// `Pair_IndexSequence` object.
     template <class ...ARGS, size_t ...I>
@@ -704,7 +704,7 @@ struct Pair_First {
 /// This component-private `class` holds the `first` data member of a `pair`
 /// when that member is an lvalue-reference.  Note that the C++ Standard
 /// defines the assignment operator to assign through the reference in this
-/// case, where the implictly declared assignment operator would be deleted.
+/// case, where the implicitly declared assignment operator would be deleted.
 template <class TYPE>
 struct Pair_First<TYPE&> {
 
@@ -768,7 +768,7 @@ struct Pair_First<TYPE&> {
     /// Construct the `first` member of a `pair`, forwarding in order the
     /// elements in the specified `argsPack` to the corresponding
     /// constructor of (template parameter) `TYPE`.  The length of the
-    /// `argsPack` is equal to the lenght of the specified (template
+    /// `argsPack` is equal to the length of the specified (template
     /// parameter pack) `I...` and passed to the constructor via the
     /// `Pair_IndexSequence` object.
     template <class ARG>
@@ -790,7 +790,7 @@ struct Pair_First<TYPE&> {
 /// This component-private `class` holds the `first` data member of a `pair`
 /// when that member is an rvalue-reference.  Note that the C++ Standard
 /// defines the assignment operator to assign through the reference in this
-/// case, where the implictly declared assignment operator would be deleted.
+/// case, where the implicitly declared assignment operator would be deleted.
 template <class TYPE>
 struct Pair_First<TYPE&&> {
 
@@ -834,7 +834,7 @@ struct Pair_First<TYPE&&> {
     /// Construct the `first` member of a `pair`, forwarding in order the
     /// elements in the specified `argsPack` to the corresponding
     /// constructor of (template parameter) `TYPE`.  The length of the
-    /// `argsPack` is equal to the lenght of the specified (template
+    /// `argsPack` is equal to the length of the specified (template
     /// parameter pack) `I...` and passed to the constructor via the
     /// `Pair_IndexSequence` object.
     template <class ARG>
@@ -876,7 +876,7 @@ struct Pair_Second {
     /// We must rely on implicitly declared special member functions to
     /// correctly support element types like `bslma::ManagedPtr` that have an
     /// unconventional copy constructor taking its argument by non-`const`
-    /// reference.  If we were to expliclty default these members then we would
+    /// reference.  If we were to explicitly default these members then we would
     /// be forcing the copy constructor parameter to be `const TYPE &` whereas
     /// the implicitly declared constructor parameter will be `TYPE &`.  We
     /// must then allow the move operations to be implicitly declared as if we
@@ -886,7 +886,7 @@ struct Pair_Second {
     /// move operations) omitted according to the definition of (template
     /// parameter) `TYPE`.  Note that, to preserve its intended use as a
     /// structural base class, the rest of the class is declared as protected
-    /// while the implcitly declared members will be public.  Note that we
+    /// while the implicitly declared members will be public.  Note that we
     /// *must* define the default constructor as a) it would not be declared
     /// due to the declarations of additional constructors, and b) we need to
     /// ensure that trivial types are value initialized rather than not
@@ -902,7 +902,7 @@ struct Pair_Second {
     //! ~Pair_Second() = default;
 
 #if defined(BSLS_COMPILERFEATURES_SUPPORT_CONCEPTS)
-    /// Value-intialize the 'second' member of a 'pair'.  This constructor is
+    /// Value-initialize the 'second' member of a 'pair'.  This constructor is
     /// declared only if (template parameter) `TYPE` is default constructible.
     constexpr Pair_Second()
         requires std::is_default_constructible_v<TYPE>
@@ -913,7 +913,7 @@ struct Pair_Second {
         // definition as matching this signature when placed out-of-line.
     }
 #elif defined(BSLS_COMPILERFEATURES_FULL_CPP11)
-    /// Value-intialize the 'second' member of a 'pair'.  This constructor is
+    /// Value-initialize the 'second' member of a 'pair'.  This constructor is
     /// declared only if (template parameter) `TYPE` is default constructible.
     template <class BSLSTL_DUMMY = TYPE,
               class = bsl::enable_if_t<
@@ -926,7 +926,7 @@ struct Pair_Second {
         // definition as matching this signature when placed out-of-line.
     }
 #else
-    /// Value-intialize the 'second' member of a 'pair'.
+    /// Value-initialize the 'second' member of a 'pair'.
     Pair_Second();
 #endif
 
@@ -1026,7 +1026,7 @@ struct Pair_Second {
     /// Construct the `second` member of a `pair`, forwarding in order the
     /// elements in the specified `argsPack` to the corresponding
     /// constructor of (template parameter) `TYPE`.  The length of the
-    /// `argsPack` is equal to the lenght of the specified (template
+    /// `argsPack` is equal to the length of the specified (template
     /// parameter pack) `I...` and passed to the constructor via the
     /// `Pair_IndexSequence` object.
     template <class ...ARGS, size_t ...I>
@@ -1038,7 +1038,7 @@ struct Pair_Second {
 /// This component-private `class` holds the `second` data member of a `pair`
 /// when that member is an lvalue-reference.  Note that the C++ Standard
 /// defines the assignment operator to assign through the reference in this
-/// case, where the implictly declared assignment operator would be deleted.
+/// case, where the implicitly declared assignment operator would be deleted.
 template <class TYPE>
 struct Pair_Second<TYPE&> {
 
@@ -1102,7 +1102,7 @@ struct Pair_Second<TYPE&> {
     /// Construct the `second` member of a `pair`, forwarding in order the
     /// elements in the specified `argsPack` to the corresponding
     /// constructor of (template parameter) `TYPE`.  The length of the
-    /// `argsPack` is equal to the lenght of the specified (template
+    /// `argsPack` is equal to the length of the specified (template
     /// parameter pack) `I...` and passed to the constructor via the
     /// `Pair_IndexSequence` object.
     template <class ARG>
@@ -1124,7 +1124,7 @@ struct Pair_Second<TYPE&> {
 /// This component-private `class` holds the `second` data member of a `pair`
 /// when that member is an rvalue-reference.  Note that the C++ Standard
 /// defines the assignment operator to assign through the reference in this
-/// case, where the implictly declared assignment operator would be deleted.
+/// case, where the implicitly declared assignment operator would be deleted.
 template <class TYPE>
 struct Pair_Second<TYPE&&> {
 
@@ -1168,7 +1168,7 @@ struct Pair_Second<TYPE&&> {
     /// Construct the `second` member of a `pair`, forwarding in order the
     /// elements in the specified `argsPack` to the corresponding
     /// constructor of (template parameter) `TYPE`.  The length of the
-    /// `argsPack` is equal to the lenght of the specified (template
+    /// `argsPack` is equal to the length of the specified (template
     /// parameter pack) `I...` and passed to the constructor via the
     /// `Pair_IndexSequence` object.
     template <class ARG>
@@ -1245,7 +1245,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
 #endif
     explicit pair(BloombergLP::bslma::Allocator *basicAllocator);
 
-    /// The copy constructor is declared implicitly, and will be implcitly
+    /// The copy constructor is declared implicitly, and will be implicitly
     /// deleted if either `T1` or `T2` have inaccessible or deleted copy
     /// constructors.  If either (template) type parameters, `T1` or `T2`, has
     /// a copy constructor that is declared to take `TYPE&` rather than
@@ -1266,7 +1266,7 @@ class pair : public Pair_First<T1>, public Pair_Second<T2> {
     pair(const pair& original, BloombergLP::bslma::Allocator *basicAllocator);
 
 #if defined(BSLS_COMPILERFEATURES_FULL_CPP11)
-    /// The move constructor is declared implicitly, and will be implcitly
+    /// The move constructor is declared implicitly, and will be implicitly
     /// deleted if move constructor for either `T1` or `T2` is inaccessible or
     /// deleted.  This constructor is trivial if both (template) type
     /// parameters `T1` and `T2` are trivially move constructible.
