@@ -652,10 +652,10 @@ struct BadBoy {
                                    "f.c",
                                    9,"L"));
      }
-};
 #ifdef BSLS_PLATFORM_CMP_MSVC
   #pragma warning(pop)
 #endif
+};
 
 // Declaration of function that must appear after main in order to test the
 // configuration macros.

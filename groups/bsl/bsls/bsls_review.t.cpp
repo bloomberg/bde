@@ -436,6 +436,10 @@ struct BadBoy {
         if (veryVerbose) printf( "BadBoy Created!\n" );
     }
 
+#ifdef BSLS_PLATFORM_CMP_MSVC
+  #pragma warning(push)
+  #pragma warning(disable : 4722)  // destructor never returns
+#endif
     ~BadBoy() BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(false) {
         if (veryVerbose) printf( "BadBoy Destroyed!\n" );
         bsls::ReviewViolation violation(
@@ -446,6 +450,9 @@ struct BadBoy {
             1);
         bsls::Review::failByThrow(violation);
      }
+#ifdef BSLS_PLATFORM_CMP_MSVC
+  #pragma warning(pop)
+#endif
 };
 
 // Declaration of function that must appear after main in order to test the
