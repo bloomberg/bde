@@ -1121,6 +1121,7 @@ int main(int argc, char *argv[])
     }
 
     if (testStatus > 0) {
+        printFlags();
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
 

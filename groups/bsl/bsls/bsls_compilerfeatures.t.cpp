@@ -5198,6 +5198,7 @@ will not improve the flavor.
 #endif
 
     if (testStatus > 0) {
+        printFlags();
         fprintf(stderr, "Error, non-zero test status = %d.\n", testStatus);
     }
     return testStatus;

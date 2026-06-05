@@ -843,7 +843,6 @@ int main(int argc, char **argv)
 
             ASSERT(true); // remove unused warning for `aSsErT`
         }
-
       } break;
       default: {
         fprintf( stderr, "WARNING: CASE `%d` NOT FOUND.\n" , test);
@@ -852,6 +851,7 @@ int main(int argc, char **argv)
     }
 
     if (testStatus > 0) {
+        printFlags();
         fprintf( stderr, "Error, non-zero test status = %d.\n", testStatus );
     }
 
