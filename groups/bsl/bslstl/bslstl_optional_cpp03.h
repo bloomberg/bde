@@ -5392,7 +5392,7 @@ class optional : public BloombergLP::bslstl::Optional_Base<t_TYPE> {
 # endif  // BSLSTL_OPTIONAL_USES_STD_ALIASES
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP17_BASELINE_LIBRARY
- 
+
     // This macro indicates that `bsl::optional` provides `and_then`,
     // `or_else`, and `transform` methods.
     #define BSLSTL_OPTIONAL_PROVIDES_MONADICS

@@ -142,7 +142,7 @@
 ..
  Note that the destructor of the 'bdlm::MetricsRegistryRegistrationHandle'
  unregisters the metric.
- 
+
 /Configuring a 'MetricsAdapter'
 /------------------------------
  'bdlm' is designed to allow application owners to plugin a higher level
@@ -170,7 +170,7 @@
 
       bdlm::MetricsRegistry::singleton().setMetricsAdapter(&adapter);
 
-      // ... 
+      // ...
 
       // Remove the adapter from the registry singleton.
 

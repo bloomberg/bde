@@ -34,7 +34,7 @@ const FormatterUnicodeData::{prop_name}
 """
 
 COUNT_TEMPLATE = """
-const int FormatterUnicodeData::{var_name} = 
+const int FormatterUnicodeData::{var_name} =
     sizeof({source_name}) / sizeof({prop_name});
 """
 

@@ -2280,7 +2280,7 @@ int main(int argc, char *argv[])
       #if !defined(BDE_BUILD_TARGET_TSAN) && !defined(BDE_BUILD_TARGET_ASAN)  \
        && !defined(BDE_BUILD_TARGET_UBSAN)
         //---------------------------------------------------------------------
-        // This test intentionally tries to use a custom allocator to 
+        // This test intentionally tries to use a custom allocator to
         // deallocate memory allocated with malloc. While sanitizers will
         // report this test, this setup is intentional.
         //---------------------------------------------------------------------

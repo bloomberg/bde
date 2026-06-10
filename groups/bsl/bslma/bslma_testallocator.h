@@ -1229,7 +1229,7 @@ inline
 bool TestAllocator::hasFillPattern() const
 {
     bsls::BslLockGuard guard(&d_lock);
-    
+
     return d_hasFillPattern;
 }
 

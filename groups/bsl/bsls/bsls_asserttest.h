@@ -112,8 +112,8 @@ BSLS_IDENT("$Id: $")
 // * `BSLS_ASSERTTEST_ASSERT_OPT_FAIL`
 // * `BSLS_ASSERTTEST_ASSERT_INVOKE_FAIL`
 // Each of these macros takes a single statement or expression as an argument,
-// tests whether  an assertion is raised while evaluating that expression, and, 
-// if an assertion is both raised and expected, whether that assertion was 
+// tests whether  an assertion is raised while evaluating that expression, and,
+// if an assertion is both raised and expected, whether that assertion was
 // raised by the component under test.
 //
 // A test failure is indicated by invoking `ASSERT(EXPRESSION)`, where `ASSERT`
@@ -153,8 +153,8 @@ BSLS_IDENT("$Id: $")
 // can be defined to control the compile time behavior of `bsls_asserttest`.
 // Enabling this macro configures all *disabled* asserttest macros to still
 // instantiate their statements (in blocks that will not be evaluated) to be
-// sure that the statement is still syntactically valid.  This can be used to 
-// ensure tests that are rarely enabled remain syntactically valid.  
+// sure that the statement is still syntactically valid.  This can be used to
+// ensure tests that are rarely enabled remain syntactically valid.
 //
 // Note: this behavior is currently always enabled and cannot be turned off.
 //

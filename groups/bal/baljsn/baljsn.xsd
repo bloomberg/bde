@@ -263,7 +263,7 @@
             bdem:allowsDirectManipulation='0'>
         <xs:annotation>
           <xs:documentation>
-              Option to allow characters in the range '[0x00 .. 0x1F]' 
+              Option to allow characters in the range '[0x00 .. 0x1F]'
               (e.g., '\0', '\t', '\n') in JSON strings.
               Set to 'false' for strictly conformining JSON.
           </xs:documentation>

@@ -563,7 +563,7 @@ int MiniReader::bomCheck()
         if (firstChar > 0x00U && firstChar < 0xEFU) {
             // No BOM present.
             return 0;                                                 // RETURN
-        }   
+        }
     }
 
     // Check for UTF-8 BOM (0xEF,0xBB,0xBF) at start of document.

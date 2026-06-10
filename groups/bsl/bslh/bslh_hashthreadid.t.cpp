@@ -93,7 +93,7 @@ void aSsErT(bool condition, const char *message, int line)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
 namespace usage_example {
 // ============================================================================
-//                             USAGE EXAMPLE                               
+//                             USAGE EXAMPLE
 // ----------------------------------------------------------------------------
 ///Usage
 ///-----
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
                 hashAppend(hasher1, threadIds[i]);
                 hashAppend(hasher2, threadIds[i]);
             }
-            
+
             ASSERT(hasher1 == hasher2);
             ASSERT(!(unused == hasher1));
         }

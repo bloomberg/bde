@@ -217,7 +217,7 @@ class TestValuesArrayIterator {
 
   private:
     // FRIENDS
- 
+
     template <class OTHER_VALUE>
     friend bool operator==(const TestValuesArrayIterator<OTHER_VALUE>& ,
                            const TestValuesArrayIterator<OTHER_VALUE>& );
