@@ -128,7 +128,7 @@ class WriteOptions {
     /// Create an object of type `WriteOptions` having the (default)
     /// attribute values:
     /// ```
-    /// escapeForwardSlash()  == false
+    /// escapeForwardSlash()  == true
     /// initialIndentLevel()  == 0
     /// sortMembers()         == false
     /// spacesPerLevel()      == 4

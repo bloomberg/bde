@@ -738,14 +738,15 @@ int main(int argc, char *argv[])
     "      \"Neil Armstrong\",\n"
     "      \"Buzz Aldrin\"\n"
     "    ],\n"
-    "    \"success\": true\n"
+    "    \"success\": true,\n"
+    "    \"target\": \"/luna/sea-of-tranquility\"\n"
     "  }\n"
     "}";
 // ```
 // Next, we read the JSON data into a `Json` object:
 // ```
-    bdljsn::Json        result;
-    bdljsn::Error       error;
+    bdljsn::Json  result;
+    bdljsn::Error error;
 
     int rc = bdljsn::JsonUtil::read(&result, &error, INPUT_JSON);
 
@@ -771,8 +772,9 @@ int main(int argc, char *argv[])
 // ```
     bsl::string resultString;
 
-    // Set the WriteOptions to match the initial style:
+    // Set the `WriteOptions` to match the `INPUT_JSON` format:
     WriteOptions writeOptions;
+    writeOptions.setEscapeForwardSlash(false);
     writeOptions.setStyle(bdljsn::WriteStyle::e_PRETTY);
     writeOptions.setInitialIndentLevel(0);
     writeOptions.setSpacesPerLevel(2);
@@ -781,7 +783,17 @@ int main(int argc, char *argv[])
     bdljsn::JsonUtil::write(&resultString, result, writeOptions);
 
     ASSERT(resultString == INPUT_JSON);
-// ```
+
+    // Set the `WriteOptions` to escape forward slashes (for example, to avoid
+    // XSS issues in HTML contexts):
+    writeOptions.setEscapeForwardSlash(true);
+
+    bdljsn::JsonUtil::write(&resultString, result, writeOptions);
+    ASSERT(bsl::string::npos !=
+                        resultString.find("\"\\/luna\\/sea-of-tranquility\""));
+    ASSERT(bsl::string::npos ==
+                            resultString.find("\"/luna/sea-of-tranquility\""));
+    // ```
         }
         if (verbose)
             cout << "Testing usage example 2" << endl;
