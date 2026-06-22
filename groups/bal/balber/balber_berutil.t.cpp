@@ -11627,6 +11627,8 @@ int main(int argc, char *argv[])
         // 2. `getValue` decodes a Decimal64 by delegating its operation to
         //    `DecimalConvertUtil::decimal64FromMultiWidthEncoding`.
         //
+        // 3. Regressions for `{DRQS 162368178}` and `{DRQS 184599832}`.
+        //
         // Plan:
         //
         // Testing:
@@ -11689,6 +11691,28 @@ int main(int argc, char *argv[])
             bdldfp::Decimal64          value;
             int                        numBytesConsumed;
             ASSERT(SUCCESS != Util::getValue(&isb, &value, &numBytesConsumed));
+        }
+
+        // `{DRQS 184599832}`: Verify that length not representable as a
+        // non-negative `int` is rejected.
+        {
+            const char                 fuzz1[] = {
+                '\x84', '\xff', '\xff', '\xff', '\xff'
+            };
+            bdlsb::FixedMemInStreamBuf is1(fuzz1, sizeof(fuzz1));
+            bdldfp::Decimal64          value;
+            int                        numBytesConsumed;
+            ASSERT(SUCCESS != Util::getValue(&is1, &value, &numBytesConsumed));
+
+            const char fuzz2[] = {'\x84', '\x80', '\x00', '\x00', '\x04',
+                                  '\x80', '\x03', '\x05', '\x41'};
+            bdlsb::FixedMemInStreamBuf is2(fuzz2, sizeof(fuzz2));
+            ASSERT(SUCCESS != Util::getValue(&is2, &value, &numBytesConsumed));
+
+            const char fuzz3[] = {'\x80', '\x80', '\x01', '\x05', '\x41',
+                                  '\x00', '\x00'};
+            bdlsb::FixedMemInStreamBuf is3(fuzz3, sizeof(fuzz3));
+            ASSERT(SUCCESS != Util::getValue(&is3, &value, &numBytesConsumed));
         }
       } break;
       case 21: {
@@ -16247,6 +16271,83 @@ int main(int argc, char *argv[])
                 LOOP3_ASSERT(LINE, LEN, len, len == LEN);
                 LOOP3_ASSERT(LINE, EXP_LEN, numBytesConsumed,
                              EXP_LEN == numBytesConsumed);
+            }
+        }
+
+        if (verbose) bsl::cout << "\nError tests for `getLength`"
+                               << "\n---------------------------" << bsl::endl;
+
+        // Per X.690 (8.1.3.5) the long-form length is an unsigned big-endian
+        // integer but our length is an `int` (which is signed).  If the
+        // long-form length exceeds the representable range of `int`, we must
+        // treat it as a decoding error.
+
+        {
+            // Each row is a raw on-the-wire BER length encoding, the
+            // expected decoder return code, and (when the expected return
+            // code is SUCCESS) the expected decoded length value.
+
+            struct {
+                int                  d_line;
+                const unsigned char  d_input[8];
+                int                  d_inputLength;
+                int                  d_expectedRc;
+                int                  d_expectedLength; // only if SUCCESS
+            } DATA[] = {
+                // Long form with high octet 0xFF -- must be read as 255
+                // (not sign-extended to -1) and round-trip without rolling
+                // into a negative `int`.  Already exercised by the positive
+                // table above, repeated here explicitly for clarity.
+                { L_, { 0x81, 0xFF                         }, 2, SUCCESS,
+                  255 },
+
+                // 4-octet long-form length whose high bit is set
+                // (0x80000000 > INT_MAX).  The original signed-`int`
+                // accumulator would have shifted a 1 into the sign bit
+                // (undefined behavior) and produced `INT_MIN`; the spec
+                // requires this be treated as an unsigned value
+                // exceeding the representable range of the result type.
+                { L_, { 0x84, 0x80, 0x00, 0x00, 0x00       }, 5, FAILURE,
+                  0   },
+
+                // 4-octet long-form length == UINT_MAX (0xFFFFFFFF).
+                // Particularly nasty in the old code: it produced -1,
+                // which is the same in-band sentinel as
+                // `k_INDEFINITE_LENGTH`.
+                { L_, { 0x84, 0xFF, 0xFF, 0xFF, 0xFF       }, 5, FAILURE,
+                  0   },
+
+                // 5-octet long-form length: rejected up-front by the
+                // existing `numOctets > sizeof(int)` guard.  Included to
+                // pin that behavior down.
+                { L_, { 0x85, 0x00, 0x00, 0x00, 0x00, 0x00 }, 6, FAILURE,
+                  0   },
+            };
+
+            const int NUM_DATA = sizeof(DATA) / sizeof(*DATA);
+
+            for (int i = 0; i < NUM_DATA; ++i) {
+                const int            LINE    = DATA[i].d_line;
+                const unsigned char *IN      = DATA[i].d_input;
+                const int            IN_LEN  = DATA[i].d_inputLength;
+                const int            EXP_RC  = DATA[i].d_expectedRc;
+                const int            EXP_VAL = DATA[i].d_expectedLength;
+
+                if (veryVerbose) { P_(i) P_(IN_LEN) P(EXP_RC) }
+
+                int numBytesConsumed = 0;
+                int len = -987654321; // distinctive sentinel
+                bdlsb::FixedMemInStreamBuf isb(
+                                    reinterpret_cast<const char *>(IN),
+                                    static_cast<bsl::size_t>(IN_LEN));
+
+                const int rc = Util::getLength(&isb,
+                                               &len,
+                                               &numBytesConsumed);
+                ASSERTV(LINE, EXP_RC, rc, EXP_RC == rc);
+                if (SUCCESS == EXP_RC) {
+                    ASSERTV(LINE, EXP_VAL, len, EXP_VAL == len);
+                }
             }
         }
       } break;

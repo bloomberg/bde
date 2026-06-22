@@ -934,13 +934,13 @@ struct BerUtil_FloatingPointImpUtil {
     /// of the specified `streamBuf` and load to the specified `value` the
     /// interpretation of those bytes as the contents octets of an encoded
     /// 64-bit decimal value.  Return 0 if successful, and a non-zero value
-    /// otherwise.  The operation succeeds if `length` bytes are
-    /// successfully read from the input sequence of the `streamBuf` without
-    /// the read position becoming unavailable, and the bytes read contain a
-    /// valid representation of the contents octets of an encoded 64-bit
-    /// decimal value.  See the package-level documentation of {`balber`}
-    /// for the definition of the format used to encode 64-bit decimal
-    /// values.
+    /// otherwise.  The behavior is undefined unless length is non-negative.
+    /// The operation succeeds if `length` bytes are successfully read from the
+    /// input sequence of the `streamBuf` without the read position becoming
+    /// unavailable, and the bytes read contain a valid representation of the
+    /// contents octets of an encoded 64-bit decimal value.  See the
+    /// package-level documentation of {`balber`} for the definition of the
+    /// format used to encode 64-bit decimal values.
     static int getDecimal64Value(bdldfp::Decimal64 *value,
                                  bsl::streambuf    *streamBuf,
                                  int                length);
@@ -6284,12 +6284,13 @@ int BerUtil_GetValueImpUtil::getValue(double                   *value,
     return FloatingPointUtil::getDoubleValue(value, streamBuf, length);
 }
 
-inline
-int BerUtil_GetValueImpUtil::getValue(bdldfp::Decimal64        *value,
-                                      bsl::streambuf           *streamBuf,
-                                      int                       length,
-                                      const BerDecoderOptions&)
-{
+inline int BerUtil_GetValueImpUtil::getValue(bdldfp::Decimal64 *value,
+                                             bsl::streambuf *streamBuf,
+                                             int length,
+                                             const BerDecoderOptions &) {
+    if (BerUtil::k_INDEFINITE_LENGTH == length) {
+        return -1;                                                    // RETURN
+    }
     return FloatingPointUtil::getDecimal64Value(value, streamBuf, length);
 }
 

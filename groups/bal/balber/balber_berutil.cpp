@@ -23,6 +23,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_climits.h>
 #include <bsl_cstdint.h>
 #include <bsl_cstring.h>
 
@@ -332,18 +333,28 @@ int BerUtil_LengthImpUtil::getLength(int            *result,
         return FAILURE;                                               // RETURN
     }
 
-    *result = 0;
+    // Per X.690 (8.1.3.5) the long-form length is an unsigned big-endian
+    // integer.  Accumulate it in `unsigned int` to avoid the undefined
+    // behavior of left-shifting into the sign bit of a signed `int`, then
+    // range-check before storing into the signed `int` result.
+
+    unsigned int length = 0;
     for (unsigned int i = 0; i < numOctets; ++i) {
         nextOctet = streamBuf->sbumpc();
         if (bsl::streambuf::traits_type::eof() == nextOctet) {
             return FAILURE;                                           // RETURN
         }
 
-        *result <<= Constants::k_NUM_BITS_PER_OCTET;
-        *result |= nextOctet;
+        length <<= Constants::k_NUM_BITS_PER_OCTET;
+        length |= static_cast<unsigned char>(nextOctet);
     }
 
-    *accumNumBytesConsumed += numOctets;
+    if (length > static_cast<unsigned int>(INT_MAX)) {
+        return FAILURE;                                               // RETURN
+    }
+
+    *result = static_cast<int>(length);
+    *accumNumBytesConsumed += static_cast<int>(numOctets);
 
     return SUCCESS;
 }
@@ -916,6 +927,8 @@ int BerUtil_FloatingPointImpUtil::getDecimal64Value(
                                                   bsl::streambuf    *streamBuf,
                                                   int                length)
 {
+    BSLS_ASSERT(0 <= length);
+
     if (k_MAX_MULTI_WIDTH_ENCODING_SIZE < length) {
         return -1;                                                    // RETURN
     }
