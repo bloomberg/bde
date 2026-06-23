@@ -111,6 +111,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_platform.h>
 #include <bsls_review.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_istream.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
@@ -396,6 +397,13 @@ class BerDecoder_Node {
     /// `variable`.  Return zero on success, and a non-zero value otherwise.
     template <typename TYPE>
     int decodeChoice(TYPE *variable);
+
+    /// Load the node body content into the specified `variable`, using the
+    /// specified `typeName` (e.g., `"vector<char>"`) in any error messages
+    /// emitted.  Return 0 on success, and a non-zero value otherwise.  The
+    /// behavior is undefined unless `1 == sizeof(t_BYTE)`.
+    template <class t_BYTE>
+    int readVectorByte(bsl::vector<t_BYTE> *variable, const char *typeName);
 
   public:
     // CREATORS
@@ -1195,14 +1203,26 @@ BerDecoder_Node::decodeArray(TYPE *variable)
 
     const int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
 
+    // The hint comes from untrusted input.  Always consume it (it applies to
+    // the next array only, never to a sibling), but only honor it to the
+    // extent it is justified by bytes the producer has *actually* delivered
+    // into the streambuf.  Never trust `d_expectedLength` as a budget here: it
+    // is a wire claim from the same source as the hint.  Each BER TLV
+    // (Tag-Length-Value) tuple is at least 2 bytes (1-byte tag + 1-byte
+    // length=0) regardless of element type, so `in_avail() / 2` is a tight
+    // upper bound on the number of elements that can follow.  For streambufs
+    // that don't report buffered bytes (sockets/pipes with empty get area,
+    // some filtering streambufs), `in_avail()` returns 0 (or -1 at EOF, which
+    // truncates to 0 after division), in which case we simply drop the hint
+    // and let `vector`'s geometric growth amortize the per-element `resize`
+    // cost.
     const int arrayLengthHint = d_decoder->d_arrayLengthHint;
-    if (0 < arrayLengthHint) {
-        bdlat_ArrayFunctions::reserve(variable,
-                                        arrayLengthHint <= maxSize
-                                      ? arrayLengthHint
-                                      : maxSize);
-        d_decoder->d_arrayLengthHint = 0;
-    }
+    d_decoder->d_arrayLengthHint = 0;
+    bdlat_ArrayFunctions::reserve(
+                                 variable,
+                                 static_cast<int>(bsl::min<bsl::streamsize>(
+                                     bsl::min(arrayLengthHint, maxSize),
+                                     d_decoder->d_streamBuf->in_avail() / 2)));
 
     int i = static_cast<int>(bdlat_ArrayFunctions::size(*variable));
     while (this->hasMore()) {

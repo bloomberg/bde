@@ -33,6 +33,8 @@
 
 #include <bslim_testutil.h>
 
+#include <bslma_testallocator.h>
+
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
@@ -16083,10 +16085,50 @@ int main(int argc, char *argv[])
         // TESTING `putValue` & `getValue` for bsl::string
         //
         // Concerns:
+        // 1. Round-trip encoding and decoding of various string values
+        //    succeeds.
+        //
+        // 2. Decoding fails cleanly when the claimed length exceeds the bytes
+        //    available on the stream.
+        //
+        // 3. Decoding a primitive UTF-8 string whose body is large enough to
+        //    span multiple read chunks round-trips correctly, performs a
+        //    number of allocations logarithmic in the body length (rather
+        //    than linear), and keeps peak bytes in use bounded by a small
+        //    multiple of the body length (rather than growing with the
+        //    wire-claimed length when those differ).
+        //
+        // 4. Decoding fails when the claimed length exceeds the configured
+        //    `maxSequenceSize` of the decoder options.
         //
         // Plan:
+        // 1. Round-trip-encode and -decode a table of literal strings.  (C-1)
+        //
+        // 2. Encode an oversized length header followed by fewer body bytes
+        //    than claimed; decode and verify failure.  (C-2)
+        //
+        // 3. Decode an empty stream against a 256 MiB claimed length with
+        //    `setMaxSequenceSize` configured to allow the claim; verify that
+        //    the decode fails and that peak allocation stays bounded by a
+        //    small constant, not by the claim.  (C-3)
+        //
+        // 4. For each body length in a table that places `LENGTH` at and
+        //    around several geometric chunk boundaries, build a streambuf
+        //    containing exactly that many bytes.  Decode into a
+        //    `bsl::string` backed by a `bslma::TestAllocator` via the
+        //    `length`-taking overload of `getValue`.  Verify the bytes
+        //    round-trip exactly, that the number of allocations is
+        //    logarithmic in `LENGTH` (bounded by the number of iterations
+        //    of the implementation's chunked-read loop), and that peak
+        //    bytes in use stay within `3 * LENGTH`.  (C-3)
+        //
+        // 5. Decode a stream whose body length exceeds the decoder's
+        //    `maxSequenceSize`; verify failure.  (C-4)
         //
         // Testing:
+        //   int putValue(streambuf *, const bsl::string&, ...);
+        //   int getValue(streambuf *, bsl::string *, int *, ...);
+        //   int getValue(streambuf *, bsl::string *, int, ...);
         // --------------------------------------------------------------------
 
         if (verbose) bsl::cout << "\nTESTING `putValue`, `getValue` for string"
@@ -16194,6 +16236,99 @@ int main(int argc, char *argv[])
             bdlsb::FixedMemInStreamBuf isb(osb.data(), osb.length());
             bsl::string val;
             ASSERT(SUCCESS != Util::getValue(&isb, &val, &numBytesConsumed));
+        }
+
+        if (verbose) cout << "\nIll-formed length: peak allocation bound."
+                          << endl;
+        {
+            const int                k_CLAIMED = 256 * 1024 * 1024;
+            const bsls::Types::Int64 k_BOUND   = 64 * 1024;
+
+            balber::BerDecoderOptions options;
+            options.setMaxSequenceSize(0x10000000);  // allow the claim
+
+            bdlsb::FixedMemInStreamBuf isb("", 0);
+            bslma::TestAllocator       sa("scratch");
+            bsl::string                val(&sa);
+
+            ASSERT(0 != Util::getValue(&isb, &val, k_CLAIMED, options));
+            ASSERTV(sa.numBytesMax(), sa.numBytesMax() <= k_BOUND);
+        }
+
+        if (verbose) cout << "\nChunked-read correctness and allocation"
+                             " bound." << endl;
+        {
+            // Must match the initial chunk size used by `getStringValue`
+            // in `balber_berutil.cpp`.
+            const int k_CHUNK = 4 * 1024;
+
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_baseLen;  // body length at `OFFSET == 0`
+                int d_allocs;   // max allocations at `OFFSET <= 0`
+            } DATA[] = {
+                //LINE         BASE_LEN          ALLOCS
+                //----  ----------------------   ------
+                {  L_,  k_CHUNK * ((1 << 1) - 1),     1 },
+                {  L_,  k_CHUNK * ((1 << 2) - 1),     2 },
+                {  L_,  k_CHUNK * ((1 << 3) - 1),     3 },
+                {  L_,  k_CHUNK * ((1 << 5) - 1),     5 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            static const int OFFSETS[]   = {-1, 0, +1};
+            const int        NUM_OFFSETS = sizeof OFFSETS / sizeof *OFFSETS;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE     = DATA[ti].d_lineNum;
+                const int BASE_LEN = DATA[ti].d_baseLen;
+                const int ALLOCS   = DATA[ti].d_allocs;
+
+                for (int oi = 0; oi < NUM_OFFSETS; ++oi) {
+                    const int OFFSET    = OFFSETS[oi];
+                    const int LENGTH    = BASE_LEN + OFFSET;
+                    const int MAX_ALLOC = ALLOCS + (OFFSET > 0 ? 1 : 0);
+                    const int MAX_BYTES = 3 * LENGTH;
+
+                    const bsl::string EXPECTED(LENGTH, 'A');
+
+                    bdlsb::FixedMemInStreamBuf isb(EXPECTED.data(), LENGTH);
+                    bslma::TestAllocator       sa("scratch");
+                    bsl::string                val(&sa);
+
+                    ASSERTV(LINE,
+                            LENGTH,
+                            0 == Util::getValue(&isb, &val, LENGTH));
+                    ASSERTV(LINE, LENGTH, EXPECTED == val);
+                    ASSERTV(LINE,
+                            LENGTH,
+                            MAX_ALLOC,
+                            sa.numAllocations(),
+                            sa.numAllocations() <= MAX_ALLOC);
+                    ASSERTV(LINE,
+                            LENGTH,
+                            MAX_BYTES,
+                            sa.numBytesMax(),
+                            sa.numBytesMax() <= MAX_BYTES);
+                }
+            }
+        }
+
+        if (verbose) cout << "\n`maxSequenceSize` is respected." << endl;
+        {
+            const int k_LENGTH = 4096;
+            const int k_MAX    = k_LENGTH - 1;
+
+            balber::BerDecoderOptions options;
+            options.setMaxSequenceSize(k_MAX);
+
+            // The body is present so that a failure can only be attributed to
+            // the `maxSequenceSize` check rather than to a short read.
+            const bsl::string          body(k_LENGTH, 'X');
+            bdlsb::FixedMemInStreamBuf isb(body.data(), k_LENGTH);
+
+            bsl::string val;
+            ASSERT(0 != Util::getValue(&isb, &val, k_LENGTH, options));
         }
       } break;
       case 12: {

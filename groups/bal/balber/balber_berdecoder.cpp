@@ -6,6 +6,13 @@ BSLS_IDENT_RCSID(balber_berdecoder_cpp, "$Id$ $CSID$")
 
 #include <balber_berencoder.h>          // for testing only
 
+#include <bdlma_localbufferedobject.h>
+
+#include <bsl_algorithm.h>
+#include <bsl_format.h>
+#include <bsl_iterator.h>
+#include <bsl_string.h>
+
 namespace BloombergLP {
 
                    // --------------------------------------
@@ -82,6 +89,84 @@ int BerDecoder::decodeAny(bsl::istream& stream, bdlar::AnyRef *any)
                        // -----------------------------
                        // private class BerDecoder_Node
                        // -----------------------------
+
+// PRIVATE MANIPULATORS
+template <class t_BYTE>
+int BerDecoder_Node::readVectorByte(bsl::vector<t_BYTE> *variable,
+                                    const char          *typeName)
+{
+    BSLMF_ASSERT(1 == sizeof(t_BYTE));
+
+    // The longest error message formatted below is approximately 80
+    // characters; reserve enough capacity up front so `format_to` (which
+    // grows the string geometrically via `back_inserter`) makes a single
+    // allocation from the arena rather than spilling.
+    bdlma::LocalBufferedObject<bsl::string, 128> errMsg;
+    errMsg->reserve(96);
+
+    if (d_tagType != BerConstants::e_PRIMITIVE) {
+        bsl::format_to(bsl::back_inserter(*errMsg),
+                       "Expected PRIMITIVE tag type for '{}'",
+                       typeName);
+        return logError(errMsg->c_str());                             // RETURN
+    }
+
+    if (d_expectedLength < 0) {
+        bsl::format_to(bsl::back_inserter(*errMsg),
+                       "'{}' with indefinite length is not supported "
+                       "at this time",
+                       typeName);
+        return logError(errMsg->c_str());                             // RETURN
+
+        // TBD X.690 has a formula for transmitting string types in chunks,
+        // where each chunk has pre-defined length but the overall string has
+        // indefinite length.  We should implement this algorithm.
+    }
+
+    const int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
+    if (d_expectedLength > maxSize) {
+        bsl::format_to(bsl::back_inserter(*errMsg),
+                       "'{}' length more than limit",
+                       typeName);
+        return logError(errMsg->c_str());                             // RETURN
+    }
+
+    // Read the body in geometrically growing chunks so that peak allocation
+    // is bounded by a small multiple of the bytes the producer has actually
+    // delivered, rather than by the (untrusted) `d_expectedLength`.  The
+    // initial chunk is also the threshold below which the entire body is
+    // read in a single pass.  Note that we do not rely on `vector`'s
+    // `resize` growing capacity geometrically (its contract does not
+    // guarantee it); the doubling at the call site is what bounds peak
+    // allocation.
+    const bsl::size_t k_INITIAL_CHUNK = 4 * 1024;
+
+    variable->clear();
+    bsl::size_t remaining = static_cast<bsl::size_t>(d_expectedLength);
+    bsl::size_t chunkSize = k_INITIAL_CHUNK;
+    while (remaining > 0) {
+        const bsl::size_t bytesToRead = bsl::min(remaining, chunkSize);
+        const bsl::size_t oldSize     = variable->size();
+        variable->resize(oldSize + bytesToRead);
+        char *data = reinterpret_cast<char *>(variable->data() + oldSize);
+        // `bytesToRead <= INT_MAX` (bounded by validated `d_expectedLength`),
+        // so the cast to `bsl::streamsize` is value-preserving.
+        const bsl::streamsize numBytes =
+                                     static_cast<bsl::streamsize>(bytesToRead);
+        if (numBytes != d_decoder->d_streamBuf->sgetn(data, numBytes)) {
+            bsl::format_to(bsl::back_inserter(*errMsg),
+                           "Stream error while reading '{}'",
+                           typeName);
+            return logError(errMsg->c_str());                         // RETURN
+        }
+        remaining -= bytesToRead;
+        chunkSize *= 2;
+    }
+
+    d_consumedBodyBytes += d_expectedLength;
+
+    return BerDecoder::e_BER_SUCCESS;
+}
 
 // ACCESSORS
 int BerDecoder_Node::startPos() const
@@ -355,79 +440,13 @@ int BerDecoder_Node::skipField()
 
 int BerDecoder_Node::readVectorChar(bsl::vector<char> *variable)
 {
-    if (d_tagType != BerConstants::e_PRIMITIVE) {
-        return logError("Expected PRIMITIVE tag type for 'vector<char>'");
-                                                                      // RETURN
-    }
-
-    if (d_expectedLength < 0) {
-        return logError("'vector<char>' with indefinite length "
-                        "is not supported at this time");
-                                                                      // RETURN
-
-        // TBD X.690 has a formula for transmitting string types in chunks,
-        // where each chunk has pre-defined length but the overall string has
-        // indefinite length.  We should implement this algorithm.
-    }
-
-    int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
-    if (d_expectedLength > maxSize) {
-        return logError("'vector<char>' length more than limit");
-                                                                      // RETURN
-    }
-
-    variable->resize(d_expectedLength);
-
-    if (0 != d_expectedLength &&
-        d_expectedLength !=
-            d_decoder->d_streamBuf->sgetn(&(*variable)[0], d_expectedLength)) {
-        return logError("Stream error while reading 'vector<char>'");
-                                                                      // RETURN
-    }
-
-    d_consumedBodyBytes += d_expectedLength;
-
-    return BerDecoder::e_BER_SUCCESS;
+    return readVectorByte(variable, "vector<char>");
 }
 
 int BerDecoder_Node::readVectorUnsignedChar(
                                           bsl::vector<unsigned char> *variable)
 {
-    if (d_tagType != BerConstants::e_PRIMITIVE) {
-        return logError(
-            "Expected PRIMITIVE tag type for 'vector<unsigned char>'");
-                                                                      // RETURN
-    }
-
-    const int length = d_expectedLength;
-    if (length < 0) {
-        return logError("'vector<unsigned char>' with indefinite "
-                        "length is not supported at this time");      // RETURN
-
-        // TBD X.690 has a formula for transmitting string types in chunks,
-        // where each chunk has pre-defined length but the overall string has
-        // indefinite length.  We should implement this algorithm.
-    }
-
-    int maxSize = d_decoder->decoderOptions()->maxSequenceSize();
-    if (length > maxSize) {
-        return logError("'vector<unsigned char>' length more then limit");
-                                                                      // RETURN
-    }
-
-    variable->resize(length);
-
-    if (length != 0) {
-        char *data = reinterpret_cast<char *>(variable->data());
-        if (length != d_decoder->d_streamBuf->sgetn(data, length)) {
-            return logError(
-              "Stream error while reading 'vector<unsigned char>'");  // RETURN
-        }
-    }
-
-    d_consumedBodyBytes += length;
-
-    return BerDecoder::e_BER_SUCCESS;
+    return readVectorByte(variable, "vector<unsigned char>");
 }
 
 }  // close package namespace

@@ -57,6 +57,7 @@
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
 
@@ -3594,6 +3595,23 @@ int main(int argc, char *argv[])
         //    prevent decoding even if it does not match the type when
         //    decoding.
         //
+        // 5. Decoding a primitive `vector<char>` or `vector<unsigned char>`
+        //    whose BER length header claims more bytes than the input
+        //    streambuf can supply must fail without pre-allocating memory
+        //    proportional to the wire-claimed length.
+        //
+        // 6. Decoding a primitive OCTET STRING into a `vector<char>` whose
+        //    body is large enough to span multiple read chunks must
+        //    round-trip correctly, perform a number of allocations
+        //    logarithmic in the body length (rather than linear), and keep
+        //    peak bytes in use bounded by a small multiple of the body
+        //    length (rather than growing with the wire-claimed length when
+        //    those differ).
+        //
+        // 7. The error-message buffer used inside `readVectorByte` is large
+        //    enough that none of its error paths overflows to the default
+        //    allocator.
+        //
         // Plan:
         // 1. For each of the differently structured `RawData` types from the
         //    test schema (`test::RawData`, `test::RawDataSwitched`,
@@ -3604,6 +3622,28 @@ int main(int argc, char *argv[])
         //
         // 3. Verify that the 2 vectors from the decoded object match the
         //    test data that was populated into the encoded object.
+        //
+        // 4. Hand-craft a 6-byte OCTET STRING header whose long-form length
+        //    claims 256 MiB, followed by no body bytes.  Decode it into a
+        //    `vector<char>` (and again into a `vector<unsigned char>`) backed
+        //    by a `bslma::TestAllocator`.  Verify the decode fails and that
+        //    `numBytesMax()` stays well below the claimed length.  (C-5)
+        //
+        // 5. For each body length in a table that places `LENGTH` at and
+        //    around several geometric chunk boundaries, hand-craft a
+        //    primitive OCTET STRING of that body length.  Decode into a
+        //    `vector<char>` backed by a `bslma::TestAllocator`.  Verify
+        //    the bytes round-trip exactly, that the number of allocations
+        //    is logarithmic in `LENGTH` (bounded by the number of
+        //    iterations of the implementation's chunked-read loop), and
+        //    that peak bytes in use stay within `3 * LENGTH`.  (C-6)
+        //
+        // 6. Install a `bslma::TestAllocator` as the default allocator and
+        //    give the `BerDecoder` its own allocator.  Trigger each
+        //    reachable error path in `readVectorByte` (indefinite length,
+        //    definite length exceeding `maxSequenceSize`, and definite
+        //    length exceeding the bytes available on the stream).  Verify
+        //    that the default allocator sees no allocations.  (C-7)
         //
         // Testing:
         //   int BerDecoder_Node::decode(bsl::vector<char>          *variable,
@@ -3735,6 +3775,150 @@ int main(int argc, char *argv[])
                 ASSERT(0 == decoder.decodeAny(&isb, &rawData2));
                 ASSERT(rawData2 == rawDataParsed);
             }
+        }
+
+        if (verbose) cout << "\nIll-formed length header.\n";
+        {
+            // An OCTET STRING header whose long-form length claims many more
+            // bytes than the stream can possibly deliver must fail to decode
+            // without pre-allocating memory proportional to the claim.  Six
+            // bytes of input here claim 256 MiB.
+            static const char k_HEADER[] = {
+                '\x04',                          // primitive OCTET STRING
+                '\x84',                          // long-form, 4 length bytes
+                '\x10', '\x00', '\x00', '\x00'   // 256 MiB
+            };
+            const bsls::Types::Int64 k_BOUND = 1 * 1024 * 1024;  // 1 MiB
+
+            balber::BerDecoderOptions options;
+            options.setMaxSequenceSize(0x10000000);  // allow the claim
+            balber::BerDecoder        decoder(&options);
+
+            {
+                bdlsb::FixedMemInStreamBuf isb(k_HEADER, sizeof k_HEADER);
+                bslma::TestAllocator      sa("vc");
+                bsl::vector<char>         vec(&sa);
+
+                ASSERT(0 != decoder.decode(&isb, &vec));
+                ASSERTV(sa.numBytesMax(), sa.numBytesMax() < k_BOUND);
+            }
+            {
+                bdlsb::FixedMemInStreamBuf  isb(k_HEADER, sizeof k_HEADER);
+                bslma::TestAllocator        sa("vuc");
+                bsl::vector<unsigned char>  vec(&sa);
+
+                ASSERT(0 != decoder.decode(&isb, &vec));
+                ASSERTV(sa.numBytesMax(), sa.numBytesMax() < k_BOUND);
+            }
+        }
+
+        if (verbose) cout << "\nChunked-read correctness and allocation"
+                            " bound.\n";
+        {
+            // Must match the initial chunk size used by `readVectorByte`
+            // in `balber_berdecoder.cpp`.
+            const int k_CHUNK = 4 * 1024;
+
+            static const struct {
+                int d_lineNum;  // source line number
+                int d_baseLen;  // body length at `OFFSET == 0`
+                int d_allocs;   // max allocations at `OFFSET <= 0`
+            } DATA[] = {
+                //LINE         BASE_LEN          ALLOCS
+                //----  ----------------------   ------
+                {  L_,  k_CHUNK * ((1 << 1) - 1),     1 },
+                {  L_,  k_CHUNK * ((1 << 2) - 1),     2 },
+                {  L_,  k_CHUNK * ((1 << 3) - 1),     3 },
+                {  L_,  k_CHUNK * ((1 << 5) - 1),     5 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            static const int OFFSETS[]   = {-1, 0, +1};
+            const int        NUM_OFFSETS = sizeof OFFSETS / sizeof *OFFSETS;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE     = DATA[ti].d_lineNum;
+                const int BASE_LEN = DATA[ti].d_baseLen;
+                const int ALLOCS   = DATA[ti].d_allocs;
+
+                for (int oi = 0; oi < NUM_OFFSETS; ++oi) {
+                    const int OFFSET    = OFFSETS[oi];
+                    const int LENGTH    = BASE_LEN + OFFSET;
+                    const int MAX_ALLOC = ALLOCS + (OFFSET > 0 ? 1 : 0);
+                    const int MAX_BYTES = 3 * LENGTH;
+
+                    const bsl::vector<char> EXPECTED(LENGTH, 'A');
+
+                    bsl::vector<char> wire;
+                    wire.push_back('\x04');  // primitive OCTET STRING
+                    wire.push_back('\x84');  // long-form, 4 length bytes
+                    wire.push_back(static_cast<char>((LENGTH >> 24) & 0xff));
+                    wire.push_back(static_cast<char>((LENGTH >> 16) & 0xff));
+                    wire.push_back(static_cast<char>((LENGTH >> 8) & 0xff));
+                    wire.push_back(static_cast<char>(LENGTH & 0xff));
+                    wire.append_range(EXPECTED);
+
+                    balber::BerDecoder         decoder;
+                    bdlsb::FixedMemInStreamBuf isb(wire.data(), wire.size());
+                    bslma::TestAllocator       sa("vc");
+                    bsl::vector<char>          vec(&sa);
+
+                    ASSERTV(LINE, LENGTH, 0 == decoder.decode(&isb, &vec));
+                    ASSERTV(LINE, LENGTH, EXPECTED == vec);
+                    ASSERTV(LINE,
+                            LENGTH,
+                            MAX_ALLOC,
+                            sa.numAllocations(),
+                            sa.numAllocations() <= MAX_ALLOC);
+                    ASSERTV(LINE,
+                            LENGTH,
+                            MAX_BYTES,
+                            sa.numBytesMax(),
+                            sa.numBytesMax() <= MAX_BYTES);
+                }
+            }
+        }
+
+        if (verbose) cout << "\nError-message buffer does not spill.\n";
+        {
+            static const struct {
+                int         d_lineNum;  // source line number
+                const char *d_wire_p;   // wire bytes
+                int         d_wireLen;  // length of the wire bytes
+                int         d_maxSize;  // `setMaxSequenceSize` argument
+            } DATA[] = {
+                // Indefinite length (rejected by `readVectorByte`).
+                {  L_,  "\x04\x80",                  2,         1024 },
+
+                // Definite length exceeds `maxSequenceSize`.
+                {  L_,  "\x04\x82\x10\x00",          4,          100 },
+
+                // Definite length exceeds the bytes available on the stream.
+                {  L_,  "\x04\x84\x10\x00\x00\x00",  6,    0x10000000 },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            bslma::TestAllocator         da("default");
+            bslma::DefaultAllocatorGuard dag(&da);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int         LINE     = DATA[ti].d_lineNum;
+                const char *const WIRE     = DATA[ti].d_wire_p;
+                const int         WIRE_LEN = DATA[ti].d_wireLen;
+                const int         MAX_SIZE = DATA[ti].d_maxSize;
+
+                bslma::TestAllocator sa("scratch");
+
+                balber::BerDecoderOptions options;
+                options.setMaxSequenceSize(MAX_SIZE);
+                balber::BerDecoder         decoder(&options, &sa);
+                bdlsb::FixedMemInStreamBuf isb(WIRE, WIRE_LEN);
+                bsl::vector<char>          vec(&sa);
+
+                ASSERTV(LINE, 0 != decoder.decode(&isb, &vec));
+            }
+
+            ASSERTV(da.numBlocksTotal(), 0 == da.numBlocksTotal());
         }
       } break;
       case 17: {
@@ -6142,11 +6326,42 @@ int main(int argc, char *argv[])
         // ENCODE AND DECODE ARRAYS
         //
         // Concerns:
+        // 1. A sequence containing an array can be round-tripped through
+        //    `BerEncoder` and `BerDecoder` with both empty and non-empty
+        //    arrays, and the result compares equal to the original.
+        //
+        // 2. When the encoder emits an array-length hint, the decoder uses
+        //    it to `reserve` capacity on the decoded array.
+        //
+        // 3. The hint is bounded.  The reserved capacity must never exceed
+        //    `BerDecoderOptions::maxSequenceSize()`, nor what the input
+        //    streambuf has actually buffered (so that an oversized
+        //    wire-supplied hint cannot drive a large allocation from a
+        //    small message).
+        //
+        // 4. Decoding via `decodeAny` produces the same result as `decode`.
         //
         // Plan:
+        // 1. Encode an empty and a non-empty `MySequenceWithArray`,
+        //    decode, and verify equality (and equality of the `decodeAny`
+        //    result).  Also decode hand-crafted wire formats produced by an
+        //    interoperability tool to exercise both definite- and
+        //    indefinite-length encodings.
+        //
+        // 2. With `encodeArrayLengthHints` enabled, encode a sequence
+        //    containing an array, locate the hint in the resulting bytes,
+        //    and verify that with the original hint the decoded array has
+        //    the corresponding capacity.
+        //
+        // 3. Rewrite the hint in the encoded bytes to a value much larger
+        //    than the bytes remaining in the streambuf can possibly
+        //    justify, decode, and verify that the resulting capacity is
+        //    bounded by what is actually on the wire.  Repeat with a
+        //    decoder configured with a small `maxSequenceSize` and verify
+        //    the capacity is bounded by that option.  (C-3)
         //
         // Testing:
-        //
+        //   int BerDecoder_Node::decodeArray(TYPE *variable)
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nENCODE AND DECODE ARRAYS"
@@ -6484,8 +6699,11 @@ int main(int argc, char *argv[])
                            k_ALH_PREFIX,
                            k_ALH_PREFIX_LENGTH);
 
-            // set hint to 9, larger than it should be
-            output[pos + k_ALH_PREFIX_LENGTH + 1] = '\x09';
+            // set hint to 127 (max short-form value), much larger than the
+            // bytes remaining in the streambuf can possibly justify; the
+            // reserved capacity must be bounded by what is actually on the
+            // wire, not by the wire-supplied hint.
+            output[pos + k_ALH_PREFIX_LENGTH + 1] = '\x7f';
 
             {  // verify reserved capacity
                 test::MySequenceWithArray valueIn;
@@ -6502,7 +6720,7 @@ int main(int argc, char *argv[])
 
             {  // verify reserved capacity when capacity is larger than max
                 balber::BerDecoderOptions optionsLocal(options);
-                optionsLocal.setMaxSequenceSize(5);
+                optionsLocal.setMaxSequenceSize(6);
 
                 balber::BerDecoder decoder(&optionsLocal);
 
@@ -6514,7 +6732,7 @@ int main(int argc, char *argv[])
                 printDiagnostic(decoder);
 
                 ASSERT(valueOut == valueIn);
-                ASSERT(5 == valueIn.attribute2().capacity());
+                ASSERT(6 == valueIn.attribute2().capacity());
                 ASSERT(0 == decoder.numUnknownElementsSkipped());
             }
         }

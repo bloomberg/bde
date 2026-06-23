@@ -6,7 +6,6 @@ BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 
 #include <bdlb_bitutil.h>
 #include <bdldfp_decimalconvertutil.h>
-#include <bdlf_memfn.h>
 #include <bdlsb_fixedmemoutstreambuf.h>
 #include <bdlt_date.h>
 #include <bdlt_datetime.h>
@@ -23,6 +22,7 @@ BSLS_IDENT_RCSID(balber_berutil_cpp, "$Id$ $CSID$")
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
+#include <bsl_algorithm.h>
 #include <bsl_climits.h>
 #include <bsl_cstdint.h>
 #include <bsl_cstring.h>
@@ -70,43 +70,43 @@ const u::Uint64 BerUtil_64BitFloatingPointMasks::
 const u::Uint64 BerUtil_64BitFloatingPointMasks::k_DOUBLE_SIGN_MASK =
                                                          0x8000000000000000ULL;
 
-                   // =====================
-                   // class ReadRestFunctor
-                   // =====================
+                           // ======================
+                           // class ReadChunkFunctor
+                           // ======================
 
-/// A functor for `string::resize_and_overwrite`.  Appends read bytes to the
-/// buffer.
-class ReadRestFunctor {
-
+/// A functor for `string::resize_and_overwrite` that reads bytes from a
+/// `streambuf` into the tail of the string.
+class ReadChunkFunctor {
     // DATA
-    bsl::streambuf  *d_streamBuf;
-    int              d_oldSize;
+    bsl::streambuf *d_streamBuf;
+    size_t          d_oldSize;
+
   public:
     // CREATORS
-    ReadRestFunctor(bsl::streambuf *streamBuf, int oldSize);
+    ReadChunkFunctor(bsl::streambuf *streamBuf, size_t oldSize);
 
-    // MODIFIERS
+    // MANIPULATORS
     size_t operator()(char *buf, size_t newSize);
 };
 
-                   // ---------------------
-                   // class ReadRestFunctor
-                   // ---------------------
+                           // ----------------------
+                           // class ReadChunkFunctor
+                           // ----------------------
 
 // CREATORS
-ReadRestFunctor::ReadRestFunctor(bsl::streambuf *streamBuf, int oldSize)
+ReadChunkFunctor::ReadChunkFunctor(bsl::streambuf *streamBuf, size_t oldSize)
 : d_streamBuf(streamBuf)
 , d_oldSize(oldSize)
 {
 }
 
-// MODIFIERS
-size_t ReadRestFunctor::operator()(char *buf, size_t newSize)
+// MANIPULATORS
+size_t ReadChunkFunctor::operator()(char *buf, size_t newSize)
 {
-    bsl::streamsize nRead = d_streamBuf->sgetn(
-                                        buf + d_oldSize,
-                                        static_cast<int>(newSize) - d_oldSize);
-    return static_cast<size_t>(d_oldSize + nRead);
+    const bsl::streamsize nRead = d_streamBuf->sgetn(
+                            buf + d_oldSize,
+                            static_cast<bsl::streamsize>(newSize - d_oldSize));
+    return d_oldSize + static_cast<size_t>(nRead);
 }
 
 // FREE FUNCTIONS
@@ -1156,29 +1156,32 @@ int BerUtil_StringImpUtil::getStringValue(bsl::string              *value,
         return -1;                                                    // RETURN
     }
 
-    static const int maxInitialAllocation = 16 * 1024 * 1024;  // 16 MB
-
-    // 'length' could be corrupt or invalid, so we limit the initial buffer.
-    // On success the remaining bytes are read via a second pass.
-    int initialLength = length < maxInitialAllocation ? length
-                                                      : maxInitialAllocation;
-
-    // Read no more than 'maxInitialAllocation'
-    value->resize_and_overwrite(initialLength,
-                                bdlf::MemFnUtil::memFn(&bsl::streambuf::sgetn,
-                                                       streamBuf));
-    if (static_cast<size_t>(initialLength) != value->size()) {
+    if (length > options.maxSequenceSize()) {
         return -1;                                                    // RETURN
     }
 
-    if (length > initialLength) {
-        // 'length' > 'maxInitialAllocation'.  Read the rest.
-        value->resize_and_overwrite(length,
-                                    u::ReadRestFunctor(streamBuf,
-                                                       initialLength));
-        if (static_cast<size_t>(length) != value->size()) {
+    // Read the body in geometrically growing chunks so that peak allocation is
+    // bounded by a small multiple of the bytes the producer has actually
+    // delivered, rather than by the (untrusted) `length`.  The initial chunk
+    // is also the threshold below which the entire body is read in a single
+    // pass.  Note that we do not rely on `string`'s `resize_and_overwrite`
+    // growing capacity geometrically (its contract does not guarantee it); the
+    // doubling at the call site is what bounds peak allocation.
+    const bsl::size_t k_INITIAL_CHUNK = 4 * 1024;
+
+    value->clear();
+    bsl::size_t remaining = static_cast<bsl::size_t>(length);
+    bsl::size_t chunkSize = k_INITIAL_CHUNK;
+    while (remaining > 0) {
+        const bsl::size_t bytesToRead = bsl::min(remaining, chunkSize);
+        const bsl::size_t oldSize     = value->size();
+        value->resize_and_overwrite(oldSize + bytesToRead,
+                                    u::ReadChunkFunctor(streamBuf, oldSize));
+        if (value->size() != oldSize + bytesToRead) {
             return -1;                                                // RETURN
         }
+        remaining -= bytesToRead;
+        chunkSize *= 2;
     }
 
     return 0;
