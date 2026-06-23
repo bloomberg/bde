@@ -845,8 +845,8 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
         return FAILURE;                                               // RETURN
     }
 
-    int sign = nextOctet & k_REAL_SIGN_MASK ? 1 : 0;
-    int base = (nextOctet & k_REAL_BASE_MASK) >> k_REAL_BASE_SHIFT;
+    const int sign = nextOctet & k_REAL_SIGN_MASK ? 1 : 0;
+    int       base = (nextOctet & k_REAL_BASE_MASK) >> k_REAL_BASE_SHIFT;
     if (k_BER_RESERVED_BASE == base) {
         // Base value is not supported.
 
@@ -855,9 +855,9 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
 
     base *= 8;
 
-    int scaleFactor =
+    const int scaleFactor =
         (nextOctet & k_REAL_SCALE_FACTOR_MASK) >> k_REAL_SCALE_FACTOR_SHIFT;
-    int expLength = (nextOctet & k_REAL_EXPONENT_LENGTH_MASK) + 1;
+    int       expLength = (nextOctet & k_REAL_EXPONENT_LENGTH_MASK) + 1;
 
     if (k_REAL_MULTIPLE_EXPONENT_OCTETS == expLength) {
         // Exponent length is encoded in the following octet.
@@ -878,6 +878,18 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
         return FAILURE;                                               // RETURN
     }
 
+    // The BER exponent of any value representable as an IEEE-754 `double`
+    // fits comfortably in a small range.  Reject any encoded data whose raw
+    // exponent is far outside that range.  This not only ensures that the
+    // value can be represented as a finite `double`, but also prevents
+    // signed overflow in the subsequent arithmetic operations.
+
+    const int k_MAX_ABS_BER_EXPONENT = 2000;
+    if (exponent >  k_MAX_ABS_BER_EXPONENT ||
+        exponent < -k_MAX_ABS_BER_EXPONENT) {
+        return FAILURE;                                               // RETURN
+    }
+
     if (0 != base) {
         // Convert exponent to base 2.
 
@@ -885,15 +897,28 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
     }
     exponent -= scaleFactor;
 
-    long long mantissa       = 0;
-    int       mantissaLength = length - expLength - 1;
+    // Per X.690 (8.5.7.5) the BER REAL mantissa octets are a non-negative
+    // big-endian integer, so read them into an unsigned type.
+
+    unsigned long long mantissa       = 0;
+    const int          mantissaLength = length - expLength - 1;
     if (IntegerUtil::getIntegerValue(&mantissa, streamBuf, mantissaLength)) {
         return FAILURE;                                               // RETURN
     }
 
     int shift = bdlb::BitUtil::numLeadingUnsetBits(
         static_cast<bsl::uint64_t>(mantissa));
-    if (64 == shift) {
+    if (shift < k_DOUBLE_NUM_EXPONENT_BITS || 64 == shift) {
+        // Reject mantissas that this implementation cannot represent:
+        //  o 'shift < k_DOUBLE_NUM_EXPONENT_BITS': the mantissa's highest
+        //    set bit is at a position greater than
+        //    'k_DOUBLE_NUM_MANTISSA_BITS' (52), so it has more than 53
+        //    significant bits and cannot be represented exactly in a
+        //    'double' (this implementation does no rounding).
+        //  o '64 == shift': the mantissa is zero, which is a malformed
+        //    BER REAL encoding (the value zero is encoded with length 0
+        //    and handled above).
+
         return FAILURE;                                               // RETURN
     }
 
@@ -904,7 +929,8 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
 
     if (exponent > 0) {  // Normal number
         // Shift the mantissa left by shift amount, account for the implicit
-        // one, and then removing it.
+        // one, and then removing it.  Note that 'shift + 1 >= 0' because the
+        // check above ensures 'shift >= -1'.
 
         typedef u::BerUtil_64BitFloatingPointMasks WideBitMasks;
         mantissa <<= shift + 1;
@@ -913,12 +939,20 @@ int BerUtil_FloatingPointImpUtil::getDoubleValue(double         *value,
     else {
         // Denormalized number: shift mantissa only, no implicit one.
 
+        if (exponent + shift < 0) {
+            // The combination of a small (denormalized-range) exponent with
+            // a mantissa wide enough to leave 'shift' negative (i.e., a
+            // 53-bit BER mantissa) is malformed: a denormalized IEEE-754
+            // 'double' has at most 52 significant mantissa bits.
+
+            return FAILURE;                                           // RETURN
+        }
         mantissa <<= exponent + shift;
         exponent = 0;
     }
 
     *value = 0;
-    assembleDouble(value, exponent, mantissa, sign);
+    assembleDouble(value, exponent, static_cast<long long>(mantissa), sign);
     return SUCCESS;
 }
 

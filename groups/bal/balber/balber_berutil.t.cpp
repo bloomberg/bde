@@ -16356,8 +16356,38 @@ int main(int argc, char *argv[])
         // TESTING `putDoubleValue` & `getDoubleValue` for float and double
         //
         // Concerns:
+        // 1. That BER REAL encoding and decoding for representative finite
+        //    `double` values produce expected byte sequences and round-trip
+        //    exactly.
+        //
+        // 2. That `Util::putValue` / `Util::getValue` round-trip `float`
+        //    values correctly.
+        //
+        // 3. That special IEEE-754 values (infinities, NaN, signed zeros,
+        //    and denormalized values) are encoded and decoded according to
+        //    the component's BER REAL conventions.
+        //
+        // 4. Regressions:
+        //   1 `{DRQS 184611003}` BER REAL (`double`) decoding contained
+        //     undefined behavior when fed adversarial inputs.
         //
         // Plan:
+        // 1. Define a table of representative finite values and expected BER
+        //    REAL encodings, then verify both byte-for-byte output and exact
+        //    decode of `double` values.
+        //
+        // 2. For each table entry, verify `float` round-trip behavior via
+        //    `Util::putValue` and `Util::getValue`, including bytes-consumed
+        //    accounting.
+        //
+        // 3. Construct special IEEE-754 values from sign/exponent/mantissa
+        //    fields and verify expected encodings and decode behavior,
+        //    treating NaN separately from equality comparison.
+        //
+        // 4. Regressions:
+        //   1 `{DRQS 184611003}`: Feed adversarial BER REAL payloads that
+        //     previously triggered UB paths and verify `getValue` rejects
+        //     them.
         //
         // Testing:
         // --------------------------------------------------------------------
@@ -16603,6 +16633,67 @@ int main(int argc, char *argv[])
                         LOOP_ASSERT(LINE, LEN   == numBytesConsumed);
                     }
                 }
+            }
+
+            // `{DRQS 184611003}`
+            {
+                // Negative left-shift of mantissa: base-2 REAL with a
+                // 1-octet exponent of `0x80` (signed -128) and an 8-octet
+                // mantissa whose high bit is set.  `numLeadingUnsetBits`
+                // of the mantissa is 0, so the implementation would
+                // left-shift by a negative amount.
+                const char fuzz1[] = {
+                    '\x0a',
+                    '\x80', '\x05',
+                    '\x80', '\x00', '\x00', '\x00',
+                    '\x00', '\x00', '\x00', '\x00'
+                };
+                bdlsb::FixedMemInStreamBuf isb(fuzz1, sizeof(fuzz1));
+                double                     value;
+                int                        numBytesConsumed;
+                ASSERT(SUCCESS != Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+            }
+            {
+                // Signed overflow in base-conversion of the exponent:
+                // base-16 REAL (information octet `0xa3` multiplies the
+                // exponent by 4) with an extended 8-octet exponent of
+                // `0x2000000000000001` (~2^61).  Multiplying by 4
+                // overflows a signed `long long`.
+                const char fuzz2[] = {
+                    '\x0b',
+                    '\xa3', '\x08',
+                    '\x20', '\x00', '\x00', '\x00',
+                    '\x00', '\x00', '\x00', '\x01',
+                    '\x01'
+                };
+                bdlsb::FixedMemInStreamBuf isb(fuzz2, sizeof(fuzz2));
+                double                     value;
+                int                        numBytesConsumed;
+                ASSERT(SUCCESS != Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
+            }
+            {
+                // Signed overflow in the exponent-scaling subtraction:
+                // base-2 REAL (information octet `0x8b` selects scale
+                // factor 2) with an extended 8-octet exponent of
+                // `LLONG_MIN`.  Subtracting the scale factor would
+                // overflow a signed `long long`.
+                const char fuzz3[] = {
+                    '\x0b',
+                    '\x8b', '\x08',
+                    '\x80', '\x00', '\x00', '\x00',
+                    '\x00', '\x00', '\x00', '\x00',
+                    '\x01'
+                };
+                bdlsb::FixedMemInStreamBuf isb(fuzz3, sizeof(fuzz3));
+                double                     value;
+                int                        numBytesConsumed;
+                ASSERT(SUCCESS != Util::getValue(&isb,
+                                                 &value,
+                                                 &numBytesConsumed));
             }
         }
       } break;
