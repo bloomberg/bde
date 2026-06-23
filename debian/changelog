@@ -1,5 +1,38 @@
-bsl-internal (4.38.0.0) unstable; urgency=low
+bsl-internal (4.39.0.0) unstable; urgency=low
 
+  * b6d2bde99 Bumped version to 4.39.0.0
+  * 4f53bd5d3 Prevent large allocations from untrusted input (#5908)
+  * 2395702f2 Add missing private: for // NOT IMPLEMENTED (#5914)
+  * bf1fe501b Delete `and_then` and `or_else` in `bdlb::NullableValue` (#5874)
+  * c5a965977 Drqs 184611003 double asan ub fixes (#5901)
+  * 6f242aba8 Don't accept negative length Decimal64 in BER. (#5897)
+  * a8f5f2ef4 Fix bdljsn_writeoptions doc. (#5910)
+  * f67bdfad9 Trailing whitespace cleanup (#5903)
+  * 69b407302 Report platform info for failed platform tests (#5882)
+  * c5283fbb2 bsls_assert and bsls_review: msvc warning supression on BadBoy destructors (#5892)
+  * 8901bd9a1 fix pair typos (#5894)
+  * 0edbe3396 Remove workarounds for unsupported MSVC versions (#5893)
+  * 83a2d2c61 bsls_assert and family: empty macros and discarding expressions (#5887)
+  * 9f24984ae Fix '\n' due to Doxygen rendering (#5888)
+  * ff4f6bf6f Fix string's nullptr_t constructor doc (#5884)
+  * 8ab02909e Clean up movable ref (#5856)
+  * 001fe9627 Fix bsls_libraryfeatures test driver warnings (#5881)
+  * 9d9b3f00e Fix error of incomplete types in LLVM libc++ test driver (#5880)
+  * 097731e9d drqs-184322549: `bdljsn`: ILs : manage pointer conversion to `bool`. (#5872)
+  * 19014a553 Ignore Clang warnings in bslmf (#5875)
+  * e2314f761 Fix clang warning for bslmf_util (#5877)
+  * 4048f4b7b Audit standard includes for libray features (#5869)
+  * df644395e Formally deprecate bslstl reference wrapper (#5870)
+  * 6d4c47c6d Macos patch for cpp23 library (#5868)
+  * e1b1b3e7c Fix endless loop and test error. (#5862)
+  * dee0edd40 Remove buffer overrun. (#5866)
+  * 5eeddba6f Remove unused parameter warning. (#5863)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 23 Jun 2026 16:05:01 -0400
+
+bsl-internal (4.38.0.0) git; urgency=low
+
+  * 3425f791e Changelog for version 4.38.0.0
   * 341f2719f Bumped version to 4.38.0.0
   * dae2e912f Assorted ball fixes. (#5860)
   * b54df3f4b Fix allocator use in test driver. (#5850)
@@ -24,7 +57,7 @@ bsl-internal (4.38.0.0) unstable; urgency=low
   * f22a6080c Add missing `explicit` qualifiers (#5817)
   * f73e2651c Release fixes to ball_streamobserver and bslstl_stringstream (#5815)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 May 2026 21:49:31 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Fri, 15 May 2026 21:54:14 -0400
 
 bsl-internal (4.37.0.0) git; urgency=low
 
