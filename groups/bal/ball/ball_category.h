@@ -165,6 +165,7 @@ class Category {
     // FRIENDS
     friend class CategoryManagerImpUtil;
 
+  private:
     // NOT IMPLEMENTED
     Category(const Category&);
     Category& operator=(const Category&);
@@ -312,6 +313,7 @@ class Category {
 /// implementation detail of the `ball` logging system.
 class CategoryHolder {
 
+  private:
     // NOT IMPLEMENTED
     CategoryHolder& operator=(const CategoryHolder&) BSLS_KEYWORD_DELETED;
 

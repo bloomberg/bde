@@ -430,6 +430,7 @@ class TestWindowsInterface {
     // mock Windows functions drain
     bsl::deque<Response> d_responses;
 
+  private:
     // NOT IMPLEMENTED
     TestWindowsInterface(const TestWindowsInterface&);
     TestWindowsInterface& operator=(const TestWindowsInterface&);

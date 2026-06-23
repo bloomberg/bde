@@ -308,6 +308,7 @@ class DefaultHashAlgorithm {
     // Object storing the state of the chosen `InternalHashAlgorithm`.
     InternalHashAlgorithm d_state;
 
+  private:
     // NOT IMPLEMENTED
 
     /// Do not allow copy construction.

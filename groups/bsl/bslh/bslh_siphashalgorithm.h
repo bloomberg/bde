@@ -410,6 +410,7 @@ class SipHashAlgorithm {
     // algorithm.
     size_t d_totalLength;
 
+  private:
     // NOT IMPLEMENTED
 
     /// Do not allow copy construction.

@@ -95,6 +95,7 @@ class BslLockImpl_win32 {
     // DATA
     void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
 
+  private:
     // NOT IMPLEMENTED
     BslLockImpl_win32(const BslLockImpl_win32&);             // = delete
     BslLockImpl_win32& operator=(const BslLockImpl_win32&);  // = delete

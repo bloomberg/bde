@@ -8133,6 +8133,7 @@ class HBenchmark {
         return static_cast<VAL>(key);
     }
 
+  private:
     // NOT IMPLEMENTED
     HBenchmark(const HBenchmark&);
     HBenchmark& operator=(const HBenchmark&);

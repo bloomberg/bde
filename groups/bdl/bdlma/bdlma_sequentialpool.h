@@ -103,6 +103,7 @@ BSLS_IDENT("$Id: $")
 //         // elements added to this array by at least one element.
 //     void increaseSize();
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_IntDoubleArray(const my_IntDoubleArray&);
 //
@@ -420,6 +421,7 @@ class SequentialPool {
     /// returned.
     void *allocateNonFastPath(bsls::Types::size_type size);
 
+  private:
     // NOT IMPLEMENTED
     SequentialPool(const SequentialPool&);
     SequentialPool& operator=(const SequentialPool&);

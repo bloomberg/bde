@@ -301,6 +301,7 @@ class TestUnixInterface {
     // `fstat` drains
     bsl::deque<Response> d_responses;
 
+  private:
     // NOT IMPLEMENTED
     TestUnixInterface(const TestUnixInterface&);
     TestUnixInterface& operator=(const TestUnixInterface&);

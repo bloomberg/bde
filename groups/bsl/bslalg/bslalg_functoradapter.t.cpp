@@ -162,6 +162,7 @@ class Bind2ndInteger : private FunctorAdapter<BINARY_PREDICATE>::Type {
     // DATA
     int d_bondValue;  // the bound value
 
+  private:
     // NOT IMPLEMENTED
     Bind2ndInteger(const Bind2ndInteger&);
     Bind2ndInteger& operator=(const Bind2ndInteger&);

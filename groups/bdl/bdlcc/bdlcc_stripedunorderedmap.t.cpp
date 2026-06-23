@@ -567,6 +567,7 @@ class GlobalHashMap {
     /// Unlock.
     void unlock();
 
+  private:
     // NOT IMPLEMENTED
     GlobalHashMap(const GlobalHashMap<KEY, VALUE, HASH, EQUAL>&); // = delete
     GlobalHashMap<KEY, VALUE, HASH, EQUAL>&
@@ -932,6 +933,7 @@ class HashPerformance {
     /// `times`.
     void runTest(VecTimeType *times, VecIntType& args, RunFunc func);
 
+  private:
     // NOT IMPLEMENTED
     HashPerformance(const HashPerformance&);
     HashPerformance& operator=(const HashPerformance&);
@@ -6853,6 +6855,7 @@ class HBenchmark {
         return static_cast<VAL>(key);
     }
 
+  private:
     // NOT IMPLEMENTED
     HBenchmark(const HBenchmark&);
     HBenchmark& operator=(const HBenchmark&);

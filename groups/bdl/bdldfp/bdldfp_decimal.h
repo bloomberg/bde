@@ -4235,6 +4235,7 @@ class DecimalNumPut_WideBufferWrapper<char, WCHAR_8_BIT> {
     const char *d_begin;  // pointer to the beginning of plain character buffer
     const char *d_end;    // pointer to the end of plain character buffer
 
+  private:
     // NOT IMPLEMENTED
     DecimalNumPut_WideBufferWrapper(const DecimalNumPut_WideBufferWrapper&);
     DecimalNumPut_WideBufferWrapper& operator=(
@@ -4275,6 +4276,7 @@ class DecimalNumPut_WideBufferWrapper<wchar_t, false> {
     wchar_t *d_buffer_p;  // Buffer of wide characters
     size_t   d_len;       // Length of the buffer
 
+  private:
     // NOT IMPLEMENTED
     DecimalNumPut_WideBufferWrapper(const DecimalNumPut_WideBufferWrapper&);
     DecimalNumPut_WideBufferWrapper& operator=(

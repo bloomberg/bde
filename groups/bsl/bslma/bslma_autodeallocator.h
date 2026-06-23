@@ -375,6 +375,7 @@ class AutoDeallocator {
 
     ALLOCATOR  *d_allocator_p;  // allocator or pool (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     AutoDeallocator(const AutoDeallocator&);
     AutoDeallocator& operator=(const AutoDeallocator&);

@@ -91,6 +91,7 @@ class RecursiveMutex {
     RecursiveMutexImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
                                                        // implementation
 
+  private:
     // NOT IMPLEMENTED
     RecursiveMutex(const RecursiveMutex&);
     RecursiveMutex& operator=(const RecursiveMutex&);

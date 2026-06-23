@@ -288,6 +288,7 @@ class Formatter_StreamHolder {
     // construction otherwise
     bsl::ostream                *d_stream_p;
 
+  private:
     // NOT IMPLEMENTED
     Formatter_StreamHolder(const Formatter_StreamHolder&) BSLS_KEYWORD_DELETED;
     Formatter_StreamHolder& operator=(
@@ -513,6 +514,7 @@ class Formatter {
     State          d_state;
     EncoderOptions d_encoderOptions;
 
+  private:
     // NOT IMPLEMENTED
     Formatter(const Formatter&);
     Formatter& operator=(const Formatter&);

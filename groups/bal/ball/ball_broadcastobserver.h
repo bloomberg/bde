@@ -198,6 +198,7 @@ class BroadcastObserver : public Observer {
     mutable bslmt::ReaderWriterMutex d_rwMutex;    // protects concurrent
                                                    // access to `d_observers`
 
+  private:
     // NOT IMPLEMENTED
     BroadcastObserver(const BroadcastObserver&);
     BroadcastObserver& operator=(const BroadcastObserver&);

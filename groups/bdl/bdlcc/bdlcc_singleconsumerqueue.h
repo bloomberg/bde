@@ -190,6 +190,7 @@ class SingleConsumerQueue {
     // DATA
     Impl d_impl;
 
+  private:
     // NOT IMPLEMENTED
     SingleConsumerQueue(const SingleConsumerQueue&);
     SingleConsumerQueue& operator=(const SingleConsumerQueue&);

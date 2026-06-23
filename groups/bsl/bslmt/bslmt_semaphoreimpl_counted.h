@@ -75,6 +75,7 @@ class SemaphoreImpl<Platform::CountedSemaphore> {
     SemaphoreImpl<Platform::CountedSemaphoreImplPolicy>
                     d_sem;       // platform semaphore implementation
 
+  private:
     // NOT IMPLEMENTED
     SemaphoreImpl(const SemaphoreImpl&);
     SemaphoreImpl& operator=(const SemaphoreImpl&);

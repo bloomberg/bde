@@ -179,6 +179,7 @@ class Condition {
     ConditionImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
                                                   // implementation
 
+  private:
     // NOT IMPLEMENTED
     Condition(const Condition&);
     Condition& operator=(const Condition&);

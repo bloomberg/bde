@@ -355,6 +355,7 @@ class AttributeContext_RuleEvaluationCache {
                                           // if the sequence number changes it
                                           // indicates the cache is out of date
 
+  private:
     // NOT IMPLEMENTED
     AttributeContext_RuleEvaluationCache(
                                   const AttributeContext_RuleEvaluationCache&);
@@ -497,6 +498,7 @@ class AttributeContext {
     // FRIENDS
     friend class AttributeContextProctor;
 
+  private:
     // NOT IMPLEMENTED
     AttributeContext(const AttributeContext&);
     AttributeContext& operator=(const AttributeContext&);
@@ -679,6 +681,7 @@ bsl::ostream& operator<<(bsl::ostream&           stream,
 /// created), and set the thread-local storage pointer to 0.
 class AttributeContextProctor {
 
+  private:
     // NOT IMPLEMENTED
     AttributeContextProctor(const AttributeContextProctor&);
     AttributeContextProctor& operator=(const AttributeContextProctor&);

@@ -112,6 +112,7 @@ class TimedSemaphoreImpl<Platform::Win32TimedSemaphore> {
 
     bsls::SystemClockType::Enum  d_clockType; // clock used in timedWait
 
+  private:
     // NOT IMPLEMENTED
     TimedSemaphoreImpl(const TimedSemaphoreImpl&);
     TimedSemaphoreImpl& operator=(const TimedSemaphoreImpl&);

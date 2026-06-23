@@ -99,6 +99,7 @@ class MyClass {
 
     int d_value;
 
+  private:
     // NOT IMPLEMENTED
     MyClass(const MyClass&);
     MyClass& operator=(const MyClass&);

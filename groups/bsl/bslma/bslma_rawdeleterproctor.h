@@ -201,6 +201,7 @@ class RawDeleterProctor {
     TYPE      *d_object_p;     // managed object
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     RawDeleterProctor(const RawDeleterProctor&);
     RawDeleterProctor& operator=(const RawDeleterProctor&);

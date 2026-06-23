@@ -224,6 +224,7 @@ class StripedUnorderedContainerImpl_Node {
     // memory allocator (held, not owned).
     bslma::Allocator                  *d_allocator_p;
 
+  private:
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl_Node(
                         const StripedUnorderedContainerImpl_Node<KEY, VALUE>&);
@@ -326,6 +327,7 @@ class StripedUnorderedContainerImpl_Bucket {
     // memory allocator (held, not owned).
     bslma::Allocator                      *d_allocator_p;
 
+  private:
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl_Bucket(
           const StripedUnorderedContainerImpl_Bucket<KEY, VALUE>&); // = delete
@@ -622,6 +624,7 @@ class StripedUnorderedContainerImpl : StripedUnorderedContainerImpl_Constants {
                StripedUnorderedContainerImpl_TestUtil<KEY, VALUE, HASH, EQUAL>;
     friend class StripedUnorderedContainerImpl_LockElement;
 
+  private:
     // NOT IMPLEMENTED
     StripedUnorderedContainerImpl(
                 const StripedUnorderedContainerImpl<KEY, VALUE, HASH, EQUAL>&);

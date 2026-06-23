@@ -211,6 +211,7 @@ class StopwatchScopedGuard {
     Collector *d_collector_p;  // metric collector (held, not owned); may
                                     // be 0, but cannot be invalid
 
+  private:
     // NOT IMPLEMENTED
     StopwatchScopedGuard(const StopwatchScopedGuard&);
     StopwatchScopedGuard& operator=(const StopwatchScopedGuard&);

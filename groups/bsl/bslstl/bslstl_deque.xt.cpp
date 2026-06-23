@@ -1810,6 +1810,7 @@ class NonCopyableType {
     // DATA
     int value;
 
+  private:
     // NOT IMPLEMENTED
     NonCopyableType(const NonCopyableType &) BSLS_KEYWORD_DELETED;
     NonCopyableType &operator=(const NonCopyableType &) BSLS_KEYWORD_DELETED;

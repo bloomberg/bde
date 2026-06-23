@@ -309,6 +309,7 @@ class ReaderWriterLock {
     bsls::AtomicBool     d_owned;        // flag indicating whether this lock
                                          // is owned by some thread
 
+  private:
     // NOT IMPLEMENTED
     ReaderWriterLock(const ReaderWriterLock&);
     ReaderWriterLock& operator=(const ReaderWriterLock&);

@@ -226,6 +226,7 @@ public:
         TYPE      *d_object_p;     // managed object
         ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
+private:
         // NOT IMPLEMENTED
         my_RawDeleterGuard(const my_RawDeleterGuard&);
         my_RawDeleterGuard& operator=(const my_RawDeleterGuard&);

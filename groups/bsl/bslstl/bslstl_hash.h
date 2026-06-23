@@ -131,6 +131,7 @@ BSLS_IDENT("$Id: $")
 //         return false;
 //     }
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     HashCrossReference(const HashCrossReference&);
 //     HashCrossReference& operator=(const HashCrossReference&);

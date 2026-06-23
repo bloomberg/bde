@@ -247,6 +247,7 @@ class NothrowMovableWrapper {
     // DATA
     bsls::ObjectBuffer<StoredType> d_buffer;
 
+  private:
     // NOT IMPLEMENTED
 
     /// Not assignable.

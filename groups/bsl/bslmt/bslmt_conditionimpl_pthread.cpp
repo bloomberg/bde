@@ -26,6 +26,7 @@ class CondAttr {
     // DATA
     pthread_condattr_t d_attr;
 
+private:
     // NOT IMPLEMENTED
     CondAttr();
     CondAttr(const CondAttr&);

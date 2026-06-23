@@ -76,6 +76,7 @@ BSLS_IDENT("$Id: $")
 //
 //       bsl::vector<bsl::string> archive;  // log message archive
 //
+//     private:
 //       // NOT IMPLEMENTED
 //       my_Logger(const my_Logger&);
 //       my_Logger& operator=(const my_Logger&);

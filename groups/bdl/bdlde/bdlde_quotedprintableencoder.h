@@ -544,6 +544,7 @@ class QuotedPrintableEncoder {
     /// represented as a hexadecimal encoding.
     void appendAsHex(char *out, char ch, bool isFinal = false);
 
+  private:
     // NOT IMPLEMENTED
     QuotedPrintableEncoder(const QuotedPrintableEncoder&);
     QuotedPrintableEncoder& operator=(const QuotedPrintableEncoder&);

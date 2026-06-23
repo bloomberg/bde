@@ -61,6 +61,7 @@ class MutexImpl<Platform::PosixThreads> {
     // DATA
     pthread_mutex_t d_lock;  // TBD doc
 
+  private:
     // NOT IMPLEMENTED
     MutexImpl(const MutexImpl&);
     MutexImpl& operator=(const MutexImpl&);

@@ -198,6 +198,7 @@ class TestObserver : public Observer {
                                           // `publish` and protects concurrent
                                           // access to other class members
 
+  private:
     // NOT IMPLEMENTED
     TestObserver(const TestObserver&);
     TestObserver& operator=(const TestObserver&);

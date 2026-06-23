@@ -257,6 +257,7 @@ class MoveTester {
     int  *d_moveCounter_p;
     int   d_value;
 
+  private:
     // NOT IMPLEMENTED
     MoveTester(const MoveTester& other);
     MoveTester& operator=(const MoveTester& other);

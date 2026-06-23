@@ -694,6 +694,7 @@ class Crc32cCalculator {
     /// Create an instance of this class.
     Crc32cCalculator();
 
+  private:
     // NOT IMPLEMENTED
     Crc32cCalculator(const Crc32cCalculator&);             // = delete;
     Crc32cCalculator& operator=(const Crc32cCalculator&);  // = delete;

@@ -180,6 +180,7 @@ class FixedSizeRecordBuffer: public RecordBuffer {
     bsl::deque<bsl::shared_ptr<Record> >
                                   d_deque;       // deque of record handles
 
+  private:
     // NOT IMPLEMENTED
     FixedSizeRecordBuffer(const FixedSizeRecordBuffer&);
     FixedSizeRecordBuffer& operator=(const FixedSizeRecordBuffer&);

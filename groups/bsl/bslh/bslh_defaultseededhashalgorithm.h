@@ -321,6 +321,7 @@ class DefaultSeededHashAlgorithm {
     // Object storing the state of the chosen `InternalHashAlgorithm`.
     InternalHashAlgorithm d_state;
 
+  private:
     // NOT IMPLEMENTED
     DefaultSeededHashAlgorithm(const DefaultSeededHashAlgorithm& original);
                                                                    // = delete;

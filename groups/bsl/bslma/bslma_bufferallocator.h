@@ -250,6 +250,7 @@ class BufferAllocator : public Allocator {
     int                d_bufferSize;    // size of the buffer
     AllocCallback      d_allocCallback; // function handling buffer overflow
 
+  private:
     // NOT IMPLEMENTED
     BufferAllocator(const BufferAllocator&);
     BufferAllocator& operator=(const BufferAllocator&);

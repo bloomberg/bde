@@ -77,6 +77,7 @@ BSLS_IDENT("$Id: $")
 //     mutable bslmt::Condition d_emptyCondition;  // condition variable for
 //                                                 // 'waitUntilEmpty'
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     IntQueue(const IntQueue&);
 //     IntQueue& operator=(const IntQueue&);
@@ -291,6 +292,7 @@ class FastPostSemaphore {
     // DATA
     Impl d_impl;
 
+  private:
     // NOT IMPLEMENTED
     FastPostSemaphore(const FastPostSemaphore&);
     FastPostSemaphore& operator=(const FastPostSemaphore&);

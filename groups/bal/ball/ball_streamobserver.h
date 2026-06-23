@@ -194,6 +194,7 @@ class StreamObserver : public Observer {
                                                     // handles all formatting
                                                     // operations
 
+  private:
     // NOT IMPLEMENTED
     StreamObserver(const StreamObserver&);
     StreamObserver& operator=(const StreamObserver&);

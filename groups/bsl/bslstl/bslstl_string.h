@@ -1630,6 +1630,7 @@ class basic_string
     template <class INPUT_ITER, class SENTINEL>
     size_type privateNumCharsInRange(INPUT_ITER first, SENTINEL last) const;
 
+  private:
     // NOT IMPLEMENTED
 
     /// This method signature is defined as private, unimplemented, and (if

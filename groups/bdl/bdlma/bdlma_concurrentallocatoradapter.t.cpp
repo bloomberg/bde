@@ -231,6 +231,7 @@ extern "C" void *workerThread(void *arg) {
         mutable bslmt::Mutex d_mutex;     // synchronize access
         bsl::vector<TYPE>    d_elements;  // underlying list of strings
 
+  private:
         // NOT IMPLEMENTED
         ThreadEnabledVector(const ThreadEnabledVector&);
         ThreadEnabledVector& operator=(const ThreadEnabledVector&);

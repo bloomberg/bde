@@ -309,6 +309,7 @@ struct AtomicOperations_DefaultInt
     // implementation of which must be provided by a derived platform-specific
     // 'IMP' class.
 
+  private:
     // NOT IMPLEMENTED
 
     /// Atomically add to the specified `atomicInt` the specified `value`
@@ -480,6 +481,7 @@ struct AtomicOperations_DefaultInt64
     // implementation of which must be provided by a derived platform-specific
     // 'IMP' class.
 
+  private:
     // NOT IMPLEMENTED
 
     /// Atomically add to the specified `atomicInt` the specified `value`

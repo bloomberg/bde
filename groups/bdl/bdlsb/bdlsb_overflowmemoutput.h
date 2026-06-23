@@ -165,6 +165,7 @@ class OverflowMemOutput {
     bslma::Allocator *d_allocator_p;           // memory allocator (held, not
                                                // owned)
 
+  private:
     // NOT IMPLEMENTED
     OverflowMemOutput(const OverflowMemOutput&);
     OverflowMemOutput& operator=(const OverflowMemOutput&);

@@ -164,6 +164,7 @@ void aSsErT(bool condition, const char *message, int line)
         my_Account          *d_account_p;  // held, not owned
         mutable bslmt::Mutex  d_lock;       // guard access to `d_account_p`
 
+      private:
         // NOT IMPLEMENTED
         my_SafeAccountHandle(const my_SafeAccountHandle&);
         my_SafeAccountHandle& operator=(const my_SafeAccountHandle&);

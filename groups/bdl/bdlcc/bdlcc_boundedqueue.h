@@ -234,6 +234,7 @@ class BoundedQueue_PopCompleteGuard {
     TYPE *d_queue_p;  // managed queue owning the managed node
     NODE *d_node_p;   // managed node
 
+  private:
     // NOT IMPLEMENTED
     BoundedQueue_PopCompleteGuard();
     BoundedQueue_PopCompleteGuard(const BoundedQueue_PopCompleteGuard&);
@@ -263,6 +264,7 @@ class BoundedQueue_PushExceptionCompleteProctor {
     // DATA
     TYPE *d_queue_p;  // managed queue
 
+  private:
     // NOT IMPLEMENTED
     BoundedQueue_PushExceptionCompleteProctor();
     BoundedQueue_PushExceptionCompleteProctor(
@@ -545,6 +547,7 @@ class BoundedQueue {
     /// signal the queue is empty and this thread does not need to signal.
     bool updateEmptyCountSeen(Uint emptyCount);
 
+  private:
     // NOT IMPLEMENTED
     BoundedQueue(const BoundedQueue&);
     BoundedQueue& operator=(const BoundedQueue&);

@@ -163,6 +163,7 @@ class MultiplexObserver : public Observer {
     mutable bslmt::RWMutex d_rwMutex;      // protects concurrent access to
                                            // 'd_observerSet'
 
+  private:
     // NOT IMPLEMENTED
     MultiplexObserver(const MultiplexObserver&);
     MultiplexObserver& operator=(const MultiplexObserver&);

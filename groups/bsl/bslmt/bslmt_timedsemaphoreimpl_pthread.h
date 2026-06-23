@@ -78,6 +78,7 @@ class TimedSemaphoreImpl<Platform::PthreadTimedSemaphore> {
     pthread_cond_t              d_condition;  // condition
     bsls::SystemClockType::Enum d_clockType;  // clock type
 
+  private:
     // NOT IMPLEMENTED
     TimedSemaphoreImpl(const TimedSemaphoreImpl&);
     TimedSemaphoreImpl& operator=(const TimedSemaphoreImpl&);

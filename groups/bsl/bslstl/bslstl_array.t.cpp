@@ -404,6 +404,7 @@ class CountedDefault
     // DATA
     TYPE d_val;                   // value
 
+  private:
     // NOT IMPLEMENTED
     CountedDefault(const CountedDefault& other); // = delete;
 

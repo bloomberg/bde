@@ -77,6 +77,7 @@ BSLS_IDENT("$Id: $")
 //     bslalg::RbTreeAnchor d_tree;      // tree of node objects
 //     TreeNodePool         d_nodePool;  // allocator for node objects
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     IntSet(const IntSet&);
 //     IntSet& operator=(const IntSet&);

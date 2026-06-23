@@ -1292,6 +1292,7 @@ class MQPoolPerformance {
     /// wall time, user time, system time.
     VecTimeType runTest(VecIntType& args, RunFunc func);
 
+  private:
     // NOT IMPLEMENTED
     MQPoolPerformance(const MQPoolPerformance&);
     MQPoolPerformance& operator=(const MQPoolPerformance&);

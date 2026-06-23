@@ -1054,6 +1054,7 @@ allocator, as specified in [container.requirements.general].
                                          // `d_buffer_p` is exhausted (held,
                                          // not owned)
 
+    private:
       // NOT IMPLEMENTED
       BufferAllocator(const BufferAllocator&);
       BufferAllocator& operator=(const BufferAllocator&);

@@ -58,6 +58,7 @@ class SemaphoreImpl<Platform::DarwinSemaphore> {
     sem_t             *d_sem_p;           // pointer to native semaphore handle
     static const char *s_semaphorePrefix; // prefix for a unique semaphore name
 
+  private:
     // NOT IMPLEMENTED
     SemaphoreImpl(const SemaphoreImpl&);
     SemaphoreImpl& operator=(const SemaphoreImpl&);

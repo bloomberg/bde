@@ -98,6 +98,7 @@ BSLS_IDENT("$Id: $")
 //     bslma::Allocator  *d_allocator_p;  // memory allocator (held, not
 //                                        // owned)
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     DoubleStack(const DoubleStack&);
 //     DoubleStack& operator=(const DoubleStack&);

@@ -453,6 +453,7 @@ class FixedThreadPool {
     /// `d_metaMutex` locked.
     int startNewThread();
 
+  private:
     // NOT IMPLEMENTED
     FixedThreadPool(const FixedThreadPool&);
     FixedThreadPool& operator=(const FixedThreadPool&);

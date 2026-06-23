@@ -436,6 +436,7 @@ class FlatHashTable
     /// is at least the specified `minimumCapacity`.
     bsl::size_t minimumCompliantCapacity(bsl::size_t minimumCapacity) const;
 
+  private:
     // NOT IMPLEMENTED
     FlatHashTable();
 
@@ -1207,6 +1208,7 @@ class FlatHashTable_ImplUtil::DestroyEntryArrayProctor {
     // pointer to one-past-the-end of control array
     const bsl::uint8_t *d_lastControl_p;
 
+  private:
     // NOT IMPLEMENTED
     DestroyEntryArrayProctor(const DestroyEntryArrayProctor&);
     DestroyEntryArrayProctor& operator=(const DestroyEntryArrayProctor&);

@@ -111,6 +111,7 @@ class FixedMemOutput {
     bsl::streamsize  d_capacity;  // length of output buffer
     pos_type         d_pos;       // output cursor
 
+  private:
     // NOT IMPLEMENTED
     FixedMemOutput(const FixedMemOutput&);
     FixedMemOutput& operator=(const FixedMemOutput&);

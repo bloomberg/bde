@@ -163,6 +163,7 @@ class ListParser {
     ParseElementCallback  d_parseElementCallback;  // callback for parsing
                                                    // elements
 
+  private:
     // NOT IMPLEMENTED
     ListParser(const ListParser&);
     ListParser& operator=(const ListParser&);

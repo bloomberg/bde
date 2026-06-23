@@ -188,6 +188,7 @@ class NodePool {
     // DATA
     bslstl::BidirectionalNodePool<VALUE, bsl::allocator<VALUE> > d_pool;
 
+  private:
     // NOT IMPLEMENTED
     NodePool(const NodePool&);
     NodePool& operator=(const NodePool&);
@@ -238,6 +239,7 @@ class BucketsWrapper {
     NodePool<VALUE> d_nodePool;
     bslma::Allocator *d_allocator_p;
 
+  private:
     // NOT IMPLEMENTED
     BucketsWrapper(const BucketsWrapper&);
     BucketsWrapper& operator=(const BucketsWrapper&);

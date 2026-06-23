@@ -162,6 +162,7 @@ class TimedCompletionGuard {
     Handler                   d_handler;       // handler function for
                                                // expiration
 
+  private:
     // NOT IMPLEMENTED
     TimedCompletionGuard(const TimedCompletionGuard&);
     TimedCompletionGuard& operator=(const TimedCompletionGuard&);

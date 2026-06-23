@@ -133,6 +133,7 @@ class MetricsRegistry_Impl {
     // FRIENDS
     friend class MetricsRegistryRegistrationHandle;
 
+  private:
     // NOT IMPLEMENTED
     MetricsRegistry_Impl(const MetricsRegistry_Impl&) BSLS_KEYWORD_DELETED;
     MetricsRegistry_Impl& operator=(
@@ -243,6 +244,7 @@ class MetricsRegistry_ElementProctor {
     MetricDataMap&          d_map;
     MetricDataMap::iterator d_it;
 
+  private:
     // NOT IMPLEMENTED
     MetricsRegistry_ElementProctor(
                    const MetricsRegistry_ElementProctor&) BSLS_KEYWORD_DELETED;

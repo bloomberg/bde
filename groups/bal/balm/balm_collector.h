@@ -109,6 +109,7 @@ class Collector {
     MetricRecord         d_record;  // the recorded metric information
     mutable bslmt::Mutex d_lock;    // record synchronization mechanism
 
+  private:
     // NOT IMPLEMENTED
     Collector(const Collector&);
     Collector& operator=(const Collector&);

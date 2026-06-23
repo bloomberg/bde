@@ -71,6 +71,7 @@ class RecursiveMutexImpl<Platform::PosixThreads> {
     int             d_lockCount;  // current lock recursion level
 #endif
 
+  private:
     // NOT IMPLEMENTED
     RecursiveMutexImpl(const RecursiveMutexImpl&);
     RecursiveMutexImpl& operator=(const RecursiveMutexImpl&);

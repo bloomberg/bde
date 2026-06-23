@@ -413,6 +413,7 @@ class TestPublisher : public balm::Publisher {
 
     bsl::set<bsls::TimeInterval> d_elapsedTimes;   // last elapsed times
 
+  private:
     // NOT IMPLEMENTED
     TestPublisher(const TestPublisher& );
     TestPublisher& operator=(const TestPublisher& );
@@ -668,6 +669,7 @@ class BarrierPublisher : public balm::Publisher {
     bslmt::Barrier *d_barrier_p;
     int             d_numWaits;
 
+  private:
     // NOT IMPLEMENTED
     BarrierPublisher(const BarrierPublisher& );
     BarrierPublisher& operator=(const BarrierPublisher& );
@@ -1272,6 +1274,7 @@ void gg(bsl::vector<Action>   *actions,
         // PRIVATE DATA
         bsl::ostream&              d_stream;     // output stream (held)
 
+    private:
         // NOT IMPLEMENTED
         SimpleStreamPublisher(const SimpleStreamPublisher& );
         SimpleStreamPublisher& operator=(const SimpleStreamPublisher& );

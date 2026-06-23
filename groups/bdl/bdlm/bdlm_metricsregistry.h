@@ -277,6 +277,7 @@ class MetricsRegistryRegistrationHandle {
     // FRIENDS
     friend class MetricsRegistry;
 
+  private:
     // NOT IMPLEMENTED
     MetricsRegistryRegistrationHandle(
                const MetricsRegistryRegistrationHandle &) BSLS_KEYWORD_DELETED;

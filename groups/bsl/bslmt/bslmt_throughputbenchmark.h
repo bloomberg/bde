@@ -235,6 +235,7 @@ class ThroughputBenchmark {
     friend class ThroughputBenchmark_WorkFunction;
     friend class ThroughputBenchmark_TestUtil;
 
+  private:
     // NOT IMPLEMENTED
     ThroughputBenchmark(const ThroughputBenchmark&);
     ThroughputBenchmark& operator=(const ThroughputBenchmark&);

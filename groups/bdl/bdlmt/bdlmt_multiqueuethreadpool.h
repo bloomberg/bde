@@ -436,6 +436,7 @@ class MultiQueueThreadPool_Queue {
     bslmt::ThreadUtil::Handle  d_processor;      // current worker thread, or
                                                  // ThreadUtil::invalidHandle()
 
+  private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool_Queue();
     MultiQueueThreadPool_Queue(const MultiQueueThreadPool_Queue&);

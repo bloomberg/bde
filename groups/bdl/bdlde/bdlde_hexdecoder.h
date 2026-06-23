@@ -299,6 +299,7 @@ class HexDecoder {
     /// `false` otherwise.
     static bool isXdigit(char character);
 
+  private:
     // NOT IMPLEMENTED
     HexDecoder(const HexDecoder&);
     HexDecoder& operator=(const HexDecoder&);

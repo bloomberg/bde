@@ -257,6 +257,7 @@ class DeleteObjectProctor {
        // pointer-type 'ALLOCATOR' and first invokes ~TYPE(), then invokes
        // 'd_allocator->deallocate(d_object_p)'.
 
+  private:
     // NOT IMPLEMENTED
     DeleteObjectProctor(const DeleteObjectProctor&) BSLS_KEYWORD_DELETED;
     DeleteObjectProctor& operator=(const DeleteObjectProctor&)

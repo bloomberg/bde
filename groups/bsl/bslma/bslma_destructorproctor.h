@@ -221,6 +221,7 @@ class DestructorProctor {
     // DATA
     TYPE *d_object_p;  // managed object
 
+  private:
     // NOT IMPLEMENTED
     DestructorProctor(const DestructorProctor&);
     DestructorProctor& operator=(const DestructorProctor&);

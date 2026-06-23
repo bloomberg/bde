@@ -182,6 +182,7 @@ class TestPublisher : public balm::Publisher {
 
     bsl::set<bsls::TimeInterval>    d_elapsedTimes;    // last elapsed times
 
+  private:
     // NOT IMPLEMENTED
     TestPublisher(const TestPublisher& );
     TestPublisher& operator=(const TestPublisher& );

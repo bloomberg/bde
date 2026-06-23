@@ -37,6 +37,7 @@ BSLS_IDENT("$Id: $")
 //     bslmt::Semaphore d_mutexSem;     // mutual-access semaphore
 //     bslmt::Semaphore d_resourceSem;  // resource-availability semaphore
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     IntQueue(const IntQueue&);
 //     IntQueue& operator=(const IntQueue&);
@@ -129,6 +130,7 @@ class Semaphore {
     SemaphoreImpl<Platform::SemaphorePolicy> d_impl;  // platform-specific
                                                       // implementation
 
+  private:
     // NOT IMPLEMENTED
     Semaphore(const Semaphore&);
     Semaphore& operator=(const Semaphore&);

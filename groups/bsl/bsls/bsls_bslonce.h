@@ -181,6 +181,7 @@ class BslOnceGuard {
      // DATA
     BslOnce *d_once;  // once gate-keeper
 
+  private:
     // NOT IMPLEMENTED
     BslOnceGuard(const BslOnceGuard&);
     BslOnceGuard& operator=(const BslOnceGuard&);

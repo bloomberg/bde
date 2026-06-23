@@ -112,6 +112,7 @@ class Category {
 
     CategoryHolder *d_holders_p;  // linked list of holders of this category
 
+  private:
     // NOT IMPLEMENTED
     Category(const Category& );
     Category& operator=(const Category& );
@@ -209,6 +210,7 @@ bsl::ostream& operator<<(bsl::ostream& stream, const Category& rhs);
 /// implementation detail of the `balm` metric collection system.
 class CategoryHolder {
 
+  private:
     // NOT IMPLEMENTED
     CategoryHolder& operator=(const CategoryHolder& rhs);
 

@@ -682,6 +682,7 @@ struct ArgHolder  {
     // DATA
     ARG d_arg;
 
+  private:
     // NOT IMPLEMENTED
     ArgHolder(const ArgHolder&);
     ArgHolder& operator=(const ArgHolder&);
@@ -2558,6 +2559,7 @@ class NonCopyable131875306 {
 private:
     int d_val;
 
+private:
     // NOT IMPLEMENTED
     NonCopyable131875306 (const NonCopyable131875306 &rhs);
 
@@ -3271,6 +3273,7 @@ class CloneDisabledTestType {
     // DATA
     ArgType d_arg;  // value
 
+  private:
     // NOT IMPLEMENTED
     CloneDisabledTestType(const CloneDisabledTestType& original);
     CloneDisabledTestType(bslmf::MovableRef<CloneDisabledTestType>);

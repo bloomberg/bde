@@ -321,6 +321,7 @@ class SpookyHashAlgorithm {
     // algorithm.
     SpookyHashAlgorithmImp d_state;
 
+  private:
     // NOT IMPLEMENTED
 
     /// Do not allow copy construction.

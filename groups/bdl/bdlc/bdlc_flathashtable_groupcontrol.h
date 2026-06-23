@@ -76,6 +76,7 @@ class FlatHashTable_GroupControl
     /// `data[i]`.
     bsl::uint32_t matchRaw(bsl::uint8_t value) const;
 
+  private:
     // NOT IMPLEMENTED
     FlatHashTable_GroupControl();
     FlatHashTable_GroupControl(const FlatHashTable_GroupControl&);

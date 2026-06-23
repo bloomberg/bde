@@ -191,6 +191,7 @@ struct DefaultMetricsManager {
 /// this guard.
 class DefaultMetricsManagerScopedGuard {
 
+  private:
     // NOT IMPLEMENTED
     DefaultMetricsManagerScopedGuard(const DefaultMetricsManagerScopedGuard&);
     DefaultMetricsManagerScopedGuard& operator=(

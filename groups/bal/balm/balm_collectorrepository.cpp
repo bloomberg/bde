@@ -85,6 +85,7 @@ class CollectorRepository_Collectors {
     CollectorSet      d_addedCollectors;   // added collectors
     bslma::Allocator *d_allocator_p;       // allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     CollectorRepository_Collectors(const CollectorRepository_Collectors& );
     CollectorRepository_Collectors& operator=(
@@ -283,6 +284,7 @@ class CollectorRepository_MetricCollectors {
     Collectors    d_collectors;     // collector objects
     IntCollectors d_intCollectors;  // integer collector objects
 
+  private:
     // NOT IMPLEMENTED
     CollectorRepository_MetricCollectors(
                            const  CollectorRepository_MetricCollectors& );

@@ -567,6 +567,7 @@ class GenericInStream {
     bool       d_validFlag;  // stream validity flag; 'true' if stream is in
                              // valid state, 'false' otherwise
 
+  private:
     // NOT IMPLEMENTED
     GenericInStream(const GenericInStream&);
     GenericInStream& operator=(const GenericInStream&);

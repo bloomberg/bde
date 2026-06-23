@@ -141,6 +141,7 @@ class FilteringObserver : public Observer {
     bsl::shared_ptr<Observer> d_innerObserver;  // inner observer
     RecordFilterCallback      d_recordFilter;   // record filter callback
 
+  private:
     // NOT IMPLEMENTED
     FilteringObserver(const FilteringObserver&);
     FilteringObserver& operator=(const FilteringObserver&);

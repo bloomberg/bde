@@ -57,6 +57,7 @@ BSLS_IDENT("$Id: $")
 //     my_BlockList  d_blockList;          // manager for all allocated memory
 //                                         // blocks
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_SequentialPool(const my_SequentialPool&);
 //     my_SequentialPool& operator=(const my_SequentialPool&);

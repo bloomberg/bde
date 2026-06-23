@@ -111,6 +111,7 @@ class RWMutex {
     RWMutexImpl<Platform::ThreadPolicy> d_impl;
 #endif
 
+  private:
     // NOT IMPLEMENTED
     RWMutex(const RWMutex&);
     RWMutex& operator=(const RWMutex&);

@@ -150,6 +150,7 @@ typedef bslma::Default Obj;
         int d_numBlocksInUse;  // number of blocks currently allocated
         int d_numBlocksTotal;  // cumulative blocks ever requested
 
+      private:
         // NOT IMPLEMENTED
         my_CountingAllocator(const my_CountingAllocator& original);
         my_CountingAllocator& operator=(const my_CountingAllocator& rhs);
@@ -428,6 +429,7 @@ typedef bslma::Default Obj;
         // PRIVATE DATA
         my_Id d_id;  // allocating
 
+      private:
         // NOT IMPLEMENTED
         my_Singleton(const my_Singleton&  original,
                      bslma::Allocator    *basicAllocator = 0);

@@ -229,6 +229,7 @@ class BerEncoder {
         // DATA
         bdlsb::MemOutStreamBuf d_sb;
 
+      private:
         // NOT IMPLEMENTED
         MemOutStream(const MemOutStream&);             // = delete;
         MemOutStream& operator=(const MemOutStream&);  // = delete;
@@ -298,6 +299,7 @@ class BerEncoder {
                                                         // encode the array
                                                         // length hint
 
+  private:
     // NOT IMPLEMENTED
     BerEncoder(const BerEncoder&);             // = delete;
     BerEncoder& operator=(const BerEncoder&);  // = delete;
@@ -463,6 +465,7 @@ class BerEncoder_LevelGuard {
     // DATA
     BerEncoder *d_encoder;
 
+  private:
     // NOT IMPLEMENTED
     BerEncoder_LevelGuard(BerEncoder_LevelGuard&);            // = delete;
     BerEncoder_LevelGuard& operator=(BerEncoder_LevelGuard&); // = delete;
@@ -485,6 +488,7 @@ class BerEncoder_UseArrayLengthHintGuard {
     BerEncoder *d_encoder;
     bool        d_previous;
 
+  private:
     // NOT IMPLEMENTED
     BerEncoder_UseArrayLengthHintGuard(
                              BerEncoder_UseArrayLengthHintGuard&); // = delete;
@@ -509,6 +513,7 @@ class BerEncoder_Visitor {
     BerEncoder             *d_encoder;     // encoder to write data to
     BerEncoder_LevelGuard   d_levelGuard;
 
+  private:
     // NOT IMPLEMENTED
     BerEncoder_Visitor(const BerEncoder_Visitor&);             // = delete;
     BerEncoder_Visitor& operator=(const BerEncoder_Visitor&);  // = delete;

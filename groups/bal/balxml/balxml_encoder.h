@@ -382,6 +382,7 @@ class Encoder_Context {
     Formatter  *d_formatter;
     Encoder    *d_encoder;
 
+  private:
     // NOT IMPLEMENTED
     Encoder_Context(const Encoder_Context& other);
     Encoder_Context& operator=(const Encoder_Context& other);
@@ -731,6 +732,7 @@ class Encoder_SequenceSecondPass {
     // functor used to encode sub-elements
     Encoder_EncodeObject d_encodeObjectFunctor;
 
+  private:
     // NOT IMPLEMENTED
     Encoder_SequenceSecondPass(const Encoder_SequenceSecondPass&);
     Encoder_SequenceSecondPass& operator=(const Encoder_SequenceSecondPass&);

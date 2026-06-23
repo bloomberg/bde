@@ -110,6 +110,7 @@ class MutexImpl<Platform::Win32Threads> {
     // DATA
     void *d_lock[k_CRITICAL_SECTION_BUFFER_SIZE];
 
+  private:
     // NOT IMPLEMENTED
     MutexImpl(const MutexImpl&);
     MutexImpl& operator=(const MutexImpl&);

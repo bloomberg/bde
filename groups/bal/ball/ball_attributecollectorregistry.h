@@ -167,6 +167,7 @@ class AttributeCollectorRegistry {
     mutable bslmt::ReaderWriterMutex d_rwMutex;    // protects concurrent
                                                    // access to 'd_collectors'
 
+  private:
     // NOT IMPLEMENTED
     AttributeCollectorRegistry(const AttributeCollectorRegistry&);
     AttributeCollectorRegistry& operator=(const AttributeCollectorRegistry&);

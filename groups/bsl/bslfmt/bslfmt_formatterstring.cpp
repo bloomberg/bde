@@ -37,6 +37,7 @@ class EmojiModifierSequenceDetector
     // DATA
     State d_state;  // the current state.
 
+  private:
     // NOT IMPLEMENTED
     bool operator==(const EmojiModifierSequenceDetector&) BSLS_KEYWORD_DELETED;
 

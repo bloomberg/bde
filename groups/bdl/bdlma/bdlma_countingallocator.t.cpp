@@ -298,6 +298,7 @@ extern "C" void *threadFunction3(void *arg)
         bslma::Allocator  *d_allocator_p;  // memory allocator (held, not
                                            // owned)
 
+      private:
         // NOT IMPLEMENTED
         DoubleStack(const DoubleStack&);
         DoubleStack& operator=(const DoubleStack&);

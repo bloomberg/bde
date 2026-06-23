@@ -246,6 +246,7 @@ class AutoDestructor {
     TYPE *d_origin_p;  // reference location for the array of managed objects
     int   d_length;    // number of objects to manage (sign encodes direction)
 
+  private:
     // NOT IMPLEMENTED
     AutoDestructor(const AutoDestructor&);
     AutoDestructor& operator=(const AutoDestructor&);

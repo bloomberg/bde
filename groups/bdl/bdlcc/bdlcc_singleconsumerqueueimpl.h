@@ -127,6 +127,7 @@ class SingleConsumerQueueImpl_MarkReclaimProctor {
     TYPE *d_queue_p;  // managed queue owning the managed node
     NODE *d_node_p;   // managed node
 
+  private:
     // NOT IMPLEMENTED
     SingleConsumerQueueImpl_MarkReclaimProctor();
     SingleConsumerQueueImpl_MarkReclaimProctor(
@@ -164,6 +165,7 @@ class SingleConsumerQueueImpl_PopCompleteGuard {
     // DATA
     TYPE *d_queue_p;  // managed queue
 
+  private:
     // NOT IMPLEMENTED
     SingleConsumerQueueImpl_PopCompleteGuard();
     SingleConsumerQueueImpl_PopCompleteGuard(
@@ -195,6 +197,7 @@ class SingleConsumerQueueImpl_AllocateLockGuard {
     // DATA
     TYPE *d_queue_p;  // managed queue
 
+  private:
     // NOT IMPLEMENTED
     SingleConsumerQueueImpl_AllocateLockGuard();
     SingleConsumerQueueImpl_AllocateLockGuard(
@@ -388,6 +391,7 @@ class SingleConsumerQueueImpl {
     /// locked state is set (i.e., `pushBackHelper`).
     void releaseAllocateLock();
 
+  private:
     // NOT IMPLEMENTED
     SingleConsumerQueueImpl(const SingleConsumerQueueImpl&);
     SingleConsumerQueueImpl& operator=(const SingleConsumerQueueImpl&);

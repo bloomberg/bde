@@ -185,6 +185,7 @@ class TestOutStream {
     // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&, const TestOutStream&);
 
+  private:
     // NOT IMPLEMENTED
     TestOutStream(const TestOutStream&);
     TestOutStream& operator=(const TestOutStream&);

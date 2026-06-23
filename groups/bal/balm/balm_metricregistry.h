@@ -207,6 +207,7 @@ class MetricRegistry {
 
     bslma::Allocator      *d_allocator_p;    // allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     MetricRegistry(const MetricRegistry&);
     MetricRegistry& operator=(const MetricRegistry&);

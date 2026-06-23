@@ -2462,6 +2462,7 @@ class my_VariantWrapper {
     VARIANT           d_variant;        // internal variant implementation
     mutable VisitType d_lastVisitCall;  // last visit function invoked
 
+  private:
     // NOT IMPLEMENTED
     my_VariantWrapper(const my_VariantWrapper&, bslma::Allocator * = 0);
     my_VariantWrapper& operator=(const my_VariantWrapper&);

@@ -322,6 +322,7 @@ class HexEncoder {
     const char *d_encodeTable_p;  // hexadecimal alphabet
 
 
+  private:
     // NOT IMPLEMENTED
     HexEncoder(const HexEncoder&);
     HexEncoder& operator=(const HexEncoder&);

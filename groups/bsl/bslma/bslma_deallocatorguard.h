@@ -127,6 +127,7 @@ class DeallocatorGuard {
     void      *d_memory_p;     // address of managed memory
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     DeallocatorGuard(const DeallocatorGuard&);
     DeallocatorGuard& operator=(const DeallocatorGuard&);

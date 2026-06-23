@@ -364,6 +364,7 @@ class ObserverFormatterImp {
 
     RecordFormatter       d_formatter;        // formatting functor used when
                                               // writing to log
+  private:
     // NOT IMPLEMENTED
     ObserverFormatterImp(const ObserverFormatterImp&);
     ObserverFormatterImp& operator=(const ObserverFormatterImp&);

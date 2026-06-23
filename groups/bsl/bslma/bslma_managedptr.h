@@ -469,6 +469,7 @@ BSLS_IDENT("$Id$ $CSID$")
 //     int               d_count;
 //     bslma::Allocator *d_allocator_p;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     CountedFactory(const CountedFactory&);
 //     CountedFactory& operator=(const CountedFactory&);

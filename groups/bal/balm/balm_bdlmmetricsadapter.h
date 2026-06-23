@@ -131,6 +131,7 @@ class BdlmMetricsAdapter : public bdlm::MetricsAdapter {
                                                   // identifier attribute
                                                   // values
 
+  private:
     // NOT IMPLEMENTED
     BdlmMetricsAdapter() BSLS_KEYWORD_DELETED;
     BdlmMetricsAdapter(const BdlmMetricsAdapter&) BSLS_KEYWORD_DELETED;

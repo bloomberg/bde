@@ -411,9 +411,11 @@ struct Callback {
     {
     }
 
+  private:
     // NOT IMPLEMENTED
     Callback& operator=(const Callback&) BSLS_KEYWORD_DELETED;
 
+  public:
     // ACCESSORS
     void operator()() const
     {

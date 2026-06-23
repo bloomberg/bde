@@ -228,6 +228,7 @@ class ControlManager {
 
     bsl::optional<ControlHandler>  d_defaultHandler; // default handler
 
+  private:
     // NOT IMPLEMENTED
     ControlManager(const ControlManager&);             // = deleted
     ControlManager& operator=(const ControlManager&);  // = deleted

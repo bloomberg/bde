@@ -370,6 +370,7 @@ class Decoder {
     class MemOutStream : public bsl::ostream {
         bdlsb::MemOutStreamBuf d_sb;
 
+  private:
         // NOT IMPLEMENTED
         MemOutStream(const MemOutStream&);
         MemOutStream& operator=(const MemOutStream&);
@@ -434,6 +435,7 @@ class Decoder {
     // remaining number of nesting levels allowed
     int                              d_remainingDepth;
 
+      private:
     // NOT IMPLEMENTED
     Decoder(const Decoder&);
     Decoder operator=(const Decoder&);
@@ -968,6 +970,7 @@ class Decoder_ChoiceContext :  public Decoder_ElementContext {
     bool         d_selectionIsRepeatable;
     bsl::string  d_selectionName;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_ChoiceContext(const Decoder_ChoiceContext&);
     Decoder_ChoiceContext &operator=(const Decoder_ChoiceContext &);
@@ -1013,6 +1016,7 @@ class Decoder_NillableContext : public Decoder_ElementContext {
     Decoder_ElementContext *d_elementContext_p;
     bool                    d_isNil;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_NillableContext(const Decoder_NillableContext&);
     Decoder_NillableContext &operator=(const Decoder_NillableContext &);
@@ -1073,6 +1077,7 @@ class Decoder_PushParserContext : public Decoder_ElementContext {
     TYPE   *d_object_p;
     PARSER  d_parser;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_PushParserContext(const Decoder_PushParserContext&);
     Decoder_PushParserContext &operator=(const Decoder_PushParserContext &);
@@ -1116,6 +1121,7 @@ class Decoder_SequenceContext : public Decoder_ElementContext {
     bdlb::NullableValue<int>  d_simpleContentId;
     TYPE                     *d_object_p;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_SequenceContext(const Decoder_SequenceContext&);
     Decoder_SequenceContext &operator=(const Decoder_SequenceContext &);
@@ -1160,6 +1166,7 @@ class Decoder_SimpleContext : public Decoder_ElementContext {
     int            d_formattingMode;
     TYPE          *d_object_p;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_SimpleContext(const Decoder_SimpleContext&);
     Decoder_SimpleContext &operator=(const Decoder_SimpleContext &);
@@ -1243,6 +1250,7 @@ class Decoder_UTF8Context : public Decoder_ElementContext {
     // DATA
     TYPE *d_object_p;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_UTF8Context(const Decoder_UTF8Context&);
     Decoder_UTF8Context& operator=(const Decoder_UTF8Context&);
@@ -1304,6 +1312,7 @@ class Decoder_StdStringContext : public Decoder_ElementContext {
 
     Decoder_ElementContext *d_context_p;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_StdStringContext(const Decoder_StdStringContext&);
     Decoder_StdStringContext &operator=(const Decoder_StdStringContext &);
@@ -1370,6 +1379,7 @@ class Decoder_StdVectorCharContext : public Decoder_ElementContext {
 
     Decoder_ElementContext *d_context_p;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_StdVectorCharContext(const Decoder_StdVectorCharContext &);
     Decoder_StdVectorCharContext& operator=(
@@ -1415,6 +1425,7 @@ class Decoder_PrepareSequenceContext {
     // DATA
     bdlb::NullableValue<int> *d_simpleContentId_p; // held, not owned
 
+  private:
     // NOT IMPLEMENTED
     Decoder_PrepareSequenceContext(const Decoder_PrepareSequenceContext &);
     Decoder_PrepareSequenceContext& operator=(
@@ -1447,6 +1458,7 @@ class Decoder_ParseSequenceSimpleContent {
     bsl::size_t          d_len;
     Decoder             *d_decoder;  // error logger (held)
 
+  private:
     // NOT IMPLEMENTED
     Decoder_ParseSequenceSimpleContent(
                                     const Decoder_ParseSequenceSimpleContent&);
@@ -1484,6 +1496,7 @@ class Decoder_ParseSequenceSubElement {
     const char  *d_elementName_p;  // held, not owned
     bsl::size_t  d_lenName;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_ParseSequenceSubElement(const Decoder_ParseSequenceSubElement &);
     Decoder_ParseSequenceSubElement& operator=(
@@ -1581,6 +1594,7 @@ class Decoder_ParseObject {
     const char     *d_elementName_p;  // held, not owned
     bsl::size_t     d_lenName;
 
+  private:
     // NOT IMPLEMENTED
     Decoder_ParseObject(const Decoder_ParseObject&);
     Decoder_ParseObject& operator=(const Decoder_ParseObject&);

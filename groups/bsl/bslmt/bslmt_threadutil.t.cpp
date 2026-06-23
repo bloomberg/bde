@@ -426,6 +426,7 @@ class Mutex {
     // DATA
     pthread_mutex_t d_lock;
 
+  private:
     // NOT IMPLEMENTED
     Mutex(const Mutex&);
     Mutex& operator=(const Mutex&);

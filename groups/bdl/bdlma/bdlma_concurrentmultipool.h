@@ -144,6 +144,7 @@ BSLS_IDENT("$Id: $")
 //     // FRIEND
 //     friend class my_MessageFactory;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_SmallMessage(const my_SmallMessage&);
 //     my_SmallMessage& operator=(const my_SmallMessage&);
@@ -177,6 +178,7 @@ BSLS_IDENT("$Id: $")
 //     // FRIEND
 //     friend class my_MessageFactory;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_MediumMessage(const my_MediumMessage&);
 //     my_MediumMessage& operator=(const my_MediumMessage&);
@@ -210,6 +212,7 @@ BSLS_IDENT("$Id: $")
 //     // FRIEND
 //     friend class my_MessageFactory;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_LargeMessage(const my_LargeMessage&);
 //     my_LargeMessage& operator=(const my_LargeMessage&);
@@ -242,6 +245,7 @@ BSLS_IDENT("$Id: $")
 //     // FRIEND
 //     friend class my_MessageFactory;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_GenericMessage(const my_GenericMessage&);
 //     my_GenericMessage& operator=(const my_GenericMessage&);

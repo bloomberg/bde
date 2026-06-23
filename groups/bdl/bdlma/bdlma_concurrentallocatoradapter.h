@@ -54,6 +54,7 @@ BSLS_IDENT("$Id: $")
 //     mutable bslmt::Mutex d_mutex;     // synchronize access
 //     bsl::vector<TYPE>    d_elements;  // underlying list of strings
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     ThreadEnabledVector(const ThreadEnabledVector&);
 //     ThreadEnabledVector& operator=(const ThreadEnabledVector&);
@@ -255,6 +256,7 @@ class ConcurrentAllocatorAdapter : public bslma::Allocator {
 
     bslma::Allocator *d_allocator_p;  // allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     ConcurrentAllocatorAdapter(const ConcurrentAllocatorAdapter&);
     ConcurrentAllocatorAdapter& operator=(const ConcurrentAllocatorAdapter&);

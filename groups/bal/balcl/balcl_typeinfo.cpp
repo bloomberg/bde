@@ -319,6 +319,7 @@ const char *elemTypeToString(OptionType::Enum elemType)
 /// the protocol and not repeated here.
 class BoolConstraint : public TypeInfoConstraint {
 
+  private:
     // NOT IMPLEMENTED
     BoolConstraint(const BoolConstraint&);
     BoolConstraint& operator=(const BoolConstraint&);
@@ -463,6 +464,7 @@ class ScalarConstraint : public TypeInfoConstraint {
     // DATA
     CONSTRAINT_TYPE d_constraint;
 
+  private:
     // NOT IMPLEMENTED
     ScalarConstraint(const ScalarConstraint&);
     ScalarConstraint& operator=(const ScalarConstraint&);
@@ -647,6 +649,7 @@ class ArrayConstraint : public TypeInfoConstraint {
     // DATA
     CONSTRAINT_TYPE d_constraint;
 
+  private:
     // NOT IMPLEMENTED
     ArrayConstraint(const ArrayConstraint&);
     ArrayConstraint& operator=(const ArrayConstraint&);

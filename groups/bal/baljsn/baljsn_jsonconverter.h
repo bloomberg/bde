@@ -240,6 +240,7 @@ class JsonConverter {
     template <class TYPE, class ANY_CATEGORY>
     int decodeImp(TYPE *value, ANY_CATEGORY category );
 
+  private:
     // NOT IMPLEMENTED
     JsonConverter(const JsonConverter&);             // = delete;
     JsonConverter& operator=(const JsonConverter&);  // = delete

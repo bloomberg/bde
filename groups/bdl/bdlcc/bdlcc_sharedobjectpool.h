@@ -252,6 +252,7 @@ class SharedObjectPool_Rep: public bslma::SharedPtrRep {
     bsls::ObjectBuffer<TYPE>           d_instance; // area for embedded
                                                    // instance
 
+  private:
     // NOT IMPLEMENTED
     SharedObjectPool_Rep(const SharedObjectPool_Rep&);
     SharedObjectPool_Rep& operator=(const SharedObjectPool_Rep&);

@@ -130,6 +130,7 @@ class MetricDescription {
                     d_mutex;       // synchronize non-'const' elements
                                    // (publication type, format, user data)
 
+  private:
     // NOT IMPLEMENTED
     MetricDescription(const MetricDescription&);
     MetricDescription& operator=(const MetricDescription&);

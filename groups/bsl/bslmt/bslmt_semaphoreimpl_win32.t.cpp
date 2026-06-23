@@ -278,6 +278,7 @@ class MyBarrier {
     int             d_numPending; // Number of threads that have been signaled
                                   // but have not yet awakened.
 
+  private:
     // NOT IMPLEMENTED
     MyBarrier(const MyBarrier&);
     MyBarrier& operator=(const MyBarrier&);

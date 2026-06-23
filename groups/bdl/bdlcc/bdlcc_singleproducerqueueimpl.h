@@ -105,6 +105,7 @@ class SingleProducerQueueImpl_ReleaseAllRawProctor {
     // DATA
     TYPE *d_queue_p;  // managed queue
 
+  private:
     // NOT IMPLEMENTED
     SingleProducerQueueImpl_ReleaseAllRawProctor();
     SingleProducerQueueImpl_ReleaseAllRawProctor(
@@ -144,6 +145,7 @@ class SingleProducerQueueImpl_PopCompleteGuard {
     NODE *d_node_p;   // managed node
     bool  d_isEmpty;  // if true, the empty condition will be signalled
 
+  private:
     // NOT IMPLEMENTED
     SingleProducerQueueImpl_PopCompleteGuard();
     SingleProducerQueueImpl_PopCompleteGuard(
@@ -324,6 +326,7 @@ class SingleProducerQueueImpl {
     /// exception during construction.
     void releaseAllRaw();
 
+  private:
     // NOT IMPLEMENTED
     SingleProducerQueueImpl(const SingleProducerQueueImpl&);
     SingleProducerQueueImpl& operator=(const SingleProducerQueueImpl&);

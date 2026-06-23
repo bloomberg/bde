@@ -910,6 +910,7 @@ class TransparentlyComparable {
     int d_conversionCount;  // number of times `operator int` has been called
     int d_value;            // the value
 
+  private:
     // NOT IMPLEMENTED
     TransparentlyComparable(const TransparentlyComparable&);  // = delete
 

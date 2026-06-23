@@ -185,6 +185,7 @@ class InfrequentDeleteBlockList {
     Block           *d_head_p;       // refers to the first memory block
     Allocator       *d_allocator_p;  // holds (but does not own) the allocator
 
+  private:
     // NOT IMPLEMENTED
     InfrequentDeleteBlockList(const InfrequentDeleteBlockList&);
     InfrequentDeleteBlockList&

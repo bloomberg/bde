@@ -147,6 +147,7 @@ class DefaultAllocatorGuard {
 
     Allocator *d_original_p;  // original (to be restored at destruction)
 
+  private:
     // NOT IMPLEMENTED
     DefaultAllocatorGuard(const DefaultAllocatorGuard&);
     DefaultAllocatorGuard& operator=(const DefaultAllocatorGuard&);

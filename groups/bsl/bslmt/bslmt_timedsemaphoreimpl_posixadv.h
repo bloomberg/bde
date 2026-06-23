@@ -82,6 +82,7 @@ class TimedSemaphoreImpl<Platform::PosixAdvTimedSemaphore> {
     bsls::SystemClockType::Enum d_clockType;  // clock type used for 'absTime'
                                               // in 'timedWait'
 
+  private:
     // NOT IMPLEMENTED
     TimedSemaphoreImpl(const TimedSemaphoreImpl&);
     TimedSemaphoreImpl& operator=(const TimedSemaphoreImpl&);

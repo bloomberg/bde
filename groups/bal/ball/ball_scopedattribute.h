@@ -82,6 +82,7 @@ class ScopedAttribute_Container : public AttributeContainer {
     // DATA
     Attribute d_attribute;
 
+  private:
     // NOT IMPLEMENTED
     ScopedAttribute_Container(const ScopedAttribute_Container&);
     ScopedAttribute_Container& operator=(const ScopedAttribute_Container&);
@@ -191,6 +192,7 @@ class ScopedAttribute {
     const AttributeContext::iterator d_it;         // reference to attribute
                                                    // container
 
+  private:
     // NOT IMPLEMENTED
     ScopedAttribute(const ScopedAttribute&);
     ScopedAttribute& operator=(const ScopedAttribute&);

@@ -345,6 +345,7 @@ class AutoRawDeleter {
 
     ALLOCATOR  *d_allocator_p;  // allocator or pool (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     AutoRawDeleter(const AutoRawDeleter&);
     AutoRawDeleter& operator=(const AutoRawDeleter&);

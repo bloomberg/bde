@@ -187,6 +187,7 @@ class Encoder {
     // DATA
     bsl::ostringstream d_logStream;  // stream used for logging
 
+  private:
     // NOT IMPLEMENTED
     Encoder(const Encoder&);
 

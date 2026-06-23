@@ -313,6 +313,7 @@ class Function_Rep {
     /// metafunction, or zero if this `function` is empty.
     std::size_t calcSooFuncSize() const BSLS_KEYWORD_NOEXCEPT;
 
+      private:
     // NOT IMPLEMENTED
     Function_Rep(const Function_Rep&);
     Function_Rep& operator=(const Function_Rep&);

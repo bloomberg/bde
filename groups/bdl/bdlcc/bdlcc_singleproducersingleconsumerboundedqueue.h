@@ -217,6 +217,7 @@ class SingleProducerSingleConsumerBoundedQueue_PopCompleteGuard {
     NODE   *d_node_p;   // managed node
     Uint64  d_index;    // value of 'd_queue_p->d_popIndex'
 
+  private:
     // NOT IMPLEMENTED
     SingleProducerSingleConsumerBoundedQueue_PopCompleteGuard();
     SingleProducerSingleConsumerBoundedQueue_PopCompleteGuard(
@@ -445,6 +446,7 @@ class SingleProducerSingleConsumerBoundedQueue {
     /// is invoked from `pushBackImp`.
     void pushComplete(Node *node, Uint64 index);
 
+  private:
     // NOT IMPLEMENTED
     SingleProducerSingleConsumerBoundedQueue(
                               const SingleProducerSingleConsumerBoundedQueue&);

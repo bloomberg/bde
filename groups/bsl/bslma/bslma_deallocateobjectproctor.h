@@ -253,6 +253,7 @@ class DeallocateObjectProctor {
     void doDeallocate(bsl::false_type);
     void doDeallocate(bsl::true_type);
 
+  private:
     // NOT IMPLEMENTED
     DeallocateObjectProctor(const DeallocateObjectProctor&)
                                                           BSLS_KEYWORD_DELETED;

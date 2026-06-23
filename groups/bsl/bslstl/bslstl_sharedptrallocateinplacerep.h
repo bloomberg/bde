@@ -194,6 +194,7 @@ class SharedPtrArrayAllocateInplaceRep
     // The elements of the array stored in this Rep are created after the
     // instance variables.
 
+  private:
     // NOT IMPLEMENTED
     SharedPtrArrayAllocateInplaceRep(const SharedPtrArrayAllocateInplaceRep&);
     SharedPtrArrayAllocateInplaceRep& operator=(

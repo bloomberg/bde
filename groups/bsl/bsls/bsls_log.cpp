@@ -54,6 +54,7 @@ class BufferScopedGuard {
     // DATA
     char *d_buffer_p;                // pointer to the allocated buffer (owned)
 
+  private:
     // NOT IMPLEMENTED
     BufferScopedGuard(const BufferScopedGuard&);                    // = delete
 

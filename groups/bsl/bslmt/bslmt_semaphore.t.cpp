@@ -97,6 +97,7 @@ void aSsErT(bool condition, const char *message, int line)
         bslmt::Semaphore d_mutexSem;     // mutual-access semaphore
         bslmt::Semaphore d_resourceSem;  // resource-availability semaphore
 
+      private:
         // NOT IMPLEMENTED
         IntQueue(const IntQueue&);
         IntQueue& operator=(const IntQueue&);

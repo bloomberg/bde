@@ -112,6 +112,7 @@ class IntegerCollector {
     int                  d_max;       // maximum value across events
     mutable bslmt::Mutex d_mutex;     // synchronizes access to data
 
+  private:
     // NOT IMPLEMENTED
     IntegerCollector(const IntegerCollector&);
     IntegerCollector& operator=(const IntegerCollector&);

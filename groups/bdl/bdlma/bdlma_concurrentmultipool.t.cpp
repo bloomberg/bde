@@ -339,6 +339,7 @@ extern "C" void *workerThread(void *arg) {
         // FRIEND
         friend class my_MessageFactory;
 
+      private:
         // NOT IMPLEMENTED
         my_SmallMessage(const my_SmallMessage&);
         my_SmallMessage& operator=(const my_SmallMessage&);
@@ -372,6 +373,7 @@ extern "C" void *workerThread(void *arg) {
         // FRIEND
         friend class my_MessageFactory;
 
+      private:
         // NOT IMPLEMENTED
         my_MediumMessage(const my_MediumMessage&);
         my_MediumMessage& operator=(const my_MediumMessage&);
@@ -405,6 +407,7 @@ extern "C" void *workerThread(void *arg) {
         // FRIEND
         friend class my_MessageFactory;
 
+      private:
         // NOT IMPLEMENTED
         my_LargeMessage(const my_LargeMessage&);
         my_LargeMessage& operator=(const my_LargeMessage&);
@@ -437,6 +440,7 @@ extern "C" void *workerThread(void *arg) {
         // FRIEND
         friend class my_MessageFactory;
 
+      private:
         // NOT IMPLEMENTED
         my_GenericMessage(const my_GenericMessage&);
         my_GenericMessage& operator=(const my_GenericMessage&);

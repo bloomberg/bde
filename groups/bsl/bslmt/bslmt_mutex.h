@@ -122,6 +122,7 @@ BSLS_IDENT("$Id: $")
 //     my_Account           *d_account_p;  // held, not owned
 //     mutable bslmt::Mutex  d_lock;       // guard access to `d_account_p`
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     my_SafeAccountHandle(const my_SafeAccountHandle&);
 //     my_SafeAccountHandle& operator=(const my_SafeAccountHandle&);
@@ -276,6 +277,7 @@ class Mutex {
     MutexImpl<Platform::ThreadPolicy> d_imp;  // platform-specific
                                               // implementation
 
+  private:
     // NOT IMPLEMENTED
     Mutex(const Mutex&);
     Mutex& operator=(const Mutex&);

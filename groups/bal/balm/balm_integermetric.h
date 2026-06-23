@@ -214,6 +214,7 @@ class IntegerMetric {
 
     const bsls::AtomicInt *d_isEnabled_p;  // memo for isActive()
 
+  private:
     // NOT IMPLEMENTED
     IntegerMetric& operator=(const IntegerMetric& );
 

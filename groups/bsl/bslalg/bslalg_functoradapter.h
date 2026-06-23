@@ -55,6 +55,7 @@ BSLS_IDENT("$Id: $")
 //     // DATA
 //     int d_bondValue;  // the bound value
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     Bind2ndInteger(const Bind2ndInteger&);
 //     Bind2ndInteger& operator=(const Bind2ndInteger&);

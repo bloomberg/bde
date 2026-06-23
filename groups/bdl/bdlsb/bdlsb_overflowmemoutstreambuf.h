@@ -215,6 +215,7 @@ class OverflowMemOutStreamBuf : public bsl::streambuf {
     bslma::Allocator    *d_allocator_p;           // memory allocator (held,
                                                   // not owned)
 
+  private:
     // NOT IMPLEMENTED
     OverflowMemOutStreamBuf(const OverflowMemOutStreamBuf&);
     OverflowMemOutStreamBuf& operator=(const OverflowMemOutStreamBuf&);

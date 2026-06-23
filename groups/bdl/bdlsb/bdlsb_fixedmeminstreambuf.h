@@ -144,6 +144,7 @@ class FixedMemInStreamBuf : public bsl::streambuf {
     char            *d_buffer_p;      // buffer (held, not owned)
     bsl::size_t      d_bufferSize;    // length of buffer
 
+  private:
     // NOT IMPLEMENTED
     FixedMemInStreamBuf(const FixedMemInStreamBuf&);
     FixedMemInStreamBuf& operator=(const FixedMemInStreamBuf&);

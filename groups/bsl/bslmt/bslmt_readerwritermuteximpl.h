@@ -79,6 +79,7 @@ class ReaderWriterMutexImpl {
                                                              // readers to
                                                              // finish
 
+  private:
     // NOT IMPLEMENTED
     ReaderWriterMutexImpl(const ReaderWriterMutexImpl&);
     ReaderWriterMutexImpl& operator=(const ReaderWriterMutexImpl&);

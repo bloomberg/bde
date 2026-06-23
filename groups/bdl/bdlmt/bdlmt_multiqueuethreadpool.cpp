@@ -56,6 +56,7 @@ class MultiQueueThreadPool_ClearGuard {
     // DATA
     TYPE *d_object_p;  // managed object
 
+  private:
     // NOT IMPLEMENTED
     MultiQueueThreadPool_ClearGuard();
     MultiQueueThreadPool_ClearGuard(

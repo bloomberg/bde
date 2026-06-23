@@ -231,6 +231,7 @@ void aSsErT(bool condition, const char *message, int line)
             return false;
         }
 
+      private:
         // NOT IMPLEMENTED
         HashCrossReference(const HashCrossReference&);
         HashCrossReference& operator=(const HashCrossReference&);

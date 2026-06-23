@@ -101,6 +101,7 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
         // DATA
         bsl::ostream& d_stream; // output stream (held, not owned)
 
+    private:
         // NOT IMPLEMENTED
         SimpleStreamPublisher(const SimpleStreamPublisher& );
         SimpleStreamPublisher& operator=(const SimpleStreamPublisher& );
@@ -176,6 +177,7 @@ struct PublisherTest : bsls::ProtocolTestImp<balm::Publisher> {
         balm::Collector  d_eventMessageSize;  // metric for the message size
         bdlt::DatetimeTz d_lastPublish;       // time of the last publication
 
+    private:
         // NOT IMPLEMENTED
         EventManager(const EventManager& );
         EventManager& operator=(const EventManager& );

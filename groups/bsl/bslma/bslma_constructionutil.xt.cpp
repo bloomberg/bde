@@ -543,6 +543,7 @@ class TestType_Base : public TestTypeStats {
     // DATA
     ALLOC d_allocator;
 
+  private:
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
 
@@ -588,6 +589,7 @@ class TestType_Base : public TestTypeStats {
 template <>
 class TestType_Base<void> : public TestTypeStats {
 
+  private:
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
 
@@ -617,6 +619,7 @@ class TestType_Base<bslma::Allocator *> : public TestTypeStats {
     // DATA
     bslma::Allocator *d_allocator;
 
+  private:
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
 
@@ -1120,6 +1123,7 @@ class PmrAllocator {
 
     bsl::memory_resource *d_resource;
 
+  private:
     // NOT IMPLEMENTED
     PmrAllocator& operator=(const PmrAllocator&) BSLS_KEYWORD_DELETED;
 
@@ -1202,6 +1206,7 @@ class STLAllocator {
 
     bslma::Allocator *d_mechanism;
 
+  private:
     // NOT IMPLEMENTED
     STLAllocator& operator=(const STLAllocator&) BSLS_KEYWORD_DELETED;
 

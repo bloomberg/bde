@@ -2662,6 +2662,7 @@ class TestCase14RowProtocolImp : public TestCase14RowProtocol {
     int                             d_decodingStatus;
     TestXmlElement                    d_xml;
 
+  private:
     // NOT IMPLEMENTED
     TestCase14RowProtocolImp(const TestCase14RowProtocolImp&);
     TestCase14RowProtocolImp& operator=(const TestCase14RowProtocolImp&);

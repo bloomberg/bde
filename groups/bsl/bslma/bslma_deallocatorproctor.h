@@ -272,6 +272,7 @@ class DeallocatorProctor {
     // DATA
     DeallocateBytesProctor<ALLOCATOR *> d_imp;
 
+  private:
     // NOT IMPLEMENTED
     DeallocatorProctor(const DeallocatorProctor&);
     DeallocatorProctor& operator=(const DeallocatorProctor&);

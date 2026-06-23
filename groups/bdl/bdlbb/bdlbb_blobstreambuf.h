@@ -59,6 +59,7 @@ class InBlobStreamBuf : public bsl::streambuf {
     int d_previousBuffersLength;          // length of buffers before the
                                           // current one
 
+  private:
     // NOT IMPLEMENTED
     InBlobStreamBuf(const InBlobStreamBuf&);
     InBlobStreamBuf& operator=(const InBlobStreamBuf&);
@@ -182,6 +183,7 @@ class OutBlobStreamBuf : public bsl::streambuf {
     int          d_putBufferIndex;         // index of current buffer
     int          d_previousBuffersLength;  // length of buffers before
 
+  private:
     // NOT IMPLEMENTED
     OutBlobStreamBuf(const OutBlobStreamBuf&);
     OutBlobStreamBuf& operator=(const OutBlobStreamBuf&);

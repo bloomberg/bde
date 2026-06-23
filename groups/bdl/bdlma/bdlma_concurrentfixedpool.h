@@ -199,6 +199,7 @@ class ConcurrentFixedPool {
     int                  d_backoffLevel;    // determines amount of spinning
                                             // when under contention
 
+  private:
     // NOT IMPLEMENTED
     ConcurrentFixedPool(const ConcurrentFixedPool&);
     ConcurrentFixedPool& operator=(const ConcurrentFixedPool&);

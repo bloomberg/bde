@@ -224,6 +224,7 @@ class MoveTester {
     int  *d_moveCounter_p;
     int   d_value;
 
+  private:
     // NOT IMPLEMENTED
     MoveTester(const MoveTester& other);
     MoveTester& operator=(const MoveTester& other);
@@ -462,6 +463,7 @@ class ConcurrencyDetectionAllocator : public bslma::Allocator {
     bsls::AtomicInt   d_count;
     bslma::Allocator *d_allocator_p;
 
+private:
     // NOT IMPLEMENTED
     ConcurrencyDetectionAllocator(const ConcurrencyDetectionAllocator&);
     ConcurrencyDetectionAllocator& operator=(
@@ -547,6 +549,7 @@ static bsl::vector<bool> *s_TestMutex_script_p = 0;
 /// to `unLock`.
 class TestMutex : public bslmt::Mutex
 {
+  private:
     // NOT IMPLEMENTED
     TestMutex(const TestMutex&);
     TestMutex& operator=(const TestMutex&);

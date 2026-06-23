@@ -151,6 +151,7 @@ class my_Logger {
     bsl::vector<bsl::string> archive;  // log message archive
     ostream&                 d_os;
 
+  private:
     // NOT IMPLEMENTED
     my_Logger(const my_Logger&);
     my_Logger& operator=(const my_Logger&);

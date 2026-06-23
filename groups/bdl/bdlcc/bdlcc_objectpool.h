@@ -477,6 +477,7 @@ class ObjectPool_GeneralProxy {
     // DATA
     bsls::ObjectBuffer<TYPE> d_object;
 
+  private:
     // NOT IMPLEMENTED
     ObjectPool_GeneralProxy& operator=(const ObjectPool_GeneralProxy&);
     ObjectPool_GeneralProxy(const ObjectPool_GeneralProxy&);
@@ -529,6 +530,7 @@ class ObjectPool_DefaultProxy {
     // DATA
     Creator d_object;
 
+  private:
     // NOT IMPLEMENTED
     ObjectPool_DefaultProxy(const ObjectPool_DefaultProxy&);
     ObjectPool_DefaultProxy& operator=(const ObjectPool_DefaultProxy&);
@@ -768,6 +770,7 @@ class ObjectPool : public bdlma::Factory<TYPE> {
     bslmt::Mutex           d_mutex;                // pool replenishment
                                                    // serializer
 
+      private:
     // NOT IMPLEMENTED
     ObjectPool(const MyType&, bslma::Allocator * = 0);
     ObjectPool& operator=(const MyType&);

@@ -184,6 +184,7 @@ class NodePool {
     // DATA
     bslstl::BidirectionalNodePool<VALUE, bsl::allocator<VALUE> > d_pool;
 
+  private:
     // NOT IMPLEMENTED
     NodePool(const NodePool&);
     NodePool& operator=(const NodePool&);

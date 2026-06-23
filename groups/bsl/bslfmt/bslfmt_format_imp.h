@@ -190,6 +190,7 @@ class Format_Imp_TruncatingIterator {
     t_DIFF_TYPE d_limit;    // character limit
     t_DIFF_TYPE d_count;    // current character count
 
+  private:
     // NOT IMPLEMENTED
 
     /// The postfix operator must be deleted because, as a counting iterator,

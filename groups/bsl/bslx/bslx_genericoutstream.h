@@ -342,6 +342,7 @@ class GenericOutStream {
     int        d_validFlag;        // stream validity flag; 'true' if stream is
                                    // in valid state, 'false' otherwise
 
+  private:
     // NOT IMPLEMENTED
     GenericOutStream(const GenericOutStream&);
     GenericOutStream& operator=(const GenericOutStream&);

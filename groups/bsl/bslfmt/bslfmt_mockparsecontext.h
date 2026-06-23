@@ -269,6 +269,7 @@ class MockParseContext {
     size_t       d_next_arg_id;   // argument index
     size_t       d_num_args;      // number of arguments
 
+  private:
     // NOT IMPLEMENTED
     MockParseContext(const MockParseContext&) BSLS_KEYWORD_DELETED;
     MockParseContext& operator=(const MockParseContext&) BSLS_KEYWORD_DELETED;

@@ -384,6 +384,7 @@ class JsonTokenizer {
     // FRIENDS
     friend class JsonTokenizer_Visitor;
 
+  private:
     // NOT IMPLEMENTED
     JsonTokenizer(const JsonTokenizer&);             // = delete;
     JsonTokenizer& operator=(const JsonTokenizer&);  // = delete

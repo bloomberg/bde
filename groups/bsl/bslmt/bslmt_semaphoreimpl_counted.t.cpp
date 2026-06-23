@@ -104,6 +104,7 @@ class MyCondition {
     // DATA
     pthread_cond_t d_cond;
 
+  private:
     // NOT IMPLEMENTED
     MyCondition(const MyCondition&);
     MyCondition& operator=(const MyCondition&);
@@ -150,6 +151,7 @@ class MyBarrier {
     int             d_numPending; // Number of threads that have been signaled
                                   // but have not yet awakened.
 
+  private:
     // NOT IMPLEMENTED
     MyBarrier(const MyBarrier&);
     MyBarrier& operator=(const MyBarrier&);

@@ -206,6 +206,7 @@ class SingleProducerQueue {
     // DATA
     Impl d_impl;
 
+  private:
     // NOT IMPLEMENTED
     SingleProducerQueue(const SingleProducerQueue&);
     SingleProducerQueue& operator=(const SingleProducerQueue&);

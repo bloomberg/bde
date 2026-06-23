@@ -81,6 +81,7 @@ class ConditionImpl<Platform::PosixThreads> {
 
     bsls::SystemClockType::Enum d_clockType;  // clock type used in 'timedWait'
 
+  private:
     // NOT IMPLEMENTED
     ConditionImpl(const ConditionImpl&);
     ConditionImpl& operator=(const ConditionImpl&);

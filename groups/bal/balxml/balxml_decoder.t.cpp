@@ -2587,6 +2587,7 @@ class TestCase19RowProtocolImp : public TestCase19RowProtocol {
     int                             d_decodingStatus;
     TestXmlElement                    d_xml;
 
+  private:
     // NOT IMPLEMENTED
     TestCase19RowProtocolImp(const TestCase19RowProtocolImp&);
     TestCase19RowProtocolImp& operator=(const TestCase19RowProtocolImp&);
@@ -2827,6 +2828,7 @@ class TestCase20RowProtocolImp : public TestCase20RowProtocol {
     bool d_decodeSuccessStatus;    // whether or not decoding should succeed
     bsl::string d_loggedMessages;  // expected `loggedMessages` after decode
 
+  private:
     // NOT IMPLEMENTED
     TestCase20RowProtocolImp(const TestCase20RowProtocolImp&)
                                                           BSLS_KEYWORD_DELETED;

@@ -414,6 +414,7 @@ class polymorphic_allocator {
     // DATA
     memory_resource *d_resource;
 
+  private:
     // NOT IMPLEMENTED
     polymorphic_allocator&
     operator=(const polymorphic_allocator&) BSLS_KEYWORD_DELETED;

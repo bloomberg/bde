@@ -388,6 +388,7 @@ class StripedUnorderedMap {
     // implementation of the striped hash map
     Impl d_imp;
 
+  private:
     // NOT IMPLEMENTED
     StripedUnorderedMap(const StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>&);
                                                                     // = delete

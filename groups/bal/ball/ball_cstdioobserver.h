@@ -241,6 +241,7 @@ class CstdioObserver : public Observer {
                                                     // handles all formatting
                                                     // operations
 
+  private:
     // NOT IMPLEMENTED
     CstdioObserver(const CstdioObserver&);
     CstdioObserver& operator=(const CstdioObserver&);

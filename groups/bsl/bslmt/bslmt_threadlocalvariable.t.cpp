@@ -685,6 +685,7 @@ extern "C" void *typesTest(void *voidArgs)
     /// This class implements an "example" request processor.
     class RequestProcessor {
 
+      private:
         // NOT IMPLEMENTED
         RequestProcessor(const RequestProcessor&);
         RequestProcessor& operator=(const RequestProcessor&);

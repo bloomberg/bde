@@ -204,6 +204,7 @@ class ZoneinfoCache {
 
     allocator_type          d_allocator;  // allocator used to supply memory
 
+  private:
     // NOT IMPLEMENTED
     ZoneinfoCache(const ZoneinfoCache&);
     ZoneinfoCache& operator=(const ZoneinfoCache&);

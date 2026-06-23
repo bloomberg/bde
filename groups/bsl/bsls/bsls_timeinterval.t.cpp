@@ -1099,6 +1099,7 @@ class ByteInStream {
     /// method has no effect.
     void throwExceptionIfInputLimitExhausted(int code);
 
+  private:
     // NOT IMPLEMENTED
     ByteInStream(const ByteInStream&);
     ByteInStream& operator=(const ByteInStream&);
@@ -1368,6 +1369,7 @@ class ByteOutStream {
     int             d_validFlag;    // stream validity flag; `true` if stream
                                     // is in valid state, `false` otherwise
 
+  private:
     // NOT IMPLEMENTED
     ByteOutStream(const ByteOutStream&);
     ByteOutStream& operator=(const ByteOutStream&);

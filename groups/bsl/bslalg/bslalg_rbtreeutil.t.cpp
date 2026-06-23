@@ -639,6 +639,7 @@ class DeleteTestNodeFactory {
     // DATA
     int d_invocationCount;
 
+  private:
     // NOT IMPLEMENTED
     DeleteTestNodeFactory(const DeleteTestNodeFactory&);
     DeleteTestNodeFactory& operator=(const DeleteTestNodeFactory&);
@@ -1196,6 +1197,7 @@ class TestTreeNodeComparator {
      // DATA
      mutable int d_numComparisons;
 
+  private:
      // NOT IMPLEMENTED
      TestTreeNodeComparator(const TestTreeNodeComparator &);
      TestTreeNodeComparator& operator=(const TestTreeNodeComparator &);
@@ -1290,6 +1292,7 @@ class TestNodeFactory {
     int             d_numDeleted;      // number of nodes deleted
     int             d_creationLimit;   // limit after which `createNode` throws
 
+  private:
     // NOT IMPLEMENTED
     TestNodeFactory(const TestNodeFactory&);
     TestNodeFactory& operator=(const TestNodeFactory&);

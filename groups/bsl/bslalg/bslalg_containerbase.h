@@ -347,6 +347,7 @@ class ContainerBase : public
                          ContainerBase_EmptyBase<ALLOCATOR>,
                          ContainerBase_NonEmptyBase<ALLOCATOR> >::type Base;
 
+  private:
     // NOT IMPLEMENTED
     ContainerBase(const ContainerBase& original) BSLS_KEYWORD_DELETED;
     ContainerBase& operator=(const ContainerBase&) BSLS_KEYWORD_DELETED;

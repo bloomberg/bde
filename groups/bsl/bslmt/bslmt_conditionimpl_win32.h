@@ -114,6 +114,7 @@ class ConditionImpl<Platform::Win32Threads> {
 
     bsls::SystemClockType::Enum  d_clockType; // clock type
 
+  private:
     // NOT IMPLEMENTED
     ConditionImpl(const ConditionImpl&);
     ConditionImpl& operator=(const ConditionImpl&);

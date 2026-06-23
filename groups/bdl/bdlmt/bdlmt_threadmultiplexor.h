@@ -272,6 +272,7 @@ class ThreadMultiplexor {
     /// non-zero value otherwise.
     int processJobQueue();
 
+  private:
     // NOT IMPLEMENTED
     ThreadMultiplexor(const ThreadMultiplexor&);
     ThreadMultiplexor& operator=(const ThreadMultiplexor&);

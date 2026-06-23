@@ -287,6 +287,7 @@ class SequentialAllocator : public ManagedAllocator {
     // DATA
     SequentialPool d_sequentialPool;  // sequential pool mechanism
 
+  private:
     // NOT IMPLEMENTED
     SequentialAllocator(const SequentialAllocator&);
     SequentialAllocator& operator=(const SequentialAllocator&);

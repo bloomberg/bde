@@ -644,6 +644,7 @@ class HashTable {
     bsls::Types::Int64  d_numElements;    // number of elements
     bsls::Types::Int64  d_totalChain;     // total chain length
 
+  private:
     // NOT IMPLEMENTED
     HashTable(const HashTable&);
     HashTable& operator=(const HashTable&);

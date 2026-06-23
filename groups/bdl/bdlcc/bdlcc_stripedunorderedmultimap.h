@@ -242,6 +242,7 @@ class StripedUnorderedMultiMap {
     // implementation of the striped hash map
     Impl d_imp;
 
+  private:
     // NOT IMPLEMENTED
     StripedUnorderedMultiMap(
                      const StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>&);

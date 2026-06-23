@@ -94,6 +94,7 @@ class DestructorGuard {
     // DATA
     TYPE *d_object_p;  // managed object
 
+  private:
     // NOT IMPLEMENTED
     DestructorGuard(const DestructorGuard<TYPE>&);
     DestructorGuard<TYPE>& operator=(const DestructorGuard<TYPE>&);

@@ -203,6 +203,7 @@ struct is_polymorphic<C> : bsl::true_type {};
 
         // Copy operations are declared private and not defined.
 
+      private:
         // NOT IMPLEMENTED
         MyContainer(const MyContainer&);
         MyContainer& operator=(const MyContainer&);
@@ -443,6 +444,7 @@ struct is_polymorphic<C> : bsl::true_type {};
         t_TYPE  *d_storage;
         size_t   d_length;
 
+      private:
         // NOT IMPLEMENTED
         MyVector(const MyVector&);
         MyVector& operator=(const MyVector&);

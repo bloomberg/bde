@@ -99,6 +99,7 @@ class ScopedAttributes {
     // DATA
     const AttributeContext::iterator d_it;  // refers to attributes
 
+  private:
     // NOT IMPLEMENTED
     ScopedAttributes(const ScopedAttributes&);
     ScopedAttributes& operator=(const ScopedAttributes&);

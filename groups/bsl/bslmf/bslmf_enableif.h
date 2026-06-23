@@ -117,6 +117,7 @@ BSLS_IDENT("$Id: $")
 //
 //     // Copy operations are declared private and not defined.
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     MyContainer(const MyContainer&);
 //     MyContainer& operator=(const MyContainer&);
@@ -352,6 +353,7 @@ BSLS_IDENT("$Id: $")
 //     t_TYPE  *d_storage;
 //     size_t   d_length;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     MyVector(const MyVector&);
 //     MyVector& operator=(const MyVector&);

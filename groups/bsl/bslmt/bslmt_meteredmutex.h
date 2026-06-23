@@ -187,6 +187,7 @@ class MeteredMutex {
     bsls::Types::Int64  d_startHoldTime;  // starting point of hold time
     bsls::AtomicInt64   d_lastResetTime;  // last reset time
 
+  private:
     // NOT IMPLEMENTED
     MeteredMutex(const MeteredMutex&);
     MeteredMutex& operator=(const MeteredMutex&);

@@ -176,6 +176,7 @@ class RawDeleterGuard {
     TYPE      *d_object_p;     // managed object
     ALLOCATOR *d_allocator_p;  // allocator or pool (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     RawDeleterGuard(const RawDeleterGuard&);
     RawDeleterGuard& operator=(const RawDeleterGuard&);

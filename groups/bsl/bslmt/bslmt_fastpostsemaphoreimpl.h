@@ -171,6 +171,7 @@ class FastPostSemaphoreImpl {
     /// be blocked.
     int waitSlowPath(const bsls::Types::Int64 initialState);
 
+  private:
     // NOT IMPLEMENTED
     FastPostSemaphoreImpl(const FastPostSemaphoreImpl&);
     FastPostSemaphoreImpl& operator=(const FastPostSemaphoreImpl&);

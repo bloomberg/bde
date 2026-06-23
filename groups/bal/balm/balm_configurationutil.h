@@ -112,6 +112,7 @@ BSLS_IDENT("$Id: $")
 //                                                           // metric's
 //                                                           // threshold
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     ThresholdPublisher(const ThresholdPublisher&);
 //     ThresholdPublisher& operator=(const ThresholdPublisher&);

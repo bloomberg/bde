@@ -215,6 +215,7 @@ class CompactedArray_RemoveAllProctor {
     // DATA
     CompactedArray<TYPE> *d_array_p;  // managed array
 
+  private:
     // NOT IMPLEMENTED
     CompactedArray_RemoveAllProctor();
     CompactedArray_RemoveAllProctor(const CompactedArray_RemoveAllProctor&);

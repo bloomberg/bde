@@ -505,6 +505,7 @@ class TestAllocator : public Allocator {
     template <class t_OS>
     t_OS& printToStream(t_OS& stream) const;
 
+  private:
     // NOT IMPLEMENTED
     TestAllocator(const TestAllocator&);             // = delete
     TestAllocator& operator=(const TestAllocator&);  // = delete

@@ -78,6 +78,7 @@ BSLS_IDENT("$Id: $")
 //     // DATA
 //     NodeAllocator d_allocator;  // rebound tree-node allocator
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     NodeFactory(const NodeFactory&);
 //     NodeFactory& operator=(const NodeFactory&);
@@ -207,6 +208,7 @@ BSLS_IDENT("$Id: $")
 //     bslalg::RbTreeAnchor d_tree;     // tree of node objects
 //     Factory              d_factory;  // allocator for node objects
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     Set(const Set&);
 //     Set& operator=(const Set&);

@@ -794,6 +794,7 @@ class my_CountedHandleRep {
     // FRIENDS
     friend class my_CountedHandle<INSTANCE>;
 
+  private:
     // NOT IMPLEMENTED
     my_CountedHandleRep(const my_CountedHandleRep&);
     my_CountedHandleRep& operator=(const my_CountedHandleRep&);

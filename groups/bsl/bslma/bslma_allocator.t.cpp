@@ -423,6 +423,7 @@ class my_MostDerived : public my_LeftBase, public my_RightBase {
     /// system-supplied (native) global operators `new` and `delete`.
     class my_NewDeleteAllocator : public bslma::Allocator {
 
+  private:
         // NOT IMPLEMENTED
         my_NewDeleteAllocator(const my_NewDeleteAllocator&);
         my_NewDeleteAllocator& operator=(const my_NewDeleteAllocator&);

@@ -161,6 +161,7 @@ class TestQueue {
     bdlmt::FixedThreadPool   *d_threadPool_p;    // (held, not owned)
     bdlmt::ThreadMultiplexor  d_multiplexor;     // used to partition threads
 
+  private:
     // NOT IMPLEMENTED
     TestQueue(const TestQueue&);
     TestQueue& operator=(const TestQueue&);

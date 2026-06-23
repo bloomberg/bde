@@ -1222,6 +1222,7 @@ class function : public BloombergLP::bslstl::Function_Variadic<PROTOTYPE> {
     typedef BloombergLP::bsls::UnspecifiedBool<function> UnspecifiedBoolUtil;
     typedef typename UnspecifiedBoolUtil::BoolType       UnspecifiedBool;
 
+  private:
     // NOT IMPLEMENTED
 
     /// Since `function` does not support `operator==` and `operator!=`,

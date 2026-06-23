@@ -115,6 +115,7 @@ BSLS_IDENT("$Id: $")
 //     bslma::Allocator       *d_allocator_p;
 //     bslma::SequentialPool   d_pool;
 //
+//   private:
 //     // NOT IMPLEMENTED
 //     MyList(const MyList&);
 //
@@ -419,6 +420,7 @@ class SequentialPool {
     InfrequentDeleteBlockList
                            d_blockList;          // provides free memory
 
+  private:
     // NOT IMPLEMENTED
     SequentialPool(const SequentialPool&);
     SequentialPool& operator=(const SequentialPool&);

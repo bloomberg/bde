@@ -425,6 +425,7 @@ class TestValuesArray {
     bool      *d_validIterator_p;    // pointer to an array to indicate if
                                      // value is comparable (owned)
 
+  private:
     // NOT IMPLEMENTED
     TestValuesArray(const TestValuesArray& );             // = delete
     TestValuesArray& operator=(const TestValuesArray& );  // = delete

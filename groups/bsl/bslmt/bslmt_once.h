@@ -500,6 +500,7 @@ class OnceGuard {
     State           d_state;
     int             d_num_exceptions; // exceptions active at construction
 
+  private:
     // NOT IMPLEMENTED
     OnceGuard(const OnceGuard&);
     OnceGuard& operator=(const OnceGuard&);

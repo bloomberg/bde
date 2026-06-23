@@ -96,6 +96,7 @@ class DefaultDeleter : public Deleter<TYPE> {
     // DATA
     bslma::Allocator *d_allocator_p;  // memory allocator (held, *not* owned)
 
+  private:
     // NOT IMPLEMENTED
     DefaultDeleter(const DefaultDeleter<TYPE>&);
     DefaultDeleter<TYPE>& operator=(const DefaultDeleter<TYPE>&);

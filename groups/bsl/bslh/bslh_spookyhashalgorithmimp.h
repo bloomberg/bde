@@ -338,6 +338,7 @@ class SpookyHashAlgorithmImp {
     /// cannonical implementation.
     static void shortMix(Uint64 &h0, Uint64 &h1, Uint64 &h2, Uint64 &h3);
 
+  private:
     // NOT IMPLEMENTED
 
     /// Do not allow copy construction

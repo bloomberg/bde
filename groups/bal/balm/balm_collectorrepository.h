@@ -168,6 +168,7 @@ class CollectorRepository {
     mutable bslmt::RWMutex  d_rwMutex;     // data lock
     bslma::Allocator       *d_allocator_p; // allocator (held, not owned)
 
+  private:
     // NOT IMPLEMENTED
     CollectorRepository(const CollectorRepository& );
     CollectorRepository& operator=(const CollectorRepository& );

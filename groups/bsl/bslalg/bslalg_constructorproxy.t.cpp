@@ -287,6 +287,7 @@ class TestType_Base {
     // DATA
     ALLOC d_allocator;
 
+  private:
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
 
@@ -332,6 +333,7 @@ class TestType_Base {
 template <>
 class TestType_Base<void> {
 
+  private:
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
 
@@ -360,6 +362,7 @@ class TestType_Base<bslma::Allocator *> {
     // DATA
     bslma::Allocator *d_allocator;
 
+  private:
     // NOT IMPLEMENTED
     TestType_Base& operator=(const TestType_Base&) BSLS_KEYWORD_DELETED;
 

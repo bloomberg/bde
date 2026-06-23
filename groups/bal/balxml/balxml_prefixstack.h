@@ -106,6 +106,7 @@ class PrefixStack {
 
     int                       d_numPrefixes;  // number of prefixes
 
+  private:
     // NOT IMPLEMENTED
     PrefixStack& operator=(const PrefixStack&);  // = delete
 

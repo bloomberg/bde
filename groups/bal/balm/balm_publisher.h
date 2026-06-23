@@ -40,6 +40,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //     // DATA
 //     bsl::ostream& d_stream; // output stream (held, not owned)
 //
+// private:
 //     // NOT IMPLEMENTED
 //     SimpleStreamPublisher(const SimpleStreamPublisher& );
 //     SimpleStreamPublisher& operator=(const SimpleStreamPublisher& );
@@ -113,6 +114,7 @@ BSLS_IDENT("$Id: balm_publisher.h,v 1.6 2008/04/09 19:42:15 hversche Exp $")
 //     balm::Collector  d_eventMessageSize;  // metric for the message size
 //     bdlt::DatetimeTz d_lastPublish;       // time of the last publication
 //
+// private:
 //     // NOT IMPLEMENTED
 //     EventManager(const EventManager& );
 //     EventManager& operator=(const EventManager& );

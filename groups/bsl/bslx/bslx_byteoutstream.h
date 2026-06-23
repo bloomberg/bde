@@ -181,6 +181,7 @@ class ByteOutStream {
     // FRIENDS
     friend bsl::ostream& operator<<(bsl::ostream&, const ByteOutStream&);
 
+  private:
     // NOT IMPLEMENTED
     ByteOutStream(const ByteOutStream&);
     ByteOutStream& operator=(const ByteOutStream&);

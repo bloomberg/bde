@@ -100,6 +100,7 @@ class SemaphoreImpl<Platform::Win32Semaphore> {
                                    // not provide a mechanism to get the
                                    // semaphore count)
 
+  private:
     // NOT IMPLEMENTED
     SemaphoreImpl(const SemaphoreImpl&);
     SemaphoreImpl& operator=(const SemaphoreImpl&);

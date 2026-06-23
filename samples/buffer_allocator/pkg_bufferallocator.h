@@ -129,6 +129,7 @@ class BufferAllocator : public BloombergLP::bslma::Allocator {
                                                     // 'd_buffer_p' (held, not
                                                     // owned)
 
+  private:
     // NOT IMPLEMENTED
     BufferAllocator(const BufferAllocator&);
     BufferAllocator& operator=(const BufferAllocator&);

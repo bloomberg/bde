@@ -141,6 +141,7 @@ class BerDecoder {
 
         bdlsb::MemOutStreamBuf d_sb;
 
+      private:
         // NOT IMPLEMENTED
         MemOutStream(const MemOutStream&);             // = delete;
         MemOutStream& operator=(const MemOutStream&);  // = delete;
@@ -216,6 +217,7 @@ class BerDecoder {
     int                              d_arrayLengthHint;
                                                      // length hint
 
+  private:
     // NOT IMPLEMENTED
     BerDecoder(const BerDecoder&);             // = delete;
     BerDecoder& operator=(const BerDecoder&);  // = delete;
@@ -349,6 +351,7 @@ class BerDecoder_Node {
     int                     d_formattingMode;       // formatting mode
     const char             *d_fieldName;            // name of the field
 
+  private:
     // NOT IMPLEMENTED
     BerDecoder_Node(BerDecoder_Node&);            // = delete;
     BerDecoder_Node& operator=(BerDecoder_Node&); // = delete;
@@ -503,6 +506,7 @@ class BerDecoder_NodeVisitor {
     // DATA
     BerDecoder_Node *d_node;  // current node, held, not owned
 
+  private:
     // NOT IMPLEMENTED
     BerDecoder_NodeVisitor(const BerDecoder_NodeVisitor&);         // = delete;
     BerDecoder_NodeVisitor& operator=(const BerDecoder_NodeVisitor&);
@@ -532,6 +536,7 @@ class BerDecoder_UniversalElementVisitor {
     // DATA
     BerDecoder_Node d_node;  // a new node
 
+  private:
     // NOT IMPLEMENTED
     BerDecoder_UniversalElementVisitor(
                                const BerDecoder_UniversalElementVisitor&);

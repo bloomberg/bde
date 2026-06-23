@@ -109,6 +109,7 @@ class StreamPublisher : public Publisher {
     // DATA
     bsl::ostream& d_stream;   // stream to which to write data
 
+  private:
     // NOT IMPLEMENTED
     StreamPublisher(const StreamPublisher& );
     StreamPublisher& operator=(const StreamPublisher& );

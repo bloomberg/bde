@@ -321,6 +321,7 @@ class TestTransitionalUnixInterface {
     // `fstat64` drains
     bsl::deque<Response> d_responses;
 
+  private:
     // NOT IMPLEMENTED
     TestTransitionalUnixInterface(const TestTransitionalUnixInterface&);
     TestTransitionalUnixInterface& operator=(

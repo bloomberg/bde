@@ -233,6 +233,7 @@ typedef bslmt::FastPostSemaphore Obj;
         mutable bslmt::Condition d_emptyCondition;  // condition variable for
                                                     // `waitUntilEmpty`
 
+  private:
         // NOT IMPLEMENTED
         IntQueue(const IntQueue&);
         IntQueue& operator=(const IntQueue&);

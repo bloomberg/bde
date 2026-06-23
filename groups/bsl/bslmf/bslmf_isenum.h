@@ -180,9 +180,6 @@ namespace bslmf {
 /// arithmetic types or enumerated types will not be implicitly convertible
 /// to `IsEnum_AnyArithmeticType`.
 struct IsEnum_AnyArithmeticType {
-
-    // NOT IMPLEMENTED
-
     /// Create an `IsEnum_AnyArithmeticType` object from a value of one of
     /// the indicated arithmetic types.  Note that it is not necessary to
     /// provide overloads taking `bool`, `char`, or `short` because they are
@@ -191,7 +188,9 @@ struct IsEnum_AnyArithmeticType {
     /// the other variants are necessary because a conversion from, e.g., a
     /// `long double` to a `double` does not take precedence over a
     /// conversion from `long double` to `int` and, therefore, would be
-    /// ambiguous.
+    /// ambiguous.  None of these constructors are defined, and they are not
+    /// intended to be called.  They are only used to determine whether a type
+    /// is convertible to any arithmetic type.
     IsEnum_AnyArithmeticType(wchar_t);                              // IMPLICIT
     IsEnum_AnyArithmeticType(int);                                  // IMPLICIT
     IsEnum_AnyArithmeticType(unsigned int);                         // IMPLICIT
