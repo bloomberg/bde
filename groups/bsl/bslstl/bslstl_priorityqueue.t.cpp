@@ -6396,8 +6396,7 @@ struct TestDeductionGuides {
                       decltype(pq11d),
                       bsl::priority_queue<T11, bsl::vector<T11>, CompFnT11 *>);
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
         {
             typedef int T;
             const T range[] = {1, 2, 3};

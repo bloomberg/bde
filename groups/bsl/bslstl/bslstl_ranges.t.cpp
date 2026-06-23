@@ -1,9 +1,7 @@
 // bslstl_ranges.t.cpp                                                -*-C++-*-
 #include <bslstl_ranges.h>
 
-#include <bslstl_istringstream.h>
-#include <bslstl_string.h>
-#include <bslstl_vector.h>
+#include <bslstl_algorithm.h>
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
@@ -11,7 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>  // `atoi`
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
+#include <algorithm>
+#include <string>
+#include <vector>
+
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_TUPLE
 #include <tuple>
 #endif
 
@@ -206,9 +208,11 @@ int main(int argc, char *argv[])
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES
         namespace ranges = bsl::ranges;
 
-        // Testing types aliased in the `bsl_ranges.h`
+        // Testing types aliased in the `bsl_ranges.h`, using `std` types
+        // because we do not want to add new test-only dependencies that would
+        // inevitably force a cycle.
 
-        using Vector = bsl::vector<int>;
+        using Vector = std::vector<int>;
         using Tuple  = std::tuple<int, int>;
 
         Vector vec{1, 2, 3, 4, 5};
@@ -320,7 +324,7 @@ int main(int argc, char *argv[])
         ranges::iota_view<int, int> iotaView(1, 2);
         ASSERTV(iotaView.size(), 1 == iotaView.size());
 
-        bsl::istringstream                    iStringStream("1 2 3");
+        std::istringstream                    iStringStream("1 2 3");
         ranges::basic_istream_view<int, char> basicIStreamView(iStringStream);
         auto                                  beginResult =
                                                      *basicIStreamView.begin();
@@ -330,9 +334,9 @@ int main(int argc, char *argv[])
         beginResult = *iStreamView.begin();
         ASSERTV(beginResult, 2 == beginResult);
 
-        bsl::wstring wString;
+        std::wstring wString;
         wString.push_back('1');
-        bsl::wistringstream        wIStringStream(wString);
+        std::wistringstream        wIStringStream(wString);
         ranges::wistream_view<int> wIStreamView(wIStringStream);
         beginResult = *wIStreamView.begin();
         ASSERTV(beginResult, 1 == beginResult);

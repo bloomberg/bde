@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri May 15 12:19:50 2026
+// Generated on Wed Jun  3 10:06:09 2026
 // Command line: sim_cpp11_features.pl bslstl_stack.h
 
 #ifdef COMPILING_BSLSTL_STACK_H
@@ -490,8 +490,7 @@ template <class INPUT_ITER,
           class = enable_if_t<IsStdAllocator_v<ALLOCATOR>>>
 stack(INPUT_ITER, INPUT_ITER, ALLOCATOR)-> stack<TYPE, deque<TYPE, ALLOCATOR>>;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
 /// Deduce the template parameter `VALUE` from the parameters supplied to the
 /// constructor of `stack`.
 template <ranges::input_range t_RANGE>
@@ -1115,8 +1114,7 @@ BSLSTL_STACK_REQUIRES_CONTAINER_COMPATIBLE_RANGE(t_RANGE, VALUE)
 void stack<VALUE, CONTAINER>::push_range(
                               BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range)
 {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
     if constexpr (requires{ c.append_range(std::forward<t_RANGE>(range)); }) {
         c.append_range(std::forward<t_RANGE>(range));
     }

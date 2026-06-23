@@ -6660,8 +6660,7 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(q9b),
                          bsl::stack<T9, bsl::deque<T9, bsl::allocator<T9>>>);
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
         {
             typedef int T;
             const T range[] = {1, 2, 3};

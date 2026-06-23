@@ -21,8 +21,8 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Apr 24 11:00:23 2026
-// Command line: sim_cpp11_features.pl bslstl_vector.h
+// Generated on Tue Jun 23 15:46:04 2026
+// Command line: sim_cpp11_features.py bslstl_vector.h
 
 #ifdef COMPILING_BSLSTL_VECTOR_H
 
@@ -110,8 +110,7 @@ template <class t_ITERATOR,
 struct Vector_RangeIteratorCategory {
 
     // PUBLIC TYPES
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
     // Treat an iterator like an input iterator if we can compute an insert
     // distance in a SFINAE-friendly manner, otherwise just treat it like an
     // input iterator.
@@ -505,24 +504,24 @@ class vector : public  vectorBase<VALUE_TYPE>
     /// constructor.  The behavior is undefined unless the specified `begin`
     /// is the first element in `range`.
     template <class t_RANGE, class t_ITERATOR>
-    void construct(from_range_t                               ,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
-                   t_ITERATOR                                 begin);
+    void privateConstruct(from_range_t                               ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                          t_ITERATOR                                 begin);
 
     /// Populate a default-constructed vector with the values held in the
     /// specified `range`.  This method should be called only from a
     /// constructor.  The behavior is undefined unless the specified `begin`
     /// is the first element in `range`.
     template <class t_RANGE, class t_ITERATOR>
-    void construct(from_range_t                               ,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
-                   t_ITERATOR                                 begin,
-                   std::forward_iterator_tag);
+    void privateConstruct(from_range_t                               ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                          t_ITERATOR                                 begin,
+                          std::forward_iterator_tag);
     template <class t_RANGE, class t_ITERATOR>
-    void construct(from_range_t                               ,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
-                   t_ITERATOR                                 begin,
-                   std::input_iterator_tag);
+    void privateConstruct(from_range_t                               ,
+                          BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
+                          t_ITERATOR                                 begin,
+                          std::input_iterator_tag);
 
     /// Populate a default-constructed vector with the values held in the
     /// specified range `[first, last)`.  The additional
@@ -635,7 +634,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_vector.h
+// Command line: sim_cpp11_features.py bslstl_vector.h
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
@@ -1109,7 +1108,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_vector.h
+// Command line: sim_cpp11_features.py bslstl_vector.h
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
@@ -1302,7 +1301,7 @@ class vector : public  vectorBase<VALUE_TYPE>
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_vector.h
+// Command line: sim_cpp11_features.py bslstl_vector.h
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
@@ -2782,8 +2781,7 @@ template<
 vector(std::initializer_list<VALUE>, ALLOC *)
 -> vector<VALUE>;
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
 /// Deduce the template parameters `VALUE_TYPE` and `ALLOCATOR` from the
 /// parameters supplied to the constructor of `vector`.
 template <ranges::input_range t_RANGE,
@@ -2910,8 +2908,7 @@ class vector_UintPtrConversionIterator {
         return lhs.d_iter < rhs.d_iter;
     }
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
     bool operator==(bsl::sentinel_for<ITERATOR> auto rhs) const
     {
         return d_iter == rhs;
@@ -2932,7 +2929,7 @@ class vector_UintPtrConversionIterator {
     difference_type operator-(const vector_UintPtrConversionIterator& lhs,
                               const vector_UintPtrConversionIterator& rhs)
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-    requires requires { lhs.d_iter - rhs.d_iter; }
+        requires requires { lhs.d_iter - rhs.d_iter; }
 #endif
     {
         return lhs.d_iter - rhs.d_iter;
@@ -3443,17 +3440,18 @@ void vector<VALUE_TYPE, ALLOCATOR>::Proctor::release()
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class t_RANGE, class t_ITERATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::construct(
+void vector<VALUE_TYPE, ALLOCATOR>::privateConstruct(
                               from_range_t                               ,
                               BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
                               t_ITERATOR                                 begin)
 {
+    BSLS_ASSERT_SAFE(begin == ranges::begin(range));
     BSLS_ASSERT_SAFE(!Vector_RangeCheck::isInvalidRange(begin,
                                                         ranges::end(range)));
 
     typedef typename Vector_DeduceIteratorCategory<t_ITERATOR>::type Tag;
 
-    construct(from_range,
+    privateConstruct(from_range,
               BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
               begin,
               Tag());
@@ -3462,28 +3460,37 @@ void vector<VALUE_TYPE, ALLOCATOR>::construct(
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class t_RANGE, class t_ITERATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::construct(
+void vector<VALUE_TYPE, ALLOCATOR>::privateConstruct(
                               from_range_t                               ,
                               BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
                               t_ITERATOR                                 begin,
                               std::forward_iterator_tag)
 {
-    constructFromSizedRange(begin,
-                            ranges::end(range),
-                            ranges::distance(range));
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    if constexpr (ranges::sized_range<t_RANGE>) {
+        constructFromSizedRange(begin,
+                                ranges::end(range),
+                                ranges::size(range));
+    }
+    else //
+#endif
+    constructFromSizedRange(
+        begin,
+        ranges::end(range),
+        BloombergLP::bslstl::IteratorUtil::insertDistance(begin,
+                                                          ranges::end(range)));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
 template <class t_RANGE, class t_ITERATOR>
 inline
-void vector<VALUE_TYPE, ALLOCATOR>::construct(
+void vector<VALUE_TYPE, ALLOCATOR>::privateConstruct(
                               from_range_t                               ,
                               BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
                               t_ITERATOR                                 begin,
                               std::input_iterator_tag)
 {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
     if constexpr (ranges::sized_range<t_RANGE>) {
         constructFromSizedRange(begin,
                                 ranges::end(range),
@@ -3617,6 +3624,8 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateAppendRange(
                               BSLS_COMPILERFEATURES_FORWARD_REF(t_RANGE) range,
                               t_ITERATOR begin)
 {
+    BSLS_ASSERT_SAFE(begin == ranges::begin(range));
+
     typedef typename Vector_DeduceIteratorCategory<t_ITERATOR>::type Tag;
     privateAppendRange(BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
                        begin,
@@ -3631,9 +3640,19 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateAppendRange(
                               t_ITERATOR begin,
                               std::forward_iterator_tag)
 {
-    privateAppendSizedRange(begin,
-                            ranges::end(range),
-                            ranges::distance(range));
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+    if constexpr (ranges::sized_range<t_RANGE>) {
+        privateAppendSizedRange(begin,
+                                ranges::end(range),
+                                ranges::size(range));
+    }
+    else //
+#endif
+    privateAppendSizedRange(
+        begin,
+        ranges::end(range),
+        BloombergLP::bslstl::IteratorUtil::insertDistance(begin,
+                                                          ranges::end(range)));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -3644,8 +3663,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateAppendRange(
                               t_ITERATOR begin,
                               std::input_iterator_tag)
 {
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
     if constexpr (ranges::sized_range<t_RANGE>) {
         privateAppendSizedRange(begin,
                                 ranges::end(range),
@@ -4019,7 +4037,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::privateReserveEmpty(size_type numElements)
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_vector.h
+// Command line: sim_cpp11_features.py bslstl_vector.h
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif
@@ -4890,9 +4908,9 @@ vector<VALUE_TYPE, ALLOCATOR>::vector(
 : vectorBase<VALUE_TYPE>()
 , ContainerBase(basicAllocator)
 {
-    construct(from_range,
-              BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
-              ranges::begin(range));
+    privateConstruct(from_range,
+                     BSLS_COMPILERFEATURES_FORWARD(t_RANGE, range),
+                     ranges::begin(range));
 }
 
 template <class VALUE_TYPE, class ALLOCATOR>
@@ -5158,7 +5176,7 @@ void vector<VALUE_TYPE, ALLOCATOR>::append_range(
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_vector.h
+// Command line: sim_cpp11_features.py bslstl_vector.h
 #ifndef BSLSTL_VECTOR_VARIADIC_LIMIT
 #define BSLSTL_VECTOR_VARIADIC_LIMIT 10
 #endif

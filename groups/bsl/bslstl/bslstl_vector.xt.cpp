@@ -3835,8 +3835,7 @@ struct TestDeductionGuides {
         ASSERT_SAME_TYPE(decltype(v10d), bsl::vector<T10,
                                                          std::allocator<T10>>);
 
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
- && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)
         {
             typedef int T;
             const T range[] = {1, 2, 3};
