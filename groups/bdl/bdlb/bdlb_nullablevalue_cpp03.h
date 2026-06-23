@@ -21,8 +21,8 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Wed Oct 29 16:14:12 2025
-// Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
+// Generated on Tue Jun 23 07:23:53 2026
+// Command line: sim_cpp11_features.py bdlb_nullablevalue.h
 
 #ifdef COMPILING_BDLB_NULLABLEVALUE_H
 
@@ -117,6 +117,15 @@ class NullableValue : public bsl::optional<TYPE> {
     // FRIENDS
     template <class ANY_TYPE>
     friend class NullableValue;
+
+  private:
+    // NOT IMPLEMENTED
+    template <class t_FUNC>
+    void transform(const t_FUNC& func) const BSLS_KEYWORD_DELETED;
+    template <class t_FUNC>
+    void and_then(const t_FUNC& func) const BSLS_KEYWORD_DELETED;
+    template <class t_FUNC>
+    void or_else(const t_FUNC& func) const BSLS_KEYWORD_DELETED;
 
   public:
     // TYPES
@@ -417,7 +426,7 @@ class NullableValue : public bsl::optional<TYPE> {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
+// Command line: sim_cpp11_features.py bdlb_nullablevalue.h
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT
 #define BDLB_NULLABLEVALUE_VARIADIC_LIMIT 10
 #endif
@@ -1712,7 +1721,7 @@ TYPE& NullableValue<TYPE>::makeValue()
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bdlb_nullablevalue.h
+// Command line: sim_cpp11_features.py bdlb_nullablevalue.h
 #ifndef BDLB_NULLABLEVALUE_VARIADIC_LIMIT
 #define BDLB_NULLABLEVALUE_VARIADIC_LIMIT 10
 #endif

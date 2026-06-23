@@ -239,6 +239,15 @@ class NullableValue : public bsl::optional<TYPE> {
     template <class ANY_TYPE>
     friend class NullableValue;
 
+  private:
+    // NOT IMPLEMENTED
+    template <class t_FUNC>
+    void transform(const t_FUNC& func) const BSLS_KEYWORD_DELETED;
+    template <class t_FUNC>
+    void and_then(const t_FUNC& func) const BSLS_KEYWORD_DELETED;
+    template <class t_FUNC>
+    void or_else(const t_FUNC& func) const BSLS_KEYWORD_DELETED;
+
   public:
     // TYPES
 
