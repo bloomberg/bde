@@ -130,7 +130,7 @@
       bslstl_iterator
       bslstl_monostate
       bslstl_ratio
-      bslstl_referencewrapper
+      bslstl_referencewrapper                            !DEPRECATED!
       bslstl_sharedptrallocateinplacerep
       bslstl_sharedptrallocateoutofplacerep
       bslstl_simplepool
@@ -407,7 +407,7 @@
 : 'bslstl_ratio':
 :      Provide functionality of the corresponding C++ Standard header.
 :
-: 'bslstl_referencewrapper':
+: 'bslstl_referencewrapper':                             !DEPRECATED!
 :      Provide copyable, assignable object wrapper for references.
 :
 : 'bslstl_set':
