@@ -499,7 +499,8 @@ using bdldfp::Decimal64;
 // [15] bsl::ostream& operator<<(bsl::ostream&, const DatumMapRef&);
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [37] USAGE EXAMPLE
+// [38] USAGE EXAMPLE
+// [37] REGRESSIONS
 // [36] VECTOR OF NULLS TEST
 // [26] Datum_ArrayProctor
 // [34] DATETIME ALLOCATION TESTS
@@ -2467,7 +2468,7 @@ int main(int argc, char *argv[])
     srand(static_cast<unsigned int>(time(static_cast<time_t *>(0))));
 
     switch (test) { case 0:
-      case 37: {
+      case 38: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2765,6 +2766,50 @@ int main(int argc, char *argv[])
     Datum::destroy(datumBlob, &oa);
 // ```
 // Note, that the bytes have been copied.
+      } break;
+      case 37: {
+        // --------------------------------------------------------------------
+        // REGRESSIONS
+        //  Special regressions of found issues are tested here.
+        //  See {DRQS 178234724} for details.
+        //
+        // Concerns:
+        // 1. In 32bit mode a `bdlt::Datetime` with the special "24:00:00" time
+        //    part turned into "00:00:00" if the date part fell within the
+        //    epoch (and was consequently stored as `bdlt::DatetimeInterval`).
+        //
+        //Plan:
+        // 1. Create a `bdlt::Datetime` with the special "24:00:00" time part.
+        //    Put this value into a `Datum` then retrieve it into another
+        //    `bdlt::Datetime` and compare that its time part is the same.  For
+        //    simplicity we do not limit this verification for 32bit builds
+        //    only (even though we did not have the error in 64bit builds).
+        //
+        // Testing:
+        //   REGRESSIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "\nREGRESSIONS"
+                             "\n===========\n";
+
+        const bdlt::Datetime ORIGINAL(2025, 2, 25, 24);
+
+        // This is the special time:
+        ASSERT(24 == ORIGINAL.hour());
+        ASSERT( 0 == ORIGINAL.minute());
+        ASSERT( 0 == ORIGINAL.second());
+        ASSERT( 0 == ORIGINAL.millisecond());
+        ASSERT( 0 == ORIGINAL.microsecond());
+
+        bslma::TestAllocator oa("object");
+
+        const bdld::Datum DATUM = bdld::Datum::createDatetime(ORIGINAL, &oa);
+
+        const bdlt::Datetime FROM_DATUM = DATUM.theDatetime();
+
+        bdld::Datum::destroy(DATUM, &oa);
+
+        ASSERTV(ORIGINAL, FROM_DATUM, ORIGINAL == FROM_DATUM);
       } break;
       case 36: {
         // --------------------------------------------------------------------

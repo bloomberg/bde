@@ -614,6 +614,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bdlt_datetimeinterval.h>
 #include <bdlt_epochutil.h>
 #include <bdlt_time.h>
+#include <bdlt_timeunitratio.h>
 
 #include <bslma_allocator.h>
 #include <bslma_allocatorutil.h>
@@ -3694,18 +3695,26 @@ Datum Datum::createDatetime(const bdlt::Datetime& value,
 #ifdef BSLS_PLATFORM_CPU_32_BIT
     // Check if number of days from now fits in two bytes.
 
-    int dateOffsetFromEpoch = (value.date() - bdlt::EpochUtil::epoch().date())
+    const int dateOffsetFromEpoch =
+        (value.date() - bdlt::EpochUtil::epoch().date())
                                                 - k_DATETIME_OFFSET_FROM_EPOCH;
-    short shortDateOffsetFromEpoch = static_cast<short>(dateOffsetFromEpoch);
+    const short shortDateOffsetFromEpoch =
+                                       static_cast<short>(dateOffsetFromEpoch);
 
     if (static_cast<int>(shortDateOffsetFromEpoch) == dateOffsetFromEpoch &&
         value.microsecond() == 0) {
         result.d_exp.d_value =
             (k_DOUBLE_MASK | e_INTERNAL_DATETIME) << k_TYPE_MASK_BITS
-            | (0xffff & dateOffsetFromEpoch);
-        bdlt::DatetimeInterval interval = value.time() - bdlt::Time();
-        result.d_as.d_int = static_cast<int>(interval.totalMilliseconds());
-    } else {
+                                              | (0xffff & dateOffsetFromEpoch);
+        if (value.time() != bdlt::Time()) {
+            bdlt::DatetimeInterval interval = value.time() - bdlt::Time();
+            result.d_as.d_int = static_cast<int>(interval.totalMilliseconds());
+        }
+        else {
+            result.d_as.d_int = bdlt::TimeUnitRatio::k_MS_PER_D_32;
+        }
+    }
+    else {
         void *mem = AllocUtil::newObject<bdlt::Datetime>(allocator, value);
         result = createExtendedDataObject(e_EXTENDED_INTERNAL_DATETIME_ALLOC,
                                           mem);
@@ -4283,12 +4292,17 @@ bdlt::Datetime Datum::theDatetime() const
     const InternalDataType type = internalType();
 
     if (type == e_INTERNAL_DATETIME) {
-        bdlt::Time time;
-        time.addMilliseconds(d_as.d_int);
-        return bdlt::Datetime(
-               bdlt::EpochUtil::epoch().date() + k_DATETIME_OFFSET_FROM_EPOCH +
-                                                                  d_as.d_short,
-               time);                                                 // RETURN
+        const bdlt::Date date = bdlt::EpochUtil::epoch().date() +
+                                k_DATETIME_OFFSET_FROM_EPOCH + d_as.d_short;
+        if (d_as.d_int != bdlt::TimeUnitRatio::k_MS_PER_D_32) {
+            bdlt::Time time;
+            time.addMilliseconds(d_as.d_int);
+            return bdlt::Datetime(date, time);                        // RETURN
+        }
+        else {
+            // The special 24:00:00.00000 time point
+            return bdlt::Datetime(date, bdlt::Time());                // RETURN
+        }
     }
 
     BSLS_ASSERT_SAFE(type == e_INTERNAL_EXTENDED);
