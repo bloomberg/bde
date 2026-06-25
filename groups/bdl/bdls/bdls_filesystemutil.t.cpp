@@ -474,20 +474,78 @@ struct VisitTreeTestVisitor {
     }
 };
 
+#ifdef BSLS_PLATFORM_OS_WINDOWS
+/// Return a unique (short) string for the specified `fnTemplate`, which is
+/// suitable for use in a temporary file name.  The same `fnTemplate` will
+/// always return the same string, but different `fnTemplate` values will
+/// return different strings.  Note that this assumes this test driver will
+/// remain single-threaded, and that the number of unique `fnTemplate` values
+/// will be small enough to fit in a few digits.
+static bsl::string shrinkFnTemplate(const bsl::string_view& fnTemplate)
+{
+    static bsl::map<bsl::string, int> fnTemplateValues;
+    static int nextValue = 0;
+
+    bsl::string key(fnTemplate.begin(), fnTemplate.end());
+
+    if (fnTemplateValues.find(key) == fnTemplateValues.end()) {
+        fnTemplateValues[key] = nextValue++;
+    }
+
+    return bsl::to_string(fnTemplateValues[key]);
+}
+#endif
+
+/// Return the name for a temporary file or directory, with the specified
+/// `prefix` and `testCase` being part of the name, and with the optionally
+/// specified `fnTemplate`, if present, also being part of the name.  On
+/// Windows, a "compacted" version of the filename is returned, attempting to
+/// avoid exceeding the maximum path length of 260 characters.
+static bsl::string buildTempName(int                      testCase,
+                                 const char              *fnTemplate = 0)
+{
+    const bsls::TimeInterval now = bsls::SystemTime::now(
+                                        bsls::SystemClockType::e_REALTIME);
+    const bsl::string_view prefix = "bdl_FSU_";
+
+    bsl::ostringstream oss;
+
+#ifndef BSLS_PLATFORM_OS_WINDOWS
+    char host[256] = { 0 };
+    ASSERT(0 == ::gethostname(host, sizeof(host)));
+
+    oss << prefix << testCase << '.' << host << '.' << ::localGetPId() << '.'
+        << now.totalSeconds() << '.' << now.nanoseconds();
+    if (fnTemplate) {
+        oss << '.' << fnTemplate;
+    }
+#else // BSLS_PLATFORM_OS_WINDOWS
+    // On windows, we have a *severe* maximum path length of 260 characters, so
+    // we have to be careful about how long the file name is.  We will replace
+    // the `prefix` (and `fnTemplate`, if present) with a short, unique string,
+    // and we will use only the last 16 bits of the pid and the last 12 bits of
+    // the seconds and nanoseconds to reduce the length of the file name.
+    oss << shrinkFnTemplate(prefix)
+        << "." << testCase
+        << '.' << hex << (::localGetPId()    % 0x10000)
+        << '.' << hex << (now.totalSeconds() % 0x1000)
+        << '.' << hex << (now.nanoseconds()  % 0x1000);
+    if (fnTemplate) {
+        oss << '.' << shrinkFnTemplate(fnTemplate);
+    }
+#endif
+
+    return oss.str();
+}
+
 /// Return a temporary file name, with the specified `testCase` being part
 /// of the file name, and with the optionally specified `fnTemplate`, if
 /// specified, also being part of the file name.
 static bsl::string tempFileName(int testCase, const char *fnTemplate = 0)
 {
-
 #ifndef BSLS_PLATFORM_OS_WINDOWS
-    bsl::ostringstream oss;
-    oss << "tmp.filesystemutil." << testCase << '.' << ::localGetPId();
-    if (fnTemplate) {
-        oss << '.' << fnTemplate;
-    }
-
-    bsl::string result(oss.str());
+    bsl::string result = buildTempName(testCase,
+                                       fnTemplate);
     result += "_XXXXXX";
     close(mkstemp(&result[0]));
 #else
@@ -4079,24 +4137,25 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
     if (verbose) cout << "\n\t+++++++++++++++ Testing " << typeName << endl;
 
+
     struct Parameters {
-        const char* good;
-        const char* badNoExist;
-        const char* badWrongType;
+        bsl::string good;
+        bsl::string badNoExist;
+        bsl::string badWrongType;
     };
 
-#define CASE5_TMPDIR "tmp.filesystemutil.case5"
+    bsl::string case5_tmpdir_base = buildTempName(test);
 
     struct ParametersByType {
         Parameters regular;
         Parameters directory;
     } parameters = {
-        { CASE5_TMPDIR PS "file",
-          CASE5_TMPDIR PS "file2",
-          CASE5_TMPDIR PS "dir"  },
-        { CASE5_TMPDIR PS "dir",
-          CASE5_TMPDIR PS "dir2",
-          CASE5_TMPDIR PS "file" }
+        { case5_tmpdir_base + PS + "file",
+          case5_tmpdir_base + PS + "file2",
+          case5_tmpdir_base + PS + "dir"  },
+        { case5_tmpdir_base + PS + "dir",
+          case5_tmpdir_base + PS + "dir2",
+          case5_tmpdir_base + PS + "file" }
     };
 
     const Parameters& r = parameters.regular;
@@ -4104,13 +4163,13 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
     ASSERT(0 == Obj::createDirectories(r.good));
 
-    ::makeArbitraryFile(r.good);
+    ::makeArbitraryFile(r.good.c_str());
     ASSERT(0 == Obj::createDirectories(r.badWrongType, true));
     ASSERT(true == Obj::isRegularFile(r.good));
     ASSERT(false == Obj::isRegularFile(r.badNoExist));
     ASSERT(false == Obj::isRegularFile(r.badWrongType));
 
-    ::makeArbitraryFile(d.badWrongType);
+    ::makeArbitraryFile(d.badWrongType.c_str());
     ASSERT(0 == Obj::createDirectories(d.good, true));
     ASSERT(true == Obj::isDirectory(d.good));
     ASSERT(false == Obj::isDirectory(d.badNoExist));
@@ -4123,7 +4182,7 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
     bsl::string absolute;
     ASSERT(0 == Obj::getWorkingDirectory(&absolute));
-    bdls::PathUtil::appendRaw(&absolute, r.good);
+    bdls::PathUtil::appendRaw(&absolute, r.good.c_str());
 
     bsl::string link = absolute;
     bdls::PathUtil::popLeaf(&link);
@@ -4153,7 +4212,7 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
     bdls::PathUtil::appendRaw(&link, "link_rbw");
     bdls::PathUtil::popLeaf(&absolute);
     bdls::PathUtil::popLeaf(&absolute);
-    bdls::PathUtil::appendRaw(&absolute, r.badWrongType);
+    bdls::PathUtil::appendRaw(&absolute, r.badWrongType.c_str());
     rc = symlink(absolute.c_str(), link.c_str());
 
     // test invariant:
@@ -4167,7 +4226,7 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
     bdls::PathUtil::appendRaw(&link, "link_rbn");
     bdls::PathUtil::popLeaf(&absolute);
     bdls::PathUtil::popLeaf(&absolute);
-    bdls::PathUtil::appendRaw(&absolute, r.badNoExist);
+    bdls::PathUtil::appendRaw(&absolute, r.badNoExist.c_str());
     rc = symlink(absolute.c_str(), link.c_str());
 
     // test invariant:
@@ -4181,7 +4240,7 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
     bdls::PathUtil::appendRaw(&link, "link_dg");
     bdls::PathUtil::popLeaf(&absolute);
     bdls::PathUtil::popLeaf(&absolute);
-    bdls::PathUtil::appendRaw(&absolute, d.good);
+    bdls::PathUtil::appendRaw(&absolute, d.good.c_str());
     rc = symlink(absolute.c_str(), link.c_str());
 
     // test invariant:
@@ -4248,9 +4307,9 @@ void testCase5_isRegularFile_isDirectory(const char         *typeName,
 
     //clean up
 
-    ASSERT(0 == Obj::remove(CASE5_TMPDIR, true));
-
-#undef CASE5_TMPDIR
+    bsl::string cwd;
+    Obj::getWorkingDirectory(&cwd);
+    ASSERTV(case5_tmpdir_base, cwd, 0 == Obj::remove(case5_tmpdir_base, true));
 }
 
 template <class VECTOR_TYPE>
@@ -4530,25 +4589,14 @@ int main(int argc, char *argv[])
         // removed until some period of time after creation.  So it is possible
         // that there will be leftover directories here with the same hostname
         // and pid.  For that reason, we include the time of creation in the
-        // paths.
-
-#ifdef BSLS_PLATFORM_OS_UNIX
-        char host[80];
-        ASSERT(0 == ::gethostname(host, sizeof(host)));
-#else
-        const char *host = "win";     // `gethostname` is difficult on
-                                      // Windows, and we usually aren't using
-                                      // nfs there anyway.
-#endif
-
-        const bsls::TimeInterval now = bsls::SystemTime::now(
-                                            bsls::SystemClockType::e_REALTIME);
-        bsl::ostringstream oss;
-        oss << "tmp.buildDir.bdls_filesystemutil.case_" << test << '.' <<
-                   host << '.' << ::localGetPId() << '.' << now.totalSeconds();
-        tmpWorkingDir = oss.str();
+        // paths, including the nanosecond.
+        tmpWorkingDir = buildTempName(test,
+                                      "testglobal");
     }
-    if (veryVerbose) P(tmpWorkingDir);
+
+    if (veryVerbose) cout << "Working in "
+                          << tmpWorkingDir
+                          << endl;
 
     if (Obj::exists(tmpWorkingDir)) {
         // Sometimes the cleanup at the end of this program is unable to clean
@@ -4556,7 +4604,13 @@ int main(int argc, char *argv[])
         // these can usually be deleted if sufficient time has elapsed.  If
         // we're not able to clean it up now, old files may prevent the test
         // case we're running this time from working.  So we want this assert
-        // to fail to give the tester a `heads-up` as to what went wrong.
+        // to fail to give the tester a `heads-up` as to what went wrong.  The
+        // odds of this occurring should be fairly low now that `tmpWorkingDir`
+        // includes a nanosecond component.
+
+        if (verbose) cout << "Cleaning up previous "
+                          << tmpWorkingDir
+                          << endl;
 
         LOOP_ASSERT(tmpWorkingDir, 0 == Obj::remove(tmpWorkingDir, true));
     }
@@ -11029,11 +11083,14 @@ int main(int argc, char *argv[])
     // attempt again to removing it, pausing longer and longer in between tries
     // to give nfs more time to get its act together.  After a few tries, give
     // up and leave the temporary files behind.
+    //
+    // This cleanup attempt is likely to be hopeless, see
+    //     https://nfs.sourceforge.net/#faq_d2
 
     Obj::remove(tmpWorkingDir, true);
 
-    for (int ii = 4; ii <= 10 && Obj::isDirectory(tmpWorkingDir); ii += 2) {
-        bslmt::ThreadUtil::microSleep(0, ii);
+    for (int ii = 0; ii < 2 && Obj::isDirectory(tmpWorkingDir); ++ii) {
+        bslmt::ThreadUtil::microSleep(0, 5);
 
         Obj::remove(tmpWorkingDir, true);
     }
