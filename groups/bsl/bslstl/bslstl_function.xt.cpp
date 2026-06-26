@@ -34,6 +34,7 @@
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removepointer.h>
 #include <bslmf_usesallocator.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
@@ -45,6 +46,7 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <algorithm>   // for `std::swap`
 #include <functional>  // For `std::plus`

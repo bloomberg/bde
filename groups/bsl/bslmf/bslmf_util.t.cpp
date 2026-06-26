@@ -8,11 +8,12 @@
 #include <bsls_objectbuffer.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_nameof.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <new>   // required to support use of "placement new"
+#include <new>             // required to support use of "placement new"
 
 using namespace BloombergLP;
 

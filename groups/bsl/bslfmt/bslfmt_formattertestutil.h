@@ -91,11 +91,13 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_integralconstant.h>
 #include <bslmf_isarithmetic.h>
 #include <bslmf_issame.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bslstl_iterator.h>
 #include <bslstl_string.h>

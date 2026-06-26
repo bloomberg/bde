@@ -163,10 +163,12 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_assert.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bsl_type_traits.h>
 

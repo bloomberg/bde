@@ -144,11 +144,13 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_movableref.h>
 #include <bslmf_removereference.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bslstl_sharedptr.h>
 #include <bslstl_stopstate.h>

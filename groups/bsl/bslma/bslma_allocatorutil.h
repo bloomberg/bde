@@ -328,13 +328,14 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isconvertible.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isvolatile.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_alignmentfromtype.h>
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
 #include <bsls_exceptionutil.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <algorithm>  // 'std::swap'
 

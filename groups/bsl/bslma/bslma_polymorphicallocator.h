@@ -276,6 +276,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_isbitwiseequalitycomparable.h>
 #include <bslmf_typeidentity.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_annotation.h>
 #include <bsls_assert.h>

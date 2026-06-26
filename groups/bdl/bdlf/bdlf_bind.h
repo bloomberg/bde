@@ -884,10 +884,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_resulttype.h>
 #include <bslmf_tag.h>
 #include <bslmf_typelist.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 #include <bslmf_voidtype.h>
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bsl_functional.h>
 #include <bsl_memory.h>

@@ -7,19 +7,24 @@
 #include <bslma_testallocator.h>
 #include <bslma_usesbslmaallocator.h>
 
-#include <bsla_nodiscard.h>
 #include <bsla_maybeunused.h>
+#include <bsla_nodiscard.h>
 
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removecv.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
+#include <bsls_assert.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
-#include <bsls_platform.h>
 #include <bsls_performancehint.h>
+#include <bsls_platform.h>
+#include <bsls_types.h>
+#include <bsls_util.h>
 
 #include <limits.h>
 #include <stdio.h>

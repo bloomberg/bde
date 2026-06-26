@@ -12,19 +12,25 @@
 #include <bslma_mallocfreeallocator.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
+#include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_issame.h>
 #include <bslmf_haspointersemantics.h>
 #include <bslmf_isbitwisecopyable.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_alignmentutil.h>
+#include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_platform.h>
+#include <bsls_types.h>
+#include <bsls_util.h>
 
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>

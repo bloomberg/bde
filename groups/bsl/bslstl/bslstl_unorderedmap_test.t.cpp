@@ -68,6 +68,7 @@
 #include <bslmf_issame.h>
 #include <bslmf_istriviallydefaultconstructible.h>
 #include <bslmf_removeconst.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>

@@ -22,6 +22,7 @@
 #include <bsls_keyword.h>
 #include <bsls_libraryfeatures.h>
 #include <bsls_types.h>
+#include <bsls_util.h>    // 'forward<T>(V)' for C++11
 
 #include <bslstl_optional.h>
 

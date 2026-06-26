@@ -6,8 +6,10 @@
 #include <bslh_hash.h>
 
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_review.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bslstl_string.h>
 #include <bslstl_utility.h>
@@ -22,6 +24,7 @@
 
 #include <bslmf_assert.h>
 #include <bslmf_typeidentity.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsltf_nondefaultconstructibletesttype.h>
 #include <bsltf_templatetestfacility.h>

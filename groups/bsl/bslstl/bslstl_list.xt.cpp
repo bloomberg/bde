@@ -27,6 +27,7 @@
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_removepointer.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>

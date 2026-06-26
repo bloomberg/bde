@@ -82,6 +82,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_assert.h>
 #include <bslmf_issame.h>
 #include <bslmf_removecv.h>
+#include <bslmf_util.h>                   // 'forward(V)' for C++03
 
 #include <bsls_deprecate.h>
 #include <bsls_deprecatefeature.h>
@@ -90,6 +91,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_unspecifiedbool.h>
+#include <bsls_util.h>                    // 'forward<T>(V)' for C++11
 
 #include <bslstl_optional.h>              // bsl::optional, bsl::nullopt_t
 

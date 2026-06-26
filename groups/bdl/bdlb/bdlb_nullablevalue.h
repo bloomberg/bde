@@ -109,7 +109,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isnothrowmoveconstructible.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
-#include <bslmf_util.h>    // 'forward(V)'
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -117,7 +117,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_review.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bslstl_optional.h>
 

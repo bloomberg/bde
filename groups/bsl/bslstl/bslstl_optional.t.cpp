@@ -28,12 +28,15 @@
 #include <bslmf_assert.h>
 #include <bslmf_isfundamental.h>
 #include <bslmf_issame.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_buildtarget.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_nameof.h>
 #include <bsls_objectbuffer.h>
 #include <bsls_types.h> // `bsls::Types::Int64`
+#include <bsls_util.h>  // 'forward<T>(V)' for C++11
 
 // A list of disabled tests :
 //

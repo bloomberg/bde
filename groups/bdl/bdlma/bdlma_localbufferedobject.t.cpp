@@ -16,8 +16,12 @@
 #include <bslma_sequentialpool.h>
 #include <bslma_testallocator.h>
 
+#include <bslmf_util.h>    // 'forward(V)' for C++03
+
+#include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_types.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bsl_algorithm.h>
 #include <bsl_cstdlib.h>

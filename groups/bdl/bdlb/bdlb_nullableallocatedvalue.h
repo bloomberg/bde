@@ -74,6 +74,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_util.h>        // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -81,23 +82,24 @@ BSLS_IDENT("$Id: $")
 #include <bsls_deprecatefeature.h>
 #include <bsls_keyword.h>
 #include <bsls_review.h>
+#include <bsls_util.h>         // 'forward<T>(V)' for C++11
 
-#include <bslstl_optional.h>     // bsl::nullopt
+#include <bslstl_optional.h>   // bsl::nullopt
 
 #include <bslx_instreamfunctions.h>
 #include <bslx_outstreamfunctions.h>
 #include <bslx_versionfunctions.h>
 
 #include <bsl_algorithm.h>
-#include <bsl_cstddef.h>    // bsl::size_t
-#include <bsl_cstdint.h>    // uintptr_t
+#include <bsl_cstddef.h>       // bsl::size_t
+#include <bsl_cstdint.h>       // uintptr_t
 #include <bsl_iosfwd.h>
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_typetraits.h>
 #endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#include <stddef.h>   // NULL
+#include <stddef.h>            // NULL
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off

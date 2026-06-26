@@ -2,12 +2,13 @@
 
 #include <bsltf_copymovetracker.h>
 
-#include <bslmf_util.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_annotation.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <cstdio>   // `printf`
 #include <cstdlib>  // `atoi`

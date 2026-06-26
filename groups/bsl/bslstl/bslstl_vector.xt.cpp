@@ -21,6 +21,7 @@
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_issame.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>

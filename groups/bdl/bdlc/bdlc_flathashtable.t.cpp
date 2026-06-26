@@ -21,11 +21,13 @@
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bsltf_allocbitwisemoveabletesttype.h>
 #include <bsltf_alloctesttype.h>

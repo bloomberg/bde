@@ -255,10 +255,12 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
 #include <bsls_objectbuffer.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 #include <bslalg_scalarprimitives.h>

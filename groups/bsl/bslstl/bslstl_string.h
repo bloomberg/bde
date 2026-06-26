@@ -682,6 +682,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 #include <bslmf_nestedtraitdeclaration.h>
 #include <bslmf_nil.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 #include <bslmf_voidtype.h>
 
 #include <bsls_alignedbuffer.h>
@@ -694,6 +695,7 @@ BSLS_IDENT("$Id: $")
 #include <bsls_nullptr.h>
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #if defined(BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS) \
  && defined(BSLS_LIBRARYFEATURES_HAS_CPP20_RANGES)

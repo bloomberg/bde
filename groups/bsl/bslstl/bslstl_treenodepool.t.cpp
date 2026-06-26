@@ -13,10 +13,14 @@
 #include <bslma_testallocatormonitor.h>
 #include <bslma_usesbslmaallocator.h>
 
+#include <bslmf_util.h>    // 'forward(V)' for C++03
+
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
 #include <bsls_bsltestutil.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <bsltf_stdtestallocator.h>
 #include <bsltf_templatetestfacility.h>

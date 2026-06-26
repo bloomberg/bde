@@ -146,6 +146,7 @@ BSLS_IDENT("$Id: $")
 #include <bslscm_version.h>
 
 #include <bslmf_movableref.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsltf_copymovestate.h>
 #include <bsltf_copymovetracker.h>
@@ -153,6 +154,7 @@ BSLS_IDENT("$Id: $")
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <cstring>
 #include <cstdio>
