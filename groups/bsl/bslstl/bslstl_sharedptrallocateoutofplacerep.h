@@ -197,6 +197,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_pointerutil.h>
 #include <bslma_sharedptrrep.h>
 
 #include <bsls_keyword.h>
@@ -438,7 +439,7 @@ inline
 void *
 SharedPtrAllocateOutofplaceRep<TYPE, DELETER, ALLOCATOR>::originalPtr() const
 {
-    return const_cast<void *>(static_cast<const void *>(d_ptr_p));
+    return bslma::PointerUtil::voidify(d_ptr_p);
 }
 
 template <class TYPE, class DELETER, class ALLOCATOR>

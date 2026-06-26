@@ -964,6 +964,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslma_managedptr_factorydeleter.h>
 #include <bslma_managedptr_members.h>
 #include <bslma_managedptr_pairproxy.h>
+#include <bslma_pointerutil.h>
 #include <bslma_managedptrdeleter.h>
 
 #include <bslmf_addreference.h>
@@ -978,7 +979,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslmf_isvoid.h>
 #include <bslmf_movableref.h>
 #include <bslmf_removecv.h>
-#include <bslmf_util.h>    // 'forward(V)'
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
@@ -986,7 +987,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_nullptr.h>
 #include <bsls_platform.h>
 #include <bsls_unspecifiedbool.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
@@ -1004,27 +1005,6 @@ BSLS_IDENT("$Id$ $CSID$")
 namespace BloombergLP {
 namespace bslma {
 
-                  // =================================
-                  // private struct ManagedPtr_ImpUtil
-                  // =================================
-
-/// This `struct` provides a namespace for utility functions used to obtain
-/// the necessary types of pointers.
-struct ManagedPtr_ImpUtil {
-
-    // CLASS METHODS
-
-    /// Return the specified `address` cast as a pointer to `void`, even if
-    /// (the template parameter) `TYPE` is cv-qualified.
-    template <class TYPE>
-    static void *voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT;
-
-    /// Return the specified `address` of a potentially cv-qualified object
-    /// of the given (template parameter) `TYPE`, cast as a pointer to
-    /// non-cv-qualified `TYPE`.
-    template <class TYPE>
-    static TYPE *unqualify(const volatile TYPE *address) BSLS_KEYWORD_NOEXCEPT;
-};
                     // ============================
                     // private class ManagedPtr_Ref
                     // ============================
@@ -1811,27 +1791,6 @@ struct ManagedPtr_DefaultDeleter {
 //                          INLINE DEFINITIONS
 // ============================================================================
 
-                      // ---------------------------------
-                      // private struct ManagedPtr_ImpUtil
-                      // ---------------------------------
-
-// CLASS METHODS
-template <class TYPE>
-inline
-void *ManagedPtr_ImpUtil::voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT
-{
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
-}
-
-template <class TYPE>
-inline
-TYPE *ManagedPtr_ImpUtil::unqualify(const volatile TYPE *address)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return const_cast<TYPE *>(address);
-}
-
                       // ----------------------------
                       // private class ManagedPtr_Ref
                       // ----------------------------
@@ -1901,7 +1860,7 @@ template <class TARGET_TYPE>
 inline
 void *ManagedPtr<TARGET_TYPE>::stripBasePointerType(TARGET_TYPE *ptr)
 {
-    return const_cast<void *>(static_cast<const void *>(ptr));
+    return PointerUtil::voidify(ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1910,7 +1869,7 @@ inline
 void *
 ManagedPtr<TARGET_TYPE>::stripCompletePointerType(MANAGED_TYPE *ptr)
 {
-    return const_cast<void *>(static_cast<const void *>(ptr));
+    return PointerUtil::voidify(ptr);
 }
 
 // PRIVATE MANIPULATORS
@@ -2582,7 +2541,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(ARGS&&... args)
                                                      defaultAllocator, objPtr);
 
     // Do not pass an allocator to the element constructor.
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
 

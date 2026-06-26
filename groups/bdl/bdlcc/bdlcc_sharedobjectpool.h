@@ -218,6 +218,7 @@ BSLS_IDENT("$Id: $")
 #include <bslalg_scalarprimitives.h>
 
 #include <bslma_allocator.h>
+#include <bslma_pointerutil.h>
 #include <bslma_sharedptrrep.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -493,7 +494,7 @@ template <class TYPE, class RESETTER>
 inline
 void *SharedObjectPool_Rep<TYPE, RESETTER>::originalPtr() const
 {
-    return const_cast<void*>(static_cast<const void*>(d_instance.buffer()));
+    return bslma::PointerUtil::voidify(d_instance.buffer());
 }
 
 template <class TYPE, class RESETTER>

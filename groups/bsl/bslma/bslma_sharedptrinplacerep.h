@@ -153,6 +153,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 
 #include <bslma_allocator.h>
+#include <bslma_pointerutil.h>
 #include <bslma_sharedptrrep.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -162,7 +163,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_keyword.h>
-#include <bsls_util.h>
+#include <bsls_util.h>     // 'Util::addressOf'
 
 #include <stddef.h>
 #include <typeinfo>
@@ -292,11 +293,6 @@ struct SharedPtrInplaceRep_ImpUtil {
     static BloombergLP::bslmf::MovableRef<TYPE> forward(
                         const BloombergLP::bslmf::MovableRef<TYPE>& reference);
 
-    /// Return the specified `address` cast as a pointer to `void`, even if
-    /// (the template parameter) `TYPE` is cv-qualified.
-    template <class TYPE>
-    static void *voidify(TYPE *address);
-
     /// Destroy the specified `object`.
     template <class TYPE>
     static void dispose(const TYPE& object);
@@ -328,13 +324,6 @@ BloombergLP::bslmf::MovableRef<TYPE> SharedPtrInplaceRep_ImpUtil::forward(
                          const BloombergLP::bslmf::MovableRef<TYPE>& reference)
 {
     return reference;
-}
-
-template <class TYPE>
-inline
-void *SharedPtrInplaceRep_ImpUtil::voidify(TYPE *address) {
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
 }
 
 template <class TYPE>
@@ -409,8 +398,7 @@ template <class TYPE>
 inline
 void *SharedPtrInplaceRep<TYPE>::originalPtr() const
 {
-    return const_cast<void *>(static_cast<const void *>(
-                                           bsls::Util::addressOf(d_instance)));
+    return PointerUtil::voidify(bsls::Util::addressOf(d_instance));
 }
 
 // ============================================================================

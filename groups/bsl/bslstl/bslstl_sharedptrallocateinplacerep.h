@@ -38,6 +38,7 @@ BSLS_IDENT("$Id$ $CSID$")
 #include <bslscm_version.h>
 
 #include <bslma_allocatortraits.h>
+#include <bslma_pointerutil.h>
 #include <bslma_sharedptrrep.h>
 #include <bslma_usesbslmaallocator.h>
 
@@ -373,8 +374,7 @@ inline
 void *
 SharedPtrAllocateInplaceRep<TYPE, ALLOCATOR>::originalPtr() const
 {
-    return const_cast<void *>(static_cast<const void *>(
-                              const_cast<const TYPE *>(d_instance.address())));
+    return bslma::PointerUtil::voidify(d_instance.address());
 }
 
 
@@ -550,9 +550,7 @@ inline
 void *
 SharedPtrArrayAllocateInplaceRep<TYPE, ALLOCATOR>::originalPtr() const
 {
-    return const_cast<void *>(
-               static_cast<const void *>(
-                   get_pointer_to_first_element()));
+    return bslma::PointerUtil::voidify(get_pointer_to_first_element());
 }
 
 }  // close package namespace

@@ -628,33 +628,33 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_destructionutil.h>
 #include <bslma_hasallocatortype.h>
+#include <bslma_pointerutil.h>
 #include <bslma_usesbslmaallocator.h>
 
 #include <bslmf_allocatorargt.h>
-#include <bslmf_enableif.h>
 #include <bslmf_integralconstant.h>
 #include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isclass.h>
 #include <bslmf_isconvertible.h>
 #include <bslmf_isfundamental.h>
-#include <bslmf_ismemberpointer.h>
 #include <bslmf_ispointer.h>
 #include <bslmf_movableref.h>
-#include <bslmf_removecv.h>
+#include <bslmf_usesallocator.h>
 #include <bslmf_usesallocatorargt.h>
-#include <bslmf_util.h>    // 'forward(V)'
-#include <bslmf_voidtype.h>
+#include <bslmf_util.h>    // 'forward(V)' for C++03
 
 #include <bsls_assert.h>
 #include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
-#include <bsls_platform.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
-
-#include <stddef.h>
-#include <string.h>
+#include <bsls_util.h>     // 'forward<T>(V)' for C++11
 
 #include <new>          // placement 'new'
+
+#include <string.h>
+
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+# include <bslmf_ismemberpointer.h>
+# include <bsls_libraryfeatures.h>
+#endif
 
 #if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 // clang-format off
@@ -671,21 +671,6 @@ BSLS_IDENT("$Id: $")
 
 namespace BloombergLP {
 namespace bslma {
-
-// Workaround for optimization issue in xlC that mishandles pointer aliasing.
-//   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
-//   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
-// Place this macro following each use of placement new.  Alternatively,
-// compile with xlC_r -qalias=noansi, which reduces optimization opportunities
-// across entire translation unit instead of simply across optimization fence.
-// Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).
-
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0d01
-    #define BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX                     \
-                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
-#else
-    #define BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX
-#endif
 
 struct ConstructionUtil_Imp;
 
@@ -1028,11 +1013,6 @@ struct ConstructionUtil_Imp {
 
 #endif
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
-
-    /// Return the specified `address` cast as a pointer to `void`, even if
-    /// the (template parameter) `TARGET_TYPE` is cv-qualified.
-    template <class TARGET_TYPE>
-    static void *voidify(TARGET_TYPE *address);
 };
 
 // ============================================================================
@@ -1340,9 +1320,9 @@ ConstructionUtil_Imp::construct(
              bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS>)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(bsl::allocator_arg,
-                                         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
+                                                  bsl::allocator_arg,
+                                                  AllocUtil::adapt(allocator));
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -1354,8 +1334,8 @@ ConstructionUtil_Imp::construct(
              bsl::integral_constant<int, e_USES_ALLOCATOR_TRAITS>)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
+                                                  AllocUtil::adapt(allocator));
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -1366,8 +1346,7 @@ ConstructionUtil_Imp::construct(
              const ALLOCATOR&  ,
              bsl::integral_constant<int, e_NIL_TRAITS>)
 {
-    ::new (voidify(address)) TARGET_TYPE();
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE();
 }
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
@@ -1383,12 +1362,11 @@ ConstructionUtil_Imp::construct(
          ARGS&&...                arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -1402,11 +1380,10 @@ ConstructionUtil_Imp::construct(
          ARGS&&...                arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...,
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -1419,10 +1396,9 @@ ConstructionUtil_Imp::construct(
          ARG1&                    argument1,
          ARGS&&...                arguments)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 # endif // BSLS_COMPILERFEATURES_SUPPORT_RVALUE_REFERENCES
 
@@ -1437,12 +1413,11 @@ ConstructionUtil_Imp::construct(
          ARGS&&...                               arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -1456,11 +1431,10 @@ ConstructionUtil_Imp::construct(
          ARGS&&...                               arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...,
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -1473,10 +1447,9 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1,
          ARGS&&...                               arguments)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif
 
@@ -1491,13 +1464,12 @@ ConstructionUtil_Imp::destructiveMove(
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value ||
         bsl::is_pointer<TARGET_TYPE>::value) {
-        ::new (voidify(address)) TARGET_TYPE(*original);
-        BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+        ::new (PointerUtil::voidify(address)) TARGET_TYPE(*original);
     }
     else {
-        // voidify(address) is used here to suppress compiler warning
-        // "-Wclass-memaccess".
-        memcpy(voidify(address), original, sizeof *original);
+        // `PointerUtil::voidify(address)` is used here to suppress compiler
+        // warning "-Wclass-memaccess".
+        memcpy(PointerUtil::voidify(address), original, sizeof *original);
     }
 }
 
@@ -1659,14 +1631,6 @@ ConstructionUtil_Imp::make(
 
 // BDE_VERIFY pragma: pop
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
-
-template <class TARGET_TYPE>
-inline
-void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
-{
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TARGET_TYPE>::type *>(address));
-}
 
 }  // close package namespace
 }  // close enterprise namespace

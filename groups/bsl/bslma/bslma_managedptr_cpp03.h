@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Mon Sep 22 15:11:15 2025
+// Generated on Mon May 11 14:26:38 2026
 // Command line: sim_cpp11_features.pl bslma_managedptr.h
 
 #ifdef COMPILING_BSLMA_MANAGEDPTR_H
@@ -29,27 +29,6 @@
 namespace BloombergLP {
 namespace bslma {
 
-                  // =================================
-                  // private struct ManagedPtr_ImpUtil
-                  // =================================
-
-/// This `struct` provides a namespace for utility functions used to obtain
-/// the necessary types of pointers.
-struct ManagedPtr_ImpUtil {
-
-    // CLASS METHODS
-
-    /// Return the specified `address` cast as a pointer to `void`, even if
-    /// (the template parameter) `TYPE` is cv-qualified.
-    template <class TYPE>
-    static void *voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT;
-
-    /// Return the specified `address` of a potentially cv-qualified object
-    /// of the given (template parameter) `TYPE`, cast as a pointer to
-    /// non-cv-qualified `TYPE`.
-    template <class TYPE>
-    static TYPE *unqualify(const volatile TYPE *address) BSLS_KEYWORD_NOEXCEPT;
-};
                     // ============================
                     // private class ManagedPtr_Ref
                     // ============================
@@ -1692,27 +1671,6 @@ struct ManagedPtr_DefaultDeleter {
 //                          INLINE DEFINITIONS
 // ============================================================================
 
-                      // ---------------------------------
-                      // private struct ManagedPtr_ImpUtil
-                      // ---------------------------------
-
-// CLASS METHODS
-template <class TYPE>
-inline
-void *ManagedPtr_ImpUtil::voidify(TYPE *address) BSLS_KEYWORD_NOEXCEPT
-{
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
-}
-
-template <class TYPE>
-inline
-TYPE *ManagedPtr_ImpUtil::unqualify(const volatile TYPE *address)
-                                                          BSLS_KEYWORD_NOEXCEPT
-{
-    return const_cast<TYPE *>(address);
-}
-
                       // ----------------------------
                       // private class ManagedPtr_Ref
                       // ----------------------------
@@ -1782,7 +1740,7 @@ template <class TARGET_TYPE>
 inline
 void *ManagedPtr<TARGET_TYPE>::stripBasePointerType(TARGET_TYPE *ptr)
 {
-    return const_cast<void *>(static_cast<const void *>(ptr));
+    return PointerUtil::voidify(ptr);
 }
 
 template <class TARGET_TYPE>
@@ -1791,7 +1749,7 @@ inline
 void *
 ManagedPtr<TARGET_TYPE>::stripCompletePointerType(MANAGED_TYPE *ptr)
 {
-    return const_cast<void *>(static_cast<const void *>(ptr));
+    return PointerUtil::voidify(ptr);
 }
 
 // PRIVATE MANIPULATORS
@@ -2941,7 +2899,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                                  );
     proctor.release();
 
@@ -2967,7 +2925,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01));
     proctor.release();
 
@@ -2995,7 +2953,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02));
     proctor.release();
@@ -3026,7 +2984,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03));
@@ -3060,7 +3018,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3097,7 +3055,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3137,7 +3095,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3180,7 +3138,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3226,7 +3184,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3275,7 +3233,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3327,7 +3285,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3382,7 +3340,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3440,7 +3398,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3501,7 +3459,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -3565,7 +3523,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(ARGS_03, args_03),
@@ -4206,7 +4164,7 @@ ManagedPtr<ELEMENT_TYPE> ManagedPtrUtil::makeManaged(
     bslma::DeallocateObjectProctor<bslma::Allocator *, UnqualElem> proctor(
                                                      defaultAllocator, objPtr);
 
-    ::new (ManagedPtr_ImpUtil::voidify(objPtr)) ELEMENT_TYPE(
+    ::new (PointerUtil::voidify(objPtr)) ELEMENT_TYPE(
                                  BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
     proctor.release();
 

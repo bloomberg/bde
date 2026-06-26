@@ -414,11 +414,6 @@ struct SharedPtrInplaceRep_ImpUtil {
     static BloombergLP::bslmf::MovableRef<TYPE> forward(
                         const BloombergLP::bslmf::MovableRef<TYPE>& reference);
 
-    /// Return the specified `address` cast as a pointer to `void`, even if
-    /// (the template parameter) `TYPE` is cv-qualified.
-    template <class TYPE>
-    static void *voidify(TYPE *address);
-
     /// Destroy the specified `object`.
     template <class TYPE>
     static void dispose(const TYPE& object);
@@ -450,13 +445,6 @@ BloombergLP::bslmf::MovableRef<TYPE> SharedPtrInplaceRep_ImpUtil::forward(
                          const BloombergLP::bslmf::MovableRef<TYPE>& reference)
 {
     return reference;
-}
-
-template <class TYPE>
-inline
-void *SharedPtrInplaceRep_ImpUtil::voidify(TYPE *address) {
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TYPE>::type *>(address));
 }
 
 template <class TYPE>
@@ -979,8 +967,7 @@ template <class TYPE>
 inline
 void *SharedPtrInplaceRep<TYPE>::originalPtr() const
 {
-    return const_cast<void *>(static_cast<const void *>(
-                                           bsls::Util::addressOf(d_instance)));
+    return PointerUtil::voidify(bsls::Util::addressOf(d_instance));
 }
 
 // ============================================================================

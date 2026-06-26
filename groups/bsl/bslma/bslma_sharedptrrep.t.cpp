@@ -3,6 +3,7 @@
 
 #include <bslma_allocator.h>
 #include <bslma_default.h>
+#include <bslma_pointerutil.h>
 #include <bslma_testallocator.h>
 
 #include <bsls_asserttest.h>
@@ -278,7 +279,7 @@ bdlt::Datetime *MySharedDatetimeRepImpl::ptr() {
 }
 
 void *MySharedDatetimeRepImpl::originalPtr() const {
-    return const_cast<void*>(static_cast<const void *>(&d_instance));
+    return bslma::PointerUtil::voidify(&d_instance);
 }
 
                       // ======================

@@ -140,7 +140,7 @@ BSLS_IDENT("$Id$ $CSID$")
 // }
 //
 // void *MySharedDatetimeRepImpl::originalPtr() const {
-//     return const_cast<void*>(static_cast<const void *>(&d_instance));
+//     return bslma::PointerUtil::voidify(&d_instance);
 // }
 // ```
 // Next, we implement a shared `bdlt::Datetime` class.

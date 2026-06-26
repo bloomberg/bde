@@ -82,6 +82,8 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
+#include <bslma_pointerutil.h>
+
 #include <bslmf_ispolymorphic.h>
 
 #include <bsls_assert.h>
@@ -136,7 +138,7 @@ struct DeleterHelper_Helper {
     template <class TYPE>
     static void *caster(const TYPE *object)
     {
-        return static_cast<void *>(const_cast<TYPE *>(object));
+        return PointerUtil::voidify(object);
     }
 };
 

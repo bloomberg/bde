@@ -40,6 +40,7 @@ bslma_managedptrdeleter
 bslma_memoryresource
 bslma_memoryresourceimpsupport
 bslma_newdeleteallocator
+bslma_pointerutil
 bslma_polymorphicallocator
 bslma_polymorphicallocator_cpp03
 bslma_rawdeleterguard

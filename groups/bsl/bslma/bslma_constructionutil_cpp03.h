@@ -21,28 +21,13 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 09:58:46 2024
+// Generated on Tue Jun  2 16:00:03 2026
 // Command line: sim_cpp11_features.pl bslma_constructionutil.h
 
 #ifdef COMPILING_BSLMA_CONSTRUCTIONUTIL_H
 
 namespace BloombergLP {
 namespace bslma {
-
-// Workaround for optimization issue in xlC that mishandles pointer aliasing.
-//   IV56864: ALIASING BEHAVIOUR FOR PLACEMENT NEW
-//   http://www-01.ibm.com/support/docview.wss?uid=swg1IV56864
-// Place this macro following each use of placement new.  Alternatively,
-// compile with xlC_r -qalias=noansi, which reduces optimization opportunities
-// across entire translation unit instead of simply across optimization fence.
-// Update: issue is fixed in xlC 13.1 (__xlC__ >= 0x0d01).
-
-#if defined(BSLS_PLATFORM_CMP_IBM) && BSLS_PLATFORM_CMP_VERSION < 0x0d01
-    #define BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX                     \
-                             BSLS_PERFORMANCEHINT_OPTIMIZATION_FENCE
-#else
-    #define BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX
-#endif
 
 struct ConstructionUtil_Imp;
 
@@ -4894,11 +4879,6 @@ struct ConstructionUtil_Imp {
 // }}} END GENERATED CODE
 #endif
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
-
-    /// Return the specified `address` cast as a pointer to `void`, even if
-    /// the (template parameter) `TARGET_TYPE` is cv-qualified.
-    template <class TARGET_TYPE>
-    static void *voidify(TARGET_TYPE *address);
 };
 
 // ============================================================================
@@ -7256,9 +7236,9 @@ ConstructionUtil_Imp::construct(
              bsl::integral_constant<int, e_USES_ALLOCATOR_ARG_T_TRAITS>)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(bsl::allocator_arg,
-                                         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
+                                                  bsl::allocator_arg,
+                                                  AllocUtil::adapt(allocator));
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -7270,8 +7250,8 @@ ConstructionUtil_Imp::construct(
              bsl::integral_constant<int, e_USES_ALLOCATOR_TRAITS>)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
+                                                  AllocUtil::adapt(allocator));
 }
 
 template <class TARGET_TYPE, class ALLOCATOR>
@@ -7282,8 +7262,7 @@ ConstructionUtil_Imp::construct(
              const ALLOCATOR&  ,
              bsl::integral_constant<int, e_NIL_TRAITS>)
 {
-    ::new (voidify(address)) TARGET_TYPE();
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE();
 }
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
@@ -7307,11 +7286,10 @@ ConstructionUtil_Imp::construct(
          ARG1&                    argument1)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 0
 
@@ -7327,12 +7305,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 1
 
@@ -7350,13 +7327,12 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 2
 
@@ -7376,14 +7352,13 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 3
 
@@ -7405,7 +7380,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7413,7 +7388,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 4
 
@@ -7437,7 +7411,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7446,7 +7420,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 5
 
@@ -7472,7 +7445,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7482,7 +7455,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 6
 
@@ -7510,7 +7482,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7521,7 +7493,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 7
 
@@ -7551,7 +7522,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7563,7 +7534,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 8
 
@@ -7595,7 +7565,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7608,7 +7578,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 9
 
@@ -7642,7 +7611,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7656,7 +7625,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 10
 
@@ -7692,7 +7660,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7707,7 +7675,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 11
 
@@ -7745,7 +7712,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7761,7 +7728,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 12
 
@@ -7801,7 +7767,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
@@ -7818,7 +7784,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 13
 
@@ -7834,10 +7799,9 @@ ConstructionUtil_Imp::construct(
          ARG1&                    argument1)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 0
 
@@ -7853,11 +7817,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 1
 
@@ -7875,12 +7838,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 2
 
@@ -7900,13 +7862,12 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 3
 
@@ -7928,14 +7889,13 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 4
 
@@ -7959,7 +7919,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -7967,7 +7927,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 5
 
@@ -7993,7 +7952,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8002,7 +7961,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 6
 
@@ -8030,7 +7988,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8040,7 +7998,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 7
 
@@ -8070,7 +8027,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8081,7 +8038,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 8
 
@@ -8113,7 +8069,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8125,7 +8081,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 9
 
@@ -8159,7 +8114,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8172,7 +8127,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 10
 
@@ -8208,7 +8162,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8222,7 +8176,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 11
 
@@ -8260,7 +8213,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8275,7 +8228,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 12
 
@@ -8315,7 +8267,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8331,7 +8283,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 13
 
@@ -8346,9 +8297,8 @@ ConstructionUtil_Imp::construct(
          bsl::integral_constant<int, e_NIL_TRAITS>,
          ARG1&                    argument1)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 0
 
@@ -8363,10 +8313,9 @@ ConstructionUtil_Imp::construct(
          ARG1&                    argument1,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 1
 
@@ -8383,11 +8332,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 2
 
@@ -8406,12 +8354,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 3
 
@@ -8432,13 +8379,12 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 4
 
@@ -8461,14 +8407,13 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 5
 
@@ -8493,7 +8438,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8501,7 +8446,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 6
 
@@ -8528,7 +8472,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8537,7 +8481,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 7
 
@@ -8566,7 +8509,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8576,7 +8519,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 8
 
@@ -8607,7 +8549,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8618,7 +8560,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 9
 
@@ -8651,7 +8592,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8663,7 +8604,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 10
 
@@ -8698,7 +8638,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8711,7 +8651,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 11
 
@@ -8748,7 +8687,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8762,7 +8701,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 12
 
@@ -8801,7 +8739,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -8816,7 +8754,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 13
 
@@ -8833,11 +8770,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 0
 
@@ -8853,12 +8789,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 1
 
@@ -8876,13 +8811,12 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 2
 
@@ -8902,14 +8836,13 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 3
 
@@ -8931,7 +8864,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -8939,7 +8872,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 4
 
@@ -8963,7 +8895,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -8972,7 +8904,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 5
 
@@ -8998,7 +8929,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9008,7 +8939,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 6
 
@@ -9036,7 +8966,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9047,7 +8977,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 7
 
@@ -9077,7 +9006,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9089,7 +9018,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 8
 
@@ -9121,7 +9049,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9134,7 +9062,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 9
 
@@ -9168,7 +9095,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9182,7 +9109,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 10
 
@@ -9218,7 +9144,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9233,7 +9159,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 11
 
@@ -9271,7 +9196,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9287,7 +9212,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 12
 
@@ -9327,7 +9251,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
@@ -9344,7 +9268,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 13
 
@@ -9360,10 +9283,9 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 0
 
@@ -9379,11 +9301,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 1
 
@@ -9401,12 +9322,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 2
 
@@ -9426,13 +9346,12 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 3
 
@@ -9454,14 +9373,13 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 4
 
@@ -9485,7 +9403,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9493,7 +9411,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 5
 
@@ -9519,7 +9436,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9528,7 +9445,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 6
 
@@ -9556,7 +9472,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9566,7 +9482,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 7
 
@@ -9596,7 +9511,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9607,7 +9522,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 8
 
@@ -9639,7 +9553,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9651,7 +9565,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 9
 
@@ -9685,7 +9598,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9698,7 +9611,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 10
 
@@ -9734,7 +9646,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9748,7 +9660,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 11
 
@@ -9786,7 +9697,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9801,7 +9712,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 12
 
@@ -9841,7 +9751,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -9857,7 +9767,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13),
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 13
 
@@ -9872,9 +9781,8 @@ ConstructionUtil_Imp::construct(
          bsl::integral_constant<int, e_NIL_TRAITS>,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 0
 
@@ -9889,10 +9797,9 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 1
 
@@ -9909,11 +9816,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_01) arguments_01,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 2
 
@@ -9932,12 +9838,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_02) arguments_02,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 3
 
@@ -9958,13 +9863,12 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_03) arguments_03,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 4
 
@@ -9987,14 +9891,13 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_04) arguments_04,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_03, arguments_03),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 5
 
@@ -10019,7 +9922,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_05) arguments_05,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10027,7 +9930,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_04, arguments_04),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 6
 
@@ -10054,7 +9956,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_06) arguments_06,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10063,7 +9965,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_05, arguments_05),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 7
 
@@ -10092,7 +9993,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_07) arguments_07,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10102,7 +10003,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_06, arguments_06),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 8
 
@@ -10133,7 +10033,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_08) arguments_08,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10144,7 +10044,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_07, arguments_07),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 9
 
@@ -10177,7 +10076,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_09) arguments_09,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10189,7 +10088,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_08, arguments_08),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 10
 
@@ -10224,7 +10122,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_10) arguments_10,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10237,7 +10135,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_09, arguments_09),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 11
 
@@ -10274,7 +10171,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_11) arguments_11,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10288,7 +10185,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_10, arguments_10),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 12
 
@@ -10327,7 +10223,7 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_12) arguments_12,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS_13) arguments_13)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_01, arguments_01),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_02, arguments_02),
@@ -10342,7 +10238,6 @@ ConstructionUtil_Imp::construct(
         BSLS_COMPILERFEATURES_FORWARD(ARGS_11, arguments_11),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_12, arguments_12),
         BSLS_COMPILERFEATURES_FORWARD(ARGS_13, arguments_13));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 #endif  // BSLMA_CONSTRUCTIONUTIL_VARIADIC_LIMIT_G >= 13
 
@@ -10361,12 +10256,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -10380,11 +10274,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...,
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -10397,10 +10290,9 @@ ConstructionUtil_Imp::construct(
          ARG1&                    argument1,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         argument1,
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 # endif
 
@@ -10415,12 +10307,11 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         bsl::allocator_arg,
         AllocUtil::adapt(allocator),
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -10434,11 +10325,10 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
     typedef ConstructionUtil_AllocAdaptorUtil<TARGET_TYPE> AllocUtil;
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...,
         AllocUtil::adapt(allocator));
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 
 template <class TARGET_TYPE, class ALLOCATOR, class ARG1, class... ARGS>
@@ -10451,10 +10341,9 @@ ConstructionUtil_Imp::construct(
          BSLS_COMPILERFEATURES_FORWARD_REF(ARG1) argument1,
          BSLS_COMPILERFEATURES_FORWARD_REF(ARGS)... arguments)
 {
-    ::new (voidify(address)) TARGET_TYPE(
+    ::new (PointerUtil::voidify(address)) TARGET_TYPE(
         BSLS_COMPILERFEATURES_FORWARD(ARG1, argument1),
         BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-    BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
 }
 // }}} END GENERATED CODE
 #endif
@@ -10470,13 +10359,12 @@ ConstructionUtil_Imp::destructiveMove(
 {
     if (bsl::is_fundamental<TARGET_TYPE>::value ||
         bsl::is_pointer<TARGET_TYPE>::value) {
-        ::new (voidify(address)) TARGET_TYPE(*original);
-        BSLMA_CONSTRUCTIONUTIL_XLC_PLACEMENT_NEW_FIX;
+        ::new (PointerUtil::voidify(address)) TARGET_TYPE(*original);
     }
     else {
-        // voidify(address) is used here to suppress compiler warning
-        // "-Wclass-memaccess".
-        memcpy(voidify(address), original, sizeof *original);
+        // `PointerUtil::voidify(address)` is used here to suppress compiler
+        // warning "-Wclass-memaccess".
+        memcpy(PointerUtil::voidify(address), original, sizeof *original);
     }
 }
 
@@ -13533,14 +13421,6 @@ ConstructionUtil_Imp::make(
 
 // BDE_VERIFY pragma: pop
 #endif // defined(BSLS_COMPILERFEATURES_GUARANTEED_COPY_ELISION)
-
-template <class TARGET_TYPE>
-inline
-void *ConstructionUtil_Imp::voidify(TARGET_TYPE *address)
-{
-    return static_cast<void *>(
-            const_cast<typename bsl::remove_cv<TARGET_TYPE>::type *>(address));
-}
 
 }  // close package namespace
 }  // close enterprise namespace
