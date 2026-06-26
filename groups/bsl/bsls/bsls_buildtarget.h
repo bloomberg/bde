@@ -9,34 +9,35 @@ BSLS_IDENT("$Id: $")
 //
 //@MACROS:
 //  BDE_BUILD_TARGET_EXC: flag identifying exception-enabled builds
-//  BDE_BUILD_TARGET_NO_EXC: flag identifying exception-disabled builds
-//  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds
-//  BDE_BUILD_TARGET_NO_MT: flag identifying builds that do not support threads
+//  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds (deprecated)
 //  BDE_BUILD_TARGET_32: flag identifying 32-bit builds
 //  BDE_BUILD_TARGET_64: flag identifying 64-bit builds
-//  BDE_BUILD_TARGET_SAFE: flag identifying SAFE level assert check builds
-//  BDE_BUILD_TARGET_SAFE_2: flag identifying SAFE_2 level assert check builds
 //  BDE_BUILD_TARGET_ASAN: flag identifying address sanitizer builds
 //  BDE_BUILD_TARGET_MSAN: flag identifying memory sanitizer builds
+//  BDE_BUILD_TARGET_OPT: flag identifying an optimized build
+//  BDE_BUILD_TARGET_SAFE: flag identifying SAFE level assert check builds
+//  BDE_BUILD_TARGET_SAFE_2: flag identifying SAFE_2 level assert check builds
 //  BDE_BUILD_TARGET_TSAN: flag identifying thread sanitizer builds
 //  BDE_BUILD_TARGET_UBSAN: flag identifying UB sanitizer builds
-//  BDE_BUILD_TARGET_FUZZ: flag identifying fuzz testing builds
 //  BDE_BUILD_SKIP_VERSION_CHECKS: turn off compiler version checks
+//  BDE_DONT_ALLOW_TRANSITIVE_INCLUDES: remove unused #includes from headers
 //  BDE_OMIT_DEPRECATED: legacy flag to deprecate a block of code
 //  BDE_OMIT_INTERNAL_DEPRECATED: legacy flag to deprecate internal-only code
 //  BDE_OPENSOURCE_PUBLICATION: marker for non-deprecated internal-only code
 //
-//@SEE_ALSO: bsls_deprecate
+//@SEE_ALSO: bsls_deprecate, bsls_assert, bsls_review
 //
 //@DESCRIPTION: The purpose of this component is to cause a link-time error
 // when trying to link an executable with incompatible libraries.  This
 // component defines type names that indicate two build target parameters.
 // These parameters determine whether the build was exception-enabled (which is
-// the case unless overridden by defining the `BDE_BUILD_TARGET_NO_EXC` macro),
-// and whether it was multi-threaded (which is enabled unless overridden by
-// defining the `BDE_BUILD_TARGET_NO_MT` macro).  The types defined by this
-// component should not be used directly.  This component also documents macros
-// that can be used to disable checks that are performed elsewhere.
+// the case unless overridden by defining the `BDE_BUILD_TARGET_NO_EXC` macro).
+// The types defined by this component should not be used directly.  This
+// component also documents macros that can be used to disable checks that are
+// performed elsewhere.  Note that the deprecated macro `BDE_BUILD_TARGET_MT`
+// is always defined for historical reasons where it was used to detect that
+// a build supported multiple threads; there is no option to disable support
+// for threading in BDE.
 //
 ///Compiler Version Check Macro
 ///----------------------------
@@ -143,8 +144,52 @@ BSLS_IDENT("$Id: $")
 //:     includes undefined behavior sanitizer.
 //
 // Preprocessor conditionals on these macros are sometimes necessary when
-// certain types of tests are incompatible with a given sanitizer, but use
-// should be rare, carefully considered, and appear only in test drivers.
+// certain types of tests are incompatible with a given sanitizer, but
+// their use should be rare, carefully considered, and appear only in test
+// drivers.
+//
+//
+///Build Configuration Information
+///-------------------------------
+// Several other macros that are defined, or not, to provide information about
+// the build target that code might want to adjust for during translation.
+//
+//: `BDE_BUILD_TARGET_32`:
+//:     This macro, when defined, indicates that the current build target will
+//:     emit instructions for 32-bit architectures.
+//:
+//: `BDE_BUILD_TARGET_64`:
+//:     This macro, when defined, indicates that the current build target will
+//:     emit instructions for 64-bit architectures.
+//:
+//: `BDE_BUILD_TARGET_OPT`:
+//:     This macro, when defined, indicates that the current build target will
+//:     aggressively optimize code, potentially to the detriment of debug
+//:     support.  Undefined behavior is more likely to demonstrate adverse
+//:     consequences that support better optimization.  By default only `OPT`
+//:     assertions will be evaluated --- see `bsls_assert` and `bsls_review`
+//:     for more details.
+//:
+//: `BDE_BUILD_TARGET_SAFE`:
+//:     This macro, when defined, indicates that the current build target will
+//:     enable `SAFE` assertions --- see `bsls_assert` and `bsls_review` for
+//:     more details.
+//:
+//: `BDE_BUILD_TARGET_SAFE_2`:
+//:     This macro, when defined, indicates that the current build target will
+//:     enable `SAFE_2` assertions --- see `bsls_assert` and `bsls_review` for
+//:     more details.
+//:
+//: `BDE_DONT_ALLOW_TRANSITIVE_INCLUDES`:
+//:     This macro, when defined, indicates that the current build target will
+//:     exclude `#include` directives that have been marked as present only to
+//:     support higher level code that depended implicitly on that `#include`
+//:     this is no longer necessary to compile the component itself.  Note
+//:     that attempts to define this macro on the command line passed to the
+//:     compiler will be ignored, and the macro to force this definition,
+//:     `BDE_FORCE_DONT_ALLOW_TRANSITIVE_INCLUDES`, should be defined instead.
+//:     See `bsls_ident` for more details where the consistency rules regarding
+//:     these macros are enforced.
 //
 ///Usage
 ///-----
@@ -152,7 +197,6 @@ BSLS_IDENT("$Id: $")
 // direct client use.
 
 #include <bsls_linkcoercion.h>
-#include <bsls_platform.h>
 
 namespace BloombergLP {
 
@@ -163,12 +207,13 @@ namespace BloombergLP {
 // Default to an exception-enabled build unless 'BDE_BUILD_TARGET_NO_EXC' is
 // defined.
 
-#ifndef BDE_BUILD_TARGET_NO_EXC
-
-#ifndef BDE_BUILD_TARGET_EXC
-#define BDE_BUILD_TARGET_EXC
+#if !defined(BDE_BUILD_TARGET_NO_EXC) && !defined(BDE_BUILD_TARGET_EXC)
+# define BDE_BUILD_TARGET_EXC
+#elif defined(BDE_BUILD_TARGET_NO_EXC) && defined(BDE_BUILD_TARGET_EXC)
+# error Do not define both `BDE_BUILD_TARGET_EXC` and `BDE_BUILD_TARGET_NO_EXC`
 #endif
 
+#if defined(BDE_BUILD_TARGET_EXC)
 namespace bsls {
 
 struct BuildTargetExcYes {
@@ -177,13 +222,7 @@ struct BuildTargetExcYes {
 typedef BuildTargetExcYes BuildTargetExc;
 
 }  // close package namespace
-
 #else
-
-#ifdef BDE_BUILD_TARGET_EXC
-#error Do not define both BDE_BUILD_TARGET_EXC and BDE_BUILD_TARGET_NO_EXC
-#endif
-
 namespace bsls {
 
 struct BuildTargetExcNo {
@@ -192,7 +231,6 @@ struct BuildTargetExcNo {
 typedef BuildTargetExcNo BuildTargetExc;
 
 }  // close package namespace
-
 #endif
 
 BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
@@ -201,47 +239,14 @@ BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
                                       bsls::BuildTargetExc::s_isBuildTargetExc)
 
 // ============================================================================
-//                           BDE_BUILD_TARGET_MT/BDE_BUILD_TARGET_NO_MT
+//                           BDE_BUILD_TARGET_MT
 // ============================================================================
 
-// Default to a threaded (MT) build unless 'BDE_BUILD_TARGET_NO_MT' is defined.
-
-#ifndef BDE_BUILD_TARGET_NO_MT
+// Always define `BDE_BUILD_TARGET_MT` to indicate multithreaded support.
 
 #ifndef BDE_BUILD_TARGET_MT
-#define BDE_BUILD_TARGET_MT
+# define BDE_BUILD_TARGET_MT
 #endif
-
-namespace bsls {
-
-struct BuildTargetMtYes {
-    static const int s_isBuildTargetMt;
-};
-typedef BuildTargetMtYes BuildTargetMt;
-
-}  // close package namespace
-
-#else
-
-#ifdef BDE_BUILD_TARGET_MT
-#error Do not define both BDE_BUILD_TARGET_MT and BDE_BUILD_TARGET_NO_MT
-#endif
-
-namespace bsls {
-
-struct BuildTargetMtNo {
-    static const int s_isBuildTargetMt;
-};
-typedef BuildTargetMtNo BuildTargetMt;
-
-}  // close package namespace
-
-#endif
-
-BSLS_LINKCOERCION_FORCE_SYMBOL_DEPENDENCY(
-                                        const int,
-                                        bsls_buildtarget_coerce_mt,
-                                        bsls::BuildTargetMt::s_isBuildTargetMt)
 
 }  // close enterprise namespace
 

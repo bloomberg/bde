@@ -278,12 +278,6 @@ static void printFlags()
     D_MACRO(BDE_BUILD_TARGET_NO_EXC);
 #endif
 
-#if defined(BDE_BUILD_TARGET_NO_MT)
-    P_MACRO(BDE_BUILD_TARGET_NO_MT);
-#else
-    D_MACRO(BDE_BUILD_TARGET_NO_MT);
-#endif
-
 #if defined(BDE_BUILD_TARGET_OPT)
     P_MACRO(BDE_BUILD_TARGET_OPT);
 #else

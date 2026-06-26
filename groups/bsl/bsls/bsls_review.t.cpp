@@ -3395,12 +3395,7 @@ void test_case_m1() {
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
-    #if defined(BDE_BUILD_TARGET_MT)
         pthread_sigmask(SIG_BLOCK, &newset, 0);
-    #else
-        sigprocmask(SIG_BLOCK, &newset, 0);
-    #endif
-
 #endif
         fprintf( stderr,  "\nTHE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "Review failed: 0 != 0, file myfile.cpp, line 123\n" );
@@ -3464,12 +3459,7 @@ void test_case_m2() {
         sigset_t newset;
         sigaddset(&newset, SIGABRT);
 
-    #if defined(BDE_BUILD_TARGET_MT)
         pthread_sigmask(SIG_BLOCK, &newset, 0);
-    #else
-        sigprocmask(SIG_BLOCK, &newset, 0);
-    #endif
-
   #endif
         fprintf( stderr,  "THE FOLLOWING SHOULD PRINT ON STDERR:\n"
                 "Review failed: 0 != 0, file myfile.cpp, line 123\n" );

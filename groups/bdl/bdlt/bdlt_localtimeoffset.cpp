@@ -42,7 +42,7 @@ bsls::TimeInterval LocalTimeOffset::
 
     struct tm localTm;
     struct tm   gmtTm;
-#if defined(BSLS_PLATFORM_OS_WINDOWS) || ! defined(BDE_BUILD_TARGET_MT)
+#if defined(BSLS_PLATFORM_OS_WINDOWS)
 
     // Note that the Windows implementation of localtime and gmttime, when
     // using multithreaded libraries, are thread-safe.

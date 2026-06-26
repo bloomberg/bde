@@ -16,21 +16,9 @@
 #  endif
 #endif
 
-#ifdef BDE_BUILDTARGET_TEST_MT
-#  if defined(BDE_BUILD_TARGET_MT)
-#    undef BDE_BUILD_TARGET_MT
-#    define BDE_BUILD_TARGET_NO_MT
-#  else
-#    define BDE_BUILD_TARGET_MT
-#    if defined(BDE_BUILD_TARGET_NO_MT)
-#      undef BDE_BUILD_TARGET_NO_MT
-#    endif
-#  endif
-#endif
-
 #include <bsls_buildtarget.h>
 
-#include <bsls_bsltestutil.h>  // for testing only
+#include <bsls_bsltestutil.h>
 
 #include <stdio.h>   // `printf`, `fprintf`, `setbuf`
 #include <stdlib.h>  // `atoi`
@@ -40,19 +28,15 @@ using namespace BloombergLP;
 //=============================================================================
 //                             TEST PLAN
 //-----------------------------------------------------------------------------
-// The component under test defines two type names, `bsls::BuildTargetExc` and
-// `bsls::BuildTargetMt`, that are used to enforce uniform settings for
-// exception support and multi-threading support across all translation units
-// in a program.  In each translation unit (TU), `bsls::BuildTargetExc` is
-// associated with a certain symbol having external linkage according to
-// whether the TU was built with at most one of `-DBDE_BUILD_TARGET_EXC` and
-// `-DBDE_BUILD_TARGET_NO_EXC` (perhaps neither).  `bsls::BuildTargetMt` is
-// similarly associated with another symbol having external linkage according
-// to whether a given TU was built with at most one of `-DBDE_BUILD_TARGET_MT`
-// and `-DBDE_BUILD_TARGET_NO_MT` (perhaps neither).  The various
-// `DBDE_BUILD_TARGET*` macros operate by sabotaging the link phase of the
-// build process unless the macros are defined identically for the compile
-// phase of all translation units.
+// The component under test defines one type name, `bsls::BuildTargetExc`,
+// that is used to enforce uniform settings for exception support across all
+// translation units in a program.  In each translation unit (TU),
+// `bsls::BuildTargetExc` is associated with a certain symbol having external
+// linkage according to whether the TU was built with at most one of
+// `-DBDE_BUILD_TARGET_EXC` and `-DBDE_BUILD_TARGET_NO_EXC` (perhaps neither).
+// The various `DBDE_BUILD_TARGET*` macros operate by sabotaging the link phase
+// of the build process unless the macros are defined identically for the
+// compile phase of all translation units.
 //
 // In order to test this component properly, we would have to arrange to link
 // the test driver from two object files, each with a different setting for one
@@ -72,11 +56,11 @@ using namespace BloombergLP;
 // macros is defined: the test fails to build (good), or the test builds and
 // fails (bad).
 //-----------------------------------------------------------------------------
-// [ 4] BDE_BUILD_TARGET_MT
-// [ 3] BDE_BUILD_TARGET_EXC
-// [ 2] bsls::BuildTargetMt::s_isBuildTargetMt
+// [ 3] BDE_BUILD_TARGET_MT
+// [ 2] BDE_BUILD_TARGET_EXC
 // [ 1] bsls::BuildTargetExc::s_isBuildTargetExc
 //-----------------------------------------------------------------------------
+// [ 4] USAGE EXAMPLE
 
 // ============================================================================
 //                  STANDARD BDE ASSERT TEST MACRO
@@ -116,12 +100,6 @@ static void aSsErT(int c, const char *s, int i) {
 #define P_  BSLS_BSLTESTUTIL_P_  // P(X) without '\n'.
 #define T_  BSLS_BSLTESTUTIL_T_  // Print a tab (w/o newline).
 #define L_  BSLS_BSLTESTUTIL_L_  // current Line number
-
-//=============================================================================
-//                  GLOBAL TYPEDEFS/CONSTANTS FOR TESTING
-//-----------------------------------------------------------------------------
-
-enum { VERBOSE_ARG_NUM = 2, VERY_VERBOSE_ARG_NUM, VERY_VERY_VERBOSE_ARG_NUM };
 
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -172,12 +150,6 @@ static void printFlags()
     u_PRINT_UNDEF(BDE_BUILD_TARGET_MT);
 #endif
 
-#ifdef BDE_BUILD_TARGET_NO_MT
-    u_PRINT_VALUE(BDE_BUILD_TARGET_NO_MT);
-#else
-    u_PRINT_UNDEF(BDE_BUILD_TARGET_NO_MT);
-#endif
-
 #ifdef BDE_BUILD_SKIP_VERSION_CHECKS
     u_PRINT_VALUE(BDE_BUILD_SKIP_VERSION_CHECKS);
 #else
@@ -202,6 +174,60 @@ static void printFlags()
     u_PRINT_UNDEF(BDE_OPENSOURCE_PUBLICATION);
 #endif
 
+#ifdef BDE_BUILD_TARGET_32
+    u_PRINT_VALUE(BDE_BUILD_TARGET_32);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_32);
+#endif
+
+#ifdef BDE_BUILD_TARGET_64
+    u_PRINT_VALUE(BDE_BUILD_TARGET_64);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_64);
+#endif
+
+#ifdef BDE_BUILD_TARGET_OPT
+    u_PRINT_VALUE(BDE_BUILD_TARGET_OPT);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_OPT);
+#endif
+
+#ifdef BDE_BUILD_TARGET_SAFE
+    u_PRINT_VALUE(BDE_BUILD_TARGET_SAFE);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_SAFE);
+#endif
+
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    u_PRINT_VALUE(BDE_BUILD_TARGET_SAFE_2);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_SAFE_2);
+#endif
+
+#ifdef BDE_BUILD_TARGET_ASAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_ASAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_ASAN);
+#endif
+
+#ifdef BDE_BUILD_TARGET_MSAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_MSAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_MSAN);
+#endif
+
+#ifdef BDE_BUILD_TARGET_TSAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_TSAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_TSAN);
+#endif
+
+#ifdef BDE_BUILD_TARGET_UBSAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_UBSAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_UBSAN);
+#endif
+
     puts("\nprintFlags: Leave\n\n");
 }
 
@@ -211,10 +237,10 @@ static void printFlags()
 
 int main(int argc, char *argv[])
 {
-    int test            = argc > 1 ? atoi(argv[1]) : 0;
-    int verbose         = argc > 2;
-    int veryVerbose     = argc > 3;  (void)veryVerbose;
-    int veryVeryVerbose = argc > 4;
+    int  test            = argc > 1 ? atoi(argv[1]) : 0;
+    bool verbose         = argc > 2;
+    bool veryVerbose     = argc > 3;  (void)veryVerbose;
+    bool veryVeryVerbose = argc > 4;
 
     setbuf(stdout, 0);    // Use unbuffered output.
 
@@ -225,7 +251,7 @@ int main(int argc, char *argv[])
     }
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 4: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -245,27 +271,20 @@ int main(int argc, char *argv[])
 
         if (verbose) puts("\nUSAGE EXAMPLE"
                           "\n=============");
+
+// There is no usage example for this component since it is not meant for
+// direct client use.
       } break;
-      case 4: {
+      case 3: {
         // --------------------------------------------------------------------
         // MACRO BDE_BUILD_TARGET_MT
         //
         // Concerns:
-        // 1. A program should not link when `BDE_BUILD_TARGET_MT` is defined
-        //    in one translation unit and not defined in another.
-        //
-        // 2. A program should link when `BDE_BUILD_TARGET_MT` is defined in
-        //    all translation units or not defined in all translation units.
+        // 1. The macro `BDE_BUILD_TARGET_MT` is always defined.
         //
         // Plan:
-        // 1. Define a macro, `BDE_BUILDTARGET_TEST_MT`, that when defined,
-        //    will invert the definitions of `BDE_BUILD_TARGET_MT` and
-        //    `BDE_BUILD_TARGET_NO_MT` in this translation unit.  Build with
-        //    `-D BDE_BUILD_TARGET_NO_MT` specified on the command line and
-        //    observe that `bsls_buildtarget.t.cpp` fails to link.  Perform a
-        //    negative test of this condition by forcing an assertion failure
-        //    if `BDE_BUILD_TARGET_NO_MT` is defined, and allowing the test to
-        //    pass otherwise. (C-1..2)
+        // 1. Confirm that the macro is defined during preprocessing with the
+        //    `defined` preprocessor operator.
         //
         // Testing:
         //   BDE_BUILD_TARGET_MT
@@ -274,12 +293,11 @@ int main(int argc, char *argv[])
         if (verbose) puts("\nMACRO BDE_BUILD_TARGET_MT"
                           "\n=========================");
 
-#ifdef BDE_BUILDTARGET_TEST_MT
-        ASSERT(0 == "bsls_buildtarget.t.cpp should not build "
-                    "with BDE_BUILDTARGET_TEST_MT");
+#if !defined(BDE_BUILD_TARGET_MT)
+        ASSERT(0 == "`BDE_BUILD_TARGET_MT` is not defined");
 #endif
       } break;
-      case 3: {
+      case 2: {
         // --------------------------------------------------------------------
         // MACRO BDE_BUILD_TARGET_EXC
         //
@@ -310,33 +328,6 @@ int main(int argc, char *argv[])
 #ifdef BDE_BUILDTARGET_TEST_EXC
         ASSERT(0 == "bsls_buildtarget.t.cpp should not build "
                     "with BDE_BUILDTARGET_TEST_EXC");
-#endif
-      } break;
-      case 2: {
-        // --------------------------------------------------------------------
-        // `BuildTargetMt::s_isBuildTargetMt` CONSTANT
-        //
-        // Concerns:
-        // 1. `bsls::BuildTargetMt::s_isBuildTargetMt` should be defined.
-        //
-        // 2. `bsls::BuildTargetMt::s_isBuildTargetMt == 1` if and only if
-        //    `BDE_BUILD_TARGET_MT` is defined.
-        //
-        // Plan:
-        // 1. Manually test the value of
-        //    `bsls::BuildTargetMt::s_isBuildTargetMt`. (C-1..2)
-        //
-        // Testing:
-        //   bsls::BuildTargetMt::s_isBuildTargetMt
-        // --------------------------------------------------------------------
-
-        if (verbose) puts("\n'BuildTargetMt::s_isBuildTargetMt' CONSTANT"
-                          "\n===========================================");
-
-#ifdef BDE_BUILD_TARGET_MT
-        ASSERT(1 == bsls::BuildTargetMt::s_isBuildTargetMt);
-#else
-        ASSERT(0 == bsls::BuildTargetMt::s_isBuildTargetMt);
 #endif
       } break;
       case 1: {

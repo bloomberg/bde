@@ -20,16 +20,6 @@ const int bsls::BuildTargetExcNo::s_isBuildTargetExc = 0;
 
 #endif
 
-#ifdef BDE_BUILD_TARGET_MT
-
-const int bsls::BuildTargetMtYes::s_isBuildTargetMt = 1;
-
-#else
-
-const int bsls::BuildTargetMtNo::s_isBuildTargetMt = 0;
-
-#endif
-
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
