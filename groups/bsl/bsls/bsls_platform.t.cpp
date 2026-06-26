@@ -210,9 +210,12 @@ class StaticStringsTable {
 }  // close unnamed namespace
 
 /// Print a diagnostic message to standard output if any of the preprocessor
-/// flags of interest are defined, and their value if a value had been set.
-/// An "Enter" and "Leave" message is printed unconditionally so there is
-/// some report even if all of the flags are undefined.
+/// flags of interest are defined, and their value if a value had been set.  An
+/// "Enter" and "Leave" message is printed unconditionally so there is some
+/// report even if all of the flags are undefined.  Note that the macros are
+/// organized by thematic section, and the sections are mostly sorted
+/// alphanumerically except where comments indicate the reason for a different
+/// ordering.
 static void printFlags()
 {
     StaticStringsTable<512> undefinedMacros("undefinedMacros");
@@ -223,7 +226,7 @@ static void printFlags()
 
 /// Print the name of the specified object-like macro named by `X`, and the
 /// source it expands to.
-#define P_MACRO(X) printf("\t  %s:\t%s\n", #X, STRINGIFY(X));
+#define P_MACRO(X) puts("\t  " #X ":\t" STRINGIFY(X));
 
     puts("printFlags: Enter");
 
@@ -326,6 +329,12 @@ static void printFlags()
     D_MACRO(BDE_DONT_ALLOW_TRANSITIVE_INCLUDES);
 #endif
 
+#if defined(BSL_DOUBLE_UNDERSCORE_XLAT)
+    P_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
+#else
+    D_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
+#endif
+
 #if defined(BDE_OMIT_DEPRECATED)
     P_MACRO(BDE_OMIT_DEPRECATED);
 #else
@@ -350,22 +359,16 @@ static void printFlags()
     D_MACRO(BDE_USE_ADDRESSOF);
 #endif
 
-#if defined(BDE_USE_PROLEPTIC_DATES)
-    P_MACRO(BDE_USE_PROLEPTIC_DATES);
-#else
-    D_MACRO(BDE_USE_PROLEPTIC_DATES);
-#endif
-
 #if defined(BSL_USE_NATIVE_STD_IMPLEMENTATION)
     P_MACRO(BSL_USE_NATIVE_STD_IMPLEMENTATION);
 #else
     D_MACRO(BSL_USE_NATIVE_STD_IMPLEMENTATION);
 #endif
 
-#if defined(BSL_DOUBLE_UNDERSCORE_XLAT)
-    P_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
+#if defined(BDE_USE_PROLEPTIC_DATES)
+    P_MACRO(BDE_USE_PROLEPTIC_DATES);
 #else
-    D_MACRO(BSL_DOUBLE_UNDERSCORE_XLAT);
+    D_MACRO(BDE_USE_PROLEPTIC_DATES);
 #endif
 
     // TODO: we need a more robust way to report that no macros are defined for
@@ -392,15 +395,11 @@ static void printFlags()
 #endif
 
 
-    puts("\n  printFlags: standard macros");
-    puts(  "  ---------------------------");
+    puts("\n  printFlags: standard compiler state macros");
+    puts(  "  ------------------------------------------");
 
-#if defined(__cplusplus)
-    P_MACRO(__cplusplus);
-#else
-    D_MACRO(__cplusplus);
-#endif
-
+// `__DATE__` and `__TIME__`, `__FILE__` and `__LINE__` are special case paired
+// macros, not sorted with the other standard macros.
 #if defined(__DATE__)
     P_MACRO(__DATE__);
 #else
@@ -423,6 +422,36 @@ static void printFlags()
     P_MACRO(__LINE__);
 #else
     D_MACRO(__LINE__);
+#endif
+
+    puts("\n  printFlags: standard macros");
+    puts(  "  ---------------------------");
+
+#if defined(__cplusplus)
+    P_MACRO(__cplusplus);
+#else
+    D_MACRO(__cplusplus);
+#endif
+
+#if defined(__has_cpp_attribute)
+    // Cannot use identifier `__has_cpp_attribute` as macro argument
+//  P_MACRO(__has_cpp_attribute);
+#else
+    D_MACRO(__has_cpp_attribute);
+#endif
+
+#if defined(__has_embed)
+    // Cannot use identifier `__has_embed` as macro argument
+//  P_MACRO(__has_embed);
+#else
+    D_MACRO(__has_embed);
+#endif
+
+#if defined(__has_include)
+    // Cannot use identifier `__has_include` as macro argument
+//  P_MACRO(__has_include);
+#else
+    D_MACRO(__has_include);
 #endif
 
 #if defined(__STDC__)
@@ -467,6 +496,7 @@ static void printFlags()
     D_MACRO(__STDCPP_DEFAULT_NEW_ALIGNMENT__);
 #endif
 
+// These are sorted by bit width, not alphanumerically.
 #if defined(__STDCPP_FLOAT16_T__)
     P_MACRO(__STDCPP_FLOAT16_T__);
 #else
@@ -502,28 +532,6 @@ static void printFlags()
 #else
     D_MACRO(__STDCPP_THREADS__);
 #endif
-
-#if defined(__has_cpp_attribute)
-    // Cannot use identifier `__has_cpp_attribute` as macro argument
-//  P_MACRO(__has_cpp_attribute);
-#else
-    D_MACRO(__has_cpp_attribute);
-#endif
-
-#if defined(__has_embed)
-    // Cannot use identifier `__has_embed` as macro argument
-//  P_MACRO(__has_embed);
-#else
-    D_MACRO(__has_embed);
-#endif
-
-#if defined(__has_include)
-    // Cannot use identifier `__has_include` as macro argument
-//  P_MACRO(__has_include);
-#else
-    D_MACRO(__has_include);
-#endif
-
 
     puts("\n  printFlags: bsls_platform Macros");
     puts(  "  --------------------------------");
@@ -636,6 +644,18 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_CPU_ARM_V9);
 #endif
 
+#if defined(BSLS_PLATFORM_CPU_AVX)
+    P_MACRO(BSLS_PLATFORM_CPU_AVX);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_AVX);
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_AVX2)
+    P_MACRO(BSLS_PLATFORM_CPU_AVX2);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_AVX2);
+#endif
+
 #if defined(BSLS_PLATFORM_CPU_HPPA)
     P_MACRO(BSLS_PLATFORM_CPU_HPPA);
 #else
@@ -682,6 +702,36 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM_CPU_SPARC_V9);
 #else
     D_MACRO(BSLS_PLATFORM_CPU_SPARC_V9);
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_SSE)
+    P_MACRO(BSLS_PLATFORM_CPU_SSE);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_SSE);
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_SSE2)
+    P_MACRO(BSLS_PLATFORM_CPU_SSE2);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_SSE2);
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_SSE3)
+    P_MACRO(BSLS_PLATFORM_CPU_SSE3);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_SSE3);
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_SSE4_1)
+    P_MACRO(BSLS_PLATFORM_CPU_SSE4_1);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_SSE4_1);
+#endif
+
+#if defined(BSLS_PLATFORM_CPU_SSE4_2)
+    P_MACRO(BSLS_PLATFORM_CPU_SSE4_2);
+#else
+    D_MACRO(BSLS_PLATFORM_CPU_SSE4_2);
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_VER_MAJOR)
@@ -762,16 +812,43 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_OS_VER_MINOR);
 #endif
 
+// Windows API levels are sorted alphanumerically rather than trying to sort
+// by release history, since the release history is not linear and the
+// alphanumeric sort is more consistent with the macro names.
+#if defined(BSLS_PLATFORM_OS_WIN10)
+    P_MACRO(BSLS_PLATFORM_OS_WIN10);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WIN10);
+#endif
+
 #if defined(BSLS_PLATFORM_OS_WIN2K)
     P_MACRO(BSLS_PLATFORM_OS_WIN2K);
 #else
     D_MACRO(BSLS_PLATFORM_OS_WIN2K);
 #endif
 
+#if defined(BSLS_PLATFORM_OS_WIN7)
+    P_MACRO(BSLS_PLATFORM_OS_WIN7);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WIN7);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WIN8)
+    P_MACRO(BSLS_PLATFORM_OS_WIN8);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WIN8);
+#endif
+
 #if defined(BSLS_PLATFORM_OS_WIN9X)
     P_MACRO(BSLS_PLATFORM_OS_WIN9X);
 #else
     D_MACRO(BSLS_PLATFORM_OS_WIN9X);
+#endif
+
+#if defined(BSLS_PLATFORM_OS_WINBLUE)
+    P_MACRO(BSLS_PLATFORM_OS_WINBLUE);
+#else
+    D_MACRO(BSLS_PLATFORM_OS_WINBLUE);
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINDOWS)
@@ -784,12 +861,6 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM_OS_WINNT);
 #else
     D_MACRO(BSLS_PLATFORM_OS_WINNT);
-#endif
-
-#if defined(BSLS_PLATFORM_OS_WINXP)
-    P_MACRO(BSLS_PLATFORM_OS_WINXP);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_WINXP);
 #endif
 
 #if defined(BSLS_PLATFORM_OS_WINS03)
@@ -810,28 +881,10 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_OS_WINVISTA);
 #endif
 
-#if defined(BSLS_PLATFORM_OS_WIN7)
-    P_MACRO(BSLS_PLATFORM_OS_WIN7);
+#if defined(BSLS_PLATFORM_OS_WINXP)
+    P_MACRO(BSLS_PLATFORM_OS_WINXP);
 #else
-    D_MACRO(BSLS_PLATFORM_OS_WIN7);
-#endif
-
-#if defined(BSLS_PLATFORM_OS_WIN8)
-    P_MACRO(BSLS_PLATFORM_OS_WIN8);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_WIN8);
-#endif
-
-#if defined(BSLS_PLATFORM_OS_WINBLUE)
-    P_MACRO(BSLS_PLATFORM_OS_WINBLUE);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_WINBLUE);
-#endif
-
-#if defined(BSLS_PLATFORM_OS_WIN10)
-    P_MACRO(BSLS_PLATFORM_OS_WIN10);
-#else
-    D_MACRO(BSLS_PLATFORM_OS_WIN10);
+    D_MACRO(BSLS_PLATFORM_OS_WINXP);
 #endif
 
 
@@ -862,9 +915,135 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_NO_64_BIT_LITERALS);
 #endif
 
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG)
+    P_MACRO(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG);
+#else
+    D_MACRO(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_CLANG);
+#endif
+
+#if defined(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC)
+    P_MACRO(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC);
+#else
+    D_MACRO(BSLS_PLATFORM_PRAGMA_GCC_DIAGNOSTIC_GCC);
+#endif
+
 
     puts("\n  printFlags: Deprecated macros for legacy support");
     puts(  "  ------------------------------------------------");
+
+#if defined(BDES_PLATFORM__CMP_GNU)
+    P_MACRO(BDES_PLATFORM__CMP_GNU);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_GNU);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_HP)
+    P_MACRO(BDES_PLATFORM__CMP_HP);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_HP);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_MSVC)
+    P_MACRO(BDES_PLATFORM__CMP_MSVC);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_MSVC);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_SUN)
+    P_MACRO(BDES_PLATFORM__CMP_SUN);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_SUN);
+#endif
+
+#if defined(BDES_PLATFORM__CMP_VER_MAJOR)
+    P_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
+#else
+    D_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
+#endif
+
+#if defined(BDES_PLATFORM__CPU_64_BIT)
+    P_MACRO(BDES_PLATFORM__CPU_64_BIT);
+#else
+    D_MACRO(BDES_PLATFORM__CPU_64_BIT);
+#endif
+
+#if defined(BDES_PLATFORM__OS_CYGWIN)
+    P_MACRO(BDES_PLATFORM__OS_CYGWIN);
+#else
+    D_MACRO(BDES_PLATFORM__OS_CYGWIN);
+#endif
+
+#if defined(BDES_PLATFORM__OS_DARWIN)
+    P_MACRO(BDES_PLATFORM__OS_DARWIN);
+#else
+    D_MACRO(BDES_PLATFORM__OS_DARWIN);
+#endif
+
+#if defined(BDES_PLATFORM__OS_FREEBSD)
+    P_MACRO(BDES_PLATFORM__OS_FREEBSD);
+#else
+    D_MACRO(BDES_PLATFORM__OS_FREEBSD);
+#endif
+
+#if defined(BDES_PLATFORM__OS_LINUX)
+    P_MACRO(BDES_PLATFORM__OS_LINUX);
+#else
+    D_MACRO(BDES_PLATFORM__OS_LINUX);
+#endif
+
+#if defined(BDES_PLATFORM__OS_SOLARIS)
+    P_MACRO(BDES_PLATFORM__OS_SOLARIS);
+#else
+    D_MACRO(BDES_PLATFORM__OS_SOLARIS);
+#endif
+
+#if defined(BDES_PLATFORM__OS_UNIX)
+    P_MACRO(BDES_PLATFORM__OS_UNIX);
+#else
+    D_MACRO(BDES_PLATFORM__OS_UNIX);
+#endif
+
+#if defined(BDES_PLATFORM__OS_VER_MAJOR)
+    P_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
+#else
+    D_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
+#endif
+
+#if defined(BDES_PLATFORM__OS_VER_MINOR)
+    P_MACRO(BDES_PLATFORM__OS_VER_MINOR);
+#else
+    D_MACRO(BDES_PLATFORM__OS_VER_MINOR);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WIN2K)
+    P_MACRO(BDES_PLATFORM__OS_WIN2K);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WIN2K);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WIN9X)
+    P_MACRO(BDES_PLATFORM__OS_WIN9X);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WIN9X);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WINDOWS)
+    P_MACRO(BDES_PLATFORM__OS_WINDOWS);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WINDOWS);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WINNT)
+    P_MACRO(BDES_PLATFORM__OS_WINNT);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WINNT);
+#endif
+
+#if defined(BDES_PLATFORM__OS_WINXP)
+    P_MACRO(BDES_PLATFORM__OS_WINXP);
+#else
+    D_MACRO(BDES_PLATFORM__OS_WINXP);
+#endif
 
 #if defined(BSLS_PLATFORM__CMP_CLANG)
     P_MACRO(BSLS_PLATFORM__CMP_CLANG);
@@ -992,387 +1171,116 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM__OS_WINDOWS);
 #endif
 
-#if defined(BDES_PLATFORM__CMP_GNU)
-    P_MACRO(BDES_PLATFORM__CMP_GNU);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_GNU);
-#endif
-
-#if defined(BDES_PLATFORM__CMP_HP)
-    P_MACRO(BDES_PLATFORM__CMP_HP);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_HP);
-#endif
-
-#if defined(BDES_PLATFORM__CMP_MSVC)
-    P_MACRO(BDES_PLATFORM__CMP_MSVC);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_MSVC);
-#endif
-
-#if defined(BDES_PLATFORM__CMP_SUN)
-    P_MACRO(BDES_PLATFORM__CMP_SUN);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_SUN);
-#endif
-
-#if defined(BDES_PLATFORM__CMP_VER_MAJOR)
-    P_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_VER_MAJOR);
-#endif
-
-#if defined(BDES_PLATFORM__CPU_64_BIT)
-    P_MACRO(BDES_PLATFORM__CPU_64_BIT);
-#else
-    D_MACRO(BDES_PLATFORM__CPU_64_BIT);
-#endif
-
-#if defined(BDES_PLATFORM__OS_CYGWIN)
-    P_MACRO(BDES_PLATFORM__OS_CYGWIN);
-#else
-    D_MACRO(BDES_PLATFORM__OS_CYGWIN);
-#endif
-
-#if defined(BDES_PLATFORM__OS_DARWIN)
-    P_MACRO(BDES_PLATFORM__OS_DARWIN);
-#else
-    D_MACRO(BDES_PLATFORM__OS_DARWIN);
-#endif
-
-#if defined(BDES_PLATFORM__OS_FREEBSD)
-    P_MACRO(BDES_PLATFORM__OS_FREEBSD);
-#else
-    D_MACRO(BDES_PLATFORM__OS_FREEBSD);
-#endif
-
-#if defined(BDES_PLATFORM__OS_LINUX)
-    P_MACRO(BDES_PLATFORM__OS_LINUX);
-#else
-    D_MACRO(BDES_PLATFORM__OS_LINUX);
-#endif
-
-#if defined(BDES_PLATFORM__OS_SOLARIS)
-    P_MACRO(BDES_PLATFORM__OS_SOLARIS);
-#else
-    D_MACRO(BDES_PLATFORM__OS_SOLARIS);
-#endif
-
-#if defined(BDES_PLATFORM__OS_UNIX)
-    P_MACRO(BDES_PLATFORM__OS_UNIX);
-#else
-    D_MACRO(BDES_PLATFORM__OS_UNIX);
-#endif
-
-#if defined(BDES_PLATFORM__OS_VER_MAJOR)
-    P_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
-#else
-    D_MACRO(BDES_PLATFORM__OS_VER_MAJOR);
-#endif
-
-#if defined(BDES_PLATFORM__OS_VER_MINOR)
-    P_MACRO(BDES_PLATFORM__OS_VER_MINOR);
-#else
-    D_MACRO(BDES_PLATFORM__OS_VER_MINOR);
-#endif
-
-#if defined(BDES_PLATFORM__OS_WIN2K)
-    P_MACRO(BDES_PLATFORM__OS_WIN2K);
-#else
-    D_MACRO(BDES_PLATFORM__OS_WIN2K);
-#endif
-
-#if defined(BDES_PLATFORM__OS_WIN9X)
-    P_MACRO(BDES_PLATFORM__OS_WIN9X);
-#else
-    D_MACRO(BDES_PLATFORM__OS_WIN9X);
-#endif
-
-#if defined(BDES_PLATFORM__OS_WINDOWS)
-    P_MACRO(BDES_PLATFORM__OS_WINDOWS);
-#else
-    D_MACRO(BDES_PLATFORM__OS_WINDOWS);
-#endif
-
-#if defined(BDES_PLATFORM__OS_WINNT)
-    P_MACRO(BDES_PLATFORM__OS_WINNT);
-#else
-    D_MACRO(BDES_PLATFORM__OS_WINNT);
-#endif
-
-#if defined(BDES_PLATFORM__OS_WINXP)
-    P_MACRO(BDES_PLATFORM__OS_WINXP);
-#else
-    D_MACRO(BDES_PLATFORM__OS_WINXP);
-#endif
-
 
     puts("\n  printFlags: platform macros of interest to our configuration");
     puts(  "  ------------------------------------------------------------");
 
-             // Microsoft Visual Studio compiler specific macros
-
-    // Source for compiler specific predefined macros was
-    //  https://learn.microsoft.com/en-us/cpp/preprocessor/predefined-macros
-    // at 2020-12-13 03:15-05:00 (EST/New York).  Please visit that page for
-    // interpretation of the Microsoft specific macros/values.
-
-#if defined(_MSC_VER)
-    P_MACRO(_MSC_VER);
+#if defined(__64BIT__)
+    P_MACRO(__64BIT__);
 #else
-    D_MACRO(_MSC_VER);
+    D_MACRO(__64BIT__);
 #endif
 
-#if defined(_MSC_FULL_VER)
-    P_MACRO(_MSC_FULL_VER);
+#if defined(__aarch64__)
+    P_MACRO(__aarch64__);
 #else
-    D_MACRO(_MSC_FULL_VER);
+    D_MACRO(__aarch64__);
 #endif
 
-#if defined(_MSC_BUILD)
-    P_MACRO(_MSC_BUILD);
+#if defined(__alpha__)
+    P_MACRO(__alpha__);
 #else
-    D_MACRO(_MSC_BUILD);
+    D_MACRO(__alpha__);
 #endif
 
-#if defined(_MSVC_LANG)
-    P_MACRO(_MSVC_LANG);
+#if defined(__APPLE__)
+    P_MACRO(__APPLE__);
 #else
-    D_MACRO(_MSVC_LANG);
+    D_MACRO(__APPLE__);
 #endif
 
-#if defined(__INTELLISENSE__)
-    P_MACRO(__INTELLISENSE__);
+#if defined(__apple_build_version__)
+    P_MACRO(__apple_build_version__);
 #else
-    D_MACRO(__INTELLISENSE__);
+    D_MACRO(__apple_build_version__);
 #endif
 
-#if defined(_INTEGRAL_MAX_BITS)
-    P_MACRO(_INTEGRAL_MAX_BITS);
+#if defined(__APPLE_CC__)
+    P_MACRO(__APPLE_CC__);
 #else
-    D_MACRO(_INTEGRAL_MAX_BITS);
+    D_MACRO(__APPLE_CC__);
 #endif
 
-    // Microsoft Visual Studio implementation-defined-feature detection
-
-#if defined(_CHAR_UNSIGNED)
-    P_MACRO(_CHAR_UNSIGNED);
+#if defined(__arch64__)
+    P_MACRO(__arch64__);
 #else
-    D_MACRO(_CHAR_UNSIGNED);
+    D_MACRO(__arch64__);
 #endif
 
-    // Microsoft Visual Studio floating point mode feature detection
-
-#if defined(_M_FP_CONTRACT)
-    P_MACRO(_M_FP_CONTRACT);
+#if defined(__arm64__)
+    P_MACRO(__arm64__);
 #else
-    D_MACRO(_M_FP_CONTRACT);
+    D_MACRO(__arm64__);
 #endif
 
-#if defined(_M_FP_EXCEPT)
-    P_MACRO(_M_FP_EXCEPT);
+#if defined(__arm__)
+    P_MACRO(__arm__);
 #else
-    D_MACRO(_M_FP_EXCEPT);
+    D_MACRO(__arm__);
 #endif
 
-#if defined(_M_FP_FAST)
-    P_MACRO(_M_FP_FAST);
+#if defined(__ARM_ARCH)
+    P_MACRO(__ARM_ARCH);
 #else
-    D_MACRO(_M_FP_FAST);
+    D_MACRO(__ARM_ARCH);
 #endif
 
-#if defined(_M_FP_PRECISE)
-    P_MACRO(_M_FP_PRECISE);
+#if defined(__ARM_ARCH_5T__)
+    P_MACRO(__ARM_ARCH_5T__);
 #else
-    D_MACRO(_M_FP_PRECISE);
+    D_MACRO(__ARM_ARCH_5T__);
 #endif
 
-#if defined(_M_FP_STRICT)
-    P_MACRO(_M_FP_STRICT);
+#if defined(__ARM_ARCH_5TE__)
+    P_MACRO(__ARM_ARCH_5TE__);
 #else
-    D_MACRO(_M_FP_STRICT);
+    D_MACRO(__ARM_ARCH_5TE__);
 #endif
 
-    // Microsoft Visual Studio optional-feature detection
-
-#if defined(_MT)
-    P_MACRO(_MT);
+#if defined(__ARM_ARCH_5TEJ__)
+    P_MACRO(__ARM_ARCH_5TEJ__);
 #else
-    D_MACRO(_MT);
+    D_MACRO(__ARM_ARCH_5TEJ__);
 #endif
 
-#if defined(_OPENMP)
-    P_MACRO(_OPENMP);
+#if defined(__ARM_ARCH_6__)
+    P_MACRO(__ARM_ARCH_6__);
 #else
-    D_MACRO(_OPENMP);
+    D_MACRO(__ARM_ARCH_6__);
 #endif
 
-#if defined(_MSC_EXTENSIONS)
-    P_MACRO(_MSC_EXTENSIONS);
+#if defined(__ARM_ARCH_7__)
+    P_MACRO(__ARM_ARCH_7__);
 #else
-    D_MACRO(_MSC_EXTENSIONS);
+    D_MACRO(__ARM_ARCH_7__);
 #endif
 
-#if defined(_MSVC_TRADITIONAL)
-    P_MACRO(_MSVC_TRADITIONAL);
+#if defined(__ARM_ARCH_7A__)
+    P_MACRO(__ARM_ARCH_7A__);
 #else
-    D_MACRO(_MSVC_TRADITIONAL);
+    D_MACRO(__ARM_ARCH_7A__);
 #endif
 
-#if defined(_NATIVE_WCHAR_T_DEFINED)
-    P_MACRO(_NATIVE_WCHAR_T_DEFINED);
+#if defined(__ARM_ARCH_7M__)
+    P_MACRO(__ARM_ARCH_7M__);
 #else
-    D_MACRO(_NATIVE_WCHAR_T_DEFINED);
+    D_MACRO(__ARM_ARCH_7M__);
 #endif
 
-#if defined(_WCHAR_T_DEFINED)
-    P_MACRO(_WCHAR_T_DEFINED);
+#if defined(__ARM_ARCH_7R__)
+    P_MACRO(__ARM_ARCH_7R__);
 #else
-    D_MACRO(_WCHAR_T_DEFINED);
-#endif
-
-#if defined(_CPPRTTI)
-    P_MACRO(_CPPRTTI);
-#else
-    D_MACRO(_CPPRTTI);
-#endif
-
-#if defined(_CPPUNWIND)
-    P_MACRO(_CPPUNWIND);
-#else
-    D_MACRO(_CPPUNWIND);
-#endif
-
-#if defined(_ISO_VOLATILE)
-    P_MACRO(_ISO_VOLATILE);
-#else
-    D_MACRO(_ISO_VOLATILE);
-#endif
-
-#if defined(_KERNEL_MODE)
-    P_MACRO(_KERNEL_MODE);
-#else
-    D_MACRO(_KERNEL_MODE);
-#endif
-
-    // Microsoft Visual Studio security features detection
-
-#if defined(_CONTROL_FLOW_GUARD)
-    P_MACRO(_CONTROL_FLOW_GUARD);
-#else
-    D_MACRO(_CONTROL_FLOW_GUARD);
-#endif
-
-#if defined(_MSVC_RUNTIME_CHECKS)
-    P_MACRO(_MSVC_RUNTIME_CHECKS);
-#else
-    D_MACRO(_MSVC_RUNTIME_CHECKS);
-#endif
-
-    // Microsoft Visual Studio sanitizer related
-
-#if defined(__SANITIZE_ADDRESS__)
-    P_MACRO(__SANITIZE_ADDRESS__);
-#else
-    D_MACRO(__SANITIZE_ADDRESS__);
-#endif
-
-    // Microsoft Visual Studio build configuration specific
-
-#if defined(_DLL)
-    P_MACRO(_DLL);
-#else
-    D_MACRO(_DLL);
-#endif
-
-#if defined(_PREFAST_)
-    P_MACRO(_PREFAST_);
-#else
-    D_MACRO(_PREFAST_);
-#endif
-
-#if defined(_VC_NODEFAULTLIB)
-    P_MACRO(_VC_NODEFAULTLIB);
-#else
-    D_MACRO(_VC_NODEFAULTLIB);
-#endif
-
-    // Microsoft CLR, CLI, and .NET specific macros
-
-#if defined(__CLR_VER)
-    P_MACRO(__CLR_VER);
-#else
-    D_MACRO(__CLR_VER);
-#endif
-
-#if defined(__cplusplus_cli)
-    P_MACRO(__cplusplus_cli);
-#else
-    D_MACRO(__cplusplus_cli);
-#endif
-
-#if defined(_MANAGED)
-    P_MACRO(_MANAGED);
-#else
-    D_MACRO(_MANAGED);
-#endif
-
-#if defined(_M_CEE)
-    P_MACRO(_M_CEE);
-#else
-    D_MACRO(_M_CEE);
-#endif
-
-#if defined(_M_CEE_PURE)
-    P_MACRO(_M_CEE_PURE);
-#else
-    D_MACRO(_M_CEE_PURE);
-#endif
-
-#if defined(_M_CEE_SAFE)
-    P_MACRO(_M_CEE_SAFE);
-#else
-    D_MACRO(_M_CEE_SAFE);
-#endif
-
-    // Microsoft Visual Studio hardware platform detection
-
-#if defined(_M_ALPHA)
-    P_MACRO(_M_ALPHA);
-#else
-    D_MACRO(_M_ALPHA);
-#endif
-
-#if defined(_M_AMD64)
-    P_MACRO(_M_AMD64);
-#else
-    D_MACRO(_M_AMD64);
-#endif
-
-#if defined(_M_IA64)
-    P_MACRO(_M_IA64);
-#else
-    D_MACRO(_M_IA64);
-#endif
-
-#if defined(_M_IX86)
-    P_MACRO(_M_IX86);
-#else
-    D_MACRO(_M_IX86);
-#endif
-
-#if defined(_M_X64)
-    P_MACRO(_M_X64);
-#else
-    D_MACRO(_M_X64);
-#endif
-
-    // Macros predefined for x86 or x64 MSVC targets only -- BEGIN vvv
-
-#if defined(_M_IX86_FP)
-    P_MACRO(_M_IX86_FP);
-#else
-    D_MACRO(_M_IX86_FP);
+    D_MACRO(__ARM_ARCH_7R__);
 #endif
 
 #if defined(__ATOM__)
@@ -1381,22 +1289,10 @@ static void printFlags()
     D_MACRO(__ATOM__);
 #endif
 
-#if defined(__AVX__)
-    P_MACRO(__AVX__);
-#else
-    D_MACRO(__AVX__);
-#endif
-
 #if defined(__AVX2__)
     P_MACRO(__AVX2__);
 #else
     D_MACRO(__AVX2__);
-#endif
-
-#if defined(__AVX__)
-    P_MACRO(__AVX__);
-#else
-    D_MACRO(__AVX__);
 #endif
 
 #if defined(__AVX512BW__)
@@ -1429,188 +1325,10 @@ static void printFlags()
     D_MACRO(__AVX512VL__);
 #endif
 
-    // Macros predefined for x86 or x64 MSVC targets only -- END ^^^
-
-    // Microsoft Visual Studio ARM related hardware detection
-
-#if defined(_ARM)
-    P_MACRO(_ARM);
+#if defined(__AVX__)
+    P_MACRO(__AVX__);
 #else
-    D_MACRO(_ARM);
-#endif
-
-#if defined(_ARM_ARMV7VE)
-    P_MACRO(_ARM_ARMV7VE);
-#else
-    D_MACRO(_ARM_ARMV7VE);
-#endif
-
-#if defined(_ARM_FP)
-    P_MACRO(_ARM_FP);
-#else
-    D_MACRO(_ARM_FP);
-#endif
-
-#if defined(_ARM64)
-    P_MACRO(_ARM64);
-#else
-    D_MACRO(_ARM64);
-#endif
-
-#if defined(_ARM64EC)
-    P_MACRO(_ARM64EC);
-#else
-    D_MACRO(_ARM64EC);
-#endif
-
-    // Microsoft Visual Studio miscellaneous hardware detection
-
-#if defined(_POWER)
-    P_MACRO(_POWER);
-#else
-    D_MACRO(_POWER);
-#endif
-
-#if defined(_M_MRX000)
-    P_MACRO(_M_MRX000);
-#else
-    D_MACRO(_M_MRX000);
-#endif
-
-#if defined(_M_PPC)
-    P_MACRO(_M_PPC);
-#else
-    D_MACRO(_M_PPC);
-#endif
-
-#if defined(_POWER)
-    P_MACRO(_POWER);
-#else
-    D_MACRO(_POWER);
-#endif
-
-    // Microsoft Windows platform specific macros
-
-#if defined(__cplusplus_winrt)
-    P_MACRO(__cplusplus_winrt);
-#else
-    D_MACRO(__cplusplus_winrt);
-#endif
-
-#if defined(_WINRT_DLL)
-    P_MACRO(_WINRT_DLL);
-#else
-    D_MACRO(_WINRT_DLL);
-#endif
-
-#if defined(_WIN16)
-    P_MACRO(_WIN16);
-#else
-    D_MACRO(_WIN16);
-#endif
-
-#if defined(_WIN32)
-    P_MACRO(_WIN32);
-#else
-    D_MACRO(_WIN32);
-#endif
-
-#if defined(_WIN32_WINDOWS)
-    P_MACRO(_WIN32_WINDOWS);
-#else
-    D_MACRO(_WIN32_WINDOWS);
-#endif
-
-#if defined(_WIN32_WINNT)
-    P_MACRO(_WIN32_WINNT);
-#else
-    D_MACRO(_WIN32_WINNT);
-#endif
-
-#if defined(_WIN64)
-    P_MACRO(_WIN64);
-#else
-    D_MACRO(_WIN64);
-#endif
-
-#if defined(__64BIT__)
-    P_MACRO(__64BIT__);
-#else
-    D_MACRO(__64BIT__);
-#endif
-
-                // clang compiler platform specific macros
-
-#if defined(__APPLE__)
-    P_MACRO(__APPLE__);
-#else
-    D_MACRO(__APPLE__);
-#endif
-
-#if defined(__ARM_ARCH)
-    P_MACRO(__ARM_ARCH);
-#else
-    D_MACRO(__ARM_ARCH);
-#endif
-
-#if defined(__ARM_ARCH_5TEJ__)
-    P_MACRO(__ARM_ARCH_5TEJ__);
-#else
-    D_MACRO(__ARM_ARCH_5TEJ__);
-#endif
-
-#if defined(__ARM_ARCH_5TE__)
-    P_MACRO(__ARM_ARCH_5TE__);
-#else
-    D_MACRO(__ARM_ARCH_5TE__);
-#endif
-
-#if defined(__ARM_ARCH_5T__)
-    P_MACRO(__ARM_ARCH_5T__);
-#else
-    D_MACRO(__ARM_ARCH_5T__);
-#endif
-
-#if defined(__ARM_ARCH_6__)
-    P_MACRO(__ARM_ARCH_6__);
-#else
-    D_MACRO(__ARM_ARCH_6__);
-#endif
-
-#if defined(__ARM_ARCH_7A__)
-    P_MACRO(__ARM_ARCH_7A__);
-#else
-    D_MACRO(__ARM_ARCH_7A__);
-#endif
-
-#if defined(__ARM_ARCH_7M__)
-    P_MACRO(__ARM_ARCH_7M__);
-#else
-    D_MACRO(__ARM_ARCH_7M__);
-#endif
-
-#if defined(__ARM_ARCH_7R__)
-    P_MACRO(__ARM_ARCH_7R__);
-#else
-    D_MACRO(__ARM_ARCH_7R__);
-#endif
-
-#if defined(__ARM_ARCH_7__)
-    P_MACRO(__ARM_ARCH_7__);
-#else
-    D_MACRO(__ARM_ARCH_7__);
-#endif
-
-#if defined(__APPLE_CC__)
-    P_MACRO(__APPLE_CC__);
-#else
-    D_MACRO(__APPLE_CC__);
-#endif
-
-#if defined(__apple_build_version__)
-    P_MACRO(__apple_build_version__);
-#else
-    D_MACRO(__apple_build_version__);
+    D_MACRO(__AVX__);
 #endif
 
 #if defined(__CHAR_UNSIGNED__)
@@ -1619,15 +1337,35 @@ static void printFlags()
     D_MACRO(__CHAR_UNSIGNED__);
 #endif
 
-                 // EDG compiler platform specific macros
-
-#if defined(__EDG__)
-    P_MACRO(__EDG__);
+#if defined(__clang__)
+    P_MACRO(__clang__);
 #else
-    D_MACRO(__EDG__);
+    D_MACRO(__clang__);
 #endif
 
-                    // CygWin platform specific macros
+#if defined(__CLR_VER)
+    P_MACRO(__CLR_VER);
+#else
+    D_MACRO(__CLR_VER);
+#endif
+
+#if defined(__cplusplus_cli)
+    P_MACRO(__cplusplus_cli);
+#else
+    D_MACRO(__cplusplus_cli);
+#endif
+
+#if defined(__cplusplus_winrt)
+    P_MACRO(__cplusplus_winrt);
+#else
+    D_MACRO(__cplusplus_winrt);
+#endif
+
+#if defined(__cygwin)
+    P_MACRO(__cygwin);
+#else
+    D_MACRO(__cygwin);
+#endif
 
 #if defined(__CYGWIN__)
     P_MACRO(__CYGWIN__);
@@ -1635,8 +1373,11 @@ static void printFlags()
     D_MACRO(__CYGWIN__);
 #endif
 
-                     // OSS platform specific macros
-
+#if defined(__EDG__)
+    P_MACRO(__EDG__);
+#else
+    D_MACRO(__EDG__);
+#endif
 
 #if defined(__FreeBSD__)
     P_MACRO(__FreeBSD__);
@@ -1648,12 +1389,6 @@ static void printFlags()
     P_MACRO(__GLIBC__);
 #else
     D_MACRO(__GLIBC__);
-#endif
-
-#if defined(__GNUC_PATCHLEVEL__)
-    P_MACRO(__GNUC_PATCHLEVEL__);
-#else
-    D_MACRO(__GNUC_PATCHLEVEL__);
 #endif
 
 #if defined(__GNUC__)
@@ -1668,6 +1403,12 @@ static void printFlags()
     D_MACRO(__GNUC_GNU_INLINE__);
 #endif
 
+#if defined(__GNUC_PATCHLEVEL__)
+    P_MACRO(__GNUC_PATCHLEVEL__);
+#else
+    D_MACRO(__GNUC_PATCHLEVEL__);
+#endif
+
 #if defined(__GNUC_STDC_INLINE__)
     P_MACRO(__GNUC_STDC_INLINE__);
 #else
@@ -1678,102 +1419,6 @@ static void printFlags()
     P_MACRO(__GXX_EXPERIMENTAL_CXX0X__);
 #else
     D_MACRO(__GXX_EXPERIMENTAL_CXX0X__);
-#endif
-
-#if defined(__PIC__)
-    P_MACRO(__PIC__);
-#else
-    D_MACRO(__PIC__);
-#endif
-
-#if defined(__POWERPC__)
-    P_MACRO(__POWERPC__);
-#else
-    D_MACRO(__POWERPC__);
-#endif
-
-#if defined(__SUNPRO_C)
-    P_MACRO(__SUNPRO_C);
-#else
-    D_MACRO(__SUNPRO_C);
-#endif
-
-#if defined(__SUNPRO_CC)
-    P_MACRO(__SUNPRO_CC);
-#else
-    D_MACRO(__SUNPRO_CC);
-#endif
-
-#if defined(__SVR4)
-    P_MACRO(__SVR4);
-#else
-    D_MACRO(__SVR4);
-#endif
-
-#if defined(__SunOS_5_10)
-    P_MACRO(__SunOS_5_10);
-#else
-    D_MACRO(__SunOS_5_10);
-#endif
-
-#if defined(__SunOS_5_11)
-    P_MACRO(__SunOS_5_11);
-#else
-    D_MACRO(__SunOS_5_11);
-#endif
-
-#if defined(__WCHAR_UNSIGNED__)
-    P_MACRO(__WCHAR_UNSIGNED__);
-#else
-    D_MACRO(__WCHAR_UNSIGNED__);
-#endif
-
-#if defined(__WIN32__)
-    P_MACRO(__WIN32__);
-#else
-    D_MACRO(__WIN32__);
-#endif
-
-#if defined(__alpha__)
-    P_MACRO(__alpha__);
-#else
-    D_MACRO(__alpha__);
-#endif
-
-#if defined(__arch64__)
-    P_MACRO(__arch64__);
-#else
-    D_MACRO(__arch64__);
-#endif
-
-#if defined(__arm__)
-    P_MACRO(__arm__);
-#else
-    D_MACRO(__arm__);
-#endif
-
-#if defined(__arm64__)
-    P_MACRO(__arm64__);
-#else
-    D_MACRO(__arm64__);
-#endif
-
-#if defined(__aarch64__)
-    P_MACRO(__aarch64__);
-#else
-    D_MACRO(__aarch64__);
-#endif
-
-#if defined(__clang__)
-    P_MACRO(__clang__);
-#else
-    D_MACRO(__clang__);
-#endif
-
-#if defined(__cygwin)
-    P_MACRO(__cygwin);
-#else
-    D_MACRO(__cygwin);
 #endif
 
 #if defined(__hppa)
@@ -1798,6 +1443,12 @@ static void printFlags()
     P_MACRO(__i386__);
 #else
     D_MACRO(__i386__);
+#endif
+
+#if defined(__INTELLISENSE__)
+    P_MACRO(__INTELLISENSE__);
+#else
+    D_MACRO(__INTELLISENSE__);
 #endif
 
 #if defined(__ix86)
@@ -1830,10 +1481,22 @@ static void printFlags()
     D_MACRO(__mips__);
 #endif
 
+#if defined(__PIC__)
+    P_MACRO(__PIC__);
+#else
+    D_MACRO(__PIC__);
+#endif
+
 #if defined(__powerpc)
     P_MACRO(__powerpc);
 #else
     D_MACRO(__powerpc);
+#endif
+
+#if defined(__POWERPC__)
+    P_MACRO(__POWERPC__);
+#else
+    D_MACRO(__POWERPC__);
 #endif
 
 #if defined(__powerpc__)
@@ -1846,6 +1509,12 @@ static void printFlags()
     P_MACRO(__ppc__);
 #else
     D_MACRO(__ppc__);
+#endif
+
+#if defined(__SANITIZE_ADDRESS__)
+    P_MACRO(__SANITIZE_ADDRESS__);
+#else
+    D_MACRO(__SANITIZE_ADDRESS__);
 #endif
 
 #if defined(__sparc)
@@ -1884,6 +1553,36 @@ static void printFlags()
     D_MACRO(__sun);
 #endif
 
+#if defined(__SunOS_5_10)
+    P_MACRO(__SunOS_5_10);
+#else
+    D_MACRO(__SunOS_5_10);
+#endif
+
+#if defined(__SunOS_5_11)
+    P_MACRO(__SunOS_5_11);
+#else
+    D_MACRO(__SunOS_5_11);
+#endif
+
+#if defined(__SUNPRO_C)
+    P_MACRO(__SUNPRO_C);
+#else
+    D_MACRO(__SUNPRO_C);
+#endif
+
+#if defined(__SUNPRO_CC)
+    P_MACRO(__SUNPRO_CC);
+#else
+    D_MACRO(__SUNPRO_CC);
+#endif
+
+#if defined(__SVR4)
+    P_MACRO(__SVR4);
+#else
+    D_MACRO(__SVR4);
+#endif
+
 #if defined(__svr4__)
     P_MACRO(__svr4__);
 #else
@@ -1902,6 +1601,18 @@ static void printFlags()
     D_MACRO(__unix__);
 #endif
 
+#if defined(__WCHAR_UNSIGNED__)
+    P_MACRO(__WCHAR_UNSIGNED__);
+#else
+    D_MACRO(__WCHAR_UNSIGNED__);
+#endif
+
+#if defined(__WIN32__)
+    P_MACRO(__WIN32__);
+#else
+    D_MACRO(__WIN32__);
+#endif
+
 #if defined(__x86_64)
     P_MACRO(__x86_64);
 #else
@@ -1914,16 +1625,316 @@ static void printFlags()
     D_MACRO(__x86_64__);
 #endif
 
+#if defined(_ARM)
+    P_MACRO(_ARM);
+#else
+    D_MACRO(_ARM);
+#endif
+
+#if defined(_ARM64)
+    P_MACRO(_ARM64);
+#else
+    D_MACRO(_ARM64);
+#endif
+
+#if defined(_ARM64EC)
+    P_MACRO(_ARM64EC);
+#else
+    D_MACRO(_ARM64EC);
+#endif
+
+#if defined(_ARM_ARMV7VE)
+    P_MACRO(_ARM_ARMV7VE);
+#else
+    D_MACRO(_ARM_ARMV7VE);
+#endif
+
+#if defined(_ARM_FP)
+    P_MACRO(_ARM_FP);
+#else
+    D_MACRO(_ARM_FP);
+#endif
+
 #if defined(_BIG_ENDIAN)
     P_MACRO(_BIG_ENDIAN);
 #else
     D_MACRO(_BIG_ENDIAN);
 #endif
 
+#if defined(_CHAR_UNSIGNED)
+    P_MACRO(_CHAR_UNSIGNED);
+#else
+    D_MACRO(_CHAR_UNSIGNED);
+#endif
+
+#if defined(_CONTROL_FLOW_GUARD)
+    P_MACRO(_CONTROL_FLOW_GUARD);
+#else
+    D_MACRO(_CONTROL_FLOW_GUARD);
+#endif
+
+#if defined(_CPPRTTI)
+    P_MACRO(_CPPRTTI);
+#else
+    D_MACRO(_CPPRTTI);
+#endif
+
+#if defined(_CPPUNWIND)
+    P_MACRO(_CPPUNWIND);
+#else
+    D_MACRO(_CPPUNWIND);
+#endif
+
+#if defined(_DLL)
+    P_MACRO(_DLL);
+#else
+    D_MACRO(_DLL);
+#endif
+
+#if defined(_INTEGRAL_MAX_BITS)
+    P_MACRO(_INTEGRAL_MAX_BITS);
+#else
+    D_MACRO(_INTEGRAL_MAX_BITS);
+#endif
+
+#if defined(_ISO_VOLATILE)
+    P_MACRO(_ISO_VOLATILE);
+#else
+    D_MACRO(_ISO_VOLATILE);
+#endif
+
+#if defined(_KERNEL_MODE)
+    P_MACRO(_KERNEL_MODE);
+#else
+    D_MACRO(_KERNEL_MODE);
+#endif
+
 #if defined(_LITTLE_ENDIAN)
     P_MACRO(_LITTLE_ENDIAN);
 #else
     D_MACRO(_LITTLE_ENDIAN);
+#endif
+
+#if defined(_M_ALPHA)
+    P_MACRO(_M_ALPHA);
+#else
+    D_MACRO(_M_ALPHA);
+#endif
+
+#if defined(_M_AMD64)
+    P_MACRO(_M_AMD64);
+#else
+    D_MACRO(_M_AMD64);
+#endif
+
+#if defined(_M_CEE)
+    P_MACRO(_M_CEE);
+#else
+    D_MACRO(_M_CEE);
+#endif
+
+#if defined(_M_CEE_PURE)
+    P_MACRO(_M_CEE_PURE);
+#else
+    D_MACRO(_M_CEE_PURE);
+#endif
+
+#if defined(_M_CEE_SAFE)
+    P_MACRO(_M_CEE_SAFE);
+#else
+    D_MACRO(_M_CEE_SAFE);
+#endif
+
+#if defined(_M_FP_CONTRACT)
+    P_MACRO(_M_FP_CONTRACT);
+#else
+    D_MACRO(_M_FP_CONTRACT);
+#endif
+
+#if defined(_M_FP_EXCEPT)
+    P_MACRO(_M_FP_EXCEPT);
+#else
+    D_MACRO(_M_FP_EXCEPT);
+#endif
+
+#if defined(_M_FP_FAST)
+    P_MACRO(_M_FP_FAST);
+#else
+    D_MACRO(_M_FP_FAST);
+#endif
+
+#if defined(_M_FP_PRECISE)
+    P_MACRO(_M_FP_PRECISE);
+#else
+    D_MACRO(_M_FP_PRECISE);
+#endif
+
+#if defined(_M_FP_STRICT)
+    P_MACRO(_M_FP_STRICT);
+#else
+    D_MACRO(_M_FP_STRICT);
+#endif
+
+#if defined(_M_IA64)
+    P_MACRO(_M_IA64);
+#else
+    D_MACRO(_M_IA64);
+#endif
+
+#if defined(_M_IX86)
+    P_MACRO(_M_IX86);
+#else
+    D_MACRO(_M_IX86);
+#endif
+
+#if defined(_M_IX86_FP)
+    P_MACRO(_M_IX86_FP);
+#else
+    D_MACRO(_M_IX86_FP);
+#endif
+
+#if defined(_M_MRX000)
+    P_MACRO(_M_MRX000);
+#else
+    D_MACRO(_M_MRX000);
+#endif
+
+#if defined(_M_PPC)
+    P_MACRO(_M_PPC);
+#else
+    D_MACRO(_M_PPC);
+#endif
+
+#if defined(_M_X64)
+    P_MACRO(_M_X64);
+#else
+    D_MACRO(_M_X64);
+#endif
+
+#if defined(_MANAGED)
+    P_MACRO(_MANAGED);
+#else
+    D_MACRO(_MANAGED);
+#endif
+
+#if defined(_MSC_BUILD)
+    P_MACRO(_MSC_BUILD);
+#else
+    D_MACRO(_MSC_BUILD);
+#endif
+
+#if defined(_MSC_EXTENSIONS)
+    P_MACRO(_MSC_EXTENSIONS);
+#else
+    D_MACRO(_MSC_EXTENSIONS);
+#endif
+
+#if defined(_MSC_FULL_VER)
+    P_MACRO(_MSC_FULL_VER);
+#else
+    D_MACRO(_MSC_FULL_VER);
+#endif
+
+#if defined(_MSC_VER)
+    P_MACRO(_MSC_VER);
+#else
+    D_MACRO(_MSC_VER);
+#endif
+
+#if defined(_MSVC_LANG)
+    P_MACRO(_MSVC_LANG);
+#else
+    D_MACRO(_MSVC_LANG);
+#endif
+
+#if defined(_MSVC_RUNTIME_CHECKS)
+    P_MACRO(_MSVC_RUNTIME_CHECKS);
+#else
+    D_MACRO(_MSVC_RUNTIME_CHECKS);
+#endif
+
+#if defined(_MSVC_TRADITIONAL)
+    P_MACRO(_MSVC_TRADITIONAL);
+#else
+    D_MACRO(_MSVC_TRADITIONAL);
+#endif
+
+#if defined(_MT)
+    P_MACRO(_MT);
+#else
+    D_MACRO(_MT);
+#endif
+
+#if defined(_NATIVE_WCHAR_T_DEFINED)
+    P_MACRO(_NATIVE_WCHAR_T_DEFINED);
+#else
+    D_MACRO(_NATIVE_WCHAR_T_DEFINED);
+#endif
+
+#if defined(_OPENMP)
+    P_MACRO(_OPENMP);
+#else
+    D_MACRO(_OPENMP);
+#endif
+
+#if defined(_POWER)
+    P_MACRO(_POWER);
+#else
+    D_MACRO(_POWER);
+#endif
+
+#if defined(_PREFAST_)
+    P_MACRO(_PREFAST_);
+#else
+    D_MACRO(_PREFAST_);
+#endif
+
+#if defined(_VC_NODEFAULTLIB)
+    P_MACRO(_VC_NODEFAULTLIB);
+#else
+    D_MACRO(_VC_NODEFAULTLIB);
+#endif
+
+#if defined(_WCHAR_T_DEFINED)
+    P_MACRO(_WCHAR_T_DEFINED);
+#else
+    D_MACRO(_WCHAR_T_DEFINED);
+#endif
+
+#if defined(_WIN16)
+    P_MACRO(_WIN16);
+#else
+    D_MACRO(_WIN16);
+#endif
+
+#if defined(_WIN32)
+    P_MACRO(_WIN32);
+#else
+    D_MACRO(_WIN32);
+#endif
+
+#if defined(_WIN32_WINDOWS)
+    P_MACRO(_WIN32_WINDOWS);
+#else
+    D_MACRO(_WIN32_WINDOWS);
+#endif
+
+#if defined(_WIN32_WINNT)
+    P_MACRO(_WIN32_WINNT);
+#else
+    D_MACRO(_WIN32_WINNT);
+#endif
+
+#if defined(_WIN64)
+    P_MACRO(_WIN64);
+#else
+    D_MACRO(_WIN64);
+#endif
+
+#if defined(_WINRT_DLL)
+    P_MACRO(_WINRT_DLL);
+#else
+    D_MACRO(_WINRT_DLL);
 #endif
 
 #if defined(cygwin)
@@ -2076,15 +2087,46 @@ static void printFlags()
     puts(    "  -----------------------------");
 
     for (size_t i = 0; i != undefinedMacros.count(); ++i) {
-        printf("\t  %s\n", undefinedMacros[i]);
+        fputs("\t  ", stdout);
+        puts(undefinedMacros[i]);
     }
 
                       // Legacy hardware platforms (Itanium)
+
+#if defined(__HP_aCC)
+    P_MACRO(__HP_aCC);
+#else
+    D_MACRO(__HP_aCC);
+#endif
+
+#if defined(__HP_cc)
+    P_MACRO(__HP_cc);
+#else
+    D_MACRO(__HP_cc);
+#endif
 
 #if defined(_IA64)
     P_MACRO(_IA64);
 #else
     D_MACRO(_IA64);
+#endif
+
+#if defined(__IA64__)
+    P_MACRO(__IA64__);
+#else
+    D_MACRO(__IA64__);
+#endif
+
+#if defined(__ia64)
+    P_MACRO(__ia64);
+#else
+    D_MACRO(__ia64);
+#endif
+
+#if defined(__ia64__)
+    P_MACRO(__ia64__);
+#else
+    D_MACRO(__ia64__);
 #endif
 
 #if defined(_ILP32)
@@ -2099,40 +2141,10 @@ static void printFlags()
     D_MACRO(_LP64);
 #endif
 
-#if defined(__HP_cc)
-    P_MACRO(__HP_cc);
-#else
-    D_MACRO(__HP_cc);
-#endif
-
-#if defined(__HP_aCC)
-    P_MACRO(__HP_aCC);
-#else
-    D_MACRO(__HP_aCC);
-#endif
-
-#if defined(__IA64__)
-    P_MACRO(__IA64__);
-#else
-    D_MACRO(__IA64__);
-#endif
-
 #if defined(__LP64__)
     P_MACRO(__LP64__);
 #else
     D_MACRO(__LP64__);
-#endif
-
-#if defined(__ia64)
-    P_MACRO(__ia64);
-#else
-    D_MACRO(__ia64);
-#endif
-
-#if defined(__ia64__)
-    P_MACRO(__ia64__);
-#else
-    D_MACRO(__ia64__);
 #endif
 
     puts("\n\nprintFlags: Leave");

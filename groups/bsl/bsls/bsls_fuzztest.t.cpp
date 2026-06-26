@@ -134,27 +134,25 @@ void aSsErT(bool condition, const char *message, int line)
 /// some report even if all of the flags are undefined.
 static void printFlags()
 {
-    printf("printFlags: Enter\n");
+    puts("printFlags: Enter");
 
-    printf("\nprintFlags: bsls_fuzztest Macros\n");
+    puts("\nprintFlags: bsls_fuzztest Macros");
 
-    printf("\nBSLS_FUZZTEST_EVALUATE: ");
 #ifdef BSLS_FUZZTEST_EVALUATE
-    printf("%s\n",
-           STRINGIFY(BSLS_FUZZTEST_EVALUATE(true)));
+    puts("\nBSLS_FUZZTEST_EVALUATE: "
+         STRINGIFY(BSLS_FUZZTEST_EVALUATE(true)));
 #else
-    printf("UNDEFINED\n");
+    puts("\nBSLS_FUZZTEST_EVALUATE: UNDEFINED");
 #endif
 
-    printf("\nBSLS_FUZZTEST_EVALUATE_RAW: ");
 #ifdef BSLS_FUZZTEST_EVALUATE_RAW
-    printf("%s\n",
-           STRINGIFY(BSLS_FUZZTEST_EVALUATE_RAW(true)));
+    puts("\nBSLS_FUZZTEST_EVALUATE_RAW: "
+         STRINGIFY(BSLS_FUZZTEST_EVALUATE_RAW(true)));
 #else
-    printf("UNDEFINED\n");
+    puts("\nBSLS_FUZZTEST_EVALUATE_RAW: UNDEFINED");
 #endif
 
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n\nprintFlags: Leave");
 }
 
 namespace test_case_common {

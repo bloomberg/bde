@@ -575,213 +575,143 @@ using namespace std;
 /// some report even if all of the flags are undefined.
 static void printFlags()
 {
-    printf("printFlags: Enter\n");
+    puts("printFlags: Enter");
 
-    printf("\n  printFlags: bsls_annotation Macros\n");
+    puts("\n  printFlags: bsls_annotation Macros");
 
-    printf("\n  BSLS_ANNOTATION_ALLOC_SIZE(x): ");
 #ifdef BSLS_ANNOTATION_ALLOC_SIZE
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_ALLOC_SIZE(x)) );
+    puts("\n  BSLS_ANNOTATION_ALLOC_SIZE(x): "
+         STRINGIFY(BSLS_ANNOTATION_ALLOC_SIZE(x)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_ALLOC_SIZE(x): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y): ");
 #ifdef BSLS_ANNOTATION_ALLOC_SIZE_MUL
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y)) );
+    puts("\n  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y): "
+         STRINGIFY(BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_ARGS_NON_NULL: ");
-#ifdef BSLS_ANNOTATION_ARGS_NON_NULL
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_ARGS_NON_NULL) );
+#ifdef BSLS_ANNOTATION_ANALYZER_NORETURN
+    puts("\n  BSLS_ANNOTATION_ANALYZER_NORETURN: "
+         STRINGIFY(BSLS_ANNOTATION_ANALYZER_NORETURN));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_ANALYZER_NORETURN: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_ARG_NON_NULL(...): ");
 #ifdef BSLS_ANNOTATION_ARG_NON_NULL
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_ARG_NON_NULL(...)) );
+    puts("\n  BSLS_ANNOTATION_ARG_NON_NULL(...): "
+         STRINGIFY(BSLS_ANNOTATION_ARG_NON_NULL(...)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_ARG_NON_NULL(...): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_DEPRECATED: ");
+#ifdef BSLS_ANNOTATION_ARGS_NON_NULL
+    puts("\n  BSLS_ANNOTATION_ARGS_NON_NULL: "
+         STRINGIFY(BSLS_ANNOTATION_ARGS_NON_NULL));
+#else
+    puts("\n  BSLS_ANNOTATION_ARGS_NON_NULL: UNDEFINED");
+#endif
+
 #ifdef BSLS_ANNOTATION_DEPRECATED
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_DEPRECATED) );
+    puts("\n  BSLS_ANNOTATION_DEPRECATED: "
+         STRINGIFY(BSLS_ANNOTATION_DEPRECATED));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_DEPRECATED: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_ERROR(x): ");
 #ifdef BSLS_ANNOTATION_ERROR
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_ERROR(x)) );
+    puts("\n  BSLS_ANNOTATION_ERROR(x): "
+         STRINGIFY(BSLS_ANNOTATION_ERROR(x)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_ERROR(x): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_FALLTHROUGH: ");
 #ifdef BSLS_ANNOTATION_FALLTHROUGH
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_FALLTHROUGH) );
+    puts("\n  BSLS_ANNOTATION_FALLTHROUGH: "
+         STRINGIFY(BSLS_ANNOTATION_FALLTHROUGH));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_FALLTHROUGH: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_FORMAT(arg): ");
 #ifdef BSLS_ANNOTATION_FORMAT
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_FORMAT(arg)) );
+    puts("\n  BSLS_ANNOTATION_FORMAT(arg): "
+         STRINGIFY(BSLS_ANNOTATION_FORMAT(arg)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_FORMAT(arg): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_NODISCARD: ");
 #ifdef BSLS_ANNOTATION_NODISCARD
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_NODISCARD) );
+    puts("\n  BSLS_ANNOTATION_NODISCARD: "
+         STRINGIFY(BSLS_ANNOTATION_NODISCARD));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_NODISCARD: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_NORETURN: ");
 #ifdef BSLS_ANNOTATION_NORETURN
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_NORETURN) );
+    puts("\n  BSLS_ANNOTATION_NORETURN: "
+         STRINGIFY(BSLS_ANNOTATION_NORETURN));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_NORETURN: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_NULL_TERMINATED: ");
 #ifdef BSLS_ANNOTATION_NULL_TERMINATED
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_NULL_TERMINATED) );
+    puts("\n  BSLS_ANNOTATION_NULL_TERMINATED: "
+         STRINGIFY(BSLS_ANNOTATION_NULL_TERMINATED));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_NULL_TERMINATED: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_NULL_TERMINATED_AT(x): ");
 #ifdef BSLS_ANNOTATION_NULL_TERMINATED_AT
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_NULL_TERMINATED_AT(x)) );
+    puts("\n  BSLS_ANNOTATION_NULL_TERMINATED_AT(x): "
+         STRINGIFY(BSLS_ANNOTATION_NULL_TERMINATED_AT(x)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_NULL_TERMINATED_AT(x): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_PRINTF(fmt, arg): ");
 #ifdef BSLS_ANNOTATION_PRINTF
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_PRINTF(fmt, arg)) );
+    puts("\n  BSLS_ANNOTATION_PRINTF(fmt, arg): "
+         STRINGIFY(BSLS_ANNOTATION_PRINTF(fmt, arg)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_PRINTF(fmt, arg): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_SCANF(fmt, arg): ");
 #ifdef BSLS_ANNOTATION_SCANF
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_SCANF(fmt, arg)) );
+    puts("\n  BSLS_ANNOTATION_SCANF(fmt, arg): "
+         STRINGIFY(BSLS_ANNOTATION_SCANF(fmt, arg)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_SCANF(fmt, arg): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_UNUSED: ");
 #ifdef BSLS_ANNOTATION_UNUSED
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_UNUSED) );
+    puts("\n  BSLS_ANNOTATION_UNUSED: "
+         STRINGIFY(BSLS_ANNOTATION_UNUSED));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_UNUSED: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_USED: ");
 #ifdef BSLS_ANNOTATION_USED
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_USED) );
+    puts("\n  BSLS_ANNOTATION_USED: " STRINGIFY(BSLS_ANNOTATION_USED));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_USED: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_WARNING(x): ");
 #ifdef BSLS_ANNOTATION_WARNING
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_WARNING(x)) );
+    puts("\n  BSLS_ANNOTATION_WARNING(x): "
+         STRINGIFY(BSLS_ANNOTATION_WARNING(x)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_WARNING(x): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_ANNOTATION_WARN_UNUSED_RESULT: ");
 #ifdef BSLS_ANNOTATION_WARN_UNUSED_RESULT
-    printf("%s\n", STRINGIFY(BSLS_ANNOTATION_WARN_UNUSED_RESULT) );
+    puts("\n  BSLS_ANNOTATION_WARN_UNUSED_RESULT: "
+         STRINGIFY(BSLS_ANNOTATION_WARN_UNUSED_RESULT));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_ANNOTATION_WARN_UNUSED_RESULT: UNDEFINED");
 #endif
 
-    printf("\n\n  printFlags: bsls_annotation Referenced Macros\n");
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH
-    printf("%s\n",
-              STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_FALLTHROUGH) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED
-    printf("%s\n",
-             STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_MAYBE_UNUSED) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD
-    printf("%s\n",
-                STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NODISCARD) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN
-    printf("%s\n",
-                 STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_ATTRIBUTE_NORETURN) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_PLATFORM_CMP_CLANG: ");
-#ifdef BSLS_PLATFORM_CMP_CLANG
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_CLANG) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_PLATFORM_CMP_GNU: ");
-#ifdef BSLS_PLATFORM_CMP_GNU
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_GNU) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_PLATFORM_CMP_HP: ");
-#ifdef BSLS_PLATFORM_CMP_HP
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_HP) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_PLATFORM_CMP_IBM: ");
-#ifdef BSLS_PLATFORM_CMP_IBM
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_IBM) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_PLATFORM_CMP_MSVC: ");
-#ifdef BSLS_PLATFORM_CMP_MSVC
-    printf("%s\n", STRINGIFY(BSLS_PLATFORM_CMP_MSVC) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  __has_warning: ");
-#ifdef __has_warning
-    printf("DEFINED\n");
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n\nprintFlags: Leave");
 }
 
 // ============================================================================

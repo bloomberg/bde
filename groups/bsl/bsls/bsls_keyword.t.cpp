@@ -403,171 +403,131 @@ static void printFlags()
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    printf("printFlags: Enter\n");
+    puts("printFlags: Enter");
 
-    printf("\n  printFlags: bsls_keyword Macros\n");
+    puts("\n  printFlags: bsls_keyword Macros");
 
-    printf("\n  BSLS_KEYWORD_CONSTEXPR: ");
+#ifdef BSLS_KEYWORD_CONSTEVAL_CPP20
+    puts("\n  BSLS_KEYWORD_CONSTEVAL_CPP20: "
+         STRINGIFY(BSLS_KEYWORD_CONSTEVAL_CPP20));
+#else
+    puts("\n  BSLS_KEYWORD_CONSTEVAL_CPP20: UNDEFINED");
+#endif
+
 #ifdef BSLS_KEYWORD_CONSTEXPR
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR) );
+    puts("\n  BSLS_KEYWORD_CONSTEXPR: " STRINGIFY(BSLS_KEYWORD_CONSTEXPR));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_CONSTEXPR: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_CONSTEXPR_RELAXED: ");
-#ifdef BSLS_KEYWORD_CONSTEXPR_RELAXED
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_RELAXED) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_KEYWORD_CONSTEXPR_CPP14: ");
 #ifdef BSLS_KEYWORD_CONSTEXPR_CPP14
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP14) );
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_CPP14: "
+         STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP14));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_CPP14: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_CONSTEXPR_CPP17: ");
 #ifdef BSLS_KEYWORD_CONSTEXPR_CPP17
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP17) );
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_CPP17: "
+         STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP17));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_CPP17: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_DELETED: ");
+#ifdef BSLS_KEYWORD_CONSTEXPR_CPP20
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_CPP20: "
+         STRINGIFY(BSLS_KEYWORD_CONSTEXPR_CPP20));
+#else
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_CPP20: UNDEFINED");
+#endif
+
+#ifdef BSLS_KEYWORD_CONSTEXPR_MEMBER
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_MEMBER: "
+         STRINGIFY(BSLS_KEYWORD_CONSTEXPR_MEMBER));
+#else
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_MEMBER: UNDEFINED");
+#endif
+
+#ifdef BSLS_KEYWORD_CONSTEXPR_RELAXED
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_RELAXED: "
+         STRINGIFY(BSLS_KEYWORD_CONSTEXPR_RELAXED));
+#else
+    puts("\n  BSLS_KEYWORD_CONSTEXPR_RELAXED: UNDEFINED");
+#endif
+
 #ifdef BSLS_KEYWORD_DELETED
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_DELETED) );
+    puts("\n  BSLS_KEYWORD_DELETED: " STRINGIFY(BSLS_KEYWORD_DELETED));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_DELETED: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_EXPLICIT: ");
 #ifdef BSLS_KEYWORD_EXPLICIT
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_EXPLICIT) );
+    puts("\n  BSLS_KEYWORD_EXPLICIT: " STRINGIFY(BSLS_KEYWORD_EXPLICIT));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_EXPLICIT: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_FINAL: ");
 #ifdef BSLS_KEYWORD_FINAL
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_FINAL) );
+    puts("\n  BSLS_KEYWORD_FINAL: " STRINGIFY(BSLS_KEYWORD_FINAL));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_FINAL: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_INLINE_VARIABLE: ");
+#ifdef BSLS_KEYWORD_INLINE_CONSTEXPR
+    puts("\n  BSLS_KEYWORD_INLINE_CONSTEXPR: "
+         STRINGIFY(BSLS_KEYWORD_INLINE_CONSTEXPR));
+#else
+    puts("\n  BSLS_KEYWORD_INLINE_CONSTEXPR: UNDEFINED");
+#endif
+
 #ifdef BSLS_KEYWORD_INLINE_VARIABLE
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_INLINE_VARIABLE) );
+    puts("\n  BSLS_KEYWORD_INLINE_VARIABLE: "
+         STRINGIFY(BSLS_KEYWORD_INLINE_VARIABLE));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_INLINE_VARIABLE: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_NOEXCEPT: ");
 #ifdef BSLS_KEYWORD_NOEXCEPT
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT) );
+    puts("\n  BSLS_KEYWORD_NOEXCEPT: " STRINGIFY(BSLS_KEYWORD_NOEXCEPT));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_NOEXCEPT: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: ");
 #ifdef BSLS_KEYWORD_NOEXCEPT_AVAILABLE
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT_AVAILABLE) );
+    puts("\n  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: "
+         STRINGIFY(BSLS_KEYWORD_NOEXCEPT_AVAILABLE));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_NOEXCEPT_AVAILABLE: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_NOEXCEPT_OPERATOR(...): ");
 #ifdef BSLS_KEYWORD_NOEXCEPT_OPERATOR
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT_OPERATOR(...)) );
+    puts("\n  BSLS_KEYWORD_NOEXCEPT_OPERATOR(...): "
+         STRINGIFY(BSLS_KEYWORD_NOEXCEPT_OPERATOR(...)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_NOEXCEPT_OPERATOR(...): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): ");
 #ifdef BSLS_KEYWORD_NOEXCEPT_SPECIFICATION
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...)) );
+    puts("\n  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): "
+         STRINGIFY(BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_NOEXCEPT_SPECIFICATION(...): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_OVERRIDE: ");
 #ifdef BSLS_KEYWORD_OVERRIDE
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_OVERRIDE) );
+    puts("\n  BSLS_KEYWORD_OVERRIDE: " STRINGIFY(BSLS_KEYWORD_OVERRIDE));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_OVERRIDE: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_KEYWORD_THREAD_LOCAL: ");
 #ifdef BSLS_KEYWORD_THREAD_LOCAL
-    printf("%s\n", STRINGIFY(BSLS_KEYWORD_THREAD_LOCAL) );
+    puts("\n  BSLS_KEYWORD_THREAD_LOCAL: "
+         STRINGIFY(BSLS_KEYWORD_THREAD_LOCAL));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_KEYWORD_THREAD_LOCAL: UNDEFINED");
 #endif
 
-    printf("\n\n  printFlags: bsls_keyword Referenced Macros\n");
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_CONSTEXPR_CPP14) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_DELETED_FUNCTIONS) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_FINAL: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_FINAL
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_FINAL) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES
-    printf("%s\n",
-                   STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_INLINE_VARIABLES) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_NOEXCEPT) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT
-    printf("%s\n",
-                  STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OPERATOR_EXPLICIT) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n  BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE
-    printf("%s\n", STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_OVERRIDE) );
-#else
-    printf("UNDEFINED\n");
-#endif
-
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n\nprintFlags: Leave");
 }
 
 //=============================================================================

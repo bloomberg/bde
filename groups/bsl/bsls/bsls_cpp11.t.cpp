@@ -139,81 +139,75 @@ static void printFlags()
     // An "Enter" and "Leave" message is printed unconditionally so there is
     // some report even if all of the flags are undefined.
 {
-    printf("printFlags: Enter\n");
+    puts("printFlags: Enter");
 
-    printf("\n  printFlags: bsls_cpp11 Macros\n");
+    puts("\n  printFlags: bsls_cpp11 Macros");
 
-    printf("\n  BSLS_CPP11_CONSTEXPR: ");
 #ifdef BSLS_CPP11_CONSTEXPR
-    printf("%s\n", STRINGIFY(BSLS_CPP11_CONSTEXPR) );
+    puts("\n  BSLS_CPP11_CONSTEXPR: " STRINGIFY(BSLS_CPP11_CONSTEXPR));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_CONSTEXPR: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_DELETED: ");
 #ifdef BSLS_CPP11_DELETED
-    printf("%s\n", STRINGIFY(BSLS_CPP11_DELETED) );
+    puts("\n  BSLS_CPP11_DELETED: " STRINGIFY(BSLS_CPP11_DELETED));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_DELETED: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_EXPLICIT: ");
 #ifdef BSLS_CPP11_EXPLICIT
-    printf("%s\n", STRINGIFY(BSLS_CPP11_EXPLICIT) );
+    puts("\n  BSLS_CPP11_EXPLICIT: " STRINGIFY(BSLS_CPP11_EXPLICIT));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_EXPLICIT: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_FINAL: ");
 #ifdef BSLS_CPP11_FINAL
-    printf("%s\n", STRINGIFY(BSLS_CPP11_FINAL) );
+    puts("\n  BSLS_CPP11_FINAL: " STRINGIFY(BSLS_CPP11_FINAL));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_FINAL: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_NOEXCEPT: ");
 #ifdef BSLS_CPP11_NOEXCEPT
-    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT) );
+    puts("\n  BSLS_CPP11_NOEXCEPT: " STRINGIFY(BSLS_CPP11_NOEXCEPT));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_NOEXCEPT: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_NOEXCEPT_AVAILABLE: ");
 #ifdef BSLS_CPP11_NOEXCEPT_AVAILABLE
-    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT_AVAILABLE) );
+    puts("\n  BSLS_CPP11_NOEXCEPT_AVAILABLE: "
+         STRINGIFY(BSLS_CPP11_NOEXCEPT_AVAILABLE));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_NOEXCEPT_AVAILABLE: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_NOEXCEPT_OPERATOR(...): ");
 #ifdef BSLS_CPP11_NOEXCEPT_OPERATOR
-    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT_OPERATOR(...)) );
+    puts("\n  BSLS_CPP11_NOEXCEPT_OPERATOR(...): "
+         STRINGIFY(BSLS_CPP11_NOEXCEPT_OPERATOR(...)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_NOEXCEPT_OPERATOR(...): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_NOEXCEPT_SPECIFICATION(...): ");
 #ifdef BSLS_CPP11_NOEXCEPT_SPECIFICATION
-    printf("%s\n", STRINGIFY(BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)) );
+    puts("\n  BSLS_CPP11_NOEXCEPT_SPECIFICATION(...): "
+         STRINGIFY(BSLS_CPP11_NOEXCEPT_SPECIFICATION(...)));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_NOEXCEPT_SPECIFICATION(...): UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_OVERRIDE: ");
 #ifdef BSLS_CPP11_OVERRIDE
-    printf("%s\n", STRINGIFY(BSLS_CPP11_OVERRIDE) );
+    puts("\n  BSLS_CPP11_OVERRIDE: " STRINGIFY(BSLS_CPP11_OVERRIDE));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_OVERRIDE: UNDEFINED");
 #endif
 
-    printf("\n  BSLS_CPP11_PROVISIONALLY_FALSE: ");
 #ifdef BSLS_CPP11_PROVISIONALLY_FALSE
-    printf("%s\n", STRINGIFY(BSLS_CPP11_PROVISIONALLY_FALSE) );
+    puts("\n  BSLS_CPP11_PROVISIONALLY_FALSE: "
+         STRINGIFY(BSLS_CPP11_PROVISIONALLY_FALSE));
 #else
-    printf("UNDEFINED\n");
+    puts("\n  BSLS_CPP11_PROVISIONALLY_FALSE: UNDEFINED");
 #endif
 
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n\nprintFlags: Leave");
 }
 
 //=============================================================================

@@ -179,27 +179,25 @@ int TestPreconditionsBeginEnd::s_endCount   = 0;
 /// some report even if all of the flags are undefined.
 static void printFlags()
 {
-    printf("printFlags: Enter\n");
+    puts("printFlags: Enter");
 
-    printf("\nprintFlags: bsls_preconditions Macros\n");
+    puts("\nprintFlags: bsls_preconditions Macros");
 
-    printf("\nBSLS_PRECONDITIONS_BEGIN: ");
 #ifdef BSLS_PRECONDITIONS_BEGIN
-    printf("%s\n",
-           STRINGIFY(BSLS_PRECONDITIONS_BEGIN()));
+    puts("\nBSLS_PRECONDITIONS_BEGIN: "
+         STRINGIFY(BSLS_PRECONDITIONS_BEGIN()));
 #else
-    printf("UNDEFINED\n");
+    puts("\nBSLS_PRECONDITIONS_BEGIN: UNDEFINED");
 #endif
 
-    printf("\nBSLS_PRECONDITIONS_END: ");
 #ifdef BSLS_PRECONDITIONS_END
-    printf("%s\n",
-           STRINGIFY(BSLS_PRECONDITIONS_END()));
+    puts("\nBSLS_PRECONDITIONS_END: "
+         STRINGIFY(BSLS_PRECONDITIONS_END()));
 #else
-    printf("UNDEFINED\n");
+    puts("\nBSLS_PRECONDITIONS_END: UNDEFINED");
 #endif
 
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n\nprintFlags: Leave");
 }
 
 

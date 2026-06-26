@@ -77,6 +77,75 @@ void aSsErT(bool condition, const char *message, int line)
 //                              HELPER FUNCTIONS
 // ----------------------------------------------------------------------------
 
+namespace {
+
+/// A statically-sized table for pointers to C strings for collecting
+/// information about macros.
+template <size_t t_MAX_SIZE>
+class StaticStringsTable {
+
+  public:
+    // PUBLIC CONSTANTS
+    static const size_t k_MAX_SIZE = t_MAX_SIZE;
+
+  private:
+    // DATA
+    const char *d_name_p;          // Name for this table
+
+    const char *d_table[k_MAX_SIZE];
+    size_t      d_index;
+
+  public:
+    // CREATORS
+
+    /// Create a new `StaticStringsTable` with the specified `name`.  The
+    /// behavior is undefined unless `name` outlives the created object.
+    explicit StaticStringsTable(const char *name)
+    : d_name_p(name)
+    , d_index(0)
+    {
+    }
+
+    // MANIPULATORS
+
+    /// If there are no more free locations in the table report that error
+    /// to `stdout`.  Otherwise store the specified `string` to the next
+    /// free location then increment the next free location.
+    void pushBack(const char *string)
+    {
+        if (k_MAX_SIZE == d_index) {
+            fputs(d_name_p, stdout);
+            fputs(" table is full, could not store ", stdout);
+            puts(string);
+            aSsErT(true, "Could not store string.", __LINE__);
+            return;                                                   // RETURN
+        }
+
+        d_table[d_index++] = string;
+    }
+
+    // ACCESSORS
+
+    /// Return the string pointer at the specified `idx` position or return
+    /// an error if `idx` is out of bounds.
+    const char *operator[](size_t idx) const
+    {
+        ASSERT(idx < count());
+        if (idx >= count()) {
+            return "-<[* Out of Bound Access to String Table *]>-";   // RETURN
+        }
+        return d_table[idx];
+    }
+
+    /// Return the number of string pointers store in this object.
+    size_t count() const
+    {
+        return d_index;
+    }
+};
+
+}  // close unnamed namespace
+
 /// Return `23` if the invocation is evaluated at compile time.  If the
 /// invocation is not evaluated at compile time or if this cannot be
 /// determined return `17`.
@@ -92,48 +161,73 @@ BSLS_CONSTEVAL_CONSTEXPR int testFunction()
 /// Print a diagnostic message to standard output if any of the preprocessor
 /// flags of interest are defined, and their value if a value had been set.
 /// An "Enter" and "Leave" message is printed unconditionally so there is
-/// some report even if all of the flags are undefined.
+/// some report even if all of the flags are undefined.  Note that the macros
+/// are organized by thematic section, and the sections are mostly sorted
+/// alphanumerically except where comments indicate the reason for a different
+/// ordering.
 static void printFlags()
 {
-    printf("printFlags: Enter\n");
+    StaticStringsTable<32> undefinedMacros("undefinedMacros");
 
-    printf("\nprintFlags: bsls_consteval Macros\n");
+/// Add the specified macro named by `X` to the list of macros to report as
+/// not defined.
+#define D_MACRO(X) undefinedMacros.pushBack(#X);
 
-    printf("\nBSLS_CONSTEVAL_IS_CONSTANT_EVALUATED_IS_ACTIVE: ");
-#ifdef BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED_IS_ACTIVE
-    printf("%s\n",
-           STRINGIFY(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED_IS_ACTIVE));
+/// Print the name of the specified object-like macro named by `X`, and the
+/// source it expands to.
+#define P_MACRO(X) puts("\t  " #X ":\t" STRINGIFY(X));
+
+    puts("printFlags: Enter");
+
+    puts("\n  printFlags: bsls_consteval Macros");
+    puts(  "  ---------------------------------");
+
+#if defined(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED_IS_ACTIVE)
+    P_MACRO(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED_IS_ACTIVE);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED_IS_ACTIVE);
 #endif
 
-    printf("\nBSLS_CONSTEVAL_IS_CONSTANT_EVALUATED: ");
-#ifdef BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED
-    printf("%s\n",
-           STRINGIFY(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED));
+#if defined(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED)
+    P_MACRO(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_CONSTEVAL_IS_CONSTANT_EVALUATED);
 #endif
 
-    printf("\nBSLS_CONSTEVAL_CONSTEXPR: ");
-#ifdef BSLS_CONSTEVAL_CONSTEXPR
-    printf("%s\n",
-           STRINGIFY(BSLS_CONSTEVAL_CONSTEXPR));
+#if defined(BSLS_CONSTEVAL_CONSTEXPR)
+    P_MACRO(BSLS_CONSTEVAL_CONSTEXPR);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_CONSTEVAL_CONSTEXPR);
 #endif
 
-    printf("\nprintFlags: bsls_consteval-referenced Macros\n");
-
-    printf("\nBSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED: ");
-#ifdef BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED
-    printf("%s\n",
-           STRINGIFY(BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED));
+#if defined(BSLS_CONSTEVAL_CONSTEXPR_MEMBER)
+    P_MACRO(BSLS_CONSTEVAL_CONSTEXPR_MEMBER);
 #else
-    printf("UNDEFINED\n");
+    D_MACRO(BSLS_CONSTEVAL_CONSTEXPR_MEMBER);
 #endif
 
-    printf("\n\nprintFlags: Leave\n");
+    puts("\n  printFlags: bsls_consteval-referenced Macros");
+    puts(  "  --------------------------------------------");
+
+#if defined(BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED)
+    P_MACRO(BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED);
+#else
+    D_MACRO(BSLS_COMPILERFEATURES_SUPPORT_IS_CONSTANT_EVALUATED);
+#endif
+
+    puts("\n\n  printFlags: UNDEFINED MACROS:");
+    puts(    "  -----------------------------");
+
+    for (size_t i = 0; i != undefinedMacros.count(); ++i) {
+        fputs("\t  ", stdout);
+        puts(undefinedMacros[i]);
+    }
+
+    puts("\n\nprintFlags: Leave");
+
+        // Clean up locally scoped macros
+#undef D_MACRO
+#undef P_MACRO
 }
 
 namespace usage_example

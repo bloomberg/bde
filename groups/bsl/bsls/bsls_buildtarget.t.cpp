@@ -113,7 +113,10 @@ static void aSsErT(int c, const char *s, int i) {
 static void printMacroFlag(const char *name, const char *value)
 {
     const char *pv = value ? value[0] ? value : "<:none:>" : "<:UNDEFINED:>";
-    printf("\n%s: %s\n", name, pv);
+    fputs("\n", stdout);
+    fputs(name, stdout);
+    fputs(": ", stdout);
+    puts(pv);
 }
 
 /// Print a diagnostic message to standard output if any of the preprocessor
@@ -132,16 +135,46 @@ static void printFlags()
 
     puts("\n==printFlags: bsls_buildtarget Macros==");
 
+#ifdef BDE_BUILD_SKIP_VERSION_CHECKS
+    u_PRINT_VALUE(BDE_BUILD_SKIP_VERSION_CHECKS);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_SKIP_VERSION_CHECKS);
+#endif
+
+#ifdef BDE_BUILD_TARGET_32
+    u_PRINT_VALUE(BDE_BUILD_TARGET_32);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_32);
+#endif
+
+#ifdef BDE_BUILD_TARGET_64
+    u_PRINT_VALUE(BDE_BUILD_TARGET_64);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_64);
+#endif
+
+#ifdef BDE_BUILD_TARGET_ASAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_ASAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_ASAN);
+#endif
+
 #ifdef BDE_BUILD_TARGET_EXC
     u_PRINT_VALUE(BDE_BUILD_TARGET_EXC);
 #else
     u_PRINT_UNDEF(BDE_BUILD_TARGET_EXC);
 #endif
 
-#ifdef BDE_BUILD_TARGET_NO_EXC
-    u_PRINT_VALUE(BDE_BUILD_TARGET_NO_EXC);
+#ifdef BDE_BUILD_TARGET_FUZZ
+    u_PRINT_VALUE(BDE_BUILD_TARGET_FUZZ);
 #else
-    u_PRINT_UNDEF(BDE_BUILD_TARGET_NO_EXC);
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_FUZZ);
+#endif
+
+#ifdef BDE_BUILD_TARGET_MSAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_MSAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_MSAN);
 #endif
 
 #ifdef BDE_BUILD_TARGET_MT
@@ -150,10 +183,28 @@ static void printFlags()
     u_PRINT_UNDEF(BDE_BUILD_TARGET_MT);
 #endif
 
-#ifdef BDE_BUILD_SKIP_VERSION_CHECKS
-    u_PRINT_VALUE(BDE_BUILD_SKIP_VERSION_CHECKS);
+#ifdef BDE_BUILD_TARGET_SAFE
+    u_PRINT_VALUE(BDE_BUILD_TARGET_SAFE);
 #else
-    u_PRINT_UNDEF(BDE_BUILD_SKIP_VERSION_CHECKS);
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_SAFE);
+#endif
+
+#ifdef BDE_BUILD_TARGET_SAFE_2
+    u_PRINT_VALUE(BDE_BUILD_TARGET_SAFE_2);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_SAFE_2);
+#endif
+
+#ifdef BDE_BUILD_TARGET_TSAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_TSAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_TSAN);
+#endif
+
+#ifdef BDE_BUILD_TARGET_UBSAN
+    u_PRINT_VALUE(BDE_BUILD_TARGET_UBSAN);
+#else
+    u_PRINT_UNDEF(BDE_BUILD_TARGET_UBSAN);
 #endif
 
 #ifdef BDE_OMIT_DEPRECATED
