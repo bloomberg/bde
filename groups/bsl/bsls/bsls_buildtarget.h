@@ -8,6 +8,8 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide build-target information in object files.
 //
 //@MACROS:
+//  BDE_BUILD_TARGET_DBG: flag identifying the presence of debug information
+//  BDE_BUILD_TARGET_OPT: flag identifying the presence of optimized code
 //  BDE_BUILD_TARGET_EXC: flag identifying exception-enabled builds
 //  BDE_BUILD_TARGET_MT: flag identifying multi-threaded builds (deprecated)
 //  BDE_BUILD_TARGET_32: flag identifying 32-bit builds
@@ -190,6 +192,12 @@ BSLS_IDENT("$Id: $")
 //:     `BDE_FORCE_DONT_ALLOW_TRANSITIVE_INCLUDES`, should be defined instead.
 //:     See `bsls_ident` for more details where the consistency rules regarding
 //:     these macros are enforced.
+//
+///Optimized Builds With Debug Information
+///---------------------------------------
+// Both macros `BDE_BUILD_TARGET_OPT` and `BDE_BUILD_TARGET_DBG` are defined
+// when the build configuration includes optimization and debug flags (for
+// example, `opt_dbg` UFID or `RelWithDebInfo` CMake build type).
 //
 ///Usage
 ///-----
