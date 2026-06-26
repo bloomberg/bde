@@ -1,5 +1,6 @@
 // ball_loggermanagerdefaults.cpp                                     -*-C++-*-
 #include <ball_loggermanagerdefaults.h>
+#include <ball_thresholddefaults.h>
 
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(ball_loggermanagerdefaults_cpp,"$Id$ $CSID$")
@@ -10,6 +11,9 @@ BSLS_IDENT_RCSID(ball_loggermanagerdefaults_cpp,"$Id$ $CSID$")
 #include <bsl_ostream.h>
 
 namespace BloombergLP {
+namespace ball {
+
+namespace {
 
 enum {
     // This enumeration provides the default values for the attributes of
@@ -17,13 +21,13 @@ enum {
 
     DEFAULT_RECORD_BUFFER_SIZE = 32768,
     DEFAULT_LOGGER_BUFFER_SIZE =  8192,
-    DEFAULT_RECORD_LEVEL       =     0, // "Record" disabled
-    DEFAULT_PASS_LEVEL         =    64, // 'ERROR'
-    DEFAULT_TRIGGER_LEVEL      =     0, // "Trigger" disabled
-    DEFAULT_TRIGGER_ALL_LEVEL  =     0  // "TriggerAll" disabled
+    DEFAULT_RECORD_LEVEL       = ThresholdDefaults::k_RECORD_LEVEL,
+    DEFAULT_PASS_LEVEL         = ThresholdDefaults::k_PASS_LEVEL,
+    DEFAULT_TRIGGER_LEVEL      = ThresholdDefaults::k_TRIGGER_LEVEL,
+    DEFAULT_TRIGGER_ALL_LEVEL  = ThresholdDefaults::k_TRIGGER_ALL_LEVEL
 };
 
-namespace ball {
+}  // close unnamed namespace
 
                          // ---------------------------
                          // class LoggerManagerDefaults

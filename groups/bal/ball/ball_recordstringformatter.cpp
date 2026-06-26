@@ -1042,10 +1042,9 @@ void RecordStringFormatter::parseFormatSpecification()
               } break;
               case 'k': {  // ---------------- Kernel Thread ID ---------------
                 d_fieldFormatters.emplace_back(
-                          bdlf::BindUtil::bind(
-                                              &PrintUtil::appendKernelThreadId,
-                                              _1,
-                                              _2));
+                          bdlf::BindUtil::bind(&PrintUtil::appendKernelThreadId,
+                                               _1,
+                                               _2));
               } break;
               case 'K': {  // ---------------- Kernel Thread ID hex -----------
                 d_fieldFormatters.emplace_back(

@@ -111,8 +111,6 @@ BSLS_IDENT("$Id: $")
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_keyword.h>
-#include <bsls_review.h>
-#include <bsls_types.h>
 
 #include <bsl_string_view.h>
 
@@ -136,31 +134,31 @@ class CategoryHolder;
 /// of the logging system, and may be modified by `const` operations of the
 /// logging system.
 class Category {
-
+  private:
     // DATA
-    bsls::AtomicUint      d_thresholdLevels;   // record, pass, trigger, and
-                                               // trigger-all levels
+    bsls::AtomicUint         d_thresholdLevels;   // record, pass, trigger, and
+                                                  // trigger-all levels
 
-    bsls::AtomicInt       d_threshold;         // numerical maximum of the four
-                                               // levels
+    bsls::AtomicInt          d_threshold;         // numerical maximum of the
+                                                  // four levels
 
-    const bsl::string     d_categoryName;      // category name
+    const bsl::string        d_categoryName;      // category name
 
-    CategoryHolder       *d_categoryHolder_p;  // linked list of holders of
-                                               // this category
+    CategoryHolder          *d_categoryHolder_p;  // linked list of holders
+                                                  // of this category
 
-    mutable bsls::AtomicUint
-                          d_relevantRuleMask;  // the mask indicating which
-                                               // rules are relevant (i.e.,
-                                               // have been attached to this
-                                               // category)
+    mutable bsls::AtomicUint d_relevantRuleMask;  // the mask indicating which
+                                                  // rules are relevant (i.e.,
+                                                  // have been attached to this
+                                                  // category)
 
-    mutable bsls::AtomicInt d_ruleThreshold;   // numerical maximum of all four
-                                               // levels for all relevant rules
+    mutable bsls::AtomicInt  d_ruleThreshold  ;   // numerical maximum of all
+                                                  // four levels for all
+                                                  // relevant rules
 
-    mutable bslmt::Mutex  d_mutex;             // mutex providing mutually
-                                               // exclusive access to all
-                                               // non-atomic members
+    mutable bslmt::Mutex     d_mutex;             // mutex providing mutually
+                                                  // exclusive access to all
+                                                  // non-atomic members
 
     // FRIENDS
     friend class CategoryManagerImpUtil;

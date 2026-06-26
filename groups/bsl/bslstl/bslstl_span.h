@@ -182,7 +182,7 @@ namespace bsl {
 
 namespace bsl {
 
-enum { dynamic_extent = size_t(-1) };
+enum { dynamic_extent = ~size_t(0) };  // -1 generates a warning
 
 template <class TYPE, size_t EXTENT = dynamic_extent> class span;
 

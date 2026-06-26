@@ -1042,7 +1042,9 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     // Create a copy of the child node with adjusted prefix
     // Copy constructor (will throw if allocation fails)
-    Node childCopy(child);
+    // We are allocating it with the object-allocator so we can move it into
+    // the tree without the need to actually deep-copy.
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     // Insert the child copy into split node (may throw)

@@ -457,6 +457,7 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_bslallocator.h>
 
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_movableref.h>
 
 #include <bsla_deprecated.h>

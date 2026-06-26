@@ -133,49 +133,53 @@ using bsl::flush;
 // [ 1] static const ball::Category *setCategory(const char *categoryName);
 // ----------------------------------------------------------------------------
 // [ 2] BALL_LOG_SET_CATEGORY
-// [ 2] BALL_LOG_CATEGORY
-// [ 2] BALL_LOG_THRESHOLD
-// [ 3] PRINTF-STYLE MACROS
-// [ 4] OSTREAM MACROS (WITHOUT CALLBACK)
-// [ 5] TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
-// [ 6] TESTING THE C++ MACRO WHEN LOGGING RETURNED VALUE OF A FUNCTION
-// [ 7] TESTING THE DEFAULT LOG ORDER (LIFO)
-// [ 8] TESTING THE FIFO LOG ORDER
-// [ 9] CONCURRENT LOGGING TEST
-// [10] C++ MACRO PERFORMANCE TEST WITH MULTIPLE THREADS
-// [11] C++ MACRO PERFORMANCE TEST WITH 1 THREAD
-// [12] PRINTF MACRO PERFORMANCE TEST WITH MULTIPLE THREADS
-// [13] PRINTF MACRO PERFORMANCE TEST WITH 1 THREAD
-// [14] BALL_IS_ENABLED(SEVERITY) UTILITY MACRO
-// [15] STRESS TEST
-// [16] OSTREAM MACROS WITH CALLBACK
-// [17] TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
-// [18] BALL_LOG_SET_DYNAMIC_CATEGORY
-// [19] ball::Log_Stream
-// [20] bool isCategoryEnabled(Holder *holder, int severity);
-// [21] BALL_LOG_SET_CATEGORY and BALL_LOG_TRACE WITH MULTIPLE THREADS
-// [22] BALL_LOG_SET_DYNAMIC_CATEGORY and BALL_LOG_TRACE WITH MULTIPLE THREADS
-// [23] BALL_LOG_SET_CATEGORY and BALL_LOGVA WITH MULTIPLE THREADS
-// [24] BALL_LOG_SET_DYNAMIC_CATEGORY and BALL_LOGVA WITH MULTIPLE THREADS
-// [25] RULE-BASED LOGGING: bool isCategoryEnabled(Holder *, int);
-// [26] RULE-BASED LOGGING: logMessage(const Category *, int, Record *);
-// [27] BALL_LOG_IS_ENABLED(SEVERITY)
-// [28] BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
-// [29] BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)
-// [33] setCategoryHierarchically(const char *);
-// [33] setCategoryHierarchically(CategoryHolder *, const char *);
-// [34] BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
-// [34] BALL_LOG_SET_CATEGORY_HIERARCHICALLY(const char *);
-// [35] BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
+// [ 3] BALL_LOG_SET_LEGACY_CATEGORY
+// [ 3] BALL_LOG_CATEGORY
+// [ 3] BALL_LOG_THRESHOLD
+// [ 4] PRINTF-STYLE MACROS
+// [ 5] OSTREAM MACROS (WITHOUT CALLBACK)
+// [ 6] TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
+// [ 7] TESTING THE MACRO WHEN LOGGING RETURN VALUE OF A FUNCTION
+// [ 8] TESTING THE DEFAULT LOG ORDER (LIFO)
+// [ 9] TESTING THE FIFO LOG ORDER
+// [10] CONCURRENT LOGGING TEST
+// [11] C++ MACRO PERFORMANCE TEST WITH MULTIPLE THREADS
+// [12] C++ MACRO PERFORMANCE TEST WITH 1 THREAD
+// [13] PRINTF MACRO PERFORMANCE TEST WITH MULTIPLE THREADS
+// [14] PRINTF MACRO PERFORMANCE TEST WITH 1 THREAD
+// [15] BALL_IS_ENABLED(SEVERITY) UTILITY MACRO
+// [16] STRESS TEST
+// [17] OSTREAM MACROS WITH CALLBACK
+// [18] TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
+// [19] BALL_LOG_SET_DYNAMIC_CATEGORY
+// [20] BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY
+// [21] ball::Log_Stream
+// [22] bool isCategoryEnabled(Holder *holder, int severity);
+// [23] BALL_LOG_SET_LEGACY_CATEGORY and BALL_LOG_TRACE WITH MULTIPLE THREADS
+// [24] BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY and BALL_LOG_TRACE WITH THREADS
+// [25] BALL_LOG_SET_LEGACY_CATEGORY and BALL_LOGVA WITH MULTIPLE THREADS
+// [26] BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY and BALL_LOGVA WITH THREADS
+// [27] RULE-BASED LOGGING: bool isCategoryEnabled(Holder *, int);
+// [28] RULE-BASED LOGGING: logMessage(const Category *, int, Record *);
+// [29] BALL_LOG_IS_ENABLED(SEVERITY)
+// [30] BALL_LOG_SET_CLASS_CATEGORY
+// [31] BALL_LOG_SET_LEGACY_CLASS_CATEGORY(CATEGORY)
+// [32] BALL_LOG_SET_NAMESPACE_CATEGORY
+// [33] BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY(CATEGORY)
+// [34] CONCERN: `BALL_LOG_*_BLOCK` MACROS
+// [35] CONCERN: `BALL_LOGCB_*_BLOCK` MACROS
+// [36] CONCERN: DEGENERATE LOG MACROS USAGE
+// [37] setCategoryHierarchically(const char *);
+// [37] setCategoryHierarchically(CategoryHolder *, const char *);
+// [38] BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(const char *);
+// [38] BALL_LOG_SET_CATEGORY_HIERARCHICALLY(const char *);
+// [39] BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(const char *);
+// [40] CONCERN: The logging macros can be used recursively
 // ----------------------------------------------------------------------------
-// [30] CONCERN: `BALL_LOG_*_BLOCK` MACROS
-// [31] CONCERN: `BALL_LOGCB_*_BLOCK` MACROS
-// [32] CONCERN: DEGENERATE LOG MACROS USAGE
-// [36] CONCERN: The logging macros can be used recursively
-// [37] USAGE EXAMPLE
-// [38] RULE-BASED LOGGING USAGE EXAMPLE
-// [39] CLASS-SCOPE LOGGING USAGE EXAMPLE
-// [40] BASIC LOGGING USAGE EXAMPLE
+// [41] USAGE EXAMPLE
+// [42] RULE-BASED LOGGING USAGE EXAMPLE
+// [43] CLASS-SCOPE LOGGING USAGE EXAMPLE
+// [44] BASIC LOGGING USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -401,7 +405,7 @@ class CerrBufferGuard {
 
 /// Override the outer logging category and log a test message.
 void logNamespaceOverride() {
-    BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE.U");
+    BALL_LOG_SET_LEGACY_CATEGORY("BALL_LOG.T.OVERRIDE.U");
     BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE.U";
 }
 
@@ -433,7 +437,6 @@ namespace BloombergLP {
 
       private:
         BALL_LOG_SET_CLASS_CATEGORY("PCKG.THING");
-            // class-scope category
 
       public:
         // ...
@@ -497,13 +500,13 @@ namespace BloombergLP {
 // to within the same block.  For example, the following block within a `Thing`
 // method would first log to "PCKG.THING" then log to "X.Y.Z":
 // ```
-//      {
-//          BALL_LOG_TRACE << "log to PCKG.THING";
+//     {
+//         BALL_LOG_TRACE << "log to PCKG.THING";
 //
-//          BALL_LOG_SET_CATEGORY("X.Y.Z");
+//         BALL_LOG_SET_CATEGORY("X.Y.Z");
 //
-//          BALL_LOG_TRACE << "log to X.Y.Z";
-//      }
+//         BALL_LOG_TRACE << "log to X.Y.Z";
+//     }
 // ```
 
 }  // close enterprise namespace
@@ -661,7 +664,7 @@ namespace BALL_LOG_TEST_CASE_35 {
 template <int DEPTH>
 int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
 {
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     switch (level) {
       case Sev::e_FATAL: {
@@ -713,7 +716,7 @@ int recurseStreamBasedMacros(BloombergLP::ball::Severity::Level level)
 template <>
 int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
 {
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     switch (level) {
       case Sev::e_FATAL: {
@@ -748,7 +751,7 @@ int recurseStreamBasedMacros<0>(BloombergLP::ball::Severity::Level level)
 template <int DEPTH>
 int recursePrintfStyleMacros(BloombergLP::ball::Severity::Level level)
 {
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     switch (level) {
       case Sev::e_FATAL: {
@@ -794,7 +797,7 @@ int recursePrintfStyleMacros(BloombergLP::ball::Severity::Level level)
 template<>
 int recursePrintfStyleMacros<0>(BloombergLP::ball::Severity::Level level)
 {
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     switch (level) {
       case Sev::e_FATAL: {
@@ -839,7 +842,7 @@ void recurseStreamBasedMacrosCallback(
 {
     (void)fields;  // suppress warning
 
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     switch (level) {
       case Sev::e_FATAL: {
@@ -881,7 +884,7 @@ void recursePrintfStyleMacrosCallback(
 {
     (void)fields;  // suppress warning
 
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     switch (level) {
       case Sev::e_FATAL: {
@@ -921,7 +924,7 @@ void recurseCallbackMacrosCallback(BloombergLP::ball::UserFields      *fields,
 {
     (void)fields;  // suppress warning
 
-    BALL_LOG_SET_CATEGORY("Recursion");
+    BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
     bsl::function <void(BloombergLP::ball::UserFields *)> callback =
                                                               &recurseCallback;
@@ -1169,10 +1172,10 @@ struct PositionRec {
     // DATA
     int         d_line;            // line number of the call from the test
                                    // case to the test function
-    int         d_il;              // the line number of the record in `DATA`
+    int         d_iline;           // the line number of the record in `DATA`
                                    // that the `ti` loop in the test case is
                                    // tracking
-    int         d_jl;              // the line number of the record in `DATA`
+    int         d_jline;           // the line number of the record in `DATA`
                                    // that the `tj` loop in the test case is
                                    // tracking
     const char *d_categoryName_p;  // the name of the category to be found or
@@ -1182,10 +1185,10 @@ struct PositionRec {
 
     /// Create a `PositionRec` object with the specified `line`, `il`, `jl`,
     /// and `categoryName`.
-    PositionRec(int line, int il, int jl, const char *categoryName)
+    PositionRec(int line, int iline, int jline, const char *categoryName)
     : d_line(line)
-    , d_il(il)
-    , d_jl(jl)
+    , d_iline(iline)
+    , d_jline(jline)
     , d_categoryName_p(categoryName)
     {}
 };
@@ -1193,9 +1196,9 @@ struct PositionRec {
 /// Output the specified `pos` to the specified `stream`.
 bsl::ostream& operator<<(bsl::ostream& stream, const PositionRec& pos)
 {
-    stream << "{ line: "  << pos.d_line <<
-                 " IL: "  << pos.d_il <<
-                 " JL: "  << pos.d_jl <<
+    stream << "{ line: " << pos.d_line  <<
+                 " ILINE: " << pos.d_iline <<
+                 " JLINE: " << pos.d_jline <<
                  " cat: " << pos.d_categoryName_p << " }";
     return stream;
 }
@@ -1373,7 +1376,7 @@ ResultRec& testSetCategoryHierarchically(const Agg&       expectedLevels,
     ret.clear();
     ret.init(&holderA);
 
-    ASSERTV(prevCatHolder, ret.d_next_p, prevCatHolder == ret.d_next_p);
+    ASSERTV(pos, prevCatHolder, ret.d_next_p, prevCatHolder == ret.d_next_p);
 
     if (manager_p) {
         // The logger manager singleton was initialized.  We ALWAYS expect a
@@ -1784,7 +1787,7 @@ namespace BALL_LOG_TEST_CASE_29 {
 /// Log a record to the block-scope category "GLOBAL CATEGORY".
 void globalFunctionThatLogsToLocalCategory()
 {
-    BALL_LOG_SET_CATEGORY("GLOBAL CATEGORY");
+    BALL_LOG_SET_LEGACY_CATEGORY("GLOBAL CATEGORY");
 
     BALL_LOG_INFO << "log to local category";
 }
@@ -1796,7 +1799,7 @@ void globalFunctionThatLogsToLocalCategory()
 class ClassScopeLoggerA {
 
   private:
-    BALL_LOG_SET_CLASS_CATEGORY("CLASS CATEGORY A");
+    BALL_LOG_SET_LEGACY_CLASS_CATEGORY("CLASS CATEGORY A");
 
   public:
     // CLASS METHODS
@@ -1841,7 +1844,7 @@ void ClassScopeLoggerA::outoflineMethodThatLogsToLocalCategory()
 {
     BALL_LOG_INFO << "INFO log to class-scope category";
 
-    BALL_LOG_SET_CATEGORY("STATIC LOCAL CATEGORY")
+    BALL_LOG_SET_LEGACY_CATEGORY("STATIC LOCAL CATEGORY")
 
     BALL_LOG_INFO << "INFO log to static local category";
 }
@@ -1873,7 +1876,7 @@ class ClassScopeLoggerB {
     }
 
   public:
-    BALL_LOG_SET_CLASS_CATEGORY("CLASS CATEGORY B");
+    BALL_LOG_SET_LEGACY_CLASS_CATEGORY("CLASS CATEGORY B");
 };
 
                          // -----------------------
@@ -1891,7 +1894,7 @@ void ClassScopeLoggerB::outoflineMethodThatLogsToLocalCategory()
 {
     BALL_LOG_FATAL << "FATAL log to class-scope category";
 
-    BALL_LOG_SET_DYNAMIC_CATEGORY("DYNAMIC LOCAL CATEGORY")
+    BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY("DYNAMIC LOCAL CATEGORY")
 
     BALL_LOG_INFO << "DEBUG log to dynamic local category";
 }
@@ -1907,7 +1910,7 @@ class ClassScopeLogger {
     // DATA
     TYPE *d_dummy_p;  // dummy
 
-    BALL_LOG_SET_CLASS_CATEGORY("CLASS TEMPLATE CATEGORY");
+    BALL_LOG_SET_LEGACY_CLASS_CATEGORY("CLASS TEMPLATE CATEGORY");
 
   public:
     // CLASS METHODS
@@ -1947,7 +1950,7 @@ void ClassScopeLogger<TYPE>::outoflineMethodThatLogsToLocalCategory()
 {
     BALL_LOG_INFO << "INFO log to class-scope category";
 
-    BALL_LOG_SET_CATEGORY("STATIC LOCAL CATEGORY")
+    BALL_LOG_SET_LEGACY_CATEGORY("STATIC LOCAL CATEGORY")
 
     BALL_LOG_INFO << "INFO log to static local category";
 }
@@ -1975,7 +1978,7 @@ void *workerThread24(void *)
 {
     typedef BloombergLP::ball::Severity Severity;
 
-    BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
+    BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
         BALL_LOGVA(Severity::e_TRACE, msg, arg1, arg2);
         BALL_LOGVA(Severity::e_DEBUG, msg, arg1, arg2);
@@ -2008,7 +2011,7 @@ void *workerThread23(void *)
 {
     typedef BloombergLP::ball::Severity Severity;
 
-    BALL_LOG_SET_CATEGORY(categoryName);
+    BALL_LOG_SET_LEGACY_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
         BALL_LOGVA(Severity::e_TRACE, msg, arg1, arg2);
         BALL_LOGVA(Severity::e_DEBUG, msg, arg1, arg2);
@@ -2037,7 +2040,7 @@ int         numIterations = 0;
 extern "C" {
 void *workerThread22(void *)
 {
-    BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
+    BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
         BALL_LOG_TRACE  << msg;
         BALL_LOG_DEBUG  << msg;
@@ -2066,7 +2069,7 @@ int         numIterations = 0;
 extern "C" {
 void *workerThread21(void *)
 {
-    BALL_LOG_SET_CATEGORY(categoryName);
+    BALL_LOG_SET_LEGACY_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
         BALL_LOG_TRACE  << msg;
         BALL_LOG_DEBUG  << msg;
@@ -2097,7 +2100,7 @@ BloombergLP::bslmt::Mutex categoryMutex;
 extern "C" {
 void *workerThread18(void *)
 {
-    BALL_LOG_SET_DYNAMIC_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY("main category");
     for (int i = 0; i < NUM_MSGS; ++i) {
         char *msg = &message[MAX_MSG_SIZE-randomSizes[i]];
         if (i % 2) {
@@ -2153,7 +2156,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
     bsl::function<void(BloombergLP::ball::UserFields *)> callback =
                                                                &u::incCallback;
 
-    BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
+    BALL_LOG_SET_LEGACY_CATEGORY("Logger Manager Comes and Goes");
 
     if (verbose)
         bsl::cout << "Safely invoked `BALL_LOG_SET_CATEGORY` macro."
@@ -2277,7 +2280,7 @@ extern "C" {
 void *workerThread13(void *)
 {
     categoryMutex.lock();
-    BALL_LOG_SET_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_CATEGORY("main category");
     categoryMutex.unlock();
     for (int i = 0; i < NUM_MSGS; ++i) {
         char *msg = &message[MAX_MSG_SIZE-randomSizes[i]];
@@ -2309,7 +2312,7 @@ extern "C" {
 void *workerThread12(void *)
 {
     categoryMutex.lock();
-    BALL_LOG_SET_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_CATEGORY("main category");
     categoryMutex.unlock();
     for (int i = 0; i < NUM_MSGS; ++i) {
         char *msg = &message[MAX_MSG_SIZE-randomSizes[i]];
@@ -2342,7 +2345,7 @@ extern "C" {
 void *workerThread11(void *)
 {
     categoryMutex.lock();
-    BALL_LOG_SET_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_CATEGORY("main category");
     categoryMutex.unlock();
 
     for (int i = 0; i < NUM_MSGS; ++i) {
@@ -2356,7 +2359,7 @@ void *workerThread11(void *)
 void *workerThread11a(void *)
 {
     categoryMutex.lock();
-    BALL_LOG_SET_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_CATEGORY("main category");
     categoryMutex.unlock();
 
     for (int i = 0; i < NUM_MSGS; ++i) {
@@ -2440,7 +2443,7 @@ int numMsgs()
 struct Util {
     static void *doInfoConst(void *)
     {
-        BALL_LOG_SET_CATEGORY("A");
+        BALL_LOG_SET_LEGACY_CATEGORY("A");
 
         char *msg = &message[0];
         BALL_LOG_INFO << msg;
@@ -2451,7 +2454,7 @@ struct Util {
     /// Log test message.
     static void *doOldTraceConst(void *)
     {
-        BALL_LOG_SET_CATEGORY("C");
+        BALL_LOG_SET_LEGACY_CATEGORY("C");
 
         char *msg = &message[0];
         BALL_LOG_OLD_TRACE << msg << BALL_OLD_LOG_END;
@@ -2462,7 +2465,7 @@ struct Util {
     /// Log test message.
     static void *doOldInfoConst(void *)
     {
-        BALL_LOG_SET_CATEGORY("D");
+        BALL_LOG_SET_LEGACY_CATEGORY("D");
 
         char *msg = &message[0];
         BALL_LOG_OLD_INFO << msg << BALL_OLD_LOG_END;
@@ -2473,7 +2476,7 @@ struct Util {
     /// Log test message.
     static void *doOldVar(void *)
     {
-        BALL_LOG_SET_CATEGORY("F");
+        BALL_LOG_SET_LEGACY_CATEGORY("F");
 
         char *msg = &message[0];
         BALL_LOG_STREAM_OLD_UNLIKELY(severity) << msg << BALL_OLD_LOG_END;
@@ -2483,7 +2486,7 @@ struct Util {
     /// Log test message.
     static void *doTraceConst(void *)
     {
-        BALL_LOG_SET_CATEGORY("B");
+        BALL_LOG_SET_LEGACY_CATEGORY("B");
 
         char *msg = &message[0];
         BALL_LOG_TRACE << msg;
@@ -2494,7 +2497,7 @@ struct Util {
     /// Log test message.
     static void *doVar(void *)
     {
-        BALL_LOG_SET_CATEGORY("E");
+        BALL_LOG_SET_LEGACY_CATEGORY("E");
 
         char *msg = &message[0];
         BALL_LOG_STREAM(severity) << msg;
@@ -2637,7 +2640,7 @@ void *workerThread9(void *arg)
                       reinterpret_cast<BloombergLP::bsls::Types::IntPtr>(arg));
 
     categoryMutex.lock();
-    BALL_LOG_SET_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_CATEGORY("main category");
     categoryMutex.unlock();
 
     for (int i = 0; i < N_TOTAL; ++i) {
@@ -2676,7 +2679,7 @@ const char *message2 = "MESSAGE-2";
 
 const char *f()
 {
-    BALL_LOG_SET_CATEGORY("main category");
+    BALL_LOG_SET_LEGACY_CATEGORY("main category");
     BALL_LOG_WARN << message1;
     return message2;
 }
@@ -2719,7 +2722,7 @@ void macrosTest(bool                                   loggerManagerExistsFlag,
 
     u::CerrBufferGuard  cerrBufferGuard;
 
-    BALL_LOG_SET_CATEGORY("Logger Manager Comes and Goes");
+    BALL_LOG_SET_LEGACY_CATEGORY("Logger Manager Comes and Goes");
 
     if (verbose)
         bsl::cout << "Safely invoked `BALL_LOG_SET_CATEGORY` macro."
@@ -2798,7 +2801,7 @@ namespace BALL_LOG_TEST_CASE_MINUS_1 {
 struct ThreadFunctor {
     void operator()()
     {
-        BALL_LOG_SET_CATEGORY("CATEGORY_5");
+        BALL_LOG_SET_LEGACY_CATEGORY("CATEGORY_5");
 
         typedef BloombergLP::bsls::Types::Uint64 Uint64;
 
@@ -2815,19 +2818,19 @@ struct ThreadFunctor {
 // Please note that this harmlessly looking line introduces the category for
 // the whole translation unit.
 
-BALL_LOG_SET_NAMESPACE_CATEGORY("BALL_LOG.T");
+BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY("BALL_LOG.T");
 
 namespace {
     /// Override the outer logging category and log a test message.
     void logNamespaceOverride()
     {
-        BALL_LOG_SET_CATEGORY("BALL_LOG.T.OVERRIDE");
+        BALL_LOG_SET_LEGACY_CATEGORY("BALL_LOG.T.OVERRIDE");
         BALL_LOG_INFO << "INFO log in namespace BALL_LOG.T.OVERRIDE";
     }
 }  // close unnamed namespace
 
 namespace BALL_LOG_TEST_NAMESPACE_LOGGING {
-    BALL_LOG_SET_NAMESPACE_CATEGORY("NS.A");
+    BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY("NS.A");
 
     void logNamespaceCategory() {
         BALL_LOG_INFO << "INFO log in namespace A";
@@ -2856,12 +2859,12 @@ class Test {
 template<class TYPE>
 int Test<TYPE>::func()
 {
-    BALL_LOG_SET_CATEGORY("NS.LM2");
+    BALL_LOG_SET_LEGACY_CATEGORY("NS.LM2");
     BALL_LOG_INFO << "func";
     return 0;
 }
 
-BALL_LOG_SET_NAMESPACE_CATEGORY("NS.L2");
+BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY("NS.L2");
 
 /// Log a test message into namespace category.
 void func2()
@@ -2889,7 +2892,7 @@ int         numIterations = 100000;
 extern "C" {
 void *workerThreadPerformance(void *)
 {
-    BALL_LOG_SET_DYNAMIC_CATEGORY(categoryName);
+    BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(categoryName);
     for (int i = 0; i < numIterations; ++i) {
         BALL_LOGVA_FATAL("%d", i);
     }
@@ -2898,6 +2901,34 @@ void *workerThreadPerformance(void *)
 }  // extern "C"
 
 }  // close namespace BALL_LOG_TEST_CASE_MINUS_2
+
+// ============================================================================
+//                       TEST CASE HELPER NAMESPACES
+// ----------------------------------------------------------------------------
+
+namespace BALL_LOG_TEST_CASE_30 {
+    class TestClass {
+        BALL_LOG_SET_CLASS_CATEGORY("EQUITY.NASD.TESTCLASS");
+      public:
+        static void logMessage() {
+            BALL_LOG_INFO << "Test message from class category";
+        }
+        static const char *categoryName() {
+            return "EQUITY.NASD.TESTCLASS";
+        }
+    };
+}  // close namespace BALL_LOG_TEST_CASE_30
+
+namespace BALL_LOG_TEST_CASE_32 {
+    BALL_LOG_SET_NAMESPACE_CATEGORY("EQUITY.NASD.TESTNS");
+
+    void logMessage() {
+        BALL_LOG_INFO << "Test message from namespace category";
+    }
+    const char *categoryName() {
+        return "EQUITY.NASD.TESTNS";
+    }
+}  // close namespace BALL_LOG_TEST_CASE_32
 
 // ============================================================================
 //                              MAIN PROGRAM
@@ -2916,7 +2947,7 @@ int main(int argc, char *argv[])
     TestAllocator ta("test", veryVeryVeryVerbose);
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 40: {
+      case 44: {
         // --------------------------------------------------------------------
         // BASIC LOGGING USAGE EXAMPLE
         //
@@ -2932,8 +2963,8 @@ int main(int argc, char *argv[])
         //   BASIC LOGGING USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nUSAGE EXAMPLE"
-                               << "\n=============" << bsl::endl;
+        if (verbose) bsl::cout << "USAGE EXAMPLE\n"
+                                  "=============\n";
 
             using namespace BloombergLP;    // OK here
 
@@ -2992,7 +3023,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 // logging configuration.  The special macro `BALL_LOG_OUTPUT_STREAM` provides
 // access to the log stream within the code.
       } break;
-      case 39: {
+      case 43: {
         // --------------------------------------------------------------------
         // CLASS-SCOPE LOGGING USAGE EXAMPLE
         //
@@ -3008,9 +3039,8 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         //   CLASS-SCOPE LOGGING USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "CLASS-SCOPE LOGGING USAGE EXAMPLE\n"
-                               << "=================================\n";
+        if (verbose) bsl::cout << "CLASS-SCOPE LOGGING USAGE EXAMPLE\n"
+                                  "=================================\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -3057,9 +3087,8 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
                     "PCKG.THING",
                     observer->lastPublishedRecord().fixedFields().category()));
         }
-
       } break;
-      case 38: {
+      case 42: {
         // --------------------------------------------------------------------
         // RULE-BASED LOGGING USAGE EXAMPLE
         //
@@ -3075,9 +3104,8 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         //   RULE-BASED LOGGING USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "RULE-BASED LOGGING USAGE EXAMPLE\n"
-                               << "================================\n";
+        if (verbose) bsl::cout << "RULE-BASED LOGGING USAGE EXAMPLE\n"
+                                  "================================\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -3138,7 +3166,7 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 //  ERROR example.cpp:129 EXAMPLE.CATEGORY Processing the third message.
 // ```
       } break;
-      case 37: {
+      case 41: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //
@@ -3154,9 +3182,8 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
         //   USAGE EXAMPLE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl << "USAGE EXAMPLE"
-                               << bsl::endl << "============="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "USAGE EXAMPLE\n"
+                                  "=============\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -3172,15 +3199,6 @@ if (verbose) bsl::cout << "Example 1: A Basic Logging Example" << bsl::endl;
 
         ball::Administration::addCategory(
                                       "EQUITY.NASD",
-                                      ball::Severity::e_TRACE,
-                                      veryVerbose
-                                      ? ball::Severity::e_INFO
-                                      : ball::Severity::e_ERROR,
-                                      ball::Severity::e_ERROR,
-                                      ball::Severity::e_FATAL);
-
-        ball::Administration::addCategory(
-                                      "EQUITY.NASD.SUNW",
                                       ball::Severity::e_TRACE,
                                       veryVerbose
                                       ? ball::Severity::e_INFO
@@ -3229,15 +3247,20 @@ if (verbose) bsl::cout << "stream-based macro usage" << bsl::endl;
 // source file containing the call, 1161 is the line number of the call, and
 // the trailing date following "settlement date" is the value of `settle`.
 //
-// Next, we set the category to "EQUITY.NASD.SUNW", which has been defined with
-// `ball::Administration::addCategory` with its pass-through level set to
-// `e_INFO` and the trigger levels set at or above `e_ERROR`, so a level of
-// `e_WARN` also passes through:
+// Next, we set the category to "EQUITY.NASD.SUNW".  Because we are using
+// `BALL_LOG_SET_CATEGORY` (which creates categories hierarchically), the new
+// "EQUITY.NASD.SUNW" category automatically inherits threshold levels from the
+// orphaned setting or existing category with the longest matching prefix
+// ("EQUITY.NASD" in this case).  Since "EQUITY.NASD" was configured with a
+// pass-through level of `e_INFO`, the child category "EQUITY.NASD.SUNW" also
+// has `e_INFO` pass-through, meaning `e_WARN` (which is more severe) also
+// passes through:
 // ```
     {
         BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 
-        // Now logging with category "EQUITY.NASD.SUNW".
+        // Now logging with category "EQUITY.NASD.SUNW", which inherited
+        // threshold levels from "EQUITY.NASD".
 
         BALL_LOG_WARN << "[2] " << lotSize
                       << " shares of " << ticker
@@ -3394,7 +3417,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             validatePoint(point);
         }
       } break;
-      case 36: {
+      case 40: {
         // --------------------------------------------------------------------
         // TESTING RECURSIVE USE OF LOGGING MACROS
         //
@@ -3416,9 +3439,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   CONCERN: The logging macros can be used recursively
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "TESTING RECURSIVE USE OF LOGGING MACROS\n"
-                               << "=======================================\n";
+        if (verbose) bsl::cout << "TESTING RECURSIVE USE OF LOGGING MACROS\n"
+                                  "=======================================\n";
 
         using namespace BALL_LOG_TEST_CASE_35;
 
@@ -3474,7 +3496,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             const int EXPECTED_LENGTH =
                                    static_cast<int>(bsl::strlen(EXPECTED_LOG));
 
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             BALL_LOG_FATAL << "Outer FATAL[2] "
                            << recurseStreamBasedMacros<2>(Sev::e_FATAL);
@@ -3497,7 +3519,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tStream-based recurses to stream-based.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             BALL_LOG_FATAL << "Outer FATAL[0] "
                            << recurseStreamBasedMacros<0>(Sev::e_FATAL);
@@ -3544,7 +3566,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tStream-based recurses to printf-style.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             BALL_LOG_FATAL << "Outer FATAL[0] "
                            << recursePrintfStyleMacros<0>(Sev::e_FATAL);
@@ -3591,7 +3613,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tPrintf-style recurses to stream-based.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             BALL_LOGVA_FATAL("%s %d", "Outer FATAL[0]",
                              recurseStreamBasedMacros<0>(Sev::e_FATAL));
@@ -3640,7 +3662,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tPrintf-style recurses to printf-style.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             BALL_LOGVA_FATAL("%s %d", "Outer FATAL[0]",
                              recursePrintfStyleMacros<0>(Sev::e_FATAL));
@@ -3687,7 +3709,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tCallback recurses to  printf-style.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             bsl::function <void(BloombergLP::ball::UserFields *)> callback;
 
@@ -3730,7 +3752,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tCallback recurses to stream-based.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             bsl::function <void(BloombergLP::ball::UserFields *)> callback;
 
@@ -3774,7 +3796,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tCallback recurses to callback.\n";
         {
-            BALL_LOG_SET_CATEGORY("Recursion");
+            BALL_LOG_SET_LEGACY_CATEGORY("Recursion");
 
             bsl::function <void(BloombergLP::ball::UserFields *)> callback;
 
@@ -3815,7 +3837,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_TRACE(callback) << "Outer TRACE";
         }
       } break;
-      case 35: {
+      case 39: {
         // --------------------------------------------------------------------
         // TESTING CLASS HIERARCHICAL CATEGORY MACROS
         //
@@ -4133,7 +4155,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == da.numAllocations());
       } break;
-      case 34: {
+      case 38: {
         // --------------------------------------------------------------------
         // TESTING LOCAL HIERARCHICAL CATEGORY MACROS
         //
@@ -4463,7 +4485,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == da.numAllocations());
       } break;
-      case 33: {
+      case 37: {
         // --------------------------------------------------------------------
         // TESTING HIERARCHICAL CATEGORIES
         //
@@ -4495,8 +4517,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //    will be the linked to the first category.
         //
         // Plan:
-        // 1. See the doc for the template function
-        //    `TC::testSetCategoryHierarchically<KK>` where `KK` is a const
+        // 1. See the doc for the function template
+        //    `TC::testSetCategoryHierarchically<KK>`, where `KK` is a const
         //    `int` value, which calls `Log::setCategoryHierarchically`,
         //    possibly multiple times, and verifies that it behaves properly,
         //    and returns a reference to a unique static `TC::ResultRec` for
@@ -4571,14 +4593,14 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         for (int th = 0; th < 3; ++th)
         for (int ti = 0; ti < TC::k_NUM_DATA; ++ti)
         for (int tj = 0; tj < TC::k_NUM_DATA; ++tj) {
-            TC::HolderlessMode holderlessMode = 0 == th
-                                              ? TC::e_HOLDERLESS_NONE
-                                              : 1 == th
-                                              ? TC::e_HOLDERLESS_BEFORE
-                                              : TC::e_HOLDERLESS_AFTER;
+            const TC::HolderlessMode holderlessMode = 0 == th
+                                                      ? TC::e_HOLDERLESS_NONE
+                                                      : 1 == th
+                                                      ? TC::e_HOLDERLESS_BEFORE
+                                                      : TC::e_HOLDERLESS_AFTER;
 
             const TC::Data& IDATA         = TC::DATA[ti];
-            const int       IL            = IDATA.d_line;
+            const int       ILINE         = IDATA.d_line;
             const TC::Agg&  ILEVELS       = IDATA.d_levels;
             const bool      ISET_CALLBACK = IDATA.d_setCallbackThresholds;
 
@@ -4589,12 +4611,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
 
             const TC::Data& JDATA         = TC::DATA[tj];
-            const int       JL            = JDATA.d_line;
+            const int       JLINE         = JDATA.d_line;
             const TC::Agg&  JLEVELS       = JDATA.d_levels;
             const bool      JSET_CALLBACK = JDATA.d_setCallbackThresholds;
             bool            JUSE_CALLBACK = JDATA.d_useCallback;
 
-            if (JSET_CALLBACK || IL == JL) {
+            if (JSET_CALLBACK || ILINE == JLINE) {
                 continue;
             }
 
@@ -4604,12 +4626,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             // Confirm that `WLEVELS`, `CLEVELS`, `ILEVELS`, and `JLEVELS` are
             // all distinct values.
 
-            ASSERTV(IL, JL, CLEVELS != WLEVELS);
-            ASSERTV(IL, JL, CLEVELS != ILEVELS);
-            ASSERTV(IL, JL, CLEVELS != JLEVELS);
-            ASSERTV(IL, JL, ILEVELS != WLEVELS);
-            ASSERTV(IL, JL, ILEVELS != JLEVELS);
-            ASSERTV(IL, JL, JLEVELS != WLEVELS);
+            ASSERTV(ILINE, JLINE, CLEVELS != WLEVELS);
+            ASSERTV(ILINE, JLINE, CLEVELS != ILEVELS);
+            ASSERTV(ILINE, JLINE, CLEVELS != JLEVELS);
+            ASSERTV(ILINE, JLINE, ILEVELS != WLEVELS);
+            ASSERTV(ILINE, JLINE, ILEVELS != JLEVELS);
+            ASSERTV(ILINE, JLINE, JLEVELS != WLEVELS);
 
             const TC::Agg MLEVELS = JUSE_CALLBACK ? CLEVELS : ILEVELS;
 
@@ -4632,10 +4654,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 #undef  CALL
 #define CALL(KK, expectedLevels, prevCatHolder)                               \
             ret_p = &TC::testSetCategoryHierarchically<TC::indices::KK>(      \
-                                      expectedLevels,                         \
-                                      TC::PositionRec(__LINE__, IL, JL, #KK), \
-                                      prevCatHolder,                          \
-                                      holderlessMode)
+                                expectedLevels,                               \
+                                TC::PositionRec(__LINE__, ILINE, JLINE, #KK), \
+                                prevCatHolder,                                \
+                                holderlessMode)
 
             // The macro `RET(N)` will return a reference to static record
             // returned by the call made by `CALL(N, ...)`.
@@ -4675,7 +4697,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             CALL(meow, MLEVELS, 0);
             Cat *meowCat = manager.lookupCategory("meow");
             TC::setLevels(meowCat, JLEVELS);
-            ASSERTV(JL, JLEVELS, TC::getLevels(meowCat),
+            ASSERTV(JLINE, JLEVELS, TC::getLevels(meowCat),
                                             JLEVELS == TC::getLevels(meowCat));
 
             CALL(woof_a, MLEVELS, 0);
@@ -4815,7 +4837,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == da.numAllocations());
       } break;
-      case 32: {
+      case 36: {
         // --------------------------------------------------------------------
         // TESTING DEGENERATE LOG MACROS USAGE
         //  Sanity test of the degenerate log macros use cases.
@@ -4833,9 +4855,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   CONCERN: DEGENERATE LOG MACROS USAGE
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING DEGENERATE LOG MACROS USAGE"
-                               << "\n==================================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING DEGENERATE LOG MACROS USAGE\n"
+                                  "===================================\n";
 
         namespace Blp = BloombergLP;
 
@@ -4863,7 +4884,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                         Sev::e_OFF));
 
         {
-            BALL_LOG_SET_CATEGORY("PassTRACE");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassTRACE");
 
             BALL_LOG_TRACE;
             BALL_LOG_TRACE << BALL_LOG_END;
@@ -4931,7 +4952,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassOFF");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassOFF");
 
             BALL_LOG_TRACE;
             BALL_LOG_TRACE << BALL_LOG_END;
@@ -4998,7 +5019,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGCB_STREAM_BLOCK(severity + 1, callback) {}
         }
       } break;
-      case 31: {
+      case 35: {
         // --------------------------------------------------------------------
         // TESTING `BALL_LOGCB_*_BLOCK` MACROS
         //
@@ -5012,9 +5033,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   CONCERN: `BALL_LOGCB_*_BLOCK` MACROS
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING `BALL_LOGCB_*_BLOCK` MACROS"
-                               << "\n==================================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING `BALL_LOGCB_*_BLOCK` MACROS\n"
+                                  "===================================\n";
 
         namespace Blp = BloombergLP;
         typedef Blp::ball::Severity Sev;
@@ -5073,7 +5093,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                         Sev::e_OFF));
 
         {
-            BALL_LOG_SET_CATEGORY("PassTRACE");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassTRACE");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5166,7 +5186,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassDEBUG");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassDEBUG");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5259,7 +5279,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassINFO");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassINFO");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5352,7 +5372,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassWARN");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassWARN");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5445,7 +5465,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassERROR");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassERROR");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5538,7 +5558,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassFATAL");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassFATAL");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5630,7 +5650,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERTV(N + 3 == observer->numPublishedRecords());
         }
       } break;
-      case 30: {
+      case 34: {
         // --------------------------------------------------------------------
         // TESTING `BALL_LOG_*_BLOCK` MACROS
         //
@@ -5644,9 +5664,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   CONCERN: `BALL_LOG_*_BLOCK` MACROS
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING `BALL_LOG_*_BLOCK` MACROS"
-                               << "\n================================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING `BALL_LOG_*_BLOCK` MACROS\n"
+                                  "=================================\n";
+
 
         namespace Blp = BloombergLP;
 
@@ -5701,7 +5721,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                         Sev::e_OFF));
 
         {
-            BALL_LOG_SET_CATEGORY("PassTRACE");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassTRACE");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5792,7 +5812,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassDEBUG");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassDEBUG");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5883,7 +5903,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassINFO");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassINFO");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -5974,7 +5994,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassWARN");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassWARN");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -6065,7 +6085,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassERROR");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassERROR");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -6156,7 +6176,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassFATAL");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassFATAL");
 
             int count = 0;
             const int N = observer->numPublishedRecords();
@@ -6247,7 +6267,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         {
-            BALL_LOG_SET_CATEGORY("PassTRACE");
+            BALL_LOG_SET_LEGACY_CATEGORY("PassTRACE");
 
             const int N = observer->numPublishedRecords();
 
@@ -6283,7 +6303,100 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERTV(N + 6 == observer->numPublishedRecords());
         }
       } break;
-      case 29: {
+      case 32: {
+        // --------------------------------------------------------------------
+        // TESTING BALL_LOG_SET_NAMESPACE_CATEGORY
+        //
+        // Concerns:
+        // 1. That `BALL_LOG_SET_NAMESPACE_CATEGORY`, if called with a
+        //    non-existing category name and the logger manager has room, will
+        //    result in a new category being created at namespace scope.
+        //
+        // 2. The new category has the right name.
+        //
+        // 3. If the new category inherits from another category, it has the
+        //    same logging thresholds as the category it inherited from
+        //    (hierarchical behavior).
+        //
+        // 4. The namespace-scope category holder is properly initialized.
+        //
+        // Plan:
+        // 1. Define a test namespace that uses
+        //    `BALL_LOG_SET_NAMESPACE_CATEGORY` with a hierarchical category
+        //    name.
+        //
+        // 2. Initialize a logger manager singleton with default threshold
+        //    levels.
+        //
+        // 3. Use `ball::LoggerManager::setCategory` to create a parent
+        //    category with specific threshold levels.
+        //
+        // 4. Call a function in the test namespace and verify that the
+        //    namespace-scope category inherits the correct threshold levels
+        //    from its parent category.
+        //
+        // Testing:
+        //   BALL_LOG_SET_NAMESPACE_CATEGORY (with hierarchical inheritance)
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing BALL_LOG_SET_NAMESPACE_CATEGORY\n"
+                                  "=======================================\n";
+
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+
+        BloombergLP::ball::LoggerManager& manager =
+                                 BloombergLP::ball::LoggerManager::singleton();
+
+        bsl::shared_ptr<BloombergLP::ball::TestObserver> observer =
+                 bsl::make_shared<BloombergLP::ball::TestObserver>(&bsl::cout);
+        manager.registerObserver(observer, "test");
+
+        // Set up grandparent category with different thresholds
+        const int PARENT2_RECORD      = BloombergLP::ball::Severity::e_TRACE;
+        const int PARENT2_PASS        = BloombergLP::ball::Severity::e_DEBUG;
+        const int PARENT2_TRIGGER     = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT2_TRIGGER_ALL = BloombergLP::ball::Severity::e_ERROR;
+
+        manager.setCategory("EQUITY",
+                            PARENT2_RECORD,
+                            PARENT2_PASS,
+                            PARENT2_TRIGGER,
+                            PARENT2_TRIGGER_ALL);
+
+        // Set up parent category with specific thresholds
+        const int PARENT_RECORD      = BloombergLP::ball::Severity::e_INFO;
+        const int PARENT_PASS        = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT_TRIGGER     = BloombergLP::ball::Severity::e_ERROR;
+        const int PARENT_TRIGGER_ALL = BloombergLP::ball::Severity::e_FATAL;
+
+        manager.setCategory("EQUITY.NASD",
+                            PARENT_RECORD,
+                            PARENT_PASS,
+                            PARENT_TRIGGER,
+                            PARENT_TRIGGER_ALL);
+
+        // Log a message to trigger category creation
+        BALL_LOG_TEST_CASE_32::logMessage();
+
+        // Verify the category was created with inherited thresholds
+        const Cat *CATEGORY = manager.lookupCategory(
+                                        BALL_LOG_TEST_CASE_32::categoryName());
+        ASSERTV(CATEGORY);
+        ASSERTV(0 == bsl::strcmp("EQUITY.NASD.TESTNS",
+                                 CATEGORY->categoryName()));
+
+        // Verify inherited thresholds from "EQUITY.NASD"
+        ASSERTV(CATEGORY->recordLevel(),
+                PARENT_RECORD == CATEGORY->recordLevel());
+        ASSERTV(CATEGORY->passLevel(),
+                PARENT_PASS == CATEGORY->passLevel());
+        ASSERTV(CATEGORY->triggerLevel(),
+                PARENT_TRIGGER == CATEGORY->triggerLevel());
+        ASSERTV(CATEGORY->triggerAllLevel(),
+                PARENT_TRIGGER_ALL == CATEGORY->triggerAllLevel());
+      } break;
+      case 33: {
         // --------------------------------------------------------------------
         // TESTING NAMESPACE-SCOPE LOGGING
         //
@@ -6302,12 +6415,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //    together exercise all of the concerns.  (C-1..3)
         //
         // Testing:
-        //   BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)
+        //   BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY(CATEGORY)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING NAMESPACE-SCOPE LOGGING"
-                               << "\n==============================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING NAMESPACE-SCOPE LOGGING\n"
+                                  "===============================\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -6440,7 +6552,99 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     observer->lastPublishedRecord().fixedFields().category()));
         }
       } break;
-      case 28: {
+      case 30: {
+        // --------------------------------------------------------------------
+        // TESTING BALL_LOG_SET_CLASS_CATEGORY
+        //
+        // Concerns:
+        // 1. That `BALL_LOG_SET_CLASS_CATEGORY`, if called with a
+        //    non-existing category name and the logger manager has room, will
+        //    result in a new category being created at class scope.
+        //
+        // 2. The new category has the right name.
+        //
+        // 3. If the new category inherits from another category, it has the
+        //    same logging thresholds as the category it inherited from
+        //    (hierarchical behavior).
+        //
+        // 4. The class-scope category holder is properly initialized.
+        //
+        // Plan:
+        // 1. Define a test class that uses `BALL_LOG_SET_CLASS_CATEGORY` with
+        //    a hierarchical category name.
+        //
+        // 2. Initialize a logger manager singleton with default threshold
+        //    levels.
+        //
+        // 3. Use `ball::LoggerManager::setCategory` to create a parent
+        //    category with specific threshold levels.
+        //
+        // 4. Instantiate the test class and verify that the class-scope
+        //    category inherits the correct threshold levels from its parent
+        //    category.
+        //
+        // Testing:
+        //   BALL_LOG_SET_CLASS_CATEGORY (with hierarchical inheritance)
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing BALL_LOG_SET_CLASS_CATEGORY\n"
+                                  "===================================\n";
+
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+
+        BloombergLP::ball::LoggerManager& manager =
+                                 BloombergLP::ball::LoggerManager::singleton();
+
+        bsl::shared_ptr<BloombergLP::ball::TestObserver> observer =
+                 bsl::make_shared<BloombergLP::ball::TestObserver>(&bsl::cout);
+        manager.registerObserver(observer, "test");
+
+        // Set up grandparent category with different thresholds
+        const int PARENT2_RECORD      = BloombergLP::ball::Severity::e_TRACE;
+        const int PARENT2_PASS        = BloombergLP::ball::Severity::e_DEBUG;
+        const int PARENT2_TRIGGER     = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT2_TRIGGER_ALL = BloombergLP::ball::Severity::e_ERROR;
+
+        manager.setCategory("EQUITY",
+                            PARENT2_RECORD,
+                            PARENT2_PASS,
+                            PARENT2_TRIGGER,
+                            PARENT2_TRIGGER_ALL);
+
+        // Set up parent category with specific thresholds
+        const int PARENT_RECORD      = BloombergLP::ball::Severity::e_INFO;
+        const int PARENT_PASS        = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT_TRIGGER     = BloombergLP::ball::Severity::e_ERROR;
+        const int PARENT_TRIGGER_ALL = BloombergLP::ball::Severity::e_FATAL;
+
+        manager.setCategory("EQUITY.NASD",
+                            PARENT_RECORD,
+                            PARENT_PASS,
+                            PARENT_TRIGGER,
+                            PARENT_TRIGGER_ALL);
+
+        // Log a message to trigger category creation
+        BALL_LOG_TEST_CASE_30::TestClass::logMessage();
+
+        // Verify the category was created with inherited thresholds
+        const Cat *CATEGORY = manager.lookupCategory(
+                             BALL_LOG_TEST_CASE_30::TestClass::categoryName());
+        ASSERTV(CATEGORY);
+        ASSERTV(0 == bsl::strcmp("EQUITY.NASD.TESTCLASS",
+                                 CATEGORY->categoryName()));
+
+        // Verify inherited thresholds from "EQUITY.NASD"
+        ASSERTV(CATEGORY->recordLevel(),
+                PARENT_RECORD == CATEGORY->recordLevel());
+        ASSERTV(CATEGORY->passLevel(),
+                PARENT_PASS == CATEGORY->passLevel());
+        ASSERTV(CATEGORY->triggerLevel(),
+                PARENT_TRIGGER == CATEGORY->triggerLevel());
+        ASSERTV(CATEGORY->triggerAllLevel(),
+                PARENT_TRIGGER_ALL == CATEGORY->triggerAllLevel());
+      } break;
+      case 31: {
         // --------------------------------------------------------------------
         // TESTING CLASS-SCOPE LOGGING
         //
@@ -6469,12 +6673,11 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //    concerns.  (C-1..5)
         //
         // Testing:
-        //   BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)
+        //   BALL_LOG_SET_LEGACY_CLASS_CATEGORY(CATEGORY)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING CLASS-SCOPE LOGGING"
-                               << "\n==========================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING CLASS-SCOPE LOGGING\n"
+                                  "===========================\n";
 
         using namespace BALL_LOG_TEST_CASE_29;
         using namespace BloombergLP;  // okay here
@@ -6638,7 +6841,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                     observer->lastPublishedRecord().fixedFields().category()));
         }
       } break;
-      case 27: {
+      case 29: {
         // --------------------------------------------------------------------
         // TESTING `BALL_LOG_IS_ENABLED(SEVERITY)`
         //
@@ -6673,15 +6876,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         using namespace BloombergLP;  // okay here
 
-        if (verbose) bsl::cout << "\nTESTING `BALL_LOG_IS_ENABLED(SEVERITY)`"
-                               << "\n======================================="
-                               << bsl::endl;
-
+        if (verbose) bsl::cout << "TESTING `BALL_LOG_IS_ENABLED(SEVERITY)`\n"
+                               << "=======================================\n";
 
         if (verbose) bsl::cout << "\tTest without a logger manager.\n";
 
         {
-            BALL_LOG_SET_CATEGORY("TEST.CATEGORY1");
+            BALL_LOG_SET_LEGACY_CATEGORY("TEST.CATEGORY1");
             ASSERT(!BALL_LOG_IS_ENABLED(TRACE));
             ASSERT(!BALL_LOG_IS_ENABLED(DEBUG));
             ASSERT(!BALL_LOG_IS_ENABLED(INFO));
@@ -6706,7 +6907,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tExhaustively test w/o logging rules.\n";
         {
-            BALL_LOG_SET_CATEGORY("TEST.CATEGORY2");
+            BALL_LOG_SET_LEGACY_CATEGORY("TEST.CATEGORY2");
             for (int thresholdIdx = 0; thresholdIdx < 4; ++thresholdIdx) {
                 for (int i = 0; i < NUM_DATA; ++i) {
                     Thresholds threshold(OFF, OFF, OFF, OFF);
@@ -6733,7 +6934,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose) bsl::cout << "\tTest w/ logging rules." << bsl::endl;
         {
-            BALL_LOG_SET_CATEGORY("TEST.CATEGORY3");
+            BALL_LOG_SET_LEGACY_CATEGORY("TEST.CATEGORY3");
             for (int i = 0; i < NUM_DATA; ++i) {
                 BloombergLP::ball::Rule rule("TEST.CATEGORY3",
                                              OFF, DATA[i], OFF, OFF);
@@ -6747,7 +6948,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
         }
       } break;
-      case 26: {
+      case 28: {
         // --------------------------------------------------------------------
         // TESTING RULE-BASED LOGGING: `logMessage`
         //
@@ -6773,11 +6974,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   RULE-BASED LOGGING: logMessage(const Category *, int, Record *);
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "TESTING RULE-BASED LOGGING: `logMessage`\n"
-                      << "========================================\n";
-
+        if (verbose) bsl::cout << "TESTING RULE-BASED LOGGING: `logMessage`\n"
+                                  "========================================\n";
         using namespace BloombergLP;  // okay here
 
         int VALUES[] = { 1,
@@ -6924,7 +7122,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             manager.removeAllRules();
         }
       } break;
-      case 25: {
+      case 27: {
         // --------------------------------------------------------------------
         // TESTING RULE-BASED LOGGING: `isCategoryEnabled`
         //
@@ -6951,9 +7149,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << bsl::endl
-                      << "TESTING RULE-BASED LOGGING: `isCategoryEnabled`\n"
-                      << "===============================================\n";
+            bsl::cout << "TESTING RULE-BASED LOGGING: `isCategoryEnabled`\n"
+                         "===============================================\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -7065,23 +7262,22 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             manager.removeAllRules();
         }
       } break;
-      case 24: {
+      case 26: {
         // --------------------------------------------------------------------
-        // TESTING BALL_LOG_SET_DYNAMIC_CATEGORY and BALL_LOGVA in multiple
-        // threads
+        // TESTING BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY and BALL_LOGVA in
+        // multiple threads
         //
         // Concerns:
         //
         // Plan:
         //
         // Testing:
-        //   BALL_LOG_SET_DYNAMIC_CATEGORY
+        //   BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
-                      << "=====================================\n";
+            bsl::cout << "Testing BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY\n"
+                         "============================================\n";
 
         using namespace BALL_LOG_TEST_CASE_24;
 
@@ -7141,22 +7337,21 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             u::executeInParallel(NUM_THREADS, workerThread24);
         }
       } break;
-      case 23: {
+      case 25: {
         // --------------------------------------------------------------------
-        // TESTING BALL_LOG_SET_CATEGORY and BALL_LOGVA in multiple threads
+        // TESTING BALL_LOG_SET_LEGACY_CATEGORY and BALL_LOGVA in multiple
+        // threads
         //
         // Concerns:
         //
         // Plan:
         //
         // Testing:
-        //   BALL_LOG_SET_CATEGORY
+        //   BALL_LOG_SET_LEGACY_CATEGORY
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing BALL_LOG_SET_CATEGORY\n"
-                      << "=============================\n";
+        if (verbose) bsl::cout << "Testing BALL_LOG_SET_LEGACY_CATEGORY\n"
+                                  "====================================\n";
 
         using namespace BALL_LOG_TEST_CASE_23;
 
@@ -7165,8 +7360,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         arg2          = "Hello World";
 
         if (verbose)
-            bsl::cout << "\tTesting macro safety without a logger manager."
-                      << bsl::endl;
+             bsl::cout << "\tTesting macro safety without a logger manager.\n";
         {
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7177,8 +7371,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (verbose)
-            bsl::cout << "\tTesting macro correctness with a logger manager."
-                      << bsl::endl;
+                cout << "\tTesting macro correctness with a logger manager.\n";
         {
             BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
@@ -7205,8 +7398,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << "\tTesting macro safety after the logger manager "
-                      << "has been destroyed."
-                      << bsl::endl;
+                         "has been destroyed.\n";
         {
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7216,9 +7408,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             u::executeInParallel(NUM_THREADS, workerThread23);
         }
       } break;
-      case 22: {
+      case 24: {
         // --------------------------------------------------------------------
-        // TESTING BALL_LOG_SET_DYNAMIC_CATEGORY and BALL_LOG_TRACE in
+        // TESTING BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY and BALL_LOG_TRACE in
         // multiple threads
         //
         // Concerns:
@@ -7226,20 +7418,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // Plan:
         //
         // Testing:
-        //   BALL_LOG_SET_DYNAMIC_CATEGORY
+        //   BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
-                      << "=====================================\n";
+            bsl::cout << "Testing BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY\n"
+                         "============================================\n";
 
         using namespace BALL_LOG_TEST_CASE_22;
 
         numIterations = 10;
         if (verbose)
-            bsl::cout << "\tTesting macro safety without a logger manager."
-                      << bsl::endl;
+            bsl::cout << "\tTesting macro safety without a logger manager.\n";
         {
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7250,8 +7440,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (verbose)
-            bsl::cout << "\tTesting macro correctness with a logger manager."
-                      << bsl::endl;
+           bsl::cout << "\tTesting macro correctness with a logger manager.\n";
         {
             BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
@@ -7278,8 +7467,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << "\tTesting macro safety after the logger manager "
-                      << "has been destroyed."
-                      << bsl::endl;
+                         "has been destroyed.\n";
         {
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7289,29 +7477,27 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             u::executeInParallel(NUM_THREADS, workerThread22);
         }
       } break;
-      case 21: {
+      case 23: {
         // --------------------------------------------------------------------
-        // TESTING BALL_LOG_SET_CATEGORY and BALL_LOG_TRACE in multiple threads
+        // TESTING BALL_LOG_SET_LEGACY_CATEGORY and BALL_LOG_TRACE in multiple
+        // threads
         //
         // Concerns:
         //
         // Plan:
         //
         // Testing:
-        //   BALL_LOG_SET_CATEGORY
+        //   BALL_LOG_SET_LEGACY_CATEGORY
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing BALL_LOG_SET_CATEGORY\n"
-                      << "=============================\n";
+        if (verbose) bsl::cout << "Testing BALL_LOG_SET_LEGACY_CATEGORY\n"
+                                  "====================================\n";
 
         using namespace BALL_LOG_TEST_CASE_21;
 
         numIterations = 10;
         if (verbose)
-            bsl::cout << "\tTesting macro safety without a logger manager."
-                      << bsl::endl;
+             bsl::cout << "\tTesting macro safety without a logger manager.\n";
         {
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7322,8 +7508,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (verbose)
-            bsl::cout << "\tTesting macro correctness with a logger manager."
-                      << bsl::endl;
+                cout << "\tTesting macro correctness with a logger manager.\n";
         {
             BloombergLP::bslma::TestAllocator ta(veryVeryVeryVerbose);
             BloombergLP::ball::LoggerManagerConfiguration lmc;
@@ -7350,8 +7535,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << "\tTesting macro safety after the logger manager "
-                      << "has been destroyed."
-                      << bsl::endl;
+                         "has been destroyed.\n";
         {
             u::CerrBufferGuard cerrBufferGuard;
 
@@ -7361,7 +7545,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             u::executeInParallel(NUM_THREADS, workerThread21);
         }
       } break;
-      case 20: {
+      case 22: {
         // --------------------------------------------------------------------
         // TESTING STATIC FUNCTIONS
         //
@@ -7375,10 +7559,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   bool isCategoryEnabled(Holder *holder, int severity)
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing static functions\n"
-                      << "========================\n";
+        if (verbose) bsl::cout << "Testing static functions\n"
+                                  "========================\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -7486,7 +7668,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ball::LoggerManager::shutDownSingleton();
       } break;
-      case 19: {
+      case 21: {
         // --------------------------------------------------------------------
         // TESTING ball::Log_Stream
         //
@@ -7506,9 +7688,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   ball::Log_Stream
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "Test ball::Log_Stream" << bsl::endl
-                               << "=====================" << bsl::endl;
+        if (verbose) bsl::cout << "Test ball::Log_Stream\n"
+                                  "=====================\n";
 
         using namespace BloombergLP;  // okay here
 
@@ -7587,9 +7768,121 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                        mL.record()->fixedFields().fileName()));
         }
       } break;
-      case 18: {
+      case 19: {
         // --------------------------------------------------------------------
         // TESTING BALL_LOG_SET_DYNAMIC_CATEGORY
+        //
+        // Concerns:
+        // 1. That `BALL_LOG_SET_DYNAMIC_CATEGORY`, if called with a
+        //    non-existing category name and the logger manager has room, will
+        //    result in a new category being created.
+        //
+        // 2. The new category has the right name.
+        //
+        // 3. If the new category inherits from another category, it has the
+        //    same logging thresholds as the category it inherited from
+        //    (hierarchical behavior).
+        //
+        // 4. The category holder is dynamic and not linked to any other
+        //    category holder.
+        //
+        // Plan:
+        // 1. Initialize a logger manager singleton with default threshold
+        //    levels.
+        //
+        // 2. Use `ball::LoggerManager::setCategory` to create parent
+        //    categories (e.g., "EQUITY" and "EQUITY.NASD") with specific
+        //    threshold levels.
+        //
+        // 3. Use `BALL_LOG_SET_DYNAMIC_CATEGORY` to create child categories
+        //    that should inherit thresholds hierarchically.
+        //
+        // 4. Verify that child categories inherit the correct threshold
+        //    levels from their parent categories.
+        //
+        // 5. Verify that the dynamic category holder is not linked to any
+        //    other category holder.
+        //
+        // Testing:
+        //   BALL_LOG_SET_DYNAMIC_CATEGORY
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
+                                  "=====================================\n";
+
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+
+        BloombergLP::ball::LoggerManager& manager =
+                                 BloombergLP::ball::LoggerManager::singleton();
+
+        // Set up grandparent category with different thresholds
+        const int PARENT2_RECORD      = BloombergLP::ball::Severity::e_TRACE;
+        const int PARENT2_PASS        = BloombergLP::ball::Severity::e_DEBUG;
+        const int PARENT2_TRIGGER     = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT2_TRIGGER_ALL = BloombergLP::ball::Severity::e_ERROR;
+
+        manager.setCategory("EQUITY",
+                            PARENT2_RECORD,
+                            PARENT2_PASS,
+                            PARENT2_TRIGGER,
+                            PARENT2_TRIGGER_ALL);
+
+        // Set up parent category with specific thresholds
+        const int PARENT_RECORD      = BloombergLP::ball::Severity::e_INFO;
+        const int PARENT_PASS        = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT_TRIGGER     = BloombergLP::ball::Severity::e_ERROR;
+        const int PARENT_TRIGGER_ALL = BloombergLP::ball::Severity::e_FATAL;
+
+        manager.setCategory("EQUITY.NASD",
+                            PARENT_RECORD,
+                            PARENT_PASS,
+                            PARENT_TRIGGER,
+                            PARENT_TRIGGER_ALL);
+
+        {
+            // Test hierarchical inheritance from "EQUITY.NASD"
+            BALL_LOG_SET_DYNAMIC_CATEGORY("EQUITY.NASD.SUNW");
+
+            const Cat *CATEGORY = BALL_LOG_CATEGORYHOLDER.category();
+            ASSERTV(CATEGORY);
+            ASSERTV(0 == bsl::strcmp("EQUITY.NASD.SUNW",
+                                     CATEGORY->categoryName()));
+
+            // Verify inherited thresholds from "EQUITY.NASD"
+            ASSERTV(CATEGORY->recordLevel(),
+                    PARENT_RECORD == CATEGORY->recordLevel());
+            ASSERTV(CATEGORY->passLevel(),
+                    PARENT_PASS == CATEGORY->passLevel());
+            ASSERTV(CATEGORY->triggerLevel(),
+                    PARENT_TRIGGER == CATEGORY->triggerLevel());
+            ASSERTV(CATEGORY->triggerAllLevel(),
+                    PARENT_TRIGGER_ALL == CATEGORY->triggerAllLevel());
+        }
+
+        {
+            // Test hierarchical inheritance from "EQUITY"
+            BALL_LOG_SET_DYNAMIC_CATEGORY("EQUITY.NYSE");
+
+            const Cat *CATEGORY = BALL_LOG_CATEGORYHOLDER.category();
+            ASSERTV(CATEGORY);
+            ASSERTV(0 == bsl::strcmp("EQUITY.NYSE",
+                                     CATEGORY->categoryName()));
+
+            // Verify inherited thresholds from "EQUITY"
+            ASSERTV(CATEGORY->recordLevel(),
+                    PARENT2_RECORD == CATEGORY->recordLevel());
+            ASSERTV(CATEGORY->passLevel(),
+                    PARENT2_PASS == CATEGORY->passLevel());
+            ASSERTV(CATEGORY->triggerLevel(),
+                    PARENT2_TRIGGER == CATEGORY->triggerLevel());
+            ASSERTV(CATEGORY->triggerAllLevel(),
+                    PARENT2_TRIGGER_ALL == CATEGORY->triggerAllLevel());
+        }
+      } break;
+      case 20: {
+        // --------------------------------------------------------------------
+        // TESTING BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY
         //
         // Concerns:
         //   This macro must be safe in absence of a logger manager.  This
@@ -7606,13 +7899,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   published records is expected.
         //
         // Testing:
-        //   BALL_LOG_SET_DYNAMIC_CATEGORY
+        //   BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << bsl::endl
-                      << "Testing BALL_LOG_SET_DYNAMIC_CATEGORY\n"
-                      << "=====================================\n";
+            bsl::cout << "Testing BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY\n"
+                         "============================================\n";
 
         using namespace BALL_LOG_TEST_CASE_18;
         namespace Blp = BloombergLP;
@@ -7627,8 +7919,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (verbose)
-            bsl::cout << "\tTesting macro safety without a logger manager."
-                      << bsl::endl;
+             bsl::cout << "\tTesting macro safety without a logger manager.\n";
         {
 
 #ifdef BSLS_PLATFORM_OS_UNIX
@@ -7644,12 +7935,12 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             int saved_stderr_fd = dup(2);
             dup2(fd, 2);
             if (veryVerbose)
-                bsl::cout << "STDERR redirected to " << filename << bsl::endl;
+                      bsl::cout << "STDERR redirected to " << filename << '\n';
 #endif  // BSLS_PLATFORM_OS_UNIX
 
             u::CerrBufferGuard cerrBufferGuard;
 
-            BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
+            BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
 
             BALL_LOG_TRACE << "No Logger Manager1!";
             BALL_LOG_DEBUG << "No Logger Manager2!";
@@ -7667,8 +7958,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::string line;
             while (getline(fs, line)) {
                 ++numLines;
-                if (veryVerbose)
-                    bsl::cout << "\t>>" << line << "<<" << bsl::endl;
+                if (veryVerbose) bsl::cout << "\t>>" << line << "<<" << '\n';
             }
             fs.close();
 
@@ -7678,8 +7968,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (verbose)
-            bsl::cout << "\tTesting macro correctness with a logger manager."
-                      << bsl::endl;
+                cout << "\tTesting macro correctness with a logger manager.\n";
         {
             BloombergLP::ball::LoggerManagerConfiguration lmc;
             lmc.setDefaultThresholdLevelsIfValid(
@@ -7706,7 +7995,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                          BloombergLP::ball::Severity::e_INFO,
                                          0,
                                          0);
-            BALL_LOG_SET_DYNAMIC_CATEGORY("sieve")
+            BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY("sieve")
 
             int numPublishedRecords = observer->numPublishedRecords();
 
@@ -7746,8 +8035,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         if (verbose)
             bsl::cout << "\tTesting macro safety after the logger manager "
-                      << "has been destroyed."
-                      << bsl::endl;
+                         "has been destroyed.\n";
         {
 #ifdef BSLS_PLATFORM_OS_UNIX
             TempDirectoryGuard tempDirGuard("ball_log_");
@@ -7767,7 +8055,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
             u::CerrBufferGuard cerrBufferGuard;
 
-            BALL_LOG_SET_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
+            BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY("ThereIsNoLoggerManager");
 
             BALL_LOG_TRACE << "No Logger Manager1!";
             BALL_LOG_DEBUG << "No Logger Manager2!";
@@ -7785,8 +8073,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::string line;
             while (getline(fs, line)) {
                 ++numLines;
-                if (veryVerbose)
-                    bsl::cout << "\t>>" << line << "<<" << bsl::endl;
+                if (veryVerbose) bsl::cout << "\t>>" << line << "<<" << '\n';
             }
             fs.close();
 
@@ -7795,7 +8082,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 #endif
         }
       } break;
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
         //
@@ -7820,12 +8107,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_LOGCB_FATAL
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-          << "TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER"
-                      << bsl::endl
-          << "================================================================"
-                      << bsl::endl;
+        if (verbose) bsl::cout <<
+          "TESTING CALLBACK MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER\n"
+          "================================================================\n";
 
         using namespace BALL_LOG_TEST_CASE_17;
 
@@ -7858,7 +8142,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
         }
       } break;
-      case 16: {
+      case 17: {
         // --------------------------------------------------------------------
         // TESTING OSTREAM MACROS WITH CALLBACK
         //
@@ -7872,11 +8156,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   OSTREAM MACROS WITH CALLBACK
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "TESTING OSTREAM MACROS WITH CALLBACK"
-                               << bsl::endl
-                               << "===================================="
-                               << bsl::endl;
+        if (verbose) bsl::cout << "TESTING OSTREAM MACROS WITH CALLBACK\n"
+                                  "====================================\n";
 
         bsl::function<void(BloombergLP::ball::UserFields *)> callback =
                                                                &u::incCallback;
@@ -7905,7 +8186,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                           BloombergLP::ball::Severity::e_TRACE,
                                           0,
                                           0);
-        BALL_LOG_SET_CATEGORY("sieve")
+        BALL_LOG_SET_LEGACY_CATEGORY("sieve")
 
         BALL_LOG_TRACE << "This will load the category";
 
@@ -7926,11 +8207,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                   BloombergLP::ball::Severity::e_TRACE - 1,
                                   BloombergLP::ball::Severity::e_TRACE - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOGCB_TRACE`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGCB_TRACE`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOGCB_TRACE(callback) << "message";
@@ -7954,11 +8234,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_DEBUG - 1,
                                    BloombergLP::ball::Severity::e_DEBUG - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOGCB_DEBUG`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGCB_DEBUG`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOGCB_DEBUG(callback) << "message";
@@ -7982,11 +8261,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                     BloombergLP::ball::Severity::e_INFO - 1,
                                     BloombergLP::ball::Severity::e_INFO - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOGCB_INFO`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGCB_INFO`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOGCB_INFO(callback) << "message";
@@ -8010,11 +8288,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_WARN - 1,
                                    BloombergLP::ball::Severity::e_WARN - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOGCB_WARN`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGCB_WARN`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOGCB_WARN(callback) << "message";
@@ -8038,11 +8315,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_ERROR - 1,
                                    BloombergLP::ball::Severity::e_ERROR - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOGCB_ERROR`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGCB_ERROR`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOGCB_ERROR(callback) << "message";
@@ -8066,11 +8342,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_FATAL - 1,
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOGCB_FATAL`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOGCB_FATAL`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOGCB_FATAL(callback) << "message";
@@ -8088,8 +8363,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting Buffer Overflow with `ostream` Macro"
-                      << bsl::endl;
+               bsl::cout << "\tTesting Buffer Overflow with `ostream` Macro\n";
         {
             const int BUFLEN = u::messageBufferSize();
             const int EXCESS = 128;
@@ -8162,7 +8436,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             delete [] cpyString;
         }
       } break;
-      case 15: {
+      case 16: {
         // --------------------------------------------------------------------
         // STRESS TEST:
         //
@@ -8181,9 +8455,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   STRESS TEST
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl << "STRESS TEST"
-                      << bsl::endl << "===========" << bsl::endl;
+        if (verbose) bsl::cout << "STRESS TEST\n"
+                                  "===========\n";
 
         using namespace BALL_LOG_TEST_CASE_15;
         using namespace BloombergLP;
@@ -8205,7 +8478,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
         enum { NUM_MESSAGES = 100000 };
-        BALL_LOG_SET_CATEGORY("TEST.CATEGORY");
+        BALL_LOG_SET_LEGACY_CATEGORY("TEST.CATEGORY");
 
         for (int i = 0; i < NUM_MESSAGES; ++i) {
             BALL_LOG_TRACE << "DUMMY MESSAGE";
@@ -8218,7 +8491,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(observer->publishCount() > 1); // because the triggering message
                                               // is always published
       } break;
-      case 14: {
+      case 15: {
         // --------------------------------------------------------------------
         // BALL_IS_ENABLED(SEVERITY) UTILITY MACRO TEST:
         //
@@ -8242,11 +8515,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_IS_ENABLED(SEVERITY)
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nBALL_IS_ENABLED(SEVERITY) Utility MACRO TEST"
-                      << "\n============================================"
-                      << bsl::endl;
-        }
+        if (verbose)
+            bsl::cout << "BALL_IS_ENABLED(SEVERITY) Utility MACRO TEST\n"
+                         "============================================\n";
 
         using namespace BloombergLP;
 
@@ -8261,7 +8532,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ball::LoggerManager& manager = ball::LoggerManager::singleton();
 
         {
-            BALL_LOG_SET_CATEGORY("TEST.CATEGORY");
+            BALL_LOG_SET_LEGACY_CATEGORY("TEST.CATEGORY");
 
             BALL_LOG_TRACE << "This will load the category";
 
@@ -8299,7 +8570,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(!BALL_LOG_IS_ENABLED(ball::Severity::e_FATAL));
         }
       } break;
-      case 13: {
+      case 14: {
         // --------------------------------------------------------------------
         // PRINTF MACRO PERFORMANCE TEST WITH 1 THREAD:
         //
@@ -8316,11 +8587,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   performance of printf macro with one thread
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nPRINTF MACRO PERF TEST WITH 1 THREADS"
-                      << "\n====================================="
-                      << bsl::endl;
-        }
+        if (verbose) bsl::cout << "PRINTF MACRO PERF TEST WITH 1 THREADS\n"
+                                  "=====================================\n";
 
         using namespace BALL_LOG_TEST_CASE_13;
         using namespace BloombergLP;
@@ -8356,19 +8624,19 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
-            bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
+            bsl::cout << "number of threads = " << NUM_THREADS << '\n';
 
             bsl::cout << "number of logged messages per thread = "
-                 << NUM_MSGS << bsl::endl;
+                      << NUM_MSGS << '\n';
 
             bsl::cout << "messages length is chosen randomly from range 0 to "
-                 << MAX_MSG_SIZE << bsl::endl;
+                      << MAX_MSG_SIZE << '\n';
 
             bsl::cout << "total logging time with printf style macro = "
-                 << t << " nanoseconds" << bsl::endl;
+                      << t << " nanoseconds" << '\n';
         }
       } break;
-      case 12: {
+      case 13: {
         // --------------------------------------------------------------------
         // PRINTF MACRO PERFORMANCE TEST WITH MULTIPLE THREADS:
         //
@@ -8386,11 +8654,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   performance of printf macro with one thread
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nPRINTF MACRO PERF TEST WITH MULTIPLE THREADS"
-                      << "\n============================================"
-                      << bsl::endl;
-        }
+        if (verbose)
+            bsl::cout << "PRINTF MACRO PERF TEST WITH MULTIPLE THREADS\n"
+                         "============================================\n";
 
         using namespace BALL_LOG_TEST_CASE_12;
         using namespace BloombergLP;
@@ -8424,19 +8690,19 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
-            bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
+            bsl::cout << "number of threads = " << NUM_THREADS << '\n';
 
             bsl::cout << "number of logged messages per thread = "
-                 << NUM_MSGS << bsl::endl;
+                      << NUM_MSGS << '\n';
 
             bsl::cout << "messages length is chosen randomly from range 0 to "
-                 << MAX_MSG_SIZE << bsl::endl;
+                      << MAX_MSG_SIZE << '\n';
 
             bsl::cout << "total logging time with printf style macro = "
-                 << t << " nanoseconds" << bsl::endl;
+                      << t << " nanoseconds" << '\n';
         }
       } break;
-      case 11: {
+      case 12: {
         // --------------------------------------------------------------------
         // C++ MACRO PERFORMANCE TEST WITH 1 THREAD:
         //
@@ -8453,11 +8719,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   performance of c++ macro with one thread
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nC++ MACRO PERFORMANCE TEST WITH 1 THREADS"
-                      << "\n========================================="
-                      << bsl::endl;
-        }
+        if (verbose) cout << "C++ MACRO PERFORMANCE TEST WITH 1 THREADS\n"
+                             "=========================================\n";
 
         if (!verbose) break;
 
@@ -8492,16 +8755,15 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
-            bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
+            bsl::cout << "number of threads = " << NUM_THREADS << '\n';
 
             bsl::cout << "number of logged messages per thread = "
-                 << NUM_MSGS << bsl::endl;
+                      << NUM_MSGS << '\n';
 
-            bsl::cout << "messages length is "
-                 << MAX_MSG_SIZE << bsl::endl;
+            bsl::cout << "messages length is " << MAX_MSG_SIZE << '\n';
 
             bsl::cout << "total logging time with c++ style var macro = "
-                 << t/(NUM_MSGS*NUM_THREADS) << bsl::endl;
+                      << t/(NUM_MSGS*NUM_THREADS) << '\n';
         }
 
         t = bsls::TimeUtil::getTimer();
@@ -8509,19 +8771,18 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         t = bsls::TimeUtil::getTimer() - t;
 
         if (verbose) {
-            bsl::cout << "number of threads = " << NUM_THREADS << bsl::endl;
+            bsl::cout << "number of threads = " << NUM_THREADS << '\n';
 
             bsl::cout << "number of logged messages per thread = "
-                 << NUM_MSGS << bsl::endl;
+                      << NUM_MSGS << '\n';
 
-            bsl::cout << "messages length is "
-                 << MAX_MSG_SIZE << bsl::endl;
+            bsl::cout << "messages length is " << MAX_MSG_SIZE << '\n';
 
             bsl::cout << "total logging time with c++ style const macro = "
-                 << t/(NUM_MSGS*NUM_THREADS) << bsl::endl;
+                      << t/(NUM_MSGS*NUM_THREADS) << '\n';
         }
       } break;
-      case 10: {
+      case 11: {
         // --------------------------------------------------------------------
         // C++ MACRO PERFORMANCE TEST WITH MULTIPLE THREADS:
         //
@@ -8540,11 +8801,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // --------------------------------------------------------------------
 
         if (verbose)
-            bsl::cout << bsl::endl
-                      << "C++ MACRO PERFORMANCE TEST WITH MULTIPLE THREADS"
-                      << bsl::endl
-                      << "================================================"
-                      << bsl::endl;
+            bsl::cout << "C++ MACRO PERFORMANCE TEST WITH MULTIPLE THREADS\n"
+                         "================================================\n";
 
         if (!verbose) break;
 
@@ -8577,8 +8835,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         bsls::Types::Int64 t;
 
         workerThread10FuncPtr = ball::Severity::e_TRACE == severity
-                                ? &Util::doOldTraceConst
-                                : &Util::doOldInfoConst;
+                              ? &Util::doOldTraceConst
+                              : &Util::doOldInfoConst;
 
         t = bsls::TimeUtil::getTimer();
         u::executeInParallel(NUM_THREADS, workerThread10);
@@ -8611,43 +8869,43 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         const double newVarTime = static_cast<double>(t);
 
-        const double constVarSpeedup = 100 * (newVarTime - newConstTime) /
-                                                                    newVarTime;
-        const double oldNewConstSpeedup = 100 * (oldConstTime - newConstTime) /
-                                                                  oldConstTime;
+        const double constVarSpeedup =
+                            100 * (newVarTime - newConstTime) / newVarTime;
+        const double oldNewConstSpeedup =
+                            100 * (oldConstTime - newConstTime) / oldConstTime;
 
-        const double oldNewVarSpeedup   = 100 * (oldVarTime - newVarTime) /
-                                                                    oldVarTime;
+        const double oldNewVarSpeedup =
+                            100 * (oldVarTime - newVarTime) / oldVarTime;
 
         if (verbose) {
             cout << "\nNew Const: " << newConstTime / numMsgs()
                  << "\nOld Const: " << oldConstTime / numMsgs()
                  << "\nNew Var  : " << newVarTime   / numMsgs()
-                 << "\nOld Var  : " << oldVarTime   / numMsgs() << endl;
+                 << "\nOld Var  : " << oldVarTime   / numMsgs() << '\n';
         }
 
         if (verbose) {
-            cout << "Const speedup over var: ";
-            cout << constVarSpeedup << (0.0 < constVarSpeedup
+            cout << "Const speedup over var: "
+                 << constVarSpeedup << (0.0 < constVarSpeedup
                                        ? "% (speedup)\n"
                                        : "% (slowdown)\n");
         }
 
         if (verbose) {
-            cout << "New (const) speedup over old: ";
-            cout << oldNewConstSpeedup << (0.0 < oldNewConstSpeedup
+            cout << "New (const) speedup over old: "
+                 << oldNewConstSpeedup << (0.0 < oldNewConstSpeedup
                                           ? "% (speedup)\n"
                                           : "% (slowdown)\n");
         }
 
         if (verbose) {
-            cout << "New (var) speedup over old: ";
-            cout << oldNewVarSpeedup << (0.0 < oldNewVarSpeedup
+            cout << "New (var) speedup over old: "
+                 << oldNewVarSpeedup << (0.0 < oldNewVarSpeedup
                                           ? "% (speedup)\n"
                                           : "% (slowdown)\n");
         }
       } break;
-      case 9: {
+      case 10: {
         // --------------------------------------------------------------------
         // CONCURRENT LOGGING TEST
         //   Verify concurrent logging.
@@ -8666,10 +8924,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   Testing concurrent logging.
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nCONCURRENT LOGGING TEST"
-                      << "\n=======================" << bsl::endl;
-        }
+        if (verbose) bsl::cout << "CONCURRENT LOGGING TEST\n"
+                                  "=======================\n";
 
         using namespace BALL_LOG_TEST_CASE_9;
         using namespace BloombergLP;
@@ -8726,7 +8982,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(n_trigger == EXP_N_TRIGGER);
         }
       } break;
-      case 8: {
+      case 9: {
         // --------------------------------------------------------------------
         // TESTING THE FIFO LOG ORDER:
         //   Verify the FIFO log order.
@@ -8745,10 +9001,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   the FIFO log order
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nTESTING THE FIFO LOG ORDER"
-                      << "\n==========================" << bsl::endl;
-        }
+        if (verbose)  bsl::cout << "TESTING THE FIFO LOG ORDER\n"
+                                   "==========================\n";
 
         using namespace BloombergLP;
 
@@ -8771,7 +9025,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ball::LoggerManager::singleton().registerObserver(observer, "test");
 
-        BALL_LOG_SET_CATEGORY("main category");
+        BALL_LOG_SET_LEGACY_CATEGORY("main category");
         char helloWorld1[] = "hello world 1";
         char helloWorld2[] = "hello world 2";
         char helloWorld3[] = "hello world 3";
@@ -8796,7 +9050,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         ASSERT(ptr3  < ptr2);
         ASSERT(ptr2  < ptr1);
       } break;
-      case 7: {
+      case 8: {
         // --------------------------------------------------------------------
         // TESTING THE DEFAULT LOG ORDER (LIFO):
         //   Verify the default log order.
@@ -8818,10 +9072,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   the default log order
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nTESTING THE DEFAULT LOG ORDER (LIFO)"
-                      << "\n====================================" << bsl::endl;
-        }
+        if (verbose)  bsl::cout << "TESTING THE DEFAULT LOG ORDER (LIFO)\n"
+                                   "====================================\n";
+
 
         using namespace BloombergLP;
 
@@ -8865,7 +9118,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ball::LoggerManager::singleton().registerObserver(observer,
                                                               "test");
 
-            BALL_LOG_SET_CATEGORY("main category");
+            BALL_LOG_SET_LEGACY_CATEGORY("main category");
             BALL_LOG_INFO  << helloWorld1;
             BALL_LOG_INFO  << helloWorld2;
             BALL_LOG_INFO  << helloWorld3;
@@ -8909,7 +9162,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ball::LoggerManager::singleton().registerObserver(observer,
                                                               "test");
 
-            BALL_LOG_SET_CATEGORY("main category");
+            BALL_LOG_SET_LEGACY_CATEGORY("main category");
             for (int ii = 0; ii < k_NUM_DATA; ++ii) {
                 BALL_LOG_STREAM(DATA[ii].d_severity) << DATA[ii].d_string_p;
             }
@@ -8929,9 +9182,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(ptr3 < ptr4);
         }
       } break;
-      case 6: {
+      case 7: {
         // --------------------------------------------------------------------
-        // TESTING THE C++ MACRO WHEN LOGGING RETURNED VALUE OF A FUNCTION:
+        // TESTING THE MACRO WHEN LOGGING RETURNED VALUE OF A FUNCTION:
         //   Verify the c++ macro when logging returned value of a function
         //   that internally log some other message using c++ macro.
         //
@@ -8949,11 +9202,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   the c++ macro when logging returned value of a function.
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nTESTING THE C++ MACRO WHEN LOGGING "
-                      << "\nRETURNED VALUE OF A FUNCTION"
-                      << "\n====================================" << bsl::endl;
-        }
+        if (verbose) bsl::cout <<
+                 "TESTING THE MACRO WHEN LOGGING RETURN VALUE OF A FUNCTION\n"
+                 "=========================================================\n";
 
         using namespace BALL_LOG_TEST_CASE_6;
         using namespace BloombergLP;
@@ -8973,7 +9224,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ball::LoggerManager::singleton().registerObserver(observer, "test");
 
-        BALL_LOG_SET_CATEGORY("main category");
+        BALL_LOG_SET_LEGACY_CATEGORY("main category");
 
         BALL_LOG_WARN << f();
         bsl::string s = os.str();
@@ -8985,7 +9236,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(msg1 < msg2);
       } break;
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER
         //
@@ -9010,12 +9261,9 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_LOG_FATAL
         // --------------------------------------------------------------------
 
-        if (verbose)
-            bsl::cout << bsl::endl
-                  << "TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER"
-                      << bsl::endl
-                  << "======================================================="
-                      << bsl::endl;
+        if (verbose) bsl::cout <<
+                   "TESTING MACRO SAFETY IN THE ABSENCE OF A LOGGER MANAGER\n"
+                   "=======================================================\n";
 
         using namespace BALL_LOG_TEST_CASE_5;
 
@@ -9048,7 +9296,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             }
         }
       } break;
-      case 4: {
+      case 5: {
         // --------------------------------------------------------------------
         // TESTING OSTREAM MACROS
         //
@@ -9062,8 +9310,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   OSTREAM MACROS (WITHOUT CALLBACK)
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << "\nTESTING OSTREAM MACROS"
-                               << "\n======================\n";
+        if (verbose) bsl::cout << "TESTING OSTREAM MACROS\n"
+                                  "======================\n";
 
         const char *MESSAGE = "message:1:2:3";
         const char  SEP     = ':';
@@ -9089,7 +9337,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                 BloombergLP::ball::Severity::e_TRACE,
                                 0,
                                 0);
-        BALL_LOG_SET_CATEGORY("sieve")
+        BALL_LOG_SET_LEGACY_CATEGORY("sieve")
 
         BALL_LOG_TRACE << "This will load the category";
 
@@ -9110,11 +9358,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                            BloombergLP::ball::Severity::e_TRACE - 1,
                            BloombergLP::ball::Severity::e_TRACE - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOG_TRACE`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOG_TRACE`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOG_TRACE << "message";
@@ -9135,11 +9382,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                               BloombergLP::ball::Severity::e_DEBUG - 1,
                               BloombergLP::ball::Severity::e_DEBUG - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOG_DEBUG`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOG_DEBUG`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOG_DEBUG << "message";
@@ -9160,11 +9406,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                BloombergLP::ball::Severity::e_INFO - 1,
                                BloombergLP::ball::Severity::e_INFO - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOG_INFO`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOG_INFO`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOG_INFO << "message";
@@ -9185,11 +9430,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                   BloombergLP::ball::Severity::e_WARN - 1,
                                   BloombergLP::ball::Severity::e_WARN - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOG_WARN`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOG_WARN`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOG_WARN << "message";
@@ -9210,11 +9454,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                 BloombergLP::ball::Severity::e_ERROR - 1,
                                 BloombergLP::ball::Severity::e_ERROR - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOG_ERROR`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOG_ERROR`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOG_ERROR << "message";
@@ -9235,11 +9478,10 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_FATAL - 1,
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting `BALL_LOG_FATAL`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `BALL_LOG_FATAL`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 int numPublishedRecords = observer->numPublishedRecords();
 
                 BALL_LOG_FATAL << "message";
@@ -9254,8 +9496,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         }
 
         if (veryVerbose)
-            bsl::cout << "\tTesting Buffer Overflow with `ostream` Macro"
-                      << bsl::endl;
+               bsl::cout << "\tTesting Buffer Overflow with `ostream` Macro\n";
         {
             const int BUFLEN = u::messageBufferSize();
             const int EXCESS = 128;
@@ -9324,7 +9565,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             delete [] cpyString;
         }
       } break;
-      case 3: {
+      case 4: {
         // --------------------------------------------------------------------
         // TESTING PRINTF-STYLE MACROS
         //
@@ -9344,9 +9585,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   BALL_LOGVA_FATAL
         // --------------------------------------------------------------------
 
-        if (verbose) bsl::cout << bsl::endl
-                               << "Testing `printf-style` Macros" << bsl::endl
-                               << "=============================" << bsl::endl;
+        if (verbose) bsl::cout << "Testing `printf-style` Macros\n"
+                                  "=============================\n";
 
         BloombergLP::bslma::TestAllocator testAllocator(veryVeryVeryVerbose);
         BloombergLP::bslma::DefaultAllocatorGuard taGuard(&testAllocator);
@@ -9453,25 +9693,23 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                                    BloombergLP::ball::Severity::e_FATAL - 1,
                                    BloombergLP::ball::Severity::e_FATAL - 1);
 
-        BALL_LOG_SET_CATEGORY("sieve")
+        BALL_LOG_SET_LEGACY_CATEGORY("sieve")
 
         BALL_LOG_TRACE << "This will load the category";
 
         const Cat  *CAT  = BALL_LOG_CATEGORY;
         const char *FILE = __FILE__;
 
-        if (verbose) bsl::cout << "Now test the variadic `*_LOGVA_*` macros"
-                                                  " with varying arguments.\n";
+        if (verbose) bsl::cout << "Now test the variadic `*_LOGVA_*` macros "
+                                  "with varying arguments.\n";
 
         ASSERT(!bsl::strcmp("sieve", CAT->categoryName()));
 
-        if (veryVerbose) bsl::cout << "\tTesting exception safety"
-                                   << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting exception safety\n";
         {
-            BALL_LOG_SET_CATEGORY("pass")
+            BALL_LOG_SET_LEGACY_CATEGORY("pass")
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 0"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 0\n";
 
             BALL_LOGVA(TRACE, FORMAT_SPEC_0_ARGS);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
@@ -9479,64 +9717,55 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             BALL_LOGVA(TRACE, FORMAT_SPEC_0_ARGS);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 1"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 1\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_1_ARGS, 1);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 2"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 2\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_2_ARGS, 1, 2);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 3"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 3\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_3_ARGS, 1, 2, 3);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 4"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 4\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 5"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 5\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 6"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 6\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 7"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 7\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 8"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 8\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
 
-            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 9"
-                                           << bsl::endl;
+            if (veryVeryVerbose) bsl::cout << "\t\tTesting BALL_LOGVA - 9\n";
 
             BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(testAllocator)
             BALL_LOGVA(TRACE, FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -9667,7 +9896,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 0\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_0_ARGS);
@@ -9683,7 +9912,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 1\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_1_ARGS, 1);
@@ -9699,7 +9928,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 2\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_2_ARGS, 1, 2);
@@ -9715,7 +9944,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 3\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_3_ARGS, 1, 2, 3);
@@ -9731,7 +9960,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 4\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
@@ -9747,7 +9976,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 5\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
@@ -9763,7 +9992,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 6\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
@@ -9779,7 +10008,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 7\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
@@ -9795,7 +10024,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 8\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -9811,7 +10040,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_TRACE` - 9\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noTRACE")
+                BALL_LOG_SET_LEGACY_CATEGORY("noTRACE")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_TRACE(FORMAT_SPEC_9_ARGS,
@@ -9828,7 +10057,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 0\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_0_ARGS);
@@ -9844,7 +10073,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 1\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_1_ARGS, 1);
@@ -9860,7 +10089,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 2\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_2_ARGS, 1, 2);
@@ -9876,7 +10105,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 3\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_3_ARGS, 1, 2, 3);
@@ -9892,7 +10121,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 4`\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
@@ -9908,7 +10137,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 5\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
@@ -9924,7 +10153,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 6\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
@@ -9940,7 +10169,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 7\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
@@ -9956,7 +10185,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 8\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -9972,7 +10201,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_DEBUG` - 9\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noDEBUG")
+                BALL_LOG_SET_LEGACY_CATEGORY("noDEBUG")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_DEBUG(FORMAT_SPEC_9_ARGS,
@@ -9989,7 +10218,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 0\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_0_ARGS);
@@ -10005,7 +10234,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 1\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_1_ARGS, 1);
@@ -10021,7 +10250,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 2\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_2_ARGS, 1, 2);
@@ -10037,7 +10266,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 3\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_3_ARGS, 1, 2, 3);
@@ -10053,7 +10282,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 4\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
@@ -10069,7 +10298,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 5\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
@@ -10085,7 +10314,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 6\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
@@ -10101,7 +10330,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 7\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
@@ -10117,7 +10346,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 8\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -10133,7 +10362,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_INFO` - 9\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noINFO")
+                BALL_LOG_SET_LEGACY_CATEGORY("noINFO")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_INFO(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -10149,7 +10378,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 0\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_0_ARGS);
@@ -10165,7 +10394,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 1\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_1_ARGS, 1);
@@ -10181,7 +10410,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 2\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_2_ARGS, 1, 2);
@@ -10197,7 +10426,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 3\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_3_ARGS, 1, 2, 3);
@@ -10213,7 +10442,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 4\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
@@ -10229,7 +10458,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 5\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
@@ -10245,7 +10474,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 6\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
@@ -10261,7 +10490,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 7\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
@@ -10277,7 +10506,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 8\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -10293,7 +10522,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_WARN` - 9\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noWARN")
+                BALL_LOG_SET_LEGACY_CATEGORY("noWARN")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_WARN(FORMAT_SPEC_9_ARGS, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -10309,7 +10538,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 0\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_0_ARGS);
@@ -10325,7 +10554,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 1\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_1_ARGS, 1);
@@ -10341,7 +10570,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 2\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_2_ARGS, 1, 2);
@@ -10357,7 +10586,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 3\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_3_ARGS, 1, 2, 3);
@@ -10373,7 +10602,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 4\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
@@ -10389,7 +10618,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 5\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
@@ -10405,7 +10634,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 6\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
@@ -10421,7 +10650,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 7\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
@@ -10437,7 +10666,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 8\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_ERROR(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -10453,7 +10682,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_ERROR` - 9\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noERROR")
+                BALL_LOG_SET_LEGACY_CATEGORY("noERROR")
 
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -10471,7 +10700,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 0\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
 
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
@@ -10488,7 +10717,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 1\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_1_ARGS, 1);
@@ -10504,7 +10733,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 2\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_2_ARGS, 1, 2);
@@ -10520,7 +10749,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 3\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_3_ARGS, 1, 2, 3);
@@ -10536,7 +10765,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 4\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_4_ARGS, 1, 2, 3, 4);
@@ -10552,7 +10781,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 5\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_5_ARGS, 1, 2, 3, 4, 5);
@@ -10568,7 +10797,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 6\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_6_ARGS, 1, 2, 3, 4, 5, 6);
@@ -10584,7 +10813,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 7\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_7_ARGS, 1, 2, 3, 4, 5, 6, 7);
@@ -10600,7 +10829,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 8\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_8_ARGS, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -10616,7 +10845,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::cout << "\tTesting `BALL_LOGVA_FATAL` - 9\n";
         {
             {
-                BALL_LOG_SET_CATEGORY("noFATAL")
+                BALL_LOG_SET_LEGACY_CATEGORY("noFATAL")
                 const BloombergLP::ball::Record PREVIOUS_RECORD =
                                                observer->lastPublishedRecord();
                 BALL_LOGVA_FATAL(FORMAT_SPEC_9_ARGS,
@@ -11514,9 +11743,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // *INTENTIONALLY* *NOT* fully bracketed (`{}`-enclosed), contrary to
         // the BDE coding standard.
 
-        if (veryVerbose)
-            bsl::cout << "\tTesting macros in unbracketed context."
-                      << bsl::endl;
+        if (veryVerbose) cout << "\tTesting macros in unbracketed context.\n";
         {
             int unbracketedLoggingFlag = 1;
 
@@ -11596,6 +11823,118 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
       } break;
       case 2: {
         // --------------------------------------------------------------------
+        // TESTING BALL_LOG_SET_CATEGORY
+        //
+        // Concerns:
+        // 1. That `BALL_LOG_SET_CATEGORY`, if called with a non-existing
+        //    category name and the logger manager has room, will result in a
+        //    new category being created.
+        //
+        // 2. The new category has the right name.
+        //
+        // 3. If the new category inherits from another category, it has the
+        //    same logging thresholds as the category it inherited from
+        //    (hierarchical behavior).
+        //
+        // 4. The category holder is properly linked to previously created
+        //    category holders belonging to the same category.
+        //
+        // Plan:
+        // 1. Initialize a logger manager singleton with default threshold
+        //    levels.
+        //
+        // 2. Use `BALL_LOG_SET_CATEGORY` to create parent categories
+        //    (e.g., "EQUITY" and "EQUITY.NASD") with specific threshold
+        //    levels.
+        //
+        // 3. Use `BALL_LOG_SET_CATEGORY` to create child categories that
+        //    should inherit thresholds hierarchically.
+        //
+        // 4. Verify that child categories inherit the correct threshold
+        //    levels from their parent categories.
+        //
+        // 5. Verify that the category holder is properly linked to the
+        //    previously created category holder for the same category.
+        //
+        // Testing:
+        //   BALL_LOG_SET_CATEGORY (with hierarchical threshold inheritance)
+        // --------------------------------------------------------------------
+
+        if (verbose) bsl::cout << "Testing BALL_LOG_SET_CATEGORY\n"
+                                  "=============================\n";
+
+        BloombergLP::ball::LoggerManagerConfiguration lmc;
+        BloombergLP::ball::LoggerManagerScopedGuard   lmg(lmc, &ta);
+
+        BloombergLP::ball::LoggerManager& manager =
+                                 BloombergLP::ball::LoggerManager::singleton();
+
+        // Set up grandparent category with different thresholds
+        const int PARENT2_RECORD      = BloombergLP::ball::Severity::e_TRACE;
+        const int PARENT2_PASS        = BloombergLP::ball::Severity::e_DEBUG;
+        const int PARENT2_TRIGGER     = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT2_TRIGGER_ALL = BloombergLP::ball::Severity::e_ERROR;
+
+        manager.setCategory("EQUITY",
+                            PARENT2_RECORD,
+                            PARENT2_PASS,
+                            PARENT2_TRIGGER,
+                            PARENT2_TRIGGER_ALL);
+
+        // Set up parent category with specific thresholds
+        const int PARENT_RECORD      = BloombergLP::ball::Severity::e_INFO;
+        const int PARENT_PASS        = BloombergLP::ball::Severity::e_WARN;
+        const int PARENT_TRIGGER     = BloombergLP::ball::Severity::e_ERROR;
+        const int PARENT_TRIGGER_ALL = BloombergLP::ball::Severity::e_FATAL;
+
+        manager.setCategory("EQUITY.NASD",
+                            PARENT_RECORD,
+                            PARENT_PASS,
+                            PARENT_TRIGGER,
+                            PARENT_TRIGGER_ALL);
+
+        {
+            // Test hierarchical inheritance from "EQUITY.NASD"
+            BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
+
+            const Cat *CATEGORY = BALL_LOG_CATEGORYHOLDER.category();
+            ASSERTV(CATEGORY);
+            ASSERTV(0 == bsl::strcmp("EQUITY.NASD.SUNW",
+                                     CATEGORY->categoryName()));
+
+            // Verify inherited thresholds from "EQUITY.NASD"
+            ASSERTV(CATEGORY->recordLevel(),
+                    PARENT_RECORD == CATEGORY->recordLevel());
+            ASSERTV(CATEGORY->passLevel(),
+                    PARENT_PASS == CATEGORY->passLevel());
+            ASSERTV(CATEGORY->triggerLevel(),
+                    PARENT_TRIGGER == CATEGORY->triggerLevel());
+            ASSERTV(CATEGORY->triggerAllLevel(),
+                    PARENT_TRIGGER_ALL == CATEGORY->triggerAllLevel());
+        }
+
+        {
+            // Test hierarchical inheritance from "EQUITY"
+            BALL_LOG_SET_CATEGORY("EQUITY.NYSE")
+
+            const Cat *CATEGORY = BALL_LOG_CATEGORYHOLDER.category();
+            ASSERTV(CATEGORY);
+            ASSERTV(0 == bsl::strcmp("EQUITY.NYSE",
+                                     CATEGORY->categoryName()));
+
+            // Verify inherited thresholds from "EQUITY"
+            ASSERTV(CATEGORY->recordLevel(),
+                    PARENT2_RECORD == CATEGORY->recordLevel());
+            ASSERTV(CATEGORY->passLevel(),
+                    PARENT2_PASS == CATEGORY->passLevel());
+            ASSERTV(CATEGORY->triggerLevel(),
+                    PARENT2_TRIGGER == CATEGORY->triggerLevel());
+            ASSERTV(CATEGORY->triggerAllLevel(),
+                    PARENT2_TRIGGER_ALL == CATEGORY->triggerAllLevel());
+        }
+      } break;
+      case 3: {
+        // --------------------------------------------------------------------
         // TESTING BALL_LOG_* MACROS
         //
         // Concerns:
@@ -11605,16 +11944,13 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         // TBD doc
         //
         // Testing:
-        //   BALL_LOG_SET_CATEGORY
+        //   BALL_LOG_SET_LEGACY_CATEGORY
         //   BALL_LOG_CATEGORY
         //   BALL_LOG_THRESHOLD
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << bsl::endl
-            << "Testing BALL_LOG_* Macros" << bsl::endl
-            << "=========================" << bsl::endl;
-        }
+        if (verbose) bsl::cout << "TESTING BALL_LOG_* MACROS\n"
+                                  "=========================\n";
 
         ASSERT(0 == bsl::strcmp(__FILE__, __FILE__));
 
@@ -11661,7 +11997,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         {
             const char *CATEGORY_NAME1 = "EQUITY.NASD";
-            BALL_LOG_SET_CATEGORY(CATEGORY_NAME1)  // creates new category
+            // creates new category
+            BALL_LOG_SET_LEGACY_CATEGORY(CATEGORY_NAME1)
 
             const Cat  *CATEGORY1  = BALL_LOG_CATEGORYHOLDER.category();
             const int   MAX_LEVEL1 = CATEGORY1->maxLevel();
@@ -11678,7 +12015,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(3 == BloombergLP::ball::Administration::maxNumCategories());
             {
                 const char *CATEGORY_NAME2 = "EQUITY.NYSE";
-                BALL_LOG_SET_CATEGORY(CATEGORY_NAME2)
+                BALL_LOG_SET_LEGACY_CATEGORY(CATEGORY_NAME2)
 
                 const Cat  *CATEGORY2  = BALL_LOG_CATEGORYHOLDER.category();
                 const int   MAX_LEVEL2 = CATEGORY2->maxLevel();
@@ -11697,7 +12034,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
                 {
                     const char *CATEGORY_NAME3 = "EQUITY.DOW";
-                    BALL_LOG_SET_CATEGORY(CATEGORY_NAME3)
+                    BALL_LOG_SET_LEGACY_CATEGORY(CATEGORY_NAME3)
 
                     const Cat *CATEGORY3  = BALL_LOG_CATEGORYHOLDER.category();
                     const int  MAX_LEVEL3 = CATEGORY3->maxLevel();
@@ -11735,7 +12072,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             bsl::string cat1 = os.str();
             os.str("");
 
-            BALL_LOG_SET_DYNAMIC_CATEGORY(cat1.c_str());// creates new category
+            // creates new category
+            BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(cat1.c_str());
             ASSERT(0 == bsl::strcmp(cat1.c_str(),
                                     BALL_LOG_CATEGORY->categoryName()));
 
@@ -11744,7 +12082,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
                 bsl::string cat2 = os.str();
                 os.str("");
 
-                BALL_LOG_SET_DYNAMIC_CATEGORY(cat2.c_str()); // get default
+                // get default
+                BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(cat2.c_str());
                 ASSERT(0 != bsl::strcmp(cat1.c_str(),
                                         BALL_LOG_CATEGORY->categoryName()));
                 ASSERT(0 != bsl::strcmp(cat2.c_str(),
@@ -11772,10 +12111,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         //   const ball::Category *setCategory(const char *categoryName);
         // --------------------------------------------------------------------
 
-        if (verbose) {
-            bsl::cout << "\nTesting Utility Functions"
-                      << "\n=========================" << bsl::endl;
-        }
+        if (verbose) bsl::cout << "TESTING UTILITY FUNCTIONS\n"
+                                  "=========================\n";
 
         using namespace BloombergLP;
 
@@ -11789,10 +12126,8 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 
         ASSERT(0 == manager.registerObserver(observer, "test"));
 
-        if (veryVerbose) {
-            bsl::cout << "\tTesting `messageBuffer` and `messageBufferSize`"
-                      << bsl::endl;
-        }
+        if (veryVerbose)
+            bsl::cout << "\tTesting `messageBuffer` and `messageBufferSize`\n";
 
         const ball::Category& defaultCategory = manager.defaultCategory();
 
@@ -11801,7 +12136,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
         manager.setDefaultThresholdLevels(192, 96, 64, 32);
         ASSERT(DEFAULT_CAT_MAX_LEVEL != 192);
 
-        if (veryVerbose) bsl::cout << "\tTesting `setCategory`" << bsl::endl;
+        if (veryVerbose) bsl::cout << "\tTesting `setCategory`\n";
         {
             const ball::Category *category;
             category = ball::Log::setCategory("EQUITY.NASD");  // creates new
@@ -11820,8 +12155,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(DEFAULT_CAT_MAX_LEVEL == category->maxLevel());
         }
 
-        if (veryVerbose) bsl::cout << "\tTesting `setCategory` taking a holder"
-                                   << bsl::endl;
+        if (veryVerbose) cout << "\tTesting `setCategory` taking a holder\n";
         {
             ball::Administration::setMaxNumCategories(3);
             ASSERT(3 == ball::Administration::maxNumCategories());
@@ -11849,7 +12183,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
             ASSERT(DEFAULT_CAT_MAX_LEVEL == H2.threshold());
         }
 
-         if (veryVerbose) bsl::cout << "\tTesting `logMessage`" << bsl::endl;
+         if (veryVerbose) bsl::cout << "\tTesting `logMessage`\n";
          {
              const Cat  *CAT  = ball::Log::setCategory("EQUITY.NASD");
              const int   SEV  = BloombergLP::ball::Severity::e_WARN;
@@ -11999,3 +12333,7 @@ if (verbose) bsl::cout << "printf-style macro usage" << bsl::endl;
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // ----------------------------- END-OF-FILE ----------------------------------
+
+
+
+

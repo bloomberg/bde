@@ -90,7 +90,8 @@ using bsl::endl;
 // SPECIAL TESTS
 // [ 4] PREFIX COMPRESSION
 // [15] ALLOCATOR PROPAGATION TO VALUE
-// [17] USAGE EXAMPLE
+// [17] REGRESSIONS
+// [18] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -609,7 +610,7 @@ int main(int argc, char *argv[])
     bslma::DefaultAllocatorGuard guard(&da);
 
     switch (test) {  case 0:
-      case 17: {
+      case 18: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -711,6 +712,73 @@ int main(int argc, char *argv[])
         dictionary.erase("card");
         ASSERT(!dictionary.contains("card"));
         // clang-format on
+      } break;
+      case 17: {
+        // --------------------------------------------------------------------
+        // REGRESSIONS
+        //
+        // Concerns:
+        // 1. When inserting a key that causes a node split in the radix tree,
+        //    all internal node allocations (including the copied child node's
+        //    `d_prefix` string) must use the tree's supplied allocator, NOT
+        //    the default allocator.
+        //
+        // Plan:
+        // 1. Create a `CategoryManager_RadixTree` with a test allocator.
+        // 2. Insert a key whose prefix is long enough to exceed the small
+        //    string buffer optimization (> 22 characters), so that allocating
+        //    the prefix string requires a heap allocation.
+        // 3. Insert a second key that shares a partial prefix with the first,
+        //    forcing a node split.
+        // 4. Verify that the default allocator has zero allocations.
+        //
+        // Testing:
+        //   REGRESSIONS
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "REGRESSIONS\n"
+                             "===========\n";
+        {
+            // Use keys long enough to exceed small-string optimization so
+            // that string allocation is observable.
+            const char KEY1[] =
+                         "EQUITY.MARKET.NYSE.TRADING.DIVISION.ALPHA.FIRST";
+            const char KEY2[] =
+                         "EQUITY.MARKET.NYSE.TRADING.DIVISION.ALPHA.SECOND";
+            const char KEY3[] =
+                         "EQUITY.MARKET.NYSE.TRADING.DIVISION.BETA";
+
+            bslma::TestAllocator oa("object", veryVeryVeryVerbose);
+
+            const bsls::Types::Int64 daNumBlocksBefore = da.numBlocksTotal();
+
+            {
+                ball::CategoryManager_RadixTree<int> tree(&oa);
+
+                // First insert: no split needed.
+                tree.emplace(KEY1, 1);
+
+                // Second insert: shares a long prefix with KEY1 up to
+                // ".ALPHA." — forces a split of the existing node, creating a
+                // copy of the child with a long prefix string.
+                tree.emplace(KEY2, 2);
+
+                // Third insert: shares prefix up to ".DIVISION." — forces
+                // another split.
+                tree.emplace(KEY3, 3);
+
+                // Verify the tree is correct.
+                ASSERT(tree.size() == 3);
+                ASSERT(tree.contains(KEY1));
+                ASSERT(tree.contains(KEY2));
+                ASSERT(tree.contains(KEY3));
+            }
+
+            // The critical assertion: no allocations from the default
+            // allocator should have occurred during node splits.
+            ASSERTV(da.numBlocksTotal() - daNumBlocksBefore,
+                    da.numBlocksTotal() == daNumBlocksBefore);
+        }
       } break;
       case 16: {
         // --------------------------------------------------------------------

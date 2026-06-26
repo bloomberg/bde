@@ -14,12 +14,19 @@ BSLS_IDENT("$Id: $")
 //
 //@DESCRIPTION: This component defines a `struct`, `ball::LoggerCategoryUtil`,
 // that provides a set of utility functions for managing the categories
-// contained in a `ball::LoggerManager` based on the notion of hierarchy.  In
-// particular, the `setThresholdLevelsHierarchically` function modifies the
-// threshold levels of each category in `ball::LoggerManager` whose name has
-// the specified string as a prefix.  The `addCategoryHierarchically` function
-// creates a new category that inherits threshold levels from the exiting
-// category whose name is the longest prefix match, if such a category exists.
+// contained in a `ball::LoggerManager` based on the notion of hierarchy.
+//
+// **NOTE**: The functions in this component forward their calls through
+// `ball::LoggerManager` to `ball::CategoryManager`, which contains the
+// implementations of hierarchical category management.  See
+// `ball_categorymanager` for comprehensive documentation on hierarchical
+// category management, including detailed usage examples.
+//
+// In particular, the `setThresholdLevelsHierarchically` function modifies the
+// threshold levels of each category whose name has the specified string as a
+// prefix, and the `addCategoryHierarchically` function creates a new category
+// that inherits threshold levels from the existing category whose name is the
+// longest prefix match, if such a category exists.
 //
 ///Deprecation Notice
 ///------------------
@@ -31,91 +38,55 @@ BSLS_IDENT("$Id: $")
 //
 ///Usage
 ///-----
-// This section illustrates intended use of this component.
+// This section illustrates basic usage of this component's functions.  For
+// comprehensive usage examples demonstrating hierarchical category management,
+// including inheritance of threshold levels and prefix-based threshold
+// updates, see the "Usage" section in `ball_categorymanager`.
 //
-///Example 1: Managing Categories
-/// - - - - - - - - - - - - - - -
-// The following code fragments illustrate basic usage of this component's
-// `setThresholdLevelsHierarchically` and `addCategoryHierarchically` methods.
+///Example 1: Basic Hierarchical Category Operations
+/// - - - - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates basic usage of
+// `addCategoryHierarchically` and `setThresholdLevelsHierarchically`.
 //
-// First, we create two auxiliary functions that serve to print out the names
-// and threshold level values of all the categories currently in the logger
-// manager singleton:
+// First, assume we have initialized the logger manager with default
+// thresholds:
 // ```
-// void printCategory(const ball::Category *category)
-// {
-//     bsl::cout << "\t[ " << category->categoryName()
-//               << ", "   << category->recordLevel()
-//               << ", "   << category->passLevel()
-//               << ", "   << category->triggerLevel()
-//               << ", "   << category->triggerAllLevel()
-//               << " ]"   << bsl::endl;
-// }
+// ball::LoggerManager& lm = ball::LoggerManager::singleton();
+// lm.setDefaultThresholdLevels(191, 95, 63, 31);
+// ```
+// Then, we create a base category:
+// ```
+// lm.addCategory("EQ", 192, 96, 64, 32);
+// ```
+// Next, we use `addCategoryHierarchically` to create a category that inherits
+// from "EQ":
+// ```
+// ball::LoggerCategoryUtil::addCategoryHierarchically(&lm, "EQ.MARKET");
+// ```
+// The new category "EQ.MARKET" will inherit threshold levels [192, 96, 64, 32]
+// from "EQ".
 //
-// void printAllCategories()
-// {
-//      ball::LoggerManager& lm = ball::LoggerManager::singleton();
-//      using namespace bdlf::PlaceHolders;
-//      lm.visitCategories(bdlf::BindUtil::bind(printCategory, _1));
-// }
+// Finally, we update all categories under "EQ" using
+// `setThresholdLevelsHierarchically`:
 // ```
-// Now, we set the default threshold levels of the logger manager object to
-// [191, 95, 63, 31] (for brevity, the initialization of the logger manager
-// singleton is elided):
+// ball::LoggerCategoryUtil::setThresholdLevelsHierarchically(&lm,
+//                                                            "EQ",
+//                                                            194,
+//                                                            98,
+//                                                            66,
+//                                                            34);
 // ```
-//     ball::LoggerManager& lm = ball::LoggerManager::singleton();
-//     lm.setDefaultThresholdLevels(191, 95, 63, 31);
-// ```
-// Then, we create two new categories, "EQ" and "EQ.MARKET", by calling the
-// `addCategory` method of the logger manager class, with their threshold
-// levels explicitly set to different values (which are also different from the
-// default threshold levels):
-// ```
-//    lm.addCategory("EQ", 192, 96, 64, 32);
-//    lm.addCategory("EQ.MARKET", 193, 97, 65, 33);
-//    printAllCategories();
-// ```
-// The following is printed out by `printAllCategories`:
-// ```
-//    [ EQ, 192, 96, 64, 32 ]
-//    [ EQ.MARKET, 193, 97, 65, 33 ]
-// ```
-// Next, we add a new category using `addCategoryHierarchically`:
-// ```
-//    ball::LoggerCategoryUtil::addCategoryHierarchically(&lm,
-//                                                        "EQ.MARKET.NYSE");
-//    printAllCategories();
-// ```
-// The new category with name "EQ.MARKET.NYSE" inherits its threshold levels
-// from the category "EQ.MARKET" rather than having the default threshold
-// levels or inheriting them from "EQ" because of the longest prefix matching
-// rule:
-// ```
-//    [ EQ, 192, 96, 64, 32 ]
-//    [ EQ.MARKET, 193, 97, 65, 33 ]
-//    [ EQ.MARKET.NYSE, 193, 97, 65, 33 ]
-// ```
-// Then, we adjust the threshold levels for all categories whose name starts
-// with "EQ.MARKET" using `setThresholdLevelsHierarchically`:
-// ```
-//    ball::LoggerCategoryUtil::setThresholdLevelsHierarchically(&lm,
-//                                                               "EQ.MARKET",
-//                                                               194,
-//                                                               98,
-//                                                               66,
-//                                                               34);
-//    printAllCategories();
-// ```
-// We will notice that the threshold levels of "EQ.MARKET" and
-// "EQ.MARKET.NYSE" have been changed to the new values, while those of "EQ"
-// remain unchanged:
-// ```
-//    [ EQ, 192, 96, 64, 32 ]
-//    [ EQ.MARKET, 194, 98, 66, 34 ]
-//    [ EQ.MARKET.NYSE, 194, 98, 66, 34 ]
-// ```
+// This will update threshold levels for both "EQ" and "EQ.MARKET".
+//
+// For more detailed examples illustrating hierarchical category management,
+// longest prefix matching, and threshold inheritance strategies, see the usage
+// examples in `ball_categorymanager`.
 
 #include <balscm_version.h>
+
+#include <ball_loggermanager.h>
+
+#include <bsls_assert.h>
 
 namespace BloombergLP {
 namespace ball {
@@ -136,25 +107,30 @@ struct LoggerCategoryUtil {
     /// Add, to the specified `loggerManager`, a new category having the
     /// specified `categoryName`; return the address of the modifiable new
     /// category on success, and 0, with no effect, if a category by that
-    /// name already exists or if the number of existing categories in
-    /// `loggerManager` has reached the maximum capacity.  The newly created
-    /// category will have the same threshold levels as the category in
-    /// `loggerManager` whose name is the longest non-empty prefix of
-    /// `categoryName` if such a category exists, and the default threshold
-    /// levels of `loggermanager` (which might be overridden by a default
-    /// threshold levels callback) otherwise.
+    /// name already exists or if the number of existing categories has reached
+    /// the maximum capacity.  The newly created category will have its
+    /// threshold levels chosen primarily from two sources: threshold levels of
+    /// an existing category or a category setting (to which no category
+    /// exists) choosing the one whose name is the longest non-empty prefix of
+    /// `categoryName`.  If such a category or setting exists, and the default
+    /// threshold levels (which might be overridden by a default threshold
+    /// levels callback) otherwise.  See also
+    /// `ball::CategoryManager::addCategoryHierarchically`.
     static Category *addCategoryHierarchically(LoggerManager *loggerManager,
                                                const char    *categoryName);
 
-    /// Set, in the specified `loggerManager`, the threshold levels of every
-    /// category whose name has, as a prefix, the specified
-    /// `categoryNamePrefix` to the specified threshold values,
-    /// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`.
-    /// Return the number of categories whose threshold levels were set, and
-    /// a negative value, with no effect, if any of the specified threshold
+    /// In case the specified `categoryNamePrefix` is not empty set, in the
+    /// specified `loggerManager`, the threshold levels of every existing and
+    /// future category whose name has, as a prefix, `categoryNamePrefix` to
+    /// the specified threshold values, `recordLevel`, `passLevel`,
+    /// `triggerLevel`, and `triggerAllLevel`.  In case `categoryNamePrefix` is
+    /// empty set the threshold level of every existing category, and remove
+    /// all preliminary settings (for categories that do not exist yet).
+    /// Return the number of categories whose threshold levels were set, and a
+    /// negative value, with no effect, if any of the specified threshold
     /// values is outside the range `[0 .. 255]`.  The behavior is undefined
-    /// unless `loggerManager` is not null and `categoryNamePrefix` is
-    /// null-terminated.
+    /// unless `loggerManager` is not in the process of being destroyed.  See
+    /// also `ball::CategoryManager::setThresholdLevelsHierarchically`.
     static int setThresholdLevelsHierarchically(
                                              LoggerManager *loggerManager,
                                              const char    *categoryNamePrefix,
@@ -163,20 +139,22 @@ struct LoggerCategoryUtil {
                                              int            triggerLevel,
                                              int            triggerAllLevel);
 
-    /// Set the threshold levels of each category currently in the registry
-    /// of the specified `loggerManager` whose name matches the specified
-    /// `pattern` to the specified `recordLevel`, `passLevel`,
-    /// `triggerLevel`, and `triggerAllLevel` values, respectively, if each
-    /// of the threshold values is in the range `[0 .. 255]`.  Return the
-    /// number of categories whose threshold levels were set, and a negative
-    /// value if any of the threshold values were invalid.  `pattern` is
-    /// assumed to be of the form "X" or "X*" where X is a sequence of 0 or
-    /// more characters and `*` matches any string (including the empty
-    /// string).  The behavior is undefined unless `loggerManager` is not in
-    /// the process of being destroyed.  Note that only a `*` located at the
-    /// end of `pattern` is recognized as a special character.  Also note
-    /// that this function has no effect on the threshold levels of
-    /// categories added to the registry after it is called.
+    /// Same as `setThresholdLevelsHierarchically` except that a `*` located at
+    /// the end of `pattern` is recognized as a special character and removed
+    /// before performing the operation.  Thus, this function sets, in the
+    /// specified `loggerManager`, the threshold levels of every existing and
+    /// future category whose name has, as a prefix, the substring of
+    /// `pattern` excluding an optional trailing `*`, to the specified
+    /// threshold values, `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel`.  In case `pattern` is `*` or empty, set the
+    /// threshold level of every existing category, and remove all preliminary
+    /// settings (for categories that do not exist yet).  Return the number of
+    /// categories whose threshold levels were set, and a negative value, with
+    /// no effect, if any of the specified threshold values is outside the
+    /// range `[0 .. 255]`.  The behavior is undefined unless `loggerManager`
+    /// is not in the process of being destroyed.  See also
+    /// `setThresholdLevelsHierarchically` and
+    /// `ball::CategoryManager::setThresholdLevelsHierarchically`.
     ///
     /// @DEPRECATED: Use `setThresholdLevelsHierarchically` instead.
     static int setThresholdLevels(LoggerManager *loggerManager,
@@ -186,6 +164,44 @@ struct LoggerCategoryUtil {
                                   int            triggerLevel,
                                   int            triggerAllLevel);
 };
+
+
+// ============================================================================
+//                              INLINE DEFINITIONS
+// ============================================================================
+
+                            // -------------------------
+                            // struct LoggerCategoryUtil
+                            // -------------------------
+// CLASS METHODS
+inline
+Category *LoggerCategoryUtil::addCategoryHierarchically(
+                                                  LoggerManager *loggerManager,
+                                                  const char    *categoryName)
+{
+    BSLS_ASSERT(loggerManager);
+    BSLS_ASSERT(categoryName);
+    return loggerManager->addCategoryHierarchically(categoryName);
+}
+
+inline
+int LoggerCategoryUtil::setThresholdLevelsHierarchically(
+                                             LoggerManager *loggerManager,
+                                             const char    *categoryNamePrefix,
+                                             int            recordLevel,
+                                             int            passLevel,
+                                             int            triggerLevel,
+                                             int            triggerAllLevel)
+{
+    BSLS_ASSERT(loggerManager);
+    BSLS_ASSERT(categoryNamePrefix);
+    return loggerManager->setThresholdLevelsHierarchically(categoryNamePrefix,
+                                                           recordLevel,
+                                                           passLevel,
+                                                           triggerLevel,
+                                                           triggerAllLevel);
+}
+
 
 }  // close package namespace
 }  // close enterprise namespace

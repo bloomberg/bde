@@ -111,6 +111,14 @@ BSLS_IDENT("$Id: $")
 //
 ///Categories, Severities, and Threshold Levels
 ///--------------------------------------------
+// **NOTE**: Category management functionality, including category creation,
+// lookup, threshold level administration, and hierarchical category support,
+// is implemented by `ball::CategoryManager`.  `ball::LoggerManager` provides
+// forwarding methods for convenient access to these functions.  For
+// comprehensive documentation on category management, including detailed
+// explanations of threshold mechanisms, hierarchical categories, callbacks,
+// and usage examples, see the `ball_categorymanager` component documentation.
+//
 // The logger supports the notions of "severity level" and "category"; every
 // record is logged at some severity level and to some category.  Categories
 // are user-defined (except for the "default category"), and have unique names.
@@ -217,6 +225,13 @@ BSLS_IDENT("$Id: $")
 //
 ///Category Creation, Management, and Threshold Levels
 ///- - - - - - - - - - - - - - - - - - - - - - - - - -
+// **NOTE**: The implementation of category management, including category
+// creation, threshold level administration, callbacks, and hierarchical
+// support, has been moved to `ball::CategoryManager`.  The methods described
+// in this section are now forwarding methods that delegate to the
+// `ball::CategoryManager` owned by the logger manager.  For detailed
+// documentation on these mechanisms, see the `ball_categorymanager` component.
+//
 // When the logger manager singleton is created, a unique category known as the
 // *Default* *Category* is created, and is given "factory-supplied" default
 // threshold levels.  The default values for the default category are each in
@@ -880,11 +895,13 @@ BSLS_IDENT("$Id: $")
 #include <ball_attribute.h>
 #include <ball_attributecollectorregistry.h>
 #include <ball_broadcastobserver.h>
+#include <ball_categorycallbacks.h>
 #include <ball_categorymanager.h>
 #include <ball_loggermanagerconfiguration.h>
 #include <ball_record.h>
 #include <ball_recordbuffer.h>
 #include <ball_thresholdaggregate.h>
+#include <ball_thresholddefaults.h>
 #include <ball_transmission.h>
 
 #include <bdlcc_objectpool.h>
@@ -895,15 +912,12 @@ BSLS_IDENT("$Id: $")
 #include <bslma_allocator.h>
 #include <bslma_managedptr.h>
 
-#include <bslmf_util.h>    // 'forward(V)'
-
 #include <bslmt_mutex.h>
 #include <bslmt_readerwritermutex.h>
 
 #include <bsls_atomic.h>
 #include <bsls_compilerfeatures.h>
 #include <bsls_performancehint.h>
-#include <bsls_util.h>     // 'forward<T>(V)'
 
 #include <bsl_functional.h>
 #include <bsl_map.h>
@@ -1202,13 +1216,12 @@ class LoggerManager {
 
     /// `CategoryNameFilterCallback` is the type of the user-supplied
     /// functor that translates external category names to internal names.
-    typedef LoggerManagerConfiguration::CategoryNameFilterCallback
-                                                    CategoryNameFilterCallback;
+    typedef CategoryCallbacks::NameFilter CategoryNameFilterCallback;
 
     /// `DefaultThresholdLevelsCallback` is the type of the functor that
     /// determines default threshold levels for categories added to the
     /// registry by the `setCategory(const char *)` method.
-    typedef LoggerManagerConfiguration::DefaultThresholdLevelsCallback
+    typedef CategoryCallbacks::DefaultThresholdLevels
                                                 DefaultThresholdLevelsCallback;
 
     /// `PublishAllTriggerCallback` is the type of the functor that is
@@ -1264,28 +1277,6 @@ class LoggerManager {
                            d_observer;           // internal broadcast
                                                  // observer
 
-    CategoryNameFilterCallback
-                           d_nameFilter;         // category name filter
-                                                 // functor
-
-    DefaultThresholdLevelsCallback
-                           d_defaultThresholds;  // functor for obtaining
-                                                 // default threshold levels of
-                                                 // "set" categories
-
-    mutable bslmt::ReaderWriterMutex
-                           d_defaultThresholdsLock;
-                                                 // `d_defaultThresholdsLock`
-                                                 // protector
-
-    ThresholdAggregate     d_defaultThresholdLevels;
-                                                 // default threshold levels
-
-    const ThresholdAggregate
-                           d_factoryThresholdLevels;
-                                                 // factory default threshold
-                                                 // levels
-
     UserFieldsPopulatorCallback
                            d_userFieldsPopulator;
                                                  // user fields populator
@@ -1303,10 +1294,6 @@ class LoggerManager {
 
     CategoryManager        d_categoryManager;    // category manager
 
-    unsigned int           d_maxNumCategoriesMinusOne;
-                                                 // one less than the current
-                                                 // capacity of the registry
-
     bsl::set<Logger *>     d_loggers;            // set of *allocated* loggers
 
     bslmt::ReaderWriterMutex
@@ -1319,9 +1306,6 @@ class LoggerManager {
                                                  // functor to publish all
                                                  // records within process
                                                  // (always valid)
-
-    Category              *d_defaultCategory_p;  // holds *Default* *Category*
-                                                 // (owned)
 
     int                    d_scratchBufferSize;  // logger default message
                                                  // buffer size (bytes)
@@ -1632,6 +1616,19 @@ class LoggerManager {
 
                              // Category Management
 
+    /// Add a new category having the specified `categoryName`; return the
+    /// address of the modifiable new category on success, and 0, with no
+    /// effect, if a category by that  name already exists or if the number of
+    /// existing categories has reached the maximum capacity.  The newly
+    /// created category will have its threshold levels chosen primarily from
+    /// two sources: threshold levels of an existing category or a category
+    /// setting (to which no category exists) choosing the one whose name is
+    /// the longest non-empty prefix of `categoryName`.  If such a category or
+    /// setting exists, and the default threshold levels (which might be
+    /// overridden by a default threshold levels callback) otherwise.  See also
+    /// `ball::CategoryManager::addCategoryHierarchically`.
+    Category *addCategoryHierarchically(const char *categoryName);
+
     /// Add to the category registry of this logger manager a new category
     /// having the specified `categoryName` and the specified `recordLevel`,
     /// `passLevel`, `triggerLevel`, and `triggerAllLevel` threshold levels,
@@ -1780,7 +1777,7 @@ class LoggerManager {
     int registerAttributeCollector(const AttributeCollector& collector,
                                    const bsl::string_view&   collectorName);
 
-                     // Threshold Level Management Manipulators
+               // Threshold Level Management Manipulators
 
     /// Reset the default threshold levels of this logger manager to the
     /// original "factory-supplied" default values or the factory overrides
@@ -1814,6 +1811,22 @@ class LoggerManager {
     /// registry by the `setCategory(const char *)` method.
     void setDefaultThresholdLevelsCallback(
                                      DefaultThresholdLevelsCallback *callback);
+
+    /// In case the specified `categoryNamePrefix` is not empty set the
+    /// threshold levels of every existing and future category whose name has,
+    /// as a prefix, `categoryNamePrefix` to the specified threshold values,
+    /// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`.  In
+    /// case `categoryNamePrefix` is empty set the threshold level of every
+    /// existing category, and remove all preliminary settings (for future
+    /// categories).  Return the number of categories whose threshold levels
+    /// were set, or a negative value, with no effect, if any of the specified
+    /// threshold values is outside the range `[0 .. 255]`. See also
+    /// `ball::CategoryManager::setThresholdLevelsHierarchically`.
+    int setThresholdLevelsHierarchically(const char *categoryNamePrefix,
+                                         int         recordLevel,
+                                         int         passLevel,
+                                         int         triggerLevel,
+                                         int         triggerAllLevel);
 
                              // Rule Management
 
@@ -1992,7 +2005,7 @@ class LoggerManager {
 
     /// Return the default threshold levels associated with this logger
     /// manager object.
-    const ThresholdAggregate& defaultThresholdLevels() const;
+    ThresholdAggregate defaultThresholdLevels() const;
 
     /// Load into the specified `*levels` the threshold levels that would be
     /// set for a newly created category, irrespective of whether a category
@@ -2179,9 +2192,9 @@ class LoggerManagerCategoryManip {
 //                              INLINE DEFINITIONS
 // ============================================================================
 
-                        // ------------
-                        // class Logger
-                        // ------------
+                                // ------------
+                                // class Logger
+                                // ------------
 
 // MANIPULATORS
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -2217,9 +2230,9 @@ int Logger::numRecordsInUse() const
     return d_recordPool.numObjects() - d_recordPool.numAvailableObjects();
 }
 
-                        // -------------------
-                        // class LoggerManager
-                        // -------------------
+                            // -------------------
+                            // class LoggerManager
+                            // -------------------
 
 // CLASS METHODS
 inline
@@ -2238,15 +2251,153 @@ LoggerManager& LoggerManager::singleton()
                              // Category Management
 
 inline
+Category *LoggerManager::addCategoryHierarchically(const char *categoryName)
+{
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.addCategoryHierarchically(categoryName);
+}
+
+inline
 Category& LoggerManager::defaultCategory()
 {
-    return *d_defaultCategory_p;
+    return d_categoryManager.defaultCategory();
 }
 
 inline
 const Category *LoggerManager::setCategory(const char *categoryName)
 {
-    return setCategory(0, categoryName);
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.setCategory(categoryName);
+}
+
+inline
+const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
+                                           const char     *categoryName)
+{
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.setCategory(categoryHolder, categoryName);
+}
+
+inline
+Category *LoggerManager::setCategory(const char *categoryName,
+                                     int         recordLevel,
+                                     int         passLevel,
+                                     int         triggerLevel,
+                                     int         triggerAllLevel)
+{
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.setCategory(categoryName,
+                                         recordLevel,
+                                         passLevel,
+                                         triggerLevel,
+                                         triggerAllLevel);
+}
+
+inline
+void LoggerManager::setMaxNumCategories(int length)
+{
+    BSLS_ASSERT(0 <= length);
+    d_categoryManager.setMaxNumCategories(length);
+}
+
+inline
+void LoggerManager::setCategoryThresholdsToCurrentDefaults(Category *category)
+{
+    BSLS_ASSERT(category);
+    d_categoryManager.setCategoryThresholdsToCurrentDefaults(category);
+}
+
+inline
+void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
+{
+    BSLS_ASSERT(category);
+    d_categoryManager.setCategoryThresholdsToFactoryDefaults(category);
+}
+
+                             // Category Management
+
+inline
+Category *LoggerManager::addCategory(const char *categoryName,
+                                     int         recordLevel,
+                                     int         passLevel,
+                                     int         triggerLevel,
+                                     int         triggerAllLevel)
+{
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.addCategory(categoryName,
+                                         recordLevel,
+                                         passLevel,
+                                         triggerLevel,
+                                         triggerAllLevel);
+}
+
+inline
+Category *LoggerManager::lookupCategory(const char *categoryName)
+{
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.lookupCategory(categoryName);
+}
+
+                      // Threshold Level Management
+
+inline
+int LoggerManager::setDefaultThresholdLevels(int recordLevel,
+                                             int passLevel,
+                                             int triggerLevel,
+                                             int triggerAllLevel)
+{
+    return d_categoryManager.setDefaultThresholdLevels(recordLevel,
+                                                       passLevel,
+                                                       triggerLevel,
+                                                       triggerAllLevel);
+}
+
+inline
+void LoggerManager::setDefaultThresholdLevelsCallback(
+                                      DefaultThresholdLevelsCallback *callback)
+{
+    d_categoryManager.setDefaultThresholdLevelsCallback(callback);
+}
+
+inline
+int LoggerManager::setThresholdLevelsHierarchically(
+                                                const char *categoryNamePrefix,
+                                                int         recordLevel,
+                                                int         passLevel,
+                                                int         triggerLevel,
+                                                int         triggerAllLevel)
+{
+    BSLS_ASSERT(categoryNamePrefix);
+    return d_categoryManager.setThresholdLevelsHierarchically(
+                                                            categoryNamePrefix,
+                                                            recordLevel,
+                                                            passLevel,
+                                                            triggerLevel,
+                                                            triggerAllLevel);
+}
+
+inline
+ThresholdAggregate LoggerManager::defaultThresholdLevels() const
+{
+    return d_categoryManager.defaultThresholdLevels();
+}
+
+inline
+const Category *LoggerManager::lookupCategory(const char *categoryName) const
+{
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.lookupCategory(categoryName);
+}
+
+inline
+int LoggerManager::thresholdLevelsForNewCategory(
+                                        ThresholdAggregate *levels,
+                                        const char         *categoryName) const
+{
+    BSLS_ASSERT(levels);
+    BSLS_ASSERT(categoryName);
+    return d_categoryManager.thresholdLevelsForNewCategory(levels,
+                                                           categoryName);
 }
 
                              // Observer Management
@@ -2306,7 +2457,7 @@ LoggerManager::registerAttributeCollector(
 inline
 void LoggerManager::resetDefaultThresholdLevels()
 {
-    d_defaultThresholdLevels = d_factoryThresholdLevels;
+    d_categoryManager.resetDefaultThresholdLevels();
 }
 
                              // Rule Management
@@ -2385,31 +2536,31 @@ bslma::Allocator *LoggerManager::allocator() const
 inline
 const Category& LoggerManager::defaultCategory() const
 {
-    return *d_defaultCategory_p;
+    return d_categoryManager.defaultCategory();
 }
 
 inline
 int LoggerManager::defaultPassThresholdLevel() const
 {
-    return d_defaultThresholdLevels.passLevel();
+    return d_categoryManager.defaultPassThresholdLevel();
 }
 
 inline
 int LoggerManager::defaultRecordThresholdLevel() const
 {
-    return d_defaultThresholdLevels.recordLevel();
+    return d_categoryManager.defaultRecordThresholdLevel();
 }
 
 inline
 int LoggerManager::defaultTriggerAllThresholdLevel() const
 {
-    return d_defaultThresholdLevels.triggerAllLevel();
+    return d_categoryManager.defaultTriggerAllThresholdLevel();
 }
 
 inline
 int LoggerManager::defaultTriggerThresholdLevel() const
 {
-    return d_defaultThresholdLevels.triggerLevel();
+    return d_categoryManager.defaultTriggerThresholdLevel();
 }
 
 inline
@@ -2435,7 +2586,7 @@ int LoggerManager::findObserver(
 inline
 int LoggerManager::maxNumCategories() const
 {
-    return static_cast<int>(d_maxNumCategoriesMinusOne) + 1;
+    return d_categoryManager.maxNumCategories();
 }
 
 inline
@@ -2540,6 +2691,7 @@ LoggerManagerCategoryManip::LoggerManagerCategoryManip(
                                                   LoggerManager *loggerManager)
 : d_manip(&loggerManager->d_categoryManager)
 {
+    BSLS_ASSERT(loggerManager);
 }
 
 // MANIPULATORS

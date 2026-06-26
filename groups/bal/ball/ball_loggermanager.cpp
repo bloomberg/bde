@@ -59,7 +59,7 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 //
 ///Single-Threaded vs. Multi-Threaded Logger Manager
 ///-------------------------------------------------
-// Prior releases of 'ball' were appropriate only for single-threaded
+// Early releases of 'ball' were appropriate only for single-threaded
 // applications.  Thus, 'ball::LoggerManager::singleton().getLogger()' returns
 // a reference to an instance of 'ball::Logger' useful for logging.  The same
 // 'ball::Logger' is returned each time 'getLogger()' is called.  In this
@@ -68,38 +68,6 @@ BSLS_IDENT_RCSID(ball_loggermanager_cpp,"$Id$ $CSID$")
 // enables each thread to have its own thread-specific logger.  The behavior of
 // these methods reflects the historical two-stage release of logger
 // functionality.
-//
-///Category Registry Capacity
-///--------------------------
-// The category registry capacity is managed by the 'setMaxNumCategories' and
-// 'maxNumCategories' methods, and the following data member:
-// ```
-//  unsigned int ball::LoggerManager::d_maxNumCategoriesMinusOne;
-// ```
-// From the client's perspective, valid capacity values are in the range
-// '[0 .. INT_MAX]'.  A value of 0 implies that no limit is imposed.  Capacity
-// values stored internally in 'd_maxNumCategoriesMinusOne' are in the range
-// '[-1 .. INT_MAX - 1]' (i.e., stored in an 'unsigned int' variable).  Note
-// that 'setMaxNumCategories' and 'maxNumCategories' compensate by subtracting
-// 1 from 'd_maxNumCategoriesMinusOne' and adding 1 to
-// 'd_maxNumCategoriesMinusOne', respectively.  This trick allows for more
-// efficient capacity testing, e.g.:
-// ```
-//  if (d_maxNumCategoriesMinusOne >= d_categoryManager.length()) {
-//      // there is sufficient capacity to add a new category
-//      // ...
-//  }
-// ```
-// as compared to something like the following if the registry capacity were
-// stored in a hypothetical 'int' data member
-// 'ball::LoggerManager::d_maxNumCategories' not biased by 1:
-// ```
-//  if (0 == d_maxNumCategories
-//   || d_maxNumCategories > d_categoryManager.length()) {
-//      // there is sufficient capacity to add a new category
-//      // ...
-//  }
-// ```
 // ----------------------------------------------------------------------------
 
 namespace BloombergLP {
@@ -107,9 +75,9 @@ namespace ball {
 
 namespace {
 
-                    // ==========================
-                    // struct RecordSharedPtrUtil
-                    // ==========================
+                         // ==========================
+                         // struct RecordSharedPtrUtil
+                         // ==========================
 
 /// This `struct` provides a namespace for utilities on
 /// `bsl::shared_ptr<Record>`, specifically, shared pointers that are
@@ -165,9 +133,9 @@ struct RecordSharedPtrUtil {
     void initializeSharedObjectOffset(const bsl::shared_ptr<Record>& record);
 };
 
-                    // --------------------------
-                    // struct RecordSharedPtrUtil
-                    // --------------------------
+                         // --------------------------
+                         // struct RecordSharedPtrUtil
+                         // --------------------------
 
 // PUBLIC CLASS DATA
 std::ptrdiff_t RecordSharedPtrUtil::s_sharedObjectOffset = 0;
@@ -227,32 +195,6 @@ void bufferPoolDeleter(void *buffer, void *pool)
 
     bdlma::ConcurrentPool *p = static_cast<bdlma::ConcurrentPool *>(pool);
     p->deallocate(buffer);
-}
-
-/// If the specified category `nameFilter` is a non-null functor, apply
-/// `nameFilter` to the specified `originalName`, store the translated
-/// result in the specified `filteredNameBuffer`, and return the address of
-/// the non-modifiable data of `filteredNameBuffer`; return `originalName`
-/// otherwise (i.e., if `nameFilter` is null).
-const char *filterName(
-   bsl::string                                             *filteredNameBuffer,
-   const char                                              *originalName,
-   const bsl::function<void(bsl::string *, const char *)>&  nameFilter)
-{
-    BSLS_ASSERT(filteredNameBuffer);
-    BSLS_ASSERT(originalName);
-
-    const char *name;
-    if (nameFilter) {
-        filteredNameBuffer->clear();
-        nameFilter(filteredNameBuffer, originalName);
-        filteredNameBuffer->push_back(0);  // append the null 'char'
-        name = filteredNameBuffer->c_str();
-    }
-    else {
-        name = originalName;
-    }
-    return name;
 }
 
 /// Load, into the specified `levels`, the active threshold levels for the
@@ -357,8 +299,6 @@ void bslsLogMessage(bsls::LogSeverity::Enum  severity,
     }
 }
 
-const char *const k_DEFAULT_CATEGORY_NAME  = "";
-
 const char *const k_INTERNAL_OBSERVER_NAME = "__oBsErVeR__";
 
 const char *const k_TRIGGER_BEGIN =
@@ -383,9 +323,9 @@ void copyAttributesWithoutMessage(ball::Record                  *record,
 
 }  // close unnamed namespace
 
-                           // ------------
-                           // class Logger
-                           // ------------
+                                // ------------
+                                // class Logger
+                                // ------------
 
 // PRIVATE CREATORS
 Logger::Logger(const bsl::shared_ptr<Observer>&            observer,
@@ -670,9 +610,9 @@ bslma::ManagedPtr<char> Logger::obtainMessageBuffer(int *bufferSize)
     return bufferManagedPtr;
 }
 
-                           // -------------------
-                           // class LoggerManager
-                           // -------------------
+                            // -------------------
+                            // class LoggerManager
+                            // -------------------
 
 // CLASS DATA
 LoggerManager *LoggerManager::s_singleton_p      = 0;
@@ -719,12 +659,12 @@ void LoggerManager::initSingletonImpl(
         bsls::Log::setLogMessageHandler(&bslsLogMessage);
     }
     else {
-        LoggerManager::singleton().getLogger().
-            logMessage(*s_singleton_p->d_defaultCategory_p,
-                       Severity::e_WARN,
-                       __FILE__,
-                       __LINE__,
-                       "BALL logger manager has already been initialized!");
+        LoggerManager::singleton().getLogger().logMessage(
+                          s_singleton_p->defaultCategory(),
+                          Severity::e_WARN,
+                          __FILE__,
+                          __LINE__,
+                          "BALL logger manager has already been initialized!");
     }
 }
 
@@ -738,25 +678,19 @@ LoggerManager::LoggerManager(
              BroadcastObserver(bslma::Default::globalAllocator(
                                                              globalAllocator)),
              bslma::Default::globalAllocator(globalAllocator))
-, d_nameFilter(configuration.categoryNameFilterCallback())
-, d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
-, d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
-, d_factoryThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
 , d_userFieldsPopulator(configuration.userFieldsPopulatorCallback())
 , d_attributeCollectors(bslma::Default::globalAllocator(globalAllocator))
 , d_logger_p(0)
 , d_defaultLoggerCount(0)
-, d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
-, d_maxNumCategoriesMinusOne((unsigned int)-1)
+, d_categoryManager(configuration.defaults().defaultRecordLevel(),
+                    configuration.defaults().defaultPassLevel(),
+                    configuration.defaults().defaultTriggerLevel(),
+                    configuration.defaults().defaultTriggerAllLevel(),
+                    configuration.defaultThresholdLevelsCallback(),
+                    configuration.categoryNameFilterCallback(),
+                    bslma::Default::globalAllocator(globalAllocator))
 , d_loggers(bslma::Default::globalAllocator(globalAllocator))
 , d_recordBuffer_p(0)
-, d_defaultCategory_p(0)
 , d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
 , d_defaultLoggers(bslma::Default::globalAllocator(globalAllocator))
 , d_logOrder(configuration.logOrder())
@@ -783,7 +717,6 @@ void LoggerManager::constructObject(
                                const LoggerManagerConfiguration& configuration)
 {
     BSLS_ASSERT(0 == d_logger_p);
-    BSLS_ASSERT(0 == d_defaultCategory_p);
     BSLS_ASSERT(0 == d_recordBuffer_p);
 
     d_publishAllCallback = bsl::function<void(Transmission::Cause)>(
@@ -806,12 +739,8 @@ void LoggerManager::constructObject(
                                             d_triggerMarkers,
                                             d_allocator_p);
     d_loggers.insert(d_logger_p);
-    d_defaultCategory_p = d_categoryManager.addCategory(
-                                   k_DEFAULT_CATEGORY_NAME,
-                                   d_defaultThresholdLevels.recordLevel(),
-                                   d_defaultThresholdLevels.passLevel(),
-                                   d_defaultThresholdLevels.triggerLevel(),
-                                   d_defaultThresholdLevels.triggerAllLevel());
+
+    d_categoryManager.addDefaultCategory();
 
     // Acquire a dummy 'bsl::shared_ptr<Record>' for offset calculation.
 
@@ -968,12 +897,12 @@ LoggerManager::initSingleton(LoggerManager *singleton, bool adoptSingleton)
         return e_SUCCESS;                                             // RETURN
     }
     else {
-        LoggerManager::singleton().getLogger().
-            logMessage(*s_singleton_p->d_defaultCategory_p,
-                       Severity::e_WARN,
-                       __FILE__,
-                       __LINE__,
-                       "BALL logger manager has already been initialized!");
+        LoggerManager::singleton().getLogger().logMessage(
+                          s_singleton_p->defaultCategory(),
+                          Severity::e_WARN,
+                          __FILE__,
+                          __LINE__,
+                          "BALL logger manager has already been initialized!");
 
         return e_FAILURE;                                             // RETURN
     }
@@ -1145,25 +1074,19 @@ LoggerManager::LoggerManager(
              BroadcastObserver(bslma::Default::globalAllocator(
                                                              globalAllocator)),
              bslma::Default::globalAllocator(globalAllocator))
-, d_nameFilter(configuration.categoryNameFilterCallback())
-, d_defaultThresholds(configuration.defaultThresholdLevelsCallback())
-, d_defaultThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
-, d_factoryThresholdLevels(configuration.defaults().defaultRecordLevel(),
-                           configuration.defaults().defaultPassLevel(),
-                           configuration.defaults().defaultTriggerLevel(),
-                           configuration.defaults().defaultTriggerAllLevel())
 , d_userFieldsPopulator(configuration.userFieldsPopulatorCallback())
 , d_attributeCollectors(bslma::Default::globalAllocator(globalAllocator))
 , d_logger_p(0)
 , d_defaultLoggerCount(0)
-, d_categoryManager(bslma::Default::globalAllocator(globalAllocator))
-, d_maxNumCategoriesMinusOne((unsigned int)-1)
+, d_categoryManager(configuration.defaults().defaultRecordLevel(),
+                    configuration.defaults().defaultPassLevel(),
+                    configuration.defaults().defaultTriggerLevel(),
+                    configuration.defaults().defaultTriggerAllLevel(),
+                    configuration.defaultThresholdLevelsCallback(),
+                    configuration.categoryNameFilterCallback(),
+                    bslma::Default::globalAllocator(globalAllocator))
 , d_loggers(bslma::Default::globalAllocator(globalAllocator))
 , d_recordBuffer_p(0)
-, d_defaultCategory_p(0)
 , d_scratchBufferSize(configuration.defaults().defaultLoggerBufferSize())
 , d_defaultLoggers(bslma::Default::globalAllocator(globalAllocator))
 , d_logOrder(configuration.logOrder())
@@ -1179,10 +1102,8 @@ LoggerManager::~LoggerManager()
 {
     BSLS_ASSERT(d_logger_p);
     BSLS_ASSERT(d_recordBuffer_p);
-    BSLS_ASSERT(d_defaultCategory_p);
     BSLS_ASSERT(d_allocator_p);
     BSLS_ASSERT( 0 < d_loggers.size());
-    BSLS_ASSERT(-1 <= (int)d_maxNumCategoriesMinusOne);
 
     // To minimize the chance that one thread is destroying the singleton
     // while another is still accessing the data members, immediately reset
@@ -1385,165 +1306,6 @@ void LoggerManager::setLogger(Logger *logger)
                                static_cast<unsigned>(d_defaultLoggers.size()));
 }
 
-                             // Category Management
-
-Category *LoggerManager::addCategory(const char *categoryName,
-                                     int         recordLevel,
-                                     int         passLevel,
-                                     int         triggerLevel,
-                                     int         triggerAllLevel)
-{
-    BSLS_ASSERT(categoryName);
-
-    if (!Category::areValidThresholdLevels(recordLevel,
-                                           passLevel,
-                                           triggerLevel,
-                                           triggerAllLevel)) {
-        return 0;                                                     // RETURN
-    }
-
-    bsl::string filteredName;
-
-    const char *localCategoryName = filterName(&filteredName,
-                                               categoryName,
-                                               d_nameFilter);
-
-    Category *category = d_categoryManager.lookupCategory(localCategoryName);
-    if (category) {
-        return 0;                                                     // RETURN
-    }
-
-    if (d_maxNumCategoriesMinusOne <
-                                   (unsigned int) d_categoryManager.length()) {
-        return 0;                                                     // RETURN
-    }
-
-    return d_categoryManager.addCategory(localCategoryName,
-                                         recordLevel,
-                                         passLevel,
-                                         triggerLevel,
-                                         triggerAllLevel);
-}
-
-Category *LoggerManager::lookupCategory(const char *categoryName)
-{
-    BSLS_ASSERT(categoryName);
-
-    bsl::string filteredName;
-
-    return d_categoryManager.lookupCategory(filterName(&filteredName,
-                                                       categoryName,
-                                                       d_nameFilter));
-}
-
-const Category *LoggerManager::setCategory(CategoryHolder *categoryHolder,
-                                           const char     *categoryName)
-{
-    BSLS_ASSERT(categoryName);
-
-    bsl::string filteredName;
-    const char *localCategoryName = filterName(&filteredName,
-                                               categoryName,
-                                               d_nameFilter);
-
-    Category *category = d_categoryManager.lookupCategory(categoryHolder,
-                                                          localCategoryName);
-    if (!category
-     && d_maxNumCategoriesMinusOne >=
-                                   (unsigned int) d_categoryManager.length()) {
-        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
-        {
-            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
-                                                     &d_defaultThresholdsLock);
-            if (d_defaultThresholds) {
-                d_defaultThresholds(&recordLevel,
-                                    &passLevel,
-                                    &triggerLevel,
-                                    &triggerAllLevel,
-                                    localCategoryName);
-            }
-            else {
-                recordLevel     = d_defaultThresholdLevels.recordLevel();
-                passLevel       = d_defaultThresholdLevels.passLevel();
-                triggerLevel    = d_defaultThresholdLevels.triggerLevel();
-                triggerAllLevel = d_defaultThresholdLevels.triggerAllLevel();
-            }
-        }
-
-        category = d_categoryManager.addCategory(categoryHolder,
-                                                 localCategoryName,
-                                                 recordLevel,
-                                                 passLevel,
-                                                 triggerLevel,
-                                                 triggerAllLevel);
-
-        if (!category) {  // added by another thread?
-            category = d_categoryManager.lookupCategory(categoryHolder,
-                                                        localCategoryName);
-        }
-    }
-
-    return category ? category
-                    : d_categoryManager.lookupCategory(
-                                                      categoryHolder,
-                                                      k_DEFAULT_CATEGORY_NAME);
-}
-
-Category *LoggerManager::setCategory(const char *categoryName,
-                                     int         recordLevel,
-                                     int         passLevel,
-                                     int         triggerLevel,
-                                     int         triggerAllLevel)
-{
-    BSLS_ASSERT(categoryName);
-
-    if (!Category::areValidThresholdLevels(recordLevel,
-                                           passLevel,
-                                           triggerLevel,
-                                           triggerAllLevel)) {
-        return 0;                                                     // RETURN
-    }
-
-    bsl::string filteredName;
-
-    const char *localCategoryName = filterName(&filteredName,
-                                               categoryName,
-                                               d_nameFilter);
-
-    Category *category = d_categoryManager.lookupCategory(localCategoryName);
-
-    if (category) {
-        category->setLevels(recordLevel,
-                            passLevel,
-                            triggerLevel,
-                            triggerAllLevel);
-        return category;                                              // RETURN
-    }
-
-    if (d_maxNumCategoriesMinusOne <
-                                   (unsigned int) d_categoryManager.length()) {
-        return 0;                                                     // RETURN
-    }
-
-    category = d_categoryManager.addCategory(localCategoryName,
-                                             recordLevel,
-                                             passLevel,
-                                             triggerLevel,
-                                             triggerAllLevel);
-
-    if (category) {
-        return category;                                              // RETURN
-    }
-    else {
-        return d_categoryManager.lookupCategory(localCategoryName);   // RETURN
-    }
-}
-
-void LoggerManager::setMaxNumCategories(int length)
-{
-    d_maxNumCategoriesMinusOne = length - 1;
-}
-
                              // Observer Management
 
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
@@ -1553,58 +1315,6 @@ Observer *LoggerManager::observer()
 }
 #endif  // BDE_OMIT_INTERNAL_DEPRECATED
 
-                             // Threshold Level Management
-
-void LoggerManager::setCategoryThresholdsToCurrentDefaults(Category *category)
-{
-    category->setLevels(d_defaultThresholdLevels.recordLevel(),
-                        d_defaultThresholdLevels.passLevel(),
-                        d_defaultThresholdLevels.triggerLevel(),
-                        d_defaultThresholdLevels.triggerAllLevel());
-}
-
-void LoggerManager::setCategoryThresholdsToFactoryDefaults(Category *category)
-{
-    category->setLevels(d_factoryThresholdLevels.recordLevel(),
-                        d_factoryThresholdLevels.passLevel(),
-                        d_factoryThresholdLevels.triggerLevel(),
-                        d_factoryThresholdLevels.triggerAllLevel());
-}
-
-int LoggerManager::setDefaultThresholdLevels(int recordLevel,
-                                             int passLevel,
-                                             int triggerLevel,
-                                             int triggerAllLevel)
-{
-    enum { BALL_SUCCESS = 0, BALL_FAILURE = -1 };
-
-    if (!Category::areValidThresholdLevels(recordLevel,
-                                           passLevel,
-                                           triggerLevel,
-                                           triggerAllLevel)) {
-        return BALL_FAILURE;                                          // RETURN
-    }
-
-    d_defaultThresholdLevels.setLevels(recordLevel,
-                                       passLevel,
-                                       triggerLevel,
-                                       triggerAllLevel);
-    return BALL_SUCCESS;
-}
-
-void LoggerManager::setDefaultThresholdLevelsCallback(
-                                      DefaultThresholdLevelsCallback *callback)
-{
-    bslmt::WriteLockGuard<bslmt::ReaderWriterMutex> guard(
-                                                     &d_defaultThresholdsLock);
-    if (callback) {
-        d_defaultThresholds = *callback;
-    }
-    else {
-        DefaultThresholdLevelsCallback nullCallback;
-        d_defaultThresholds = nullCallback;
-    }
-}
 
 // ACCESSORS
 bool LoggerManager::isCategoryEnabled(const Category *category,
@@ -1620,17 +1330,6 @@ bool LoggerManager::isCategoryEnabled(const Category *category,
     return category->maxLevel() >= severity;
 }
 
-const Category *LoggerManager::lookupCategory(const char *categoryName) const
-{
-    BSLS_ASSERT(categoryName);
-
-    bsl::string filteredName;
-
-    return d_categoryManager.lookupCategory(filterName(&filteredName,
-                                                       categoryName,
-                                                       d_nameFilter));
-}
-
 #ifndef BDE_OMIT_INTERNAL_DEPRECATED
 const Observer *LoggerManager::observer() const
 {
@@ -1642,48 +1341,6 @@ const LoggerManager::UserFieldsPopulatorCallback *
 LoggerManager::userFieldsPopulatorCallback() const
 {
     return d_userFieldsPopulator ? &d_userFieldsPopulator : 0;
-}
-
-                        // Threshold Level Management
-
-const ThresholdAggregate& LoggerManager::defaultThresholdLevels() const
-{
-    return d_defaultThresholdLevels;
-}
-
-int LoggerManager::thresholdLevelsForNewCategory(
-                                        ThresholdAggregate *levels,
-                                        const char         *categoryName) const
-{
-    BSLS_ASSERT(levels);
-    BSLS_ASSERT(categoryName);
-
-    if (d_defaultThresholds) {
-        bsl::string filteredName;
-        const char *localCategoryName = filterName(&filteredName,
-                                                   categoryName,
-                                                   d_nameFilter);
-
-        int recordLevel, passLevel, triggerLevel, triggerAllLevel;
-        {
-            bslmt::ReadLockGuard<bslmt::ReaderWriterMutex> guard(
-                                                     &d_defaultThresholdsLock);
-            d_defaultThresholds(&recordLevel,
-                                &passLevel,
-                                &triggerLevel,
-                                &triggerAllLevel,
-                                localCategoryName);
-        }
-
-        return levels->setLevels(recordLevel,
-                                 passLevel,
-                                 triggerLevel,
-                                 triggerAllLevel);                    // RETURN
-    }
-
-    *levels = d_defaultThresholdLevels;
-
-    return 0;
 }
 
 }  // close package namespace

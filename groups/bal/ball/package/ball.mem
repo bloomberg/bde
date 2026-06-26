@@ -7,6 +7,7 @@ ball_attributecontainerlist
 ball_attributecontext
 ball_broadcastobserver
 ball_category
+ball_categorycallbacks
 ball_categorymanager
 ball_categorymanager_radixtree
 ball_categorymanager_radixtree_cpp03
@@ -19,6 +20,7 @@ ball_fileobserver2
 ball_filteringobserver
 ball_fixedsizerecordbuffer
 ball_fmt
+ball_hierarchicalcategorysetting
 ball_log
 ball_logfilecleanerutil
 ball_loggercategoryutil
@@ -54,6 +56,7 @@ ball_severityutil
 ball_streamobserver
 ball_testobserver
 ball_thresholdaggregate
+ball_thresholddefaults
 ball_transmission
 ball_userfields
 ball_userfieldtype

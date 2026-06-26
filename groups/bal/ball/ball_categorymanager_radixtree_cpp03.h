@@ -21,7 +21,7 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Fri Mar  6 22:02:59 2026
+// Generated on Fri May 29 20:18:26 2026
 // Command line: sim_cpp11_features.pl ball_categorymanager_radixtree.h
 
 #ifdef COMPILING_BALL_CATEGORYMANAGER_RADIXTREE_H
@@ -1225,7 +1225,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1300,7 +1300,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1383,7 +1383,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1476,7 +1476,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1579,7 +1579,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1692,7 +1692,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1815,7 +1815,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -1948,7 +1948,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -2091,7 +2091,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -2244,7 +2244,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -2407,7 +2407,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],
@@ -2522,7 +2522,7 @@ CategoryManager_RadixTree<t_VALUE>::emplaceImp(
 
     Node splitNode(childPrefix.substr(0, commonLen), get_allocator());
 
-    Node childCopy(child);
+    Node childCopy(child, get_allocator());
     childCopy.prefix() = childPrefix.substr(commonLen);
 
     splitNode.children().emplace(childCopy.prefix()[0],

@@ -29,32 +29,6 @@ namespace ball {
 // to be atomic.  Assert that the type of `RuleSet::MaskType` hasn't changed.
 BSLMF_ASSERT((bsl::is_same<RuleSet::MaskType, unsigned int>::value));
 
-// PRIVATE CREATORS
-
-/// Note that this constructor is private, so the validation of the
-/// threshold level values does not need to be repeated here.  They are
-/// validated in `CategoryManager::addCategory`, prior to creating an
-/// instance of this class.
-Category::Category(const bsl::string_view&  categoryName,
-                   int                      recordLevel,
-                   int                      passLevel,
-                   int                      triggerLevel,
-                   int                      triggerAllLevel,
-                   bslma::Allocator        *basicAllocator)
-: d_thresholdLevels(ThresholdAggregateUtil::pack(
-    ThresholdAggregate(recordLevel, passLevel, triggerLevel, triggerAllLevel)))
-, d_threshold(ThresholdAggregate::maxLevel(recordLevel,
-                                           passLevel,
-                                           triggerLevel,
-                                           triggerAllLevel))
-, d_categoryName(categoryName, basicAllocator)
-, d_categoryHolder_p(0)
-, d_relevantRuleMask(0)
-, d_ruleThreshold(0)
-, d_mutex()
-{
-}
-
 // PRIVATE MANIPULATORS
 void
 Category::linkCategoryHolder(CategoryHolder *categoryHolder)
@@ -101,6 +75,30 @@ void Category::updateThresholdForHolders()
             } while (holder);
         }
     }
+}
+
+// CREATORS
+Category::Category(const bsl::string_view&  categoryName,
+                   int                      recordLevel,
+                   int                      passLevel,
+                   int                      triggerLevel,
+                   int                      triggerAllLevel,
+                   bslma::Allocator        *basicAllocator)
+: d_thresholdLevels(ThresholdAggregateUtil::pack(ThresholdAggregate(
+                                                             recordLevel,
+                                                             passLevel,
+                                                             triggerLevel,
+                                                             triggerAllLevel)))
+, d_threshold(ThresholdAggregate::maxLevel(recordLevel,
+                                           passLevel,
+                                           triggerLevel,
+                                           triggerAllLevel))
+, d_categoryName(categoryName, basicAllocator)
+, d_categoryHolder_p(0)
+, d_relevantRuleMask(0)
+, d_ruleThreshold(0)
+, d_mutex()
+{
 }
 
 // MANIPULATORS

@@ -141,6 +141,7 @@ using namespace bdlf::PlaceHolders;
 // [ *] ball::Logger& getLogger();
 // [18] void setLogger(ball::Logger *logger);
 // [13] Category *addCategory(const char *name, int, int, int, int);
+// [45] Category *addCategoryHierarchically(const char *categoryName);
 // [13] Category& defaultCategory();
 // [13] Category *lookupCategory(const char *name);
 // [13] const Category *setCategory(const char *name);
@@ -157,6 +158,7 @@ using namespace bdlf::PlaceHolders;
 // [ 9] const Aggregate& getDefaultThresholdLevels() const;
 // [ 9] Aggregate getNewCategoryThresholdLevels(const char *) const;
 // [13] int setDefaultThresholdLevels(int, int, int, int);
+// [46] int setThresholdLevelsHierarchically(const char*, int, int, int, int);
 // [13] int resetDefaultThresholdLevels();
 // [13] void setCategoryThresholdsToCurrentDefaults(Cat *cat);
 // [13] void setCategoryThresholdsToFactoryDefaults(Cat *cat);
@@ -206,10 +208,12 @@ using namespace bdlf::PlaceHolders;
 // [30] TESTING `ball::Logger::logMessage` (RULE BASED LOGGING)
 // [31] TESTING `~LoggerManager` calls `Observer::releaseRecords`
 // [36] SINGLETON REINITIALIZATION
-// [38] USAGE EXAMPLE #1
-// [39] USAGE EXAMPLE #2
-// [40] USAGE EXAMPLE #3
-// [41] USAGE EXAMPLE #4
+// [45] TESTING `addCategoryHierarchically`
+// [46] TESTING `setThresholdLevelsHierarchically`
+// [47] USAGE EXAMPLE #1
+// [48] USAGE EXAMPLE #2
+// [49] USAGE EXAMPLE #3
+// [50] USAGE EXAMPLE #4
 // [44] CONCERN: `obtainMessageBuffer` USES GLOBAL ALLOCATOR
 // [37] CONCERN: RECORD POOL MEMORY CONSUMPTION
 // [19] CONCERN: PERFORMANCE IMPLICATIONS
@@ -1024,6 +1028,33 @@ void inheritThresholdLevels(int        *recordLevel,
                                        categoryName, &lm);
 }
 
+// The following struct and callback are used by test case 45 to provide
+// custom default threshold levels when creating categories hierarchically.
+
+ball::ThresholdAggregate testCallbackLevels;
+
+static
+void testDefaultThresholdLevelsCallbackRaw(int        *recordLevel,
+                                           int        *passLevel,
+                                           int        *triggerLevel,
+                                           int        *triggerAllLevel,
+                                           const char *)
+    // Set the specified 'recordLevel', 'passLevel', 'triggerLevel', and
+    // 'triggerAllLevel' to the levels stored in the global
+    // 'testCallbackLevels'.
+{
+    *recordLevel     = testCallbackLevels.recordLevel();
+    *passLevel       = testCallbackLevels.passLevel();
+    *triggerLevel    = testCallbackLevels.triggerLevel();
+    *triggerAllLevel = testCallbackLevels.triggerAllLevel();
+}
+
+// The method 'setDefaultThresholdLevelsCallback' requires a pointer to a
+// 'bsl::function', not just a function pointer.  Passing a null
+// pointer removes the callback.
+ball::LoggerManager::DefaultThresholdLevelsCallback testDtlCallback(
+                                       &testDefaultThresholdLevelsCallbackRaw);
+
 /// This function verifies defaults for the specified `manager`.  Note that
 /// expected Observer is passed to verify legacy API (where raw pointer to
 /// Observer is supplied during singleton initialization).
@@ -1739,6 +1770,584 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;;
 
     switch (test) { case 0:  // Zero is always the leading case.
+      case 50: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 4
+        //
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE #4
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE 4" << endl
+                                  << "===============" << endl;
+
+        using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4;
+
+        ball::LoggerManagerConfiguration mXC;
+        ball::LoggerManagerScopedGuard   lmGuard(mXC);
+
+        factorial(10);
+        factorial(-1);
+        factorial(15);
+
+      } break;
+      case 49: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 3
+        //
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE #3
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE 3" << endl
+                                  << "===============" << endl;
+
+        using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3;
+
+        ball::LoggerManagerConfiguration mXC;
+        ball::LoggerManagerScopedGuard   lmGuard(mXC);
+
+        ball::LoggerManager& mX = ball::LoggerManager::singleton();
+
+        ball::Category *cat = mX.addCategory("test-category",
+                                             ball::Severity::e_INFO,
+                                             ball::Severity::e_WARN,
+                                             ball::Severity::e_ERROR,
+                                             ball::Severity::e_FATAL);
+
+        ball::Logger& logger = mX.getLogger();
+
+        Information information("MY-HEADING", "MY-CONTENTS");
+
+        if (verbose) {
+            logInformation(&logger,
+                           information,
+                           ball::Severity::e_WARN,
+                           *cat,
+                           __FILE__,
+                           __LINE__);
+        }
+
+      } break;
+      case 48: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 2
+        //
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE #2
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE 2" << endl
+                                  << "===============" << endl;
+
+        BALL_LOGGERMANAGER_USAGE_EXAMPLE_2::main();
+
+      } break;
+      case 47: {
+        // --------------------------------------------------------------------
+        // USAGE EXAMPLE 1
+        //
+        // Concerns:
+        // 1. The usage example provided in the component header file compiles,
+        //    links, and runs as shown.
+        //
+        // Plan:
+        // 1. Incorporate usage example from header into test driver, remove
+        //    leading comment characters, and replace `assert` with `ASSERT`.
+        //    (C-1)
+        //
+        // Testing:
+        //   USAGE EXAMPLE #1
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl << "USAGE EXAMPLE 1" << endl
+                                  << "===============" << endl;
+
+        BALL_LOGGERMANAGER_USAGE_EXAMPLE_1::main();
+
+      } break;
+      case 46: {
+        // --------------------------------------------------------------------
+        // TESTING `setThresholdLevelsHierarchically`
+        //
+        // Concerns:
+        // 1. `setThresholdLevelsHierarchically` returns a negative value and
+        //    has no effect when any of the specified threshold levels are
+        //    outside the range `[0 .. 255]`.
+        //
+        // 2. `setThresholdLevelsHierarchically` sets threshold levels only
+        //    for those categories whose names have the specified category
+        //    name prefix as a prefix.
+        //
+        // 3. When the category name prefix is empty, all existing categories
+        //    have their threshold levels set.
+        //
+        // 4. The function returns the number of categories whose threshold
+        //    levels were set.
+        //
+        // Plan:
+        // 1. Initialize the logger manager singleton and populate its
+        //    category registry from a tabulated set of names.  Verify that
+        //    `setThresholdLevelsHierarchically` has no effect on existing
+        //    categories when invalid threshold level values are passed as
+        //    arguments.  (C-1)
+        //
+        // 2. Test `setThresholdLevelsHierarchically` with the cross product
+        //    of a tabulated set of category names and a tabulated set of
+        //    valid threshold level values.  Verify that the categories that
+        //    match a given name prefix are indeed modified whereas the
+        //    categories that fail to match the name prefix are unaffected.
+        //    (C-2, C-3, C-4)
+        //
+        // Testing:
+        //   int setThresholdLevelsHierarchically(const char*, int...);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING `setThresholdLevelsHierarchically`"
+                          << endl
+                          << "=========================================="
+                          << endl;
+
+        // Initialize Logger Manager.
+        ball::LoggerManagerConfiguration lmConfig;
+        ball::LoggerManagerScopedGuard   lmGuard(lmConfig);
+
+        Obj& mLM = Obj::singleton();
+
+        const Cat& defaultCat = mLM.defaultCategory();
+        ASSERT(0 == strcmp("", defaultCat.categoryName()));
+        const int DEFAULT_RECORD_LEVEL     = defaultCat.recordLevel();
+        const int DEFAULT_PASS_LEVEL       = defaultCat.passLevel();
+        const int DEFAULT_TRIGGER_LEVEL    = defaultCat.triggerLevel();
+        const int DEFAULT_TRIGGERALL_LEVEL = defaultCat.triggerAllLevel();
+
+        const char *NAME[] = {
+            "",    // *Default* *Category*
+            "x",
+            "xy",
+            "x*",
+            "y",
+            "yx",
+        };
+        const int NUM_NAME = sizeof NAME / sizeof *NAME;
+
+        for (int n = 1; n < NUM_NAME; ++n) {  // skip *Default* *Category*
+            const Cat *p = mLM.addCategory(NAME[n],
+                                           DEFAULT_RECORD_LEVEL,
+                                           DEFAULT_PASS_LEVEL,
+                                           DEFAULT_TRIGGER_LEVEL,
+                                           DEFAULT_TRIGGERALL_LEVEL);
+            ASSERT(p);
+        }
+
+        if (verbose)
+            cout << "Testing with invalid threshold levels." << endl;
+        {
+            const char *CN[] = {
+                "",
+                "x",
+                "*",
+                "x*",
+                "xy",
+                "y",
+            };
+            const int NUM_CN = sizeof CN / sizeof *CN;
+
+            static const struct {
+                int d_line;             // line number
+                int d_recordLevel;      // record level
+                int d_passLevel;        // pass level
+                int d_triggerLevel;     // trigger level
+                int d_triggerAllLevel;  // trigger all level
+            } DATA[] = {
+                // line    record    pass     trigger  triggerAll
+                // no.     level     level     level     level
+                // ----    ------    ------    ------    -----
+                {  L_,     256,      0,        0,        0,          },
+                {  L_,     0,        256,      0,        0,          },
+                {  L_,     0,        0,        256,      0,          },
+                {  L_,     0,        0,        0,        256,        },
+                {  L_,     256,      256,      256,      256,        },
+                {  L_,     -1,       0,        0,        0,          },
+                {  L_,     0,        -1,       0,        0,          },
+                {  L_,     0,        0,        -1,       0,          },
+                {  L_,     0,        0,        0,        -1,         },
+                {  L_,     -1,       -1,       -1,       -1,         },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE             = DATA[ti].d_line;
+                const int RECORD_LEVEL     = DATA[ti].d_recordLevel;
+                const int PASS_LEVEL       = DATA[ti].d_passLevel;
+                const int TRIGGER_LEVEL    = DATA[ti].d_triggerLevel;
+                const int TRIGGERALL_LEVEL = DATA[ti].d_triggerAllLevel;
+
+                if (veryVeryVerbose) {
+                    T_; T_;
+                    P_(LINE); P_(RECORD_LEVEL); P_(PASS_LEVEL);
+                    P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
+                }
+
+                for (int cn = 0; cn < NUM_CN; ++cn) {
+                    const int r = mLM.setThresholdLevelsHierarchically(
+                                                            CN[cn],
+                                                            RECORD_LEVEL,
+                                                            PASS_LEVEL,
+                                                            TRIGGER_LEVEL,
+                                                            TRIGGERALL_LEVEL);
+                    ASSERTV(LINE, 0 > r);
+                }
+
+                for (int n = 0; n < NUM_NAME; ++n) {
+                     const Cat *p = mLM.lookupCategory(NAME[n]);
+                     ASSERT(DEFAULT_RECORD_LEVEL     == p->recordLevel());
+                     ASSERT(DEFAULT_PASS_LEVEL       == p->passLevel());
+                     ASSERT(DEFAULT_TRIGGER_LEVEL    == p->triggerLevel());
+                     ASSERT(DEFAULT_TRIGGERALL_LEVEL == p->triggerAllLevel());
+                }
+
+                ASSERT(NUM_NAME == mLM.numCategories());
+            }
+        }
+
+        if (verbose)
+            cout << "Testing with valid threshold levels." << endl;
+        {
+            const int SZ = NUM_NAME;
+
+            static const struct {
+                int         d_line;           // line number
+                const char *d_cn;             // category name prefix
+                int         d_matchMask[SZ];  // d_matchMask[i] == 1 if
+                                              // NAME[i] matches, otherwise 0
+            } CNDATA[] = {
+                // line    category
+                // no.     name prefix      match mask
+                // ----    -----------    ---------------------
+                {  L_,     "",           { 1, 1, 1, 1, 1, 1 }   },
+                {  L_,     "x",          { 0, 1, 1, 1, 0, 0 }   },
+                {  L_,     "xy",         { 0, 0, 1, 0, 0, 0 }   },
+                {  L_,     "xyz",        { 0, 0, 0, 0, 0, 0 }   },
+                {  L_,     "x*",         { 0, 0, 0, 1, 0, 0 }   },
+                {  L_,     "*",          { 0, 0, 0, 0, 0, 0 }   },
+                {  L_,     "y",          { 0, 0, 0, 0, 1, 1 }   },
+                {  L_,     "yx",         { 0, 0, 0, 0, 0, 1 }   },
+                {  L_,     "y*",         { 0, 0, 0, 0, 0, 0 }   },
+            };
+            const int NUM_CNDATA = sizeof CNDATA / sizeof *CNDATA;
+
+            static const struct {
+                int d_line;             // line number
+                int d_recordLevel;      // record level
+                int d_passLevel;        // pass level
+                int d_triggerLevel;     // trigger level
+                int d_triggerAllLevel;  // trigger all level
+            } DATA[] = {
+                // line    record    pass     trigger  triggerAll
+                // no.     level     level     level     level
+                // ----    ------    ------    ------    -----
+                {  L_,     0,        0,        0,        0         },
+                {  L_,     1,        0,        0,        0         },
+                {  L_,     0,        1,        0,        0         },
+                {  L_,     0,        0,        1,        0         },
+                {  L_,     0,        0,        0,        1         },
+                {  L_,     16,       32,       48,       64        },
+                {  L_,     64,       48,       32,       16        },
+                {  L_,     255,      255,      255,      255       },
+            };
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int LINE             = DATA[ti].d_line;
+                const int RECORD_LEVEL     = DATA[ti].d_recordLevel;
+                const int PASS_LEVEL       = DATA[ti].d_passLevel;
+                const int TRIGGER_LEVEL    = DATA[ti].d_triggerLevel;
+                const int TRIGGERALL_LEVEL = DATA[ti].d_triggerAllLevel;
+
+                if (veryVeryVerbose) {
+                    T_; T_;
+                    P_(LINE); P_(RECORD_LEVEL); P_(PASS_LEVEL);
+                    P_(TRIGGER_LEVEL); P(TRIGGERALL_LEVEL);
+                }
+
+                for (int cn = 0; cn < NUM_CNDATA; ++cn) {
+                    const int   CNLINE  = CNDATA[cn].d_line;
+                    const char *CN      = CNDATA[cn].d_cn;
+                    const int  *MASK    = CNDATA[cn].d_matchMask;
+
+                    if (veryVeryVerbose) { T_; T_; P_(CNLINE); P(CN); }
+
+                    // Reset all categories to default levels
+                    for (int n = 0; n < NUM_NAME; ++n) {
+                         Cat *p = mLM.lookupCategory(NAME[n]);
+                         const int r = p->setLevels(DEFAULT_RECORD_LEVEL,
+                                                    DEFAULT_PASS_LEVEL,
+                                                    DEFAULT_TRIGGER_LEVEL,
+                                                    DEFAULT_TRIGGERALL_LEVEL);
+                         ASSERT(0 == r);
+                    }
+
+                    const int r = mLM.setThresholdLevelsHierarchically(
+                                                            CN,
+                                                            RECORD_LEVEL,
+                                                            PASS_LEVEL,
+                                                            TRIGGER_LEVEL,
+                                                            TRIGGERALL_LEVEL);
+
+                    int MATCHES = 0;
+                    for (int n = 0; n < NUM_NAME; ++n) {
+                         const Cat *p = mLM.lookupCategory(NAME[n]);
+                         if (MASK[n]) {
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     RECORD_LEVEL     == p->recordLevel());
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     PASS_LEVEL       == p->passLevel());
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     TRIGGER_LEVEL    == p->triggerLevel());
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     TRIGGERALL_LEVEL == p->triggerAllLevel());
+                             ++MATCHES;
+                         }
+                         else {
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     DEFAULT_RECORD_LEVEL
+                                                     == p->recordLevel());
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     DEFAULT_PASS_LEVEL
+                                                     == p->passLevel());
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     DEFAULT_TRIGGER_LEVEL
+                                                     == p->triggerLevel());
+                             ASSERTV(CNLINE, LINE, NAME[n],
+                                     DEFAULT_TRIGGERALL_LEVEL
+                                                     == p->triggerAllLevel());
+                         }
+                    }
+
+                    ASSERTV(CNLINE, LINE, CN, MATCHES, r, MATCHES == r);
+                }
+            }
+        }
+      } break;
+      case 45: {
+        // --------------------------------------------------------------------
+        // TESTING `addCategoryHierarchically`
+        //
+        // Concerns:
+        // 1. `addCategoryHierarchically` behaves correctly with
+        //    representative threshold level values (both valid and invalid).
+        //
+        // 2. The function adds the category with the correct threshold levels
+        //    inherited from the longest prefix match category.
+        //
+        // 3. The function has no effect if the specified category already
+        //    exists.
+        //
+        // 4. When there is no prefix match, the category is created with
+        //    default threshold levels.
+        //
+        // Plan:
+        // 1. Initialize the logger manager singleton and populate its
+        //    category registry with the cross product of a tabulated set of
+        //    category names and a tabulated set of different but valid
+        //    threshold levels.  (C-1)
+        //
+        // 2. Verify that `addCategoryHierarchically` has no effect on
+        //    existing categories when the category with the specified name
+        //    already exists.  (C-3)
+        //
+        // 3. Test `addCategoryHierarchically` by adding one by one a
+        //    tabulated set of category names that are not present in the
+        //    logger manager.  Verify that the categories being added always
+        //    inherit threshold levels from the longest prefix categories
+        //    and that when doing so no existing categories are affected.
+        //    (C-2, C-4)
+        //
+        // Testing:
+        //   Category *addCategoryHierarchically(const char *categoryName);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << endl
+                          << "TESTING `addCategoryHierarchically`"
+                          << endl
+                          << "==================================="
+                          << endl;
+
+        for (int ti = 0; ti < 2; ++ti) {
+            const bool USE_CALLBACK = (0 == ti);
+
+            int DRL  = 10, CBDRL  = DRL;
+            int DPL  = 11, CBDPL  = DPL;
+            int DTL  = 12, CBDTL  = DTL;
+            int DTAL = 13, CBDTAL = DTAL;
+
+            // initialize the logger manager
+            ball::LoggerManagerConfiguration mLMC;
+            ASSERT(0 == mLMC.setDefaultThresholdLevelsIfValid(DRL,
+                                                              DPL,
+                                                              DTL,
+                                                              DTAL));
+            ball::LoggerManagerScopedGuard lmGuard(mLMC);
+            Obj *lm = &Obj::singleton();
+
+            if (USE_CALLBACK) {
+                CBDRL  += 10;
+                CBDPL  += 10;
+                CBDTL  += 10;
+                CBDTAL += 10;
+
+                testCallbackLevels.setLevels(CBDRL, CBDPL, CBDTL, CBDTAL);
+
+                lm->setDefaultThresholdLevelsCallback(&testDtlCallback);
+            }
+
+            if (veryVerbose) {
+                cout << endl;    P_(USE_CALLBACK);    P_(DPL);    P(CBDPL);
+            }
+
+            const Cat& defaultCat = lm->defaultCategory();
+            ASSERT(0 == strcmp("", defaultCat.categoryName()));
+
+            const struct Data {  // Not static
+                int         d_line;             // line number
+                const char *d_name_p;           // category name
+                int         d_recordLevel;      // record level
+                int         d_passLevel;        // pass level
+                int         d_triggerLevel;     // trigger level
+                int         d_triggerAllLevel;  // trigger all level
+                int         d_populated;        // used to populate the
+                                                // registry
+                int         d_baseIdx;          // index of base category (-1
+                                                // for none)
+            } DATA[] = {
+                // line  cat      record pass  trigger    tAll
+                // no.   name     level  level  level    level pop base
+                // ----  -----    ------ ------ ------   ----- --- ----
+                {  L_,      "",    DRL,    DPL,    DTL,   DTAL,  1,  -1 },// 0
+                {  L_,     "x",      5,      6,      7,      8,  1,  -1 },// 1
+                {  L_,    "x*",      9,     10,     11,     12,  1,  -1 },// 2
+                {  L_,    "xy",     13,     14,     15,     16,  1,  -1 },// 3
+
+                {  L_,     "y",     17,     18,     19,     20,  1,  -1 },// 4
+                {  L_,  "meow",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  1,  -1 },// 5
+                {  L_,    "yx",     21,     22,     23,     24,  1,  -1 },// 6
+                {  L_,   "yyy",     25,     26,     27,     28,  1,  -1 },// 7
+                // Entries above will be used to populate the registry.
+
+                // Entries below will be added using
+                // `addCategoryHierarchically`.
+                {  L_,   "xyz",     -1,     -1,     -1,     -1,  0,   3 },// 8
+                {  L_,    "yy",     -1,     -1,     -1,     -1,  0,   4 },// 9
+                {  L_,     "z",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  0,  -1 },//10
+                {  L_,  "woof",  CBDRL,  CBDPL,  CBDTL, CBDTAL,  0,  -1 },//11
+                {  L_,  "yxaa",     -1,     -1,     -1,     -1,  0,   6 },//12
+                {  L_,  "x*__",     -1,     -1,     -1,     -1,  0,   2 },//13
+                {  L_,"meower",     -1,     -1,     -1,     -1,  0,   5 },//14
+                {  L_,  "xyz*",     -1,     -1,     -1,     -1,  0,   8 },//15
+            };
+
+            const int NUM_DATA = sizeof DATA / sizeof *DATA;
+
+            // Populate the category registry in the logger manager
+            for (int n = 0; n < NUM_DATA && DATA[n].d_populated; ++n) {
+                const bool isDefault = (0 == DATA[n].d_name_p[0]);
+
+                const Cat *p = lm->addCategory(DATA[n].d_name_p,
+                                               DATA[n].d_recordLevel,
+                                               DATA[n].d_passLevel,
+                                               DATA[n].d_triggerLevel,
+                                               DATA[n].d_triggerAllLevel);
+                ASSERTV(DATA[n].d_line, isDefault ? !p : !!p);
+            }
+
+            if (verbose) cout << "Testing with mixed category names.\n";
+            {
+                for (int nn = 0; nn < NUM_DATA; ++nn) {
+                    const Data& ndata = DATA[nn];
+                    const bool  npop  = ndata.d_populated;
+                    const char *nname = ndata.d_name_p;
+
+                    if (veryVerbose) P(nname);
+
+                    const Cat *np = lm->addCategoryHierarchically(nname);
+
+                    ASSERTV(nname, npop, !np, npop == !np);
+
+                    if (npop) {
+                        continue;
+                    }
+
+                    for (int ii = 0; ii <= nn; ++ii) {
+                        const Data&  idata    = DATA[ii];
+                        const int    LINE     = idata.d_line;
+                        const char  *iname    = idata.d_name_p;
+                        const int    ibaseIdx = idata.d_baseIdx;
+                        const char  *bname    = (0 <= ibaseIdx)
+                                              ? DATA[ibaseIdx].d_name_p
+                                              : "(null)";
+                        int ebaseIdx = ii, next;
+                        while (0 <= (next = DATA[ebaseIdx].d_baseIdx)) {
+                             ebaseIdx = next;
+                        }
+                        const Data&  edata    = DATA[ebaseIdx];
+                        const char  *ename    = edata.d_name_p;
+
+                        if (veryVeryVerbose) { P_(iname); P_(bname); P(ename);}
+
+                        const Cat *icat = lm->lookupCategory(iname);
+
+                        ASSERTV(LINE, ii, (0 == ii) == (&defaultCat == icat));
+                        ASSERTV(LINE, ii, np, (ii == nn) == (np == icat));
+
+                        ASSERTV(LINE, iname, bname, ename, icat);
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_recordLevel,   icat->recordLevel(),
+                                edata.d_recordLevel == icat->recordLevel());
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_passLevel,   icat->passLevel(),
+                                edata.d_passLevel == icat->passLevel());
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_triggerLevel,   icat->triggerLevel(),
+                                edata.d_triggerLevel == icat->triggerLevel());
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_triggerAllLevel,
+                                                      icat->triggerAllLevel(),
+                                edata.d_triggerAllLevel ==
+                                                      icat->triggerAllLevel());
+                    }
+                }
+            }
+        }
+      } break;
       case 44: {
         // --------------------------------------------------------------------
         // TESTING `obtainMessageBuffer` USES GLOBAL ALLOCATOR
@@ -1779,8 +2388,8 @@ int main(int argc, char *argv[])
         ASSERT(pool->allocator() == bslma::Default::globalAllocator());
         pool->release();
       } break;
-#ifndef BDE_OMIT_INTERNAL_DEPRECATED
       case 43: {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
         // TESTING `ball::LoggerManagerCategoryManip`
         //
@@ -1866,9 +2475,10 @@ int main(int argc, char *argv[])
             ++count;
         }
         ASSERT(NUM_NAMES + 1 == count);  // + 1 for the *Default* *Category*
-
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED
       } break;
       case 42: {
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED
         // --------------------------------------------------------------------
         // TESTING `ball::LoggerManagerCategoryIter`
         //
@@ -1943,131 +2553,7 @@ int main(int argc, char *argv[])
             nameCatMap.erase(it().categoryName());
         }
         ASSERT(0 == nameCatMap.size())
-
-      } break;
 #endif // BDE_OMIT_INTERNAL_DEPRECATED
-      case 41: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 4
-        //
-        // Concerns:
-        // 1. The usage example provided in the component header file compiles,
-        //    links, and runs as shown.
-        //
-        // Plan:
-        // 1. Incorporate usage example from header into test driver, remove
-        //    leading comment characters, and replace `assert` with `ASSERT`.
-        //    (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE #4
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "USAGE EXAMPLE 4" << endl
-                                  << "===============" << endl;
-
-        using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_4;
-
-        ball::LoggerManagerConfiguration mXC;
-        ball::LoggerManagerScopedGuard   lmGuard(mXC);
-
-        factorial(10);
-        factorial(-1);
-        factorial(15);
-
-      } break;
-      case 40: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 3
-        //
-        // Concerns:
-        // 1. The usage example provided in the component header file compiles,
-        //    links, and runs as shown.
-        //
-        // Plan:
-        // 1. Incorporate usage example from header into test driver, remove
-        //    leading comment characters, and replace `assert` with `ASSERT`.
-        //    (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE #3
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "USAGE EXAMPLE 3" << endl
-                                  << "===============" << endl;
-
-        using namespace BALL_LOGGERMANAGER_USAGE_EXAMPLE_3;
-
-        ball::LoggerManagerConfiguration mXC;
-        ball::LoggerManagerScopedGuard   lmGuard(mXC);
-
-        ball::LoggerManager& mX = ball::LoggerManager::singleton();
-
-        ball::Category *cat = mX.addCategory("test-category",
-                                             ball::Severity::e_INFO,
-                                             ball::Severity::e_WARN,
-                                             ball::Severity::e_ERROR,
-                                             ball::Severity::e_FATAL);
-
-        ball::Logger& logger = mX.getLogger();
-
-        Information information("MY-HEADING", "MY-CONTENTS");
-
-        if (verbose) {
-            logInformation(&logger,
-                           information,
-                           ball::Severity::e_WARN,
-                           *cat,
-                           __FILE__,
-                           __LINE__);
-        }
-
-      } break;
-      case 39: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 2
-        //
-        // Concerns:
-        // 1. The usage example provided in the component header file compiles,
-        //    links, and runs as shown.
-        //
-        // Plan:
-        // 1. Incorporate usage example from header into test driver, remove
-        //    leading comment characters, and replace `assert` with `ASSERT`.
-        //    (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE #2
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "USAGE EXAMPLE 2" << endl
-                                  << "===============" << endl;
-
-        BALL_LOGGERMANAGER_USAGE_EXAMPLE_2::main();
-
-      } break;
-      case 38: {
-        // --------------------------------------------------------------------
-        // USAGE EXAMPLE 1
-        //
-        // Concerns:
-        // 1. The usage example provided in the component header file compiles,
-        //    links, and runs as shown.
-        //
-        // Plan:
-        // 1. Incorporate usage example from header into test driver, remove
-        //    leading comment characters, and replace `assert` with `ASSERT`.
-        //    (C-1)
-        //
-        // Testing:
-        //   USAGE EXAMPLE #1
-        // --------------------------------------------------------------------
-
-        if (verbose) cout << endl << "USAGE EXAMPLE 1" << endl
-                                  << "===============" << endl;
-
-        BALL_LOGGERMANAGER_USAGE_EXAMPLE_1::main();
-
       } break;
       case 37: {
         // --------------------------------------------------------------------
@@ -6041,6 +6527,47 @@ int main(int argc, char *argv[])
                 ASSERTV(i, expTrigLevel    == cat->triggerLevel());
                 ASSERTV(i, expTrigAllLevel == cat->triggerAllLevel());
             }
+
+            // Removing the callback and verifying that the default values
+            // are used for new categories.
+            mX.setDefaultThresholdLevelsCallback(0);
+
+            {
+                const ball::ThresholdAggregate& levels =
+                                                    X.defaultThresholdLevels();
+                ASSERT(mgrLevels == levels);
+            }
+            {
+                ball::ThresholdAggregate levels;
+                X.thresholdLevelsForNewCategory(&levels, "woof2");
+                ASSERT(mgrLevels == levels);
+            }
+
+            const Cat *cat3 = mX.setCategory("setCategory.afterCbReset");
+            ASSERT(cat3);
+            ASSERT(cat3 == X.lookupCategory("setCategory.afterCbReset"));
+            ASSERT(mgrLevels.recordLevel()     == cat3->recordLevel());
+            ASSERT(mgrLevels.passLevel()       == cat3->passLevel());
+            ASSERT(mgrLevels.triggerLevel()    == cat3->triggerLevel());
+            ASSERT(mgrLevels.triggerAllLevel() == cat3->triggerAllLevel());
+
+            // Verify that hierarchical inheritance still works with defaults
+            // (not callback values) for categories with no matching parent.
+            const Cat *cat4 = mX.setCategory("X.Y.Z");
+            ASSERT(cat4);
+            ASSERT(mgrLevels.recordLevel()     == cat4->recordLevel());
+            ASSERT(mgrLevels.passLevel()       == cat4->passLevel());
+            ASSERT(mgrLevels.triggerLevel()    == cat4->triggerLevel());
+            ASSERT(mgrLevels.triggerAllLevel() == cat4->triggerAllLevel());
+
+            // Verify that a category with an existing parent still inherits
+            // from the parent (not the now-absent callback).
+            const Cat *cat5 = mX.setCategory("A.newChild");
+            ASSERT(cat5);
+            ASSERT(mgrLevels.recordLevel()     == cat5->recordLevel());
+            ASSERT(mgrLevels.passLevel()       == cat5->passLevel());
+            ASSERT(mgrLevels.triggerLevel()    == cat5->triggerLevel());
+            ASSERT(mgrLevels.triggerAllLevel() == cat5->triggerAllLevel());
 
             Obj::shutDownSingleton();
             ASSERT(false == Obj::isInitialized());

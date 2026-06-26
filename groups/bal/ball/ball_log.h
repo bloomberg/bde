@@ -11,14 +11,22 @@ BSLS_IDENT("$Id: $")
 //  ball::Log: namespace for logging utilities (for *internal* use only)
 //
 //@MACROS:
-//  BALL_LOG_SET_CATEGORY(C): set a category for logging to the specified `C`
-//  BALL_LOG_SET_DYNAMIC_CATEGORY(C): set a run-time-dependent category
-//  BALL_LOG_SET_CLASS_CATEGORY(C): set a category in the scope of a class
-//  BALL_LOG_SET_NAMESPACE_CATEGORY(C): set a category in a namespace
-//  BALL_LOG_SET_CATEGORY_HIERARCHICALLY(C): set a category hierarchically
-//  BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(C): set a run-time category
-//  BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(C): set a class category
-//  BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(C): set a namespace category
+//  BALL_LOG_SET_CATEGORY(C): set category hierarchically to the specified C
+//  BALL_LOG_SET_DYNAMIC_CATEGORY(C): set run-time category hierarchically
+//  BALL_LOG_SET_CLASS_CATEGORY(C): set class category hierarchically
+//  BALL_LOG_SET_NAMESPACE_CATEGORY(C): set namespace category hierarchically
+//  BALL_LOG_SET_LEGACY_CATEGORY(C): set category non-hierarchically (legacy)
+//  BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(C): set run-time category (legacy)
+//  BALL_LOG_SET_LEGACY_CLASS_CATEGORY(C): set class category (legacy)
+//  BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY(C): set namespace category (legacy)
+//  BALL_LOG_SET_CATEGORY_HIERARCHICALLY(C): !DEPRECATED! use
+//                                            BALL_LOG_SET_CATEGORY
+//  BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(C): !DEPRECATED! use
+//                                            BALL_LOG_SET_DYNAMIC_CATEGORY
+//  BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(C): !DEPRECATED! use
+//                                            BALL_LOG_SET_CLASS_CATEGORY
+//  BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(C): !DEPRECATED! use
+//                                            BALL_LOG_SET_NAMESPACE_CATEGORY
 //  BALL_LOG_TRACE: produce a log record with the `e_TRACE` severity level
 //  BALL_LOG_DEBUG: produce a log record with the `e_DEBUG` severity level
 //  BALL_LOG_INFO: produce a log record with the `e_INFO` severity level
@@ -74,6 +82,48 @@ BSLS_IDENT("$Id: $")
 // See {`ball_loggermanager`|Logger Manager Singleton Initialization} for
 // details on the recommended procedure for initializing the singleton.
 //
+///Hierarchical vs. Non-Hierarchical Category Creation
+///----------------------------------------------------
+// By default, all category-setting macros in this component use *hierarchical*
+// category creation.  When a category is created hierarchically, its threshold
+// levels are inherited from the existing non-default category whose name is
+// the longest matching prefix of the new category's name.  For example, if a
+// category "X.Y" exists with custom threshold levels, creating a new category
+// "X.Y.Z" hierarchically will cause "X.Y.Z" to inherit the threshold levels
+// from "X.Y" rather than using the category manager's default threshold
+// levels (static or callback-provided).  This hierarchical inheritance
+// provides a natural way to configure logging thresholds for related
+// subsystems.
+//
+// Threshold levels can also be inherited from *orphaned* *settings*.  An
+// orphaned setting is a set of threshold levels that has been configured for a
+// category name that does not yet exist (via
+// `ball::CategoryManager::setThresholdLevelsHierarchically`).  When a category
+// is later created with that name (or a name that has the orphaned setting's
+// name as a prefix), it inherits from the orphaned setting.  This allows
+// pre-configuring thresholds for categories before any code that uses those
+// categories has executed.  Orphaned settings take precedence over existing
+// parent categories when both match.
+//
+// In contrast, *non-hierarchical* (or *legacy*) category creation always uses
+// the category manager's default threshold levels (static or
+// callback-provided) for new categories, regardless of whether parent
+// categories exist.  This was the original behavior of the standard category
+// macros before hierarchical category creation was successfully sped up.
+//
+// The standard macros (`BALL_LOG_SET_CATEGORY`,
+// `BALL_LOG_SET_DYNAMIC_CATEGORY`, `BALL_LOG_SET_CLASS_CATEGORY`, and
+// `BALL_LOG_SET_NAMESPACE_CATEGORY`) create categories hierarchically by
+// default.  For backward compatibility, legacy non-hierarchical versions of
+// these macros are provided with the `_LEGACY_` prefix (e.g.,
+// `BALL_LOG_SET_LEGACY_CATEGORY`).  The legacy macros should only be used in
+// existing code that depends on non-hierarchical behavior; new code should
+// use the standard hierarchical macros.
+//
+// Note that the `_HIERARCHICALLY` suffixed macros
+// (`BALL_LOG_SET_CATEGORY_HIERARCHICALLY`, etc.) are deprecated and redundant,
+// as the standard macros provide the same hierarchical behavior.
+//
 ///Thread Safety
 ///-------------
 // All macros defined in this component are thread-safe, and can be invoked
@@ -93,139 +143,235 @@ BSLS_IDENT("$Id: $")
 //
 ///Macros for Defining Categories at Block Scope
 ///- - - - - - - - - - - - - - - - - - - - - - -
-// The following two macros are used to establish logging categories that have
+// The following macros are used to establish logging categories that have
 // block scope:
 //
-//: `BALL_LOG_SET_CATEGORY(CATEGORY)`:
-//:     Set a category for logging to the specified `CATEGORY` (assumed to be
-//:     of type convertible to `const char *`).  On the *first* invocation of
-//:     this macro in a code block, the `ball::Log::setCategory` method is
-//:     invoked to retrieve the address of an appropriate category structure
-//:     for its scope; subsequent invocations will use a cached address of the
-//:     category.  (See the function-level documentation of
-//:     `ball::Log::setCategory` for more information.)  This macro must be
-//:     used at block scope, and can be used at most once in any given block
-//:     (or else a compiler diagnostic will result).
-//:
-//: `BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)`:
-//:     Set, *on* *EACH* *invocation*, a category for logging to the specified
-//:     `CATEGORY` (assumed to be of type convertible to `const char *`).  On
-//:     *EVERY* invocation of this macro in a code block, the
-//:     `ball::Log::setCategory` method is invoked to retrieve the address of
-//:     an appropriate category structure for its scope; the address returned
-//:     from `ball::Log::setCategory` is *NOT* cached for subsequent calls.
-//:     (See the function-level documentation of `ball::Log::setCategory` for
-//:     more information.)  This macro must be used at block scope and can be
-//:     used at most once in any given block (or else a compiler diagnostic
-//:     will result).  Note that this macro should be used to create categories
-//:     that depend on *RUN-TIME* values only (e.g., LUW or UUID).
+// * `BALL_LOG_SET_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) using hierarchical category
+//      creation.  On the *first* invocation of this macro in a code block,
+//      the `ball::Log::setCategoryHierarchically` method is invoked to
+//      retrieve the address of an appropriate category structure for its
+//      scope; subsequent invocations will use a cached address of the
+//      category.  (See the function-level documentation of
+//      `ball::Log::setCategoryHierarchically` for more information.)  This
+//      macro must be used at block scope, and can be used at most once in any
+//      given block (or else a compiler diagnostic will result).  Note that
+//     this macro uses hierarchical category creation; use
+//     `BALL_LOG_SET_LEGACY_CATEGORY` for the legacy non-hierarchical
+//     behavior.
 //
-// There can be at most one use of either `BALL_LOG_SET_CATEGORY` or
-// `BALL_LOG_SET_DYNAMIC_CATEGORY` in any given block (or else a compiler
-// diagnostic will result).  Note that categories that are set using these
-// macros, including dynamic categories, are not destroyed until the logger
-// manager singleton is destroyed.
+// * `BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)`:
+//      Set, *on* *EACH* *invocation*, a category for logging to the specified
+//      `CATEGORY` (assumed to be of type convertible to `const char *`) using
+//      hierarchical category creation.  On *EVERY* invocation of this macro
+//      in a code block, the `ball::Log::setCategoryHierarchically` method is
+//      invoked to retrieve the address of an appropriate category structure
+//      for its scope; the address returned from
+//      `ball::Log::setCategoryHierarchically` is *NOT* cached for subsequent
+//      calls.  (See the function-level documentation of
+//      `ball::Log::setCategoryHierarchically` for more information.)  This
+//      macro must be used at block scope and can be used at most once in any
+//      given block (or else a compiler diagnostic will result).  Note that
+//      this macro should be used to create categories that depend on
+//      *RUN-TIME* values only (e.g., LUW or UUID).  Also note that this macro
+//      uses hierarchical category creation; use
+//      `BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY` for the legacy non-hierarchical
+//      behavior.
+//
+// * `BALL_LOG_SET_LEGACY_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) using non-hierarchical category
+//      creation.  On the *first* invocation of this macro in a code block,
+//      the `ball::Log::setCategory` method is invoked to retrieve the address
+//      of an appropriate category structure for its scope; subsequent
+//      invocations will use a cached address of the category.  (See the
+//      function-level documentation of `ball::Log::setCategory` for more
+//      information.)  This macro must be used at block scope, and can be used
+//      at most once in any given block (or else a compiler diagnostic will
+//      result).  Note that this macro provides the legacy non-hierarchical
+//      behavior; new code should prefer `BALL_LOG_SET_CATEGORY`.
+//
+// * `BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(CATEGORY)`:
+//      Set, *on* *EACH* *invocation*, a category for logging to the specified
+//      `CATEGORY` (assumed to be of type convertible to `const char *`) using
+//      non-hierarchical category creation.  On *EVERY* invocation of this
+//      macro in a code block, the `ball::Log::setCategory` method is invoked
+//      to retrieve the address of an appropriate category structure for its
+//      scope; the address returned from `ball::Log::setCategory` is *NOT*
+//      cached for subsequent calls.  (See the function-level documentation of
+//      `ball::Log::setCategory` for more information.)  This macro must be
+//      used at block scope and can be used at most once in any given block
+//      (or else a compiler diagnostic will result).  Note that this macro
+//      should be used to create categories that depend on *RUN-TIME* values
+//      only (e.g., LUW or UUID).  Also note that this macro provides the
+//      legacy non-hierarchical behavior; new code should prefer
+//      `BALL_LOG_SET_DYNAMIC_CATEGORY`.
+//
+// There can be at most one use of `BALL_LOG_SET_CATEGORY`,
+// `BALL_LOG_SET_DYNAMIC_CATEGORY`, `BALL_LOG_SET_LEGACY_CATEGORY`, or
+// `BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY` in any given block (or else a
+// compiler diagnostic will result).  Note that categories that are set using
+// these macros, including dynamic categories, are not destroyed until the
+// logger manager singleton is destroyed.
 //
 ///Macro for Defining Categories at Class Scope
 /// - - - - - - - - - - - - - - - - - - - - - -
-// The following macro is used to establish logging categories that have class
-// scope:
+// The following macros are used to establish logging categories that have
+// class scope:
 //
-//: `BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)`:
-//:     Set a category for logging to the specified `CATEGORY` (assumed to be
-//:     of type convertible to `const char *`) in the scope of the class within
-//:     which this macro is used.  Similar to `BALL_LOG_SET_CATEGORY`, the
-//:     category is set *once* only, the first time that it is accessed (i.e.,
-//:     it is not a dynamic category).  This macro must be used, at most once,
-//:     within the definition of a class or class template (or else a compiler
-//:     diagnostic will result).  Note that use of this macro may occur in
-//:     either a `public`, `private`, or `protected` section of a class's
-//:     interface, although `private` should be preferred.
+// * `BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) in the scope of the class within
+//      which this macro is used, using hierarchical category creation.
+//      Similar to `BALL_LOG_SET_CATEGORY`, the category is set *once* only,
+//      the first time that it is accessed (i.e., it is not a dynamic
+//      category).  This macro must be used, at most once, within the
+//      definition of a class or class template (or else a compiler diagnostic
+//      will result).  Note that use of this macro may occur in either a
+//      `public`, `private`, or `protected` section of a class's interface,
+//      although `private` should be preferred.  Also note that this macro uses
+//      hierarchical category creation; use
+//      `BALL_LOG_SET_LEGACY_CLASS_CATEGORY` for the legacy non-hierarchical
+//      behavior.
 //
-// Note that similar to block-scope categories (see `BALL_LOG_SET_CATEGORY` and
-// `BALL_LOG_SET_DYNAMIC_CATEGORY`), class-scope categories are not destroyed
-// until the logger manager singleton is destroyed.
+// * `BALL_LOG_SET_LEGACY_CLASS_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) in the scope of the class within
+//      which this macro is used, using non-hierarchical category creation.
+//      Similar to `BALL_LOG_SET_LEGACY_CATEGORY`, the category is set *once*
+//      only, the first time that it is accessed (i.e., it is not a dynamic
+//      category).  This macro must be used, at most once, within the
+//      definition of a class or class template (or else a compiler diagnostic
+//      will result).  Note that use of this macro may occur in either a
+//      `public`, `private`, or `protected` section of a class's interface,
+//      although `private` should be preferred.  Also note that this macro
+//      provides the legacy non-hierarchical behavior; new code should prefer
+//      `BALL_LOG_SET_CLASS_CATEGORY`.
+//
+// Note that similar to block-scope categories (see `BALL_LOG_SET_CATEGORY`,
+// `BALL_LOG_SET_DYNAMIC_CATEGORY`, `BALL_LOG_SET_LEGACY_CATEGORY`, and
+// `BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY`), class-scope categories are not
+// destroyed until the logger manager singleton is destroyed.
 //
 ///Macro for Defining Categories at Namespace or Global Scope
 /// - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// The following macro is used to establish logging categories that have
+// The following macros are used to establish logging categories that have
 // namespace or global scope:
 //
-//: `BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)`:
-//:     Set a category for logging to the specified `CATEGORY` (assumed to be
-//:     of type convertible to `const char *`) in the namespace (or global)
-//:     scope within which this macro is used.  Similar to
-//:     `BALL_LOG_SET_CATEGORY`, the category is set *once* only, the first
-//:     time that it is accessed (i.e., it is not a dynamic category).  This
-//:     macro may be used, in `.cpp` files *only*, at most once in any given
-//:     namespace and at most once at global scope (or else a compiler
-//:     diagnostic will result).  Do *NOT* use this macro in `.h` files.
+// * `BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) in the namespace (or global)
+//      scope within which this macro is used, using hierarchical category
+//      creation.  Similar to `BALL_LOG_SET_CATEGORY`, the category is set
+//      *once* only, the first time that it is accessed (i.e., it is not a
+//      dynamic category).  This macro may be used, in `.cpp` files *only*, at
+//      most once in any given namespace and at most once at global scope (or
+//      else a compiler diagnostic will result).  Do *NOT* use this macro in
+//      `.h` files.  Note that this macro uses hierarchical category creation;
+//      use `BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY` for the legacy
+//      non-hierarchical behavior.
+//
+// * `BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) in the namespace (or global)
+//      scope within which this macro is used, using non-hierarchical category
+//      creation.  Similar to `BALL_LOG_SET_LEGACY_CATEGORY`, the category is
+//      set *once* only, the first time that it is accessed (i.e., it is not a
+//      dynamic category).  This macro may be used, in `.cpp` files *only*, at
+//      most once in any given namespace and at most once at global scope (or
+//      else a compiler diagnostic will result).  Do *NOT* use this macro in
+//      `.h` files.  Note that this macro provides the legacy non-hierarchical
+//      behavior; new code should prefer `BALL_LOG_SET_NAMESPACE_CATEGORY`.
+//
+// Note that similar to block-scope categories (see `BALL_LOG_SET_CATEGORY`,
+// `BALL_LOG_SET_DYNAMIC_CATEGORY`, `BALL_LOG_SET_LEGACY_CATEGORY`, and
+// `BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY`), namespace-scope categories are not
+// destroyed until the logger manager singleton is destroyed.
 //
 // Note that similar to block-scope categories (see `BALL_LOG_SET_CATEGORY` and
 // `BALL_LOG_SET_DYNAMIC_CATEGORY`), namespace-scope categories are not
 // destroyed until the logger manager singleton is destroyed.
 //
-///Macros for Defining Hierarchical Categories
-///- - - - - - - - - - - - - - - - - - - - - -
-// The following macros are used to establish logging categories having
-// thresholds that are given by the existing non-default category whose name
-// matches the longest prefix of the new category's name (i.e., the threshold
-// levels of new categories are determined "hierarchically" from existing
-// categories rather than from the default threshold levels of the logger
-// manager singleton).
+///Deprecated Macros for Hierarchical Categories
+///- - - - - - - - - - - - - - - - - - - - - - - -
+// !DEPRECATED! The following macros are deprecated and should not be used in
+// new code.  They were introduced when hierarchical category creation was
+// significantly slower than non-hierarchical creation, providing an explicit
+// opt-in for hierarchical behavior.  Now that performance has been optimized
+// and hierarchical category creation is the default, these macros are
+// redundant with the standard category macros (`BALL_LOG_SET_CATEGORY`,
+// `BALL_LOG_SET_DYNAMIC_CATEGORY`, `BALL_LOG_SET_CLASS_CATEGORY`, and
+// `BALL_LOG_SET_NAMESPACE_CATEGORY`), which now use hierarchical creation by
+// default.  These deprecated macros are maintained only for backward
+// compatibility with existing code.
 //
-//: `BALL_LOG_SET_CATEGORY_HIERARCHICALLY(CATEGORY)`
-//:     Set a category for logging to the specified `CATEGORY` (assumed to be
-//:     of type convertible to `const char *`).  On the *first* invocation of
-//:     this macro in a code block, the `ball::Log::setCategoryHierarchically`
-//:     method is invoked to retrieve the address of an appropriate category
-//:     structure for its scope; subsequent invocations will use a cached
-//:     address of the category.  (See the function-level documentation of
-//:     `ball::Log::setCategoryHierarchically` for more information.)  This
-//:     macro must be used at block scope, and can be used at most once in any
-//:     given block (or else a compiler diagnostic will result).
-//:
-//: `BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(CATEGORY)`:
-//:     Set, *on* *EACH* *invocation*, a category for logging to the specified
-//:     `CATEGORY` (assumed to be of type convertible to `const char *`).  On
-//:     *EVERY* invocation of this macro in a code block, the
-//:     `ball::Log::setCategoryHierarchically` method is invoked to retrieve
-//:     the address of an appropriate category structure for its scope; the
-//:     address returned from `ball::Log::setCategoryHierarchically` is *NOT*
-//:     cached for subsequent calls.  (See the function-level documentation of
-//:     `ball::Log::setCategoryHierarchically` for more information.)  This
-//:     macro must be used at block scope and can be used at most once in any
-//:     given block (or else a compiler diagnostic will result).  Note that
-//:     this macro should be used to create categories that depend on
-//:     *RUN-TIME* values only (e.g., LUW or UUID).
-//:
-//: `BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(CATEGORY)`
-//:     Set a category for logging to the specified `CATEGORY` (assumed to be
-//:     of type convertible to `const char *`) in the scope of the class within
-//:     which this macro is used.  Similar to
-//:     `BALL_LOG_SET_CATEGORY_HIERARCHICALLY`, the category is set *once*
-//:     only, using the `ball::Log::setCategoryHierarchically` function, the
-//:     first time that it is accessed (i.e., it is not a dynamic category).
-//:     (See the function-level documentation for
-//:     `ball::Log::setCategoryHierarchically` for more information.)  This
-//:     macro must be used, at most once, within the definition of a class or
-//:     class template (or else a compiler diagnostic will result).  Note that
-//:     use of this macro may occur in either a `public`, `private`, or
-//:     `protected` section of a class's interface, although `private` should
-//:     be preferred.
-//:
-//: `BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(CATEGORY)`
-//:     Set a category for logging to the specified `CATEGORY` (assumed to be
-//:     of type convertible to `const char *`) in the namespace (or global)
-//:     scope within which this macro is used.  Similar to
-//:     `BALL_LOG_SET_CATEGORY_HIERARCHICALLY`, the category is set *once*
-//:     only, using the `ball::Log::setCategoryHierarchically` function, the
-//:     first time that it is accessed (i.e., it is not a dynamic category).
-//:     (See the function-level documentation for
-//:     `ball::Log::setCategoryHierarchically` for more information.)  This
-//:     macro may be used, in `.cpp` files *only*, at most once in any given
-//:     namespace and at most once at global scope (or else a compiler
-//:     diagnostic will result).  Do *NOT* use this macro in `.h` files.
+// * `BALL_LOG_SET_CATEGORY_HIERARCHICALLY(CATEGORY)` !DEPRECATED!
+//      Use `BALL_LOG_SET_CATEGORY(CATEGORY)` instead.
+//      This macro is identical to `BALL_LOG_SET_CATEGORY`, which now uses
+//      hierarchical category creation by default.
+//
+// * `BALL_LOG_SET_DYNAMIC_CATEGORY_HIERARCHICALLY(CATEGORY)` !DEPRECATED!
+//      Use `BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)` instead.
+//      This macro is identical to `BALL_LOG_SET_DYNAMIC_CATEGORY`, which now
+//      uses hierarchical category creation by default.
+//
+// * `BALL_LOG_SET_CLASS_CATEGORY_HIERARCHICALLY(CATEGORY)` !DEPRECATED!
+//      Use `BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)` instead.
+//      This macro is identical to `BALL_LOG_SET_CLASS_CATEGORY`, which now
+//      uses hierarchical category creation by default.
+//
+// * `BALL_LOG_SET_NAMESPACE_CATEGORY_HIERARCHICALLY(CATEGORY)` !DEPRECATED!
+//      Use `BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)` instead.
+//      This macro is identical to `BALL_LOG_SET_NAMESPACE_CATEGORY`, which now
+//      uses hierarchical category creation by default.
+//
+///Macros for Defining Legacy Non-Hierarchical Categories
+///- - - - - - - - - - - - - - - - - - - - - - - - - - -
+// The following macros preserve the legacy non-hierarchical category creation
+// behavior for backward compatibility.  These macros use
+// `ball::Log::setCategory` instead of `ball::Log::setCategoryHierarchically`,
+// which means new categories will use the logger manager's default threshold
+// levels rather than inheriting from parent categories.  New code should
+// prefer the standard macros (`BALL_LOG_SET_CATEGORY`, etc.) which use
+// hierarchical category creation by default.
+//
+// * `BALL_LOG_SET_LEGACY_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) using non-hierarchical category
+//      creation.  This macro provides the legacy behavior where
+//      `ball::Log::setCategory` is called instead of
+//      `ball::Log::setCategoryHierarchically`.  This macro must be used at
+//      block scope, and can be used at most once in any given block (or else
+//      a compiler diagnostic will result).
+//
+// * `BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(CATEGORY)`:
+//      Set, *on* *EACH* *invocation*, a category for logging to the specified
+//      `CATEGORY` using non-hierarchical category creation.  This macro
+//      provides the legacy behavior where `ball::Log::setCategory` is called
+//      on every invocation instead of `ball::Log::setCategoryHierarchically`.
+//      This macro must be used at block scope and can be used at most once in
+//      any given block (or else a compiler diagnostic will result).
+//
+// * `BALL_LOG_SET_LEGACY_CLASS_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) in the scope of the class within
+//      which this macro is used, using non-hierarchical category creation.
+//      This macro provides the legacy behavior where `ball::Log::setCategory`
+//      is called instead of `ball::Log::setCategoryHierarchically`.  This
+//      macro must be used, at most once, within the definition of a class or
+//      class template (or else a compiler diagnostic will result).
+//
+// * `BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY(CATEGORY)`:
+//      Set a category for logging to the specified `CATEGORY` (assumed to be
+//      of type convertible to `const char *`) in the namespace (or global)
+//      scope within which this macro is used, using non-hierarchical category
+//      creation.  This macro provides the legacy behavior where
+//      `ball::Log::setCategory` is called instead of
+//      `ball::Log::setCategoryHierarchically`.  This macro may be used, in
+//      `.cpp` files *only*, at most once in any given namespace and at most
+//      once at global scope (or else a compiler diagnostic will result).  Do
+//      *NOT* use this macro in `.h` files.
 //
 ///Macros for Logging Records
 /// - - - - - - - - - - - - -
@@ -466,7 +612,9 @@ BSLS_IDENT("$Id: $")
 //
 //         BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 //
-//         // Now logging to category "EQUITY.NASD.SUNW".
+//         // Now logging to category "EQUITY.NASD.SUNW".  When this category
+//         // is created, it automatically inherits threshold levels from the
+//         // existing "EQUITY.NASD" category (the longest prefix match).
 //         // [*] ...
 //     }
 //     // Again logging to category "EQUITY.NASD".
@@ -475,6 +623,16 @@ BSLS_IDENT("$Id: $")
 // ```
 // Within `logIt`, a requisite logging category is visible at each of the
 // locations marked by `[*]`.
+//
+// Note that `BALL_LOG_SET_CATEGORY` creates categories *hierarchically*: when
+// a new category is created, its threshold levels are inherited from the
+// orphaned threshold setting or existing category whose name is the longest
+// matching prefix.  In the example above, if "EQUITY.NASD" has been configured
+// with specific threshold levels (either as an existing category or via
+// `setThresholdLevelsHierarchically` before the category exists),
+// "EQUITY.NASD.SUNW" will automatically inherit those thresholds rather than
+// using the logger manager's default levels.  This enables natural
+// configuration of logging for related subsystems.
 //
 ///Example 3: C++ I/O Streams-Style Logging Macros
 ///- - - - - - - - - - - - - - - - - - - - - - - -
@@ -515,15 +673,20 @@ BSLS_IDENT("$Id: $")
 // source file containing the call, 1161 is the line number of the call, and
 // the trailing date following "settlement date" is the value of `settle`.
 //
-// Next, we set the category to "EQUITY.NASD.SUNW", which has been defined with
-// `ball::Administration::addCategory` with its pass-through level set to
-// `e_INFO` and the trigger levels set at or above `e_ERROR`, so a level of
-// `e_WARN` also passes through:
+// Next, we set the category to "EQUITY.NASD.SUNW".  Because we are using
+// `BALL_LOG_SET_CATEGORY` (which creates categories hierarchically), the new
+// "EQUITY.NASD.SUNW" category automatically inherits threshold levels from the
+// orphaned setting or existing category with the longest matching prefix
+// ("EQUITY.NASD" in this case).  Since "EQUITY.NASD" was configured with a
+// pass-through level of `e_INFO`, the child category "EQUITY.NASD.SUNW" also
+// has `e_INFO` pass-through, meaning `e_WARN` (which is more severe) also
+// passes through:
 // ```
 // {
 //     BALL_LOG_SET_CATEGORY("EQUITY.NASD.SUNW")
 //
-//     // Now logging with category "EQUITY.NASD.SUNW".
+//     // Now logging with category "EQUITY.NASD.SUNW", which inherited
+//     // threshold levels from "EQUITY.NASD".
 //
 //     BALL_LOG_WARN << "[2] " << lotSize
 //                   << " shares of " << ticker
@@ -973,6 +1136,18 @@ BSLS_IDENT("$Id: $")
     };                                                                        \
     if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!BALL_LOG_CATEGORY)) {          \
         BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
+        BloombergLP::ball::Log::setCategoryHierarchically(                    \
+                                            &BALL_LOG_CATEGORYHOLDER,         \
+                                            CATEGORY);                        \
+    }
+
+#define BALL_LOG_SET_LEGACY_CATEGORY(CATEGORY)                                \
+    static BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {      \
+        { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },      \
+                                                             { 0 }, { 0 }     \
+    };                                                                        \
+    if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!BALL_LOG_CATEGORY)) {          \
+        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                                   \
         BloombergLP::ball::Log::setCategory(&BALL_LOG_CATEGORYHOLDER,         \
                                             CATEGORY);                        \
     }
@@ -990,6 +1165,16 @@ BSLS_IDENT("$Id: $")
     }
 
 #define BALL_LOG_SET_DYNAMIC_CATEGORY(CATEGORY)                               \
+    const BloombergLP::ball::Category *BALL_LOG_DYNAMIC_CATEGORY =            \
+                 BloombergLP::ball::Log::setCategoryHierarchically(CATEGORY); \
+    BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
+        { BloombergLP::ball::CategoryHolder::e_DYNAMIC_CATEGORY },            \
+        { const_cast<BloombergLP::ball::Category *>(                          \
+                                                BALL_LOG_DYNAMIC_CATEGORY) }, \
+        { 0 }                                                                 \
+    };
+
+#define BALL_LOG_SET_LEGACY_DYNAMIC_CATEGORY(CATEGORY)                        \
     const BloombergLP::ball::Category *BALL_LOG_DYNAMIC_CATEGORY =            \
                                BloombergLP::ball::Log::setCategory(CATEGORY); \
     BloombergLP::ball::CategoryHolder BALL_LOG_CATEGORYHOLDER = {             \
@@ -1014,6 +1199,29 @@ BSLS_IDENT("$Id: $")
                        // ===========================
 
 #define BALL_LOG_SET_CLASS_CATEGORY(CATEGORY)                                 \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(      \
+                     const BloombergLP::ball::CategoryHolder& categoryHolder) \
+    {                                                                         \
+        return &categoryHolder;                                               \
+    }                                                                         \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
+    {                                                                         \
+        static BloombergLP::ball::CategoryHolder holder = {                   \
+            { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },  \
+                                                                 { 0 }, { 0 } \
+        };                                                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::ball::Log::setCategoryHierarchically(&holder,        \
+                                                              CATEGORY);      \
+        }                                                                     \
+        return &holder;                                                       \
+    }                                                                         \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 }
+
+#define BALL_LOG_SET_LEGACY_CLASS_CATEGORY(CATEGORY)                          \
     static                                                                    \
     const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(      \
                      const BloombergLP::ball::CategoryHolder& categoryHolder) \
@@ -1063,6 +1271,25 @@ BSLS_IDENT("$Id: $")
                        // ===============================
 
 #define BALL_LOG_SET_NAMESPACE_CATEGORY(CATEGORY)                             \
+namespace {                                                                   \
+    static                                                                    \
+    const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \
+    {                                                                         \
+        static BloombergLP::ball::CategoryHolder holder = {                   \
+            { BloombergLP::ball::CategoryHolder::e_UNINITIALIZED_CATEGORY },  \
+                                                                 { 0 }, { 0 } \
+        };                                                                    \
+        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!holder.category())) {      \
+            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;                               \
+            BloombergLP::ball::Log::setCategoryHierarchically(&holder,        \
+                                                              CATEGORY);      \
+        }                                                                     \
+        return &holder;                                                       \
+    }                                                                         \
+    enum { BALL_LOG_CATEGORYHOLDER = 0 };                                     \
+}
+
+#define BALL_LOG_SET_LEGACY_NAMESPACE_CATEGORY(CATEGORY)                      \
 namespace {                                                                   \
     static                                                                    \
     const BloombergLP::ball::CategoryHolder *ball_log_getCategoryHolder(int)  \

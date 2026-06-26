@@ -718,7 +718,7 @@ int main(int argc, char *argv[])
                                                      == p->triggerAllLevel());
                          }
                     }
-                    ASSERTV(CNLINE, MATCHES == r);
+                    ASSERTV(CNLINE, CN, MATCHES, r, MATCHES == r);
                 }
             }
         }
@@ -757,7 +757,7 @@ int main(int argc, char *argv[])
                           << endl;
 
         for (int ti = 0; ti < 2; ++ti) {
-            const bool USE_CALLBACK = 0 == ti;
+            const bool USE_CALLBACK = (0 == ti);
 
             int DRL  = 10, CBDRL  = DRL;
             int DPL  = 11, CBDPL  = DPL;
@@ -836,7 +836,7 @@ int main(int argc, char *argv[])
 
             // populate the category registry in the logger manager
             for (int n = 0; n < NUM_DATA && DATA[n].d_populated; ++n) {
-                bool isDefault = !strcmp("", DATA[n].d_name_p);
+                const bool isDefault = (0 == DATA[n].d_name_p[0]);
 
                 const Cat *p = lm->addCategory(DATA[n].d_name_p,
                                                DATA[n].d_recordLevel,
@@ -865,6 +865,7 @@ int main(int argc, char *argv[])
 
                     for (int ii = 0; ii <= nn; ++ii) {
                         const Data&  idata    = DATA[ii];
+                        const int    LINE     = idata.d_line;
                         const char  *iname    = idata.d_name_p;
                         const int    ibaseIdx = idata.d_baseIdx;
                         const char  *bname    = (0 <= ibaseIdx)
@@ -881,17 +882,23 @@ int main(int argc, char *argv[])
 
                         const Cat *icat = lm->lookupCategory(iname);
 
-                        ASSERTV(ii, (0 == ii) == (&defaultCat == icat));
-                        ASSERTV(ii, np, (ii == nn) == (np == icat));
+                        ASSERTV(LINE, ii, (0 == ii) == (&defaultCat == icat));
+                        ASSERTV(LINE, ii, np, (ii == nn) == (np == icat));
 
-                        ASSERTV(iname, bname, ename, icat);
-                        ASSERTV(iname, bname, ename, edata.d_recordLevel ==
-                                                      icat->recordLevel());
-                        ASSERTV(iname, bname, ename, edata.d_passLevel ==
-                                                      icat->passLevel());
-                        ASSERTV(iname, bname, ename, edata.d_triggerLevel ==
-                                                      icat->triggerLevel());
-                        ASSERTV(iname, bname, ename, edata.d_triggerAllLevel ==
+                        ASSERTV(LINE, iname, bname, ename, icat);
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_recordLevel,   icat->recordLevel(),
+                                edata.d_recordLevel == icat->recordLevel());
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_passLevel,   icat->passLevel(),
+                                edata.d_passLevel == icat->passLevel());
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_triggerLevel,   icat->triggerLevel(),
+                                edata.d_triggerLevel == icat->triggerLevel());
+                        ASSERTV(LINE, iname, bname, ename,
+                                edata.d_triggerAllLevel,
+                                                      icat->triggerAllLevel(),
+                                edata.d_triggerAllLevel ==
                                                       icat->triggerAllLevel());
                     }
                 }

@@ -34,6 +34,111 @@ BSLS_IDENT("$Id: $")
 // threshold levels of a given category, and a single manipulator to set the
 // four threshold levels levels (see `ball_category`).
 //
+/// Category Threshold Levels
+///-------------------------
+// Every category has four severity threshold levels that govern logging
+// behavior: **Record**, **Pass**, **Trigger**, and **Trigger-All**.  These
+// threshold levels can be set explicitly when a category is created (via
+// `addCategory`) or derived from default values when using `addCategory` with
+// fewer arguments or `addCategoryHierarchically`.
+//
+// The threshold levels have the following meanings in the logging framework:
+//
+// * **Record**: If a log message's severity is at least as severe as the
+//   Record threshold, the message will be stored in the logger's record
+//   buffer.
+//
+// * **Pass**: If a log message's severity is at least as severe as the Pass
+//   threshold, the message will be immediately published to observers.
+//
+// * **Trigger**: If a log message's severity is at least as severe as the
+//   Trigger threshold, the message will cause immediate publication of that
+//   message and all messages in the logger's record buffer.
+//
+// * **Trigger-All**: If a log message's severity is at least as severe as the
+//   Trigger-All threshold, the message will cause immediate publication of
+//   that message and all messages stored by all active loggers.
+//
+///Non-Hierarchical Default Threshold Mechanisms
+///---------------------------------------------
+// The category manager provides several mechanisms for determining threshold
+// levels when categories are created without explicit threshold values:
+//
+// * **Default Threshold Levels**: The category manager maintains a set of
+//   default threshold levels that can be queried via
+//   `defaultRecordThresholdLevel()`, `defaultPassThresholdLevel()`,
+//   `defaultTriggerThresholdLevel()`, and
+//   `defaultTriggerAllThresholdLevel()`.  These defaults can be modified
+//   at any time using `setDefaultThresholdLevels`.
+//
+// * **Default Threshold Callback**: A `DefaultThresholdLevelsCallback`
+//   functor can be installed (via `setDefaultThresholdLevelsCallback`) to
+//   dynamically compute threshold levels for new categories.  When installed,
+//   this callback takes precedence over the (above) default threshold levels
+//   mechanism.  The callback receives the category name and loads four
+//   threshold values into output parameters.  This allows for sophisticated
+//   threshold management strategies.
+//
+// * **Factory Default Thresholds**: The "factory defaults" are the
+//   threshold values that the category manager is initialized with at
+//   construction.  These values can be restored at any time by calling
+//   `resetDefaultThresholdLevels`.
+//
+// The precedence order for determining thresholds when creating categories is:
+// 1. Explicit threshold values provided to `addCategory`
+// 2. Default threshold callback (if installed)
+// 3. Current default threshold levels
+//
+///Hierarchical Category Management
+///---------------------------------
+// While categories are fundamentally flat (category names have no intrinsic
+// hierarchical structure), the category manager provides functions that
+// support hierarchical naming conventions.  The `addCategoryHierarchically`
+// method creates a new category that inherits threshold levels from an
+// existing category whose name is the longest prefix match.  The
+// `setThresholdLevelsHierarchically` method modifies thresholds for all
+// categories whose names share a common prefix.
+//
+// For example, consider categories named "EQUITY", "EQUITY.MARKET", and
+// "EQUITY.MARKET.NYSE".  Using `addCategoryHierarchically` to add
+// "EQUITY.MARKET.NYSE" would cause it to inherit threshold levels from
+// "EQUITY.MARKET" (the longest prefix match), not from "EQUITY" or the
+// defaults.  Using `setThresholdLevelsHierarchically("EQUITY.MARKET", ...)`
+// would update both "EQUITY.MARKET" and "EQUITY.MARKET.NYSE", but not
+// "EQUITY".
+//
+// This hierarchical support facilitates organizing logging categories into
+// logical groupings where related categories can share common threshold
+// configurations while still allowing fine-grained control.
+//
+// In order to keep the hierarchical category management sane the empty
+// category (the default category added by `LoggerManager`) is treated as if it
+// did not exist for hierarchical settings.  So when looking for the longest
+// matching prefix, if it is found to be the empty string, we use the default
+// threshold levels instead of the levels of the empty category.  Similarly,
+// setting hierarchical levels with an empty prefix will never store an
+// orphaned setting (even if the default category does not exist) but instead
+// we just update the threshold levels of all existing categories and drop all
+// orphaned settings.
+//
+///Category Name Filtering
+///------------------------
+// Category names can be transformed by a `CategoryNameFilterCallback` functor
+// before being stored in the registry.  This allows for normalization of
+// category names, such as converting all names to lowercase.  When a name
+// filter is installed (via `setCategoryNameFilterCallback`), it is applied to
+// every category name on addition and lookup operations, ensuring consistent
+// naming regardless of how client code specifies names.
+//
+///Registry Capacity Management
+///----------------------------
+// The category registry can have a maximum capacity limit set via
+// `setMaxNumCategories`.  A value of 0 (the default) means no limit is
+// imposed.  When the limit is reached, attempts to add new categories will
+// fail (methods that add categories will return null pointers).  The current
+// capacity limit can be queried via `maxNumCategories`, and the current number
+// of categories via `length`.
+//
 ///Thread Safety
 ///-------------
 // `ball::CategoryManager` is *thread-safe*, meaning that any operation on the
@@ -149,75 +254,237 @@ BSLS_IDENT("$Id: $")
 //   [ EQUITY.GRAPHICS.MATH.FACTORIAL, 196, 100, 68, 36 ]
 //   [ EQUITY.GRAPHICS.MATH.ACKERMANN, 197, 101, 69, 37 ]
 // ```
+//
+///Example 2: Hierarchical Category Management
+/// - - - - - - - - - - - - - - - - - - - - -
+// The following example demonstrates hierarchical category management using
+// `addCategoryHierarchically` and `setThresholdLevelsHierarchically`.  These
+// methods support a hierarchical naming scheme where categories can inherit
+// threshold levels from ancestor categories based on prefix matching.
+//
+// First, we create a category manager and set default threshold levels:
+// ```
+//   ball::CategoryManager manager;
+//   manager.setDefaultThresholdLevels(191, 95, 63, 31);
+// ```
+// Then, we create two new categories, `"EQ"` and `"EQ.MARKET"`, with
+// explicitly set threshold levels (different from the defaults):
+// ```
+//   manager.addCategory("EQ", 192, 96, 64, 32);
+//   manager.addCategory("EQ.MARKET", 193, 97, 65, 33);
+// ```
+// Next, we add a new category using `addCategoryHierarchically`.  This method
+// finds the longest prefix match among existing categories and inherits
+// threshold levels from that category:
+// ```
+//   ball::Category *nyseCategory =
+//                        manager.addCategoryHierarchically("EQ.MARKET.NYSE");
+// ```
+// The new category `"EQ.MARKET.NYSE"` inherits its threshold levels from
+// `"EQ.MARKET"` (rather than from `"EQ"` or the defaults) because
+// `"EQ.MARKET"` is the longest prefix match:
+// ```
+//   assert(193 == nyseCategory->recordLevel());
+//   assert( 97 == nyseCategory->passLevel());
+//   assert( 65 == nyseCategory->triggerLevel());
+//   assert( 33 == nyseCategory->triggerAllLevel());
+// ```
+// Then, we use `setThresholdLevelsHierarchically` to adjust the threshold
+// levels for all categories whose name starts with `"EQ.MARKET"`:
+// ```
+//   int numUpdated = manager.setThresholdLevelsHierarchically("EQ.MARKET",
+//                                                              194,
+//                                                              98,
+//                                                              66,
+//                                                              34);
+//   assert(2 == numUpdated);  // Updated "EQ.MARKET" and "EQ.MARKET.NYSE"
+// ```
+// We can verify that both `"EQ.MARKET"` and `"EQ.MARKET.NYSE"` have been
+// updated, while `"EQ"` remains unchanged:
+// ```
+//   const ball::Category *eqCategory = manager.lookupCategory("EQ");
+//   const ball::Category *marketCategory =
+//                                         manager.lookupCategory("EQ.MARKET");
+//   const ball::Category *nyseCategory2 =
+//                                    manager.lookupCategory("EQ.MARKET.NYSE");
+//
+//   assert(192 == eqCategory->recordLevel());       // unchanged
+//   assert(194 == marketCategory->recordLevel());   // updated
+//   assert(194 == nyseCategory2->recordLevel());    // updated
+// ```
+// Finally, if we add another category under `"EQ.MARKET"` using
+// `addCategoryHierarchically`, it will inherit the updated thresholds:
+// ```
+//   ball::Category *nasdaqCategory =
+//                      manager.addCategoryHierarchically("EQ.MARKET.NASDAQ");
+//   assert(194 == nasdaqCategory->recordLevel());
+//   assert( 98 == nasdaqCategory->passLevel());
+//   assert( 66 == nasdaqCategory->triggerLevel());
+//   assert( 34 == nasdaqCategory->triggerAllLevel());
+// ```
+// Note that hierarchical category management facilitates organizing logging
+// categories into logical groupings where related categories can share common
+// threshold configurations while still allowing fine-grained control over
+// individual categories.
 
 #include <balscm_version.h>
 
 #include <ball_category.h>
+#include <ball_categorymanager_radixtree.h>
+#include <ball_categorycallbacks.h>
+#include <ball_hierarchicalcategorysetting.h>
+#include <ball_loggermanagerconfiguration.h>
 #include <ball_ruleset.h>
 #include <ball_thresholdaggregate.h>
+#include <ball_thresholddefaults.h>
 
 #include <bdlb_cstringequalto.h>
 #include <bdlb_cstringhash.h>
 
 #include <bslma_allocator.h>
-#include <bslma_default.h>
 
 #include <bslmt_mutex.h>
 #include <bslmt_readlockguard.h>
 #include <bslmt_readerwriterlock.h>
+#include <bslmt_readerwritermutex.h>
+#include <bslmt_writelockguard.h>
 
 #include <bsls_atomic.h>
 #include <bsls_types.h>
 
-#include <bsl_new.h>
 #include <bsl_string.h>
+#include <bsl_string_view.h>
 #include <bsl_unordered_map.h>
 #include <bsl_vector.h>
 
 namespace BloombergLP {
 namespace ball {
 
-                        // =====================
-                        // class CategoryManager
-                        // =====================
+                           // =====================
+                           // class CategoryManager
+                           // =====================
 
 /// This class manages a set (or "registry") of categories.  Categories may be
 /// added to the registry, but they cannot be removed.  However, the threshold
 /// levels of existing categories may be accessed and modified directly.
 class CategoryManager {
 
+  public:
+    // TYPES
+
+    /// `CategoryNameFilterCallback` is the type of the user-supplied functor
+    /// that translates external category names to internal names.
+    typedef CategoryCallbacks::NameFilter       CategoryNameFilterCallback;
+
+    /// `DefaultThresholdLevelsCallback` is the type of the functor that
+    /// determines default threshold levels for categories added to the
+    /// registry by the `setCategory(const char *)` method.
+    typedef CategoryCallbacks::DefaultThresholdLevels
+                                                DefaultThresholdLevelsCallback;
+
+  private:
     // PRIVATE TYPES
     typedef bsl::unordered_map<const char *,
                                int,
                                bdlb::CStringHash,
-                               bdlb::CStringEqualTo>
-        CategoryMap;
+                               bdlb::CStringEqualTo>      CategoryMap;
+
+    typedef bsl::vector<Category *>                       CategoryPtrVector;
+
+    typedef ball::CategoryManager_RadixTree<HierarchicalCategorySetting>
+                                                          HierarchicalSettings;
+
+    typedef ball::CategoryManager_RadixTree<int>          CategoryPrefixer;
 
     // DATA
-    CategoryMap                      d_registry;      // mapping names to
-                                                      // indices in
-                                                      // `d_categories`
+    Category                         *d_defaultCategory_p;
+                                                      // holds *Default*
+                                                      // *Category*
 
-    bsls::AtomicInt64                d_ruleSetSequenceNumber;
-                                                      // sequence number that
-                                                      // is incremented each
-                                                      // time the rule set is
-                                                      // changed
+    mutable bslmt::ReaderWriterMutex  d_defaultThresholdsCallbackMutex;
+                                                      // protector
 
-    RuleSet                          d_ruleSet;       // rule set that contains
-                                                      // all registered rules
+    DefaultThresholdLevelsCallback    d_defaultThresholdsCallback;
+                                                      // user defined functor
+                                                      // for obtaining default
+                                                      // threshold levels for a
+                                                      // category name
 
-    bslmt::Mutex                     d_ruleSetMutex;  // serialize access to
-                                                      // `d_ruleset`
+    mutable bslmt::ReaderWriterMutex  d_defaultThresholdsLevelsMutex;
+                                                      // protector
 
-    bsl::vector<Category *>          d_categories;    // providing random
-                                                      // access to categories
+    ThresholdAggregate                d_defaultThresholdLevels;
+                                                      // default threshold
+                                                      // level values
 
-    mutable bslmt::ReaderWriterLock  d_registryLock;  // ensuring MT-safety of
-                                                      // category map
+    const ThresholdAggregate          d_factoryThresholdLevels;
+                                                      // factory default
+                                                      // threshold levels
 
-    bslma::Allocator                *d_allocator_p;   // memory allocator
-                                                      // (held, not owned)
+    CategoryNameFilterCallback        d_categoryNameFilterCallback;
+                                                       // category name filter
+                                                       // functor
+
+    unsigned int                      d_maxNumCategoriesMinusOne;
+                                                       // one less than the
+                                                       // current allowed
+                                                       // capacity of this
+                                                       // registry
+
+    CategoryMap                       d_registry;      // mapping names to
+                                                       // indices in
+                                                       // `d_categories`
+
+    bsls::AtomicInt64                 d_ruleSetSequenceNumber;
+                                                       // sequence number that
+                                                       // is incremented each
+                                                       // time the rule set is
+                                                       // changed
+
+    RuleSet                           d_ruleSet;       // rule set that contains
+                                                       // all registered rules
+
+    bslmt::Mutex                      d_ruleSetMutex;  // serialize access to
+                                                       // `d_ruleset`
+
+    CategoryPtrVector                 d_categories;    // providing random
+                                                       // access to categories
+
+    CategoryPrefixer                  d_categoryPrefixer;
+                                                       // Data structure that
+                                                       // maps category names
+                                                       // as prefixes to
+                                                       // threshold settings to
+                                                       // support quick
+                                                       // hierarchical
+                                                       // operations on
+                                                       // prefixes of category
+                                                       // name (not O(N)).
+                                                       // Note that it maps to
+                                                       // indexes into
+                                                       // `d_categories`.
+
+    HierarchicalSettings              d_orphanHierarchicalSettings;
+                                                       // A data structure that
+                                                       // contains hierarchical
+                                                       // category threshold
+                                                       // level settings that
+                                                       // have no corresponding
+                                                       // category name for
+                                                       // their category name
+                                                       // prefix.  The data
+                                                       // structure efficiently
+                                                       // maps the category
+                                                       // prefix to the
+                                                       // settings object for
+                                                       // optimal prefix-based
+                                                       // operations.
+
+    mutable bslmt::ReaderWriterLock   d_registryLock;  // ensuring MT-safety of
+                                                       // category map
+
+    bslma::Allocator                 *d_allocator_p;   // memory allocator
+                                                       // (held, not owned)
 
   private:
     // NOT IMPLEMENTED
@@ -227,24 +494,59 @@ class CategoryManager {
     // PRIVATE MANIPULATORS
 
     /// Add to the registry of this category manager a category having the
-    /// specified `categoryName` and the specified `recordLevel`,
+    /// specified `filteredCategoryName` and the specified `recordLevel`,
+    /// `passLevel`, `triggerLevel`, and `triggerAllLevel` threshold values,
+    /// respectively, if there is no category having `filteredCategoryName` and
+    /// each of the specified threshold values is in the range `[0 .. 255]`.
+    /// Return the address of the newly-created, modifiable category on
+    /// success, and 0 otherwise.  If a newly-created category is returned and
+    /// the specified `categoryHolder` is non-null, then also load into
+    /// `categoryHolder` the returned category and its maximum level and link
+    /// `categoryHolder` to the category.  Note that if a category having
+    /// `filteredCategoryName` already exists in the registry, 0 is returned.
+    Category *addFilteredCategory(CategoryHolder *categoryHolder,
+                                  const char     *filteredCategoryName,
+                                  int             recordLevel,
+                                  int             passLevel,
+                                  int             triggerLevel,
+                                  int             triggerAllLevel);
+
+    /// Add to the registry of this category manager a category having the
+    /// specified `filteredCategoryName` and the specified `recordLevel`,
     /// `passLevel`, `triggerLevel`, and `triggerAllLevel` threshold values,
     /// respectively.  Return the address of the newly-created, modifiable
     /// category.  The behavior is undefined unless a category having
-    /// `categoryName` does not already exist in the registry and each of
-    /// the specified threshold values is in the range `[0 .. 255]`.  Note
-    /// that the category registry should be properly synchronized before
-    /// calling this method.
-    Category *addNewCategory(const char *categoryName,
+    /// `filteredCategoryName` does not already exist in the registry and each
+    /// of the specified threshold values is in the range `[0 .. 255]`.  The
+    /// behavior is also undefined unless the caller holds a write lock on the
+    /// `d_registryLock` mutex.
+    Category *addNewCategory(const char *filteredCategoryName,
                              int         recordLevel,
                              int         passLevel,
                              int         triggerLevel,
                              int         triggerAllLevel);
 
+    /// Return the address of the modifiable category having the specified
+    /// `filteredCategoryName` in the registry of this category manager, or 0
+    /// if no such category exists.  The behavior is undefined if the caller
+    /// holds a read or write lock on the `d_registryLock` mutex.
+    Category *lookupFilteredCategory(const char *filteredCategoryName);
+
+    /// Return the address of the modifiable category having the specified
+    /// `filteredCategoryName` in the registry of this category manager, or 0
+    /// if no such category exists.  If a category is returned and the
+    /// specified `categoryHolder` is non-null, then also load into
+    /// `categoryHolder` the returned category and its maximum level and link
+    /// `categoryHolder` to the category if it has not yet been linked.  The
+    /// behavior is undefined if the caller holds a read or write lock on the
+    /// `d_registryLock` mutex.
+    Category *lookupFilteredCategory(CategoryHolder *categoryHolder,
+                                     const char     *filteredCategoryName);
+
     /// Apply all rules in the rule set to the specified `category`.  The
     /// behavior is undefined unless the caller holds a lock on the
     /// `d_ruleSetMutex` mutex.
-    void privateApplyRulesToCategory(Category* category);
+    void privateApplyRulesToCategory(Category *category);
 
     /// Apply all rules in the rule set to all categories.  Use the
     /// specified `ruleGuard` to provide synchronization.  The behavior is
@@ -255,16 +557,49 @@ class CategoryManager {
     void privateApplyRulesToAllCategories(
                                     bslmt::LockGuard<bslmt::Mutex>& ruleGuard);
 
+    // PRIVATE ACCESSORS
+
+    /// If `d_categoryNameFilter` is a non-null functor, apply
+    /// `d_categoryNameFilter` to the specified `originalName`, store the
+    /// translated result in the specified `filteredNameBuffer`, and return the
+    /// address of the non-modifiable data of `filteredNameBuffer`; return
+    /// `originalName` otherwise (i.e., if `d_categoryNameFilter` is null).
+    const char *filterCategoryName(bsl::string *filteredNameBuffer,
+                                   const char  *originalName) const;
+
+    /// Return the address of the non-modifiable category having the specified
+    /// `filteredCategoryName` in the registry of this category manager, or 0
+    /// if no such category exists.  The behavior is undefined if the caller
+    /// holds a read or write lock on the `d_registryLock` mutex.
+    const Category *lookupFilteredCategory(
+                                       const char *filteredCategoryName) const;
+
   public:
     // BDE_VERIFY pragma: push
     // BDE_VERIFY pragma: -FABC01 // Functions not in alphanumeric order
 
     // CREATORS
 
-    /// Create a category manager.  Optionally specify a `basicAllocator`
-    /// used to supply memory.  If `basicAllocator` is 0, the currently
-    /// installed default allocator is used.
+    /// Create a category manager with the hardwired default levels for new
+    /// categories and no defaults or namefilter callback set.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.
     explicit CategoryManager(bslma::Allocator *basicAllocator = 0);
+
+    /// Create a category manager with the specified default threshold level
+    /// values `defaultRecordLevel`, `defaultPassLevel`, `defaultTriggerLevel`,
+    /// `defaultTriggerAllLevel`, the  `defaultThresholdLevelsCallback`, and
+    /// the `categoryNameFilterCallback`.  Optionally specify a
+    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0, the
+    /// currently installed default allocator is used.
+    CategoryManager(
+         int                                    defaultRecordLevel,
+         int                                    defaultPassLevel,
+         int                                    defaultTriggerLevel,
+         int                                    defaultTriggerAllLevel,
+         const DefaultThresholdLevelsCallback&  defaultThresholdLevelsCallback,
+         const CategoryNameFilterCallback&      categoryNameFilterCallback,
+         bslma::Allocator                      *basicAllocator = 0);
 
     /// Destroy this category manager.
     ~CategoryManager();
@@ -277,15 +612,18 @@ class CategoryManager {
     Category& operator[](int index);
 
     /// Add to the registry of this category manager a category having the
-    /// specified `categoryName` and the specified `recordLevel`,
+    /// specified `categoryName`, possibly changed by the registered category
+    /// name filter callback, and having the specified `recordLevel`,
     /// `passLevel`, `triggerLevel`, and `triggerAllLevel` threshold values,
-    /// respectively, if there is no category having `categoryName` and each
-    /// of the specified threshold values is in the range `[0 .. 255]`.
-    /// Return the address of the newly-created, modifiable category on
-    /// success, and 0 otherwise.  The behavior is undefined unless a lock
-    /// is not held by this thread on the mutex returned by `rulesetMutex`.
-    /// Note that if a category having `categoryName` already exists in the
-    /// registry, 0 is returned.
+    /// respectively, if there is no category having (the possibly filtered)
+    /// `categoryName` and each of the specified threshold values is in the
+    /// range `[0 .. 255]`.  Return the address of the newly-created,
+    /// modifiable category on success, and 0 otherwise.  The behavior is
+    /// undefined unless a lock is not held by this thread on the mutex
+    /// returned by `rulesetMutex`.  Note that if a category having (the
+    /// possibly filtered) `categoryName` already exists in the registry, 0 is
+    /// returned.  Note that an existing category will not be modified if a
+    /// category with the (possibly filtered) `categoryName` already exists.
     Category *addCategory(const char *categoryName,
                           int         recordLevel,
                           int         passLevel,
@@ -293,18 +631,21 @@ class CategoryManager {
                           int         triggerAllLevel);
 
     /// Add to the registry of this category manager a category having the
-    /// specified `categoryName` and the specified `recordLevel`,
+    /// specified `categoryName`, possibly changed by the registered category
+    /// name filter callback, and having the specified `recordLevel`,
     /// `passLevel`, `triggerLevel`, and `triggerAllLevel` threshold values,
-    /// respectively, if there is no category having `categoryName` and each
-    /// of the specified threshold values is in the range `[0 .. 255]`.
-    /// Return the address of the newly-created, modifiable category on
-    /// success, and 0 otherwise.  If a newly-created category is returned
-    /// and the specified `categoryHolder` is non-null, then also load into
-    /// `categoryHolder` the returned category and its maximum level and
-    /// link `categoryHolder` to the category.  The behavior is undefined
-    /// unless a lock is not held by this thread on the mutex returned by
-    /// `rulesetMutex`.  Note that if a category having `categoryName`
-    /// already exists in the registry, 0 is returned.
+    /// respectively, if there is no category having (the possibly filtered)
+    /// `categoryName` and each of the specified threshold values is in the
+    /// range `[0 .. 255]`.  Return the address of the newly-created,
+    /// modifiable category on success, and 0 otherwise.  If a newly-created
+    /// category is returned and the specified `categoryHolder` is non-null,
+    /// then also load into `categoryHolder` the returned category and its
+    /// maximum level and link `categoryHolder` to the category.  The behavior
+    /// is undefined unless a lock is not held by this thread on the mutex
+    /// returned by `rulesetMutex`.  Note that if a category having (the
+    /// possibly filtered) `categoryName` already exists in the registry, 0 is
+    /// returned.  Note that an existing category will not be modified if a
+    /// category with the (possibly filtered) `categoryName` already exists.
     Category *addCategory(CategoryHolder *categoryHolder,
                           const char     *categoryName,
                           int             recordLevel,
@@ -312,9 +653,34 @@ class CategoryManager {
                           int             triggerLevel,
                           int             triggerAllLevel);
 
+    /// Add a new category with the specified `categoryName`, possibly changed
+    /// by the registered category name filter callback, unless it already
+    /// exists.  Return a pointer to the newly added category in case it did
+    /// not already exist.  Determine the threshold levels for the category by
+    /// finding the longest category name or category name prefix that is a
+    /// prefix of this (possibly filtered) `categoryName` and use its settings.
+    /// If no such category or category hierarchical setting exists use the
+    /// defaults.  Otherwise, if a category already exists with (the possibly
+    /// filtered) `categoryName` do nothing and return 0.
+    Category *addCategoryHierarchically(const char *categoryName);
+
+    /// If this method is called the first time (`d_defaultCategory_p` is
+    /// null) add a new category with the (unspecified) default category name
+    /// (possibly changed by the registered category name filter callback).
+    /// Use the default threshold levels for the new category.  The behavior is
+    /// undefined if the default category already exists but has not been added
+    /// by this method.
+    void addDefaultCategory();
+
+    /// Return a non-`const` reference to the *Default* *Category* in this
+    /// category registry.  The behavior is undefined unless
+    /// `addDefaultCategory` has been called.
+    Category& defaultCategory();
+
     /// Return the address of the modifiable category having the specified
-    /// `categoryName` in the registry of this category manager, or 0 if no
-    /// such category exists.
+    /// `categoryName`in the registry of this category manager, or 0 if no
+    /// such category exists.  Note that the category name is possibly changed
+    /// by the registered category name filter callback before the lookup.
     Category *lookupCategory(const char *categoryName);
 
     /// Return the address of the modifiable category having the specified
@@ -322,7 +688,9 @@ class CategoryManager {
     /// such category exists.  If a category is returned and the specified
     /// `categoryHolder` is non-null, then also load into `categoryHolder`
     /// the returned category and its maximum level and link
-    /// `categoryHolder` to the category if it has not yet been linked.
+    /// `categoryHolder` to the category if it has not yet been linked.  Note
+    /// that the category name is possibly changed by the registered category
+    /// name filter callback before the lookup.
     Category *lookupCategory(CategoryHolder *categoryHolder,
                              const char     *categoryName);
 
@@ -332,31 +700,123 @@ class CategoryManager {
     /// further information on the default value of category holders.
     void resetCategoryHolders();
 
+    /// Reset the default threshold levels to the original "factory-supplied"
+    /// default values or the factory overrides supplied at construction.
+    void resetDefaultThresholdLevels();
+
+    /// Add to this category registry a new category having the specified
+    /// `categoryName`, possibly changed by the registered category name filter
+    /// callback, and default threshold levels if (the possibly filtered)
+    /// `categoryName` is not present in the registry and the number of
+    /// categories in the registry is less than the registry capacity.  Return
+    /// the address of the (possibly newly-created) non-modifiable category
+    /// having (the possibly filtered) `categoryName`, if such a category
+    /// exists, and the address of the non-modifiable *Default* *Category*
+    /// otherwise.  The behavior is undefined unless `categoryName` is
+    /// null-terminated.  Note that a valid category address is *always*
+    /// returned.
+    const Category *setCategory(const char *categoryName);
+
+    /// Add to this category registry a new category having the specified
+    /// `categoryName`, possibly changed by the registered category name filter
+    /// callback, and default threshold levels if (the possibly filtered)
+    /// `categoryName` is not present in the registry and the number of
+    /// categories in the registry is less than the registry capacity.  Return
+    /// the address of the (possibly newly-created) non-modifiable category
+    /// having (the possibly filtered) `categoryName`, if such a category
+    /// exists, and the address of the non-modifiable *Default* *Category*
+    /// otherwise.  If the specified `categoryHolder` is non-null, then also
+    /// load into `categoryHolder` the returned category and its maximum level
+    /// and link `categoryHolder` to the category if it has not yet been
+    /// linked.  The behavior is undefined unless `categoryName` is
+    /// null-terminated.  Note that a valid category address is *always*
+    /// returned.
+    const Category *setCategory(CategoryHolder *categoryHolder,
+                                const char     *categoryName);
+
+    /// Add to this category registry a new category having the specified
+    /// `categoryName`, possibly changed by the registered category name filter
+    /// callback, and having `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel` threshold levels, respectively, if (1) (the possibly
+    /// filtered) `categoryName` is not present in the registry, (2) the number
+    /// of categories in the registry is less than the registry capacity, and
+    /// (3) `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+    /// are all within the range `[0 .. 255]`.  If (the possibly filtered)
+    /// `categoryName` is already present and each threshold level is within
+    /// the valid range then reset the threshold levels of (the possibly
+    /// filtered) `categoryName` to the specified values.  Return the address
+    /// of the (possibly newly-created) modifiable category having (the
+    /// possibly filtered) `categoryName` if that `categoryName` was either
+    /// created or its thresholds reset, and 0 otherwise.  The behavior is
+    /// undefined unless `categoryName` is null-terminated.  Note that 0, and
+    /// *not* the *Default* *Category*, is returned on failure.
+    Category *setCategory(const char *categoryName,
+                          int         recordLevel,
+                          int         passLevel,
+                          int         triggerLevel,
+                          int         triggerAllLevel);
+
+    /// Set the default threshold levels to the specified `recordLevel`,
+    /// `passLevel`, `triggerLevel`, and `triggerAllLevel` values,
+    /// respectively, if each threshold level is in the range `[0 .. 255]`.
+    /// Return 0 on success, and a non-zero value otherwise (with no effect on
+    /// any of the default threshold levels).
+    int setDefaultThresholdLevels(int recordLevel,
+                                  int passLevel,
+                                  int triggerLevel,
+                                  int triggerAllLevel);
+
+    /// Set the default-thresholds callback to the specified
+    /// `defaultThresholdLevelsCallback` if it is not null, and remove any
+    /// existing callback if `defaultThresholdLevelsCallback` is null.
+    void setDefaultThresholdLevelsCallback(
+         const DefaultThresholdLevelsCallback *defaultThresholdLevelsCallback);
+
     /// Set the threshold levels of the category having the specified
-    /// `categoryName` in the registry of this category manager to the
-    /// specified `recordLevel`, `passLevel`, `triggerLevel`, and
-    /// `triggerAllLevel` values, respectively, if a category having
-    /// `categoryName` exists and each of the specified threshold values is
-    /// in the range `[0 .. 255]`.  Otherwise, add to the registry a
-    /// category having `categoryName` and `recordLevel`, `passLevel`,
-    /// `triggerLevel`, and `triggerAllLevel` threshold values,
-    /// respectively, if there is no category having `categoryName` and each
-    /// of the specified threshold values is in the range `[0 .. 255]`.
-    /// Return the address of the (possibly newly-created) modifiable
-    /// category on success, and 0 otherwise (with no effect on any
-    /// category).  The behavior is undefined unless a lock is not held by
-    /// this thread on the mutex returned by `rulesetMutex`.
+    /// `categoryName`, possibly changed by the registered category name filter
+    /// callback, in the registry of this category manager to the specified
+    /// `recordLevel`, `passLevel`, `triggerLevel`, and `triggerAllLevel`
+    /// values, respectively, if a category having (the possibly filtered)
+    /// `categoryName` exists and each of the specified threshold values is in
+    /// the range `[0 .. 255]`.  Otherwise, add to the registry a category
+    /// having (the possibly filtered) `categoryName` and `recordLevel`,
+    /// `passLevel`, `triggerLevel`, and `triggerAllLevel` threshold values,
+    /// respectively, if there is no category having (the possibly filtered)
+    /// `categoryName` and each of the specified threshold values is in the
+    /// range `[0 .. 255]`.  Return the address of the (possibly newly-created)
+    /// modifiable category on success, and 0 otherwise (with no effect on any
+    /// category).  The behavior is undefined unless a lock is not held by this
+    /// thread on the mutex returned by `rulesetMutex`.
     Category *setThresholdLevels(const char *categoryName,
                                  int         recordLevel,
                                  int         passLevel,
                                  int         triggerLevel,
                                  int         triggerAllLevel);
 
-    /// Add the specified `ruleToAdd` to the set of (unique) rules
-    /// maintained by // this object.  Return the number of rules added
-    /// (i.e., 1 on success and 0 if a rule with the same value is already
-    /// present).  The behavior is undefined unless a lock is not held by
-    /// this thread on the mutex returned by `rulesetMutex`.
+    /// Set the threshold levels of all existing and future categories whose
+    /// name starts with the specified `categoryNamePrefix` unless it is empty,
+    /// possibly changed by the registered category name filter callback, to
+    /// the specified `recordLevel`, `passLevel`, `triggerLevel`, and
+    /// `triggerAllLevel` if those levels form valid settings and return the
+    /// number of categories updated (zero or a positive number).  In case
+    /// `categoryNamePrefix` is empty update all categories with the threshold
+    /// levels and delete all stored orphan hierarchical settings.  In other
+    /// words an empty category setting will never overwrite the defaults for
+    /// future hierarchical categories.  The behavior is undefined unless a
+    /// lock is not held by this thread on the mutex returned by
+    /// `rulesetMutex`.  If any of the specified threshold levels is invalid,
+    /// return a negative value.
+    int setThresholdLevelsHierarchically(const char *categoryNamePrefix,
+                                         int         recordLevel,
+                                         int         passLevel,
+                                         int         triggerLevel,
+                                         int         triggerAllLevel);
+
+    /// Add the specified `ruleToAdd` to the set of (unique) rules maintained
+    /// by this object.  Return the number of rules added (i.e., 1 on success
+    /// and 0 if a rule with the same value is already present).  The behavior
+    /// is undefined unless a lock is not held by this thread on the mutex
+    /// returned by `rulesetMutex`.
     int addRule(const Rule& ruleToAdd);
 
     /// Add each rule in the specified `ruleSet` to the set of (unique)
@@ -391,6 +851,13 @@ class CategoryManager {
     /// is acquired solely for the purpose of calling `ruleSet`.
     bslmt::Mutex& rulesetMutex();
 
+    /// Set the capacity of this category registry to the specified `length`.
+    /// If `length` is 0, no limit will be imposed.  No categories are removed
+    /// from the registry if the current number of categories exceeds `length`.
+    /// However, subsequent attempts to add categories to the registry will
+    /// fail.  The behavior is undefined unless `0 <= length`.
+    void setMaxNumCategories(int length);
+
     /// Invoke the specified `visitor` functor on each category managed by
     /// this object, supplying that functor modifiable access to each
     /// category.  `visitor` must be a functor that can be called as if it
@@ -398,6 +865,8 @@ class CategoryManager {
     /// ```
     /// void operator()(Category *);
     /// ```
+    /// The behavior is undefined if `visitor` calls any method on this
+    /// `CategoryManager` object.
     template <class t_CATEGORY_VISITOR>
     void visitCategories(const t_CATEGORY_VISITOR& visitor);
 
@@ -408,14 +877,27 @@ class CategoryManager {
     /// unless `0 <= index < length()`.
     const Category& operator[](int index) const;
 
+    /// Return a `const` reference to the *Default* *Category* in this category
+    /// registry.  The behavior is undefined unless `addDefaultCategory` has
+    /// been called.
+    const Category& defaultCategory() const;
+
     /// Return the number of categories in the registry of this category
     /// manager.
     int length() const;
 
-    /// Return the address of the non-modifiable category having the
-    /// specified `categoryName` in the registry of this category manager,
+    /// Return the address of the non-modifiable category having the specified
+    /// `categoryName`, possibly changed by the registered category name filter
+    /// callback, in the registry of this category manager,
     /// or 0 if no such category exists.
     const Category *lookupCategory(const char *categoryName) const;
+
+    /// Return the current capacity of this category registry.  A capacity of 0
+    /// implies that no limit will be imposed; otherwise, new categories may be
+    /// added only if `numCategories() < maxNumCategories()`.  Note that
+    /// `0 < maxNumCategories() < numCategories()` *is* a valid state, implying
+    /// no new categories may be added.
+    int maxNumCategories() const;
 
     /// Return a `const` reference to the rule set maintained by this
     /// category manager.  The mutex returned by `rulesetMutex` should be
@@ -429,6 +911,17 @@ class CategoryManager {
     /// defined.
     bsls::Types::Int64 ruleSetSequenceNumber() const;
 
+    /// Set the threshold levels of the specified `category` in this category
+    /// registry of this category manager to the current default threshold
+    /// values.  The behavior is undefined unless `category` is non-null.
+    void setCategoryThresholdsToCurrentDefaults(Category *category) const;
+
+    /// Set the threshold levels of the specified `category` in the category
+    /// registry of this category manager to the original "factory-supplied"
+    /// default values or the factory overrides supplied at construction.  The
+    /// behavior is undefined unless `category` is non-null.
+    void setCategoryThresholdsToFactoryDefaults(Category *category) const;
+
     /// Invoke the specified `visitor` functor on each category managed by
     /// this object, supplying that functor non-modifiable access to each
     /// category.  `visitor` must be a functor that can be called as if it
@@ -436,8 +929,43 @@ class CategoryManager {
     /// ```
     /// void operator()(const Category *);
     /// ```
+    /// The behavior is undefined if `visitor` calls any method on this
+    /// `CategoryManager` object.
     template <class t_CATEGORY_VISITOR>
     void visitCategories(const t_CATEGORY_VISITOR& visitor) const;
+
+                        // Individual Default Levels
+
+    /// Return the default pass threshold level of this object.
+    int defaultPassThresholdLevel() const;
+
+    /// Return the default record threshold level of this object.
+    int defaultRecordThresholdLevel() const;
+
+    /// Return the default trigger-all threshold level of this object.
+    int defaultTriggerAllThresholdLevel() const;
+
+    /// Return the default trigger threshold level of this object.
+    int defaultTriggerThresholdLevel() const;
+
+                         // Default Levels Aggregate
+
+    /// Return the default threshold levels associated with this object.
+    ThresholdAggregate defaultThresholdLevels() const;
+
+                   // Determine Default Threshold Levels
+
+    /// Load into the specified `*levels` the threshold levels that would be
+    /// set for a newly and non-hierarchically created category.  Return 0 on
+    /// success and a non-zero value otherwise.  If the client has configured a
+    /// default threshold levels callback, the `categoryName`, possibly changed
+    /// by the registered category name filter callback, will be supplied to
+    /// that callback which will set `*levels`.  Otherwise, if no default
+    /// threshold levels callback has been provided, the default threshold
+    /// levels are used.  Note that this function will report an error if the
+    /// callback returns invalid levels.
+    int thresholdLevelsForNewCategory(ThresholdAggregate *levels,
+                                      const char         *categoryName) const;
 
     // BDE_VERIFY pragma: pop
 };
@@ -560,9 +1088,9 @@ class CategoryManagerManip {
 //                        INLINE FUNCTION DEFINITIONS
 // ============================================================================
 
-                        // ---------------------
-                        // class CategoryManager
-                        // ---------------------
+                           // ---------------------
+                           // class CategoryManager
+                           // ---------------------
 
 // MANIPULATORS
 inline
@@ -573,23 +1101,72 @@ Category& CategoryManager::operator[](int index)
 }
 
 inline
+Category *CategoryManager::addCategory(const char *categoryName,
+                                       int         recordLevel,
+                                       int         passLevel,
+                                       int         triggerLevel,
+                                       int         triggerAllLevel)
+{
+    BSLS_ASSERT(categoryName);
+
+    return addCategory(0,
+                       categoryName,
+                       recordLevel,
+                       passLevel,
+                       triggerLevel,
+                       triggerAllLevel);
+}
+
+inline
+Category& CategoryManager::defaultCategory()
+{
+    return *d_defaultCategory_p;
+}
+
+inline
 bslmt::Mutex& CategoryManager::rulesetMutex()
 {
     return d_ruleSetMutex;
+}
+
+inline
+const Category *CategoryManager::setCategory(const char *categoryName)
+{
+    return setCategory(0, categoryName);
+}
+
+inline
+void CategoryManager::setMaxNumCategories(int length)
+{
+    bslmt::WriteLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
+    d_maxNumCategoriesMinusOne = length - 1;
 }
 
 template <class t_CATEGORY_VISITOR>
 void CategoryManager::visitCategories(const t_CATEGORY_VISITOR& visitor)
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    for (bsl::vector<Category *>::iterator it = d_categories.begin();
-         it != d_categories.end();
-         ++it) {
+    for (CategoryPtrVector::iterator it = d_categories.begin();
+                                     it != d_categories.end();
+                                   ++it) {
         visitor(*it);
     }
 }
 
 // ACCESSORS
+inline
+const Category& CategoryManager::operator[](int index) const
+{
+    bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
+    return *d_categories[index];
+}
+
+inline
+const Category& CategoryManager::defaultCategory() const
+{
+    return *d_defaultCategory_p;
+}
+
 inline
 int CategoryManager::length() const
 {
@@ -598,10 +1175,10 @@ int CategoryManager::length() const
 }
 
 inline
-const Category& CategoryManager::operator[](int index) const
+int CategoryManager::maxNumCategories() const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    return *d_categories[index];
+    return static_cast<int>(d_maxNumCategoriesMinusOne) + 1;
 }
 
 inline
@@ -620,9 +1197,9 @@ template <class t_CATEGORY_VISITOR>
 void CategoryManager::visitCategories(const t_CATEGORY_VISITOR& visitor) const
 {
     bslmt::ReadLockGuard<bslmt::ReaderWriterLock> guard(&d_registryLock);
-    for (bsl::vector<Category *>::const_iterator it = d_categories.begin();
-         it != d_categories.end();
-         ++it) {
+    for (CategoryPtrVector::const_iterator it = d_categories.begin();
+                                           it != d_categories.end();
+                                         ++it) {
         visitor(*it);
     }
 }

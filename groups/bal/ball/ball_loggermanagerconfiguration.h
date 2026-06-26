@@ -129,7 +129,7 @@ BSLS_IDENT("$Id: $")
 //     fields->appendString("example user field value");
 // }
 // ```
-// Next, we define a function `inititialize` in which we will create and
+// Next, we define a function `initialize` in which we will create and
 // configure a `ball::LoggerManagerConfiguration` object (see
 // {`ball_loggermanager`} for an example of how to create the logger-manager
 // singleton object):
@@ -199,7 +199,9 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
+#include <ball_categorycallbacks.h>
 #include <ball_loggermanagerdefaults.h>
+#include <ball_thresholddefaults.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -247,13 +249,12 @@ class LoggerManagerConfiguration {
 
     /// `CategoryNameFilterCallback` is the type of the user-supplied
     /// functor that translates external category names to internal names.
-    typedef bsl::function<void(bsl::string *, const char *)>
-                                                    CategoryNameFilterCallback;
+    typedef CategoryCallbacks::NameFilter CategoryNameFilterCallback;
 
     /// `DefaultThresholdLevelsCallback` is the type of the functor that
     /// determines default threshold levels for categories added to the
     /// registry by the `setCategory(const char *)` method.
-    typedef bsl::function<void(int *, int *, int *, int *, const char *)>
+    typedef CategoryCallbacks::DefaultThresholdLevels
                                                 DefaultThresholdLevelsCallback;
 
     enum LogOrder {
