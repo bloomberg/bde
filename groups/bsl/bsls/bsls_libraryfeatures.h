@@ -135,29 +135,6 @@ BSLS_IDENT("$Id: $")
 // that used to build this component and is the source of the symbols found in
 // the `std` namespace.
 //
-///Special Formatting Rules and Allowances
-///---------------------------------------
-// This header is a large and complex mesh of fairly unrelated and deep
-// preprocessor conditionals with defining and undefining of many feature
-// macros.  It is hard for a human to scan this file and understand how and
-// where particular feature macros are set.  To make matter more difficult in
-// certain circumstances we also unset/undefine macros.  For this reason this
-// header file uses a few special formatting rules to allow faster scanning:
-//
-// 1. Only comments and the `1` (replacement text) of {Binary Macros} may be 79
-//    characters long (plus newline).  Line continuation characters in long
-//    preprocessor conditionals etc. must be placed onto column 78.  This is to
-//    allow a human to easily scan the file for places where feature macros are
-//    being defined.
-// 2. Feature macro definitions that are commented out (to indicate that for a
-//    given compiler + standard library combination the support does not exist)
-//    must not have the replacement text (the number 1) be present so as not to
-//    confuse a human reader not using syntax highlighting.
-// 3. Due to the depth of necessary conditional branches (`#if*`) and the
-//    unusually long feature macro names defined in this header we use 2 spaces
-//    indentation to ensure that most preprocessor directives do not wrap (and
-//    become hard to read).
-//
 ///Guarding Against Mixing C++ Versions
 ///------------------------------------
 // This component defines a "link-coercion" symbol that prevents linking a
@@ -2089,21 +2066,42 @@ BSLS_IDENT("$Id: $")
 // versions of the native standard library that provide a `tuple` type, *and*
 // those that do not.  Of course, in the later case the interface that returns
 // a `tuple` is not defined for the `MyStatisticalUtil` `struct`.
+
+// ----------------------------------------------------------------------------
 //
-// ```
 //    ####################################################################
 //  ########################################################################
 // ##                                                                      ##
 // ##             THIS HEADER FILE HAS SPECIAL FORMATTING RULES!             ##
 // ##            ************************************************            ##
 // ##                                                                        ##
-// ##  Please follow the rules when updating it.  For specific reasons and   ##
-// ##  details please see {Special Formatting Rules and Allowances} above.   ##
+// ##             Please follow the rules below when updating it.            ##
 // ##                                                                      ##
 //  ########################################################################
 //    ####################################################################
-// ```
-
+//
+// This header is a large and complex mesh of fairly unrelated and deep
+// preprocessor conditionals with defining and undefining of many feature
+// macros.  It is hard for a human to scan this file and understand how and
+// where particular feature macros are set.  To make matter more difficult in
+// certain circumstances we also unset/undefine macros.  For this reason this
+// header file uses a few special formatting rules to allow faster scanning:
+//
+// 1. Only comments and the `1` (replacement text) of {Binary Macros} may be 79
+//    characters long (plus newline).  Line continuation characters in long
+//    preprocessor conditionals etc. must be placed onto column 78.  This is to
+//    allow a human to easily scan the file for places where feature macros are
+//    being defined.
+// 2. Feature macro definitions that are commented out (to indicate that for a
+//    given compiler + standard library combination the support does not exist)
+//    must not have the replacement text (the number 1) be present so as not to
+//    confuse a human reader not using syntax highlighting.
+// 3. Due to the depth of necessary conditional branches (`#if*`) and the
+//    unusually long feature macro names defined in this header we use 2 spaces
+//    indentation to ensure that most preprocessor directives do not wrap (and
+//    become hard to read).
+//
+// ----------------------------------------------------------------------------
 
 #include <bsls_compilerfeatures.h>
 #include <bsls_linkcoercion.h>
