@@ -17,7 +17,7 @@ BSLS_IDENT("$Id: $")
 // * `read`  populate a `Json` object from a JSON text document.
 // * `write` populate a JSON text document from a `Json` object.
 //
-/// Configuring the Output Format
+///Configuring the Output Format
 ///-----------------------------
 // There are a number of options to configure the output format produced by
 // `write`:
@@ -53,7 +53,7 @@ BSLS_IDENT("$Id: $")
 // For more information, see the `bdljsn_writeoptions` and `bdljsn_writestyle`
 // components.
 //
-/// Handling of Duplicate Keys
+///Handling of Duplicate Keys
 ///--------------------------
 // `bdljsn::JsonObject` represents a JSON Object having unique keys.  If an
 // Object with duplicate keys is found in a JSON document, `read` will preserve
@@ -70,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // that preserving the value of the first key is consistent with the behavior
 // of the existing `baljsn::DatumUtil` component.
 //
-/// Allowing Trailing Text
+///Allowing Trailing Text
 ///----------------------
 // By default, `bdljsn::JsonUtil::read` will report an error for input where a
 // valid JSON document is followed by additional text unless the trailing text
@@ -106,12 +106,12 @@ BSLS_IDENT("$Id: $")
 // +-----------+------------------------+-------------+-----------+
 // ```
 //
-/// Usage
+///Usage
 ///-----
 // This section illustrates the intended use of this component.
 //
-/// Example 1: Reading and Writing JSON Data
-///  - - - - - - - - - - - - - - - - - - - -
+///Example 1: Reading and Writing JSON Data
+/// - - - - - - - - - - - - - - - - - - - -
 // This component provides methods for reading and writing JSON data to/from
 // `Json` objects.
 //

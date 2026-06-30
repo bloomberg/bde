@@ -122,7 +122,7 @@ BSLS_IDENT("$Id: $")
 //   be used (using `sizeof` with a reference to suitably sized array of
 //   `char`).  This trick is packaged into the macro `BDLB_ARRAYUTIL_SIZE()`.
 // * When the length is needed in a context where a `const` expression is not
-//   required, e.g., when calling `query`, the `bdlb::ArrayUtil::size'
+//   required, e.g., when calling `query`, the `bdlb::ArrayUtil::size`
 //   function can be used with the array.
 // * The `bdlb::ArrayUtil::begin` and `bdlb::ArrayUtil::end` functions are
 //   used to obtain `begin` and `end` iterators used with the vector's
