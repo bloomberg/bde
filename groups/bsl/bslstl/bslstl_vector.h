@@ -670,10 +670,9 @@ struct Vector_Util {
     // CLASS METHODS
 
     /// Return a capacity that is at least the specified `newLength` and at
-    /// least the minimum of twice the specified `capacity` and the specified
-    /// `maxSize`.  The behavior is undefined unless `capacity < newLength` and
-    /// `newLength <= maxSize`.  Note that the returned value is always at most
-    /// `maxSize`.
+    /// least twice the specified `capacity` if this is less than the specified
+    /// `maxSize`, but never more than `maxSize`.  The behavior is undefined
+    /// unless `capacity < newLength` and `newLength <= maxSize`.
     static std::size_t computeNewCapacity(std::size_t newLength,
                                           std::size_t capacity,
                                           std::size_t maxSize);
