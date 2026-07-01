@@ -56,6 +56,15 @@ BSLS_IDENT("$Id: $")
 // handles of events in a `bdlmt::TimerEventScheduler` are integral types that
 // do not need to be released.
 //
+///Events Scheduled while the Scheduler is not Dispatching
+///-------------------------------------------------------
+// Events may be scheduled before invoking `start()` and after invoking
+// `stop()`.  Invoking `start()` and `stop()` does not cancel any events.
+// Events scheduled to run while the scheduler is not dispatching will be
+// handled normally once `start()` is invoked; events will be dispatched in
+// order of their scheduled times such that no event is dispatched before its
+// scheduled time.
+//
 ///Thread Safety and "Raw" Event Pointers
 ///--------------------------------------
 // `bdlmt::EventScheduler` is thread-safe and thread-enabled, meaning that
