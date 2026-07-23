@@ -12,6 +12,8 @@
 #include <bdlma_localsequentialallocator.h>
 #include <bdlma_localbufferedobject.h>
 
+#include <bslim_fuzzdataview.h>
+#include <bslim_fuzzutil.h>
 #include <bslim_testutil.h>
 
 #include <bslma_default.h>
@@ -20,13 +22,16 @@
 
 #include <bsls_alignedbuffer.h>
 
+#include <bsl_cstdint.h>
 #include <bsl_cstdlib.h>
+#include <bsl_cstring.h>
 #include <bsl_iostream.h>
 #include <bsl_ostream.h>
 #include <bsl_string.h>
 #include <bsl_sstream.h>
 #include <bsl_unordered_set.h>
 #include <bsl_unordered_map.h>
+#include <bsl_vector.h>
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -46,6 +51,10 @@ using bsl::endl;
 // ----------------------------------------------------------------------------
 // [1] BREATHING TEST
 // [4] USAGE EXAMPLE
+// [-1] FUZZ TESTING PRINT ROUTINES
+// ----------------------------------------------------------------------------
+// FUZZ TESTING
+// [ *] int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -369,6 +378,197 @@ bool verifySafePrintResult(const bsl::string_view& safeResult,
     }
 // ```
 // See `main()`.
+
+//=============================================================================
+//                              FUZZ TESTING
+//-----------------------------------------------------------------------------
+//                              Overview
+//                              --------
+// The following function, `LLVMFuzzerTestOneInput`, is the entry point for the
+// clang fuzz testing facility.  See {http://bburl/BDEFuzzTesting} for details
+// on how to build and run with fuzz testing enabled.
+//-----------------------------------------------------------------------------
+
+#ifdef BDE_ACTIVATE_FUZZ_TESTING
+#define main test_driver_main
+#endif
+
+using bsl::uint8_t;
+
+extern "C"
+/// Use the specified `data` array of `size` bytes as input to methods of
+/// `bdld::DatumUtil` and return zero.
+int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+{
+    // --------------------------------------------------------------------
+    // FUZZ TESTING PRINT ROUTINES
+    //
+    // Concerns:
+    // 1. That `bdld::DatumUtil::typedPrint` and `safeTypedPrint` do not
+    //    crash, abort, leak, or otherwise misbehave when invoked on
+    //    `bdld::Datum` objects constructed from arbitrary fuzz input.
+    //
+    // 2. That the print routines handle all supported `Datum` types
+    //    (integer, int64, double, decimal64, owning string, string
+    //    reference, boolean, null, error, error-with-message, binary,
+    //    array, map, int-map) without invoking undefined behavior.
+    //
+    // Plan:
+    // 1. Consume a small opcode from the fuzz input to select which
+    //    `Datum` factory to invoke.
+    //
+    // 2. Consume additional bytes from the fuzz input to build the
+    //    `Datum` value.
+    //
+    // 3. Invoke `typedPrint` and `safeTypedPrint` on the resulting
+    //    `Datum` into `bsl::ostringstream`s, then destroy the `Datum`
+    //    with the provided allocator.
+    //
+    // Testing:
+    //   int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+    // --------------------------------------------------------------------
+
+    if (size < 5) {
+        // Need at least 1 byte for the opcode discriminator plus enough
+        // bytes for the smallest payload (e.g. a 4-byte integer).
+        return 0;                                                     // RETURN
+    }
+
+    bslma::TestAllocator                  ta;
+    bdlma::LocalSequentialAllocator<1024> lsa(&ta);
+    bdld::DatumMaker                      dm(&lsa);
+    bslim::FuzzDataView                   fdv(data, size);
+
+    // Some `Datum` variants (e.g. string references, binary data, and the
+    // `dm.bin`/`createStringRef` helpers) hold a pointer into an external
+    // buffer that must outlive the `Datum`.  Declare those backing buffers
+    // in the enclosing function scope so they remain valid until the end
+    // of this call.
+    bsl::string strBuf(&lsa);
+    bsl::string binBuf(&lsa);
+    bsl::string msgBuf(&lsa);
+    bsl::string keyBuf1(&lsa);
+    bsl::string keyBuf2(&lsa);
+
+    // Named opcodes selecting which `Datum` variant to construct from the
+    // fuzz input.  Keep `k_NUM_OPCODES` last; it is used as the upper
+    // bound (inclusive) passed to `consumeNumberInRange`, so the final
+    // value (`e_DECIMAL64`) is the `default` case in the switch below.
+    enum OpCode {
+        e_INTEGER          =  0,
+        e_INT64            =  1,
+        e_DOUBLE           =  2,
+        e_OWNING_STRING    =  3,
+        e_STRING_REFERENCE =  4,
+        e_BOOLEAN          =  5,
+        e_NULL             =  6,
+        e_ERROR            =  7,
+        e_ERROR_WITH_MSG   =  8,
+        e_BINARY           =  9,
+        e_ARRAY            = 10,
+        e_MAP              = 11,
+        e_INT_MAP          = 12,
+        e_DECIMAL64        = 13,
+        k_NUM_OPCODES      = e_DECIMAL64
+    };
+
+    const int opType = bslim::FuzzUtil::consumeNumberInRange<int>(
+                                                             &fdv,
+                                                             0,
+                                                             k_NUM_OPCODES);
+
+    bdld::Datum d;
+    switch (opType) {
+      case e_INTEGER: {
+        d = dm(bslim::FuzzUtil::consumeNumber<int>(&fdv));
+      } break;
+      case e_INT64: {
+        d = dm(bslim::FuzzUtil::consumeNumber<long long>(&fdv));
+      } break;
+      case e_DOUBLE: {
+        unsigned long long bits =
+                    bslim::FuzzUtil::consumeNumber<unsigned long long>(&fdv);
+        double val;
+        bsl::memcpy(&val, &bits, sizeof(val));
+        d = dm(val);
+      } break;
+      case e_OWNING_STRING: {
+        bslim::FuzzUtil::consumeRandomLengthString(&strBuf, &fdv, 50);
+        d = dm(bsl::string_view(strBuf));
+      } break;
+      case e_STRING_REFERENCE: {
+        bslim::FuzzUtil::consumeRandomLengthString(&strBuf, &fdv, 50);
+        d = bdld::Datum::createStringRef(strBuf.data(),
+                                         static_cast<int>(strBuf.size()),
+                                         &lsa);
+      } break;
+      case e_BOOLEAN: {
+        d = dm(bslim::FuzzUtil::consumeBool(&fdv));
+      } break;
+      case e_NULL: {
+        d = dm();
+      } break;
+      case e_ERROR: {
+        d = bdld::Datum::createError(
+                                 bslim::FuzzUtil::consumeNumber<int>(&fdv));
+      } break;
+      case e_ERROR_WITH_MSG: {
+        bslim::FuzzUtil::consumeRandomLengthString(&msgBuf, &fdv, 30);
+        d = bdld::Datum::createError(
+                                 bslim::FuzzUtil::consumeNumber<int>(&fdv),
+                                 msgBuf,
+                                 &lsa);
+      } break;
+      case e_BINARY: {
+        bslim::FuzzUtil::consumeRandomLengthString(&binBuf, &fdv, 64);
+        d = dm.bin(binBuf.data(), binBuf.size());
+      } break;
+      case e_ARRAY: {
+        d = dm.a(
+              dm(bslim::FuzzUtil::consumeNumber<int>(&fdv)),
+              dm(bslim::FuzzUtil::consumeBool(&fdv)),
+              dm());
+      } break;
+      case e_MAP: {
+        bslim::FuzzUtil::consumeRandomLengthString(&keyBuf1, &fdv, 16);
+        bslim::FuzzUtil::consumeRandomLengthString(&keyBuf2, &fdv, 16);
+        d = dm.m(
+              keyBuf1.c_str(),
+                  dm(bslim::FuzzUtil::consumeNumber<int>(&fdv)),
+              keyBuf2.c_str(),
+                  dm());
+      } break;
+      case e_INT_MAP: {
+        d = dm.im(
+              bslim::FuzzUtil::consumeNumber<int>(&fdv),
+                  dm(bslim::FuzzUtil::consumeNumber<int>(&fdv)),
+              bslim::FuzzUtil::consumeNumber<int>(&fdv),
+                  dm());
+      } break;
+      case e_DECIMAL64:
+      default: {
+        d = dm(BDLDFP_DECIMAL_DD(1.23));
+      } break;
+    }
+
+    // Exercise trivial type-inspection accessors.
+    (void)d.type();
+    (void)d.isNull();
+
+    // Exercise the print routines (the actual `DatumUtil` API under test).
+    bsl::ostringstream oss;
+    bdld::DatumUtil::typedPrint(oss, d, 0, -1);
+    (void)oss.str();
+
+    bsl::ostringstream oss2;
+    bdld::DatumUtil::safeTypedPrint(oss2, d, 0, -1);
+    (void)oss2.str();
+
+    // The `LocalSequentialAllocator` releases all memory on scope exit, so no
+    // per-`Datum` `destroy` call is required here.
+
+    return 0;
+}
 
 //=============================================================================
 //                              MAIN PROGRAM
@@ -986,8 +1186,58 @@ int main(int argc, char *argv[])
         }
       } break;
       default: {
-        cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
-        testStatus = -1;
+        if (-1 == test) {
+            // ----------------------------------------------------------------
+            // FUZZ TESTING SMOKE
+            //   Exercise the `LLVMFuzzerTestOneInput` routine without
+            //   LibFuzzer, so it can be run as part of the normal test
+            //   driver.
+            //
+            // Concerns:
+            // 1. That `LLVMFuzzerTestOneInput` returns 0 and does not crash
+            //    on a small set of hand-picked inputs (empty, and buffers
+            //    of increasing size filled with a deterministic
+            //    pseudo-random byte sequence).
+            //
+            // Plan:
+            // 1. Fill a fixed-size buffer with a deterministic
+            //    pseudo-random byte sequence (a linear congruential step
+            //    seeded with a non-zero constant so no byte is left as
+            //    the vector's default-constructed zero).
+            //
+            // 2. Invoke `LLVMFuzzerTestOneInput` directly with the empty
+            //    input, then with increasing-length prefixes of the
+            //    buffer, asserting that each call returns 0.
+            //
+            // Testing:
+            //   int LLVMFuzzerTestOneInput(const uint8_t *, size_t);
+            // ----------------------------------------------------------------
+            if (verbose) cout << "\nFUZZ TESTING SMOKE"
+                                 "\n==================\n";
+
+            enum { k_BUF_LEN = 256 };
+            bsl::vector<uint8_t> buf(&ta);
+            buf.reserve(k_BUF_LEN);
+
+            // Deterministic pseudo-random-looking fill; the seed and
+            // multiplier are non-zero so that every byte is overwritten
+            // to a value distinct from the vector's default-constructed
+            // zero.
+            unsigned state = 0xABCDEF01u;
+            for (unsigned i = 0; i < k_BUF_LEN; ++i) {
+                state = state * 1103515245u + 12345u;
+                buf.push_back(static_cast<uint8_t>(state >> 16));
+            }
+
+            ASSERT(0 == LLVMFuzzerTestOneInput(0, 0));
+            for (size_t len = 0; len <= k_BUF_LEN; len += 8) {
+                ASSERT(0 == LLVMFuzzerTestOneInput(buf.data(), len));
+            }
+        }
+        else {
+            cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
+            testStatus = -1;
+        }
       } break;
     }
 
