@@ -1,6 +1,8 @@
 // bslmf_referencewrapper.t.cpp                                       -*-C++-*-
 #include <bslmf_referencewrapper.h>
 
+#include <bslmf_assert.h>
+#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isreferencewrapper.h>
 #include <bslmf_issame.h>
 
@@ -9,7 +11,6 @@
 #include <bsls_platform.h>
 
 #include <functional>
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -143,8 +144,7 @@ namespace TEST_CASE_USAGE {
 // Let us suppose that we wish to handle objects that will be passed to a
 // comparison function expecting references to the objects.  Let us suppose
 // further that these objects are large enough that we would not wish to move
-// them around bodily as they are sorted.  Note that plausible examples of uses
-// for this component are limited in freestanding C++98.
+// them around bodily as they are sorted.
 //
 // First, let us define the large-object type:
 // ```
@@ -257,23 +257,23 @@ int main(int argc, char *argv[])
       case 3: {
         // --------------------------------------------------------------------
         // TESTING CALLABLE
-        //   Testing that bsl::reference_wrapper is callable (in C++11)
+        //   Testing that `bsl::reference_wrapper` is callable (in C++11)
         //
         // Concerns:
-        // 1. That in appropriate build modes, bsl::reference_wrapper is
-        //    callable
+        // 1. That in appropriate build modes, `bsl::reference_wrapper` is
+        //    callable.
         //
         // Plan:
         // 1. Verify `BSLMF_REFERENCEWRAPPER_IS_ALIASED` is `true` on
-        //    on C++14 platforms.  Note that this test is a sanity check
+        //    C++14 platforms.  Note that this test is a sanity check
         //    and deliberately does not reproduce the logic in the component.
         //
-        // 2. Verify if `BSLMF_REFERENCEWRAPPER_IS_ALIASED` is `true`
+        // 2. Verify that if `BSLMF_REFERENCEWRAPPER_IS_ALIASED` is `true`,
         //    `bsl::reference_wrapper` is an alias to the platform standard
         //    library.
         //
-        // 3. Verify if `BSLMF_REFERENCEWRAPPER_IS_ALIASED` we can
-        //    assign a function reference to a `reference_wrapper` and
+        // 3. Verify that if `BSLMF_REFERENCEWRAPPER_IS_ALIASED` is `true`,
+        //    we can assign a function reference to a `reference_wrapper` and
         //    invoke it.
         //
         // Testing:
@@ -283,9 +283,9 @@ int main(int argc, char *argv[])
         if (verbose) puts("\nTESTING CALLABLE"
                           "\n================");
 
-#if  BSLS_COMPILERFEATURES_CPLUSPLUS >= 201402L
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
 #ifndef BSLMF_REFERENCEWRAPPER_IS_ALIASED
-        BSLMF_ASSERT(false && "reference_wrapper not aliased in C++14");
+        BSLMF_ASSERT(false && "reference_wrapper not aliased in C++11");
 #endif
 #endif
 
@@ -294,7 +294,7 @@ int main(int argc, char *argv[])
 
         ASSERT(true ==
                (bsl::is_same<std::reference_wrapper<Callable>,
-                             bsl::reference_wrapper<Callable> >::value));
+                             bsl::reference_wrapper<Callable>>::value));
 
         if (verbose) puts("\tverify `reference_wrapper` is callable");
 
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
         // Plan:
         // 1. For concern 1, instantiate `reference_wrapper` with both bitwise
         //    moveable and non-bitwise moveable types and verify that the
-        //    `bslmf::isBitwiseMovable` trait is true for both cases.
+        //    `bslmf::IsBitwiseMoveable` trait is true for both cases.
         //
         // 2. For concern 2, instantiate `reference_wrapper` with 2
         //    unrelated types and verify that the `bslmf::IsReferenceWrapper`

@@ -5,28 +5,35 @@
 #include <bsls_ident.h>
 BSLS_IDENT("$Id: $")
 
-//@PURPOSE: Provide copyable, assignable object wrapper for references.
+//@PURPOSE: Provide a copyable, assignable object wrapper for references.
 //
 //@CLASSES:
-//  bsl::reference_wrapper: class object to hold a reference to an object
+//  bsl::reference_wrapper: copyable, rebindable reference proxy
 //
 //@CANONICAL_HEADER: bsl_functional.h
 //
-//@DESCRIPTION: This component provides `bsl::reference_wrapper`, a reduced
-//  implementation of the standard C++2011 template of the same name, which
-//  simply wraps a reference into a copyable, assignable object to allow it to
-//  be stored in a place that cannot normally hold a reference, such as a
-//  standard container.  Because a reference wrapper is convertible to its
-//  contained reference type, it can be passed to functions that take such a
-//  reference.
+//@DESCRIPTION: This component provides `bsl::reference_wrapper`, a copyable,
+// rebindable proxy for a reference to an object or function.  As a
+// `reference_wrapper` is an object it can be stored in a place that cannot
+// normally hold a reference, such as an array or a Standard Library container.
+// A `reference_wrapper` is implicitly convertible to its contained reference
+// type so that it can be passed to functions that take such a reference.
+// Unlike a native C++ reference, which is immutably bound to its target at
+// initialization, a `reference_wrapper` may be rebound to refer to a different
+// target by assignment from another `reference_wrapper` object.
 //
-//  This component also provides the (free) helper functions `bsl::ref` and
-//  `bsl::cref` that may be used to generate `reference_wrapper` objects more
-//  concisely than with the constructor.
+// This component also provides the (free) helper functions `bsl::ref` and
+// `bsl::cref` that may be used to generate `reference_wrapper` objects more
+// concisely than with the constructor.
 //
-//  NOTE: This component is a partial implementation of the standard class,
-//  omitting support for use as a function object, and is in any case of
-//  limited usefulness in a pure C++98 environment.
+// NOTE: This component provides only a partial implementation of the standard
+// class template before C++11, omitting support for use as a function object.
+// Further, the C++ Standard Library uses `std::reference_wrapper` as a special
+// vocabulary type for several factory functions such as `std::bind`,
+// `std::make_pair`, and `std::make_tuple` to embed true references in the
+// created objects.  The `bsl` library does not implement those functions, but
+// uses the `std` implementations directly.  Hence, those features are not
+// available with our C++03 implementation.
 //
 ///Usage
 ///-----
@@ -37,8 +44,7 @@ BSLS_IDENT("$Id: $")
 // Let us suppose that we wish to handle objects that will be passed to a
 // comparison function expecting references to the objects.  Let us suppose
 // further that these objects are large enough that we would not wish to move
-// them around bodily as they are sorted.  Note that plausible examples of uses
-// for this component are limited in freestanding C++98.
+// them around bodily as they are sorted.
 //
 // First, let us define the large-object type:
 // ```
@@ -64,7 +70,7 @@ BSLS_IDENT("$Id: $")
 // ```
 // Finally, we define a generic function to sort two items:
 // ```
-// template <typename T>
+// template <class T>
 // void sortTwoItems(T& a, T& b)
 // {
 //     if (b < a) {
@@ -92,37 +98,42 @@ BSLS_IDENT("$Id: $")
 
 #include <bslscm_version.h>
 
-#include <bslmf_isbitwisemoveable.h>
 #include <bslmf_isreferencewrapper.h>
+#include <bslmf_istriviallycopyable.h>
+#include <bslmf_nestedtraitdeclaration.h>
 
-#include <bsls_keyword.h>
-#include <bsls_libraryfeatures.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_util.h>  // for BloombergLP::bsls::Util::addressOf
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-#include <functional>
+#ifndef BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
+#include <bslmf_isbitwisemoveable.h>
+#endif // BDE_DONT_ALLOW_TRANSITIVE_INCLUDES
 
-#define BSLMF_REFERENCEWRAPPER_IS_ALIASED
+#ifdef BSLS_COMPILERFEATURES_FULL_CPP11
+# include <functional>
+# define BSLMF_REFERENCEWRAPPER_IS_ALIASED
 
 namespace bsl {
 using std::cref;
 using std::ref;
 using std::reference_wrapper;
 }  // close enterprise namespace
-#endif
 
-#ifndef BSLMF_REFERENCEWRAPPER_IS_ALIASED
+#else   // C++03 implementation
+
 namespace bsl {
 
                     // =======================
                     // class reference_wrapper
                     // =======================
 
-/// This class is a wrapper that encapsulates an object reference, enabling
-/// operations not possible on actual references, including assignment,
-/// copying, and storage in standard containers.  When stored in a
-/// container, it enables functions defined to operate on references to the
-/// type represented to be called on the container elements.
+/// This class is a copyable, rebindable proxy for a reference to an object
+/// or function.  It encapsulates a reference into a value that can be
+/// reassigned to refer to a different target and can be stored where a
+/// native reference cannot, such as in a Standard Library container.  A
+/// `reference_wrapper` is implicitly convertible to a reference to the
+/// represented type, so it can be passed to functions expecting such a
+/// reference.
 template <class T>
 class reference_wrapper {
 
@@ -134,30 +145,35 @@ class reference_wrapper {
     // TYPES
     typedef T type;
 
+    // TRAITS
+    BSLMF_NESTED_TRAIT_DECLARATION(reference_wrapper,
+                                   bsl::is_trivially_copyable);
+
     // CREATORS
 
     /// Create a reference wrapper representing the specified `object`.
-    reference_wrapper(T& object) BSLS_KEYWORD_NOEXCEPT;             // IMPLICIT
+    reference_wrapper(T& object);                                   // IMPLICIT
 
+    /// Create a reference wrapper referring to the same object as the
+    /// specified `original`.
     //! reference_wrapper(const reference_wrapper& original) = default;
-        // Create a reference wrapper referring to the same object as the
-        // specified 'original'.
 
+    /// Destroy this object.
     //! ~reference_wrapper() = default;
-        // Destroy this object.
 
     // MANIPULATORS
+
+    /// Assign this object to refer to the same object as the specified
+    /// `rhs`, and return `*this`.
     //! reference_wrapper& operator=(const reference_wrapper& rhs) = default;
-        // Assign this object to refer to the same object as the specified
-        // 'rhs', and return '*this'.
 
     // ACCESSORS
 
     /// Return a reference to the object that `*this` represents.
-    T& get() const BSLS_KEYWORD_NOEXCEPT;
+    T& get() const;
 
     /// Return a reference to the object that `*this` represents.
-    operator T&() const BSLS_KEYWORD_NOEXCEPT;
+    operator T&() const;
 };
 
 // FREE FUNCTIONS
@@ -165,22 +181,21 @@ class reference_wrapper {
 /// Return a reference wrapper representing a `const` view of the specified
 /// `object`.
 template <class T>
-reference_wrapper<const T> cref(const T& object) BSLS_KEYWORD_NOEXCEPT;
+reference_wrapper<const T> cref(const T& object);
 
+/// Return a reference wrapper representing a `const` view of the same
+/// object as the specified `original`.
 template <class T>
-reference_wrapper<const T> cref(reference_wrapper<T> original)
-                                                         BSLS_KEYWORD_NOEXCEPT;
-    // Return a reference wrapper representing a 'const' view of the same
-    // object as the specified 'original'.
+reference_wrapper<const T> cref(reference_wrapper<T> original);
 
 /// Return a reference wrapper that represents the specified `object`.
 template <class T>
-reference_wrapper<T> ref(T& object) BSLS_KEYWORD_NOEXCEPT;
+reference_wrapper<T> ref(T& object);
 
 /// Return a reference wrapper that represents the same object as the
 /// specified `original`.
 template <class T>
-reference_wrapper<T> ref(reference_wrapper<T> original) BSLS_KEYWORD_NOEXCEPT;
+reference_wrapper<T> ref(reference_wrapper<T> original);
 
 }  // close namespace bsl
 
@@ -195,7 +210,7 @@ reference_wrapper<T> ref(reference_wrapper<T> original) BSLS_KEYWORD_NOEXCEPT;
 // CREATORS
 template <class T>
 inline
-bsl::reference_wrapper<T>::reference_wrapper(T& object) BSLS_KEYWORD_NOEXCEPT
+bsl::reference_wrapper<T>::reference_wrapper(T& object)
   : d_represented_p(BloombergLP::bsls::Util::addressOf(object))
 {
 }
@@ -203,14 +218,14 @@ bsl::reference_wrapper<T>::reference_wrapper(T& object) BSLS_KEYWORD_NOEXCEPT
 // ACCESSORS
 template <class T>
 inline
-T& bsl::reference_wrapper<T>::get() const BSLS_KEYWORD_NOEXCEPT
+T& bsl::reference_wrapper<T>::get() const
 {
     return *d_represented_p;
 }
 
 template <class T>
 inline
-bsl::reference_wrapper<T>::operator T&() const BSLS_KEYWORD_NOEXCEPT
+bsl::reference_wrapper<T>::operator T&() const
 {
     return *d_represented_p;
 }
@@ -219,7 +234,6 @@ bsl::reference_wrapper<T>::operator T&() const BSLS_KEYWORD_NOEXCEPT
 template <class T>
 inline
 bsl::reference_wrapper<const T> bsl::cref(const T& object)
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return reference_wrapper<const T>(object);
 }
@@ -227,14 +241,13 @@ bsl::reference_wrapper<const T> bsl::cref(const T& object)
 template <class T>
 inline
 bsl::reference_wrapper<const T> bsl::cref(bsl::reference_wrapper<T> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return cref(original.get());
 }
 
 template <class T>
 inline
-bsl::reference_wrapper<T> bsl::ref(T& object) BSLS_KEYWORD_NOEXCEPT
+bsl::reference_wrapper<T> bsl::ref(T& object)
 {
     return reference_wrapper<T>(object);
 }
@@ -242,21 +255,9 @@ bsl::reference_wrapper<T> bsl::ref(T& object) BSLS_KEYWORD_NOEXCEPT
 template <class T>
 inline
 bsl::reference_wrapper<T> bsl::ref(bsl::reference_wrapper<T> original)
-                                                          BSLS_KEYWORD_NOEXCEPT
 {
     return ref(original.get());
 }
-
-// TRAITS
-
-namespace BloombergLP {
-namespace bslmf {
-
-template <class T>
-struct IsBitwiseMoveable<bsl::reference_wrapper<T> > : bsl::true_type { };
-
-}  // close namespace bslmf
-}  // close enterprise namespace
 
 #endif // BSLMF_REFERENCEWRAPPER_IS_ALIASED
 
