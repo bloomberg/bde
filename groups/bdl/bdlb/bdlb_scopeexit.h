@@ -606,7 +606,6 @@ BSLS_IDENT("$Id: $")
         BloombergLP::bdlb::ScopeExitAny NAME((EXIT_FUNC))
 #endif
 
-
 /// This macro is for use by `BDLB_SCOPEEXIT_GUARD` only to provide unique
 /// variable names.  It is *not* undefined by the end of the file but its
 /// direct use is not supported under any circumstances.
@@ -620,8 +619,8 @@ BSLS_IDENT("$Id: $")
 /// This macro is for use by `BDLB_SCOPEEXIT_GUARD` only to provide unique
 /// variable names.  It is *not* undefined by the end of the file but its
 /// direct use is not supported under any circumstances.
-#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFCORM_CMP_GNU) ||     \
-    defined(BSLS_PLATFCORM_CMP_CLANG)
+#if defined(BSLS_PLATFORM_CMP_MSVC) || defined(BSLS_PLATFORM_CMP_GNU) ||     \
+    defined(BSLS_PLATFORM_CMP_CLANG)
     // MSVC: The '__LINE__' macro breaks when '/ZI' is used (see Q199057 or
     // KB199057).  Fortunately the '__COUNTER__' extension provided by MSVC
     // is even better.  Since '__COUNTER__' is also available on all our
