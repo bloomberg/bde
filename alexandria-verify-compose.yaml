@@ -1,0 +1,35 @@
+# Used by the Devise dolphin plugin (verify.dolphin in devise.yaml) to run
+# Alexandria doc generation as a PR verify check.
+services:
+  alexandria-docs:
+    image: artprod.dev.bloomberg.com/alexandria/alexandria-generator-do2:stable
+    volumes:
+      - .:/alexandria/source:ro
+      - /tmp/alexandria-bde-generated:/alexandria/generated
+    # On failure, print a banner with reproduce-locally instructions.
+    # ($$ escapes '$' from compose's variable substitution.)
+    command:
+      - /opt/bb/bin/bash
+      - -c
+      - |
+        /alexandria/bin/generate
+        rc=$$?
+        if [ $$rc -ne 0 ]; then
+          echo "" >&2
+          echo "=======================================================================" >&2
+          echo "  Alexandria doc generation failed for this PR." >&2
+          echo "" >&2
+          echo "  This check runs the same generator (do2) that publishes docs" >&2
+          echo "  to the Alexandria portal. A failure here means your PR would" >&2
+          echo "  break doc generation on the unstable Alexandria pipeline." >&2
+          echo "" >&2
+          echo "  To reproduce locally, install alexandria-cli and run:" >&2
+          echo "" >&2
+          echo "      alexandria-cli generate" >&2
+          echo "" >&2
+          echo "  Full install + usage instructions:" >&2
+          echo "      https://tutti.prod.bloomberg.com/alexandria/alexandria-cli/README" >&2
+          echo "=======================================================================" >&2
+          echo "" >&2
+        fi
+        exit $$rc

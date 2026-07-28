@@ -12,3 +12,8 @@ verify:
     ctest_args: ''
     jobs: 8
     sanitizers: []
+  dolphin:
+    # Verify that the Doxygen documentation was not broken.
+    file: alexandria-verify-compose.yaml
+    services:
+    - alexandria-docs
