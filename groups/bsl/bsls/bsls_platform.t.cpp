@@ -554,12 +554,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_CMP_GNU);
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_HP)
-    P_MACRO(BSLS_PLATFORM_CMP_HP);
-#else
-    D_MACRO(BSLS_PLATFORM_CMP_HP);
-#endif
-
 #if defined(BSLS_PLATFORM_CMP_MSVC)
     P_MACRO(BSLS_PLATFORM_CMP_MSVC);
 #else
@@ -594,12 +588,6 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM_CPU_64_BIT);
 #else
     D_MACRO(BSLS_PLATFORM_CPU_64_BIT);
-#endif
-
-#if defined(BSLS_PLATFORM_CPU_88000)
-    P_MACRO(BSLS_PLATFORM_CPU_88000);
-#else
-    D_MACRO(BSLS_PLATFORM_CPU_88000);
 #endif
 
 #if defined(BSLS_PLATFORM_CPU_ALPHA)
@@ -937,12 +925,6 @@ static void printFlags()
     D_MACRO(BDES_PLATFORM__CMP_GNU);
 #endif
 
-#if defined(BDES_PLATFORM__CMP_HP)
-    P_MACRO(BDES_PLATFORM__CMP_HP);
-#else
-    D_MACRO(BDES_PLATFORM__CMP_HP);
-#endif
-
 #if defined(BDES_PLATFORM__CMP_MSVC)
     P_MACRO(BDES_PLATFORM__CMP_MSVC);
 #else
@@ -1061,12 +1043,6 @@ static void printFlags()
     P_MACRO(BSLS_PLATFORM__CMP_GNU);
 #else
     D_MACRO(BSLS_PLATFORM__CMP_GNU);
-#endif
-
-#if defined(BSLS_PLATFORM__CMP_HP)
-    P_MACRO(BSLS_PLATFORM__CMP_HP);
-#else
-    D_MACRO(BSLS_PLATFORM__CMP_HP);
 #endif
 
 #if defined(BSLS_PLATFORM__CMP_MSVC)
@@ -2093,18 +2069,6 @@ static void printFlags()
 
                       // Legacy hardware platforms (Itanium)
 
-#if defined(__HP_aCC)
-    P_MACRO(__HP_aCC);
-#else
-    D_MACRO(__HP_aCC);
-#endif
-
-#if defined(__HP_cc)
-    P_MACRO(__HP_cc);
-#else
-    D_MACRO(__HP_cc);
-#endif
-
 #if defined(_IA64)
     P_MACRO(_IA64);
 #else
@@ -2577,9 +2541,6 @@ int main(int argc, char *argv[])
         #if defined(BSLS_PLATFORM_CMP_GNU)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_GNU, 0);
         #endif
-        #if defined(BSLS_PLATFORM_CMP_HP)
-            MACRO_TESTGT(BSLS_PLATFORM_CMP_HP, 0);
-        #endif
         #if defined(BSLS_PLATFORM_CMP_MSVC)
             MACRO_TESTGT(BSLS_PLATFORM_CMP_MSVC, 0);
         #endif
@@ -2655,9 +2616,6 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("\nPrint CPU-related Symbols:\n");
 
-        #if defined(BSLS_PLATFORM_CPU_88000)
-            MACRO_TESTEQ(BSLS_PLATFORM_CPU_88000, 1);
-        #endif
         #if defined(BSLS_PLATFORM_CPU_ALPHA)
             MACRO_TESTEQ(BSLS_PLATFORM_CPU_ALPHA, 1);
         #endif

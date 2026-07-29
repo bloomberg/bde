@@ -63,9 +63,8 @@ BSLS_IDENT("$Id: $")
 // ------------------------------------------------------------
 // Instruction Set     Width                   Version
 // -----------------   ------------------      ----------------
-// @_CPU_88000         @_CPU_32_BIT            @_CPU_VER_MAJOR
-// @_CPU_ALPHA         @_CPU_64_BIT
-// @_CPU_HPPA
+// @_CPU_ALPHA         @_CPU_32_BIT            @_CPU_VER_MAJOR
+// @_CPU_HPPA          @_CPU_64_BIT
 // @_CPU_X86
 // @_CPU_IA64
 // @_CPU_X86_64
@@ -82,7 +81,6 @@ BSLS_IDENT("$Id: $")
 // @_CMP_CLANG         @_CMP_VERSION
 // @_CMP_EDG           @_CMP_VER_MAJOR (deprecated)
 // @_CMP_GNU
-// @_CMP_HP
 // @_CMP_MSVC
 // @_CMP_SUN
 //
@@ -645,10 +643,6 @@ struct bsls_Platform_Assert;
     // No minimum supported compiler version has been identified yet.
 #elif defined(BSLS_PLATFORM_CMP_EDG)
     // No minimum supported compiler version has been identified yet.
-#elif defined(BSLS_PLATFORM_CMP_HP)
-    #if BSLS_PLATFORM_CMP_VERSION < 62500
-        #error This early compiler is not supported by BDE
-    #endif
 #elif defined(BSLS_PLATFORM_CMP_SUN)
     #if BSLS_PLATFORM_CMP_VERSION < 0x5120
         #error This early compiler is not supported by BDE
@@ -773,7 +767,6 @@ struct bsls_Platform_Assert;
 #if BSLS_PLATFORM_CMP_CLANG                                                   \
   + BSLS_PLATFORM_CMP_EDG                                                     \
   + BSLS_PLATFORM_CMP_GNU                                                     \
-  + BSLS_PLATFORM_CMP_HP                                                      \
   + BSLS_PLATFORM_CMP_MSVC                                                    \
   + BSLS_PLATFORM_CMP_SUN != 1
     #error "Exactly one compiler must be set."
@@ -816,8 +809,7 @@ struct bsls_Platform_Assert;
 #endif
 
 // Exactly one 'CPU' type.
-#if BSLS_PLATFORM_CPU_88000                                                   \
-  + BSLS_PLATFORM_CPU_ALPHA                                                   \
+#if BSLS_PLATFORM_CPU_ALPHA                                                   \
   + BSLS_PLATFORM_CPU_HPPA                                                    \
   + BSLS_PLATFORM_CPU_IA64                                                    \
   + BSLS_PLATFORM_CPU_X86                                                     \
@@ -1020,9 +1012,6 @@ typedef bsls::Platform bsls_Platform;
 #ifdef BSLS_PLATFORM_CMP_GNU
 # define BDES_PLATFORM__CMP_GNU BSLS_PLATFORM_CMP_GNU
 #endif
-#ifdef BSLS_PLATFORM_CMP_HP
-# define BDES_PLATFORM__CMP_HP BSLS_PLATFORM_CMP_HP
-#endif
 #ifdef BSLS_PLATFORM_CMP_MSVC
 # define BDES_PLATFORM__CMP_MSVC BSLS_PLATFORM_CMP_MSVC
 #endif
@@ -1085,9 +1074,6 @@ typedef bsls::Platform bsls_Platform;
 #endif
 #ifdef BSLS_PLATFORM_CMP_GNU
 # define BSLS_PLATFORM__CMP_GNU BSLS_PLATFORM_CMP_GNU
-#endif
-#ifdef BSLS_PLATFORM_CMP_HP
-# define BSLS_PLATFORM__CMP_HP BSLS_PLATFORM_CMP_HP
 #endif
 #ifdef BSLS_PLATFORM_CMP_MSVC
 # define BSLS_PLATFORM__CMP_MSVC BSLS_PLATFORM_CMP_MSVC
