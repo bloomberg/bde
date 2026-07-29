@@ -185,7 +185,7 @@ BSLS_IDENT("$Id: $")
 //                                             "bdePrint"
 //                                             (*Note*)
 //
-// "fractionalSecPrecision"  second precision  "none",         "microseconds"
+// "fractionalSecPrecision"  second precision  "none",         "milliseconds"
 //                                             "milliseconds",
 //                                             "microseconds"
 //
