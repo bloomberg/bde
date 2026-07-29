@@ -958,7 +958,7 @@ bsl::wstring operator ""_s(const wchar_t *characterString, std::size_t length)
 }
 
 #if !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                   \
-    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 800000)
+    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 80000)
 bsl::string operator ""_S(const char *characterString, std::size_t length)
 {
     BSLS_ASSERT_SAFE(characterString || 0 == length);

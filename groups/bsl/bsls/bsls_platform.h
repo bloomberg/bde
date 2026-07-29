@@ -666,7 +666,7 @@ struct bsls_Platform_Assert;
 
 #ifdef BSLS_PLATFORM_CMP_VERSION
 /// This deprecated macro is defined for backwards compatibility only.
-#define BSLS_PLATFORM_CMP_VER_MAJOR  BSLS_PLATFORM_CMP_VERSION
+    #define BSLS_PLATFORM_CMP_VER_MAJOR  BSLS_PLATFORM_CMP_VERSION
 #endif
 // ----------------------------------------------------------------------------
 
@@ -676,7 +676,7 @@ struct bsls_Platform_Assert;
     #define BSLS_PLATFORM_NO_64_BIT_LITERALS                                  1
 #endif
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40600)  \
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40600)    \
                                     || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC                           1
     #if defined(BSLS_PLATFORM_CMP_CLANG)

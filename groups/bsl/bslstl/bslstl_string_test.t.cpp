@@ -527,7 +527,7 @@ void aSsErT(bool condition, const char *message, int line)
 #endif
 
 #if defined(BSLS_PLATFORM_OS_SOLARIS) ||                                      \
-   !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 800000)
+   !(defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION < 80000)
 /// The Solaris platform has a function-like `_S` macro that conflicts with
 /// the BDE `_S` literal operator on gcc, at least for early versions of the
 /// compiler that do not correctly parse `""_S` as a single token, which

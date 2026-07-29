@@ -21,8 +21,8 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Sun Sep  1 05:38:31 2024
-// Command line: sim_cpp11_features.pl bslmf_functionpointertraits.h
+// Generated on Tue Jul 28 17:28:28 2026
+// Command line: sim_cpp11_features.py bslmf_functionpointertraits.h
 
 #ifdef COMPILING_BSLMF_FUNCTIONPOINTERTRAITS_H
 
@@ -81,7 +81,7 @@ struct IsFunctionPointer
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslmf_functionpointertraits.h
+// Command line: sim_cpp11_features.py bslmf_functionpointertraits.h
 #ifndef BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT
 #define BSLMF_FUNCTIONPOINTERTRAITS_VARIADIC_LIMIT 14
 #endif
@@ -90,7 +90,7 @@ struct IsFunctionPointer
 #endif
 
 #if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN)    \
-        || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
+        || BSLS_PLATFORM_CMP_VERSION > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif
@@ -1313,7 +1313,7 @@ struct FunctionPointerTraits<t_BSLMF_RETURN (*)(t_ARGS_01,
 // forwarding in some compilers.
 
 #if defined(BSLS_PLATFORM_CMP_CLANG) && (!defined(BSLS_PLATFORM_OS_DARWIN)    \
-        || BSLS_PLATFORM_CMP_VER_MAJOR > 130000)
+        || BSLS_PLATFORM_CMP_VERSION > 130000)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-volatile"
 #endif

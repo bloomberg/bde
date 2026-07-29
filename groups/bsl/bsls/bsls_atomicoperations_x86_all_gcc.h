@@ -203,7 +203,7 @@ inline
 Types::Int64 AtomicOperations_X86_ALL_GCC::
     getInt64(const AtomicTypes::Int64 *atomicInt)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40300 // gcc >= 4.3
+#if BSLS_PLATFORM_CMP_VERSION >= 40300 // gcc >= 4.3
     Types::Int64 value = atomicInt->d_value;
     return __sync_val_compare_and_swap(
                 const_cast<Types::Int64 *>(&atomicInt->d_value),
@@ -262,7 +262,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
     swapInt64(AtomicTypes::Int64 *atomicInt,
               Types::Int64 swapValue)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40300 // gcc >= 4.3
+#if BSLS_PLATFORM_CMP_VERSION >= 40300 // gcc >= 4.3
     Types::Int64 oldValue;
 
     do
@@ -315,7 +315,7 @@ Types::Int64 AtomicOperations_X86_ALL_GCC::
                      Types::Int64 compareValue,
                      Types::Int64 swapValue)
 {
-#if BSLS_PLATFORM_CMP_VER_MAJOR >= 40300 // gcc >= 4.3
+#if BSLS_PLATFORM_CMP_VERSION >= 40300 // gcc >= 4.3
     return __sync_val_compare_and_swap(&atomicInt->d_value,
                                        compareValue,
                                        swapValue);

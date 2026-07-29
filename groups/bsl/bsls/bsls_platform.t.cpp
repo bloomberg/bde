@@ -572,12 +572,6 @@ static void printFlags()
     D_MACRO(BSLS_PLATFORM_CMP_VERSION);
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_VER_MAJOR)
-    P_MACRO(BSLS_PLATFORM_CMP_VER_MAJOR);
-#else
-    D_MACRO(BSLS_PLATFORM_CMP_VER_MAJOR);
-#endif
-
 #if defined(BSLS_PLATFORM_CPU_32_BIT)
     P_MACRO(BSLS_PLATFORM_CPU_32_BIT);
 #else
@@ -918,6 +912,12 @@ static void printFlags()
 
     puts("\n  printFlags: Deprecated macros for legacy support");
     puts(  "  ------------------------------------------------");
+
+#if defined(BSLS_PLATFORM_CMP_VER_MAJOR)
+    P_MACRO(BSLS_PLATFORM_CMP_VER_MAJOR);
+#else
+    D_MACRO(BSLS_PLATFORM_CMP_VER_MAJOR);
+#endif
 
 #if defined(BDES_PLATFORM__CMP_GNU)
     P_MACRO(BDES_PLATFORM__CMP_GNU);

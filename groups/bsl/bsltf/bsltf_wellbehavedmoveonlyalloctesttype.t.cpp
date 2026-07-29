@@ -353,7 +353,7 @@ int main(int argc, char *argv[])
         //    assertion.
         //
         // Plan:
-        // 1. Create an memory buffer and create a new object with
+        // 1. Create a memory buffer and create a new object with
         //    placement-new.
         //
         // 2. Install an assertion handler that will call `exit` if triggered.
@@ -390,14 +390,14 @@ int main(int argc, char *argv[])
 
                 new (&a) Obj(5);
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 80000)
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 80000)
 #               pragma GCC diagnostic push
 #               pragma GCC diagnostic ignored "-Wclass-memaccess"
 #endif
 
                 ::memcpy(static_cast<void *>(&b), &a, sizeof(a));
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 80000)
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 80000)
 #               pragma GCC diagnostic pop
 #endif
 

@@ -3,7 +3,7 @@
 #include <bslmf_isaccessiblebaseof.h>
 
 #include <bsls_bsltestutil.h>
-#include <bsls_platform.h>
+#include <bsls_compilerfeatures.h>
 
 #include <stdio.h>   // `printf`
 #include <stdlib.h>  // `atoi`
@@ -81,23 +81,11 @@ void aSsErT(bool condition, const char *message, int line)
 //                    GLOBAL CLASS DEFINITIONS FOR TESTING
 // ----------------------------------------------------------------------------
 
-#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L
-    // Prior to C++11, access checks through ambiguous, protected, or private
-    // inherritance are hard errors.
-# if defined (BSLS_PLATFORM_CMP_SUN) && (BSLS_PLATFORM_CMP_VERSION == 0x5C4)
-        // The SUN compiler version 5.12.4 is permissive, and allows SFINAE
-        // participation even in C++03 build mode.
-#  define BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
-# endif
-#else
-    // In C++11 and later, access checks through ambiguous, protected, or
-    // private inheritance are allowed to participate in SFINAE.
-# if defined (BSLS_PLATFORM_CMP_MSVC) && (BSLS_PLATFORM_CMP_VERSION == 1900)
-        // The MSVC2015 compiler incorrectly produces a compilation error even
-        // in C++11 or later build modes.
-# else
-#  define BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
-# endif
+#if BSLS_COMPILERFEATURES_FULL_CPP11
+    // Access checks through ambiguous, protected, or private inheritance
+    // participate in SFINAE only in C++11 and later.  `FULL_CPP11` further
+    // excludes MSVC 2015, which incorrectly produces a hard error.
+# define BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
 #endif
 
 using namespace BloombergLP;
@@ -109,8 +97,8 @@ class Derived : public Base {
 };
 
 #ifdef BSLMF_ISACCESSIBLEBASEOF_PRIVATE_AND_AMBIGUOUS_BASE_SFINAE_SUPPORTED
-        // Prior to C++11 these are ill-formed and not expected to compile, but
-        // the SUN compiler is permissive
+        // Well-formed only in C++11 and later, where these access checks
+        // participate in SFINAE.
 class PrivatelyDerived : private Base {
   public:
     bool IsBaseTest()

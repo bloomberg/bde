@@ -115,26 +115,18 @@ void aSsErT(bool condition, const char *message, int line)
 //-----------------------------------------------------------------------------
 
 #if defined(BSLS_PLATFORM_CMP_SUN) && BSLS_PLATFORM_CMP_VERSION < 0x5130
-# define BSLMF_ISBITWISEEQUALITYCOMPARABLE_ABOMINABLE_FUNCTION_MATCH_CONST 1
-// The Solaris CC compiler matches `const` qualified abominable functions as
-// `const`-qualified template parameters, but does not strip the `const`
-// qualifier when passing that template parameter onto the next instantiation.
-// Therefore, `IsBitwiseEqualityComparable<void() const>` requests infinite
-// template recursion.  We opt to not try a workaround in the header for this
-// platform, where we would delegate to the same implementation as the primary
-// template, as that would leave an awkward difference in behavior for `const`
-// qualified class types between using a nested trait and directly specializing
-// the trait.  Abominable function types are a sufficiently unlikely corner
-// case in production code that the risk from simply silencing this test case
-// (on just this broken platform) is negligible.
-#endif
-
-#if (defined(BSLS_PLATFORM_CMP_MSVC) && BSLS_PLATFORM_CMP_VERSION < 0x1900)   \
- || defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_ABOMINABLE_FUNCTION_MATCH_CONST)
-# define BSLMF_ISBITWISEEQUALITYCOMPARABLE_NO_ABOMINABLE_FUNCTIONS  1
-// Older MSVC compilers do not parse abominable function types, so it does not
-// matter whether trait would support them or not, we can simply disable such
-// tests on this platform.
+# define BSLMF_ISBITWISEEQUALITYCOMPARABLE_ABOMINABLE_FUNCTION_MATCH_CV 1
+// The Solaris CC compiler matches cv-qualified abominable functions as
+// cv-qualified template parameters, but does not strip the cv-qualifier when
+// passing that template parameter onto the next instantiation.  Thus,
+// `IsBitwiseEqualityComparable<void() const>` would request infinite template
+// recursion.  We opt to not try a workaround in the header for this platform,
+// where we would delegate to the same implementation as the primary template,
+// as that would leave an awkward difference in behavior for cv-qualified
+// class types between using a nested trait and directly specializing the
+// trait.  Abominable function types are a sufficiently unlikely corner case
+// in production code that the risk from simply silencing this test case (on
+// just this broken platform) is negligible.
 #endif
 
 //=============================================================================
@@ -507,7 +499,7 @@ void aSsErT(bool condition, const char *message, int line)
 // ```
 // Finally, we check that the traits are correctly associated by instantiating
 // each template with types that are bitwise EqualityComparable and with types
-// that are not not bitwise EqualityComparable, verifying the value of
+// that are not bitwise EqualityComparable, verifying the value of
 // `IsBitwiseEqualityComparable<T>::value` in each case:
 // ```
     int usageExample2()
@@ -962,7 +954,7 @@ int main(int argc, char *argv[])
             ASSERT_IS_BITWISE_COMPARABLE_TYPE(FuncType, false);
         }
 #endif
-#if !defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_NO_ABOMINABLE_FUNCTIONS)
+#if !defined(BSLMF_ISBITWISEEQUALITYCOMPARABLE_ABOMINABLE_FUNCTION_MATCH_CV)
         ASSERT(!bslmf::IsBitwiseEqualityComparable<void() volatile>::value);
 #ifndef MSVC_FAILS_ON_VOID_ELLIPSIS
         ASSERT(!bslmf::IsBitwiseEqualityComparable<void(...) const>::value);

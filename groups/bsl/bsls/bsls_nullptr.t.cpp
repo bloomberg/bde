@@ -79,13 +79,13 @@ static void aSsErT(bool b, const char *s, int i)
      BSLS_PLATFORM_CMP_VERSION >= 1930)
     // Although fixed on all non-MSVC platforms from C++11 onwards, this was
     // not fixed on MSVC until MSVC 1930 (VS 2022) and only in C++20 mode.
-# define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903
+# define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_903   1
 #endif
 
 #if (BSLS_COMPILERFEATURES_CPLUSPLUS >= 201103L &&                            \
      !defined(BSLS_PLATFORM_CMP_MSVC)           &&                            \
      !(defined(BSLS_PLATFORM_CMP_GNU)           &&                            \
-       BSLS_PLATFORM_CMP_VER_MAJOR < 60000))         ||                       \
+       BSLS_PLATFORM_CMP_VERSION < 60000))           ||                       \
     (BSLS_COMPILERFEATURES_CPLUSPLUS >= 202002L &&                            \
      defined(BSLS_PLATFORM_CMP_MSVC)            &&                            \
      BSLS_PLATFORM_CMP_VERSION >= 1930)
@@ -94,16 +94,14 @@ static void aSsErT(bool b, const char *s, int i)
     // not implemented in gcc 4.9.2 (the most recent version tested).  It may
     // be fixed in gcc 5, we are optimistically assuming it will be fixed for
     // gcc 6. This was fixed in MSVC 1930 (VS 2022) and only in C++20 mode.
-# define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_XXX
+# define BSLS_NULLPTR_IMPLEMENTS_RESOLUTION_OF_CORE_DEFECT_REPORT_XXX   1
 #endif
 
-#if (BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L) \
-  && defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR <= 199711
-    // gcc cannot handle certain overload resolution regarding references in
-    // C++03 mode, so we do not attempt certain known-to-be-broken tests.  The
-    // condition is deliberately written so that it enables the tests again
-    // starting with the next major gcc version.
-# define BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN
+#if BSLS_COMPILERFEATURES_CPLUSPLUS < 201103L && defined(BSLS_PLATFORM_CMP_GNU)
+    // gcc does not correctly handle certain overload resolution regarding
+    // references in C++03 mode.  We do not expect a C++03 bug fix at this
+    // point, but update our tests to fail if the compiler is ever fixed.
+# define BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN  1
 #endif
 //=============================================================================
 //                  GLOBAL HELPER FUNCTIONS FOR TESTING
@@ -323,9 +321,7 @@ int main(int argc, char *argv[])
         static void *const Cptr = 0;
         void *ptr = 0;
         int Local::*mem = 0;
-#if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         static const int& s_zeroRef = 0;
-#endif
         int zero = 0;
 
         enum { MY_NULL = 0 };
@@ -373,6 +369,9 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         ASSERT(!Local::isNullPointer(s_zeroRef));
         ASSERT(!Local::isNullPointer(s_zeroRef*1));
+#else
+        ASSERT( Local::isNullPointer(s_zeroRef));
+        ASSERT( Local::isNullPointer(s_zeroRef*1));
 #endif
         ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));
@@ -436,9 +435,7 @@ int main(int argc, char *argv[])
         static void *const Cptr = 0;
         void *ptr = 0;
         int Local::*mem = 0;
-#if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         static const int& s_zeroRefGcc = 0;
-#endif
         int zero = 0;
 
         enum { MY_NULL = 0 };
@@ -464,6 +461,9 @@ int main(int argc, char *argv[])
 #if !defined(BSLS_NULLPTR_ZEROREF_GCC_TESTS_BROKEN)
         ASSERT(!Local::isNullPointer(s_zeroRefGcc));
         ASSERT(!Local::isNullPointer(s_zeroRefGcc*1));
+#else
+        ASSERT( Local::isNullPointer(s_zeroRefGcc));
+        ASSERT( Local::isNullPointer(s_zeroRefGcc*1));
 #endif
         ASSERT(!Local::isNullPointer(1));
         ASSERT(!Local::isNullPointer(MY_NULL));

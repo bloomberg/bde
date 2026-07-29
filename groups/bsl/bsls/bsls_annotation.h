@@ -254,7 +254,7 @@ BSLS_IDENT("$Id: $")
 #endif
 
 #if (defined(BSLS_PLATFORM_CMP_GNU) &&                                        \
-    BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) ||                                  \
+    BSLS_PLATFORM_CMP_VERSION >= 40300) ||                                    \
     defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_ALLOC_SIZE(x) __attribute__((__alloc_size__(x)))
     #define BSLS_ANNOTATION_ALLOC_SIZE_MUL(x, y) \
@@ -280,9 +280,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_DEPRECATED
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
-    defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_FORMAT(arg) __attribute__((format_arg(arg)))
 #else
     #define BSLS_ANNOTATION_FORMAT(arg)
@@ -297,10 +295,7 @@ BSLS_IDENT("$Id: $")
     #define BSLS_ANNOTATION_NULL_TERMINATED_AT(x)
 #endif
 
-#if defined(BSLS_PLATFORM_CMP_GNU)   ||                                       \
-    defined(BSLS_PLATFORM_CMP_CLANG) ||                                       \
-    defined(BSLS_PLATFORM_CMP_HP)    ||                                       \
-    defined(BSLS_PLATFORM_CMP_IBM)
+#if defined(BSLS_PLATFORM_CMP_GNU) || defined(BSLS_PLATFORM_CMP_CLANG)
     #define BSLS_ANNOTATION_PRINTF(fmt, arg) \
                                       __attribute__((format(printf, fmt, arg)))
     #define BSLS_ANNOTATION_SCANF(fmt, arg) \

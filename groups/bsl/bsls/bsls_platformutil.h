@@ -240,7 +240,7 @@ struct PlatformUtil {
 #else
     /// Use built-in if using gcc 4.3.
 
-#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VER_MAJOR >= 40300) \
+#if (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 40300) \
  || defined(BSLS_PLATFORM_CMP_CLANG)
 #define BSLS_PLATFORMUTIL_NTOHL(x) (unsigned) __builtin_bswap32(x)
 #else

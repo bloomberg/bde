@@ -3480,10 +3480,6 @@ void TestDriver<TYPE, TRAITS>::testCase17()
                 }
             }
 
-#if !defined(BSLSTL_STRING_VIEW_IS_ALIASED) || \
-    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 900000)
-    // Earlier versions of the library do not default the first parameter.
-
             // Testing default `position` value.  We can not test method for a
             // zero-length object, because it unconditionally leads to the
             // undefined behavior.
@@ -3499,7 +3495,6 @@ void TestDriver<TYPE, TRAITS>::testCase17()
                 ASSERTV(OFFSET, LENGTH,
                         EXPECTED_LENGTH == RESULT.length());
             }
-#endif
         }
     }
 

@@ -35,7 +35,8 @@
 //    were properly passed to the underlying compiler directives?
 //
 // The single run-time "test" provided by this test driver, the BREATHING TEST,
-// does nothing.
+// makes no assertions.  When run in verbose mode it reports the annotation
+// macro definitions, the detected compiler, and its version.
 //
 // The controlling preprocessor variables are:
 //
@@ -108,27 +109,24 @@
 // Note that all annotations are defined as empty unless one is on a conforming
 // compiler (e.g., `BSLS_PLATFORM_CMP_GNU` is defined).  Also note that there
 // are minimum version requirements for several annotations; otherwise they are
-// undefined.  Finally note that, if defined, the values for
-// `BSLS_PLATFORM_CMP_GNU` and `BSLS_PLATFORM_CMP_VER_MAJOR` are output when
-// the BREATHING TEST is run in verbose mode.
+// undefined.
 // ```
-//  +--------------------------------+------------------------------------+
-//  | Minimum                        |                                    |
-//  | `BSLS_PLATFORM_CMP_VER_MAJOR` | Annotations                        |
-//  +--------------------------------+------------------------------------+
-//  |                         30100  |`BSLS_ANNOTATION_DEPRECATED`        |
-//  +--------------------------------+------------------------------------+
-//  |                         30300  |`BSLS_ANNOTATION_ARG_NON_NULL`      |
-//  |                                |`BSLS_ANNOTATION_ARGS_NON_NULL`     |
-//  +--------------------------------+------------------------------------+
-//  |                         30400  |`BSLS_ANNOTATION_WARN_UNUSED_RESULT`|
-//  +--------------------------------+------------------------------------+
-//  |                         40000  |`BSLS_ANNOTATION_NULL_TERMINATED`   |
-//  |                                |`BSLS_ANNOTATION_NULL_TERMINATED_AT`|
-//  +--------------------------------+------------------------------------+
-//  |                         40300  |`BSLS_ANNOTATION_ALLOC_SIZE`        |
-//  |                                |`BSLS_ANNOTATION_ALLOC_SIZE_MUL`    |
-//  +--------------------------------+------------------------------------+
+//  +------------------------------------+------------------------------------+
+//  | Minimum `BSLS_PLATFORM_CMP_VERSION`| Annotations                        |
+//  +------------------------------------+------------------------------------+
+//  |                              30100 |`BSLS_ANNOTATION_DEPRECATED`        |
+//  +------------------------------------+------------------------------------+
+//  |                              30300 |`BSLS_ANNOTATION_ARG_NON_NULL`      |
+//  |                                    |`BSLS_ANNOTATION_ARGS_NON_NULL`     |
+//  +------------------------------------+------------------------------------+
+//  |                              30400 |`BSLS_ANNOTATION_WARN_UNUSED_RESULT`|
+//  +------------------------------------+------------------------------------+
+//  |                              40000 |`BSLS_ANNOTATION_NULL_TERMINATED`   |
+//  |                                    |`BSLS_ANNOTATION_NULL_TERMINATED_AT`|
+//  +------------------------------------+------------------------------------+
+//  |                              40300 |`BSLS_ANNOTATION_ALLOC_SIZE`        |
+//  |                                    |`BSLS_ANNOTATION_ALLOC_SIZE_MUL`    |
+//  +------------------------------------+------------------------------------+
 // ```
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
@@ -709,6 +707,32 @@ static void printFlags()
          STRINGIFY(BSLS_ANNOTATION_WARN_UNUSED_RESULT));
 #else
     puts("\n  BSLS_ANNOTATION_WARN_UNUSED_RESULT: UNDEFINED");
+#endif
+
+    puts("\n  printFlags: Compiler and Version");
+
+#ifdef BSLS_PLATFORM_CMP_CLANG
+    puts("\n  BSLS_PLATFORM_CMP_CLANG: " STRINGIFY(BSLS_PLATFORM_CMP_CLANG));
+    puts("\n  BSLS_PLATFORM_CMP_VERSION: "
+         STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_GNU
+    puts("\n  BSLS_PLATFORM_CMP_GNU: " STRINGIFY(BSLS_PLATFORM_CMP_GNU));
+    puts("\n  BSLS_PLATFORM_CMP_VERSION: "
+         STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_MSVC
+    puts("\n  BSLS_PLATFORM_CMP_MSVC: " STRINGIFY(BSLS_PLATFORM_CMP_MSVC));
+    puts("\n  BSLS_PLATFORM_CMP_VERSION: "
+         STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
+#endif
+
+#ifdef BSLS_PLATFORM_CMP_SUN
+    puts("\n  BSLS_PLATFORM_CMP_SUN: " STRINGIFY(BSLS_PLATFORM_CMP_SUN));
+    puts("\n  BSLS_PLATFORM_CMP_VERSION: "
+         STRINGIFY(BSLS_PLATFORM_CMP_VERSION));
 #endif
 
     puts("\n\nprintFlags: Leave");

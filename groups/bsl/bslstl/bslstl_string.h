@@ -75,7 +75,7 @@ BSLS_IDENT("$Id: $")
 // Short string optimization (SSO) is a feature common to many implementations
 // of `std::string`.  The size of the in-footprint buffer depends on the
 // platform, the compiler used, and build parameters (e.g. 64 bit build).  One
-// can readily discover that limit by evaluating the capacity of an newly
+// can readily discover that limit by evaluating the capacity of a newly
 // created (empty) string.
 // ```
 //    const bsl::size_t ssoLimit = bsl::string()::capacity();
@@ -3599,7 +3599,7 @@ bool operator>(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
                const CHAR_TYPE                                  *rhs);
 
 /// Return `true` if the specified `lhs` string has a value
-/// lexicographically smaller than or or equal to the specified `rhs`
+/// lexicographically smaller than or equal to the specified `rhs`
 /// string, and `false` otherwise.  See {Lexicographical Comparisons}.
 template <class CHAR_TYPE, class CHAR_TRAITS, class ALLOC>
 bool operator<=(const basic_string<CHAR_TYPE,CHAR_TRAITS,ALLOC>&  lhs,
@@ -3820,7 +3820,7 @@ inline namespace string_literals {
 wstring operator ""_s(const wchar_t *characterString, std::size_t length);
 
 #if !defined(BSLS_PLATFORM_OS_SOLARIS) ||                                   \
-    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 800000)
+    (defined(BSLS_PLATFORM_CMP_GNU) && BSLS_PLATFORM_CMP_VERSION >= 80000)
 /// Convert a character sequence of the specified `length` excluding the
 /// terminating null character starting at the beginning of the specified
 /// `characterString` to a string object of the indicated return type.  Use
