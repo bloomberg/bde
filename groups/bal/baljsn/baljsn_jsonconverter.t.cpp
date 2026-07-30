@@ -1,9 +1,9 @@
 // baljsn_jsonconverter.t.cpp                                         -*-C++-*-
 #include <baljsn_jsonconverter.h>
 
+#include <baljsn_decoder.h>
 #include <baljsn_encoder.h>
 #include <baljsn_encoder_testtypes.h>
-#include <baljsn_decoder.h>
 
 #include <balb_testmessages.h>
 
@@ -15,8 +15,8 @@
 // increased because of them.  They should be removed when possible.
 #include <balxml_decoder.h>
 #include <balxml_decoderoptions.h>
-#include <balxml_minireader.h>
 #include <balxml_errorinfo.h>
+#include <balxml_minireader.h>
 
 #include <bdlb_nullablevalue.h>
 
@@ -34,9 +34,9 @@
 #include <bslim_testutil.h>
 
 #include <bslma_allocator.h>
+#include <bslma_defaultallocatorguard.h>
 #include <bslma_testallocator.h>
 #include <bslma_testallocatormonitor.h>
-#include <bslma_defaultallocatorguard.h>
 
 #include <bsla_maybeunused.h>
 
@@ -57,6 +57,8 @@
 #include <bsl_vector.h>
 
 #include <s_baltst_address.h>
+#include <s_baltst_basicrecord.h>
+#include <s_baltst_employee.h>
 #include <s_baltst_employee.h>
 #include <s_baltst_featuretestmessage.h>
 #include <s_baltst_featuretestmessageutil.h>
@@ -67,30 +69,26 @@
 #include <s_baltst_generatetestnullablevalue.h>
 #include <s_baltst_generatetestsequence.h>
 #include <s_baltst_mychoice.h>
+#include <s_baltst_myenumerationwithfallback.h>  // TC 17
 #include <s_baltst_myintenumeration.h>
 #include <s_baltst_mysequence.h>
+#include <s_baltst_mysequence.h>
+#include <s_baltst_mysequencewitharray.h>
 #include <s_baltst_mysequencewithchoice.h>
+#include <s_baltst_mysequencewithnullable.h>
 #include <s_baltst_mysequencewithnullableanonymouschoice.h>
 #include <s_baltst_mysequencewithprecisiondecimalattribute.h> // TC20 Decimal64
+#include <s_baltst_mysimplecontent.h>
+#include <s_baltst_sequencewithanonymity.h>
+#include <s_baltst_sqrt.h>
+#include <s_baltst_sqrtf.h>                      // TC 16
 #include <s_baltst_testchoice.h>
 #include <s_baltst_testcustomizedtype.h>
 #include <s_baltst_testenumeration.h>
 #include <s_baltst_testplaceholder.h>
 #include <s_baltst_testselection.h>
 #include <s_baltst_testsequence.h>
-
-#include <s_baltst_mysimplecontent.h>
-#include <s_baltst_mysequencewithnullable.h>
 #include <s_baltst_topchoice.h>
-#include <s_baltst_sqrt.h>
-#include <s_baltst_basicrecord.h>
-#include <s_baltst_mysequencewitharray.h>
-#include <s_baltst_employee.h>
-#include <s_baltst_mysequence.h>
-#include <s_baltst_sequencewithanonymity.h>
-
-#include <s_baltst_myenumerationwithfallback.h> // TC 17
-#include <s_baltst_sqrtf.h>                     // TC 16
 
 using namespace BloombergLP;
 using bsl::cout;
@@ -103,10 +101,10 @@ namespace test = BloombergLP::s_baltst;
 // ----------------------------------------------------------------------------
 //                             Overview
 //                             --------
-// The component under test implements an converter mechanism for setting
-// a `bdjsn:Json` objects with values extracted from a `bdlat`-compatible
-// object.  The object types that can be handled include `bdlat` sequence,
-// choice, array, enumeration, customized, simple, and dynamic types.
+// The component under test implements an converter mechanism for setting a
+// `bdjsn:Json` objects with values extracted from a `bdlat`-compatible object.
+// The object types that can be handled include `bdlat` sequence, choice,
+// array, enumeration, customized, simple, and dynamic types.
 //
 // We use standard table-based approach to testing where we put both input and
 // expected output in the same table row and verify that the actual result
@@ -129,12 +127,11 @@ namespace test = BloombergLP::s_baltst;
 // Note that sometimes this test case uses methods from the `Oracle` helper
 // utility.  Sometimes the equivalent is explicitly coded into the test case.
 //
-// The set of `bdlat` object used for testing here is derived from the
-// set of objects appearing in `baljsn_encoder.t.cpp`.  Much of the
-// infrastructure of that test driver is replicated here but in
-// simplified form since this test driver need not cover the parameter
-// space of JSON document formatting (e.g., pretty vs compact styles,
-// indentation levels).
+// The set of `bdlat` object used for testing here is derived from the set of
+// objects appearing in `baljsn_encoder.t.cpp`.  Much of the infrastructure of
+// that test driver is replicated here but in simplified form since this test
+// driver need not cover the parameter space of JSON document formatting (e.g.,
+// pretty vs compact styles, indentation levels).
 //
 // This test driver shows that every `bdlat` object from the encoder test
 // driver converts correctly except for two:
@@ -171,7 +168,9 @@ namespace test = BloombergLP::s_baltst;
 //
 // [ 3] allocator_type get_allocator() const;
 // ----------------------------------------------------------------------------
-// [21] CONCERN: USAGE EXAMPLE
+// [22] CONCERN: USAGE EXAMPLE
+// [21] CONCERN: TESTING `baljsn::ConvertToJsonOptions`
+// [21] CONCERN: TESTING `baljsn::ConvertFromJsonOptions`
 // [20] CONCERN: TESTING `Decimal64`
 // [19] CONCERN: SKIPPING UNKNOWN ELEMENTS
 // [18] CONCERN: DECODING INTS AS ENUMS AND VICE VERSA
@@ -271,10 +270,13 @@ typedef bdljsn::JsonNumber     JsonNumber;
 typedef bdljsn::JsonArray      JsonArray;
 typedef bdljsn::JsonObject     JsonObject;
 
-typedef baljsn::Encoder        Encoder;
-typedef baljsn::Decoder        Decoder;
-typedef baljsn::EncoderOptions Options;
-typedef baljsn::DecoderOptions Doptions;
+typedef baljsn::Encoder                Encoder;
+typedef baljsn::Decoder                Decoder;
+typedef baljsn::EncoderOptions         Options;
+typedef baljsn::EncoderOptions         Eoptions;
+typedef baljsn::DecoderOptions         Doptions;
+typedef baljsn::ConvertToJsonOptions   ToJsonOptions;
+typedef baljsn::ConvertFromJsonOptions FromJsonOptions;
 
 bool g_veryVeryVerbose;
 
@@ -317,8 +319,8 @@ namespace u {
                                // FREE FUNCTIONS
                                // ==============
 
-/// Decode the sequence of `s_baltst::FeatureTestMessage` objects defined
-/// by `s_baltst::FeatureTestMessage::s_XML_MESSAGES` as if by using
+/// Decode the sequence of `s_baltst::FeatureTestMessage` objects defined by
+/// `s_baltst::FeatureTestMessage::s_XML_MESSAGES` as if by using
 /// `balxml::Decoder` and load the sequence to the specified `objects`.
 void constructFeatureTestMessage(
                             bsl::vector<s_baltst::FeatureTestMessage> *objects)
@@ -332,7 +334,7 @@ void constructFeatureTestMessage(
 
     for (int i = 0; i < MessageUtil::k_NUM_MESSAGES; ++i) {
         s_baltst::FeatureTestMessage object;
-        bsl::istringstream ss(MessageUtil::s_XML_MESSAGES[i]);
+        bsl::istringstream           ss(MessageUtil::s_XML_MESSAGES[i]);
 
         balxml::MiniReader     reader;
         balxml::DecoderOptions options;
@@ -341,9 +343,8 @@ void constructFeatureTestMessage(
 
         int rc = decoder.decode(ss.rdbuf(), &object);
         if (0 != rc) {
-            bsl::cout << "Failed to decode from initialization data (i="
-                      << i << "): "
-                      << decoder.loggedMessages() << bsl::endl;
+            bsl::cout << "Failed to decode from initialization data (i=" << i
+                      << "): " << decoder.loggedMessages() << bsl::endl;
         }
 
         if (s_baltst::FeatureTestMessage::SELECTION_ID_UNDEFINED ==
@@ -360,18 +361,18 @@ void constructFeatureTestMessage(
     }
 }
 
-/// Decode the specified `xmlString` to an object of the specified `TYPE`
-/// as if by using `balxml::Decoder` and load the object to the specified
-/// `object`.  Return 0 on success, and a non-zero value otherwise.
+/// Decode the specified `xmlString` to an object of the specified `TYPE` as if
+/// by using `balxml::Decoder` and load the object to the specified `object`.
+/// Return 0 on success, and a non-zero value otherwise.
 template <class TYPE>
 int populateTestObject(TYPE *object, const bsl::string& xmlString)
 {
     bsl::istringstream ss(xmlString);
 
-    balxml::MiniReader reader;
+    balxml::MiniReader     reader;
     balxml::DecoderOptions options;
-    balxml::ErrorInfo e;
-    balxml::Decoder decoder(&options, &reader, &e);
+    balxml::ErrorInfo      e;
+    balxml::Decoder        decoder(&options, &reader, &e);
 
     int rc = decoder.decode(ss.rdbuf(), object);
 
@@ -481,14 +482,14 @@ int Oracle::toObjFromJson(TYPE                *value,
                                // struct TestUtil
                                // ===============
 
-static int  assertEncodedValueIsEqualCount = 0;
+static int assertEncodedValueIsEqualCount = 0;
 
 struct TestUtil {
     // CLASS METHODS
 
     /// `ASSERT` that converting the specified (`bdlat`-compatible) `VALUE`
-    /// using `baljsn::JsonConverter` to the same `bdljsn::Json` value
-    /// as that obtained from the oracle function.
+    /// using `baljsn::JsonConverter` to the same `bdljsn::Json` value as that
+    /// obtained from the oracle function.
     template <class VALUE_TYPE>
     static void assertEncodedValueIsEqual(int               LINE,
                                           const VALUE_TYPE& VALUE)
@@ -532,10 +533,10 @@ struct TestUtil {
         ASSERTV(expectJson,   actualJson,
                 expectJson == actualJson);
 
-       if (g_veryVeryVerbose) {
+        if (g_veryVeryVerbose) {
             P(expectJson);
             P(actualJson);
-       }
+        }
 
         VALUE_TYPE valueFromJson;
         int        rcFromJson = converter.convert(&valueFromJson,
@@ -544,8 +545,7 @@ struct TestUtil {
         ASSERTV(      converter.loggedMessages(),
                 "" == converter.loggedMessages());
 
-        ASSERTV(// VALUE,   valueFromJson,
-                VALUE == valueFromJson);
+        ASSERT(VALUE == valueFromJson);
 
         ++assertEncodedValueIsEqualCount;
         P(++assertEncodedValueIsEqualCount);
@@ -584,14 +584,12 @@ class AssertEncodedArrayOfValuesIsEqualFunction {
     // ACCESSORS
 
     /// Assert that converting various nested and non-nested `bsl::vector`
-    /// objects with copies of the specified `ELEMENT` as terminal
-    /// element(s) using `baljsn::Coverter`.  The resulting `bdljsn::Json`
-    /// object is tested for equality with one obtained from the oracle
-    /// function.
+    /// objects with copies of the specified `ELEMENT` as terminal element(s)
+    /// using `baljsn::Coverter`.  The resulting `bdljsn::Json` object is
+    /// tested for equality with one obtained from the oracle function.
     template <class ELEMENT_TYPE>
-    void operator()(int                     LINE,
-                    const ELEMENT_TYPE&     ELEMENT) const
-                //  const bsl::string_view& EXPECTED_ELEMENT_STRING) const
+    void operator()(int                 LINE,
+                    const ELEMENT_TYPE& ELEMENT) const
     {
         const AssertEncodedValueIsEqualFunction       TEST;
         const s_baltst::TestPlaceHolder<ELEMENT_TYPE> e;
@@ -755,7 +753,7 @@ class EmptySequenceExampleSequence {
 
 // TRAITS
 BDLAT_DECL_SEQUENCE_WITH_BITWISEMOVEABLE_TRAITS(
-                                             u::EmptySequenceExampleSequence)
+                                               u::EmptySequenceExampleSequence)
 
 namespace {
 namespace u {
@@ -831,7 +829,7 @@ class EmptySequenceExample {
                         const char *name,
                         int         nameLength) const;
 
-     template <class ACCESSOR>
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
 
     template <class STREAM>
@@ -879,8 +877,8 @@ class HexBinaryCustomizedType {
     static int checkRestrictions(const char *value, int size);
 
     /// Check if the specified `value` satisfies the restrictions of this
-    /// class.  Return 0 if successful (i.e., the restrictions are
-    /// satisfied) and non-zero otherwise.
+    /// class.  Return 0 if successful (i.e., the restrictions are satisfied)
+    /// and non-zero otherwise.
     static int checkRestrictions(const bsl::vector<char>& value);
 
   public:
@@ -892,16 +890,16 @@ class HexBinaryCustomizedType {
 
     // CREATORS
 
-    /// Create an object of type `HexBinaryCustomizedType` having the
-    /// default value.  Optionally specify a `basicAllocator` used to
-    /// supply memory.  If `basicAllocator` is 0, the currently installed
-    /// default allocator is used.
+    /// Create an object of type `HexBinaryCustomizedType` having the default
+    /// value.  Optionally specify a `basicAllocator` used to supply memory.
+    /// If `basicAllocator` is 0, the currently installed default allocator is
+    /// used.
     explicit HexBinaryCustomizedType(bslma::Allocator *basicAllocator = 0);
 
-    /// Create an object of type `HexBinaryCustomizedType` having the value
-    /// of the specified `original` object.  Optionally specify a
-    /// `basicAllocator` used to supply memory.  If `basicAllocator` is 0,
-    /// the currently installed default allocator is used.
+    /// Create an object of type `HexBinaryCustomizedType` having the value of
+    /// the specified `original` object.  Optionally specify a `basicAllocator`
+    /// used to supply memory.  If `basicAllocator` is 0, the currently
+    /// installed default allocator is used.
     HexBinaryCustomizedType(
                            const HexBinaryCustomizedType&  original,
                            bslma::Allocator               *basicAllocator = 0);
@@ -927,19 +925,18 @@ class HexBinaryCustomizedType {
 
     // ACCESSORS
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
     /// Return the array encapsulated by this object.
@@ -951,17 +948,16 @@ class HexBinaryCustomizedType {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 inline
 bool operator==(const HexBinaryCustomizedType& lhs,
                 const HexBinaryCustomizedType& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 inline
 bool operator!=(const HexBinaryCustomizedType& lhs,
                 const HexBinaryCustomizedType& rhs);
@@ -1001,15 +997,16 @@ int HexBinaryCustomizedType::checkRestrictions(const bsl::vector<char>&)
 
 // CREATORS
 inline
-HexBinaryCustomizedType::HexBinaryCustomizedType(
-    bslma::Allocator *basicAllocator)
+HexBinaryCustomizedType::HexBinaryCustomizedType(bslma::Allocator
+                                                               *basicAllocator)
 : d_value(basicAllocator)
 {
 }
 
 inline
 HexBinaryCustomizedType::HexBinaryCustomizedType(
-    const HexBinaryCustomizedType& original, bslma::Allocator *basicAllocator)
+                                const HexBinaryCustomizedType&  original,
+                                bslma::Allocator               *basicAllocator)
 : d_value(original.d_value, basicAllocator)
 {
 }
@@ -1052,10 +1049,9 @@ bsl::vector<char>& HexBinaryCustomizedType::array()
 }
 
 // ACCESSORS
-bsl::ostream& HexBinaryCustomizedType::print(
-                                            bsl::ostream& stream,
-                                            int,
-                                            int) const
+bsl::ostream& HexBinaryCustomizedType::print(bsl::ostream& stream,
+                                             int           ,
+                                             int           ) const
 {
     if (d_value.empty()) {
         stream << "";
@@ -1132,17 +1128,9 @@ class HexBinarySequence {
 
   public:
     // TYPES
-    enum {
-        k_ATTRIBUTE_ID_ELEMENT1 = 0
-    };
-
-    enum {
-        k_NUM_ATTRIBUTES = 1
-    };
-
-    enum {
-        k_ATTRIBUTE_INDEX_ELEMENT1 = 0
-    };
+    enum { k_ATTRIBUTE_ID_ELEMENT1    = 0 };
+    enum { k_NUM_ATTRIBUTES           = 1 };
+    enum { k_ATTRIBUTE_INDEX_ELEMENT1 = 0 };
 
     // CONSTANTS
     static const char CLASS_NAME[];
@@ -1157,16 +1145,15 @@ class HexBinarySequence {
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
 
     /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
+    /// specified `name` of the specified `nameLength` if the attribute exists,
+    /// and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                        const char *name,
                                                        int         nameLength);
 
     // CREATORS
 
-    /// Create an object of type `HexBinarySequence` having the default
-    /// value.
+    /// Create an object of type `HexBinarySequence` having the default value.
     explicit HexBinarySequence(bslma::Allocator *basicAllocator = 0);
 
     /// Create an object of type `HexBinarySequence` having the value of the
@@ -1186,31 +1173,29 @@ class HexBinarySequence {
     /// construction).
     void reset();
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the last
-    /// invocation of `manipulator` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class MANIPULATOR>
+    /// Invoke the specified `manipulator` sequentially on the address of each
+    /// (modifiable) attribute of this object, supplying `manipulator` with the
+    /// corresponding attribute information structure until such invocation
+    /// returns a non-zero value.  Return the value from the last invocation of
+    /// `manipulator` (i.e., the invocation that terminated the sequence).
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
 
-    /// Invoke the specified `manipulator` on the address of the
-    /// (modifiable) attribute indicated by the specified `id`, supplying
-    /// `manipulator` with the corresponding attribute information
-    /// structure.  Return the value returned from the invocation of
-    /// `manipulator` if `id` identifies an attribute of this class, and -1
-    /// otherwise.
-    template<class MANIPULATOR>
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `id`, supplying `manipulator` with
+    /// the corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `id` identifies an
+    /// attribute of this class, and `-1` otherwise.
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
 
-    /// Invoke the specified `manipulator` on the address of the
-    /// (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the invocation
+    /// of `manipulator` if `name` identifies an attribute of this class, and
+    /// `-1` otherwise.
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
@@ -1221,45 +1206,43 @@ class HexBinarySequence {
 
     // ACCESSORS
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
-                        int           level = 0,
+                        int           level          = 0,
                         int           spacesPerLevel = 4) const;
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor` with
-    /// the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the last
-    /// invocation of `accessor` (i.e., the invocation that terminated the
-    /// sequence).
-    template<class ACCESSOR>
+    /// Invoke the specified `accessor` sequentially on each (non-modifiable)
+    /// attribute of this object, supplying `accessor` with the corresponding
+    /// attribute information structure until such invocation returns a
+    /// non-zero value.  Return the value from the last invocation of
+    /// `accessor` (i.e., the invocation that terminated the sequence).
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute of
-    /// this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
+    /// this object indicated by the specified `id`, supplying `accessor` with
+    /// the corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `accessor` if `id` identifies an
+    /// attribute of this class, and `-1` otherwise.
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
 
     /// Invoke the specified `accessor` on the (non-modifiable) attribute of
     /// this object indicated by the specified `name` of the specified
     /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
+    /// information structure.  Return the value returned from the invocation
+    /// of `accessor` if `name` identifies an attribute of this class, and `-1`
+    /// otherwise.
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -1272,16 +1255,15 @@ class HexBinarySequence {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 inline
 bool operator==(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 inline
 bool operator!=(const HexBinarySequence& lhs, const HexBinarySequence& rhs);
 
@@ -1526,8 +1508,10 @@ bsl::ostream& HexBinarySequence::print(bsl::ostream& stream,
 
         bdlb::Print::indent(stream, levelPlus1, spacesPerLevel);
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
         stream << "]\n";
     }
     else {
@@ -1537,8 +1521,10 @@ bsl::ostream& HexBinarySequence::print(bsl::ostream& stream,
 
         stream << ' ';
         stream << "Element1 = ";
-        bdlb::PrintMethods::print(stream, d_element1,
-                                 -levelPlus1, spacesPerLevel);
+        bdlb::PrintMethods::print(stream,
+                                  d_element1,
+                                  -levelPlus1,
+                                  spacesPerLevel);
 
         stream << " ]";
     }
@@ -1588,41 +1574,39 @@ struct Colors {
 
     // CLASS METHODS
 
-    /// Return the string representation exactly matching the enumerator
-    /// name corresponding to the specified enumeration `value`.
+    /// Return the string representation exactly matching the enumerator name
+    /// corresponding to the specified enumeration `value`.
     static const char *toString(Value value);
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `string` of the specified `stringLength`.  Return 0 on
-    /// success, and a non-zero value with no effect on `result` otherwise
-    /// (i.e., `string` does not match any enumerator).
+    /// Load into the specified `result` the enumerator matching the specified
+    /// `string` of the specified `stringLength`.  Return 0 on success, and a
+    /// non-zero value with no effect on `result` otherwise (i.e., `string`
+    /// does not match any enumerator).
     static int fromString(Value        *result,
                           const char   *string,
                           int           stringLength);
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `string`.  Return 0 on success, and a non-zero value with
-    /// no effect on `result` otherwise (i.e., `string` does not match any
-    /// enumerator).
+    /// Load into the specified `result` the enumerator matching the specified
+    /// `string`.  Return 0 on success, and a non-zero value with no effect on
+    /// `result` otherwise (i.e., `string` does not match any enumerator).
     static int fromString(Value              *result,
                           const bsl::string&  string);
 
-    /// Load into the specified `result` the enumerator matching the
-    /// specified `number`.  Return 0 on success, and a non-zero value with
-    /// no effect on `result` otherwise (i.e., `number` does not match any
-    /// enumerator).
+    /// Load into the specified `result` the enumerator matching the specified
+    /// `number`.  Return 0 on success, and a non-zero value with no effect on
+    /// `result` otherwise (i.e., `number` does not match any enumerator).
     static int fromInt(Value *result, int number);
 
-    /// Write to the specified `stream` the string representation of
-    /// the specified enumeration `value`.  Return a reference to
-    /// the modifiable `stream`.
+    /// Write to the specified `stream` the string representation of the
+    /// specified enumeration `value`.  Return a reference to the modifiable
+    /// `stream`.
     static bsl::ostream& print(bsl::ostream& stream, Value value);
 };
 
 // FREE OPERATORS
 
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, Colors::Value rhs);
 
@@ -1673,8 +1657,8 @@ class Palette {
     static const bdlat_AttributeInfo *lookupAttributeInfo(int id);
 
     /// Return attribute information for the attribute indicated by the
-    /// specified `name` of the specified `nameLength` if the attribute
-    /// exists, and 0 otherwise.
+    /// specified `name` of the specified `nameLength` if the attribute exists,
+    /// and 0 otherwise.
     static const bdlat_AttributeInfo *lookupAttributeInfo(
                                                     const char *name,
                                                     int         nameLength);
@@ -1702,88 +1686,82 @@ class Palette {
     /// Assign to this object the value of the specified `rhs` object.
     Palette& operator=(const Palette& rhs);
 
-    /// Reset this object to the default value (i.e., its value upon
-    /// default construction).
+    /// Reset this object to the default value (i.e., its value upon default
+    /// construction).
     void reset();
 
-    /// Invoke the specified `manipulator` sequentially on the address of
-    /// each (modifiable) attribute of this object, supplying `manipulator`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `manipulator` (i.e., the invocation that
-    /// terminated the sequence).
-    template<class MANIPULATOR>
+    /// Invoke the specified `manipulator` sequentially on the address of each
+    /// (modifiable) attribute of this object, supplying `manipulator` with the
+    /// corresponding attribute information structure until such invocation
+    /// returns a non-zero value.  Return the value from the last invocation of
+    /// `manipulator` (i.e., the invocation that terminated the sequence).
+    template <class MANIPULATOR>
     int manipulateAttributes(MANIPULATOR& manipulator);
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `id`,
-    /// supplying `manipulator` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `manipulator` if `id` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class MANIPULATOR>
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `id`, supplying `manipulator` with
+    /// the corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `manipulator` if `id` identifies an
+    /// attribute of this class, and `-1` otherwise.
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR& manipulator, int id);
 
-    /// Invoke the specified `manipulator` on the address of
-    /// the (modifiable) attribute indicated by the specified `name` of the
-    /// specified `nameLength`, supplying `manipulator` with the
-    /// corresponding attribute information structure.  Return the value
-    /// returned from the invocation of `manipulator` if `name` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class MANIPULATOR>
+    /// Invoke the specified `manipulator` on the address of the (modifiable)
+    /// attribute indicated by the specified `name` of the specified
+    /// `nameLength`, supplying `manipulator` with the corresponding attribute
+    /// information structure.  Return the value returned from the invocation
+    /// of `manipulator` if `name` identifies an attribute of this class, and
+    /// `-1` otherwise.
+    template <class MANIPULATOR>
     int manipulateAttribute(MANIPULATOR&  manipulator,
                             const char   *name,
                             int           nameLength);
 
-    /// Return a reference to the modifiable "Color" attribute of this
-    /// object.
+    /// Return a reference to the modifiable "Color" attribute of this object.
     Colors::Value& color();
 
-    /// Return a reference to the modifiable "Colors" attribute of this
-    /// object.
+    /// Return a reference to the modifiable "Colors" attribute of this object.
     bsl::vector<Colors::Value>& colors();
 
     // ACCESSORS
 
-    /// Format this object to the specified output `stream` at the
-    /// optionally specified indentation `level` and return a reference to
-    /// the modifiable `stream`.  If `level` is specified, optionally
-    /// specify `spacesPerLevel`, the number of spaces per indentation level
-    /// for this and all of its nested objects.  Each line is indented by
-    /// the absolute value of `level * spacesPerLevel`.  If `level` is
-    /// negative, suppress indentation of the first line.  If
-    /// `spacesPerLevel` is negative, suppress line breaks and format the
-    /// entire output on one line.  If `stream` is initially invalid, this
-    /// operation has no effect.  Note that a trailing newline is provided
-    /// in multiline mode only.
+    /// Format this object to the specified output `stream` at the optionally
+    /// specified indentation `level` and return a reference to the modifiable
+    /// `stream`.  If `level` is specified, optionally specify
+    /// `spacesPerLevel`, the number of spaces per indentation level for this
+    /// and all of its nested objects.  Each line is indented by the absolute
+    /// value of `level * spacesPerLevel`.  If `level` is negative, suppress
+    /// indentation of the first line.  If `spacesPerLevel` is negative,
+    /// suppress line breaks and format the entire output on one line.  If
+    /// `stream` is initially invalid, this operation has no effect.  Note that
+    /// a trailing newline is provided in multiline mode only.
     bsl::ostream& print(bsl::ostream& stream,
                         int           level = 0,
                         int           spacesPerLevel = 4) const;
 
-    /// Invoke the specified `accessor` sequentially on each
-    /// (non-modifiable) attribute of this object, supplying `accessor`
-    /// with the corresponding attribute information structure until such
-    /// invocation returns a non-zero value.  Return the value from the
-    /// last invocation of `accessor` (i.e., the invocation that terminated
-    /// the sequence).
-    template<class ACCESSOR>
+    /// Invoke the specified `accessor` sequentially on each (non-modifiable)
+    /// attribute of this object, supplying `accessor` with the corresponding
+    /// attribute information structure until such invocation returns a
+    /// non-zero value.  Return the value from the last invocation of
+    /// `accessor` (i.e., the invocation that terminated the sequence).
+    template <class ACCESSOR>
     int accessAttributes(ACCESSOR& accessor) const;
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `id`, supplying `accessor`
-    /// with the corresponding attribute information structure.  Return the
-    /// value returned from the invocation of `accessor` if `id` identifies
-    /// an attribute of this class, and -1 otherwise.
-    template<class ACCESSOR>
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `id`, supplying `accessor` with
+    /// the corresponding attribute information structure.  Return the value
+    /// returned from the invocation of `accessor` if `id` identifies an
+    /// attribute of this class, and `-1` otherwise.
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR& accessor, int id) const;
 
-    /// Invoke the specified `accessor` on the (non-modifiable) attribute
-    /// of this object indicated by the specified `name` of the specified
+    /// Invoke the specified `accessor` on the (non-modifiable) attribute of
+    /// this object indicated by the specified `name` of the specified
     /// `nameLength`, supplying `accessor` with the corresponding attribute
-    /// information structure.  Return the value returned from the
-    /// invocation of `accessor` if `name` identifies an attribute of this
-    /// class, and -1 otherwise.
-    template<class ACCESSOR>
+    /// information structure.  Return the value returned from the invocation
+    /// of `accessor` if `name` identifies an attribute of this class, and `-1`
+    /// otherwise.
+    template <class ACCESSOR>
     int accessAttribute(ACCESSOR&   accessor,
                         const char *name,
                         int         nameLength) const;
@@ -1799,21 +1777,20 @@ class Palette {
 
 // FREE OPERATORS
 
-/// Return `true` if the specified `lhs` and `rhs` attribute objects have
-/// the same value, and `false` otherwise.  Two attribute objects have the
-/// same value if each respective attribute has the same value.
+/// Return `true` if the specified `lhs` and `rhs` attribute objects have the
+/// same value, and `false` otherwise.  Two attribute objects have the same
+/// value if each respective attribute has the same value.
 inline
 bool operator==(const Palette& lhs, const Palette& rhs);
 
 /// Return `true` if the specified `lhs` and `rhs` attribute objects do not
-/// have the same value, and `false` otherwise.  Two attribute objects do
-/// not have the same value if one or more respective attributes differ in
-/// values.
+/// have the same value, and `false` otherwise.  Two attribute objects do not
+/// have the same value if one or more respective attributes differ in values.
 inline
 bool operator!=(const Palette& lhs, const Palette& rhs);
 
-/// Format the specified `rhs` to the specified output `stream` and
-/// return a reference to the modifiable `stream`.
+/// Format the specified `rhs` to the specified output `stream` and return a
+/// reference to the modifiable `stream`.
 inline
 bsl::ostream& operator<<(bsl::ostream& stream, const Palette& rhs);
 
@@ -2419,7 +2396,7 @@ void roundTripTestNonNumericValues()
     const Type NAN_P = Limits::quiet_NaN();
     // Negative NaN does not print for any floating point type, so we
     // don't test it for round-trip (on purpose).
-    //const Type NAN_N = -NAN_P;
+    // `const Type NAN_N = -NAN_P;`
     const Type INF_P = Limits::infinity();
     const Type INF_N = -INF_P;
 
@@ -2493,7 +2470,7 @@ void testSkipUnknownElements(int line, const TYPE& obj)
     }
 
     Json jsonExpect;
-    int rcExpect = u::Oracle::toJsonFromObj(&jsonExpect, obj);
+    int  rcExpect = u::Oracle::toJsonFromObj(&jsonExpect, obj);
     ASSERTV(rcExpect, 0 == rcExpect);
 
     if (!rcExpect) {
@@ -2556,20 +2533,19 @@ void testSkipUnknownElements(int line, const TYPE& obj)
         }
 
         TYPE objFromJsonWithExtraOracleSkip;
-        int rcOracleSkip = u::Oracle::toObjFromJson(
+        int  rcOracleSkip = u::Oracle::toObjFromJson(
                                                &objFromJsonWithExtraOracleSkip,
                                                jsonWithExtra,
                                                true);
         TYPE objFromJsonWithExtraOracleFlop;
-        int rcOracleFlop = u::Oracle::toObjFromJson(
+        int  rcOracleFlop = u::Oracle::toObjFromJson(
                                                &objFromJsonWithExtraOracleFlop,
                                                jsonWithExtra,
                                                false);
 
         TYPE objFromJsonWithExtra0;
-        int   rcFromJsonWithExtra0 = converter.convert(                 // TEST
-                                                &objFromJsonWithExtra0,
-                                                jsonWithExtra);
+        int  rcFromJsonWithExtra0 = converter.convert(&objFromJsonWithExtra0,
+                                                       jsonWithExtra);  // TEST
                                              // default option: skip is `true`.
 
         ASSERTV(rcOracleSkip,    rcFromJsonWithExtra0,
@@ -2580,7 +2556,7 @@ void testSkipUnknownElements(int line, const TYPE& obj)
                     objFromJsonWithExtraOracleSkip == objFromJsonWithExtra0);
         }
 
-        Doptions options;   // default decode options
+        FromJsonOptions options;   // default options
         ASSERTV(        options.skipUnknownElements(),
                 true == options.skipUnknownElements());
 
@@ -2589,10 +2565,9 @@ void testSkipUnknownElements(int line, const TYPE& obj)
         }
 
         TYPE objFromJsonWithExtra1;
-        int   rcFromJsonWithExtra1 = converter.convert(                 // TEST
-                                                &objFromJsonWithExtra1,
-                                                jsonWithExtra,
-                                                options);
+        int  rcFromJsonWithExtra1 = converter.convert(&objFromJsonWithExtra1,
+                                                      jsonWithExtra,
+                                                      options);         // TEST
 
         ASSERTV(rcOracleSkip,    rcFromJsonWithExtra1,
                 rcOracleSkip  == rcFromJsonWithExtra1);
@@ -2611,10 +2586,9 @@ void testSkipUnknownElements(int line, const TYPE& obj)
         }
 
         TYPE objFromJsonWithExtra2;
-        int   rcFromJsonWithExtra2 = converter.convert(                 // TEST
-                                                &objFromJsonWithExtra2,
-                                                jsonWithExtra,
-                                                options);
+        int  rcFromJsonWithExtra2 = converter.convert(&objFromJsonWithExtra2,
+                                                      jsonWithExtra,
+                                                      options);         // TEST
 
         ASSERTV(rcOracleFlop,    rcFromJsonWithExtra2,
                 rcOracleFlop  == rcFromJsonWithExtra2);
@@ -2624,6 +2598,27 @@ void testSkipUnknownElements(int line, const TYPE& obj)
                     objFromJsonWithExtraOracleFlop == objFromJsonWithExtra2);
         }
     }
+}
+
+// ============================================================================
+//                      TEST `JsonConverterOptions`
+// ----------------------------------------------------------------------------
+
+bool isEmptyArray(const Json& json, const char *elemet)
+{
+    BSLS_ASSERT(elemet);
+
+    return true  == json.theObject().contains(elemet)
+       &&  true  == json.theObject()[elemet].isArray()
+       &&  0     == json.theObject()[elemet].size();
+}
+
+bool isNullElement(const Json& json, const char *elemet)
+{
+    BSLS_ASSERT(elemet);
+
+    return true == json.theObject().contains(elemet)
+       &&  true == json.theObject()[elemet].isNull();
 }
 
 // ============================================================================
@@ -2641,7 +2636,7 @@ int main(int argc, char *argv[])
     cout << "TEST " << __FILE__ << " CASE " << test << endl;
 
     switch (test) { case 0:
-      case 21: {
+      case 22: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -2676,7 +2671,7 @@ int main(int argc, char *argv[])
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use `bas_codegen.pl` to create the `Employee`
 // `class` for storing that information, populate an `Employee` object, and
-// encode that object using the baljsn encoder.
+// encode that object using the `baljsn` encoder.
 //
 // First, we will define the XML schema inside a file called `employee.xsd`:
 // ```
@@ -2726,8 +2721,8 @@ int main(int argc, char *argv[])
 // ```
     baljsn::JsonConverter converter;
 // ```
-// Now, we will create a `bdljsn::Json` object having elements that
-// match the respecitve elements of `employee`.
+// Now, we will create a `bdljsn::Json` object having elements that match the
+// respective elements of `employee`.
 // ```
     bdljsn::Json json;
     int          rc = converter.convert(&json, employee);
@@ -2759,6 +2754,206 @@ int main(int argc, char *argv[])
     ASSERT(""       == converter.loggedMessages());
     ASSERT(employee == employeeFromJson);
 // ```
+      } break;
+      case 21: {
+        // --------------------------------------------------------------------
+        // TESTING CONVERTER OPTIONS
+        //   The two `convert` methods each take a distinct attribute class
+        //   of options that influence the operations:
+        //
+        //   `baljsn::ConvertToJsonOptions`
+        //   * `encodeEmptyArrays`     // `bdlat`-object to `json`
+        //   * `encodeNullElements`    // `bdlat`-object to `json`
+        //   that both default to `true`.
+        //
+        //   `baljsn::ConvertFromJsonOptions`
+        //   * `maxDepth`              // `json` to `bdlat`-object
+        //   * `skipUnknownElements`   // `json` to `bdlat`-object
+        //   where `maxDepth` defaults to 512 and `skipUnknownElements`
+        //   defaults to `true`.
+        //
+        // Concerns:
+        // 1. When a `bdlat` object has empty arrays or null elements (i.e.
+        //    unset optional elements) then the resulting `Json` object has
+        //    the corresponding features only if the corresponding option is
+        //   `true`.
+        //
+        //   1. The two "encode" options are independent of each other.
+        //
+        // 2. The values of the option have no effect on the conversion of
+        //    non-empty arrays and non-null elements.
+        //
+        // 3. The conversion from `json` to `bdlat` object is not affected by
+        //    any of the `bool` options, just `maxDepth`.
+        //
+        // 4. The "options" parameter of each of the two `convert` methods
+        //    defaults to its default value.
+        //
+        // Plan:
+        // 1. The test type `bdlb::Sequence3` has 6 members: three arrays
+        //    and three nullable values.  A default constructed object
+        //    of that type has three empty arrays and three null members
+        //    thereby, making that type well suited for testing these options.
+        //
+        // 2. For each of the combinations of values of `encodeEmptyArrays`
+        //    and `encodeNullElements`, convert the `bdlat`-type object
+        //    (see P-1) into a `Json` object.  Confirm that the presence or
+        //    absence of three empty arrays and three null elements matches
+        //    the values of those options.
+        //
+        //   1. For the special combination where the options match the
+        //      default values, also convert the `bdlat`-type object to `Json`
+        //      (and vice versa) without supplying an argument for conversion
+        //      options and confirm that the results match (C-4).
+        //
+        //   2. The nested `for`-loops are composed to make manifest that
+        //      all relevant combinations are covered even at the minor expense
+        //      of repeating some logically equivalent tests.
+        //
+        // 3. Convert the generated `json` object back to a `bdlb::Sequence3`
+        //    object for each combination of options.  Confirm that the
+        //    conversion success depends only on the value of the `maxDepth`,
+        //    irrespective of the other option value.
+        //
+        // 4. The C-2 concern is addressed implicitly in TC2 (Arrays) and TC5
+        //    (null elements) where the conversion options are used with a
+        //    wide range of inputs.
+        //
+        // 5. The potency of the `skipUnknownElements` option is covered in
+        //     TC19.
+        //
+        // Testing:
+        //   CONCERN: TESTING `baljsn::ConvertToJsonOptions`
+        //   CONCERN: TESTING `baljsn::ConvertFromJsonOptions`
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING CONVERTER OPTIONS" << endl;
+
+        balb::Sequence3 sequence3; const balb::Sequence3& BDLAT_OBJ
+                                                                   = sequence3;
+        if (veryVerbose) {
+            P(sequence3);
+
+            P(sequence3.element1().size());    // empty (array)
+            P(sequence3.element2().size());    // empty (array)
+            P(sequence3.element6().size());    // empty (array)
+
+            P(sequence3.element3().isNull());  // null  (nullablevalue)
+            P(sequence3.element4().isNull());  // null  (nullablevalue)
+            P(sequence3.element5().isNull());  // null  (nullablevalue)
+        }
+
+        ASSERT(0    == sequence3.element1().size());   // empty (array)
+        ASSERT(0    == sequence3.element2().size());   // empty (array)
+        ASSERT(true == sequence3.element3().isNull()); // null  (nullablevalue)
+        ASSERT(true == sequence3.element4().isNull()); // null  (nullablevalue)
+        ASSERT(true == sequence3.element5().isNull()); // null  (nullablevalue)
+        ASSERT(0    == sequence3.element6().size());   // empty (array)
+
+        const ToJsonOptions   TO_JSON_OPTIONS_DEFAULT;
+        const FromJsonOptions FROM_JSON_OPTIONS_DEFAULT;
+        Obj                   converter;
+
+        int countTestDefaultArgumentTo   = 0;
+        int countTestDefaultArgumentFrom = 0;
+
+        for (int i = 0; i <= 1; ++i) {
+        for (int j = 0; j <= 1; ++j) {
+        for (int k = 0; k <= 2; ++k) {
+        for (int l = 0; l <= 1; ++l) {
+
+            const bool EEA = static_cast<bool>(i);
+            const bool ENE = static_cast<bool>(j);
+            const int  MD  = k == 2
+                           ? FROM_JSON_OPTIONS_DEFAULT.maxDepth()
+                           : k;                    // 0 (fail);
+                                                   // 1 (pass);
+                                                   // 2 => 512 (default, pass);
+            const bool SUE = static_cast<bool>(l); // no effect
+
+            if (veryVerbose) { T_; P_(EEA); P_(ENE); P_(MD); P(SUE) }
+
+            ToJsonOptions toJsonOptions;
+            toJsonOptions.setConvertEmptyArrays  (EEA);
+            toJsonOptions.setConvertNullElements (ENE);
+
+            FromJsonOptions fromJsonOptions;
+            fromJsonOptions.setMaxDepth           (MD );
+            fromJsonOptions.setSkipUnknownElements(SUE);
+
+            // `bdlat`-object to `json`.  Depends on `EEA` and `ENE` only.
+
+            Json json;
+            int  rc = converter.convert(&json, BDLAT_OBJ, toJsonOptions);
+                                                                        // TEST
+            if (veryVerbose) {
+                T_; P_(rc); P(json)
+            }
+
+            ASSERT(0 == rc);
+
+            ASSERT(EEA == isEmptyArray (json, "element1"));
+            ASSERT(EEA == isEmptyArray (json, "element2"));
+            ASSERT(EEA == isEmptyArray (json, "element6"));
+
+            ASSERT(ENE == isNullElement(json, "element3"));
+            ASSERT(ENE == isNullElement(json, "element4"));
+            ASSERT(ENE == isNullElement(json, "element5"));
+
+            if (TO_JSON_OPTIONS_DEFAULT == toJsonOptions) {
+                Json jsonUsingTwoArgs;
+                int    rcUsingTwoArgs = converter.convert(&jsonUsingTwoArgs,
+                                                          BDLAT_OBJ);
+                                                          /* default options */
+                                                                        // TEST
+                ++countTestDefaultArgumentTo;
+
+                ASSERT(0    ==   rcUsingTwoArgs);
+                ASSERT(json == jsonUsingTwoArgs);
+            }
+
+            /// `json` to `bdlat`-object:
+            ///  * Conversion success depends on `MD` alone.
+            ///  *`BDLAT_OBJ` recovered irrespective `EEA` and `ENE` values
+            ///  used to create the `Json` object.
+
+            balb::Sequence3 sequence3FromJson;
+            int rcFromJson = converter.convert(&sequence3FromJson,
+                                               json,
+                                               fromJsonOptions);        // TEST
+            switch (MD) {
+              case 0:   {  ASSERT(0 != rcFromJson);
+               } break;
+              case 1:   {  ASSERT(0 == rcFromJson);
+              } break;
+              case 512: {  ASSERT(0 == rcFromJson);
+              } break;
+              default: {
+                ASSERT(false);
+              } break;
+            }
+
+            if (FROM_JSON_OPTIONS_DEFAULT == fromJsonOptions) {
+                balb::Sequence3 bdlatUsingTwoArgs;
+                int                rcUsingTwoArgs = converter.convert(
+                                                          &bdlatUsingTwoArgs,
+                                                          json);
+                                                          /* default options */
+                                                                        // TEST
+                ++countTestDefaultArgumentFrom;
+
+                ASSERT(rcFromJson ==    rcUsingTwoArgs);
+                ASSERT(BDLAT_OBJ  == bdlatUsingTwoArgs);
+            }
+        }
+        }
+        }
+        }
+
+        ASSERTV(     countTestDefaultArgumentTo,
+                6 == countTestDefaultArgumentTo);
+        ASSERTV(     countTestDefaultArgumentFrom,
+                4 == countTestDefaultArgumentFrom);
       } break;
       case 20: {
         // --------------------------------------------------------------------
@@ -2965,7 +3160,7 @@ int main(int argc, char *argv[])
             const Decimal64 NAN_P = Limits::quiet_NaN();
             // Negative NaN does not print for any floating point type, so we
             // don't test it for round-trip (on purpose).
-            //const Type NAN_N = -NAN_P;
+            // `const Type NAN_N = -NAN_P;`
             const Decimal64 INF_P = Limits::infinity();
             const Decimal64 INF_N = -INF_P;
 
@@ -3391,8 +3586,6 @@ int main(int argc, char *argv[])
                           << "=========================" << endl;
 
         if (veryVerbose) cout << "Testing valid JSON strings" << endl;
-
-        typedef baljsn::DecoderOptions Doptions;
 
         static const struct {
             int         d_lineNum;  // source line number
@@ -3941,14 +4134,14 @@ int main(int argc, char *argv[])
 
             Obj converter;
 
-            Doptions options; const Doptions& Options = options;
+            FromJsonOptions options; const FromJsonOptions& OPTIONS = options;
 
             options.setSkipUnknownElements(false);
             {
                 test::Employee bob;
                 ASSERTV(LINE, 0 != converter.convert(&bob,
                                                      json,
-                                                     Options));         // TEST
+                                                     OPTIONS));         // TEST
             }
 
             options.setSkipUnknownElements(true);
@@ -3956,7 +4149,7 @@ int main(int argc, char *argv[])
                 test::Employee     bob;
                 ASSERTV(LINE, 0 == converter.convert(&bob,
                                                      json,
-                                                     Options));         // TEST
+                                                     OPTIONS));         // TEST
                 ASSERTV(bob.name(), "Bob" == bob.name());
                 ASSERT("Some Street" == bob.homeAddress().street());
                 ASSERT("Some City"   == bob.homeAddress().city());
@@ -4081,7 +4274,7 @@ int main(int argc, char *argv[])
 
         Obj  converter;
         Json json;
-        int rc = converter.convert(&json, ve);
+        int  rc = converter.convert(&json, ve);
 
         ASSERTV(rc, 0 == rc);
         ASSERTV(      converter.loggedMessages(),
@@ -4142,8 +4335,8 @@ int main(int argc, char *argv[])
         typedef test::MyEnumerationWithFallback Enum;
 
         static const struct {
-            const char *d_json_p;
-            Enum::Value d_expected;
+            const char  *d_json_p;
+            Enum::Value  d_expected;
         } DATA[] = {
             { "\"VALUE1\"",  Enum::VALUE1  },
             { "\"VALUE2\"",  Enum::VALUE2  },
@@ -4152,7 +4345,7 @@ int main(int argc, char *argv[])
         };
         static const int DATA_LEN = sizeof(DATA) / sizeof(DATA[0]);
 
-        bsl::string input = "[";
+        bsl::string              input = "[";
         bsl::vector<Enum::Value> expected;
         for (int i = 0; i < DATA_LEN; i++) {
             if (i > 0) {
@@ -4193,15 +4386,14 @@ int main(int argc, char *argv[])
             ASSERTV(      converter.loggedMessages(),
                     "" == converter.loggedMessages());
 
-            bsl::vector<Enum::Value>   valueFromJson;
+            bsl::vector<Enum::Value> valueFromJson;
             rc = converter.convert(&valueFromJson, json);
 
             ASSERTV(rc, 0 == rc);
             ASSERTV(      converter.loggedMessages(),
                     "" == converter.loggedMessages());
 
-            ASSERTV(// value,   valueFromJson,
-                    value == valueFromJson);
+            ASSERT(value == valueFromJson);
         }
       } break;
       case 16: {
@@ -4486,12 +4678,13 @@ int main(int argc, char *argv[])
             const bsl::string& TEXT   = DATA[tj].d_text_p;
             const bsl::string& OUTPUT = DATA[tj].d_output_p;
 
-            test::Palette palette;
+            test::Palette      palette;
             bsl::istringstream iss(OUTPUT);
 
             baljsn::DecoderOptions options;
-            options.setValidateInputIsUtf8(UTF8);
             baljsn::Decoder        decoder;
+            options.setValidateInputIsUtf8(UTF8);
+
             const int rc = decoder.decode(iss, &palette, options);
             ASSERTV(LINE, rc, 0 == rc);
             ASSERTV(LINE, TEXT,
@@ -4635,10 +4828,10 @@ int main(int argc, char *argv[])
             const bool  IS_VALID    = DATA[tj].d_isValid;
 
             if (!IS_VALID) {
-                continue; // Cannot create `Json` objects from invalid input.
+                continue;  // Cannot create `Json` objects from invalid input.
             }
 
-            bsl::vector<char> vc(OUTPUT, OUTPUT + LEN);
+            bsl::vector<char>        vc(OUTPUT, OUTPUT + LEN);
             const bsl::vector<char>& VC = vc;
 
             test::HexBinarySequence exp;
@@ -4653,8 +4846,9 @@ int main(int argc, char *argv[])
             bsl::istringstream is(os.str());
 
             baljsn::DecoderOptions options;
-            options.setValidateInputIsUtf8(UTF8);
             baljsn::Decoder        decoder;
+            options.setValidateInputIsUtf8(UTF8);
+
             const int rc = decoder.decode(is, &value, options);
             if (veryVerbose) {
                 P(decoder.loggedMessages());
@@ -4858,9 +5052,9 @@ int main(int argc, char *argv[])
         // and yields malformed json (e.g., "{null}").  It was found that a
         // client depended upon this behavior.
 
-        // Important: While `encode` has freedom to generate an invalid
-        // JSON document, `convert` cannot.  Consequently, `convert` handles
-        // this case as an error.
+        // Important: While `encode` has freedom to generate an invalid JSON
+        // document, `convert` cannot.  Consequently, `convert` handles this
+        // case as an error.
 
         if (veryVerbose) cout <<
                    "`s_baltst::MySequenceWithNullableAnonymousChoice`" << endl;
@@ -4895,7 +5089,7 @@ int main(int argc, char *argv[])
                 P(out.str());
             }
 
-            const int         expectRc    = -666; // Convert should fail.
+            const int         expectRc    = -666;  // Convert should fail.
             const bsl::string expectLog =
                         "Unable to encode value of element named: 'Choice'.\n";
 
@@ -5031,6 +5225,7 @@ int main(int argc, char *argv[])
 
         // `Type0` is unsupported and causes the encoder to violate the
         // invariants of the formatter.  This was last verified April 20, 2020.
+
      // typedef baljsn::EncoderTestDegenerateChoice0 Type0;
         typedef baljsn::EncoderTestDegenerateChoice1 Type1;
 
@@ -5150,7 +5345,7 @@ int main(int argc, char *argv[])
         obj.choice().makeSelection0();
 
         Json jsonExpect;
-        int rcExpect = u::Oracle::toJsonFromObj(&jsonExpect, obj);
+        int  rcExpect = u::Oracle::toJsonFromObj(&jsonExpect, obj);
         ASSERTV(rcExpect, 0 == rcExpect);
 
         Json jsonActual;
@@ -5196,7 +5391,7 @@ int main(int argc, char *argv[])
         extraArray.theArray().pushBack(Json("Jerry"));
         extraArray.theArray().pushBack(Json(bdljsn::JsonNull()));
 
-        Json jsonWithExtra          = jsonActual;
+        Json jsonWithExtra           = jsonActual;
         jsonWithExtra["extraArray" ] = extraArray;
         jsonWithExtra["extraObject"] = extraObject;
         jsonWithExtra["extraScalar"] = "extra simple value";
@@ -5209,10 +5404,10 @@ int main(int argc, char *argv[])
             Q(from JsonWithExtra and default options);
         }
 
-        baljsn::DecoderOptions defaultDecoderOptions;
+        FromJsonOptions defaultConverterOptions;
 
         if (veryVeryVerbose) {
-            P(defaultDecoderOptions);
+            P(defaultConverterOptions);
         }
 
         if (veryVerbose) {
@@ -5222,7 +5417,7 @@ int main(int argc, char *argv[])
         Type objFromJsonWithExtra;
         int   rcFromJsonWithExtra = converter.convert(&objFromJsonWithExtra,
                                                       jsonWithExtra,
-                                                      defaultDecoderOptions);
+                                                      defaultConverterOptions);
                                                                         // TEST
         ASSERTV(      rcFromJsonWithExtra,
                 0  == rcFromJsonWithExtra);
@@ -5232,18 +5427,19 @@ int main(int argc, char *argv[])
         ASSERTV(objFromJson,    objFromJsonWithExtra,
                 objFromJson  == objFromJsonWithExtra);
 
-        baljsn::DecoderOptions adjustedDecoderOptions;
-        adjustedDecoderOptions.setSkipUnknownElements(false);
+        FromJsonOptions adjustedConverterOptions;
+        adjustedConverterOptions.setSkipUnknownElements(false);
 
         if (veryVeryVerbose) {
-            P(adjustedDecoderOptions);
+            P(adjustedConverterOptions);
         }
 
         Q(convert to objFromJsonWithExtra with adjusted);
 
-        rcFromJsonWithExtra = converter.convert(&objFromJsonWithExtra,
-                                                jsonWithExtra,
-                                                adjustedDecoderOptions);// TEST
+        rcFromJsonWithExtra = converter.convert(
+                                            &objFromJsonWithExtra,
+                                            jsonWithExtra,
+                                            adjustedConverterOptions);  // TEST
 
         if (veryVerbose) {
             Q(returned from convert with adjusted);
@@ -5448,9 +5644,9 @@ int main(int argc, char *argv[])
         // `mS2` is a modifiable object for which
         // `baljsn::JsonConverter::convert` will succeed.
         s_baltst::Employee mS2;
-        mS2.name() = "John Doe";
+        mS2.name()        = "John Doe";
         mS2.homeAddress() = S1;
-        mS2.age() = 50;
+        mS2.age()         = 50;
 
         // `S2` is a non-modifiable reference to `mS2`.
         const s_baltst::Employee& S2 = mS2;
@@ -5630,8 +5826,10 @@ int main(int argc, char *argv[])
         // NULL ELEMENTS
         //
         // Concerns:
-        // 1. The converter always generates a `bdljsn::JsonNull` element
-        //    for each null element in the input message.
+        // 1. The converter generates a `bdljsn::JsonNull` element
+        //    for each null element in the input message if and only if the
+        //    `encodeNullElements` attribute of the passed `JsonConvertOptions`
+        //    is `true`.
         //
         // Plan:
         // 1. Construct a table that provies a test set of `bldat` values in
@@ -5640,13 +5838,14 @@ int main(int argc, char *argv[])
         //    * In particular, this table has entries where `element6` (a
         //      `nillable` enumerated type) is specified but not set.
         //
+        //    * The table is a clone of the table used in TC5 of
+        //      `baljsn_encoder.t.cpp`.
+        //
         // 2. For each entry in the table (P-1) create a `bdlb::Sequence3`
         //    object can convert it to a `Json` object.
         //
         // 3. Compare the converted `Json` object to one obtained from the
         //    oracle.
-        //
-        // Plan:
         //
         // Testing:
         //   CONERN: NULL ELEMENTS
@@ -5656,30 +5855,192 @@ int main(int argc, char *argv[])
                           << "NULL ELEMENTS"
                           << "=============" << endl;
 
+        typedef Eoptions::EncodingStyle Style;
+
         static const struct {
             int         d_line;        // source line number
+            Style       d_style;       // encoding style
+            int         d_indent;      // initial indent level
+            int         d_spl;         // spaces per level
             const char *d_xmlText_p;   // xml text
+            bool        d_encodeNulls; // if nulls should be encoded
+            const char *d_jsonText_p;  // json text
         } DATA[] = {
             {
                 L_,
+                Options::e_PRETTY,
+                0,
+                2,
                 // XML Text
                 "<element1>\n"
                 "  <element1>LONDON</element1>\n"
                 "  <element2>arbitrary string value</element2>\n"
-                "</element1>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ]\n"
+                "}\n"
             },
             {
                 L_,
+                Options::e_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\": null,\n"
+                "  \"element4\": null,\n"
+                "  \"element5\": null\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"]}"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":null,\"element4\":null,\"element5\":null}"
+            },
+            {
+                L_,
+                Options::e_PRETTY,
+                0,
+                2,
                 // XML Text
                 "<element1>\n"
                 "  <element1>LONDON</element1>\n"
                 "  <element2>arbitrary string value</element2>\n"
                 "  <element6/>\n"
                 "  <element6/>\n"
-                "</element1>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element6\": [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
             },
             {
                 L_,
+                Options::e_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\": null,\n"
+                "  \"element4\": null,\n"
+                "  \"element5\": null,\n"
+                "  \"element6\": [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":null,\"element4\":null,\"element5\":null,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::e_PRETTY,
+                0,
+                2,
                 // XML Text
                 "<element1>\n"
                 "  <element1>LONDON</element1>\n"
@@ -5687,10 +6048,99 @@ int main(int argc, char *argv[])
                 "  <element3>true</element3>\n"
                 "  <element6/>\n"
                 "  <element6/>\n"
-                "</element1>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\": true,\n"
+                "  \"element6\": [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
             },
             {
                 L_,
+                Options::e_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\": true,\n"
+                "  \"element4\": null,\n"
+                "  \"element5\": null,\n"
+                "  \"element6\": [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":null,\"element5\":null,"
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::e_PRETTY,
+                0,
+                2,
                 // XML Text
                 "<element1>\n"
                 "  <element1>LONDON</element1>\n"
@@ -5699,7 +6149,98 @@ int main(int argc, char *argv[])
                 "  <element4>arbitrary string value</element4>\n"
                 "  <element6/>\n"
                 "  <element6/>\n"
-                "</element1>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\": true,\n"
+                "  \"element4\": \"arbitrary string value\",\n"
+                "  \"element6\": [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::e_PRETTY,
+                0,
+                2,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\n"
+                "  \"element1\": [\n"
+                "    \"LONDON\"\n"
+                "  ],\n"
+                "  \"element2\": [\n"
+                "    \"arbitrary string value\"\n"
+                "  ],\n"
+                "  \"element3\": true,\n"
+                "  \"element4\": \"arbitrary string value\",\n"
+                "  \"element5\": null,\n"
+                "  \"element6\": [\n"
+                "    null,\n"
+                "    null\n"
+                "  ]\n"
+                "}\n"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                false,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":\"arbitrary string value\","
+                "\"element6\":[null,null]}"
+            },
+            {
+                L_,
+                Options::e_COMPACT,
+                0,
+                0,
+                // XML Text
+                "<element1>\n"
+                "  <element1>LONDON</element1>\n"
+                "  <element2>arbitrary string value</element2>\n"
+                "  <element3>true</element3>\n"
+                "  <element4>arbitrary string value</element4>\n"
+                "  <element6/>\n"
+                "  <element6/>\n"
+                "</element1>\n",
+                true,
+                // JSON Text
+                "{\"element1\":[\"LONDON\"],"
+                "\"element2\":[\"arbitrary string value\"],"
+                "\"element3\":true,\"element4\":\"arbitrary string value\","
+                "\"element5\":null,"
+                "\"element6\":[null,null]}"
             }
         };
         const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -5707,20 +6248,29 @@ int main(int argc, char *argv[])
         if (veryVeryVerbose) P(NUM_DATA);
 
         for (int ti = 0; ti < NUM_DATA; ++ti) {
-            const int         LINE = DATA[ti].d_line;
-            const bsl::string XML  = DATA[ti].d_xmlText_p;
+            const int         LINE   = DATA[ti].d_line;
+            const Style       STYLE  = DATA[ti].d_style;
+            const int         INDENT = DATA[ti].d_indent;
+            const int         SPL    = DATA[ti].d_spl;
+            const bsl::string XML    = DATA[ti].d_xmlText_p;
+            const int         ENE    = DATA[ti].d_encodeNulls;
+            const bsl::string EXP    = DATA[ti].d_jsonText_p;
 
             if (veryVeryVerbose) {
-                P_(LINE); P(XML);
+                P_(LINE); P_(ENE); P(XML);
             }
 
             balb::Sequence3 object;
             ASSERT(0 == u::populateTestObject(&object, XML));
 
             Encoder encoder;
-            Options options; const Options& mO = options;
-            options.setEncodeNullElements(true);
-            options.setEncodeEmptyArrays (true);
+
+            Eoptions eoptions; const Eoptions& mO = eoptions;
+            eoptions.setEncodingStyle(STYLE);        // cosmetic
+            eoptions.setInitialIndentLevel(INDENT);  // cosmetic
+            eoptions.setSpacesPerLevel(SPL);         // cosmetic
+            eoptions.setEncodeEmptyArrays(false);    // the default
+            eoptions.setEncodeNullElements(ENE);     // from `DATA`.
 
             bsl::ostringstream oss;
             ASSERTV(0 == encoder.encode(oss, object, mO));
@@ -5733,9 +6283,14 @@ int main(int argc, char *argv[])
             ASSERTV(expectRc, 0       == expectRc);
             ASSERTV(error,    Error() == error);
 
+            ToJsonOptions options; const ToJsonOptions& OPTIONS = options;
+            options.setConvertEmptyArrays(false);
+            options.setConvertNullElements(ENE);
+
             Obj  converter;
             Json actualJson;
-            int  actualRc = converter.convert(&actualJson, object);     // TEST
+            int  actualRc = converter.convert(&actualJson, object, OPTIONS);
+                                                                        // TEST
             ASSERTV(actualRc, 0 == actualRc);
 
             if (veryVeryVerbose) {
@@ -5970,11 +6525,11 @@ int main(int argc, char *argv[])
 
             Obj obj;
 
-            ASSERT_FAIL(obj.convert(0,     balb::VoidSequence()));  // TEST
+            ASSERT_FAIL(obj.convert(0,     balb::VoidSequence()));      // TEST
 
             Json json; json.makeObject();
-            ASSERT_PASS(obj.convert(&json, balb::VoidSequence()));  // TEST
-            ASSERT_FAIL(obj.convert(0,     json));                  // TEST
+            ASSERT_PASS(obj.convert(&json, balb::VoidSequence()));      // TEST
+            ASSERT_FAIL(obj.convert(0,     json));                      // TEST
         }
 
         if (verbose) cout << "Are required categories are accepted?" << endl;
@@ -6021,8 +6576,8 @@ int main(int argc, char *argv[])
                 }
                 {   // OK: Array (i.e., `bsl::vector` of some other type).
                     typedef s_baltst::MyIntEnumeration MIE;
-                    typedef             MIE  ElementType;
-                    typedef bsl::vector<MIE> MyVector;
+                    typedef             MIE            ElementType;
+                    typedef bsl::vector<MIE>           MyVector;
 
                     ElementType zero; const ElementType& Zero = zero;
                     ElementType one;  const ElementType& One  = one;
@@ -6107,6 +6662,10 @@ int main(int argc, char *argv[])
         // 1. Construct a table that provies a test set of `bldat` values in
         //    XML representation.
         //
+        //    * The table is cloned from TC2 of `baljsn_encoder.t.cpp`.
+        //
+        //    * Some entries encode empty arras but others do not.
+        //
         // 2. For each entry in the table (P-1) create a `bdlb::Sequence3`
         //    object can convert it to a `Json` object.
         //
@@ -6126,19 +6685,62 @@ int main(int argc, char *argv[])
             static const struct {
                 int         d_line;              // source line number
                 const char *d_xmlText_p;         // xml text
+                bool        d_encodeEmptyArrays; // encode empty arrays flag
+                const char *d_jsonText_p;        // json text
             } DATA[] = {
                 {
                     L_,
                     // XML Text
                     "<element1>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
                 {
                     L_,
                     // XML Text
                     "<element1>\n"
                     "  <element1>LONDON</element1>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ]\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element1>LONDON</element1>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6146,21 +6748,93 @@ int main(int argc, char *argv[])
                     "<element1>\n"
                     "  <element1>LONDON</element1>\n"
                     "  <element1>NEW_JERSEY</element1>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\",\n"
+                    "    \"NEW_JERSEY\"\n"
+                    "  ]\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element1>LONDON</element1>\n"
+                    "  <element1>NEW_JERSEY</element1>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\",\n"
+                    "    \"NEW_JERSEY\"\n"
+                    "  ],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
                 {
                     L_,
                     // XML Text
                     "<element1>\n"
                     "  <element2>arbitrary string value</element2>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ]\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element2>arbitrary string value</element2>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ],\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
                 {
                     L_,
                     // XML Text
                     "<element1>\n"
                     "  <element6>NEW_YORK</element6>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element6\": [\n"
+                    "    \"NEW_YORK\"\n"
+                    "  ]\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element6>NEW_YORK</element6>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element6\": [\n"
+                    "    \"NEW_YORK\"\n"
+                    "  ]\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6168,7 +6842,36 @@ int main(int argc, char *argv[])
                     "<element1>\n"
                     "  <element1>LONDON</element1>\n"
                     "  <element2>arbitrary string value</element2>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ]\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element1>LONDON</element1>\n"
+                    "  <element2>arbitrary string value</element2>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ],\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6177,7 +6880,20 @@ int main(int argc, char *argv[])
                     "  <element1>LONDON</element1>\n"
                     "  <element2>arbitrary string value</element2>\n"
                     "  <element6>NEW_YORK</element6>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ],\n"
+                    "  \"element6\": [\n"
+                    "    \"NEW_YORK\"\n"
+                    "  ]\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6186,7 +6902,42 @@ int main(int argc, char *argv[])
                     "  <element1>LONDON</element1>\n"
                     "  <element2>arbitrary string value</element2>\n"
                     "  <element6>NEW_YORK</element6>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ],\n"
+                    "  \"element6\": [\n"
+                    "    \"NEW_YORK\"\n"
+                    "  ]\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element1>LONDON</element1>\n"
+                    "  <element2>arbitrary string value</element2>\n"
+                    "  <element6>NEW_YORK</element6>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ],\n"
+                    "  \"element6\": [\n"
+                    "    \"NEW_YORK\"\n"
+                    "  ]\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6198,7 +6949,23 @@ int main(int argc, char *argv[])
                     "  <element2>arbitrary string value</element2>\n"
                     "  <element6>NEW_YORK</element6>\n"
                     "  <element6>NEW_JERSEY</element6>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"NEW_JERSEY\",\n"
+                    "    \"LONDON\"\n"
+                    "  ],\n"
+                    "  \"element2\": [\n"
+                    "    \"something random\",\n"
+                    "    \"arbitrary string value\"\n"
+                    "  ],\n"
+                    "  \"element6\": [\n"
+                    "    \"NEW_YORK\",\n"
+                    "    \"NEW_JERSEY\"\n"
+                    "  ]\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6210,7 +6977,57 @@ int main(int argc, char *argv[])
                     "      <element2>arbitrary string value</element2>\n"
                     "    </element1>\n"
                     "  </element5>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    false,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"NEW_JERSEY\"\n"
+                    "  ],\n"
+                    "  \"element5\": {\n"
+                    "    \"element1\": {\n"
+                    "      \"element2\": [\n"
+                    "        \"arbitrary string value\"\n"
+                    "      ]\n"
+                    "    }\n"
+                    "  }\n"
+                    "}\n"
+                },
+                {
+                    L_,
+                    // XML Text
+                    "<element1>\n"
+                    "  <element1>NEW_JERSEY</element1>\n"
+                    "  <element5>\n"
+                    "    <element1>\n"
+                    "      <element2>arbitrary string value</element2>\n"
+                    "    </element1>\n"
+                    "  </element5>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [\n"
+                    "    \"NEW_JERSEY\"\n"
+                    "  ],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element5\": {\n"
+                    "    \"element1\": {\n"
+                    "      \"element1\": [],\n"
+                    "      \"element2\": [\n"
+                    "        \"arbitrary string value\"\n"
+                    "      ],\n"
+                    "      \"element6\": []\n"
+                    "    },\n"
+                    "    \"element2\": [],\n"
+                    "    \"element3\": [],\n"
+                    "    \"element4\": [],\n"
+                    "    \"element5\": [],\n"
+                    "    \"element6\": [],\n"
+                    "    \"element7\": []\n"
+                    "  },\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
                 {
                     L_,
@@ -6222,7 +7039,30 @@ int main(int argc, char *argv[])
                     "    <element5>123456</element5>\n"
                     "    <element5>7890</element5>\n"
                     "  </element5>\n"
-                    "</element1>\n"
+                    "</element1>\n",
+                    true,
+                    // JSON Text
+                    "{\n"
+                    "  \"element1\": [],\n"
+                    "  \"element2\": [],\n"
+                    "  \"element5\": {\n"
+                    "    \"element1\": {\n"
+                    "      \"element1\": [],\n"
+                    "      \"element2\": [],\n"
+                    "      \"element6\": []\n"
+                    "    },\n"
+                    "    \"element2\": [],\n"
+                    "    \"element3\": [],\n"
+                    "    \"element4\": [],\n"
+                    "    \"element5\": [\n"
+                    "      123456,\n"
+                    "      7890\n"
+                    "    ],\n"
+                    "    \"element6\": [],\n"
+                    "    \"element7\": []\n"
+                    "  },\n"
+                    "  \"element6\": []\n"
+                    "}\n"
                 },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
@@ -6230,9 +7070,12 @@ int main(int argc, char *argv[])
             for (int ti = 0; ti < NUM_DATA; ++ti) {
                 const int         LINE   = DATA[ti].d_line;
                 const bsl::string XML    = DATA[ti].d_xmlText_p;
+                const int         EEA    = DATA[ti].d_encodeEmptyArrays;
+                const bsl::string EXP    = DATA[ti].d_jsonText_p;
 
                 if (veryVerbose) {
-                    P_(LINE); P(XML);
+                    P_(LINE); P_(EEA); P(XML);
+                    P(EXP);
                 }
 
                 balb::Sequence3 objectFromXml;
@@ -6242,25 +7085,31 @@ int main(int argc, char *argv[])
                     P(objectFromXml);
                 }
 
-                Options options;
-
-                options.setEncodeEmptyArrays(true);
-                options.setEncodeNullElements(true);
-
-                const Options& mO = options;
+                Eoptions eoptions; const Eoptions& EOPTIONS = eoptions;
+                eoptions.setEncodingStyle(Options::e_PRETTY);  // cosmetic
+                eoptions.setInitialIndentLevel(0);             // cosmetic
+                eoptions.setSpacesPerLevel(2);                 // cosmetic
+                eoptions.setEncodeEmptyArrays(EEA);            // from `DATA`
+                eoptions.setEncodeNullElements(false);         // the default
 
                 Encoder            encoder;
                 bsl::ostringstream oss;
-                ASSERTV(0 == encoder.encode(oss, objectFromXml, mO));
+                ASSERTV(0 == encoder.encode(oss, objectFromXml, EOPTIONS));
 
                 bdljsn::Json expected;
                 int          rcExpected = bdljsn::JsonUtil::read(&expected,
                                                                  oss.str());
                 ASSERTV(rcExpected, 0 == rcExpected);
 
+                ToJsonOptions options; const ToJsonOptions& OPTIONS = options;
+                options.setConvertEmptyArrays(EEA);
+                options.setConvertNullElements(false);
+
                 Obj  obj;
                 Json actual;
-                int  rcActual = obj.convert(&actual, objectFromXml);    // TEST
+                int  rcActual = obj.convert(&actual,
+                                            objectFromXml,
+                                            OPTIONS);                   // TEST
                 ASSERTV(rcActual, 0 == rcActual);
 
                 ASSERTV(expected,   actual,
@@ -6896,7 +7745,7 @@ const bdlat_AttributeInfo *EmptySequenceExampleSequence::lookupAttributeInfo(
                                                         int         nameLength)
 {
 #ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
-    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(const char *, int);
+    typedef const bdlat_AttributeInfo *(*StaticFunPtr)(const char *, int);
     (void)(StaticFunPtr)(&EmptySequenceExampleSequence::lookupAttributeInfo);
 #endif
 
@@ -6910,7 +7759,7 @@ const bdlat_AttributeInfo *EmptySequenceExampleSequence::lookupAttributeInfo(
                                                                         int id)
 {
 #ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
-    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(int);
+    typedef const bdlat_AttributeInfo *(*StaticFunPtr)(int);
     (void)(StaticFunPtr)(&EmptySequenceExampleSequence::lookupAttributeInfo);
 #endif
 
@@ -6960,7 +7809,7 @@ int EmptySequenceExampleSequence::manipulateAttribute(
                                                      int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;
@@ -7000,7 +7849,7 @@ int EmptySequenceExampleSequence::accessAttribute(ACCESSOR&   accessor,
                                                   int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;
@@ -7085,7 +7934,7 @@ const bdlat_AttributeInfo *EmptySequenceExample::lookupAttributeInfo(
                                                         int         nameLength)
 {
 #ifndef BSLA_MAYBE_UNUSED_IS_ACTIVE_
-    typedef const bdlat_AttributeInfo* (*StaticFunPtr)(const char *, int);
+    typedef const bdlat_AttributeInfo *(*StaticFunPtr)(const char *, int);
     (void)(StaticFunPtr)(&EmptySequenceExample::lookupAttributeInfo);
 #endif
 
@@ -7149,7 +7998,7 @@ int EmptySequenceExample::manipulateAttribute(MANIPULATOR&  manipulator,
                                               int           nameLength)
 {
     enum { NOT_FOUND = -1 };
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;
@@ -7223,7 +8072,7 @@ int EmptySequenceExample::accessAttribute(ACCESSOR&   accessor,
                                           int         nameLength) const
 {
     enum { NOT_FOUND = -1 };
-    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name       ,
+    const bdlat_AttributeInfo *attributeInfo = lookupAttributeInfo(name,
                                                                    nameLength);
     if (0 == attributeInfo) {
         return NOT_FOUND;
@@ -7235,7 +8084,7 @@ template <class ACCESSOR>
 int EmptySequenceExample::accessAttributes(ACCESSOR& accessor) const
 {
     int ret;
-    ret = accessor(d_simpleValue                                      ,
+    ret = accessor(d_simpleValue,
                    ATTRIBUTE_INFO_ARRAY[ATTRIBUTE_INDEX_SIMPLE_VALUE]);
     if (ret) {
         return ret;

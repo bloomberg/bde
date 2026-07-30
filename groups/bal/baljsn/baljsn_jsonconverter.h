@@ -8,30 +8,29 @@ BSLS_IDENT("$Id: $")
 //@PURPOSE: Provide conversions between JSON and `bdlat`-compatible types.
 //
 //@CLASSES:
-// baljsn::JsonConverter: converts between JSON and `bdlat`-compliant types
+//   baljsn::JsonConverter: converts between JSON and `bdlat`-compliant types
 //
-//@SEE_ALSO: baljsn_encoder, baljsn_encodeimplutil, baljsn_jsonformatter,
-//           baljsn_jsontokenizer
+//@SEE_ALSO: baljsn_convertfromjsonoptions, baljsn_converttojsonoptions,
+//           baljsn_encoder, bsljsn_decoder
 //
 //@DESCRIPTION: This component provides a mechanism, baljsn::JsonConverter, to
 // convert from a `bdlat`-compatible object (see [](bdlat)) to a corresponding
-// `bdljsn::Json` object, and also to convert back from a `bdlat::Json` object
-// to a `bdljsn::Json` object.
+// `bdljsn::Json` object, and also to convert back from a `bdljsn::Json` object
+// to a `bdlat` object.
 //
 // The conversion to a `bdljsn::Json` object produces the same result as
 // encoding the `bdlat` object to a JSON document using `baljsn::Encoder` and
-// then using `bdj::JsonUtil::read` to construct a `bdljsn::Json` object
-// from that JSON documents -- however, using `baljsn::convert` avoids the
-// creation of that intermediate document.  Conversely, a `bdljsn::Json`
-// object could be printed as a JSON document (see `bldjsn::JsonUtil::write`)
-// that is decoded into a `bdlat` object (see `baljsn::Decoder`) -- but
-// `baljsn::convert` does so directly.
+// then using `bdljsn::JsonUtil::read` to construct a `bdljsn::Json` object
+// from that JSON document -- however, using `baljsn::JsonConverter` avoids the
+// creation of that intermediate document.  Conversely, a `bdljsn::Json` object
+// could be printed as a JSON document (see `bdljsn::JsonUtil::write`) that is
+// decoded into a `bdlat` object (see `baljsn::Decoder`) -- but
+// `baljsn::JsonConverter` does so directly.
 //
 ///Type Mapping
 ///------------
-// The mapping of `bdlat` and JSON provide different type systems that are
-// not entirely congruent.  Notably, several `bdlat` values are converted to
-// JSON strings:
+// `bdlat` and JSON provide different type systems that are not entirely
+// congruent.  Notably, several `bdlat` values are converted to JSON strings:
 //
 // * BDE date and time types are represented as JSON strings in ISO 8601
 //   format.
@@ -52,7 +51,7 @@ BSLS_IDENT("$Id: $")
 // processes.  To allow this information exchange we will define the XML schema
 // representation for that class, use `bas_codegen.pl` to create the `Employee`
 // `class` for storing that information, populate an `Employee` object, and
-// encode that object using the baljsn encoder.
+// encode that object using the `baljsn` encoder.
 //
 // First, we will define the XML schema inside a file called `employee.xsd`:
 // ```
@@ -102,8 +101,8 @@ BSLS_IDENT("$Id: $")
 // ```
 //  baljsn::JsonConverter converter;
 // ```
-// Now, we will create a `bdljsn::Json` object having elements that
-// match the respecitve elements of `employee`.
+// Now, we will create a `bdljsn::Json` object having elements that match the
+// respective elements of `employee`.
 // ```
 //  bdljsn::Json json;
 //  int          rc = converter.convert(&json, employee);
@@ -138,7 +137,8 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
-#include <baljsn_decoderoptions.h>
+#include <baljsn_convertfromjsonoptions.h>
+#include <baljsn_converttojsonoptions.h>
 #include <baljsn_encodeimplutil.h>
 #include <baljsn_encoderoptions.h>
 #include <baljsn_jsonformatter.h>
@@ -150,20 +150,19 @@ BSLS_IDENT("$Id: $")
 
 #include <bdljsn_json.h>
 
-#include <bdlat_typecategory.h>
 #include <bdlat_enumutil.h>
+#include <bdlat_typecategory.h>
 
 #include <bslma_aatypeutil.h>
 #include <bslma_allocatorutil.h>
-#include <bslma_bslallocator.h>
 
 #include <bsla_fallthrough.h>
 
 #include <bsls_assert.h>
 
-#include <bsl_ostream.h>
-#include <bsl_sstream.h>
-#include <bsl_string.h>
+#include <bsl_iosfwd.h>
+#include <bsl_sstream.h>  // `bsl::ostringstream`
+#include <bsl_string.h>   // `bsl::string`, `bslstl::StringRef`
 #include <bsl_vector.h>
 
 namespace BloombergLP {
@@ -175,13 +174,17 @@ struct JsonConverter_ElementVisitor;
                                // class JsonConverter
                                // ===================
 
-/// This class provides a mechanism for creating `bdljsn::Json` objects
-/// having the same values as a given `bdlat`-compatible object.
-/// The `convert` method is function template that will
-/// accepts any object that meets the requirements of a sequence, choice, or
-/// array object as defined in the `bdlat_sequencefunctions`,
-/// `bdlat_choicefunctions`, and `bdlat_arrayfunctions` components
-/// respectively.
+/// This class provides a mechanism for copying the constituent values of
+/// certain `bdlat`-compatible objects to `bdljsn::Json` objects, and vice
+/// versa.  In each case, the resulting object is a different representation of
+/// the data in the original.  This conversion is analogous to the encoding and
+/// decoding operations provided elsewhere in this package; however, the
+/// `convert` methods here avoid the creation of any textual representation of
+/// the data.
+///
+/// The `bdlat` objects must meet the requirements of a sequence, choice, or
+/// array as defined in `bdlat_sequencefunctions`, `bdlat_choicefunctions`, and
+/// `bdlat_arrayfunctions` components, respectively.
 class JsonConverter {
 
     // PRIVATE TYPES
@@ -200,24 +203,24 @@ class JsonConverter {
 
     // PRIVATE MANIPULATORS
 
-    /// Log the latest tokenizer error to `d_logStream`.  If the tokenizer
-    /// did not have an error, log the specified `alternateString`.  Return
-    /// a reference to `d_logStream`.
+    /// Log the latest tokenizer error to `d_logStream`.  If the tokenizer did
+    /// not have an error, log the specified `alternateString`.  Return a
+    /// reference to `d_logStream`.
     bsl::ostream& logTokenizerError(const char *alternateString);
 
-    /// Skip the unknown element specified by `elementName` by discarding
-    /// all the data associated with it and advancing the parser to the next
+    /// Skip the unknown element specified by `elementName` by discarding all
+    /// the data associated with it and advancing the parser to the next
     /// element.  Return 0 on success and a non-zero value otherwise.
     int skipUnknownElement(const bsl::string_view& elementName);
 
     /// Decode into the specified `value`, of a (template parameter) `TYPE`
     /// corresponding to the specified `bdeat` `category`, the JSON data
-    /// currently referred to by the tokenizer owned by this object, using
-    /// the specified formatting `mode`.  Return 0 on success and a non-zero
-    /// value otherwise.  The behavior is undefined unless `value`
-    /// corresponds to the specified `bdeat` category and `mode` is a valid
-    /// formatting mode as specified in `bdlat_FormattingMode`.  Note that
-    /// `ANY_CATEGORY` shall be a tag-type defined in `bdlat_TypeCategory`.
+    /// currently referred to by the tokenizer owned by this object, using the
+    /// specified formatting `mode`.  Return 0 on success and a non-zero value
+    /// otherwise.  The behavior is undefined unless `value` corresponds to the
+    /// specified `bdeat` category and `mode` is a valid formatting mode as
+    /// specified in `bdlat_FormattingMode`.  Note that `ANY_CATEGORY` shall
+    /// be a tag-type defined in `bdlat_TypeCategory`.
     template <class TYPE>
     int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::DynamicType );
     template <class TYPE>
@@ -236,7 +239,7 @@ class JsonConverter {
     int decodeImp(TYPE *value, int mode, bdlat_TypeCategory::NullableValue );
     int decodeImp(bsl::vector<char>         *value,
                   int                        mode,
-                  bdlat_TypeCategory::Array );
+                  bdlat_TypeCategory::Array  );
     template <class TYPE, class ANY_CATEGORY>
     int decodeImp(TYPE *value, ANY_CATEGORY category );
 
@@ -263,44 +266,39 @@ class JsonConverter {
 
     // MANIPULATORS
 
-    /// Load to the specified `json` the specified `value` of (template
-    /// parameter) `TYPE`.  Return 0 on success, and a  non-zero value
-    /// otherwise.  `json` set to its default value (`json.isNull()`) before
-    /// `value` is loaded.  An error is returned if `TYPE` is neither a
-    /// top-level `Sequence` nor a `Choice` nor an `Array`.
+    /// Load into the specified `json` the specified `value` of (template
+    /// parameter) `TYPE` using the specified `options`.  Return 0 on success,
+    /// and a non-zero value otherwise.  An error is returned if `TYPE` is not
+    /// a top-level `Sequence`, `Choice`, or `Array`.  The prior value of
+    /// `json` is reset.
     template <class TYPE>
-    int convert(bdljsn::Json *json, const TYPE& value);
+    int convert(bdljsn::Json                *json,
+                const TYPE&                  value,
+                const ConvertToJsonOptions&  options = ConvertToJsonOptions());
 
-    /// Load to the specified `value` of (template parameter) `TYPE` the
-    /// value of the specified `json` as qualified by the specified `options`.
-    /// Return 0 on success and a non-zero value otherwise.
-    /// The attributes of `options` are ignored expect for:
-    ///
-    ///  * `maxDepth`            : maximum depth of the decoded data
-    ///                           (512 default)
-    ///  * `skipUnknownElements` : allow unknown elements in 'json' to be
-    ///                            skipped (default `true`).
-    ///
-    /// Return 0 on success and a non-zero value otherwise.  An error is
-    /// returned if `TYPE` is neither a top-level `Sequence` nor a `Choice`
-    /// nor an `Array`.
+    /// Load to the specified `value` of (template parameter) `TYPE` the value
+    /// of the specified `json` using the specified `options`.  Return 0 on
+    /// success and a non-zero value otherwise.  An error is returned if `TYPE`
+    /// is not a top-level `Sequence`, `Choice`, or `Array`. The prior value of
+    /// `value` is reset.
     template <class TYPE>
-    int convert(TYPE                  *value,
-                const bdljsn::Json&    json,
-                const DecoderOptions&  options = DecoderOptions());
+    int convert(
+            TYPE                          *value,
+            const bdljsn::Json&            json,
+            const ConvertFromJsonOptions&  options = ConvertFromJsonOptions());
 
     // ACCESSORS
 
-    /// Return a string containing any error, warning, or trace messages
-    /// that were logged during the last call to the `encode` method.  The
-    /// log is reset each time `convert` is called.
+    /// Return a string containing any error, warning, or trace messages that
+    /// were logged during the last call to the `convert` method.  The log is
+    /// reset each time `convert` is called.
     bsl::string loggedMessages() const;
 
                                   // Aspects
 
-    /// Return the allocator used by this object to supply memory.  Note
-    /// that if no allocator was supplied at construction the default
-    /// allocator in effect at construction is used.
+    /// Return the allocator used by this object to supply memory.  Note that
+    /// if no allocator was supplied at construction the default allocator in
+    /// effect at construction is used.
     allocator_type get_allocator() const;
 };
 
@@ -326,8 +324,8 @@ struct JsonConverter_ElementVisitor {
 
     // MANIPULATORS
 
-    /// Decode into the specified `value` the data in the JSON format.
-    /// Return 0 on success and a non-zero value otherwise.
+    /// Decode into the specified `value` the data in the JSON format.  Return
+    /// 0 on success and a non-zero value otherwise.
     template <class TYPE>
     int operator()(TYPE *value);
 
@@ -338,9 +336,9 @@ struct JsonConverter_ElementVisitor {
     int operator()(TYPE *value, const INFO& info);
 };
 
-                       // ====================================
+                       // ===================================
                        // struct JsonConverter_DecodeImpProxy
-                       // ====================================
+                       // ===================================
 
 /// This class provides a functor that dispatches the appropriate `decodeImp`
 /// method for a `bdeat` Dynamic type.  Note that the operators provided in
@@ -382,7 +380,7 @@ int JsonConverter::decodeImp(TYPE                            *value,
                          int                                  mode,
                          bdlat_TypeCategory::DynamicType      )
 {
-    JsonConverter_DecodeImpProxy proxy = { this, mode };
+    JsonConverter_DecodeImpProxy proxy = {this, mode};
     return bdlat_TypeCategoryUtil::manipulateByCategory(value, proxy);
 }
 
@@ -399,7 +397,7 @@ int JsonConverter::decodeImp(TYPE                         *value,
                                    *value,
                                    d_elementName.data(),
                                    static_cast<int>(d_elementName.length()))) {
-            JsonConverter_ElementVisitor visitor = { this, mode };
+            JsonConverter_ElementVisitor visitor = {this, mode};
 
             if (0 != bdlat_SequenceFunctions::manipulateAttribute(
                                    value,
@@ -464,12 +462,13 @@ int JsonConverter::decodeImp(TYPE                         *value,
 
                 rc = d_tokenizer.advanceToNextToken();
                 if (rc) {
-                    logTokenizerError("Error") << " reading value for"
-                                 << " attribute '" << d_elementName << "' \n";
+                    logTokenizerError("Error")
+                                  << " reading value for"
+                                  << " attribute '" << d_elementName << "' \n";
                     return -1;                                        // RETURN
                 }
 
-                JsonConverter_ElementVisitor visitor = { this, mode };
+                JsonConverter_ElementVisitor visitor = {this, mode};
 
                 if (0 != bdlat_SequenceFunctions::manipulateAttribute(
                                    value,
@@ -492,8 +491,8 @@ int JsonConverter::decodeImp(TYPE                         *value,
                     }
                 }
                 else {
-                    d_logStream << "Unknown element '"
-                                << elementName << "' found\n";
+                    d_logStream << "Unknown element '" << elementName
+                                << "' found\n";
                     return -1;                                        // RETURN
                 }
             }
@@ -502,15 +501,15 @@ int JsonConverter::decodeImp(TYPE                         *value,
             if (rc) {
                 d_logStream << "Could not decode sequence, ";
                 logTokenizerError("error") << " reading token"
-                            << " after value for attribute '"
-                            << d_elementName << "' \n";
+                                           << " after value for attribute '"
+                                           << d_elementName << "' \n";
                 return -1;                                            // RETURN
             }
         }
 
         if (Tokenizer::e_END_OBJECT != d_tokenizer.tokenType()) {
             d_logStream << "Could not decode sequence, "
-                        << "missing terminator '}' or seperator ','\n";
+                        << "missing terminator '}' or separator ','\n";
             return -1;                                                // RETURN
         }
 
@@ -544,7 +543,7 @@ int JsonConverter::decodeImp(TYPE                     *value,
                 return -1;                                            // RETURN
             }
 
-            JsonConverter_ElementVisitor visitor = { this, mode };
+            JsonConverter_ElementVisitor visitor = {this, mode};
 
             if (0 != bdlat_ChoiceFunctions::manipulateSelection(value,
                                                                 visitor)) {
@@ -564,8 +563,8 @@ int JsonConverter::decodeImp(TYPE                     *value,
                 }
             }
             else {
-                d_logStream << "Unknown element '"
-                            << selectionName << "' found\n";
+                d_logStream << "Unknown element '" << selectionName
+                            << "' found\n";
                 return -1;                                            // RETURN
             }
         }
@@ -617,7 +616,7 @@ int JsonConverter::decodeImp(TYPE                     *value,
                     return -1;                                        // RETURN
                 }
 
-                JsonConverter_ElementVisitor visitor = { this, mode };
+                JsonConverter_ElementVisitor visitor = {this, mode};
 
                 if (0 != bdlat_ChoiceFunctions::manipulateSelection(value,
                                                                     visitor)) {
@@ -637,8 +636,8 @@ int JsonConverter::decodeImp(TYPE                     *value,
                     }
                 }
                 else {
-                    d_logStream << "Unknown element '"
-                                << selectionName << "' found\n";
+                    d_logStream << "Unknown element '" << selectionName
+                                << "' found\n";
                     return -1;                                        // RETURN
                 }
             }
@@ -648,7 +647,7 @@ int JsonConverter::decodeImp(TYPE                     *value,
             if (rc) {
                 d_logStream << "Could not decode choice, ";
                 logTokenizerError("error") << " reading token after value for"
-                                                               " selection \n";
+                                              " selection \n";
 
                 return -1;                                            // RETURN
             }
@@ -678,7 +677,7 @@ int JsonConverter::decodeImp(TYPE                            *value,
     }
 
     const bdljsn::Json *dataValue;
-    int rc = d_tokenizer.value(&dataValue);
+    int                 rc = d_tokenizer.value(&dataValue);
     if (rc) {
         d_logStream << "Error reading enumeration value\n";
         return -1;                                                    // RETURN
@@ -695,9 +694,8 @@ int JsonConverter::decodeImp(TYPE                            *value,
         if (0 == rc) {
             return 0;                                                 // RETURN
         } else {
-            d_logStream
-                  << "Could not decode Enum String, value not allowed \""
-                  << dataValue << "\"\n";
+            d_logStream << "Could not decode Enum String, value not allowed \""
+                        << dataValue << "\"\n";
             return rc;
         }
     } else if (dataValue->isNumber()) {
@@ -705,7 +703,7 @@ int JsonConverter::decodeImp(TYPE                            *value,
         // We also accept an unquoted integer (DRQS 166048981).
         int              intValue;
         bsl::string_view data = dataValue->theNumber().value();
-        rc = ParserUtil::getValue(&intValue, data);
+        rc                    = ParserUtil::getValue(&intValue, data);
         if (rc) {
             d_logStream << "Error reading enumeration value\n";
             return -1;                                                // RETURN
@@ -734,7 +732,7 @@ int JsonConverter::decodeImp(TYPE                               *value,
     }
 
     const bdljsn::Json *dataValue;
-    int rc = d_tokenizer.value(&dataValue);
+    int                 rc = d_tokenizer.value(&dataValue);
     if (rc) {
         d_logStream << "Error reading customized type value\n";
         return -1;                                                    // RETURN
@@ -780,7 +778,7 @@ int JsonConverter::decodeImp(TYPE                       *value,
     }
 
     const bdljsn::Json *dataValue;
-    int rc = d_tokenizer.value(&dataValue);
+    int                 rc = d_tokenizer.value(&dataValue);
     if (rc) {
         d_logStream << "Error reading simple value\n";
         return -1;                                                    // RETURN
@@ -809,7 +807,7 @@ int JsonConverter::decodeImp(bsl::vector<char>         *value,
     }
 
     const bdljsn::Json *dataValue;
-    int rc = d_tokenizer.value(&dataValue);
+    int                 rc = d_tokenizer.value(&dataValue);
 
     if (rc) {
         d_logStream << "Error reading customized type element value\n";
@@ -875,7 +873,7 @@ int JsonConverter::decodeImp(TYPE                      *value,
             ++i;
             bdlat_ArrayFunctions::resize(value, i);
 
-            JsonConverter_ElementVisitor visitor = { this, mode };
+            JsonConverter_ElementVisitor visitor = {this, mode};
 
             if (0 != bdlat_ArrayFunctions::manipulateElement(value,
                                                              visitor,
@@ -914,7 +912,7 @@ int JsonConverter::decodeImp(TYPE                              *value,
 
     if (Tokenizer::e_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         const bdljsn::Json *dataValue;
-        const int rc = d_tokenizer.value(&dataValue);
+        const int           rc = d_tokenizer.value(&dataValue);
         if (rc) {
             return rc;                                                // RETURN
         }
@@ -926,7 +924,7 @@ int JsonConverter::decodeImp(TYPE                              *value,
 
     bdlat_NullableValueFunctions::makeValue(value);
 
-    JsonConverter_ElementVisitor visitor = { this, mode };
+    JsonConverter_ElementVisitor visitor = {this, mode};
     int rc = bdlat_NullableValueFunctions::manipulateValue(value, visitor);
     return rc;
 }
@@ -955,7 +953,9 @@ JsonConverter::JsonConverter(const allocator_type& allocator)
 
 // MANIPULATORS
 template <class TYPE>
-int JsonConverter::convert(bdljsn::Json *json, const TYPE& value)
+int JsonConverter::convert(bdljsn::Json                *json,
+                           const TYPE&                  value,
+                           const ConvertToJsonOptions&  options)
 {
     BSLS_ASSERT(json);
 
@@ -981,8 +981,8 @@ int JsonConverter::convert(bdljsn::Json *json, const TYPE& value)
     static const bool s_FIRST_MEMBER_FLAG = false;
 
     EncoderOptions mOptions;  const EncoderOptions& cOptions = mOptions;
-    mOptions.setEncodeNullElements      (true);  // not the default
-    mOptions.setEncodeEmptyArrays       (true);  // not the default
+    mOptions.setEncodeEmptyArrays       (options.convertEmptyArrays());
+    mOptions.setEncodeNullElements      (options.convertNullElements());
     mOptions.setEncodeInfAndNaNAsStrings(true);  // not the default
 
     json->makeNull();
@@ -1004,9 +1004,9 @@ int JsonConverter::convert(bdljsn::Json *json, const TYPE& value)
 }
 
 template <class TYPE>
-int JsonConverter::convert(TYPE                  *value,
-                           const bdljsn::Json&    json,
-                           const DecoderOptions&  options)
+int JsonConverter::convert(TYPE                          *value,
+                           const bdljsn::Json&            json,
+                           const ConvertFromJsonOptions&  options)
 {
     BSLS_ASSERT(value);
 
@@ -1034,7 +1034,7 @@ int JsonConverter::convert(TYPE                  *value,
     d_maxDepth            = options.maxDepth();
     d_skipUnknownElements = options.skipUnknownElements();
 
-    d_tokenizer.reset(&json);  // Must we call this `reset`?
+    d_tokenizer.reset(&json);
 
     BSLS_ASSERT_SAFE(Tokenizer::e_BEGIN == d_tokenizer.tokenType());
     int rc = d_tokenizer.advanceToNextToken();
@@ -1088,9 +1088,9 @@ int JsonConverter_ElementVisitor::operator()(TYPE *value, const INFO& info)
                                   TypeCategory());
 }
 
-                       // -------------------------------
+                       // -----------------------------------
                        // struct JsonConverter_DecodeImpProxy
-                       // -------------------------------
+                       // -----------------------------------
 
 // MANIPULATORS
 template <class TYPE>

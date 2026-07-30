@@ -2,11 +2,11 @@
 #include <baljsn_jsonconverter.h>
 
 #include <bsls_ident.h>
-BSLS_IDENT_RCSID(baljsn_jsonconverter,"$Id$ $CSID$")
+BSLS_IDENT_RCSID(baljsn_jsonconverter, "$Id$ $CSID$")
 
+#include <baljsn_decoder.h>            // for testing only
 #include <baljsn_encoder.h>            // for testing only
 #include <baljsn_encoder_testtypes.h>  // for testing only
-#include <baljsn_decoder.h>            // for testing only
 
 namespace BloombergLP {
 namespace baljsn {
@@ -33,7 +33,6 @@ int JsonConverter::skipUnknownElement(const bsl::string_view& elementName)
     if (Tokenizer::e_ELEMENT_VALUE == d_tokenizer.tokenType()) {
         // 'elementName' is a simple type.  Extract its value and return.
 
-     // bslstl::StringRef tmp;
         const bdljsn::Json *tmp;
         rc = d_tokenizer.value(&tmp);
         if (rc) {
@@ -59,8 +58,9 @@ int JsonConverter::skipUnknownElement(const bsl::string_view& elementName)
 
             int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                logTokenizerError("Error") << " reading unknown element '"
-                            << elementName << "' or after that element\n";
+                logTokenizerError("Error")
+                                 << " reading unknown element '" << elementName
+                                 << "' or after that element\n";
                 return -1;                                            // RETURN
             }
 
@@ -114,8 +114,9 @@ int JsonConverter::skipUnknownElement(const bsl::string_view& elementName)
 
             int rc = d_tokenizer.advanceToNextToken();
             if (rc) {
-                logTokenizerError("Error") << " reading unknown element '"
-                            << elementName << "' or after that element\n";
+                logTokenizerError("Error")
+                                 << " reading unknown element '" << elementName
+                                 << "' or after that element\n";
                 return -1;                                            // RETURN
             }
 
