@@ -71,7 +71,7 @@ BSLS_IDENT("$Id: $")
 // Now, use resulting `inStream` to unexternalize user data:
 // ```
 // unsigned int  magic = 0;
-// int           key;
+// int           key   = 0;
 // bsl::string   value;
 //
 // inStream.getUint32(magic);

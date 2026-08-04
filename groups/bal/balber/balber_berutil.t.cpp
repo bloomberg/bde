@@ -17258,7 +17258,7 @@ int main(int argc, char *argv[])
                     const long     L    = (long) DATA[i].d_value;
                     const char    *EXP  = DATA[i].d_exp;
                     const int      LEN  = numOctets(EXP);
-                          long     l;
+                          long     l    = 0;
 
                     if (veryVerbose) { P_(i) P_(L) P_(LEN) P(EXP) }
 
@@ -17296,7 +17296,7 @@ int main(int argc, char *argv[])
                     const short    S    = (short) DATA[i].d_value;
                     const char    *EXP  = DATA[i].d_exp;
                     const int      LEN  = numOctets(EXP);
-                          short    s;
+                          short    s    = 0;
 
                     if (veryVerbose) { P_(i) P_(S) P_(LEN) P(EXP) }
 
