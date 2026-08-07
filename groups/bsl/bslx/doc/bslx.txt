@@ -583,7 +583,7 @@
 ..
 
 /Updating Production Systems
-----------------------------
+/---------------------------
  The basic recommendation for choosing a 'versionSelector' (which is supplied
  to the BDEX 'OutStream' constructor) is to use the current date as a
  *compile*-time constant value.  Using the current date will select the most

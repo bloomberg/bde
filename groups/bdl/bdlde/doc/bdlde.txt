@@ -119,7 +119,7 @@
 
 /Usage
 /-----
-/ This section illustrates intended use of this package.
+ This section illustrates intended use of this package.
 
 /Example 1: CRC-32
 /- - - - - - - - -

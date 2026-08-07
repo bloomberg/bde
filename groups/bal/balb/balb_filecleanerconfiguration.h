@@ -25,7 +25,6 @@ BSLS_IDENT("$Id: $")
 // maxFileAge      bsls::TimeInterval  TimeInterval()  none
 // minNumFiles     int                 0               [0 .. maxNumFiles]
 // maxNumFiles     int                 INT_MAX         [minNumFiles .. INT_MAX]
-
 // ```
 // * `filePattern` : filesystem pattern used for file matching.
 // * `maxFileAge`  : maximum file age (since last modification).

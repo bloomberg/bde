@@ -1241,7 +1241,7 @@ Output:
 ..
 
 /json:// - Full JSON Formatter
-/ . . . . . . . . . . . . . . .
+/   -   -   -   -   -   -   -
 
 The 'json://' scheme uses 'ball::RecordJsonFormatter' with a full JSON array
 format specification.  This provides the most flexibility, allowing
