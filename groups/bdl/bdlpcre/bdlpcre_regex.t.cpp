@@ -559,12 +559,8 @@ WeakAlignAllocator::~WeakAlignAllocator()
 inline
 void *WeakAlignAllocator::allocate(size_type numBytes)
 {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    const size_t maxAlign = alignof(std::max_align_t);
-#else
     const size_t maxAlign =
                           BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-#endif
 
     if (0 == (numBytes & (maxAlign - 1))) {
         // Maximally aligned memory, we just call the upstream allocator
@@ -585,6 +581,14 @@ void *WeakAlignAllocator::allocate(size_type numBytes)
     // adding `align` to size we make the allocated size to be
     // `2 * (n + 1) * align`, which has the required natural alignment of
     // `2 * align)`.  The assert below is a paranoid check to state the above.
+    ASSERTV(upstream_ptr,
+            align * 2,
+            maxAlign,
+            numBytes,
+            bsls::AlignmentUtil::calculateAlignmentOffset(upstream_ptr,
+                                                              align * 2),
+            bsls::AlignmentUtil::calculateAlignmentOffset(upstream_ptr,
+                                                              align * 2) == 0);
     BSLS_ASSERT(bsls::AlignmentUtil::calculateAlignmentOffset(upstream_ptr,
                                                               align * 2) == 0);
 
@@ -604,12 +608,8 @@ void *WeakAlignAllocator::allocate(size_type numBytes)
 inline
 void WeakAlignAllocator::deallocate(void *ptr)
 {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-    const size_t maxAlign = alignof(std::max_align_t);
-#else
     const size_t maxAlign =
                           BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-#endif
 
     if (0 == bsls::AlignmentUtil::calculateAlignmentOffset(ptr, maxAlign)) {
         // Maximum aligned, no offset was added
@@ -1340,12 +1340,8 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) cout << "`WeakAlignAllocator breathing test\n";
         {
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP11_BASELINE_LIBRARY
-            const size_t maxAlign = alignof(std::max_align_t);
-#else
             const size_t maxAlign =
                           BloombergLP::bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT;
-#endif
 
             static struct {
                 size_t d_line;
