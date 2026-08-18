@@ -592,7 +592,7 @@ extern "C" void * testThread3(void *arg)
     struct TradeThreadArgument {
         bsl::vector<Trade> *d_trades_p;
         bslmt::Barrier     *d_barrier_p;
-        volatile bool      *d_errorFlag_p;
+        bsls::AtomicBool   *d_errorFlag_p;
         int                 d_tradeNum;
     };
 
@@ -688,8 +688,8 @@ extern "C" void * testThread3(void *arg)
 // trades as the barrier count.  When `bslmt::Barrier::wait()` is called, the
 // barrier will require `numTrades` objects to wait before all are released.
 // ```
-        bslmt::Barrier barrier(numTrades);
-        bool errorFlag = false;
+        bslmt::Barrier   barrier(numTrades);
+        bsls::AtomicBool errorFlag(false);
 // ```
 // Create a thread to process each trade.
 // ```
