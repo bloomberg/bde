@@ -3,6 +3,8 @@
 
 #include <bdlt_datetimeinterval.h>
 
+#include <bdlb_numericparseutil.h>
+
 #include <bsls_performancehint.h>
 #include <bsls_platform.h>
 
@@ -12,6 +14,9 @@ BSLS_IDENT_RCSID(bdlt_iso8601util_cpp,"$Id$ $CSID$")
 #include <bsl_algorithm.h>
 #include <bsl_cctype.h>
 #include <bsl_cstring.h>
+#include <bsl_iterator.h>
+#include <bsl_limits.h>
+#include <bsl_string_view.h>
 
 #if defined(BSLS_PLATFORM_CPU_AVX2)
 #include <immintrin.h>
@@ -317,14 +322,42 @@ int Impl::generate(STRING                            *string,
     return len;
 }
 
-/// Convert the (unsigned) ASCII decimal integer starting at the specified
-/// `begin` and ending anywhere before the specified `end` into its
-/// corresponding `int` value, load the value into the specified `result`,
-/// and set the specified `*nextPos` to the address immediately after the
-/// last digit parsed.  Return 0 if there was at least one digit parsed, and
-/// a non-zero value (with no effect) otherwise.  The behavior is undefined
-/// unless `begin < end` and the parsed value does not exceed the maximum
-/// value allowed in a value of type `bsls::Types::Int64`.
+/// Load into the specified `result` the sum of `*result` and the specified
+/// `value` multiplied by the specified `factor`, if neither the multiplication
+/// nor the addition overflows `bsls::Types::Int64`.  Return 0 on success, and
+/// a non-zero value otherwise.  The behavior is undefined unless `result` is
+/// non-null, and `0 <= *result`, `0 <= value`, and `0 < factor`.
+int addSecondsIfValid(bsls::Types::Int64 *result,
+                      bsls::Types::Int64  value,
+                      bsls::Types::Int64  factor)
+{
+    BSLS_ASSERT(result);
+    BSLS_ASSERT(0 <= *result);
+    BSLS_ASSERT(0 <= value);
+    BSLS_ASSERT(0 < factor);
+
+    if (value > bsl::numeric_limits<bsls::Types::Int64>::max() / factor) {
+        return -1;                                                    // RETURN
+    }
+
+    bsls::Types::Int64 seconds = value * factor;
+
+    if (bsl::numeric_limits<bsls::Types::Int64>::max() - *result < seconds) {
+        return -1;                                                    // RETURN
+    }
+
+    *result += seconds;
+    return 0;
+}
+
+/// Parse the (unsigned) ASCII decimal integer prefix of the character range
+/// `[begin, end)` into its corresponding `bsls::Types::Int64` value, load that
+/// value into the specified `result`, and set the specified `*nextPos` to the
+/// address immediately after the last digit consumed.  Return 0 on success,
+/// and a non-zero value (with no effect) if no digits were parsed or if the
+/// value obtained by consuming every contiguous digit starting at `begin`
+/// would overflow `bsls::Types::Int64`.  The behavior is undefined unless
+/// `begin < end`.
 int asciiPrefixToInt64(const char         **nextPos,
                        bsls::Types::Int64  *result,
                        const char          *begin,
@@ -336,23 +369,22 @@ int asciiPrefixToInt64(const char         **nextPos,
     BSLS_ASSERT(end);
     BSLS_ASSERT(begin < end);
 
-    bsls::Types::Int64  tmp      = 0;
-    const char         *position = begin;
-
-    while (position < end && isdigit(*position)) {
-        tmp *= 10;
-        tmp += *position - '0';
-
-        ++position;
-    }
-
-    if (position == begin) {
+    if (!isdigit(*begin)) {
         return -1;                                                    // RETURN
     }
 
-    *result  = tmp;
-    *nextPos = position;
+    bsl::string_view   remainder;
+    bsls::Types::Int64 tmp;
+    int rc = bdlb::NumericParseUtil::parseInt64(&tmp,
+                                                &remainder,
+                                                bsl::string_view(begin, end));
 
+    if (0 != rc || (!remainder.empty() && isdigit(remainder[0]))) {
+        return -1;                                                    // RETURN
+    }
+
+    *result = tmp;
+    *nextPos = remainder.data();
     return 0;
 }
 
@@ -2721,31 +2753,47 @@ int Iso8601Util::parse(bsls::TimeInterval *result,
     // one component must be present, and if the "T" is present, at least one
     // component must appear after the "T".
 
-    bsls::Types::Int64 weeks       = 0;
-    bsls::Types::Int64 days        = 0;
-    bsls::Types::Int64 hours       = 0;
-    bsls::Types::Int64 minutes     = 0;
-    bsls::Types::Int64 seconds     = 0;
-    bsls::Types::Int64 nanoseconds = 0;
+    // clang-format off
+    const bsls::Types::Int64 k_FACTORS[] = {
+        7 * 24 * 60 * 60,  // weeks
+            24 * 60 * 60,  // days
+                 60 * 60,  // hours
+                      60,  // minutes
+                       1   // seconds
+    };
+    // clang-format on
 
-    if (0 != u::parseIntervalImpl(&weeks,
-                                  &days,
-                                  &hours,
-                                  &minutes,
-                                  &seconds,
+    bsls::Types::Int64 values[sizeof k_FACTORS / sizeof *k_FACTORS] = {0};
+    bsls::Types::Int64 nanoseconds                                  = 0;
+
+    if (0 != u::parseIntervalImpl(&values[0],
+                                  &values[1],
+                                  &values[2],
+                                  &values[3],
+                                  &values[4],
                                   &nanoseconds,
                                   string,
                                   length)) {
         return -1;                                                    // RETURN
     }
 
-    result->setTotalDays(weeks * 7);
-    result->addDays(days);
-    result->addHours(hours);
-    result->addMinutes(minutes);
-    result->addSeconds(seconds);
-    result->addNanoseconds(nanoseconds);
+    bsls::Types::Int64 seconds = 0;
+    for (int i = 0; i < bsl::ssize(k_FACTORS); ++i) {
+        if (0 != u::addSecondsIfValid(&seconds, values[i], k_FACTORS[i])) {
+            return -1;                                                // RETURN
+        }
+    }
 
+    // `parseFractionalSecond` reads up to 10 significant fractional digits
+    // and rounds, so `nanoseconds` may reach 1'000'000'000 (e.g., for
+    // `.9999999999`).  Carry any whole-second component into `seconds`,
+    // rejecting the input if the resulting sum overflows.
+    if (0 != u::addSecondsIfValid(&seconds, nanoseconds / 1000000000, 1)) {
+        return -1;                                                    // RETURN
+    }
+    nanoseconds %= 1000000000;
+
+    result->setInterval(seconds, static_cast<int>(nanoseconds));
     return 0;
 }
 

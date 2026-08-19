@@ -13705,6 +13705,10 @@ int main(int argc, char *argv[])
         // 7. Fractional seconds containing more than nine digits are handled
         //    correctly.
         //
+        // 8. Strings whose combined component values do not fit in the
+        //    representable range of a `TimeInterval` (in `Int64` total
+        //    seconds) are rejected.
+        //
         // Plan:
         // 1. Using the table-driven technique, specify a set of distinct
         //    `TimeInterval` values.
@@ -13730,6 +13734,12 @@ int main(int argc, char *argv[])
         //
         // 7. Invoke the `parse` functions on the strings from P-6 and verify
         //    the results are as expected.  (C-9)
+        //
+        // 8. Using the table-driven technique, specify a set of ISO 8601
+        //    duration strings whose combined component values exceed the
+        //    representable range of a `TimeInterval`, invoke `parse` on
+        //    each, and verify that a non-zero value is returned and the
+        //    result object is unchanged.  (C-8)
         //
         // Testing:
         //   int parse(Time *, const char *, int);
@@ -13771,6 +13781,64 @@ int main(int argc, char *argv[])
                 ASSERTV(LINE, INPUT, LENGTH,
                         0 == Util::parse(&mX, StrView(INPUT, LENGTH)));
                 ASSERTV(LINE, EXPECTED, X, EXPECTED == X);
+            }
+        }
+
+        if (verbose) cout << "\nTesting overflow rejection." << endl;
+        {
+            const struct {
+                int         d_line;
+                const char *d_input;
+            } DATA[] = {
+                // A single component whose value exceeds `INT64_MAX`
+                // (`9223372036854775807`) by 1.
+                { L_, "P9223372036854775808W"          },
+                { L_, "P9223372036854775808D"          },
+                { L_, "PT9223372036854775808H"         },
+                { L_, "PT9223372036854775808M"         },
+                { L_, "PT9223372036854775808S"         },
+
+                // A single component whose value fits in `Int64` but whose
+                // total seconds exceeds `INT64_MAX` by one unit of the
+                // component.
+                { L_, "P106751991167301D"              },
+                { L_, "P15250284452472W"               },
+
+                // The `INT64_MAX` boundary duration (see
+                // `DEFAULT_INTERVAL_DATA`) with its last component increased
+                // by one second.
+                { L_, "P15250284452471W3DT15H30M8S"    },
+
+                // A fractional second that rounds up to a whole second when
+                // added to an `INT64_MAX` integer seconds part.
+                { L_, "PT9223372036854775807.9999999999S" },
+            };
+
+            const int NUM_DATA = static_cast<int>(sizeof DATA / sizeof *DATA);
+
+            for (int ti = 0; ti < NUM_DATA; ++ti) {
+                const int   LINE   = DATA[ti].d_line;
+                const char *INPUT  = DATA[ti].d_input;
+                const int   LENGTH = static_cast<int>(bsl::strlen(INPUT));
+
+                if (veryVerbose) {
+                    T_ P_(LINE) P(INPUT)
+                }
+
+                bsls::TimeInterval        mX(XX);
+                const bsls::TimeInterval& X = mX;
+
+                ASSERTV(LINE,
+                        INPUT,
+                        LENGTH,
+                        0 != Util::parse(&mX, INPUT, LENGTH));
+                ASSERTV(LINE, XX, X, XX == X);
+
+                ASSERTV(LINE,
+                        INPUT,
+                        LENGTH,
+                        0 != Util::parse(&mX, StrView(INPUT, LENGTH)));
+                ASSERTV(LINE, XX, X, XX == X);
             }
         }
 
