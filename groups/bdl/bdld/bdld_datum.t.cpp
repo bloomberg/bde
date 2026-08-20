@@ -1509,8 +1509,8 @@ void BenchmarkSuite::run(int   iterations,
         Decimal64      aSmallDecimal64(BDLDFP_DECIMAL_DD(1.));
         BSLA_MAYBE_UNUSED unsigned char *result =
             bdldfp::DecimalConvertUtil::decimal64ToVariableWidthEncoding(
-                                                              buffer,
-                                                              aSmallDecimal64);
+                const_cast<unsigned char*>(buffer),
+                aSmallDecimal64);
         BSLS_ASSERT(result <= buffer + 6);
         BENCHMARK(createDecimal64(aSmallDecimal64,
                                   &alloc),
@@ -1523,8 +1523,9 @@ void BenchmarkSuite::run(int   iterations,
 
         Decimal64 aDecimal64(BDLDFP_DECIMAL_DD(1.23456789));
         BSLS_ASSERT(bdldfp::DecimalConvertUtil::
-                    decimal64ToVariableWidthEncoding(buffer,
-                                                     aDecimal64) > buffer + 6);
+                    decimal64ToVariableWidthEncoding(
+                        const_cast<unsigned char*>(buffer),
+                        aDecimal64) > buffer + 6);
         BENCHMARK(createDecimal64(aDecimal64, &alloc),
                   isDecimal64(),
                   theDecimal64(),
