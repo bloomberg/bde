@@ -882,7 +882,7 @@ bool verifyBlockList(const bslma::TestAllocator&    ta,
     while (p && *p) {
         p += strcspn(p, "0123456789");  // Skip non-digits
         int id;
-        size_t count = sscanf(p, "\t%d", &id);
+        int count = sscanf(p, "\t%d", &id);
         if (count < 1) {
             break;  // No more IDs.
         }
