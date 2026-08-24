@@ -48,9 +48,8 @@ namespace bsl {
     using std::piecewise_construct_t;
 #endif  // BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR
 
-#ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
-    using std::exchange;
-#endif
+    // Note that `exchange` is provided by `bslstl_utility.h` (which also
+    // supplies an implementation for C++03).
 
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_INTEGER_SEQUENCE
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP14_BASELINE_LIBRARY
