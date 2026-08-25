@@ -288,6 +288,8 @@ class DateTz {
     /// `localDate` and `offset` represent a valid `DateTz` value.  Return 0
     /// on success, and a non-zero value with no effect on this `DateTz`
     /// object otherwise.
+    ///
+    /// @DEPRECATED: Use `setDateTzIfValid` instead.
     int validateAndSetDateTz(const Date& localDate, int offset);
 
 #endif // BDE_OPENSOURCE_PUBLICATION -- pending deprecation
