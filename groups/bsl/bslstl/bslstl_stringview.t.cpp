@@ -8379,7 +8379,16 @@ int main(int argc, char *argv[])
             ASSERT(ss >= bs);
             ASSERT(bs >= ss);
 
+#ifdef BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY
+            // The C++20 constructor supports arbitrary iterators using
+            // `to_address` and many earlier `std::string_view` versions work
+            // with this constructor because their iterators are plain
+            // pointers, but that is not true with all build options and never
+            // true for MSVC.
+
             bsl::string_view bss(ss.begin(), ss.end());
+#endif
+
 #ifdef BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY
             std::string_view sbs(bs.begin(), bs.end());
 #endif
