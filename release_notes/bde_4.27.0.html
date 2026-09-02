@@ -1,0 +1,284 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BDE 4.27.0 Release &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.27.0.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.26.0 Release" href="bde_4.26.0.html" />
+    <link rel="prev" title="BDE 4.28.0 Release" href="bde_4.28.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.39.0.html">BDE 4.39.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.38.0.html">BDE 4.38.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.37.0.html">BDE 4.37.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.36.0.html">BDE 4.36.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.35.0.html">BDE 4.35.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.34.0.html">BDE 4.34.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.33.0.html">BDE 4.33.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.32.0.html">BDE 4.32.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.31.0.html">BDE 4.31.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.30.0.html">BDE 4.30.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.29.0.html">BDE 4.29.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.28.0.html">BDE 4.28.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.27.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-27-0-release-highlights">BDE 4.27.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pcre2-library-version-update-from-10-39-to-10-45">PCRE2 library version update from 10.39 to 10.45</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#utility-for-adapting-bsl-map-types-for-the-standard-ranges-library">Utility for Adapting <code class="docutils literal notranslate"><span class="pre">bsl</span></code> Map Types for the Standard Ranges Library</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ball-fmt-new-component-providing-formatting-macros-for-ball-logging"><code class="docutils literal notranslate"><span class="pre">ball_fmt</span></code>: new component providing formatting macros for ball logging</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-tickets">Fixed Tickets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.26.0.html">BDE 4.26.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.25.0.html">BDE 4.25.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.24.0.html">BDE 4.24.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.23.0.html">BDE 4.23.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="release_notes.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">BDE 4.27.0 Release</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="bde_4.28.0.html" class="btn btn-neutral float-left" title="BDE 4.28.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bde_4.26.0.html" class="btn btn-neutral float-right" title="BDE 4.26.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bde-4-27-0-release">
+<span id="bde4-27-0-top"></span><h1>BDE 4.27.0 Release<a class="headerlink" href="#bde-4-27-0-release" title="Link to this heading"></a></h1>
+<section id="schedule">
+<span id="bde4-27-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Link to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.27.0 production release was
+completed on <strong>Friday, August 1, 2025</strong>.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="bde-4-27-0-release-highlights">
+<h2>BDE 4.27.0 Release Highlights<a class="headerlink" href="#bde-4-27-0-release-highlights" title="Link to this heading"></a></h2>
+<section id="pcre2-library-version-update-from-10-39-to-10-45">
+<h3>PCRE2 library version update from 10.39 to 10.45<a class="headerlink" href="#pcre2-library-version-update-from-10-39-to-10-45" title="Link to this heading"></a></h3>
+<p>This BDE release updates the version of PCRE2 third-party library used by the
+implementation of the ‘bdlpcre_regex’ component. PCRE version 10.45 contains
+various improvements, bug fixes, and security fixes.</p>
+<p>Unfortunately, the upstream PCRE2 library has dropped support for the JIT
+(just-in-time) compiler for the Sparc architecture (note that previously JIT was
+supported only for 32-bit on Sparc). This change effectively forces the
+‘bdlpcre_regex’ component implementation to ignore all JIT related flags and
+APIs on Sparc.</p>
+</section>
+<section id="utility-for-adapting-bsl-map-types-for-the-standard-ranges-library">
+<h3>Utility for Adapting <code class="docutils literal notranslate"><span class="pre">bsl</span></code> Map Types for the Standard Ranges Library<a class="headerlink" href="#utility-for-adapting-bsl-map-types-for-the-standard-ranges-library" title="Link to this heading"></a></h3>
+<p>This BDE release adds the utility <code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::adaptForRanges</span></code>, which
+converts a given range whose value type is a <code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code> into a range whose
+value type is a <code class="docutils literal notranslate"><span class="pre">std::pair</span></code> of references to the elements of the
+<code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code>.  Because certain standard range adaptors work only with standard
+types such as <code class="docutils literal notranslate"><span class="pre">std::pair</span></code>, <code class="docutils literal notranslate"><span class="pre">adaptForRanges</span></code> must be used to make ranges of
+<code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code>’s compatible with such standard range adaptors.  For example:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}};</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">expectedValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">ranges</span><span class="o">::</span><span class="n">equal</span><span class="p">(</span><span class="n">expectedValues</span><span class="p">,</span><span class="w"> </span><span class="n">M</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">values</span><span class="p">));</span><span class="w">  </span><span class="c1">// error</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">ranges</span><span class="o">::</span><span class="n">equal</span><span class="p">(</span><span class="n">expectedValues</span><span class="p">,</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">PairUtil</span><span class="o">::</span><span class="n">adaptForRanges</span><span class="p">(</span><span class="n">M</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">values</span><span class="p">));</span><span class="w">  </span><span class="c1">// OK</span>
+</pre></div>
+</div>
+</section>
+<section id="ball-fmt-new-component-providing-formatting-macros-for-ball-logging">
+<h3><code class="docutils literal notranslate"><span class="pre">ball_fmt</span></code>: new component providing formatting macros for ball logging<a class="headerlink" href="#ball-fmt-new-component-providing-formatting-macros-for-ball-logging" title="Link to this heading"></a></h3>
+<p>BDE has added a new component,
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__fmt.html">ball_fmt</a>,
+that provides for reporting log messages using a <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code>-style format
+specification and argument substitution.  For example:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">BALL_FMT_ERROR</span><span class="p">(</span><span class="s">&quot;Endpoint &#39;{}&#39; is not in the allowed list&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">endPoint</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The new <code class="docutils literal notranslate"><span class="pre">&lt;ball_fmt.h&gt;</span></code> provides logger macros for each log level as well as a
+macro to be used inside logging-blocks.  Each macro is variadic, with the first
+argument being the format string and the rest the formatted arguments.  Note
+that to bridge the gap between stream and <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> based logging we also
+provide the <code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code> wrapper, also provided in this release.</p>
+<p>For more information, see <a class="reference internal" href="../articles/ball_fmt.html"><span class="doc">Introducing BALL_FMT: BALL Logger Support for std::format-style Text Formatting</span></a> and
+<a class="reference external" href="../articles/bslfmt.html#enabling-bsl-format-for-types-with-an-ostream-insert-operator">Enabling bsl::format for Types with an ostream Insert operator&lt;&lt;</a></p>
+</section>
+</section>
+<section id="fixed-tickets">
+<h2>Fixed Tickets<a class="headerlink" href="#fixed-tickets" title="Link to this heading"></a></h2>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 100.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Missing ‘required’ bas request elements have default values</p></td>
+</tr>
+<tr class="row-odd"><td><p>Update pcre2 to version 10.45</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::views::values with bsl::map</p></td>
+</tr>
+<tr class="row-odd"><td><p>bsl::format Bring ‘bslfmt_formatterstring’ to gold quality</p></td>
+</tr>
+<tr class="row-even"><td><p>Update documentation to describe TOCTTOU issues on windows FilesystemUtil::remove</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please provide bdljsn::Json -&gt; bdlat-compatible type conversion</p></td>
+</tr>
+<tr class="row-even"><td><p>Provide Safe API for Creating Date/Time Objects in BDE Libraries</p></td>
+</tr>
+<tr class="row-odd"><td><p>Evaluate bdlcc_deque case 6 for threat start checks and watchdog</p></td>
+</tr>
+<tr class="row-even"><td><p>Implement quick and easy stream-operator-based-formatter enabling for classes and templates</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct recently introduced issues in bslstl_optional</p></td>
+</tr>
+<tr class="row-even"><td><p>Please reduce gcc-13 bde-core nightly build issues reported 6/4/2025</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove Obsolete Usage Restriction Comment</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix TSAN issue in bdlmt_timereventscheduler.t.cpp</p></td>
+</tr>
+<tr class="row-odd"><td><p>Create bslmt::TimedCompletionGuard, to replace current watchdog code</p></td>
+</tr>
+<tr class="row-even"><td><p>Make bdlat::FuzzUtil UTF-8-compatible</p></td>
+</tr>
+<tr class="row-odd"><td><p>StackAddressUtil: increase k_IGNORE_FRAMES when xSAN backtrace interceptor is expected</p></td>
+</tr>
+<tr class="row-even"><td><p>bslfmt_formaterror.h includes the wrong header for std::format_error</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct gcc-13 bslfmt issues</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlb_variantprinter.t.cpp: correct warning</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please fix bslmft_testspecificationgenerator test case 1</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlde::base64decoder deprecation docs are (potentially) incorrect</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please support checking for required elements in baljsn_decoder</p></td>
+</tr>
+<tr class="row-even"><td><p>Please correct bslfmt_formatterstring.t.cpp gcc-13 compile errors</p></td>
+</tr>
+<tr class="row-odd"><td><p>Use TimedCompletionGuard in bdlcc</p></td>
+</tr>
+<tr class="row-even"><td><p>Round-trip error serializing baljsn::DecoderOptions.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

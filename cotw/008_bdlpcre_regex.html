@@ -1,0 +1,408 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #8: bdlpcre_regex &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/008_bdlpcre_regex.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #9: bdls_tempdirectoryguard" href="009_bdls_tempdirectoryguard.html" />
+    <link rel="prev" title="Component of the Week #7: bsls_platform" href="007_bsls_platform.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#matching-a-simple-pattern">Matching a Simple Pattern</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#extracting-substrings-using-capture-groups">Extracting Substrings Using Capture Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#replacing-substrings">Replacing Substrings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simple-benchmark">Simple benchmark</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="007_bsls_platform.html" class="btn btn-neutral float-left" title="Component of the Week #7: bsls_platform" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="009_bdls_tempdirectoryguard.html" class="btn btn-neutral float-right" title="Component of the Week #9: bdls_tempdirectoryguard" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-8-bdlpcre-regex">
+<span id="cotw-008-bdlpcre-regex-top"></span><h1>Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code><a class="headerlink" href="#component-of-the-week-8-bdlpcre-regex" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Provide a perl-compatible regular expression interface.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Regular expressions are a powerful tool for searching and manipulating text. The
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlpcre__regex.html">bdlpcre_regex</a>
+component provides a C++ interface for Perl compatible regular expressions,
+which wraps PCRE2 (a popular C library).</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlpcre__regex.html">bdlpcre_regex</a>
+component provides a powerful mechanism for compiling and matching regular
+expressions. It is built on top of the PCRE2 library, offering functionality
+similar to Perl 5.10 regular expressions. This component is particularly useful
+for tasks such as pattern matching, text extraction, and string replacement in
+a variety of applications.</p>
+<p>In comparison to the standard library regular expression library,
+<code class="docutils literal notranslate"><span class="pre">std::regex</span></code>, <code class="docutils literal notranslate"><span class="pre">bdlpcre::Regex</span></code> supports C++03 (<code class="docutils literal notranslate"><span class="pre">std::regex</span></code> requires
+C++11), and benchmarks suggest <code class="docutils literal notranslate"><span class="pre">bdlpcre::Regex</span></code> performs better in many
+contexts. See the <a class="reference external" href="https://github.com/HFTrader/regex-performance">online comparison with the underlying PCRE2 library</a>, a <a class="reference external" href="https://bbgb.dev.bloomberg.com/z/1986a3">simple benchmark
+demonstration in compiler explorer</a>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">bdlpcre::RegEx</span></code> class allows you to:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Compile a regular expression pattern using the prepare method.</p></li>
+<li><p>Match strings against the compiled pattern using the match or matchRaw
+methods.</p></li>
+<li><p>Replace matched substrings with new content using the replace or replaceRaw
+methods.</p></li>
+<li><p>Extract matched substrings or capture groups using the match method.</p></li>
+</ul>
+</div></blockquote>
+<p>The component supports advanced features such as:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Case-insensitive matching.</p></li>
+<li><p>Multi-line matching.</p></li>
+<li><p>UTF-8 support.</p></li>
+<li><p>Just-in-time (JIT) compilation for performance optimization.</p></li>
+</ul>
+</div></blockquote>
+<section id="matching-a-simple-pattern">
+<h3>Matching a Simple Pattern<a class="headerlink" href="#matching-a-simple-pattern" title="Link to this heading"></a></h3>
+<p>The following example demonstrates how to match a simple regular expression
+pattern using the <code class="docutils literal notranslate"><span class="pre">bdlpcre::RegEx</span></code> class:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlpcre_regex.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="w"> </span><span class="n">regEx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">errorMessage</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">errorOffset</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Prepare the regular expression pattern</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;world&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regEx</span><span class="p">.</span><span class="n">prepare</span><span class="p">(</span><span class="o">&amp;</span><span class="n">errorMessage</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">errorOffset</span><span class="p">,</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error preparing regex: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">errorMessage</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Match the pattern in a string</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">SUBJECT</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello, world!&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regEx</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">SUBJECT</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">SUBJECT</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="o">::</span><span class="n">k_STATUS_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Pattern matched!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="extracting-substrings-using-capture-groups">
+<h3>Extracting Substrings Using Capture Groups<a class="headerlink" href="#extracting-substrings-using-capture-groups" title="Link to this heading"></a></h3>
+<p>Regular expressions can be used to extract specific substrings from a larger
+string by defining capture groups. A capture group is a part of the regular
+expression pattern enclosed in parentheses. When a pattern is matched, the
+contents of the capture groups are stored in the match vector, allowing you to
+extract the captured substrings.</p>
+<p>The following example demonstrates how to extract substrings using capture
+groups:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlpcre_regex.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_vector.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="w"> </span><span class="n">regEx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">errorMessage</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">errorOffset</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Prepare the regular expression pattern with a capture group</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Name: (</span><span class="se">\\</span><span class="s">w+)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regEx</span><span class="p">.</span><span class="n">prepare</span><span class="p">(</span><span class="o">&amp;</span><span class="n">errorMessage</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">errorOffset</span><span class="p">,</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error preparing regex: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">errorMessage</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Match the pattern in a string</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">SUBJECT</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Name: Alice&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">size_t</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">matchVector</span><span class="p">;</span>
+<span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regEx</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="o">&amp;</span><span class="n">matchVector</span><span class="p">,</span><span class="w"> </span><span class="n">SUBJECT</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">SUBJECT</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="o">::</span><span class="n">k_STATUS_SUCCESS</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Pattern matched!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// Extract the captured group</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">match</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">matchVector</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span><span class="w">  </span><span class="c1">// First capture group</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">captured</span><span class="p">(</span><span class="n">SUBJECT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">match</span><span class="p">.</span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="n">match</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Captured name: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">captured</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="replacing-substrings">
+<h3>Replacing Substrings<a class="headerlink" href="#replacing-substrings" title="Link to this heading"></a></h3>
+<p>Regular expressions can also be used to replace substrings in a string with new
+content. The <code class="docutils literal notranslate"><span class="pre">bdlpcre::RegEx</span></code> class provides a convenient method for
+replacing matched substrings with new content:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlpcre_regex.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="w"> </span><span class="n">regEx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">errorMessage</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">errorOffset</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Prepare the regular expression pattern</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;world&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regEx</span><span class="p">.</span><span class="n">prepare</span><span class="p">(</span><span class="o">&amp;</span><span class="n">errorMessage</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">errorOffset</span><span class="p">,</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error preparing regex: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">errorMessage</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Match the pattern in a string</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">SUBJECT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello, world!&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">REPLACEMENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;universe&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">replaceErrorOffset</span><span class="p">;</span>
+<span class="w">    </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">regEx</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">replaceErrorOffset</span><span class="p">,</span><span class="w"> </span><span class="n">SUBJECT</span><span class="p">,</span><span class="w"> </span><span class="n">REPLACEMENT</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Replaced string: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="simple-benchmark">
+<h3>Simple benchmark<a class="headerlink" href="#simple-benchmark" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlpcre_regex.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;chrono&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;regex&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="w"> </span><span class="n">regEx</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">errorMessage</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">errorOffset</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b&quot;</span><span class="p">;</span><span class="w">  </span><span class="c1">// Match words</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">SUBJECT</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This is a very simple benchmark test for regex&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// bdlpcre::Regex</span>
+<span class="w">    </span><span class="c1">// Compile the pattern</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">regEx</span><span class="p">.</span><span class="n">prepare</span><span class="p">(</span><span class="o">&amp;</span><span class="n">errorMessage</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">errorOffset</span><span class="p">,</span><span class="w"> </span><span class="n">PATTERN</span><span class="p">,</span><span class="w"> </span><span class="n">bdlpcre</span><span class="o">::</span><span class="n">RegEx</span><span class="o">::</span><span class="n">k_FLAG_JIT</span><span class="p">,</span><span class="w"> </span><span class="mi">1024</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;bdlpcre::RegEx Compile Time: &quot;</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; microseconds</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Match the pattern</span>
+<span class="w">    </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">regEx</span><span class="p">.</span><span class="n">match</span><span class="p">(</span><span class="n">SUBJECT</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">SUBJECT</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;bdlpcre::RegEx Match Time: &quot;</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; microseconds</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// std::regex</span>
+<span class="w">    </span><span class="c1">// Compile the pattern</span>
+<span class="w">    </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">(</span><span class="w"> </span><span class="p">);</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">regex</span><span class="w"> </span><span class="n">compiledPattern</span><span class="p">(</span><span class="n">PATTERN</span><span class="p">);</span>
+<span class="w">    </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;std::regex Compile Time: &quot;</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; microseconds</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Match the pattern</span>
+<span class="w">    </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">regex_match</span><span class="p">(</span><span class="n">SUBJECT</span><span class="p">,</span><span class="w"> </span><span class="n">compiledPattern</span><span class="p">);</span>
+<span class="w">    </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">high_resolution_clock</span><span class="o">::</span><span class="n">now</span><span class="p">();</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;std::regex Match Time: &quot;</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
+<span class="w">            </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; microseconds</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>Check out the full documentation for</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlpcre__regex.html">bdlpcre_regex</a></p></li>
+</ul>
+</dd>
+</dl>
+<p>Happy coding!</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

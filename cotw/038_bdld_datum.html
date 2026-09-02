@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #38: bdld_datum &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/038_bdld_datum.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #39: baljsn_simpleformatter" href="039_baljsn_simpleformatter.html" />
+    <link rel="prev" title="Component of the Week #37: ball_administration" href="037_ball_administration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#understanding-datum-s-memory-model">Understanding Datum’s Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deep-copying-with-clone">Deep Copying with clone</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#efficient-temporary-management-with-managed-allocators">Efficient Temporary Management with Managed Allocators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-arrays-and-maps">Working with Arrays and Maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-bdld-package-ecosystem">The bdld Package Ecosystem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-references-vs-owned-data">External References vs. Owned Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#for-more-information">For More Information</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="037_ball_administration.html" class="btn btn-neutral float-left" title="Component of the Week #37: ball_administration" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="039_baljsn_simpleformatter.html" class="btn btn-neutral float-right" title="Component of the Week #39: baljsn_simpleformatter" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-38-bdld-datum">
+<span id="cotw-038-bdld-datum-top"></span><h1>Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code><a class="headerlink" href="#component-of-the-week-38-bdld-datum" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Provides a discriminated variant type with a small footprint, particularly
+useful for interfacing with or creating scripting languages.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datum.html">bdld_datum</a>
+component defines a mechanism,
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html">bdld::Datum</a>,
+that provides a space-efficient discriminated union (i.e., a variant) that can
+hold values of many different types - from scalars like integers and doubles to
+aggregates like arrays and maps. Unlike typical BDE types, <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is
+<strong>not a value-semantic type</strong> but behaves more like a <strong>pointer</strong>, requiring
+explicit memory management similar to raw pointers. However, <code class="docutils literal notranslate"><span class="pre">Datum</span></code> <strong>does
+provide equality comparison operators</strong>
+(<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a0cf379b2f466ca959f21141658ac93a4">operator==</a>
+and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a4bcc9aab37a530298a4f48b0c0ea6dfa">operator!=</a>)
+that compare the values to which the <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects refer, not just the
+addresses.</p>
+<p>This design makes <code class="docutils literal notranslate"><span class="pre">Datum</span></code> ideal for applications that create and copy very
+large numbers of variant values, such as:</p>
+<ul class="simple">
+<li><p><strong>Interfacing with dynamic languages</strong> like JavaScript</p></li>
+<li><p><strong>Creating scripting languages</strong> like Bloomberg’s HSL (Hypersheet Scripting Language)</p></li>
+<li><p><strong>Spreadsheet implementations</strong> where cells can contain different types</p></li>
+<li><p><strong>Data interchange</strong> and serialization scenarios</p></li>
+</ul>
+<p>The key characteristic that distinguishes <code class="docutils literal notranslate"><span class="pre">Datum</span></code> from other BDE types is its
+pointer-like behavior: copying a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> performs a shallow copy (like
+copying a pointer), and memory must be explicitly managed using static
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a8a0262d196fb8b384a0080faad95bbd1">Datum::create*</a>
+and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a8bf557185ae2013da06c9307d794fe0b">Datum::destroy</a>
+functions. When deep copying is needed, <code class="docutils literal notranslate"><span class="pre">Datum</span></code> provides a
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a9eb1deb2523e0cca5e2ccab00d0f2bb0">clone</a>
+method that creates independent, self-contained copies where external
+references are converted to owned data.</p>
+<section id="understanding-datum-s-memory-model">
+<h2>Understanding Datum’s Memory Model<a class="headerlink" href="#understanding-datum-s-memory-model" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Datum</span></code> is a POD (Plain Old Data) type with a memory model fundamentally
+different from typical BDE value-semantic types. The analogy to raw pointers is
+instructive: <code class="docutils literal notranslate"><span class="pre">Datum::create*</span></code> is like <code class="docutils literal notranslate"><span class="pre">new</span></code>, <code class="docutils literal notranslate"><span class="pre">Datum::destroy</span></code> is like
+<code class="docutils literal notranslate"><span class="pre">delete</span></code>, and copying a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is like copying a pointer (both point to
+the same memory).</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datum.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="c1">// Create a long string that exceeds short-string optimization</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">longText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This is a long string that will definitely &quot;</span>
+<span class="w">                       </span><span class="s">&quot;exceed the short string optimization limit &quot;</span>
+<span class="w">                       </span><span class="s">&quot;on 64-bit platforms and require allocation&quot;</span><span class="p">;</span>
+
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="n">longText</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Original: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:  &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// This is a shallow copy - both point to the same string data!</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">shallowCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Shallow copy: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">shallowCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:      &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">shallowCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Same address? &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">shallowCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span>
+<span class="w">              </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Only destroy once (destroying twice would be an error)</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">original</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="c1">// shallowCopy now refers to deallocated memory - do not use it!</span>
+</pre></div>
+</div>
+</section>
+<section id="deep-copying-with-clone">
+<h2>Deep Copying with clone<a class="headerlink" href="#deep-copying-with-clone" title="Link to this heading"></a></h2>
+<p>When deep copying is needed, the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a9eb1deb2523e0cca5e2ccab00d0f2bb0">clone</a>
+method creates an independent copy where external references are converted to
+owned data:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Deep copy - creates independent copy of the string</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">deepCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="p">.</span><span class="n">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Deep copy: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:   &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Different address? &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span>
+<span class="w">              </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Both can now be destroyed independently</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">original</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">deepCopy</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="efficient-temporary-management-with-managed-allocators">
+<h2>Efficient Temporary Management with Managed Allocators<a class="headerlink" href="#efficient-temporary-management-with-managed-allocators" title="Link to this heading"></a></h2>
+<p>A common pattern uses a managed allocator (like
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma__sequentialallocator.html">bdlma::SequentialAllocator</a>)
+for temporary <code class="docutils literal notranslate"><span class="pre">Datum</span></code> values during computation, then uses <code class="docutils literal notranslate"><span class="pre">clone</span></code> to
+extract the final result before releasing all temporaries at once. This
+approach avoids double-delete errors from shallow copies, eliminates individual
+deallocation overhead, and handles self-referencing structures safely since all
+temporaries vanish together atomically. This pattern is extensively used in
+expression evaluators and scripting implementations.</p>
+<p>See <a class="reference internal" href="034_bdlma_sequentialallocator.html#cotw-034-bdlma-sequentialallocator-top"><span class="std std-ref">Component of the Week #34: bdlma_sequentialallocator</span></a> for more information on
+<code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code>.</p>
+</section>
+<section id="working-with-arrays-and-maps">
+<h2>Working with Arrays and Maps<a class="headerlink" href="#working-with-arrays-and-maps" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld.html">bdld</a> package
+provides builder components (
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumarraybuilder.html">DatumArrayBuilder</a>,
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datummapbuilder.html">DatumMapBuilder</a>,
+and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumintmapbuilder.html">DatumIntMapBuilder</a>)
+for constructing arrays and maps of <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects in an exception-safe
+manner. These builders handle all memory allocation complexity and are the
+recommended approach for creating aggregate <code class="docutils literal notranslate"><span class="pre">Datum</span></code> values.</p>
+</section>
+<section id="the-bdld-package-ecosystem">
+<h2>The bdld Package Ecosystem<a class="headerlink" href="#the-bdld-package-ecosystem" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld.html">bdld</a> package
+provides several supporting components:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__manageddatum.html"><strong>bdld_manageddatum</strong></a> - Smart-pointer-like wrapper providing value-semantic
+rations and automatic memory management</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumarraybuilder.html"><strong>bdld_datumarraybuilder</strong></a> - Utility for building <code class="docutils literal notranslate"><span class="pre">Datum</span></code> arrays</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datummapbuilder.html"><strong>bdld_datummapbuilder</strong></a> - Utility for building <code class="docutils literal notranslate"><span class="pre">Datum</span></code> maps (string keys)</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumintmapbuilder.html"><strong>bdld_datumintmapbuilder</strong></a> - Utility for building <code class="docutils literal notranslate"><span class="pre">Datum</span></code> int-maps</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datummaker.html"><strong>bdld_datummaker</strong></a> - Provides a concise syntax for creating nested <code class="docutils literal notranslate"><span class="pre">Datum</span></code>
+uctures</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumerror.html"><strong>bdld_datumerror</strong></a> - Type for representing error values</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumudt.html"><strong>bdld_datumudt</strong></a> - Type for representing user-defined types</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumbinaryref.html"><strong>bdld_datumbinaryref</strong></a> - Type for representing binary data</p></li>
+</ul>
+</section>
+<section id="external-references-vs-owned-data">
+<h2>External References vs. Owned Data<a class="headerlink" href="#external-references-vs-owned-data" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Datum</span></code> can reference external data without taking ownership (for performance)
+or own its data. Factory methods like
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a1fca7822cdf321259f4f9c7295f4395b">createStringRef</a>
+and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a8a0262d196fb8b384a0080faad95bbd1">createArrayReference</a>
+create references where
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a9d45621ffc6bb9f90884794851b6224c">isExternalReference()</a>
+returns <code class="docutils literal notranslate"><span class="pre">true</span></code>, while methods like
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a46754fc5dc4a72f10649c27afb159cec">copyString</a>
+and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdld_1_1Datum.html#a9a3c437601178e99f1a0ea0b9ea443f6">adoptArray</a>
+create owned data.</p>
+<p>When using <code class="docutils literal notranslate"><span class="pre">clone</span></code> to deep-copy a <code class="docutils literal notranslate"><span class="pre">Datum</span></code>, external references are
+converted to owned data (except for user-defined types which remain opaque
+pointers).</p>
+</section>
+<section id="for-more-information">
+<h2>For More Information<a class="headerlink" href="#for-more-information" title="Link to this heading"></a></h2>
+<p>For comprehensive details on memory management, all supported types, and
+advanced usage patterns, see:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="../articles/datum_quick_intro.html">bdld::Datum Quick Introduction</a> - Extended tutorial and examples</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datum.html">bdld_datum component documentation</a></p></li>
+<li><p>Related components in the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld.html">bdld package</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

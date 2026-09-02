@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>bsl::chrono Integration with bsl and bdl &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/bde_4.0_chrono.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Concurrent Queue Evaluation" href="concurrent_queue_evaluation/paper.html" />
     <link rel="prev" title="Selecting wyhash as the Default Hash Algorithm" href="wyhash.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
@@ -146,85 +113,38 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li>bsl::chrono Integration with bsl and bdl</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">bsl::chrono Integration with bsl and bdl</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="concurrent_queue_evaluation/paper.html" class="btn btn-neutral float-right" title="Concurrent Queue Evaluation" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="wyhash.html" class="btn btn-neutral float-left" title="Selecting wyhash as the Default Hash Algorithm" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="concurrent_queue_evaluation/paper.html" class="btn btn-neutral float-right" title="Concurrent Queue Evaluation" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>Nov 30, 2021</em></p>
-<div class="section" id="bsl-chrono-integration-with-bsl-and-bdl">
-<h1><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a> Integration with <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsl.html">bsl</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdl.html">bdl</a><a class="headerlink" href="#bsl-chrono-integration-with-bsl-and-bdl" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<section id="bsl-chrono-integration-with-bsl-and-bdl">
+<h1><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a> Integration with <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsl.html">bsl</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdl.html">bdl</a><a class="headerlink" href="#bsl-chrono-integration-with-bsl-and-bdl" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>In BDE 3.86 support for <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::time_point</a>
 was added to <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt.html">bslmt</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt.html">bdlmt</a>.   This enables users who prefer using
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::time_point</a> to better integrate
@@ -233,9 +153,9 @@ with the BDE libraries.  Specifically, conversions between
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::time_point</a> was added to the synchronization primitives in
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt.html">bslmt</a>, as well as the classes <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__threadutil.html">bslmt::ThreadUtil</a>, <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__eventscheduler.html">bdlmt::EventScheduler</a>,
 and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__throttle.html">bdlmt::Throttle</a>.</p>
-</div>
-<div class="section" id="bsl-chrono-duration-and-bsls-timeinterval">
-<h2><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a><a class="headerlink" href="#bsl-chrono-duration-and-bsls-timeinterval" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="bsl-chrono-duration-and-bsls-timeinterval">
+<h2><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a><a class="headerlink" href="#bsl-chrono-duration-and-bsls-timeinterval" title="Link to this heading"></a></h2>
 <p>The BDE types <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> are both
 representations of a time interval, but <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> is a concrete
 type (representing an interval in seconds and nanoseconds), while
@@ -257,13 +177,13 @@ operations to convert between <a class="reference external" href="https://bloomb
 <p>For example, to create a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> interval, add a second, and then
 convert the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> interval to a duration holding an integer
 of seconds:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">interval</span><span class="p">;</span><span class="w"></span>
-<span class="n">interval</span><span class="p">.</span><span class="n">addDuration</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">interval</span><span class="p">.</span><span class="n">asDuration</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">interval</span><span class="p">;</span>
+<span class="n">interval</span><span class="p">.</span><span class="n">addDuration</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">interval</span><span class="p">.</span><span class="n">asDuration</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">seconds</span><span class="o">&gt;</span><span class="p">();</span>
 </pre></div>
 </div>
-<div class="section" id="potentially-lossy-conversions">
-<span id="lossy"></span><h3>Potentially Lossy Conversions<a class="headerlink" href="#potentially-lossy-conversions" title="Permalink to this headline">¶</a></h3>
+<section id="potentially-lossy-conversions">
+<span id="lossy"></span><h3>Potentially Lossy Conversions<a class="headerlink" href="#potentially-lossy-conversions" title="Link to this heading"></a></h3>
 <p>The conversion from <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> to <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> is
 implicit if the conversion can be done without loss of precision, whereas it
 must be explicit if the conversion is potentially lossy.    For example, if we
@@ -271,14 +191,14 @@ define a duration in picoseconds, this requires a potentially lossy conversion
 when converted to a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> (defined in terms of nanoseconds).
 Hence, the following code does not compile (the attempted conversion would
 require use of the implicit <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> user-defined conversion):</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ratio</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1000000000000</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Picoseconds</span><span class="p">;</span><span class="w"></span>
-<span class="n">Picoseconds</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="mi">5001</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration</span><span class="o">&lt;</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ratio</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1000000000000</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Picoseconds</span><span class="p">;</span>
+<span class="n">Picoseconds</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="mi">5001</span><span class="p">);</span>
 <span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">ti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">;</span><span class="w">  </span><span class="c1">// does not compile: implicit conversion unavailable</span>
 </pre></div>
 </div>
 <p>The following example will compile because the conversion to
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> is explicit:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Picoseconds</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="mi">5001</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">Picoseconds</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="mi">5001</span><span class="p">);</span>
 <span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">ti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="p">(</span><span class="n">d</span><span class="p">);</span><span class="w">  </span><span class="c1">// does compile: initial explicit conversion</span>
 </pre></div>
 </div>
@@ -286,7 +206,7 @@ require use of the implicit <a class="reference external" href="https://bloomber
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> without a loss of precision,  so the following
 example will compile:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">milliseconds</span><span class="w"> </span><span class="nf">d</span><span class="p">(</span><span class="mi">5001</span><span class="p">);</span><span class="w">  </span><span class="c1">// does compile (non-lossy conversion)</span>
-<span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">ti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">ti</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Note that just because a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> type can be converted to
@@ -300,31 +220,31 @@ conversion is available) does not guarantee that the value for that
 representable range of <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> results in undefined behavior
 (see <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/classbsls_1_1TimeInterval.html#afa0339f80ac5f9daae1aeef1aa4f37bb">bsls::TimeInterval::isValid</a>).</p>
 </div>
-</div>
-</div>
-<div class="section" id="using-bsls-timeinterval-with-literals">
-<h2>Using <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> with Literals<a class="headerlink" href="#using-bsls-timeinterval-with-literals" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="using-bsls-timeinterval-with-literals">
+<h2>Using <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> with Literals<a class="headerlink" href="#using-bsls-timeinterval-with-literals" title="Link to this heading"></a></h2>
 <p>A set of user-defined literals (UDL) has been provided to form
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a> objects with various duration periods such as hours,
 minutes, seconds, milliseconds, microseconds and nanoseconds.  The
 ud-suffixes are preceded with the ‘_’ symbol to distinguish between the
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a> UDLs and the <a class="reference external" href="https://en.cppreference.com/w/cpp/chrono">std::chrono</a> UDLs introduced in the C++14
 standard and implemented in the standard library.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bsl</span><span class="o">::</span><span class="nn">chrono_literals</span><span class="p">;</span><span class="w"></span>
-<span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">elapsedTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="n">_s</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bsl</span><span class="o">::</span><span class="nn">chrono_literals</span><span class="p">;</span>
+<span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">elapsedTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="n">_s</span><span class="p">;</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="using-bsls-timeinterval-with-helper-types">
-<h2>Using <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> with Helper Types<a class="headerlink" href="#using-bsls-timeinterval-with-helper-types" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="using-bsls-timeinterval-with-helper-types">
+<h2>Using <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> with Helper Types<a class="headerlink" href="#using-bsls-timeinterval-with-helper-types" title="Link to this heading"></a></h2>
 <p>The standard helper types for time units are available in the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsl.html">bsl</a> namespace.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="nf">elapsedTime</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="p">(</span><span class="mi">500</span><span class="p">));</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">elapsedTime</span><span class="p">.</span><span class="n">asDuration</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span><span class="p">();</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="nf">elapsedTime</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="p">(</span><span class="mi">500</span><span class="p">));</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">elapsedTime</span><span class="p">.</span><span class="n">asDuration</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">microseconds</span><span class="o">&gt;</span><span class="p">();</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="bsls-systemclocktype-versus-bsl-chrono-clocks">
-<h2><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__systemclocktype.html">bsls::SystemClockType</a> versus <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a> Clocks<a class="headerlink" href="#bsls-systemclocktype-versus-bsl-chrono-clocks" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="bsls-systemclocktype-versus-bsl-chrono-clocks">
+<h2><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__systemclocktype.html">bsls::SystemClockType</a> versus <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a> Clocks<a class="headerlink" href="#bsls-systemclocktype-versus-bsl-chrono-clocks" title="Link to this heading"></a></h2>
 <p>On all production (and tested) platforms, <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/structbsls_1_1SystemClockType.html#a6e75b1e793b629b48e21b6cee448d56b">bsls::SystemClockType::e_REALTIME</a>
 is equivalent to <a class="reference external" href="https://en.cppreference.com/w/cpp/chrono/system_clock">std::chrono::system_clock</a> and
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/structbsls_1_1SystemClockType.html#a6e75b1e793b629b48e21b6cee448d56b">bsls::SystemClockType::e_MONOTONIC</a> is equivalent to
@@ -334,9 +254,9 @@ where this is not the case, <a class="reference external" href="https://bloomber
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::steady_clock</a> will be modified to match the ones indicated by
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__systemclocktype.html">bsls::SystemClockType</a>.  As such, we strongly recommend using  <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a>
 when working with BDE types.</p>
-</div>
-<div class="section" id="bslmt-chronoutil">
-<h2><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__chronoutil.html">bslmt::ChronoUtil</a><a class="headerlink" href="#bslmt-chronoutil" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="bslmt-chronoutil">
+<h2><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__chronoutil.html">bslmt::ChronoUtil</a><a class="headerlink" href="#bslmt-chronoutil" title="Link to this heading"></a></h2>
 <p>This struct provides a namespace for utility functions that operate on
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono</a> facilities.  Presently, it contains four methods:</p>
 <ul class="simple">
@@ -354,18 +274,18 @@ value.  The two <a class="reference external" href="https://bloomberg.github.io/
 implementing higher-level <code class="docutils literal notranslate"><span class="pre">timedWait</span></code> operations (e.g.,
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/classbslmt_1_1TimedSemaphore.html#a18f722fb54c9ee047c1654560a9a557c">bslmt::TimedSemaphore::timedWait</a>) using the logic explained in
 <a class="reference internal" href="#enhancements"><span class="std std-ref">Enhancements to bslmt Components to Support bsl::chrono</span></a>.</p>
-</div>
-<div class="section" id="converting-a-floating-point-bsl-chrono-duration">
-<h2>Converting a Floating Point <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a><a class="headerlink" href="#converting-a-floating-point-bsl-chrono-duration" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="converting-a-floating-point-bsl-chrono-duration">
+<h2>Converting a Floating Point <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a><a class="headerlink" href="#converting-a-floating-point-bsl-chrono-duration" title="Link to this heading"></a></h2>
 <p>The method <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/structbslmt_1_1ChronoUtil.html#a80ce3b5be4f61262ae8c1d0b40d57632">bslmt::ChronoUtil::durationToTimeInterval</a> make a best effort
 conversion to a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__timeinterval.html">bsls::TimeInterval</a> from any <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::duration</a>.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslmt</span><span class="o">::</span><span class="n">ChronoUtil</span><span class="o">::</span><span class="n">durationToTimeInterval</span><span class="p">(</span><span class="w"></span>
-<span class="w">                                         </span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">6.5</span><span class="p">));</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">TimeInterval</span><span class="w"> </span><span class="n">fp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslmt</span><span class="o">::</span><span class="n">ChronoUtil</span><span class="o">::</span><span class="n">durationToTimeInterval</span><span class="p">(</span>
+<span class="w">                                         </span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">duration</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">6.5</span><span class="p">));</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="enhancements-to-bslmt-components-to-support-bsl-chrono">
-<span id="enhancements"></span><h2>Enhancements to bslmt Components to Support bsl::chrono<a class="headerlink" href="#enhancements-to-bslmt-components-to-support-bsl-chrono" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="enhancements-to-bslmt-components-to-support-bsl-chrono">
+<span id="enhancements"></span><h2>Enhancements to bslmt Components to Support bsl::chrono<a class="headerlink" href="#enhancements-to-bslmt-components-to-support-bsl-chrono" title="Link to this heading"></a></h2>
 <p>The classes in <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt.html">bslmt</a> that accept a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bsls__systemclocktype.html">bsls::SystemClockType</a> in their
 constructor were augmented to accept <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::system_clock</a> and
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::steady_clock</a> (user defined clocks are not accepted in the
@@ -396,30 +316,30 @@ multiple comparisons) and hence is more efficient.</p>
 <li><p><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__timedsemaphore.html">bslmt::TimedSemaphore</a>.</p></li>
 </ul>
 <p>For example, to use a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::time_point</a> with <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__condition.html">bslmt::Condition</a>:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bsl</span><span class="o">::</span><span class="nn">chrono_literals</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bsl</span><span class="o">::</span><span class="nn">chrono_literals</span><span class="p">;</span>
 
 <span class="c1">// Using the same clock as the time_points supplied to timedWait is</span>
 <span class="c1">// highly recommended.</span>
-<span class="n">bslmt</span><span class="o">::</span><span class="n">Condition</span><span class="w"> </span><span class="nf">condition</span><span class="p">((</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="p">()));</span><span class="w"></span>
-<span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="w">     </span><span class="n">mutex</span><span class="p">;</span><span class="w"></span>
+<span class="n">bslmt</span><span class="o">::</span><span class="n">Condition</span><span class="w"> </span><span class="nf">condition</span><span class="p">((</span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="p">()));</span>
+<span class="n">bslmt</span><span class="o">::</span><span class="n">Mutex</span><span class="w">     </span><span class="n">mutex</span><span class="p">;</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">condition</span><span class="p">.</span><span class="n">timedWait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="n">_s</span><span class="p">);</span><span class="w"></span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">condition</span><span class="p">.</span><span class="n">timedWait</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mutex</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">chrono</span><span class="o">::</span><span class="n">steady_clock</span><span class="o">::</span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">5</span><span class="n">_s</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// condition signalled, do something</span>
-<span class="p">}</span><span class="w"></span>
-<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bslmt</span><span class="o">::</span><span class="n">Condition</span><span class="o">::</span><span class="n">e_TIMED_OUT</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bslmt</span><span class="o">::</span><span class="n">Condition</span><span class="o">::</span><span class="n">e_TIMED_OUT</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// timeout</span>
-<span class="p">}</span><span class="w"></span>
-<span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// error</span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="miscelaneous-interface-enhancements">
-<h2>Miscelaneous Interface Enhancements<a class="headerlink" href="#miscelaneous-interface-enhancements" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="bdlmt-eventscheduler">
-<h3><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__eventscheduler.html">bdlmt::EventScheduler</a><a class="headerlink" href="#bdlmt-eventscheduler" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="miscelaneous-interface-enhancements">
+<h2>Miscelaneous Interface Enhancements<a class="headerlink" href="#miscelaneous-interface-enhancements" title="Link to this heading"></a></h2>
+<section id="bdlmt-eventscheduler">
+<h3><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__eventscheduler.html">bdlmt::EventScheduler</a><a class="headerlink" href="#bdlmt-eventscheduler" title="Link to this heading"></a></h3>
 <p>The class <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__eventscheduler.html">bdlmt::EventScheduler</a> was augmented similarly to <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt.html">bslmt</a>, but
 instead of timed-wait methods being added, all the scheduling and rescheduling
 methods were augmented to accept a <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::time_point</a>.  Overloads
@@ -432,17 +352,17 @@ accepting a <code class="docutils literal notranslate"><span class="pre">time_po
 <li><p><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/classbdlmt_1_1EventScheduler.html#a98f01b7b453fbc33f8a17864ee6f5b21">bdlmt::EventScheduler::scheduleRecurringEvent</a>, and</p></li>
 <li><p><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/classbdlmt_1_1EventScheduler.html#ab65c8c256c2e6d2fdd5ed0f7c384f288">bdlmt::EventScheduler::scheduleRecurringEventRaw</a>.</p></li>
 </ul>
-</div>
-<div class="section" id="bslmt-threadutil">
-<h3><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__threadutil.html">bslmt::ThreadUtil</a><a class="headerlink" href="#bslmt-threadutil" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="bslmt-threadutil">
+<h3><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslmt__threadutil.html">bslmt::ThreadUtil</a><a class="headerlink" href="#bslmt-threadutil" title="Link to this heading"></a></h3>
 <p>The following methods were added:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/structbslmt_1_1ThreadUtil.html#aa492529c530682030765ab9da7906876">bslmt::ThreadUtil::sleep(const bsl::chrono::duration&amp; sleepTime)</a>, and</p></li>
 <li><p><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/structbslmt_1_1ThreadUtil.html#ac1a7d0c1f34d6ca9d4fbc8f25d4385e4">bslmt::ThreadUtil::sleepUntil(const bsl::chrono::time_point&amp; absoluteTime)</a>.</p></li>
 </ul>
-</div>
-<div class="section" id="bdlmt-throttle">
-<h3><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__throttle.html">bdlmt::Throttle</a><a class="headerlink" href="#bdlmt-throttle" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="bdlmt-throttle">
+<h3><a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__throttle.html">bdlmt::Throttle</a><a class="headerlink" href="#bdlmt-throttle" title="Link to this heading"></a></h3>
 <p>The class <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdlmt__throttle.html">bdlmt::Throttle</a> had its initialization methods augmented to accept
 <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::system_clock</a> and <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bslstl__chrono.html">bsl::chrono::steady_clock</a>:</p>
 <ul class="simple">
@@ -450,52 +370,36 @@ accepting a <code class="docutils literal notranslate"><span class="pre">time_po
 </ul>
 <p>No other changes were made (please see this component’s documentation for an
 explanation).</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

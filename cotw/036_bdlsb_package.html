@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #36: bdlsb - I/O streambufs for memory buffers &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/036_bdlsb_package.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #37: ball_administration" href="037_ball_administration.html" />
+    <link rel="prev" title="Component of the Week #35: bdls_fdstreambuf" href="035_bdls_fdstreambuf.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#package-components">Package Components</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#usage-examples">Usage Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fixed-memory-input-stream-buffer">Fixed Memory Input Stream Buffer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fixed-memory-output-stream-buffer">Fixed Memory Output Stream Buffer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dynamic-memory-output-stream-buffer">Dynamic Memory Output Stream Buffer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-use-cases">Common Use Cases</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="035_bdls_fdstreambuf.html" class="btn btn-neutral float-left" title="Component of the Week #35: bdls_fdstreambuf" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="037_ball_administration.html" class="btn btn-neutral float-right" title="Component of the Week #37: ball_administration" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-36-bdlsb-i-o-streambufs-for-memory-buffers">
+<span id="cotw-036-bdlsb-package-top"></span><h1>Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers<a class="headerlink" href="#component-of-the-week-36-bdlsb-i-o-streambufs-for-memory-buffers" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Provides stream buffer classes for memory-based I/O operations.</p></li>
+<li><p>Offers both fixed-size and dynamic memory buffer solutions.</p></li>
+<li><p>Includes high-performance non-virtual stream buffer alternatives.</p></li>
+<li><p>Supports both input and output operations on memory buffers.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlsb.html">bdlsb package</a>
+provides a collection of stream buffer classes that implement the
+<code class="docutils literal notranslate"><span class="pre">bsl::basic_streambuf</span></code> protocol using memory buffers instead of files or
+other I/O devices. This package is particularly useful for testing,
+serialization, and high-performance streaming operations where data is
+processed entirely in memory.</p>
+<section id="package-components">
+<h2>Package Components<a class="headerlink" href="#package-components" title="Link to this heading"></a></h2>
+<p>This package contains components that fall into two categories. Components with names ending in “streambuf” define classes derived from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code>. The other components define classes with similar interfaces but without inheritance from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code>. These non-derived classes can be passed as template parameters, making member function calls faster since they avoid virtual function overhead. The package contains the following components:</p>
+<ul class="simple">
+<li><p><strong>bdlsb_fixedmeminput</strong>: Basic input stream buffer using a client-supplied buffer. Does not derive from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> for better performance.</p></li>
+<li><p><strong>bdlsb_fixedmeminstreambuf</strong>: Input stream buffer using a client-supplied buffer, deriving from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> for compatibility with standard streams.</p></li>
+<li><p><strong>bdlsb_fixedmemoutput</strong>: Basic output stream buffer using a client-supplied buffer. Does not derive from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> for better performance.</p></li>
+<li><p><strong>bdlsb_fixedmemoutstreambuf</strong>: Output stream buffer using a client-supplied buffer, deriving from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> for compatibility with standard streams.</p></li>
+<li><p><strong>bdlsb_memoutstreambuf</strong>: Output stream buffer using allocator-managed memory that can grow dynamically.</p></li>
+<li><p><strong>bdlsb_overflowmemoutput</strong>: Output stream buffer that starts with a client buffer but overflows to an allocator-managed buffer when needed.</p></li>
+<li><p><strong>bdlsb_overflowmemoutstreambuf</strong>: Stream buffer version of <code class="docutils literal notranslate"><span class="pre">bdlsb_overflowmemoutput</span></code> that derives from <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code>.</p></li>
+</ul>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<section id="fixed-memory-input-stream-buffer">
+<h3>Fixed Memory Input Stream Buffer<a class="headerlink" href="#fixed-memory-input-stream-buffer" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bdlsb::FixedMemInStreamBuf</span></code> is designed for reading from a fixed memory buffer with full <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> compatibility. Here we show using it with a standard <code class="docutils literal notranslate"><span class="pre">bsl::istream</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlsb_fixedmeminstreambuf.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlb_doublecompareutil.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_algorithm.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cmath.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">DoubleCompareUtil</span><span class="w"> </span><span class="n">CompUtil</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// First, prepare some text data in a buffer</span>
+
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">testData</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;42 3.14159 Hello World!</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="w">                            </span><span class="s">&quot;100 2.71828 Testing 123</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create a fixed memory input stream buffer from the test data</span>
+
+<span class="w">    </span><span class="n">bdlsb</span><span class="o">::</span><span class="n">FixedMemInStreamBuf</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">(</span><span class="n">testData</span><span class="p">,</span>
+<span class="w">                                            </span><span class="k">sizeof</span><span class="p">(</span><span class="n">testData</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">istream</span><span class="w"> </span><span class="n">inputStream</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuffer</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Read structured data from the buffer</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">intValue1</span><span class="p">,</span><span class="w"> </span><span class="n">intValue2</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">doubleValue1</span><span class="p">,</span><span class="w"> </span><span class="n">doubleValue2</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">text1</span><span class="p">,</span><span class="w"> </span><span class="n">text2</span><span class="p">,</span><span class="w"> </span><span class="n">text3</span><span class="p">,</span><span class="w"> </span><span class="n">text4</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">inputStream</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">intValue1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">doubleValue1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">text1</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">text2</span><span class="p">;</span>
+<span class="w">    </span><span class="n">inputStream</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">intValue2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">doubleValue2</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">text3</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">text4</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">inputStream</span><span class="p">.</span><span class="n">fail</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error reading from stream&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Verify the parsed data</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">intValue1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CompUtil</span><span class="o">::</span><span class="n">fuzzyCompare</span><span class="p">(</span><span class="n">doubleValue1</span><span class="p">,</span><span class="w"> </span><span class="mf">3.14159</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">));</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">text1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Hello&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">text2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;World!&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">intValue2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CompUtil</span><span class="o">::</span><span class="n">fuzzyCompare</span><span class="p">(</span><span class="n">doubleValue2</span><span class="p">,</span><span class="w"> </span><span class="mf">2.71828</span><span class="p">,</span><span class="w"> </span><span class="mf">0.01</span><span class="p">));</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">text3</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;Testing&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">text4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;123&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;All values parsed and verified successfully!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="fixed-memory-output-stream-buffer">
+<h3>Fixed Memory Output Stream Buffer<a class="headerlink" href="#fixed-memory-output-stream-buffer" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bdlsb::FixedMemOutStreamBuf</span></code> is designed for writing to a fixed memory buffer with full <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> compatibility. Here we show using it with a standard <code class="docutils literal notranslate"><span class="pre">bsl::ostream</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlsb_fixedmemoutstreambuf.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_defaultallocatorguard.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ends</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Set up test allocator as default to verify no default allocations</span>
+
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">defaultAllocator</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">DefaultAllocatorGuard</span><span class="w"> </span><span class="n">guard</span><span class="p">(</span><span class="o">&amp;</span><span class="n">defaultAllocator</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">k_BUFFER_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="n">k_BUFFER_SIZE</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// Create a fixed memory output stream buffer</span>
+
+<span class="w">    </span><span class="n">bdlsb</span><span class="o">::</span><span class="n">FixedMemOutStreamBuf</span><span class="w"> </span><span class="n">streamBuf</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">k_BUFFER_SIZE</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="n">outputStream</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuf</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Write formatted text and numerical data</span>
+
+<span class="w">    </span><span class="n">outputStream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Test Results Summary&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">outputStream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;===================&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">outputStream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Tests run: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">150</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">outputStream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Success rate: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mf">98.67</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;%&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">outputStream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Average time: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mf">2.345</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; seconds&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">outputStream</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">ends</span><span class="p">;</span><span class="w">        </span><span class="c1">// null-terminate the buffer</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">outputStream</span><span class="p">.</span><span class="n">fail</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error writing to stream&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Check what was written</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Bytes written: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">streamBuf</span><span class="p">.</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Buffer capacity: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">streamBuf</span><span class="p">.</span><span class="n">capacity</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Display the formatted output</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Generated output:&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=================&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Output the buffer directly</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">buffer</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Verify no default allocations occurred</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">defaultAllocator</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">());</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Bytes</span> <span class="n">written</span><span class="p">:</span> <span class="mi">85</span>
+<span class="n">Buffer</span> <span class="n">capacity</span><span class="p">:</span> <span class="mi">200</span>
+
+<span class="n">Generated</span> <span class="n">output</span><span class="p">:</span>
+<span class="o">=================</span>
+<span class="n">Test</span> <span class="n">Results</span> <span class="n">Summary</span>
+<span class="o">===================</span>
+<span class="n">Tests</span> <span class="n">run</span><span class="p">:</span> <span class="mi">150</span>
+<span class="n">Success</span> <span class="n">rate</span><span class="p">:</span> <span class="mf">98.67</span><span class="o">%</span>
+<span class="n">Average</span> <span class="n">time</span><span class="p">:</span> <span class="mf">2.345</span> <span class="n">seconds</span>
+</pre></div>
+</div>
+</section>
+<section id="dynamic-memory-output-stream-buffer">
+<h3>Dynamic Memory Output Stream Buffer<a class="headerlink" href="#dynamic-memory-output-stream-buffer" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bdlsb::MemOutStreamBuf</span></code> provides a stream buffer that can grow dynamically and is particularly useful for testing stream operations:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlsb_memoutstreambuf.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_defaultallocatorguard.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cassert&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ends</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Set up test allocator as default to verify no default allocations</span>
+
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">defaultAllocator</span><span class="p">(</span><span class="s">&quot;default&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">DefaultAllocatorGuard</span><span class="w"> </span><span class="n">guard</span><span class="p">(</span><span class="o">&amp;</span><span class="n">defaultAllocator</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Create a memory output stream buffer</span>
+<span class="w">    </span><span class="c1">// One advantage: doesn&#39;t use default allocator like</span>
+<span class="w">    </span><span class="c1">// `bsl::ostringstream`.</span>
+
+<span class="w">    </span><span class="n">bdlsb</span><span class="o">::</span><span class="n">MemOutStreamBuf</span><span class="w"> </span><span class="n">streamBuf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="n">os</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuf</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Write formatted output directly to the stream</span>
+
+<span class="w">    </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;=== Test Results ===&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Tests Passed: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Tests Failed: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">ends</span><span class="p">;</span><span class="w">                                    </span><span class="c1">// Add terminating null</span>
+
+<span class="w">    </span><span class="c1">// Get the formatted output without using default allocator</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Formatted output:&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">streamBuf</span><span class="p">.</span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Allocator used: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">ta</span><span class="p">.</span><span class="n">numBytesInUse</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; bytes&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Reading the contents of a `bsl::ostringstream` with the &#39;str()&#39;</span>
+<span class="w">    </span><span class="c1">// accessor would unavoidably use the default allocator.</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Note: `bsl::ostringstream.str()` would use the default</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="w">         </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;allocator, but `bdlsb::MemOutStreamBuf` allows us to</span><span class="se">\n</span><span class="s">&quot;</span>
+<span class="w">         </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;use an allocator of our choice.&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Verify no default allocations occurred</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">defaultAllocator</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">());</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Formatted output:
+=== Test Results ===
+Tests Passed: 42
+Tests Failed: 3
+
+Allocator used: 256 bytes
+Note: `bsl::ostringstream.str()` would use the default
+allocator, but `bdlsb::MemOutStreamBuf` allows us to
+use an allocator of our choice.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="key-features">
+<h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h2>
+<p><strong>Performance Optimization</strong>
+* Non-virtual versions (<code class="docutils literal notranslate"><span class="pre">FixedMemInput</span></code>, <code class="docutils literal notranslate"><span class="pre">FixedMemOutput</span></code>, <code class="docutils literal notranslate"><span class="pre">OverFlowMemOutput</span></code>) avoid virtual function call overhead, useful in calls that take a ‘streambuf-like’ class as a template arguement rather than as a <code class="docutils literal notranslate"><span class="pre">streambuf</span> <span class="pre">*</span></code>
+* Designed for high-performance scenarios where minimal overhead is crucial</p>
+<p><strong>Memory Management</strong>
+* Fixed-size buffers for predictable memory usage
+* Dynamic buffers that grow as needed
+* Overflow buffers that start fixed but expand when necessary
+* Control over allocator usage (unlike <code class="docutils literal notranslate"><span class="pre">bsl::ostringstream</span></code>)</p>
+<p><strong>Testing Benefits</strong>
+* Output classes that inherit from <cite>bsl::streambuf</cite> can be used to initialize <cite>bsl::ostream`s and test output functions without using the default allocator, which is not possible with `bsl::ostringstream</cite>.
+* Direct access to raw buffer contents for verification
+* No file I/O overhead during testing</p>
+<p><strong>Flexibility</strong>
+* Both <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code>-derived and non-derived versions
+* Support for both input and output operations
+* Compatible with standard C++ streams and text/numerical I/O</p>
+</section>
+<section id="common-use-cases">
+<h2>Common Use Cases<a class="headerlink" href="#common-use-cases" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> package is particularly useful for:</p>
+<ul class="simple">
+<li><p><strong>Text and numerical I/O</strong>: Parsing and formatting data in memory buffers</p></li>
+<li><p><strong>Testing</strong>: Capturing stream output for verification without file I/O</p></li>
+<li><p><strong>Memory-constrained environments</strong>: Fixed-size buffers with predictable memory usage</p></li>
+<li><p><strong>Performance-critical code</strong>: Non-virtual versions for minimal overhead</p></li>
+<li><p><strong>Allocator control</strong>: Avoiding default allocator usage in output stream testing</p></li>
+</ul>
+<dl class="simple">
+<dt>For more details, see:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlsb.html">documentation for bdlsb package</a></p></li>
+<li><p><a class="reference external" href="https://en.cppreference.com/w/cpp/io/basic_streambuf.html">bsl::streambuf</a> documentation for stream buffer concepts</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbdls_1_1FdStreamBuf.html">documentation for bdls::FdStreamBuf</a> for file descriptor-based stream buffers for stream-based access to already-opened files, pipes, and devices.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

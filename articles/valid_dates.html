@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bdlt::Date Is Always Valid (Except When It Isn’t) &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/valid_dates.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introducing bsl::format" href="bslfmt.html" />
+    <link rel="prev" title="bdld::Datum Quick Introduction" href="datum_quick_intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-valid-program-cant-have-a-corrupted-bdlt-date-but-what-about-my-program">A Valid Program Can’t Have a Corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> — But What About <em>My</em> Program?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-do-i-identify-corrupted-bdlt-date-objects">How Do I Identify Corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> Objects</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#use-apis-that-prevent-creating-an-invalid-date-in-the-first-place">1. Use APIs that Prevent Creating an Invalid Date In the First Place</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-and-test-with-safe-asserts-enabled">2. Build and Test with Safe Asserts Enabled</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#in-case-of-emergency-break-glass">3. In Case of Emergency, Break Glass</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> Is Always Valid (Except When It Isn’t)</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="datum_quick_intro.html" class="btn btn-neutral float-left" title="bdld::Datum Quick Introduction" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bslfmt.html" class="btn btn-neutral float-right" title="Introducing bsl::format" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bdlt-date-is-always-valid-except-when-it-isnt">
+<h1><code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> Is Always Valid (Except When It Isn’t)<a class="headerlink" href="#bdlt-date-is-always-valid-except-when-it-isnt" title="Link to this heading"></a></h1>
+<p>Undefined behavior related to BDE date and time types is a frequent source of confusion.  This
+is highlighted by a common pattern found in client code:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bdlt</span><span class="o">::</span><span class="n">DateTz</span><span class="o">::</span><span class="n">isValid</span><span class="p">(</span><span class="n">someDate</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// Not what the author intended!</span>
+</span>
+<span class="w">     </span><span class="c1">// ...</span>
+</pre></div>
+</div>
+<p>In the example above, the author may have heard of “invalid” <code class="docutils literal notranslate"><span class="pre">Date</span></code> objects,
+has noticed that BDE systematically provides <code class="docutils literal notranslate"><span class="pre">isValid</span></code> methods, and assumed
+that <code class="docutils literal notranslate"><span class="pre">isValid</span></code> will somehow detect a corrupted <code class="docutils literal notranslate"><span class="pre">Date</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This article focuses on <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code>, but it is equally true
+of other BDE date and time types in the <code class="docutils literal notranslate"><span class="pre">bdlt</span></code> package like
+<code class="docutils literal notranslate"><span class="pre">bdlt::Datetime</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlt::Time</span></code>.</p>
+</div>
+<p>Unfortunately, <code class="docutils literal notranslate"><span class="pre">isValid</span></code> assumes that the program has not previously violated any
+function contracts or evaluated any undefined behavior, and thus all objects
+supplied to it are themselves internally consistent.  What <code class="docutils literal notranslate"><span class="pre">isValid</span></code> actually does
+is verify whether <code class="docutils literal notranslate"><span class="pre">someDate</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span></code> (a time zone offset) are a valid combination
+to construct a <code class="docutils literal notranslate"><span class="pre">DateTz</span></code>.</p>
+<p><strong>The check above is always true!</strong></p>
+<p>To put it another way, the call to <code class="docutils literal notranslate"><span class="pre">DateTz::isValid</span></code> does not verify whether function
+pre-conditions for <code class="docutils literal notranslate"><span class="pre">Date</span></code> were violated in the past, but verifies whether the
+arguments would themselves meet the preconditions of the <code class="docutils literal notranslate"><span class="pre">bdlt::DateTz</span></code> constructor.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In a valid program, a <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> cannot be in a corrupted state.</p>
+</div>
+<p>The preconditions on the constructors and manipulators of <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code>
+preclude creating a corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> (or any other BDE date and time type). Other mechanisms
+for creating a corrupted <code class="docutils literal notranslate"><span class="pre">Date</span></code> – like <code class="docutils literal notranslate"><span class="pre">memset</span></code> – are undefined behavior in the language.
+So, in theory, there is no need for any check at all.  Is the original author’s concern reasonable?</p>
+<section id="a-valid-program-cant-have-a-corrupted-bdlt-date-but-what-about-my-program">
+<h2>A Valid Program Can’t Have a Corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> — But What About <em>My</em> Program?<a class="headerlink" href="#a-valid-program-cant-have-a-corrupted-bdlt-date-but-what-about-my-program" title="Link to this heading"></a></h2>
+<p>Unfortunately, while it’s true a valid (bug-free) program cannot have a corrupted
+<code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code>, in the real world, there are many working programs that are not bug-free.</p>
+<p>Some protections against bugs exist:</p>
+<ul class="simple">
+<li><p>In <em>appropriate build modes</em> preconditions may catch the creation of corrupted objects.</p></li>
+<li><p>Various serialization methods (like encoding and decoding BAS messages) preclude
+transmitting (some) corrupted date and time values.</p></li>
+</ul>
+<p>However, corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> objects are still found with some frequency in the real world.</p>
+<p>Here are some examples of corrupted dates:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="w"> </span><span class="nf">g_globalDateVariable</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">31</span><span class="p">);</span><span class="w">   </span><span class="c1">// Might be used before construction!</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="w"> </span><span class="n">invalidInput</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">);</span><span class="w">  </span><span class="c1">// Will not be caught unless this is a SAFE build</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="o">&gt;</span><span class="w"> </span><span class="n">nullableDate</span><span class="p">;</span>
+<span class="w">    </span><span class="n">doSomething</span><span class="p">(</span><span class="o">*</span><span class="n">nullableDate</span><span class="p">);</span><span class="w">              </span><span class="c1">// Failed to check for an unset value</span>
+
+<span class="w">    </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="w"> </span><span class="n">temp</span><span class="p">;</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">temp</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="p">));</span><span class="w">    </span><span class="c1">// Invalid use of raw memory access</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Date</span></code> objects are particularly susceptible to corruption because:</p>
+<ul>
+<li><p>Corrupted <code class="docutils literal notranslate"><span class="pre">Date</span></code> objects are frequently innocuous:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Date</span></code> does not use dynamically allocated memory, so a corrupted object will not crash a program.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Date</span></code> objects are often used in contexts where a nonsensical value might go unnoticed.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Date</span></code> predates <code class="docutils literal notranslate"><span class="pre">bsls_assert</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>The preconditions for date and time functions were not checked for many years after their release.</p></li>
+<li><p>Enabling those checks now in production software is difficult and dangerous (because of the undetected bugs).</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>The constructors for <code class="docutils literal notranslate"><span class="pre">Date</span></code> are easy to misuse:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>In hindsight, a common vocabulary type needs less error-prone constructors and manipulators.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>Because of this, bugs often go undetected for years in production software.</p>
+</section>
+<section id="how-do-i-identify-corrupted-bdlt-date-objects">
+<h2>How Do I Identify Corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> Objects<a class="headerlink" href="#how-do-i-identify-corrupted-bdlt-date-objects" title="Link to this heading"></a></h2>
+<section id="use-apis-that-prevent-creating-an-invalid-date-in-the-first-place">
+<h3>1. Use APIs that Prevent Creating an Invalid Date In the First Place<a class="headerlink" href="#use-apis-that-prevent-creating-an-invalid-date-in-the-first-place" title="Link to this heading"></a></h3>
+<p>Traditionally:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="w"> </span><span class="n">date</span><span class="p">;</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">setYearMonthDayIfValid</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Prompted by feedback from the OCaml community, and consistent with the C++ Guild Safety Working Group’s suggestion’s, we have recently added factory functions. For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="o">&gt;</span><span class="w"> </span><span class="n">date</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">DateUtil</span><span class="o">::</span><span class="n">fromYmd</span><span class="p">(</span><span class="n">year</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">);</span>
+<span class="c1">// ``date`` will be unset if ``year``, ``month``, and ``day`` do not form a valid date</span>
+</pre></div>
+</div>
+</section>
+<section id="build-and-test-with-safe-asserts-enabled">
+<h3>2. Build and Test with Safe Asserts Enabled<a class="headerlink" href="#build-and-test-with-safe-asserts-enabled" title="Link to this heading"></a></h3>
+<p>Unfortunately, because of the large number of pre-existing bugs, the precondition checks
+for date and time types are currently only enabled in “SAFE” mode builds. A SAFE-mode build is a
+build performed with compiler flags that enable additional library checks.</p>
+</section>
+<section id="in-case-of-emergency-break-glass">
+<h3>3. In Case of Emergency, Break Glass<a class="headerlink" href="#in-case-of-emergency-break-glass" title="Link to this heading"></a></h3>
+<p>We cannot always determine that the memory for a <code class="docutils literal notranslate"><span class="pre">Date</span></code> has been corrupted. But sometimes
+we can come close…</p>
+<p>This should be treated as a last resort: corrupted <code class="docutils literal notranslate"><span class="pre">Date</span></code> objects cannot
+typically be transmitted (producing encoding/decoding errors in BAS, for example),
+and bugs in code you maintain are better identified with SAFE-mode asserts.</p>
+<p>However, there are contexts where finding the source of a corrupted value can be quite difficult.</p>
+<p>In particular:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We think this may sometimes be useful for library developers, where corrupted objects are being passed
+through a library boundary, and you may not immediately be able to identify the calling code.</p>
+</div>
+<p>For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">libraryFunction</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="o">&amp;</span><span class="w"> </span><span class="n">dateFromUnknownSource</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dateFromUnknownSource</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="p">(</span><span class="mi">9999</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">31</span><span class="p">)</span>
+<span class="w">        </span><span class="o">||</span><span class="w"> </span><span class="n">dateFromUnknownSource</span><span class="p">.</span><span class="n">addDaysIfValid</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BALL_FMT_FATAL</span><span class="p">(</span><span class="s">&quot;libraryFunction has received a corrupted Date&quot;</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// Stop the normal flow of execution...</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This might allow more quickly identifying the callers who have created the corrupted <code class="docutils literal notranslate"><span class="pre">bdlt::Date</span></code> objects.</p>
+<p><strong>Why is this a Last Resort?</strong></p>
+<p>It may be tempting to use the workaround above, but it is just that: a workaround. Our concern is that a workaround
+will be used to mask bugs (making them even harder to find) rather than identifying and fixing them.</p>
+<p>Consider the following example, where a developer has used the workaround to avoid processing bad trades:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">processTrade</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">TradeData</span><span class="o">&amp;</span><span class="w"> </span><span class="n">trade</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="o">&amp;</span><span class="w"> </span><span class="n">date</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">    </span><span class="c1">// Do stuff</span>
+
+<span class="w">    </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="w"> </span><span class="n">tmp</span><span class="p">(</span><span class="n">date</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tmp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="p">(</span><span class="mi">9999</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="mi">31</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">tmp</span><span class="p">.</span><span class="n">addDaysIfValid</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Invalid `Date` detected!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// We&#39;re safe?</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">executeTrade</span><span class="p">(</span><span class="n">trade</span><span class="p">,</span><span class="w"> </span><span class="n">date</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Unfortunately:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">processTrade</span><span class="p">(</span><span class="n">trade</span><span class="p">,</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span><span class="w">                              </span><span class="c1">// `processTrade` fails with error</span>
+
+<span class="kt">unsigned</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">corruptedMemory</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">0x67</span><span class="p">,</span><span class="w"> </span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0x13</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">};</span>
+<span class="n">processTrade</span><span class="p">(</span><span class="n">trade</span><span class="p">,</span><span class="w"> </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">                          </span><span class="c1">// `executeTrade` on 30-Dec-9999</span>
+<span class="n">processTrade</span><span class="p">(</span><span class="n">trade</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="n">corruptedMemory</span><span class="p">));</span><span class="w"> </span><span class="c1">// `executeTrade` on 18-Aug-3529</span>
+</pre></div>
+</div>
+<p>So again, we recommend the workaround above to help identify the root
+cause of a bug. Typically though, unless you are receiving corrupted dates
+through a library interface boundary, we expect there are easier ways to
+identify the problem (like a SAFE-mode build).</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

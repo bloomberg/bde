@@ -1,0 +1,201 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BER Encoding Options to Improve Performance &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/ber_array_length_hints.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introducing BALL_FMT: BALL Logger Support for std::format-style Text Formatting" href="ball_fmt.html" />
+    <link rel="prev" title="Introducing bsl::format" href="bslfmt.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BER Encoding Options to Improve Performance (July 7, 2025)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#warning-using-these-options-safely">Warning: Using these Options Safely</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#balber-berencoderoptionsutil">balber::BerEncoderOptionsUtil</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">BER Encoding Options to Improve Performance</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="bslfmt.html" class="btn btn-neutral float-left" title="Introducing bsl::format" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ball_fmt.html" class="btn btn-neutral float-right" title="Introducing BALL_FMT: BALL Logger Support for std::format-style Text Formatting" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>July 7, 2025</em></p>
+<section id="ber-encoding-options-to-improve-performance">
+<h1>BER Encoding Options to Improve Performance<a class="headerlink" href="#ber-encoding-options-to-improve-performance" title="Link to this heading"></a></h1>
+<p>The BER encoder/decoders in the balber package provide configuration options
+that can be used to potentially improve the runtime performance of decoding a
+BER message. BER decoding performance was highlighted as a top users priority in
+<a class="reference external" href="../presentations/bde_expo_2024.html">BDE Expo 2024</a>.  However, these options
+come with some <a class="reference internal" href="#warnings"><span class="std std-ref">Warning: Using these Options Safely</span></a> that users should be aware of.</p>
+<p>The currently available options are providing a length hint for encoded arrays
+(newly introduced) and using a binary format for date and time types (legacy
+option).</p>
+<p>When an array length hint enabled, the encoder will encode the array’s length
+with the array’s data, as opposed to supplying the data and a completion
+indicator.  Having the length allows the decoder to pre-allocate memory,
+allowing for potential performance improvements.
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balber__berencoder.html">balber::BerEncoder</a> has been augmented to emit array length hints when possible (not all
+data structures support encoding the hint due to backwards compatability
+issues).  To enable hints, the <code class="docutils literal notranslate"><span class="pre">balber::BerEncoderOptions</span></code>
+“EncodeArrayLengthHints” attribute must be set <code class="docutils literal notranslate"><span class="pre">true</span></code> (using
+<code class="docutils literal notranslate"><span class="pre">setEncodeArrayLengthHints</span></code>).  Note that for large arrays, decoder performance
+may improve by over 10%.</p>
+<p>The binary format for date and time types encodes these types in binary as
+opposed to a text representation, resulting in a reduction in parsing required
+in the decoder.  While date and time heavy messages will see a dramatic
+decoding improvement, in typical types decoder performance may improve by over
+5%.  Additional information can be found on <a class="reference external" href="https://cms.prod.bloomberg.com/team/pages/viewpage.action?pageId=256475356&amp;spaceKey=bdei&amp;title=BER%2BBinary%2Bencoding%2Bfor%2BDate%2Band%2BTime%2Btypes">BER Binary encoding for Date and Time types</a>.</p>
+<section id="warning-using-these-options-safely">
+<span id="warnings"></span><h2>Warning: Using these Options Safely<a class="headerlink" href="#warning-using-these-options-safely" title="Link to this heading"></a></h2>
+<p>It is only safe to use array length hints when communication with a balber BER
+decoder built using the BDE 4.26 release or later, or a decoder having the
+<code class="docutils literal notranslate"><span class="pre">balber::BerDecoderOptions</span></code> “SkipUnknownElements” attribute set to <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p>
+</section>
+<section id="balber-berencoderoptionsutil">
+<h2>balber::BerEncoderOptionsUtil<a class="headerlink" href="#balber-berencoderoptionsutil" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balber__berencoderoptionsutil.html">balber::BerEncoderOptionsUtil</a> provides a <code class="docutils literal notranslate"><span class="pre">struct</span></code> of utility functions for configuring <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balber__berencoderoptions.html">balber::BerEncoderOptions</a> object.  In particular, this utility can be used to set the recommended options needed for encoding BER messages that are time-efficient to decode (enabling a binary date-time representation and using array length hints).  Using this configuration may improve decoding performance by 15% or more, relative to the default configuration.  This utility can also be used to set a <code class="docutils literal notranslate"><span class="pre">balber::BerEncoderOptions</span></code> object to its default state.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">balber</span><span class="o">::</span><span class="n">BerEncoderOptions</span><span class="w"> </span><span class="n">options</span><span class="p">;</span>
+
+<span class="n">balber</span><span class="o">::</span><span class="n">BerEncoderOptionsUtil</span><span class="o">::</span><span class="n">setMode</span><span class="p">(</span>
+<span class="w">                            </span><span class="o">&amp;</span><span class="n">options</span><span class="p">,</span>
+<span class="w">                            </span><span class="n">balber</span><span class="o">::</span><span class="n">BerEncoderOptionsUtil</span><span class="o">::</span><span class="n">e_FAST_20250615</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

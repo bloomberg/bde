@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #34: bdlma_sequentialallocator &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/034_bdlma_sequentialallocator.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #35: bdls_fdstreambuf" href="035_bdls_fdstreambuf.html" />
+    <link rel="prev" title="Component of the Week #33: balcl_commandline" href="033_balcl_commandline.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configurable-buffer-management">Configurable Buffer Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#for-more-information-see-also">For More Information See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="033_balcl_commandline.html" class="btn btn-neutral float-left" title="Component of the Week #33: balcl_commandline" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="035_bdls_fdstreambuf.html" class="btn btn-neutral float-right" title="Component of the Week #35: bdls_fdstreambuf" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-34-bdlma-sequentialallocator">
+<span id="cotw-034-bdlma-sequentialallocator-top"></span><h1>Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code><a class="headerlink" href="#component-of-the-week-34-bdlma-sequentialallocator" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Allows mass-freeing of complex data structures with single operation.</p></li>
+<li><p>Implements the <code class="docutils literal notranslate"><span class="pre">bdlma::ManagedAllocator</span></code> protocol and efficiently allocates heterogeneous memory blocks.</p></li>
+<li><p>Allocation of small memory segments by client are batched together in large memory blocks allocated from the underlying allocator, resulting in greater allocation speed and efficiency.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Often, much of the effort of writing code is spent on the code that allocates and populates data structures prior to computation, and then traverses and frees those data structures when computation is done.  The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma__managedallocator.html">bdlma::ManagedAllocator</a> interface allows all allocations that have happened with a single allocator to be freed effortlessly by the destructor of the allocator or by calling the <cite>bdlma::ManagedAllocator::release</cite> virtual function, saving large amounts of development time.</p>
+<p>In addition, the underlying allocator (typically new/delete or malloc/free) often is a sophisticated allocator that maintains a free list, making allocations and deallocations directly to and from it slow and expensive.  <cite>bdlma::SequentialAllocator</cite> allocates large buffers from the underlying allocator, then parcels out small segments from within those buffers without the expense of maintaining a free list, resulting in much faster allocation.</p>
+<p>The main difference between <code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlma::SequentialPool</span></code> is that <code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code> is designed to be used through a <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span> <span class="pre">*</span></code> pointer, making it more general-purpose although potentially slower due to virtual function call overhead.</p>
+<p>The sequential allocator is commonly used in parsers, temporary data structures, and algorithms that
+build up complex data structures that are discarded as a unit.</p>
+<section id="key-features">
+<h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>No need to traverse and free data structures in detail</strong> – all allocations from the memory allocator are effortlessly freed by destructor, or <cite>release</cite> call.</p></li>
+<li><p><strong>Fast allocation</strong>: Sequential allocation from pre-allocated buffers is much faster than direct allocation from new/delete or malloc/free.</p></li>
+<li><p><strong>No individual deallocation</strong>: <code class="docutils literal notranslate"><span class="pre">deallocate()</span></code> is a no-op, reducing overhead.</p></li>
+<li><p><strong>Configurable growth</strong>: Supports geometric or constant growth strategies of underlying blocks.</p></li>
+<li><p><strong>Alignment control</strong>: Natural, maximum, or 1-byte alignment strategies.</p></li>
+<li><p><strong>Avoid memory leaks</strong>: that are often caused by defective datastructure freeing code.</p></li>
+<li><p><strong>Buffer size limits</strong>: Optional maximum buffer size to control memory usage, allocation of segments larger than maximum buffer size result in individual allocations from underlying allocator.</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code> is ideal for scenarios where:</p>
+<ul class="simple">
+<li><p>Your data structures are complex, and you want to avoid having to write code to traverse and free it all.</p></li>
+<li><p>You expect many allocations in your datastructure.</p></li>
+<li><p>You want to free your datastructure all at once – individual deallocation is not needed.</p></li>
+<li><p>You want to minimize allocation overhead and memory fragmentation.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The sequential allocator should not be used for long-lived data structures that are frequently allocating and deallocating memory, since the deallocations do nothing and the memory consumed by such a data structure would just grow indefinitely.</p>
+</div>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<p>The most common usage is to create a <code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code> and pass it to
+components that accept a <code class="docutils literal notranslate"><span class="pre">bslma::Allocator*</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlma_sequentialallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_vector.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create a sequential allocator with default settings</span>
+
+<span class="w">    </span><span class="n">bdlma</span><span class="o">::</span><span class="n">SequentialAllocator</span><span class="w"> </span><span class="n">alloc</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Use it with standard containers</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">vec</span><span class="p">(</span><span class="o">&amp;</span><span class="n">alloc</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Fill the vector - all allocations come from sequential buffers</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vec</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Vector size: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">vec</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// All memory automatically released when &#39;alloc&#39; goes out of scope</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="configurable-buffer-management">
+<h2>Configurable Buffer Management<a class="headerlink" href="#configurable-buffer-management" title="Link to this heading"></a></h2>
+<p>You can configure the initial buffer size, maximum buffer size, growth strategy,
+and alignment strategy to optimize performance for your specific use case:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlma_sequentialallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsls_blockgrowth.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsls_alignment.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create allocator with custom configuration:</span>
+<span class="w">    </span><span class="c1">// - Initial buffer: 1KB</span>
+<span class="w">    </span><span class="c1">// - Max buffer size: 64KB</span>
+<span class="w">    </span><span class="c1">// - Geometric growth strategy</span>
+<span class="w">    </span><span class="c1">// - Natural alignment</span>
+
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w">       </span><span class="n">ta</span><span class="p">;</span><span class="w">    </span><span class="c1">// &#39;alloc&#39; gets memory from &#39;ta&#39;</span>
+<span class="w">    </span><span class="n">bdlma</span><span class="o">::</span><span class="n">SequentialAllocator</span><span class="w"> </span><span class="n">alloc</span><span class="p">(</span>
+<span class="w">        </span><span class="mi">1024</span><span class="p">,</span><span class="w">                                   </span><span class="c1">// initialSize</span>
+<span class="w">        </span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">,</span><span class="w">                              </span><span class="c1">// maxBufferSize</span>
+<span class="w">        </span><span class="n">bsls</span><span class="o">::</span><span class="n">BlockGrowth</span><span class="o">::</span><span class="n">BSLS_GEOMETRIC</span><span class="p">,</span><span class="w">      </span><span class="c1">// growthStrategy</span>
+<span class="w">        </span><span class="n">bsls</span><span class="o">::</span><span class="n">Alignment</span><span class="o">::</span><span class="n">BSLS_NATURAL</span><span class="p">,</span><span class="w">          </span><span class="c1">// alignmentStrategy</span>
+<span class="w">        </span><span class="o">&amp;</span><span class="n">ta</span><span class="w">                                     </span><span class="c1">// underlying allocator</span>
+<span class="w">    </span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Allocate various sized blocks</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">small</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">16</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">medium</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">256</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">large</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">4096</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Allocated blocks: &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">small</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">medium</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">large</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Reserve capacity for future allocations</span>
+
+<span class="w">    </span><span class="n">alloc</span><span class="p">.</span><span class="n">reserveCapacity</span><span class="p">(</span><span class="mi">8192</span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="kt">size_t</span><span class="w"> </span><span class="n">numAllocations</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ta</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// More allocations will be fast since capacity is pre-reserved</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">64</span><span class="p">);</span>
+<span class="w">        </span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">ptr</span><span class="p">;</span><span class="w">  </span><span class="c1">// suppress unused variable warning</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// &#39;alloc&#39; has allocated no more memory from &#39;ta&#39; since</span>
+<span class="w">    </span><span class="c1">// &#39;reserveCapacity&#39; was called.</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">ta</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">numAllocations</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">reallyBig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">alloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="mi">20</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1024</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// That last allocation required more memory than had been reserved, so</span>
+<span class="w">    </span><span class="c1">// additional memory was required from &#39;ta&#39;.</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">ta</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">numAllocations</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="for-more-information-see-also">
+<h2>For More Information See Also<a class="headerlink" href="#for-more-information-see-also" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>For more details, see:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod-4.13.0/group__bdlma.html">Documentation for bdlma package</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma__sequentialallocator.html">bdlma_sequentialallocator</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlma__sequentialpool.html">bdlma_sequentialpool</a></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

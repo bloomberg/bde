@@ -1,0 +1,265 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #30: baltzo_timezoneutil &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/030_baltzo_timezoneutil.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #31: bdlb_caselessstringview*" href="031_bdlb_caselessstringview.html" />
+    <link rel="prev" title="Component of the Week #29: bdljsn_json" href="029_bdljsn_json.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="029_bdljsn_json.html" class="btn btn-neutral float-left" title="Component of the Week #29: bdljsn_json" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="031_bdlb_caselessstringview.html" class="btn btn-neutral float-right" title="Component of the Week #31: bdlb_caselessstringview*" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-30-baltzo-timezoneutil">
+<span id="cotw-030-baltzo-timezoneutil-top"></span><h1>Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code><a class="headerlink" href="#component-of-the-week-30-baltzo-timezoneutil" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Provides utilities for converting times among different time zones.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Working with time zones is a notoriously complex task in software development.
+The
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__timezoneutil.html">baltzo_timezoneutil</a>
+component offers a robust solution by providing utility functions for converting
+time values between different time zones while correctly handling edge cases
+around daylight saving time transitions, like ambiguous and invalid local time
+values.</p>
+<p>The component is organized in the <code class="docutils literal notranslate"><span class="pre">baltzo::TimeZoneUtil</span></code> namespace, offering a
+set of utility functions for time zone conversions, in particular:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">convertUtcToLocalTime</span></code> - Convert a UTC time to a local time in a specified
+time zone</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">convertLocalToUtc</span></code> - Convert a local time to its UTC equivalent</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">convertLocalToLocalTime</span></code> - Convert a local time in one time zone to the
+equivalent local time in another zone</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">initLocalTime</span></code> - Initialize a local time value based on time zone
+information</p></li>
+</ul>
+<p>The time zone conversions take advantage of
+<a class="reference external" href="https://www.iana.org/time-zones">IANA time zone data</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Because working with time zones is a regular source of issues, we recommend
+converting user supplied local time values to a UTC representation
+(and back) as close to the user as possible.  Doing so ensures most
+in-process work with time points is performed in an unambiguous UTC
+representation, and (potentially ambiguous) local times are used only
+for input and display purposes.</p>
+</div>
+<p>Let’s look at a basic example of converting a local time value (in New York) to
+UTC and back.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlt</span><span class="o">::</span><span class="n">Datetime</span><span class="w"> </span><span class="nf">nyTime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="c1">// Convert a local NY time to UTC</span>
+<span class="n">bdlt</span><span class="o">::</span><span class="n">Datetime</span><span class="w"> </span><span class="n">utcTime</span><span class="p">;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">baltzo</span><span class="o">::</span><span class="n">TimeZoneUtil</span><span class="o">::</span><span class="n">convertLocalToUtc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">utcTime</span><span class="p">,</span>
+<span class="w">                                                 </span><span class="n">nyTime</span><span class="p">,</span>
+<span class="w">                                                 </span><span class="s">&quot;America/New_York&quot;</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Data for &#39;America/New_York&#39; was not found.&quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Convert UTC to a local time in NY</span>
+<span class="n">bdlt</span><span class="o">::</span><span class="n">DatetimeTz</span><span class="w"> </span><span class="n">roundTripNYTime</span><span class="p">;</span>
+<span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">baltzo</span><span class="o">::</span><span class="n">TimeZoneUtil</span><span class="o">::</span><span class="n">convertUtcToLocalTime</span><span class="p">(</span><span class="o">&amp;</span><span class="n">roundTripNYTime</span><span class="p">,</span>
+<span class="w">                                                 </span><span class="s">&quot;America/New_York&quot;</span><span class="p">,</span>
+<span class="w">                                                 </span><span class="n">utcTime</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Data for &#39;America/New_York&#39; was not found.&quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Note that for other starting values, `nyTime` may not equal</span>
+<span class="c1">// `roundTripNYTime.localDatetime()`!</span>
+<span class="c1">//</span>
+<span class="c1">// This may occur when `nyTime` falls during a time zone transition</span>
+<span class="c1">// where clocks were set back (making the time ambiguous).  See the</span>
+<span class="c1">// component documentation for information and options to control</span>
+<span class="c1">// how ambiguous (and invalid) times are handled</span>
+</pre></div>
+</div>
+<p>As noted in the example, one of the most important features of
+<code class="docutils literal notranslate"><span class="pre">baltzo::TimeZoneUtil</span></code> is its handling of the three scenarios that can occur
+when interpreting local time values:</p>
+<ol class="arabic simple">
+<li><p><strong>Valid and unique times</strong> - The standard case where a local time
+unambiguously corresponds to one UTC time</p></li>
+<li><p><strong>Valid but ambiguous times</strong> - During “fall back” transitions when a local
+time occurs twice</p></li>
+<li><p><strong>Invalid times</strong> - During “spring forward” transitions when some local times
+are skipped</p></li>
+</ol>
+<p>For more information about how these situations are handled, and options to
+control behavior, please see the component documentation for
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__timezoneutil.html">baltzo::TimeZoneUtil</a>.</p>
+<dl class="simple">
+<dt>For more details and examples, see:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__timezoneutil.html">baltzo_timezoneutil</a> component documentation</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__localdatetime.html">baltzo_localdatetime</a> component documentation</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

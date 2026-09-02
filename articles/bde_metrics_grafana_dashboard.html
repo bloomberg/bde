@@ -1,0 +1,249 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BDE Metrics Grafana Dashboard &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bde_metrics_grafana_dashboard.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BDE Metrics Grafana Dashboard</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>August 18, 2025</em></p>
+<section id="bde-metrics-grafana-dashboard">
+<h1>BDE Metrics Grafana Dashboard<a class="headerlink" href="#bde-metrics-grafana-dashboard" title="Link to this heading"></a></h1>
+<p>The page describes the use of the <a class="reference external" href="http://bburl/bde_metrics_grafana_dashboard">BDE Metrics Grafana Dashboard</a>.  This
+dashboard captures three metrics from four thread enabled objects within
+the BDE library.  Overall, there are five valid combinations of metric and
+producing component, each with a panel on the dashboard.  Note that if
+the filtered dataset does not include a particular combination, the panel
+will appear empty and have the text “No data”.  The dashboard
+presumes the availability of standard GUTS tags and some additional tags
+provided by BDE and the BAS infrastructure.  These tags allow for filtering the
+presented data sets and also grouping to make surveying the data easier.
+These filters and the grouping are at the top of the dashboard.</p>
+<section id="bde-metrics">
+<h2>BDE Metrics<a class="headerlink" href="#bde-metrics" title="Link to this heading"></a></h2>
+<p>These are metrics published by thread-enabled objects within the BDE
+libraries.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Observation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bde.backlog.g</p></td>
+<td><p>Gauge</p></td>
+<td><p>A snapshot count of the number of pending jobs minus number of “idle” threads in the thread pool. Value may be negative.</p></td>
+<td><p>On a periodic timer cycle only.</p></td>
+</tr>
+<tr class="row-odd"><td><p>bde.startlag.g</p></td>
+<td><p>Gauge</p></td>
+<td><p>A snapshot of the delay time in starting the next pending event, measured in fractional seconds.</p></td>
+<td><p>On a periodic timer cycle only.</p></td>
+</tr>
+<tr class="row-even"><td><p>bde.usedcapacity.g</p></td>
+<td><p>Gauge</p></td>
+<td><p>A snapshot of the number of pending jobs divided by queue capacity.</p></td>
+<td><p>On a periodic timer cycle only.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bde-metrics-producers">
+<h2>BDE Metrics Producers<a class="headerlink" href="#bde-metrics-producers" title="Link to this heading"></a></h2>
+<p>These are the components currently producing metrics within BDE.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Metrics</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>bdlmt::EventScheduler</p></td>
+<td><p>bde.startlag.g</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlmt::FixedThreadPool</p></td>
+<td><p>bde.backlog.g, bde.usedcapacity.g</p></td>
+</tr>
+<tr class="row-even"><td><p>bdlmt::ThreadPool</p></td>
+<td><p>bde.backlog.g</p></td>
+</tr>
+<tr class="row-odd"><td><p>bdlmt::TimerEventScheduler</p></td>
+<td><p>bde.startlag.g</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="filters-on-tags-from-guts-and-bas">
+<h2>Filters on Tags from GUTS and BAS<a class="headerlink" href="#filters-on-tags-from-guts-and-bas" title="Link to this heading"></a></h2>
+<p>Each filter allows selection of “all” (exluding ServiceName) or a set of values.
+The filters can be
+searched by typing partial values.  Note that a user must set one or more
+values for the ServiceName filter (the dataset would otherwise be too large).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Filter Name</p></th>
+<th class="head"><p>GUTS Tag Name</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Sample Values</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>ServiceName</p></td>
+<td><p>namespace</p></td>
+<td><p>The GUTS namespace, which is typically the name of the running service (for BAS services).</p></td>
+<td><p>analytsv, bxsdsvc</p></td>
+</tr>
+<tr class="row-odd"><td><p>InstanceName</p></td>
+<td><p>instanceName</p></td>
+<td><p>The procmgr name of the process instance recording the metric.</p></td>
+<td><p>basrtr, basrtr-test, bxsdsvc1, bxsdsvc2</p></td>
+</tr>
+<tr class="row-even"><td><p>ParentCluster</p></td>
+<td><p>parentCluster</p></td>
+<td><p>The parent cluster of the host.</p></td>
+<td><p>basbtc, basil</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cluster</p></td>
+<td><p>cluster</p></td>
+<td><p>The cluster of the host.</p></td>
+<td><p>basila, basinf</p></td>
+</tr>
+<tr class="row-even"><td><p>Host</p></td>
+<td><p>host</p></td>
+<td><p>The host machine’s name.</p></td>
+<td><p>basblt-ob-252.bloomberg.com, basila-rr-955.bloomberg.com</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="grouptags">
+<h2>GroupTags<a class="headerlink" href="#grouptags" title="Link to this heading"></a></h2>
+<p>The GroupTags allows for aggregating the dataset by tag value.  The resultant
+value is the maximum value at each timestep for the aggregated tags.  The list
+of available tags is dependant on the producing processes and is generally too
+numerous to include here.  A good starter setting for GroupTags is “host” and
+“identifier”.  This groups the data by the producing host and the unique
+identifier for the object instance in the application (e.g., a set name or
+a generated identifier like “ftp.1” for
+the first created unnamed bdlmt::FixedThreadPool).  Note that the order the tag names
+are selected is the order the tag values are appended to produce the label
+for the timeseries.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

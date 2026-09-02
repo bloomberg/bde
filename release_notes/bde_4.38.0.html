@@ -1,0 +1,434 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BDE 4.38.0 Release &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.38.0.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.37.0 Release" href="bde_4.37.0.html" />
+    <link rel="prev" title="BDE 4.39.0 Release" href="bde_4.39.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.39.0.html">BDE 4.39.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.38.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-38-0-release-highlights">BDE 4.38.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#c-23-compatibility-changes">C++23 Compatibility Changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bdlb-pairutil-adaptforranges-pipe-operator"><code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::adaptForRanges</span></code> Pipe Operator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bslma-testallocator-configurable-fill-for-newly-allocated-memory"><code class="docutils literal notranslate"><span class="pre">bslma::TestAllocator</span></code> Configurable Fill for Newly Allocated Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-tickets">Fixed Tickets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.37.0.html">BDE 4.37.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.36.0.html">BDE 4.36.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.35.0.html">BDE 4.35.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.34.0.html">BDE 4.34.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.33.0.html">BDE 4.33.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.32.0.html">BDE 4.32.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.31.0.html">BDE 4.31.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.30.0.html">BDE 4.30.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.29.0.html">BDE 4.29.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.28.0.html">BDE 4.28.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.27.0.html">BDE 4.27.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.26.0.html">BDE 4.26.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.25.0.html">BDE 4.25.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.24.0.html">BDE 4.24.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.23.0.html">BDE 4.23.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="release_notes.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">BDE 4.38.0 Release</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="bde_4.39.0.html" class="btn btn-neutral float-left" title="BDE 4.39.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bde_4.37.0.html" class="btn btn-neutral float-right" title="BDE 4.37.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bde-4-38-0-release">
+<span id="bde4-38-0-top"></span><h1>BDE 4.38.0 Release<a class="headerlink" href="#bde-4-38-0-release" title="Link to this heading"></a></h1>
+<section id="schedule">
+<span id="bde4-38-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Link to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.38.0 production release was
+completed on <strong>Monday, June 1, 2026</strong>.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="bde-4-38-0-release-highlights">
+<h2>BDE 4.38.0 Release Highlights<a class="headerlink" href="#bde-4-38-0-release-highlights" title="Link to this heading"></a></h2>
+<section id="c-23-compatibility-changes">
+<h3>C++23 Compatibility Changes<a class="headerlink" href="#c-23-compatibility-changes" title="Link to this heading"></a></h3>
+<p>BDE 4.38.0 delivers a large set of C++23 compatibility enhancements to the
+<code class="docutils literal notranslate"><span class="pre">bsl</span></code> library.  A full description of all changes is available in the
+<a class="reference internal" href="../articles/cpp23_project.html"><span class="doc">BSL Support for C++23</span></a> article.  The
+highlights are summarised below.</p>
+<section id="ranges-aware-construction-and-insertion-for-bsl-containers">
+<h4>Ranges-Aware Construction and Insertion for <code class="docutils literal notranslate"><span class="pre">bsl</span></code> Containers<a class="headerlink" href="#ranges-aware-construction-and-insertion-for-bsl-containers" title="Link to this heading"></a></h4>
+<p>All <code class="docutils literal notranslate"><span class="pre">bsl</span></code> sequence and associative containers now support the C++23
+<code class="docutils literal notranslate"><span class="pre">bsl::from_range</span></code> tag constructor and range-insertion methods such as
+<code class="docutils literal notranslate"><span class="pre">append_range</span></code> and <code class="docutils literal notranslate"><span class="pre">insert_range</span></code>, backported to C++03:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Before: named variable required to keep the tokenizer alive</span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Tokenizer</span><span class="w"> </span><span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">);</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tokens</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+<span class="c1">// Now: pass directly using the from_range constructor</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">tokens</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">from_range</span><span class="p">,</span>
+<span class="w">                                     </span><span class="n">bdlb</span><span class="o">::</span><span class="n">Tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>Container adaptors (<code class="docutils literal notranslate"><span class="pre">bsl::stack</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::queue</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::priority_queue</span></code>)
+likewise gain <code class="docutils literal notranslate"><span class="pre">from_range</span></code> constructors and <code class="docutils literal notranslate"><span class="pre">push_range</span></code>.</p>
+</section>
+<section id="heterogeneous-erasure-for-associative-containers">
+<h4>Heterogeneous Erasure for Associative Containers<a class="headerlink" href="#heterogeneous-erasure-for-associative-containers" title="Link to this heading"></a></h4>
+<p>When a container’s comparator or hash is tagged as transparent, <code class="docutils literal notranslate"><span class="pre">erase(key)</span></code>
+now accepts any type comparable to the stored key type, eliminating unnecessary
+temporary constructions.  For example, erasing from a <code class="docutils literal notranslate"><span class="pre">bsl::set&lt;bsl::string,</span>
+<span class="pre">bdlb::TransparentLess&gt;</span></code> supplied with a <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> no longer
+requires constructing a temporary <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>.</p>
+</section>
+<section id="bsl-print-and-bsl-println-backported-c-23-print-facility">
+<h4><code class="docutils literal notranslate"><span class="pre">bsl::print</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::println</span></code>: Backported C++23 Print Facility<a class="headerlink" href="#bsl-print-and-bsl-println-backported-c-23-print-facility" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_print.h&gt;</span></code> provides <code class="docutils literal notranslate"><span class="pre">bsl::print</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::println</span></code> available in
+all language modes back to C++03.  On platforms with a C++23 standard library
+these delegate to the native implementation; elsewhere they are backed by
+BDE’s <code class="docutils literal notranslate"><span class="pre">bslfmt</span></code> formatter.  See the <code class="docutils literal notranslate"><span class="pre">&lt;bsl_print_ostream.h&gt;</span></code> header for the
+separate output-stream overloads.</p>
+</section>
+<section id="bsl-optional-monadic-interface">
+<h4><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> Monadic Interface<a class="headerlink" href="#bsl-optional-monadic-interface" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">and_then</span></code>, <code class="docutils literal notranslate"><span class="pre">or_else</span></code>, and <code class="docutils literal notranslate"><span class="pre">transform</span></code> enable functional-style chaining
+over optional values without explicit engagement checks (requires C++17 or
+later).</p>
+</section>
+<section id="bsl-string-bsl-string-view-construction-from-nullptr-prohibited">
+<h4><code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> / <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> Construction from <code class="docutils literal notranslate"><span class="pre">nullptr</span></code> Prohibited<a class="headerlink" href="#bsl-string-bsl-string-view-construction-from-nullptr-prohibited" title="Link to this heading"></a></h4>
+<p>Constructing a <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> or <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code> from a null pointer
+literal is now a compile-time error (requires C++11), as required by C++23
+(<a class="reference external" href="https://wg21.link/p2166">P2166</a>).  Previously such construction compiled
+silently but produced undefined behavior at runtime.</p>
+<p>Because the deleted constructor takes <code class="docutils literal notranslate"><span class="pre">bsl::nullptr_t</span></code>, overload resolution
+selects it for any <em>null pointer constant</em> — defined by the C++ standard as
+an integer literal with value zero or a prvalue of type <code class="docutils literal notranslate"><span class="pre">std::nullptr_t</span></code>.
+This covers <code class="docutils literal notranslate"><span class="pre">nullptr</span></code>, <code class="docutils literal notranslate"><span class="pre">0</span></code>, and <code class="docutils literal notranslate"><span class="pre">NULL</span></code>.  A <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char*</span></code> variable is
+not a null pointer constant, even if its runtime value is null, and therefore
+does not select the deleted constructor:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">s</span><span class="p">(</span><span class="k">nullptr</span><span class="p">);</span><span class="w">    </span><span class="c1">// now: compile-time error</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">t</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">          </span><span class="c1">// now: compile-time error</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">u</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w">       </span><span class="c1">// now: compile-time error</span>
+
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">v</span><span class="p">(</span><span class="n">p</span><span class="p">);</span><span class="w">          </span><span class="c1">// unchanged: undefined behavior</span>
+</pre></div>
+</div>
+</section>
+<section id="new-standard-library-headers">
+<h4>New Standard Library Headers<a class="headerlink" href="#new-standard-library-headers" title="Link to this heading"></a></h4>
+<p>The following headers were added to alias new C++23 standard library types:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_print.h&gt;</span></code> / <code class="docutils literal notranslate"><span class="pre">&lt;bsl_print_ostream.h&gt;</span></code> — <code class="docutils literal notranslate"><span class="pre">bsl::print</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::println</span></code>, and <code class="docutils literal notranslate"><span class="pre">vprint_*</span></code> variants</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_mdspan.h&gt;</span></code> — <code class="docutils literal notranslate"><span class="pre">bsl::mdspan</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::extents</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::dextents</span></code>, layout policies, and <code class="docutils literal notranslate"><span class="pre">bsl::default_accessor</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_spanstream.h&gt;</span></code> — <code class="docutils literal notranslate"><span class="pre">bsl::spanbuf</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::ispanstream</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::ospanstream</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::spanstream</span></code> (and <code class="docutils literal notranslate"><span class="pre">w</span></code>-prefixed wide variants)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_generator.h&gt;</span></code> — <code class="docutils literal notranslate"><span class="pre">bsl::generator</span></code> (C++23 coroutine generator)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_stacktrace.h&gt;</span></code> — <code class="docutils literal notranslate"><span class="pre">bsl::stacktrace</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::stacktrace_entry</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::basic_stacktrace</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_stdfloat.h&gt;</span></code> — <code class="docutils literal notranslate"><span class="pre">bsl::float16_t</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::float32_t</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::float64_t</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::float128_t</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::bfloat16_t</span></code></p></li>
+</ul>
+</section>
+<section id="c-23-aliases-added-to-existing-headers">
+<h4>C++23 Aliases Added to Existing Headers<a class="headerlink" href="#c-23-aliases-added-to-existing-headers" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;bsl_algorithm.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;bsl_bit.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;bsl_functional.h&gt;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&lt;bsl_iosfwd.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;bsl_iterator.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;bsl_memory.h&gt;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&lt;bsl_numeric.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;bsl_ranges.h&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;bsl_type_traits.h&gt;</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">&lt;bsl_utility.h&gt;</span></code>.  These include the new ranges algorithms (<code class="docutils literal notranslate"><span class="pre">fold_left</span></code>,
+<code class="docutils literal notranslate"><span class="pre">fold_right</span></code>, <code class="docutils literal notranslate"><span class="pre">contains</span></code>, <code class="docutils literal notranslate"><span class="pre">find_last</span></code>, <code class="docutils literal notranslate"><span class="pre">starts_with</span></code>, <code class="docutils literal notranslate"><span class="pre">ends_with</span></code>,
+<code class="docutils literal notranslate"><span class="pre">iota</span></code>, <code class="docutils literal notranslate"><span class="pre">shift_left</span></code>, <code class="docutils literal notranslate"><span class="pre">shift_right</span></code>), ranges views (<code class="docutils literal notranslate"><span class="pre">zip</span></code>,
+<code class="docutils literal notranslate"><span class="pre">adjacent</span></code>, <code class="docutils literal notranslate"><span class="pre">chunk</span></code>, <code class="docutils literal notranslate"><span class="pre">slide</span></code>, <code class="docutils literal notranslate"><span class="pre">stride</span></code>, <code class="docutils literal notranslate"><span class="pre">enumerate</span></code>,
+<code class="docutils literal notranslate"><span class="pre">join_with</span></code>, <code class="docutils literal notranslate"><span class="pre">cartesian_product</span></code>, <code class="docutils literal notranslate"><span class="pre">as_const</span></code>), and utility types
+(<code class="docutils literal notranslate"><span class="pre">bsl::out_ptr</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::inout_ptr</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::allocation_result</span></code>,
+<code class="docutils literal notranslate"><span class="pre">bsl::start_lifetime_as</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::bind_back</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::forward_like</span></code>).</p>
+</section>
+<section id="other-c-23-additions">
+<h4>Other C++23 Additions<a class="headerlink" href="#other-c-23-additions" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::string::contains()</span></code> / <code class="docutils literal notranslate"><span class="pre">bsl::string_view::contains()</span></code> — tests
+whether a string contains a given substring, character, or string view
+(backported to C++03).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::basic_string::substr()</span> <span class="pre">&amp;&amp;</span></code> — rvalue overload that can move storage
+rather than copy (requires C++11).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::visit()</span></code> extended to accept arguments whose static type is a class
+publicly derived from <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>, as required by C++23 (requires
+C++11).</p></li>
+</ul>
+</section>
+</section>
+<section id="bdlb-pairutil-adaptforranges-pipe-operator">
+<h3><code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::adaptForRanges</span></code> Pipe Operator<a class="headerlink" href="#bdlb-pairutil-adaptforranges-pipe-operator" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::adaptForRanges</span></code> now supports <code class="docutils literal notranslate"><span class="pre">operator|</span></code>, enabling it to
+be used directly as a range pipeline adaptor.  Previously, the range had to be
+passed as an argument to <code class="docutils literal notranslate"><span class="pre">adaptForRanges</span></code>; it can now be piped:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">}};</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">expectedValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">};</span>
+
+<span class="c1">// Before (4.27+):</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">ranges</span><span class="o">::</span><span class="n">equal</span><span class="p">(</span><span class="n">expectedValues</span><span class="p">,</span>
+<span class="w">                          </span><span class="n">bdlb</span><span class="o">::</span><span class="n">PairUtil</span><span class="o">::</span><span class="n">adaptForRanges</span><span class="p">(</span><span class="n">myMap</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">values</span><span class="p">));</span>
+
+<span class="c1">// Now also possible:</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">ranges</span><span class="o">::</span><span class="n">equal</span><span class="p">(</span><span class="n">expectedValues</span><span class="p">,</span>
+<span class="w">                          </span><span class="n">myMap</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">PairUtil</span><span class="o">::</span><span class="n">adaptForRanges</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">views</span><span class="o">::</span><span class="n">values</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+<section id="bslma-testallocator-configurable-fill-for-newly-allocated-memory">
+<h3><code class="docutils literal notranslate"><span class="pre">bslma::TestAllocator</span></code> Configurable Fill for Newly Allocated Memory<a class="headerlink" href="#bslma-testallocator-configurable-fill-for-newly-allocated-memory" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bslma::TestAllocator</span></code> has been enhanced with the ability to fill freshly
+allocated memory with a user-configurable byte value.  This aids in detecting
+use-of-uninitialized-memory bugs during testing.</p>
+</section>
+</section>
+<section id="fixed-tickets">
+<h2>Fixed Tickets<a class="headerlink" href="#fixed-tickets" title="Link to this heading"></a></h2>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 100.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>C++23 Support In BSL</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_algorithm.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_bit.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_HAS_CPP23_BASELINE_LIBRARY</span></code> macro</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_functional.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_ranges.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_type_traits.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_utility.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_numeric.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">&lt;bsl_generator.h&gt;</span></code> header</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">&lt;bsl_spanstream.h&gt;</span></code> header</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">&lt;bsl_mdspan.h&gt;</span></code> header</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">&lt;bsl_stacktrace.h&gt;</span></code> header</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">&lt;bsl_stdfloat.h&gt;</span></code> header</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_iosfwd.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_iterator.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add aliases to <code class="docutils literal notranslate"><span class="pre">&lt;bsl_memory.h&gt;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Avoid deprecated UDL operator suffix syntax</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: BDE allocator testing in <code class="docutils literal notranslate"><span class="pre">bslim_bslstandardheadertest.t.cpp</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Prohibit <code class="docutils literal notranslate"><span class="pre">bsl::basic_string</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::basic_string_view</span></code> construction from <code class="docutils literal notranslate"><span class="pre">nullptr</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">bsl::string::contains()</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::string_view::contains()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: <code class="docutils literal notranslate"><span class="pre">bsl::basic_string::substr()</span> <span class="pre">&amp;&amp;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Monadic operations for <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Iterator-pair constructors for <code class="docutils literal notranslate"><span class="pre">bsl::stack</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::queue</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> ranges-aware construction and insertion</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Ranges-aware construction for container adaptors</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Ranges-aware construction and insertion for sequence containers</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Make concepts and ranges available in <code class="docutils literal notranslate"><span class="pre">bslstl</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Ordered containers: Add ranges-aware construction and insertion</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Unordered containers: Add ranges-aware construction and insertion</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: Fix in <code class="docutils literal notranslate"><span class="pre">bslstl_priorityqueue.t.cpp</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: <code class="docutils literal notranslate"><span class="pre">bsl::visit()</span></code> for classes derived from <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> range operations follow-ups</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">&lt;bsl_print.h&gt;</span></code> header</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>: enhance for ‘’sized’’ ranges</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Heterogeneous erasure overloads for associative containers</p></td>
+</tr>
+<tr class="row-even"><td><p>C++23: <code class="docutils literal notranslate"><span class="pre">std::views::zip</span></code> in <code class="docutils literal notranslate"><span class="pre">bslstl_ranges.h</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">std::ranges::iota</span></code>: aliases are not found</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bsl::stop_token</span></code> – add callback alias template</p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Port additional ranges views (<code class="docutils literal notranslate"><span class="pre">slide</span></code>, <code class="docutils literal notranslate"><span class="pre">stride</span></code>, <code class="docutils literal notranslate"><span class="pre">adjacent</span></code>, <code class="docutils literal notranslate"><span class="pre">chunk</span></code>, <code class="docutils literal notranslate"><span class="pre">enumerate</span></code>, <code class="docutils literal notranslate"><span class="pre">join_with</span></code>, <code class="docutils literal notranslate"><span class="pre">cartesian_product</span></code>, and more)</p></td>
+</tr>
+<tr class="row-even"><td><p>Simplify <code class="docutils literal notranslate"><span class="pre">bcec</span></code> test drivers to verify aliasing</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix use-after-free bug in <code class="docutils literal notranslate"><span class="pre">bdxa_simpletask.t</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Remove <code class="docutils literal notranslate"><span class="pre">std</span></code> type aliases from wrong BDE header</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bdex_testinstreamformatter</span></code>: fix bad indentation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bdlmt::EventScheduler</span></code> thread safety has been weakened</p></td>
+</tr>
+<tr class="row-odd"><td><p>TSAN race fix in <code class="docutils literal notranslate"><span class="pre">bdlcc::TimeQueue</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Ability to set freshly allocated memory in <code class="docutils literal notranslate"><span class="pre">bslma::TestAllocator</span></code> to a configurable value</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove BOMs from BDE repo</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bdlb::PairUtil::adaptForRanges</span></code> – add <code class="docutils literal notranslate"><span class="pre">operator|</span></code> adaptor</p></td>
+</tr>
+<tr class="row-odd"><td><p>Improve <code class="docutils literal notranslate"><span class="pre">bdlt</span></code> format article and <code class="docutils literal notranslate"><span class="pre">bdlt_formatdoc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Fix <code class="docutils literal notranslate"><span class="pre">bdld::Datum</span></code> nightly build failure on clang</p></td>
+</tr>
+<tr class="row-odd"><td><p>Correct <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil.t.cpp</span></code> failures</p></td>
+</tr>
+<tr class="row-even"><td><p>Correct <code class="docutils literal notranslate"><span class="pre">bdlt_localtimeoffset.t.cpp</span></code> compile warnings</p></td>
+</tr>
+<tr class="row-odd"><td><p>Correct UBSan issues in <code class="docutils literal notranslate"><span class="pre">bdl</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Correct BDE test driver compile warnings</p></td>
+</tr>
+<tr class="row-odd"><td><p>Assorted minor drive-by fixes</p></td>
+</tr>
+<tr class="row-even"><td><p>Remove <code class="docutils literal notranslate"><span class="pre">bslfmt</span></code> include from <code class="docutils literal notranslate"><span class="pre">bsl_ostream.h</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>C++23: Add <code class="docutils literal notranslate"><span class="pre">bsl_print_ostream.h</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

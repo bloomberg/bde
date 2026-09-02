@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>bsl::variant: An Allocator-Aware Discriminated Union &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/bsl_variant.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="BSL Support for C++20" href="cpp20_project.html" />
     <link rel="prev" title="Getting Started Writing Allocator-Aware Software" href="getting_started_with_aa.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
@@ -139,85 +106,38 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>: An Allocator-Aware Discriminated Union</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>: An Allocator-Aware Discriminated Union</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="cpp20_project.html" class="btn btn-neutral float-right" title="BSL Support for C++20" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="getting_started_with_aa.html" class="btn btn-neutral float-left" title="Getting Started Writing Allocator-Aware Software" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="cpp20_project.html" class="btn btn-neutral float-right" title="BSL Support for C++20" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>December 25, 2023</em></p>
-<div class="section" id="bsl-variant-an-allocator-aware-discriminated-union">
-<span id="bsl-variant-top"></span><h1><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>: An Allocator-Aware Discriminated Union<a class="headerlink" href="#bsl-variant-an-allocator-aware-discriminated-union" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<section id="bsl-variant-an-allocator-aware-discriminated-union">
+<span id="bsl-variant-top"></span><h1><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>: An Allocator-Aware Discriminated Union<a class="headerlink" href="#bsl-variant-an-allocator-aware-discriminated-union" title="Link to this heading"></a></h1>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
 <p>The latest release of BDE (4.0) provides the header <code class="docutils literal notranslate"><span class="pre">&lt;bsl_variant.h&gt;</span></code>,
 which contains an allocator-aware implementation of the C++17 <code class="docutils literal notranslate"><span class="pre">&lt;variant&gt;</span></code>
 header with select C++20 enhancements.  Some <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> features are not
@@ -231,9 +151,9 @@ The <code class="docutils literal notranslate"><span class="pre">bsl::variant</s
 active, so, for example, if the <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object holds a <code class="docutils literal notranslate"><span class="pre">double</span></code>
 object, then an attempt to retrieve the stored <code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char*</span></code> object will fail
 by returning a null pointer or throwing an exception.</p>
-</div>
-<div class="section" id="differences-between-std-variant-and-bsl-variant">
-<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#differences-between-std-variant-and-bsl-variant" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="differences-between-std-variant-and-bsl-variant">
+<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">std::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#differences-between-std-variant-and-bsl-variant" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is allocator-aware if at least one alternative is
 allocator-aware.  For example, if one of the alternatives is
 <code class="docutils literal notranslate"><span class="pre">bsl::vector&lt;T&gt;</span></code>, then the allocator specified at construction of the
@@ -254,43 +174,43 @@ needs to store the allocator that it uses to supply memory.</p></li>
 <p>The declarations of the additional overloads are shown below, with some details
 elided for readability:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// CREATORS</span>
-<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">);</span><span class="w"></span>
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">);</span>
 
-<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">variant</span><span class="o">&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">);</span><span class="w"></span>
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">variant</span><span class="o">&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">);</span>
 
-<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">variant</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">);</span><span class="w"></span>
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">variant</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">original</span><span class="p">);</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
-<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">t_TYPE</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span>
+<span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"> </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"> </span><span class="n">t_TYPE</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
-<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_type_t</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_type_t</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_ELEM_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
-<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_type_t</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">t_ELEM_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w">                        </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_ELEM_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_type_t</span><span class="o">&lt;</span><span class="n">t_TYPE</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">t_ELEM_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w">                        </span><span class="n">args</span><span class="p">);</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">t_INDEX</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
-<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_index_t</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">t_INDEX</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_index_t</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w"> </span><span class="n">args</span><span class="p">);</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">t_INDEX</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_ELEM_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span><span class="w"></span>
-<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_index_t</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">t_ELEM_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w">                        </span><span class="n">args</span><span class="p">);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="kt">size_t</span><span class="w"> </span><span class="n">t_INDEX</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">t_ELEM_TYPE</span><span class="p">,</span><span class="w"> </span><span class="k">class</span><span class="p">...</span><span class="w"> </span><span class="n">t_ARGS</span><span class="o">&gt;</span>
+<span class="k">explicit</span><span class="w"> </span><span class="n">variant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">allocator_type</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">bsl</span><span class="o">::</span><span class="n">in_place_index_t</span><span class="o">&lt;</span><span class="n">t_INDEX</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">std</span><span class="o">::</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="n">t_ELEM_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="n">arg</span><span class="p">,</span>
+<span class="w">                 </span><span class="n">t_ARGS</span><span class="o">&amp;&amp;</span><span class="p">...</span><span class="w">                        </span><span class="n">args</span><span class="p">);</span>
 
 <span class="c1">// ACCESSORS</span>
-<span class="n">get_allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w"></span>
+<span class="n">get_allocator</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
 </pre></div>
 </div>
 <p>Note that the constructors above have the same constraints and mandates as
@@ -317,9 +237,9 @@ any function call that changes which alternative is currently active within a
 </ul>
 <p>Also note that additional limitations apply in C++03 (and some of the above
 constructor signatures are different).  See <code class="docutils literal notranslate"><span class="pre">bslstl_variant.h</span></code> for details.</p>
-</div>
-<div class="section" id="differences-between-bdlb-variant-and-bsl-variant">
-<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#differences-between-bdlb-variant-and-bsl-variant" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="differences-between-bdlb-variant-and-bsl-variant">
+<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#differences-between-bdlb-variant-and-bsl-variant" title="Link to this heading"></a></h2>
 <p>Although <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> are both discriminated union
 types, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is not a drop-in replacement for <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>.  A
 quick reference, comparing analogous functions in the <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> and
@@ -334,17 +254,13 @@ objects; some guidance is provided in <a class="reference internal" href="#migra
 hold a value (see <a class="reference internal" href="#valueless-by-exception"><span class="std std-ref">The “Valueless By Exception” State</span></a>).  If a <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> needs
 to be able to represent a state that is none of <code class="docutils literal notranslate"><span class="pre">T1</span></code>, …, <code class="docutils literal notranslate"><span class="pre">Tn</span></code>, then
 <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;bsl::monostate,</span> <span class="pre">T1,</span> <span class="pre">...,</span> <span class="pre">Tn&gt;</span></code> should be used.</p>
-<div class="section" id="quick-reference">
-<h3>Quick reference<a class="headerlink" href="#quick-reference" title="Permalink to this headline">¶</a></h3>
+<section id="quick-reference">
+<h3>Quick reference<a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h3>
 <p>The constructors for <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> are similar to those of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>
 but use the leading allocator convention (with <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code>) while
 <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> uses the trailing allocator convention.  Most other methods
 of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> have a differently-named counterpart for <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>:</p>
 <table class="docutils align-left">
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>bdlb::Variant</p></th>
 <th class="head"><p>bsl::variant</p></th>
@@ -408,9 +324,9 @@ active, and <code class="docutils literal notranslate"><span class="pre">bsl::va
 But if there is no need to represent a null state, then
 <code class="docutils literal notranslate"><span class="pre">bsl::variant&lt;T1,</span> <span class="pre">T2&gt;</span></code> may be a suitable replacement.  In that case, the
 <code class="docutils literal notranslate"><span class="pre">index</span></code> method returns 1 when the <code class="docutils literal notranslate"><span class="pre">T2</span></code> alternative is active.</p>
-</div>
-<div class="section" id="notable-behavioral-differences">
-<h3>Notable behavioral differences<a class="headerlink" href="#notable-behavioral-differences" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="notable-behavioral-differences">
+<h3>Notable behavioral differences<a class="headerlink" href="#notable-behavioral-differences" title="Link to this heading"></a></h3>
 <p>Some of the <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> equivalents given in the table in the preceding
 section behave differently from their <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> counterparts.  In
 addition, some operations that are spelled the same way for <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>
@@ -423,38 +339,38 @@ from variant alternatives (but not from visitors).  For example, when using
 <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code>, a single visitor can be applied to both lvalue and rvalue
 <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> expressions, and the visitor will be called with an argument
 of the appropriate value category:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">PushBackVisitor</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">d_v</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">PushBackVisitor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">d_v</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">PushBackVisitor</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">d_v</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="n">PushBackVisitor</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">d_v</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">arg</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">arg</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">arg</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="nf">oss</span><span class="p">(</span><span class="n">d_v</span><span class="p">.</span><span class="n">get_allocator</span><span class="p">());</span><span class="w"></span>
-<span class="w">        </span><span class="n">oss</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">arg</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">oss</span><span class="p">).</span><span class="n">str</span><span class="p">());</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">arg</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostringstream</span><span class="w"> </span><span class="nf">oss</span><span class="p">(</span><span class="n">d_v</span><span class="p">.</span><span class="n">get_allocator</span><span class="p">());</span>
+<span class="w">        </span><span class="n">oss</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">arg</span><span class="p">;</span>
+<span class="w">        </span><span class="n">d_v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">oss</span><span class="p">).</span><span class="n">str</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_VARIANT</span><span class="o">&gt;</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="n">pushBackVariant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">vector</span><span class="p">,</span><span class="w"></span>
-<span class="w">                     </span><span class="n">t_VARIANT</span><span class="o">&amp;&amp;</span><span class="w">               </span><span class="n">variant</span><span class="p">)</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_VARIANT</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">pushBackVariant</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">vector</span><span class="p">,</span>
+<span class="w">                     </span><span class="n">t_VARIANT</span><span class="o">&amp;&amp;</span><span class="w">               </span><span class="n">variant</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// Append to the specified &#39;vector&#39; the value held by the specified</span>
 <span class="w">    </span><span class="c1">// &#39;variant&#39;, which must be of type &#39;bsl::variant&lt;int, bsl::string&gt;&#39;.</span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">PushBackVisitor</span><span class="p">(</span><span class="n">vector</span><span class="p">),</span><span class="w"></span>
-<span class="w">               </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">t_VARIANT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">variant</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">PushBackVisitor</span><span class="p">(</span><span class="n">vector</span><span class="p">),</span>
+<span class="w">               </span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">t_VARIANT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">variant</span><span class="p">));</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Note that if a <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> had been used in the above example, then the
@@ -468,8 +384,8 @@ throwing an exception if the desired alternative is not active inside the
 <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> object, whereas <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> does not use exceptions.
 The <code class="docutils literal notranslate"><span class="pre">bsl::get_if</span></code> method, which returns a null pointer on failure, can be
 used to avoid exceptions:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
 <span class="n">bdlbVariant</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span><span class="w">        </span><span class="c1">// returns a reference to the stored &#39;int&#39;</span>
 <span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant</span><span class="p">);</span><span class="w">     </span><span class="c1">// returns a reference to the stored &#39;int&#39;</span>
@@ -488,16 +404,16 @@ fails due to an exception.  Default construction of <code class="docutils litera
 value-initializes the first alternative type.  <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> can be given
 a comparable null state by using <code class="docutils literal notranslate"><span class="pre">bsl::monostate</span></code> as the first alternative.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a null &#39;bdlb::Variant&#39; object.</span>
-<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="p">;</span>
 
 <span class="c1">// Create a &#39;bsl::variant&#39; object holding an &#39;int&#39; with value 0.</span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">;</span>
 
 <span class="c1">// Create a &#39;bsl::variant&#39; object that can hold a &#39;bsl::monostate&#39; (which</span>
 <span class="c1">// may be used by the application to represent the null state), an &#39;int&#39;,</span>
 <span class="c1">// or a &#39;double&#39;.  Because the &#39;bsl::monostate&#39; alternative is first, the</span>
 <span class="c1">// default constructor activates that alternative.</span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">;</span>
 </pre></div>
 </div>
 </li>
@@ -514,10 +430,10 @@ match” with one of the variant types, whereas <code class="docutils literal no
 type that matches exactly with one of the alternative types.  (The C++03
 implementation of <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> also has this restriction.)</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ERROR: initializer doesn&#39;t match any alternative type</span>
-<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a C string&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a C string&quot;</span><span class="p">;</span>
 
 <span class="c1">// OK: activates the &#39;bsl::string&#39; alternative in C++11 and later</span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a C string&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;a C string&quot;</span><span class="p">;</span>
 </pre></div>
 </div>
 </li>
@@ -527,31 +443,31 @@ is that the two objects being swapped have equal allocators.  If this
 precondition is not met, the free function <code class="docutils literal notranslate"><span class="pre">swap</span></code> must be used instead.  In
 contrast, for <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code>, member and non-member <code class="docutils literal notranslate"><span class="pre">swap</span></code> both have
 wide contracts.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="nf">ta1</span><span class="p">(</span><span class="s">&quot;ta1&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="nf">ta2</span><span class="p">(</span><span class="s">&quot;ta2&quot;</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta1</span><span class="p">(</span><span class="s">&quot;ta1&quot;</span><span class="p">);</span>
+<span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta2</span><span class="p">(</span><span class="s">&quot;ta2&quot;</span><span class="p">);</span>
 
-<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;this is a string&quot;</span><span class="p">;</span><span class="w"></span>
-<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;this is another string&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;this is a string&quot;</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;this is another string&quot;</span><span class="p">;</span>
 
-<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant1</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta1</span><span class="p">);</span><span class="w"></span>
-<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant2</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta2</span><span class="p">);</span><span class="w"></span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant1</span><span class="p">(</span><span class="n">s1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta1</span><span class="p">);</span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant2</span><span class="p">(</span><span class="n">s2</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta2</span><span class="p">);</span>
 
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant1</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta1</span><span class="p">,</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta2</span><span class="p">,</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant1</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta1</span><span class="p">,</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta2</span><span class="p">,</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span>
 
-<span class="n">swap</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">,</span><span class="w"> </span><span class="n">bdlbVariant2</span><span class="p">);</span><span class="w"></span>
-<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
-<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
-<span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">);</span><span class="w"></span>
-<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
-<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
+<span class="n">swap</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">,</span><span class="w"> </span><span class="n">bdlbVariant2</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span>
+<span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant1</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bdlbVariant2</span><span class="p">.</span><span class="n">the</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span>
 
-<span class="n">swap</span><span class="p">(</span><span class="n">bslVariant1</span><span class="p">,</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">);</span><span class="w"></span>
-<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span><span class="w"></span>
-<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span><span class="w"></span>
+<span class="n">swap</span><span class="p">(</span><span class="n">bslVariant1</span><span class="p">,</span><span class="w"> </span><span class="n">bslVariant2</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant1</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s2</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">bslVariant2</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s1</span><span class="p">);</span>
 <span class="c1">// undefined behavior, &#39;bslVariant1&#39; and &#39;bslVariant2&#39; have different</span>
 <span class="c1">// allocators!</span>
-<span class="n">bslVariant1</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">bslVariant2</span><span class="p">);</span><span class="w"></span>
+<span class="n">bslVariant1</span><span class="p">.</span><span class="n">swap</span><span class="p">(</span><span class="n">bslVariant2</span><span class="p">);</span>
 </pre></div>
 </div>
 </li>
@@ -560,9 +476,9 @@ objects of type <code class="docutils literal notranslate"><span class="pre">bsl
 operator if and only if all alternatives support that operator (that is, all
 of <code class="docutils literal notranslate"><span class="pre">T...</span></code>).</p></li>
 </ul>
-</div>
-<div class="section" id="comparison-of-visitation-apis">
-<h3>Comparison of visitation APIs<a class="headerlink" href="#comparison-of-visitation-apis" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="comparison-of-visitation-apis">
+<h3>Comparison of visitation APIs<a class="headerlink" href="#comparison-of-visitation-apis" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> has a complicated set of visitation overloads due to the fact
 that it supports a null state.  In contrast, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not have a
 null state; therefore, only two visitation facilities are provided:
@@ -575,20 +491,20 @@ replaced by a <code class="docutils literal notranslate"><span class="pre">bsl::
 then <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> should replace both <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> and
 <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::applyRaw</span></code>, and <code class="docutils literal notranslate"><span class="pre">bsl::visit&lt;R&gt;</span></code> should replace both
 <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply&lt;R&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::applyRaw&lt;R&gt;</span></code>:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">Visitor</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">Visitor</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">ResultType</span><span class="p">;</span><span class="w">  </span><span class="c1">// needed by &#39;bdlb::Variant::apply&#39;</span>
-<span class="p">};</span><span class="w"></span>
+<span class="p">};</span>
 
-<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
 <span class="n">bdlbVariant</span><span class="p">.</span><span class="n">applyRaw</span><span class="p">(</span><span class="n">Visitor</span><span class="p">());</span><span class="w">    </span><span class="c1">// returns 2.0</span>
 <span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">Visitor</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns 2.0</span>
@@ -602,36 +518,36 @@ used to represent the null state, then the visitor passed to <code class="docuti
 Furthermore, <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not provide any direct equivalent to the <code class="docutils literal notranslate"><span class="pre">apply</span></code>
 overloads that accept a default value.  Instead, the visitor must be configured
 with the desired default value before <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> is called:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
-<span class="k">struct</span><span class="w"> </span><span class="nc">MyVisitorWithDefault</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">d_defaultValue</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">MyVisitorWithDefault</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">d_defaultValue</span><span class="p">;</span>
 
-<span class="w">    </span><span class="n">MyVisitorWithDefault</span><span class="p">(</span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">defaultValue</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">d_defaultValue</span><span class="p">(</span><span class="n">defaultValue</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w"></span>
+<span class="w">    </span><span class="n">MyVisitorWithDefault</span><span class="p">(</span><span class="n">t_TYPE</span><span class="w"> </span><span class="n">defaultValue</span><span class="p">)</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">d_defaultValue</span><span class="p">(</span><span class="n">defaultValue</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Visited int value &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Visited int value &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Visited double value &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Visited double value &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"></span>
-<span class="w">    </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)(</span><span class="n">d_defaultValue</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="k">operator</span><span class="p">()(</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">)(</span><span class="n">d_defaultValue</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
 
-<span class="kt">void</span><span class="w"> </span><span class="nf">visitMyVariant</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">visitMyVariant</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">monostate</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">v</span><span class="p">)</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="c1">// print 42 if &#39;v&#39; is unset</span>
-<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">MyVisitorWithDefault</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">MyVisitorWithDefault</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span>
 <span class="w">    </span><span class="c1">// print 3.14 if &#39;v&#39; is unset</span>
-<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">MyVisitorWithDefault</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">3.14</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">MyVisitorWithDefault</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="mf">3.14</span><span class="p">),</span><span class="w"> </span><span class="n">v</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Note that in the example above, the explicit template argument specification at
@@ -645,10 +561,10 @@ accept <code class="docutils literal notranslate"><span class="pre">bsl::monosta
 called.  There is no analogue to the <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::applyRaw</span></code> visitation
 method (which does not require the null state of <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> to be
 handled).</p>
-</div>
-</div>
-<div class="section" id="migrating-visitors-from-bdlb-variant-to-bsl-variant">
-<span id="migrating-visitors"></span><h2>Migrating Visitors From <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> to <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#migrating-visitors-from-bdlb-variant-to-bsl-variant" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="migrating-visitors-from-bdlb-variant-to-bsl-variant">
+<span id="migrating-visitors"></span><h2>Migrating Visitors From <code class="docutils literal notranslate"><span class="pre">bdlb::Variant</span></code> to <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code><a class="headerlink" href="#migrating-visitors-from-bdlb-variant-to-bsl-variant" title="Link to this heading"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> both support explicit return type
 specification.  In cases where the return type is not explicitly specified,
 however, <code class="docutils literal notranslate"><span class="pre">bdlb::Variant::apply</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::visit</span></code> determine their
@@ -677,21 +593,21 @@ if return type deduction fails in C++03, then <code class="docutils literal notr
 (or <code class="docutils literal notranslate"><span class="pre">bsl::visitR&lt;R&gt;</span></code> in C++03), which has return type <code class="docutils literal notranslate"><span class="pre">R</span></code>.  Note that
 <code class="docutils literal notranslate"><span class="pre">R</span></code> may be <code class="docutils literal notranslate"><span class="pre">void</span></code>.</p></li>
 </ul>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlb</span><span class="o">::</span><span class="n">Variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bdlbVariant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">variant</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&gt;</span><span class="w">  </span><span class="n">bslVariant</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 
-<span class="k">struct</span><span class="w"> </span><span class="nc">Visitor1</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Visitor1</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
 
 <span class="n">bdlbVariant</span><span class="p">.</span><span class="n">applyRaw</span><span class="p">(</span><span class="n">Visitor1</span><span class="p">());</span><span class="w">    </span><span class="c1">// returns &#39;void&#39;</span>
 <span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">Visitor1</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// returns &#39;char&#39;</span>
 
-<span class="k">struct</span><span class="w"> </span><span class="nc">Visitor2</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">char</span><span class="w">  </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="kt">short</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Visitor2</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">char</span><span class="w">  </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">short</span><span class="w"> </span><span class="nf">operator</span><span class="p">()(</span><span class="kt">double</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
 
 <span class="n">bdlbVariant</span><span class="p">.</span><span class="n">applyRaw</span><span class="p">(</span><span class="n">Visitor2</span><span class="p">());</span><span class="w">    </span><span class="c1">// returns &#39;void&#39;</span>
 <span class="n">bsl</span><span class="o">::</span><span class="n">visit</span><span class="p">(</span><span class="n">Visitor2</span><span class="p">(),</span><span class="w"> </span><span class="n">bslVariant</span><span class="p">);</span><span class="w">  </span><span class="c1">// ERROR: conflicting return types</span>
@@ -720,9 +636,9 @@ types.</p></li>
 call sites so that they specify an explicit return type, then remove
 <code class="docutils literal notranslate"><span class="pre">ResultType</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="the-valueless-by-exception-state">
-<span id="valueless-by-exception"></span><h2>The “Valueless By Exception” State<a class="headerlink" href="#the-valueless-by-exception-state" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="the-valueless-by-exception-state">
+<span id="valueless-by-exception"></span><h2>The “Valueless By Exception” State<a class="headerlink" href="#the-valueless-by-exception-state" title="Link to this heading"></a></h2>
 <p>Although <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> does not support a null state, it can sometimes be
 left in a state where it does not hold any value.  This state can be produced
 only by operations that destroy the currently active alternative and then
@@ -736,51 +652,35 @@ this state deliberately.  The <code class="docutils literal notranslate"><span c
 to check whether a <code class="docutils literal notranslate"><span class="pre">bsl::variant</span></code> is valueless by exception.</p>
 <p>An exception of type <code class="docutils literal notranslate"><span class="pre">bsl::bad_variant_access</span></code> is thrown if a variant is
 visited while it is valueless by exception.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,0 +1,169 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BDE Metrics GUTS Integration &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bde_metrics_guts_integration.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BDE Metrics GUTS Integration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>August 29, 2025</em></p>
+<section id="bde-metrics-guts-integration">
+<h1>BDE Metrics GUTS Integration<a class="headerlink" href="#bde-metrics-guts-integration" title="Link to this heading"></a></h1>
+<p>For applications using the BAS service framework, BDE metrics should be enabled
+and delivered via <a class="reference external" href="https://tutti.prod.bloomberg.com/guts/metrics/metrics">GUTS</a>
+automatically. For application owners not using the BAS
+framework though, a bit of extra work (described below) is required to enable
+BDE metrics to be delivered via GUTS.   Information on BDE Metrics can be found
+in <a class="reference external" href="http://bburl/bde_metrics_grafana_dashboard">BDE Metrics Grafana Dashboard</a>.</p>
+<p>Integrating the publication of BDE Metrics into existing GUTS publishers
+is a three step process, assuming access to a GUTS metrics manager (e.g., the
+default manager).  This article assumes you are familiar with enabling and
+configuring your application for <a class="reference external" href="https://tutti.prod.bloomberg.com/guts/metrics/metrics">GUTS</a> (please reach out to
+the GUTS team for more information).</p>
+<p>First, create a bdlm metrics adapter using a GUTS metrics manager:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">guta</span><span class="o">::</span><span class="n">BdlmMetricsAdapter</span><span class="w"> </span><span class="n">adapter</span><span class="p">(</span><span class="n">gutz</span><span class="o">::</span><span class="n">DefaultMetricsManager</span><span class="o">::</span><span class="n">instance</span><span class="p">(),</span>
+<span class="w">                                 </span><span class="s">&quot;applicationName&quot;</span><span class="p">,</span>
+<span class="w">                                 </span><span class="s">&quot;functionalIdentifier&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The “applicationName” is the GUTS namespace to which you are publishing, and
+the “functionalIdentifier” is a prefix, which may be empty, for the
+“identifier” tag provided to GUTS.  Note that for BAS services, an empty value (“”)
+is supplied for the functional identifier.</p>
+<p>Then, register the adapter to provide the “handshake” between the metrics in
+the BDE components (e.g., <code class="docutils literal notranslate"><span class="pre">bdlmt::FixedThreadPool</span></code>) and the adapter which
+forwards to GUTS:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdlm</span><span class="o">::</span><span class="n">MetricsRegistry</span><span class="o">::</span><span class="n">defaultInstance</span><span class="p">().</span><span class="n">setMetricsAdapter</span><span class="p">(</span><span class="o">&amp;</span><span class="n">adapter</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Finally, as part of application shutdown, deregister the adapter:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ... application shutdown ...</span>
+
+<span class="n">bdlm</span><span class="o">::</span><span class="n">MetricsRegistry</span><span class="o">::</span><span class="n">defaultInstance</span><span class="p">().</span><span class="n">removeMetricsAdapter</span><span class="p">(</span><span class="o">&amp;</span><span class="n">adapter</span><span class="p">);</span>
+</pre></div>
+</div>
+<section id="additional-information">
+<h2>Additional Information<a class="headerlink" href="#additional-information" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="http://bburl/bde_metrics_grafana_dashboard">BDE Metrics Grafana Dashboard</a> (provides general information on the metrics)</p></li>
+<li><p><a class="reference external" href="https://tutti.prod.bloomberg.com/guts">GUTS Documentation</a></p></li>
+<li><p><a class="reference external" href="https://devhtml.dev.bloomberg.com/~jmendelsohn4/bde-docs/release_notes/thread_enabled_object_metrics.html">BDE Metrics Release Note</a></p></li>
+<li><p>Note that integration with <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/classbalm_1_1BdlmMetricsAdapter.html">balm</a> is almost identical.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

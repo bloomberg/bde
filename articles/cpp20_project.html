@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>BSL Support for C++20 &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/cpp20_project.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Fuzz Testing" href="fuzz_testing.html" />
     <link rel="prev" title="bsl::variant: An Allocator-Aware Discriminated Union" href="bsl_variant.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">BSL Support for C++20 (August 28, 2023)</a><ul>
@@ -168,85 +135,38 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li>BSL Support for C++20</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">BSL Support for C++20</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="fuzz_testing.html" class="btn btn-neutral float-right" title="Fuzz Testing" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="bsl_variant.html" class="btn btn-neutral float-left" title="bsl::variant: An Allocator-Aware Discriminated Union" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="fuzz_testing.html" class="btn btn-neutral float-right" title="Fuzz Testing" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>28th August 2023</em></p>
-<div class="section" id="bsl-support-for-c-20">
-<h1>BSL Support for C++20<a class="headerlink" href="#bsl-support-for-c-20" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<section id="bsl-support-for-c-20">
+<h1>BSL Support for C++20<a class="headerlink" href="#bsl-support-for-c-20" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>The BSL standard library was created to provide a scoped-allocator enhanced
 standard library that supports (to the extent possible) modern features on
 a wide range of platforms. To achieve this goal, BSL provides
@@ -265,11 +185,6 @@ BSL C++20 project are now available to users, and are detailed below, though the
 will still be some ongoing work that relates to C++20 in the future.</p>
 <p><strong>Minimum Compiler Requirements</strong></p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 18%" />
-<col style="width: 32%" />
-<col style="width: 50%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>GCC 11.1</p></td>
 <td><p>Clang 15</p>
@@ -307,13 +222,13 @@ back-ported to C++03.</p></li>
 compatibility checking.</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="notable-new-features">
-<h2>Notable New Features<a class="headerlink" href="#notable-new-features" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="notable-new-features">
+<h2>Notable New Features<a class="headerlink" href="#notable-new-features" title="Link to this heading"></a></h2>
 <p>C++20 includes a large number of language and library enhancements. Some of the
 key changes to the BDE library to support C++20 are detailed below.</p>
-<div class="section" id="additional-feature-test-macros">
-<h3>Additional feature test macros<a class="headerlink" href="#additional-feature-test-macros" title="Permalink to this headline">¶</a></h3>
+<section id="additional-feature-test-macros">
+<h3>Additional feature test macros<a class="headerlink" href="#additional-feature-test-macros" title="Link to this heading"></a></h3>
 <p>BDE has added a number of new feature test macros, detailed in subsequent sections.</p>
 <p>Of particular note is the macro <code class="docutils literal notranslate"><span class="pre">BSLS_LIBRARYFEATURES_HAS_CPP20_BASELINE_LIBRARY</span></code>
 which indicates the availability of a reasonable selection of C++20 standard library
@@ -337,9 +252,9 @@ following platforms:</p>
 <li><p>Visual Studio 2022 / MSVC 19.30</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="aliasing-standard-library-headers-traits-types-and-functions">
-<h3>Aliasing standard library headers, traits, types and functions<a class="headerlink" href="#aliasing-standard-library-headers-traits-types-and-functions" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-standard-library-headers-traits-types-and-functions">
+<h3>Aliasing standard library headers, traits, types and functions<a class="headerlink" href="#aliasing-standard-library-headers-traits-types-and-functions" title="Link to this heading"></a></h3>
 <p>C++20 introduced a number of new headers, types, traits and free functions. For
 all of the new headers, corresponding BDE headers were created aliasing the
 standard library types into the bsl namespace.</p>
@@ -349,15 +264,15 @@ library headers, additional aliases were added to the corresponding BDE header.<
 <a class="reference internal" href="#decision-points-and-rationale"><span class="std std-ref">Decision Points and Rationale</span></a> section below.
 Also note that the availability of aliases depends on the availability of
 corresponding standard library types.</p>
-</div>
-<div class="section" id="three-way-comparison-spaceship-operator">
-<h3>Three-way comparison (“spaceship”) operator<a class="headerlink" href="#three-way-comparison-spaceship-operator" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="three-way-comparison-spaceship-operator">
+<h3>Three-way comparison (“spaceship”) operator<a class="headerlink" href="#three-way-comparison-spaceship-operator" title="Link to this heading"></a></h3>
 <p>For any container in the standard which now has a three-way comparison operator,
 the equivalent BDE container has been enhanced with a three-way comparison operator
 when such operators are supported by the compiler.</p>
-</div>
-<div class="section" id="array-support-in-bsl-shared-ptr">
-<h3>Array support in <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code><a class="headerlink" href="#array-support-in-bsl-shared-ptr" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="array-support-in-bsl-shared-ptr">
+<h3>Array support in <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code><a class="headerlink" href="#array-support-in-bsl-shared-ptr" title="Link to this heading"></a></h3>
 <p>Array support in <code class="docutils literal notranslate"><span class="pre">std::shared_ptr</span></code> started in C++17, and those changes were
 reflected in <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> as part of the C++17 compatibility project.
 C++20 added array support in the associated free functions, and BDE’s
@@ -368,9 +283,9 @@ equivalent functions were enhanced to include array support (back-ported to C++0
 <li><p><code class="docutils literal notranslate"><span class="pre">allocate_shared</span></code></p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="allocator-aware-implementations-of-additional-functions-in-memory">
-<h3>Allocator-aware implementations of additional functions in <code class="docutils literal notranslate"><span class="pre">&lt;memory&gt;</span></code><a class="headerlink" href="#allocator-aware-implementations-of-additional-functions-in-memory" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="allocator-aware-implementations-of-additional-functions-in-memory">
+<h3>Allocator-aware implementations of additional functions in <code class="docutils literal notranslate"><span class="pre">&lt;memory&gt;</span></code><a class="headerlink" href="#allocator-aware-implementations-of-additional-functions-in-memory" title="Link to this heading"></a></h3>
 <p>C++20 added two additional free functions to the <code class="docutils literal notranslate"><span class="pre">&lt;memory&gt;</span></code> header. We have
 created BDE implementations of these back-ported to C++03.</p>
 <blockquote>
@@ -379,9 +294,9 @@ created BDE implementations of these back-ported to C++03.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">allocate_shared_for_overwrite</span></code></p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="allocator-aware-implementations-of-additional-types-in-stop-token">
-<h3>Allocator-aware implementations of additional types in <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code><a class="headerlink" href="#allocator-aware-implementations-of-additional-types-in-stop-token" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="allocator-aware-implementations-of-additional-types-in-stop-token">
+<h3>Allocator-aware implementations of additional types in <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code><a class="headerlink" href="#allocator-aware-implementations-of-additional-types-in-stop-token" title="Link to this heading"></a></h3>
 <p>C++20 added a new <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code> header, containing the following types</p>
 <blockquote>
 <div><ul class="simple">
@@ -393,9 +308,9 @@ created BDE implementations of these back-ported to C++03.</p>
 </div></blockquote>
 <p>We created allocator-aware implementations of these types,
 back-ported to C++03.</p>
-</div>
-<div class="section" id="concepts">
-<h3>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="concepts">
+<h3>Concepts<a class="headerlink" href="#concepts" title="Link to this heading"></a></h3>
 <p>C++20 added compiler support for Concepts and a number of standard library
 concepts. The standard library Concepts were aliased into the <code class="docutils literal notranslate"><span class="pre">bsl</span></code>
 namespace, and our test drivers enhanced to ensure that our containers
@@ -411,24 +326,24 @@ retaining the BDE implementations where not (C++03):</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">bslmf_islvaluereference</span></code></p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="ranges">
-<h3>Ranges<a class="headerlink" href="#ranges" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="ranges">
+<h3>Ranges<a class="headerlink" href="#ranges" title="Link to this heading"></a></h3>
 <p>The BDE test drivers were enhanced to ensure compatibility between the BDE
 containers and the standard ranges library. Note, however, that <code class="docutils literal notranslate"><span class="pre">bsl::map</span></code>
 and associated containers are incompatible with some aspects of the C++20
 ranges library
 (see the <a class="reference internal" href="#decision-points-and-rationale"><span class="std std-ref">Decision Points and Rationale</span></a>
 section below for details).</p>
-</div>
-<div class="section" id="synchronized-output-streams">
-<h3>Synchronized output streams<a class="headerlink" href="#synchronized-output-streams" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="synchronized-output-streams">
+<h3>Synchronized output streams<a class="headerlink" href="#synchronized-output-streams" title="Link to this heading"></a></h3>
 <p>C++20 added a new <code class="docutils literal notranslate"><span class="pre">&lt;syncstream&gt;</span></code> header, containing the types
 <code class="docutils literal notranslate"><span class="pre">std::basic_syncbuf</span></code> and <code class="docutils literal notranslate"><span class="pre">std::osyncstream</span></code>. We created allocator-aware
 implementations of these types, back-ported to C++03.</p>
-</div>
-<div class="section" id="additional-stream-manipulators">
-<span id="id1"></span><h3>Additional stream manipulators<a class="headerlink" href="#additional-stream-manipulators" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="additional-stream-manipulators">
+<span id="id1"></span><h3>Additional stream manipulators<a class="headerlink" href="#additional-stream-manipulators" title="Link to this heading"></a></h3>
 <p>C++20 added additional manipulators to the <code class="docutils literal notranslate"><span class="pre">&lt;ostream&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;ios&gt;</span></code> headers.
 We created allocator-aware implementations of these types, back-ported to
 C++03.</p>
@@ -439,9 +354,9 @@ C++03.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">defaultfloat</span></code> (in <code class="docutils literal notranslate"><span class="pre">&lt;ios&gt;</span></code>)</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="additional-bsl-to-array-free-function">
-<h3>Additional <code class="docutils literal notranslate"><span class="pre">bsl::to_array</span></code> free function<a class="headerlink" href="#additional-bsl-to-array-free-function" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="additional-bsl-to-array-free-function">
+<h3>Additional <code class="docutils literal notranslate"><span class="pre">bsl::to_array</span></code> free function<a class="headerlink" href="#additional-bsl-to-array-free-function" title="Link to this heading"></a></h3>
 <p>C++20 added a number of additional free functions. We implemented the
 <code class="docutils literal notranslate"><span class="pre">bsl::to_array</span></code> free function, back-ported to C++03.</p>
 <p>Note that:</p>
@@ -453,9 +368,9 @@ implementation.</p></li>
 contained type is required to be <em>default constructible</em>.</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="additional-container-methods">
-<h3>Additional container methods<a class="headerlink" href="#additional-container-methods" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="additional-container-methods">
+<h3>Additional container methods<a class="headerlink" href="#additional-container-methods" title="Link to this heading"></a></h3>
 <p>C++20 added a number of additional member functions to the standard library
 containers. The following were implemented for the BDE containers, back-ported
 to C++03:</p>
@@ -465,9 +380,9 @@ to C++03:</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">starts_with</span></code> and <code class="docutils literal notranslate"><span class="pre">ends_with</span></code> methods on <code class="docutils literal notranslate"><span class="pre">bsl::basic_string</span></code>.</p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="additional-string-view-constructor">
-<h3>Additional <code class="docutils literal notranslate"><span class="pre">string_view</span></code> constructor.<a class="headerlink" href="#additional-string-view-constructor" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="additional-string-view-constructor">
+<h3>Additional <code class="docutils literal notranslate"><span class="pre">string_view</span></code> constructor.<a class="headerlink" href="#additional-string-view-constructor" title="Link to this heading"></a></h3>
 <p>C++20 added a constructor to the standard library <code class="docutils literal notranslate"><span class="pre">string_view</span></code>, taking an
 iterator and a <em>sentinel</em> for that iterator type, denoting a range.</p>
 <blockquote>
@@ -482,10 +397,10 @@ added to the BDE implementation of <code class="docutils literal notranslate"><s
 </div></blockquote>
 <p>For details see the
 <a class="reference internal" href="#decision-points-and-rationale"><span class="std std-ref">Decision Points and Rationale</span></a> section below.</p>
-</div>
-</div>
-<div class="section" id="summary-of-c-20-features-available-in-c-17-14-11-03">
-<span id="id2"></span><h2>Summary of C++20 Features Available in C++17/14/11/03<a class="headerlink" href="#summary-of-c-20-features-available-in-c-17-14-11-03" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="summary-of-c-20-features-available-in-c-17-14-11-03">
+<span id="id2"></span><h2>Summary of C++20 Features Available in C++17/14/11/03<a class="headerlink" href="#summary-of-c-20-features-available-in-c-17-14-11-03" title="Link to this heading"></a></h2>
 <style type="text/css">
     .cpp20_project_backporting
           table                           { border-collapse: collapse; }
@@ -663,20 +578,20 @@ added to the BDE implementation of <code class="docutils literal notranslate"><s
     <td>&#x274C;</td>
 </tr>
 </table>
-<br/>&nbsp;<br/>&nbsp;</div>
-<div class="section" id="decision-points-and-rationale">
-<span id="id3"></span><h2>Decision Points and Rationale<a class="headerlink" href="#decision-points-and-rationale" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="full-ranges-support-for-associative-containers-such-as-bsl-map">
-<h3>Full ranges support for associative containers such as <code class="docutils literal notranslate"><span class="pre">bsl::map</span></code><a class="headerlink" href="#full-ranges-support-for-associative-containers-such-as-bsl-map" title="Permalink to this headline">¶</a></h3>
+<br/>&nbsp;<br/>&nbsp;</section>
+<section id="decision-points-and-rationale">
+<span id="id3"></span><h2>Decision Points and Rationale<a class="headerlink" href="#decision-points-and-rationale" title="Link to this heading"></a></h2>
+<section id="full-ranges-support-for-associative-containers-such-as-bsl-map">
+<h3>Full ranges support for associative containers such as <code class="docutils literal notranslate"><span class="pre">bsl::map</span></code><a class="headerlink" href="#full-ranges-support-for-associative-containers-such-as-bsl-map" title="Link to this heading"></a></h3>
 <p>In order to meet the requirements of <code class="docutils literal notranslate"><span class="pre">std::ranges::views::elements</span></code> and
 <code class="docutils literal notranslate"><span class="pre">std::ranges::elements_view</span></code>, the element type would need to be <em>tuple-like</em>,
 which in this case would require that it be a specialization of <code class="docutils literal notranslate"><span class="pre">std:pair</span></code>.
 This is not possible given the current use of <code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code>.</p>
 <p>Addressing this issue has been deferred pending further investigation into the
 feasibility of <code class="docutils literal notranslate"><span class="pre">bsl::pair</span></code> inheriting from <code class="docutils literal notranslate"><span class="pre">std::pair</span></code>.</p>
-</div>
-<div class="section" id="uses-allocator-construction-in-memory">
-<h3>Uses-allocator construction in &lt;memory&gt;<a class="headerlink" href="#uses-allocator-construction-in-memory" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="uses-allocator-construction-in-memory">
+<h3>Uses-allocator construction in &lt;memory&gt;<a class="headerlink" href="#uses-allocator-construction-in-memory" title="Link to this heading"></a></h3>
 <p>C++20 added three new functions to the <code class="docutils literal notranslate"><span class="pre">&lt;memory&gt;</span></code> header:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">uses_allocator_construction_args</span></code></p></li>
@@ -686,9 +601,9 @@ feasibility of <code class="docutils literal notranslate"><span class="pre">bsl:
 <p>The decision on adding these functions has been deferred until after the
 project working on the next iteration of the BDE allocator model (converging
 <code class="docutils literal notranslate"><span class="pre">bslma</span></code> allocators and C++17 PMR allocators).</p>
-</div>
-<div class="section" id="aliasing-of-the-types-in-format">
-<h3>Aliasing of the types in <code class="docutils literal notranslate"><span class="pre">&lt;format&gt;</span></code>.<a class="headerlink" href="#aliasing-of-the-types-in-format" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-of-the-types-in-format">
+<h3>Aliasing of the types in <code class="docutils literal notranslate"><span class="pre">&lt;format&gt;</span></code>.<a class="headerlink" href="#aliasing-of-the-types-in-format" title="Link to this heading"></a></h3>
 <p>The Standard Library mandates that functions such as <code class="docutils literal notranslate"><span class="pre">std::format</span></code> return
 specializations of <code class="docutils literal notranslate"><span class="pre">std::basic_string</span></code>. If BSL were to simply alias, for
 example, <code class="docutils literal notranslate"><span class="pre">std::format</span></code> to <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code>, that would result in <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code>
@@ -697,22 +612,22 @@ returning an <code class="docutils literal notranslate"><span class="pre">std::s
 functionality in BSL by either providing a full implementation or wrapping a
 third-party library.  In either case, the amount of work required for
 implementation is substantial and warrants a separate project.</p>
-</div>
-<div class="section" id="coroutines-implement-bsl-generator">
-<h3>Coroutines: implement <code class="docutils literal notranslate"><span class="pre">bsl::generator</span></code><a class="headerlink" href="#coroutines-implement-bsl-generator" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="coroutines-implement-bsl-generator">
+<h3>Coroutines: implement <code class="docutils literal notranslate"><span class="pre">bsl::generator</span></code><a class="headerlink" href="#coroutines-implement-bsl-generator" title="Link to this heading"></a></h3>
 <p>We considered creating an allocator-aware BDE implementation of a coroutine
 generator, but as coroutine support in the standard is still evolving we
 concluded that now would not be the right time.</p>
-</div>
-<div class="section" id="alias-bsl-integral-constant-to-std-integral-constant">
-<h3>Alias <code class="docutils literal notranslate"><span class="pre">bsl::integral_constant</span></code> to <code class="docutils literal notranslate"><span class="pre">std::integral_constant</span></code><a class="headerlink" href="#alias-bsl-integral-constant-to-std-integral-constant" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="alias-bsl-integral-constant-to-std-integral-constant">
+<h3>Alias <code class="docutils literal notranslate"><span class="pre">bsl::integral_constant</span></code> to <code class="docutils literal notranslate"><span class="pre">std::integral_constant</span></code><a class="headerlink" href="#alias-bsl-integral-constant-to-std-integral-constant" title="Link to this heading"></a></h3>
 <p>There is a great deal of code, both within and outside of BDE, that relies on
 the <code class="docutils literal notranslate"><span class="pre">VALUE</span></code> member of <code class="docutils literal notranslate"><span class="pre">bsl::integral_constant</span></code>. This member has been
 deprecated, with a view to revisiting this issue once all external references
 to the deprecated member have been removed.</p>
-</div>
-<div class="section" id="constexpr-methods-in-bsl-string">
-<h3><code class="docutils literal notranslate"><span class="pre">constexpr</span></code> methods in <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code><a class="headerlink" href="#constexpr-methods-in-bsl-string" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="constexpr-methods-in-bsl-string">
+<h3><code class="docutils literal notranslate"><span class="pre">constexpr</span></code> methods in <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code><a class="headerlink" href="#constexpr-methods-in-bsl-string" title="Link to this heading"></a></h3>
 <p>In C++20, <code class="docutils literal notranslate"><span class="pre">std::string</span></code> has <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> constructors and other methods. The
 <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> constructor is permitted to allocate memory using the standard
 allocator or a <code class="docutils literal notranslate"><span class="pre">pmr</span></code> allocator. However, it is not permitted for a
@@ -721,22 +636,22 @@ non-standard allocator to allocate memory within a <code class="docutils literal
 <code class="docutils literal notranslate"><span class="pre">constexpr</span></code>, meaning that it is impossible to have an instance of
 <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> in a <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> context, consequently rendering addition of
 <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> on other member functions pointless.</p>
-</div>
-<div class="section" id="aliasing-bsl-ranges-range-common-reference-t">
-<h3>Aliasing <code class="docutils literal notranslate"><span class="pre">bsl::ranges::range_common_reference_t</span></code><a class="headerlink" href="#aliasing-bsl-ranges-range-common-reference-t" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-bsl-ranges-range-common-reference-t">
+<h3>Aliasing <code class="docutils literal notranslate"><span class="pre">bsl::ranges::range_common_reference_t</span></code><a class="headerlink" href="#aliasing-bsl-ranges-range-common-reference-t" title="Link to this heading"></a></h3>
 <p>Aliasing <code class="docutils literal notranslate"><span class="pre">bsl::ranges::range_common_reference_t</span></code> was omitted due to an
 unresolved standard library issue:
 <a class="reference external" href="https://cplusplus.github.io/LWG/issue386">https://cplusplus.github.io/LWG/issue386</a></p>
-</div>
-<div class="section" id="aliasing-bsl-is-bounded-array-and-bsl-is-unbounded-array">
-<h3>Aliasing <code class="docutils literal notranslate"><span class="pre">bsl::is_bounded_array</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::is_unbounded_array</span></code><a class="headerlink" href="#aliasing-bsl-is-bounded-array-and-bsl-is-unbounded-array" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-bsl-is-bounded-array-and-bsl-is-unbounded-array">
+<h3>Aliasing <code class="docutils literal notranslate"><span class="pre">bsl::is_bounded_array</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::is_unbounded_array</span></code><a class="headerlink" href="#aliasing-bsl-is-bounded-array-and-bsl-is-unbounded-array" title="Link to this heading"></a></h3>
 <p>BDE created its own backwards-compatible implementations using
 <code class="docutils literal notranslate"><span class="pre">bsl::integral_constant</span></code> rather than <code class="docutils literal notranslate"><span class="pre">std::integral_constant</span></code>, and aliasing
 these in C++20 would conflict with that
 (see <code class="docutils literal notranslate"><span class="pre">bsl::integral_constant</span></code> item above).</p>
-</div>
-<div class="section" id="aliasing-of-additional-free-functions-in-memory">
-<h3>Aliasing of additional free functions in <code class="docutils literal notranslate"><span class="pre">&lt;memory&gt;</span></code><a class="headerlink" href="#aliasing-of-additional-free-functions-in-memory" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-of-additional-free-functions-in-memory">
+<h3>Aliasing of additional free functions in <code class="docutils literal notranslate"><span class="pre">&lt;memory&gt;</span></code><a class="headerlink" href="#aliasing-of-additional-free-functions-in-memory" title="Link to this heading"></a></h3>
 <p>C++20 added the following free functions</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">std::make_shared_for_overwrite</span></code></p></li>
@@ -745,9 +660,9 @@ these in C++20 would conflict with that
 <p>We were unable to simply alias the standard library versions, as they create
 <code class="docutils literal notranslate"><span class="pre">std::shared_ptr</span></code> rather than <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code>. We therefore implemented
 BDE versions of these functions, which are allocator-aware and back ported to C++03.</p>
-</div>
-<div class="section" id="aliasing-of-additional-types-in-stop-token">
-<h3>Aliasing of additional types in <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code><a class="headerlink" href="#aliasing-of-additional-types-in-stop-token" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-of-additional-types-in-stop-token">
+<h3>Aliasing of additional types in <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code><a class="headerlink" href="#aliasing-of-additional-types-in-stop-token" title="Link to this heading"></a></h3>
 <p>C++20 added the following types to the <code class="docutils literal notranslate"><span class="pre">&lt;stop_token&gt;</span></code> header.</p>
 <blockquote>
 <div><ul class="simple">
@@ -766,15 +681,15 @@ BDE versions of these functions, which are allocator-aware and back ported to C+
 </div></blockquote>
 <p>We therefore implemented BDE versions of these functions, which are
 allocator-aware and back ported to C++03.</p>
-</div>
-<div class="section" id="shared-ptr-atomic-operations">
-<h3><code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code> atomic operations<a class="headerlink" href="#shared-ptr-atomic-operations" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="shared-ptr-atomic-operations">
+<h3><code class="docutils literal notranslate"><span class="pre">shared_ptr</span></code> atomic operations<a class="headerlink" href="#shared-ptr-atomic-operations" title="Link to this heading"></a></h3>
 <p>We decided that there is unlikely to be sufficient demand for atomic
 operations on <code class="docutils literal notranslate"><span class="pre">bsl::shared_ptr</span></code> to justify its inclusion in the current
 project.</p>
-</div>
-<div class="section" id="string-view-additional-constructor-in-c-17-and-earlier">
-<h3><code class="docutils literal notranslate"><span class="pre">string_view</span></code> additional constructor in C++17 and earlier<a class="headerlink" href="#string-view-additional-constructor-in-c-17-and-earlier" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="string-view-additional-constructor-in-c-17-and-earlier">
+<h3><code class="docutils literal notranslate"><span class="pre">string_view</span></code> additional constructor in C++17 and earlier<a class="headerlink" href="#string-view-additional-constructor-in-c-17-and-earlier" title="Link to this heading"></a></h3>
 <p>C++20 added a constructor to the standard library <code class="docutils literal notranslate"><span class="pre">string_view</span></code>, taking
 an iterator and a <em>sentinel</em> for that iterator type, denoting a range.</p>
 <ul class="simple">
@@ -797,19 +712,15 @@ parity between platforms and maximize compatibility.</p>
 not be implemented exactly, they were approximated using convertibility tests
 which do not match exactly to the tests used in the standard, but which are
 valid for the typical use cases.</p>
-</div>
-</div>
-<div class="section" id="complete-description-of-changes">
-<span id="id4"></span><h2>Complete Description of Changes<a class="headerlink" href="#complete-description-of-changes" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="aliasing-additional-headers-added">
-<h3>Aliasing: Additional headers added<a class="headerlink" href="#aliasing-additional-headers-added" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="complete-description-of-changes">
+<span id="id4"></span><h2>Complete Description of Changes<a class="headerlink" href="#complete-description-of-changes" title="Link to this heading"></a></h2>
+<section id="aliasing-additional-headers-added">
+<h3>Aliasing: Additional headers added<a class="headerlink" href="#aliasing-additional-headers-added" title="Link to this heading"></a></h3>
 <p>The following headers were added to alias new C++20 standard library additions,
 and test drivers created:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 26%" />
-<col style="width: 74%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Header file</p></th>
 <th class="head"><p>Types aliased</p></th>
@@ -1090,16 +1001,12 @@ and test drivers created:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="aliasing-additions-to-existing-headers">
-<h3>Aliasing: Additions to existing headers<a class="headerlink" href="#aliasing-additions-to-existing-headers" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="aliasing-additions-to-existing-headers">
+<h3>Aliasing: Additions to existing headers<a class="headerlink" href="#aliasing-additions-to-existing-headers" title="Link to this heading"></a></h3>
 <p>The following existing headers were enhanced with aliases to new C++20 standard
 library additions, with test drivers enhanced accordingly:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 28%" />
-<col style="width: 72%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Header file</p></th>
 <th class="head"><p>Types aliased</p></th>
@@ -1401,15 +1308,11 @@ library additions, with test drivers enhanced accordingly:</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="new-feature-test-macros">
-<h3>New feature test macros<a class="headerlink" href="#new-feature-test-macros" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="new-feature-test-macros">
+<h3>New feature test macros<a class="headerlink" href="#new-feature-test-macros" title="Link to this heading"></a></h3>
 <p>Additional compiler features macros were added to bsls_compilerfeatures.h</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 51%" />
-<col style="width: 49%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Macro</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -1462,10 +1365,6 @@ library support as of C++20.</p>
 </table>
 <p>Additional library features macros were added to bsls_libraryfeatures.h</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 54%" />
-<col style="width: 46%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Macro</p></th>
 <th class="head"><p>Meaning</p></th>
@@ -1664,52 +1563,36 @@ functions are available with C++20 semantics.</p>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

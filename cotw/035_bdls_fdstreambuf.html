@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #35: bdls_fdstreambuf &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/035_bdls_fdstreambuf.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #36: bdlsb - I/O streambufs for memory buffers" href="036_bdlsb_package.html" />
+    <link rel="prev" title="Component of the Week #34: bdlma_sequentialallocator" href="034_bdlma_sequentialallocator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#key-features">Key Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-use-cases">Common Use Cases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#direct-stream-buffer-operations">Direct Stream Buffer Operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#text-vs-binary-mode">Text vs Binary Mode</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="034_bdlma_sequentialallocator.html" class="btn btn-neutral float-left" title="Component of the Week #34: bdlma_sequentialallocator" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="036_bdlsb_package.html" class="btn btn-neutral float-right" title="Component of the Week #36: bdlsb - I/O streambufs for memory buffers" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-35-bdls-fdstreambuf">
+<span id="cotw-035-bdls-fdstreambuf-top"></span><h1>Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code><a class="headerlink" href="#component-of-the-week-35-bdls-fdstreambuf" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Provides a <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> that can be initialized with a file descriptor.</p></li>
+<li><p>Supports both text and binary modes, with platform-appropriate line ending handling.</p></li>
+<li><p>Can optionally take ownership of the file descriptor for automatic closing on destruction.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdls__fdstreambuf.html">bdls_fdstreambuf</a>
+component provides a class, <code class="docutils literal notranslate"><span class="pre">bdls::FdStreamBuf</span></code>, derived from the C++
+standard library’s <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> that can be associated with a file
+descriptor, and then a <cite>bsl::stream can be created from the `bsl::streambuf</cite>, which allows the client to use C++ stream I/O operations with file
+descriptors obtained from system calls or from <code class="docutils literal notranslate"><span class="pre">bdls::FilesystemUtil</span></code>.  The file descriptor can represent a file, pipe, or other device.</p>
+<section id="key-features">
+<h2>Key Features<a class="headerlink" href="#key-features" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>File descriptor integration</strong>: Works with file descriptors from <code class="docutils literal notranslate"><span class="pre">bdls::FilesystemUtil</span></code> or system calls</p></li>
+<li><p><strong>Stream interface</strong>: Provides familiar C++ stream operations through <code class="docutils literal notranslate"><span class="pre">bsl::streambuf</span></code> interface</p></li>
+<li><p><strong>Ownership management</strong>: Optional ownership of file descriptors for automatic closing on destruction</p></li>
+<li><p><strong>Platform-aware text mode</strong>: Handles line ending translation on Windows (<code class="docutils literal notranslate"><span class="pre">\r\n</span></code>) vs Unix (<code class="docutils literal notranslate"><span class="pre">\n</span></code>)</p></li>
+<li><p><strong>Binary mode support</strong>: Raw byte access without line ending translation</p></li>
+<li><p><strong>Seeking operations</strong>: Supports random access within the file</p></li>
+<li><p><strong>Efficient I/O</strong>: Direct operations like <code class="docutils literal notranslate"><span class="pre">sputn</span></code> and <code class="docutils literal notranslate"><span class="pre">sgetn</span></code> for bulk data transfer</p></li>
+</ul>
+</section>
+<section id="common-use-cases">
+<h2>Common Use Cases<a class="headerlink" href="#common-use-cases" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bdls::FdStreamBuf</span></code> is particularly useful for:</p>
+<ul class="simple">
+<li><p>Allowing a file, socket, or pipe to be dealt with as a C++ stream by creating a <cite>bdls::FdStreamBuf</cite> out of a file descriptor, then creating an <cite>std::stream</cite> initialized with the <cite>FdStreamBuf</cite>.</p></li>
+<li><p>Cross-platform file I/O with appropriate text/binary handling</p></li>
+<li><p>Performance-critical applications requiring direct stream buffer operations</p></li>
+</ul>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h2>
+<p>The most common usage is to initialize a stream with a <code class="docutils literal notranslate"><span class="pre">bdls::FdStreamBuf</span></code>
+for either input or output:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdls_fdstreambuf.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdls_filesystemutil.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_fstream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/example.txt&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create and open a file descriptor</span>
+
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">FileDescriptor</span><span class="w"> </span><span class="n">FdType</span><span class="p">;</span>
+<span class="w">    </span><span class="n">FdType</span><span class="w"> </span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">open</span><span class="p">(</span>
+<span class="w">        </span><span class="n">filename</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">e_CREATE</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">e_READ_WRITE</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">k_INVALID_FD</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">fd</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cerr</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Failed to open file&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Write to the file using a stream buffer</span>
+
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FdStreamBuf</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span>
+<span class="w">                                       </span><span class="nb">true</span><span class="p">,</span><span class="w">    </span><span class="c1">// writable</span>
+<span class="w">                                       </span><span class="nb">false</span><span class="p">);</span><span class="w">  </span><span class="c1">// don&#39;t close fd on</span>
+<span class="w">                                                </span><span class="c1">// destruction</span>
+
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="n">os</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuffer</span><span class="p">);</span>
+<span class="w">        </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Hello, World!&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Line 2: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Read back from the file</span>
+
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FdStreamBuf</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span>
+<span class="w">                                       </span><span class="nb">false</span><span class="p">,</span><span class="w">   </span><span class="c1">// not writable</span>
+<span class="w">                                       </span><span class="nb">true</span><span class="p">);</span><span class="w">   </span><span class="c1">// close fd on</span>
+<span class="w">                                                </span><span class="c1">// destruction</span>
+
+<span class="w">        </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">pubseekpos</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// seek to beginning</span>
+
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">istream</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuffer</span><span class="p">);</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">line</span><span class="p">;</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">getline</span><span class="p">(</span><span class="n">is</span><span class="p">,</span><span class="w"> </span><span class="n">line</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Read: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">line</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// fd is automatically closed when the last streamBuffer is destroyed</span>
+
+<span class="w">    </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="direct-stream-buffer-operations">
+<h2>Direct Stream Buffer Operations<a class="headerlink" href="#direct-stream-buffer-operations" title="Link to this heading"></a></h2>
+<p>You can also use the stream buffer’s public methods directly for more precise
+control over I/O operations:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdls_fdstreambuf.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdls_filesystemutil.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string_view.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/direct_io.txt&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">line1</span><span class="p">(</span><span class="s">&quot;First line of text</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">line2</span><span class="p">(</span><span class="s">&quot;Second line of text</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">line3</span><span class="p">(</span><span class="s">&quot;Third line of text</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Open file descriptor</span>
+
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">FileDescriptor</span><span class="w"> </span><span class="n">FdType</span><span class="p">;</span>
+<span class="w">    </span><span class="n">FdType</span><span class="w"> </span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">open</span><span class="p">(</span>
+<span class="w">        </span><span class="n">filename</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">e_CREATE</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">e_READ_WRITE</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bdls</span><span class="o">::</span><span class="n">FdStreamBuf</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w">  </span><span class="c1">// writable, owns fd</span>
+
+<span class="w">    </span><span class="c1">// Write data using sputn</span>
+
+<span class="w">    </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">sputn</span><span class="p">(</span><span class="n">line1</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">line1</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">sputn</span><span class="p">(</span><span class="n">line2</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">line2</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">sputn</span><span class="p">(</span><span class="n">line3</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">line3</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+
+<span class="w">    </span><span class="c1">// Seek back to the beginning</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">streamoff</span><span class="w"> </span><span class="n">pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">pubseekpos</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">pos</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Read specific amounts of data</span>
+
+<span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">streamsize</span><span class="w"> </span><span class="n">bytesRead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">sgetn</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span>
+<span class="w">                                                   </span><span class="n">line1</span><span class="p">.</span><span class="n">length</span><span class="p">());</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">read1</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">bytesRead</span><span class="p">);</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">read1</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">line1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Read: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">read1</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Read the rest of the file</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">memset</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">));</span>
+<span class="w">    </span><span class="n">bytesRead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">sgetn</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="w"> </span><span class="n">remaining</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">bytesRead</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Remaining: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">remaining</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span><span class="w">  </span><span class="c1">// closes fd and disconnects</span>
+<span class="w">    </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">The</span><span class="w"> </span><span class="n">above</span><span class="w"> </span><span class="n">example</span><span class="w"> </span><span class="n">produces</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">output</span><span class="o">:</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Read: First line of text
+Remaining: Second line of text
+Third line of text
+</pre></div>
+</div>
+</section>
+<section id="text-vs-binary-mode">
+<h2>Text vs Binary Mode<a class="headerlink" href="#text-vs-binary-mode" title="Link to this heading"></a></h2>
+<p>The stream buffer supports both text and binary modes, which affects how line
+endings are handled on different platforms:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdls_fdstreambuf.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdls_filesystemutil.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_algorithm.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;/tmp/mode_test.txt&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">typedef</span><span class="w"> </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">FileDescriptor</span><span class="w"> </span><span class="n">FdType</span><span class="p">;</span>
+<span class="w">    </span><span class="n">FdType</span><span class="w"> </span><span class="n">fd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">open</span><span class="p">(</span>
+<span class="w">        </span><span class="n">filename</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">e_CREATE</span><span class="p">,</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">e_READ_WRITE</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Write in text mode (default on Windows, binary on Unix)</span>
+
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FdStreamBuf</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span>
+<span class="w">                                       </span><span class="nb">true</span><span class="p">,</span><span class="w">    </span><span class="c1">// writable</span>
+<span class="w">                                       </span><span class="nb">false</span><span class="p">,</span><span class="w">   </span><span class="c1">// don&#39;t close fd</span>
+<span class="w">                                       </span><span class="nb">false</span><span class="p">);</span><span class="w">  </span><span class="c1">// non-binary CRLF mode</span>
+<span class="w">                                                </span><span class="c1">// on Windows, this</span>
+<span class="w">                                                </span><span class="c1">// argument ignored on</span>
+<span class="w">                                                </span><span class="c1">// Unix</span>
+
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">ostream</span><span class="w"> </span><span class="n">os</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuffer</span><span class="p">);</span>
+<span class="w">        </span><span class="n">os</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Line with newline&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Read back in binary mode to see exact bytes written, end of line</span>
+<span class="w">    </span><span class="c1">// will be &quot;\r\n&quot; on Windows, just &quot;\n&quot; on Unix.</span>
+
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bdls</span><span class="o">::</span><span class="n">FdStreamBuf</span><span class="w"> </span><span class="n">streamBuffer</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span>
+<span class="w">                                       </span><span class="nb">false</span><span class="p">,</span><span class="w">   </span><span class="c1">// not writable</span>
+<span class="w">                                       </span><span class="nb">false</span><span class="p">,</span><span class="w">   </span><span class="c1">// don&#39;t close fd</span>
+<span class="w">                                       </span><span class="nb">true</span><span class="p">);</span><span class="w">   </span><span class="c1">// binary mode</span>
+
+<span class="w">        </span><span class="n">streamBuffer</span><span class="p">.</span><span class="n">pubseekpos</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">buffer</span><span class="p">[</span><span class="mi">100</span><span class="p">];</span><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">istream</span><span class="w"> </span><span class="n">is</span><span class="p">(</span><span class="o">&amp;</span><span class="n">streamBuffer</span><span class="p">);</span>
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer</span><span class="p">;</span>
+<span class="w">        </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">pc</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">is</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="o">*</span><span class="n">pc</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="o">++</span><span class="n">pc</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">assert</span><span class="p">(</span><span class="n">pc</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="p">);</span>
+
+<span class="w">        </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Binary read: &quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buffer</span><span class="p">;</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">pc</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\r&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\\</span><span class="s">r&quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\\</span><span class="s">n&quot;</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bdls</span><span class="o">::</span><span class="n">FilesystemUtil</span><span class="o">::</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Output on Unix:    &quot;Line with newline\n&quot;</span>
+<span class="c1">// Output on Windows: &quot;Line with newline\r\n&quot;</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>For more details, see:</dt><dd><ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdls__fdstreambuf.html">documentation for bdls_fdstreambuf</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdls__filesystemutil.html">use bdls_filesystemutil for file descriptor management</a></p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

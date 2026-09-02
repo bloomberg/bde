@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>bsl::optional: An Allocator-Aware Optional Type &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/bsl_optional.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Adding Context to Your Application Log" href="ball_scoped_attributes.html" />
     <link rel="prev" title="Binary to Decimal and Back Again" href="binary_decimal_conversion.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
@@ -143,85 +110,38 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>: An Allocator-Aware Optional Type</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>: An Allocator-Aware Optional Type</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="ball_scoped_attributes.html" class="btn btn-neutral float-right" title="Adding Context to Your Application Log" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="binary_decimal_conversion.html" class="btn btn-neutral float-left" title="Binary to Decimal and Back Again" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="ball_scoped_attributes.html" class="btn btn-neutral float-right" title="Adding Context to Your Application Log" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>Feb 22, 2021</em></p>
-<div class="section" id="bsl-optional-an-allocator-aware-optional-type">
-<span id="bsl-optional-top"></span><h1><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>: An Allocator-Aware Optional Type<a class="headerlink" href="#bsl-optional-an-allocator-aware-optional-type" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this headline">¶</a></h2>
+<section id="bsl-optional-an-allocator-aware-optional-type">
+<span id="bsl-optional-top"></span><h1><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>: An Allocator-Aware Optional Type<a class="headerlink" href="#bsl-optional-an-allocator-aware-optional-type" title="Link to this heading"></a></h1>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
 <p>The latest release of BDE (3.75.1) contains a new type, <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>, that
 provides an allocator-aware optional type.  This type implements the
 proposed standard type <code class="docutils literal notranslate"><span class="pre">std::pmr::optional</span></code> (<a class="reference external" href="https://wg21.link/p2047">P2047</a>)
@@ -236,9 +156,9 @@ independent implementation.</p>
 <p><code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> has now become a thin wrapper that inherits from
 <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and adapts the interface of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> to that of
 <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code>.</p>
-</div>
-<div class="section" id="differences-between-std-optional-and-bsl-optional">
-<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">std::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code><a class="headerlink" href="#differences-between-std-optional-and-bsl-optional" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="differences-between-std-optional-and-bsl-optional">
+<h2>Differences Between <code class="docutils literal notranslate"><span class="pre">std::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code><a class="headerlink" href="#differences-between-std-optional-and-bsl-optional" title="Link to this heading"></a></h2>
 <p>If <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> is instantiated with a template parameter that is <em>not</em>
 an allocator-aware type (i.e., if <code class="docutils literal notranslate"><span class="pre">bslma::UsesBslmaAllocator&lt;T&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">false</span></code>),
 it is a standard-conforming implementation of <code class="docutils literal notranslate"><span class="pre">std::optional</span></code>.  For
@@ -253,9 +173,6 @@ differs from it in these respects:</p>
 <li><p>The footprint is larger to allow storage of the allocator used by the optional object.</p></li>
 </ul>
 <table class="docutils align-left">
-<colgroup>
-<col style="width: 100%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Additional Overloads</p></th>
 </tr>
@@ -294,9 +211,6 @@ differs from it in these respects:</p>
 </tbody>
 </table>
 <table class="docutils align-left">
-<colgroup>
-<col style="width: 100%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Additional Free Functions</p></th>
 </tr>
@@ -317,8 +231,8 @@ differs from it in these respects:</p>
 <li><p>The methods returning <code class="docutils literal notranslate"><span class="pre">T</span></code> by-value (e.g., <code class="docutils literal notranslate"><span class="pre">value_or</span></code>) are only present
 if the compiler guarantees copy-elision (i.e., C++17 and later).</p></li>
 </ul>
-<div class="section" id="constructor-documentation">
-<h3>Constructor Documentation<a class="headerlink" href="#constructor-documentation" title="Permalink to this headline">¶</a></h3>
+<section id="constructor-documentation">
+<h3>Constructor Documentation<a class="headerlink" href="#constructor-documentation" title="Link to this heading"></a></h3>
 <p>Unfortunately, the generated doxygen component documentation for the
 constructors of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> is hard to understand because of the
 complex SFINAE constraints on some of the constructors.</p>
@@ -331,10 +245,10 @@ complex SFINAE constraints on some of the constructors.</p>
 under which the constructor is available (e.g., <code class="docutils literal notranslate"><span class="pre">BSLSTL_OPTIONAL_DECLARE_IF_SAME(T,</span> <span class="pre">ANY_TYPE)</span></code>
 indicates the constructor only exists if the type of the <code class="docutils literal notranslate"><span class="pre">optional</span></code> being constructed
 matches the type of the value being passed as a constructor parameter).</p>
-</div>
-</div>
-<div class="section" id="migrating-from-bdlb-nullablevalue">
-<h2>Migrating From <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code><a class="headerlink" href="#migrating-from-bdlb-nullablevalue" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="migrating-from-bdlb-nullablevalue">
+<h2>Migrating From <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code><a class="headerlink" href="#migrating-from-bdlb-nullablevalue" title="Link to this heading"></a></h2>
 <p>This release preserves backwards compatibility with respect to <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code>
 (with one exception, see <a class="reference internal" href="#behavior-change"><span class="std std-ref">bdlb::NullableValue Behavior Change: C++03-Only Implicit Conversion to bool</span></a>)
 and, therefore, no code changes are required to build
@@ -346,24 +260,20 @@ a <code class="docutils literal notranslate"><span class="pre">bsl::optional</sp
 changing the signature of the <code class="docutils literal notranslate"><span class="pre">existingFunction</span></code> below to use
 <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> would be safe:</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// BEFORE</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">existingFunction</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">NullableValue</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">existingFunction</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">NullableValue</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="p">);</span>
 
 <span class="c1">// AFTER</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">existingFunction</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="p">);</span><span class="w"></span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">existingFunction</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="p">);</span>
 </pre></div>
 </div>
-<div class="section" id="comparison-of-bsl-optional-and-bdlb-nullablevalue">
-<h3>Comparison of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code><a class="headerlink" href="#comparison-of-bsl-optional-and-bdlb-nullablevalue" title="Permalink to this headline">¶</a></h3>
+<section id="comparison-of-bsl-optional-and-bdlb-nullablevalue">
+<h3>Comparison of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code><a class="headerlink" href="#comparison-of-bsl-optional-and-bdlb-nullablevalue" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> serve the same purpose and have
 corresponding methods, but the corresponding methods often have different
 names.  The table below shows a mapping of methods of <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code>
 to those of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> (operations that do not have direct counterparts
 in <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> are marked as <code class="docutils literal notranslate"><span class="pre">N/A</span></code>):</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 56%" />
-<col style="width: 44%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code></p></th>
 <th class="head"><p><code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code></p></th>
@@ -402,10 +312,10 @@ in <code class="docutils literal notranslate"><span class="pre">bsl::optional</s
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="section" id="interoperability-between-bsl-optional-and-bdlb-nullablevalue">
-<h2>Interoperability Between <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code><a class="headerlink" href="#interoperability-between-bsl-optional-and-bdlb-nullablevalue" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="interoperability-between-bsl-optional-and-bdlb-nullablevalue">
+<h2>Interoperability Between <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code><a class="headerlink" href="#interoperability-between-bsl-optional-and-bdlb-nullablevalue" title="Link to this heading"></a></h2>
 <p>For the most part, interoperability is defined by the inheritance relationship
 between these two types.  For a template parameter type <code class="docutils literal notranslate"><span class="pre">T</span></code>, the following
 conversions are supported:</p>
@@ -426,10 +336,10 @@ from <code class="docutils literal notranslate"><span class="pre">U</span></code
 implicit), and are explicit if construction of <code class="docutils literal notranslate"><span class="pre">T</span></code> from <code class="docutils literal notranslate"><span class="pre">U</span></code> is explicit.</p>
 <p>The following example examines the interoperability that is afforded (or not)
 when initializing a <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> from an <code class="docutils literal notranslate"><span class="pre">std::optional</span></code>:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">f_string_view</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;&amp;</span><span class="p">);</span><span class="w"></span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">f_string</span><span class="w">     </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">f_string_view</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;&amp;</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">f_string</span><span class="w">     </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;&amp;</span><span class="p">);</span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stdOpt</span><span class="p">;</span><span class="w"></span>
+<span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stdOpt</span><span class="p">;</span>
 <span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w">      </span><span class="n">bslOpt</span><span class="p">(</span><span class="n">stdOpt</span><span class="p">);</span><span class="w">  </span><span class="c1">// OK  - direct initialization considers explicit constructors</span>
 <span class="c1">// bsl::optional&lt;bsl::string&gt;   bslOpt = stdOpt; // error - copy initialization can&#39;t use explicit constructor</span>
 
@@ -440,11 +350,11 @@ when initializing a <code class="docutils literal notranslate"><span class="pre"
 <p>The following example explores assignment operations between
 <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and <code class="docutils literal notranslate"><span class="pre">std::optional</span></code>, both for template parameters that are
 allocator-aware and template parameters that are not allocator-aware:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stdNonAA</span><span class="p">;</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslNonAA</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stdNonAA</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string_view</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslNonAA</span><span class="p">;</span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stdAA</span><span class="p">;</span><span class="w"></span>
-<span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslAA</span><span class="p">;</span><span class="w"></span>
+<span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stdAA</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bslAA</span><span class="p">;</span>
 
 <span class="n">stdNonAA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslNonAA</span><span class="p">;</span><span class="w">  </span><span class="c1">// OK - bsl::optional inherits from std::optional</span>
 <span class="n">bslNonAA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stdNonAA</span><span class="p">;</span><span class="w">  </span><span class="c1">// OK - assignment operator from std::optional</span>
@@ -465,18 +375,18 @@ allocator-aware and template parameters that are not allocator-aware:</p>
 <span class="n">bslAA</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">stdAA</span><span class="p">;</span><span class="w">     </span><span class="c1">// assignment operator on bsl::optional taking an std::optional</span>
 </pre></div>
 </div>
-<div class="section" id="relational-operator-changes">
-<h3>Relational Operator Changes<a class="headerlink" href="#relational-operator-changes" title="Permalink to this headline">¶</a></h3>
+<section id="relational-operator-changes">
+<h3>Relational Operator Changes<a class="headerlink" href="#relational-operator-changes" title="Link to this heading"></a></h3>
 <p>A notable behavioral difference between <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> and
 <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> is that the relational operators for
 <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> are all implemented in terms of <code class="docutils literal notranslate"><span class="pre">operator&lt;</span></code>
 (e.g., <code class="docutils literal notranslate"><span class="pre">operator&gt;=</span></code> is implemented using <code class="docutils literal notranslate"><span class="pre">!operator&lt;</span></code> on the contained type).
 By contrast, <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>, per the standard definition for <code class="docutils literal notranslate"><span class="pre">optional</span></code>,
 delegates directly to the corresponding operator.</p>
-</div>
-</div>
-<div class="section" id="bdlb-nullablevalue-behavior-change-c-03-only-implicit-conversion-to-bool">
-<span id="behavior-change"></span><h2><code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> Behavior Change: C++03-Only <em>Implicit</em> Conversion to <code class="docutils literal notranslate"><span class="pre">bool</span></code><a class="headerlink" href="#bdlb-nullablevalue-behavior-change-c-03-only-implicit-conversion-to-bool" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="bdlb-nullablevalue-behavior-change-c-03-only-implicit-conversion-to-bool">
+<span id="behavior-change"></span><h2><code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code> Behavior Change: C++03-Only <em>Implicit</em> Conversion to <code class="docutils literal notranslate"><span class="pre">bool</span></code><a class="headerlink" href="#bdlb-nullablevalue-behavior-change-c-03-only-implicit-conversion-to-bool" title="Link to this heading"></a></h2>
 <p>For standard-compliance, <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code> has a conversion operator to
 <code class="docutils literal notranslate"><span class="pre">bool</span></code>, which is inherited by <code class="docutils literal notranslate"><span class="pre">bdlb::NullableValue</span></code>.  The resulting Boolean
 value indicates whether the nullable object is “engaged”.  This conversion is
@@ -486,57 +396,41 @@ Note that this implicit conversion on C++03 platforms is implemented using the
 “unspecified Boolean type” idiom.</p>
 <p>For example, prior to the release of <code class="docutils literal notranslate"><span class="pre">bsl::optional</span></code>, the following did not
 assert in <em>any</em> build mode but it now asserts on C++03 platforms:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">NullableValue</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Arbitrary</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span><span class="w"> </span><span class="n">bdlb</span><span class="o">::</span><span class="n">NullableValue</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Arbitrary</span><span class="p">;</span>
 
-<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">is_convertible</span><span class="o">&lt;</span><span class="n">Arbitrary</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">));</span><span class="w"></span>
+<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">is_convertible</span><span class="o">&lt;</span><span class="n">Arbitrary</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">));</span>
 </pre></div>
 </div>
 <p>The result is the same when <code class="docutils literal notranslate"><span class="pre">double</span></code> is substituted with any other type.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

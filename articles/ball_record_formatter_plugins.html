@@ -1,0 +1,714 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BALL Record Formatter Plugins: Flexible Log Output Formatting &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/ball_record_formatter_plugins.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bdld::Datum Quick Introduction" href="datum_quick_intro.html" />
+    <link rel="prev" title="bsl::format for bdlt value types" href="bdlt-format.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BALL Record Formatter Plugins (March 23, 2026)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#quick-start-using-format-schemes">Quick Start: Using Format Schemes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#supported-format-schemes">Supported Format Schemes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#text-format-text">Text Format (<code class="docutils literal notranslate"><span class="pre">text://</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#json-format-json">JSON Format (<code class="docutils literal notranslate"><span class="pre">json://</span></code>)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simplified-json-format-qjson">Simplified JSON Format (<code class="docutils literal notranslate"><span class="pre">qjson://</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#choosing-the-right-format">Choosing the Right Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-with-file-observers">Integration with File Observers</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-example">Configuration Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runtime-format-changes">Runtime Format Changes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fallback-behavior">Fallback Behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#migration-guide">Migration Guide</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#existing-applications">Existing Applications</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adopting-json-format">Adopting JSON Format</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">BALL Record Formatter Plugins: Flexible Log Output Formatting</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="bdlt-format.html" class="btn btn-neutral float-left" title="bsl::format for bdlt value types" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="datum_quick_intro.html" class="btn btn-neutral float-right" title="bdld::Datum Quick Introduction" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>March 2, 2026</em></p>
+<section id="ball-record-formatter-plugins-flexible-log-output-formatting">
+<span id="ball-record-formatter-plugins-top"></span><h1>BALL Record Formatter Plugins: Flexible Log Output Formatting<a class="headerlink" href="#ball-record-formatter-plugins-flexible-log-output-formatting" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>BDE 4.36.0 introduces a new plugin-based architecture for BALL record formatting
+that allows applications to specify log output formats using URI-style scheme
+identifiers in configuration files. This enhancement enables developers to easily
+switch between different output formats — text, or JSON — and different
+configuration formats for JSON - the original JSON-based (<code class="docutils literal notranslate"><span class="pre">json://</span></code>), or the
+simplified JSON (<code class="docutils literal notranslate"><span class="pre">qjson://</span></code>) - without code changes, making it particularly
+valuable for log aggregation systems, monitoring tools, and cloud-native
+deployments.</p>
+<p>The appropriate formatter is selected based on the URI scheme prefix in the
+format specification string.  Applications can use the following format
+schemes: <code class="docutils literal notranslate"><span class="pre">text://</span></code>, <code class="docutils literal notranslate"><span class="pre">json://</span></code>, and <code class="docutils literal notranslate"><span class="pre">qjson://</span></code>.  The latter two both
+result in JSON formatted log output, only the syntax of the format
+specification differs.</p>
+</section>
+<section id="quick-start-using-format-schemes">
+<h2>Quick Start: Using Format Schemes<a class="headerlink" href="#quick-start-using-format-schemes" title="Link to this heading"></a></h2>
+<p>Prior to this release, BALL logging configuration only supported text-based format
+strings using printf-style specifiers. Now, format specifications can include a
+scheme identifier that selects the formatter type:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Traditional text format (backward compatible - no scheme required)</span>
+<span class="n">ball</span><span class="o">::</span><span class="n">FileObserver2</span><span class="w"> </span><span class="n">observer</span><span class="p">;</span>
+<span class="hll"><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;%d %p:%t %s %f:%l %c %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="c1">// Text format with explicit scheme (equivalent to above)</span>
+<span class="hll"><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;text://%d %p:%t %s %f:%l %c %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="c1">// Simplified JSON format (qjson) with printf-style specifiers</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;qjson://%i %s %m&quot;</span><span class="p">);</span>
+
+<span class="c1">// JSON format with array notation</span>
+<span class="hll"><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+</span>
+<span class="cp">#ifdef BSLS_COMPILERFEATURES_SUPPORT_RAW_STRINGS</span>
+<span class="c1">// JSON format with more readable raw string literal</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s">json://[&quot;timestamp&quot;,&quot;severity&quot;,&quot;message&quot;]</span><span class="dl">)</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p><strong>Backward Compatibility</strong>: When no scheme is provided in the format specification,
+the text formatter is used by default. All existing format strings without a scheme
+prefix continue to work exactly as before, ensuring seamless migration.</p>
+<p>Configuration files can now specify these formats directly:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;LoggingConfig&gt;</span>
+<span class="w">    </span>...
+<span class="w">    </span><span class="nt">&lt;LogFileFormat&gt;</span>qjson://%i<span class="w"> </span>%s<span class="w"> </span>%c<span class="w"> </span>%m<span class="nt">&lt;/LogFileFormat&gt;</span>
+<span class="nt">&lt;/LoggingConfig&gt;</span>
+</pre></div>
+</div>
+<p>When an unknown or invalid scheme is encountered, BALL automatically falls back
+to a default text format to ensure logging continues uninterrupted.</p>
+</section>
+<section id="supported-format-schemes">
+<h2>Supported Format Schemes<a class="headerlink" href="#supported-format-schemes" title="Link to this heading"></a></h2>
+<section id="text-format-text">
+<h3>Text Format (<code class="docutils literal notranslate"><span class="pre">text://</span></code>)<a class="headerlink" href="#text-format-text" title="Link to this heading"></a></h3>
+<p>The traditional BALL text formatter using printf-style format specifiers. This
+is the default format when no scheme is specified.</p>
+<p><strong>Syntax</strong>: <code class="docutils literal notranslate"><span class="pre">text://FORMAT_STRING</span></code></p>
+<p><strong>Common Format Specifiers</strong>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Specifier</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%d</span></code></p></td>
+<td><p>Timestamp (DDMonYYYY_HH:MM:SS.mmm)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%D</span></code></p></td>
+<td><p>Timestamp with microseconds (DDMonYYYY_HH:MM:SS.mmmuuu)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%dtz</span></code></p></td>
+<td><p>Timestamp with timezone (DDMonYYYY_HH:MM:SS.mmm+0000)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%Dtz</span></code></p></td>
+<td><p>Timestamp with microseconds and timezone</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%i</span></code></p></td>
+<td><p>ISO 8601 timestamp (no fractional seconds)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%I</span></code></p></td>
+<td><p>ISO 8601 timestamp (with milliseconds)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%O</span></code></p></td>
+<td><p>ISO 8601 timestamp (with microseconds)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%p</span></code></p></td>
+<td><p>Process ID</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%t</span></code></p></td>
+<td><p>Thread ID (decimal)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%T</span></code></p></td>
+<td><p>Thread ID (hexadecimal)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%k</span></code></p></td>
+<td><p>Kernel thread ID (decimal)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%K</span></code></p></td>
+<td><p>Kernel thread ID (hexadecimal)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%s</span></code></p></td>
+<td><p>Severity level (INFO, WARN, ERROR, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%f</span></code></p></td>
+<td><p>Source file name (full path from <code class="docutils literal notranslate"><span class="pre">__FILE__</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%F</span></code></p></td>
+<td><p>Source file name (basename of <code class="docutils literal notranslate"><span class="pre">__FILE__</span></code> only)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%l</span></code></p></td>
+<td><p>Line number</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%c</span></code></p></td>
+<td><p>Category name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%m</span></code></p></td>
+<td><p>Log message</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%x</span></code></p></td>
+<td><p>Log message (non-printable characters in hex)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%X</span></code></p></td>
+<td><p>Log message (entirely in hex)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%a</span></code></p></td>
+<td><p>Unlogged attributes (see below)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%A</span></code></p></td>
+<td><p>All attributes (see <a class="reference external" href="ball_scoped_attributes.html">ball_scoped_attributes</a>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%a[name]</span></code></p></td>
+<td><p>Specific attribute by name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%av[name]</span></code></p></td>
+<td><p>Specific attribute value only</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%u</span></code></p></td>
+<td><p>User fields</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%%</span></code></p></td>
+<td><p>Literal <code class="docutils literal notranslate"><span class="pre">%</span></code> character</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note on Attributes</strong>: <code class="docutils literal notranslate"><span class="pre">%a</span></code> logs only attributes not already printed by <code class="docutils literal notranslate"><span class="pre">%a[name]</span></code>
+or <code class="docutils literal notranslate"><span class="pre">%av[name]</span></code> specifiers elsewhere in the format. <code class="docutils literal notranslate"><span class="pre">%A</span></code> logs all attributes
+regardless. This prevents duplicate attribute output when specific attributes are
+already being logged individually.</p>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Compact single-line format</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;text://%d %s %c %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="c1">// Detailed format with file location</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;text://%i [%s] %c (%f:%l) %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="c1">// Format including attributes</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;text://%d %p:%t %s %f:%l %c %a %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Sample Output</strong> (from the compact single-line format example):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">23</span><span class="n">NOV2025_14</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mf">45.123</span> <span class="n">WARN</span> <span class="n">TRADING</span><span class="o">.</span><span class="n">RISK</span> <span class="n">Limit</span> <span class="n">exceeded</span> <span class="k">for</span> <span class="n">account</span> <span class="n">A12345</span>
+</pre></div>
+</div>
+</section>
+<section id="json-format-json">
+<h3>JSON Format (<code class="docutils literal notranslate"><span class="pre">json://</span></code>)<a class="headerlink" href="#json-format-json" title="Link to this heading"></a></h3>
+<p>Structured JSON output using array notation for field specifications. Each log
+record is formatted as a complete JSON object with the specified fields.</p>
+<p><strong>Syntax</strong>: <code class="docutils literal notranslate"><span class="pre">json://ARRAY_SPECIFICATION</span></code></p>
+<p><strong>Array Notation</strong>: Fields are specified using JSON array syntax:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[&quot;field&quot;]</span></code> - Single field</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[&quot;field1&quot;,&quot;field2&quot;,&quot;field3&quot;]</span></code> - Multiple fields</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[{&quot;field&quot;:{&quot;option&quot;:&quot;value&quot;}}]</span></code> - Fields with formatting options</p></li>
+</ul>
+<p><strong>Available Fields</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> - Date and time (DDMonYYYY_HH:MM:SS.mmm format by default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pid</span></code> - Process ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tid</span></code> - Thread ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ktid</span></code> - Kernel thread ID</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">severity</span></code> - Severity level</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code> - Source file name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">line</span></code> - Line number</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">category</span></code> - Category name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">message</span></code> - Log message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attributes</span></code> - All attributes as nested JSON object</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;attribute</span> <span class="pre">name&gt;</span></code> - Specific user-defined attribute by name</p></li>
+</ul>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Essential fields only</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+
+<span class="c1">// Comprehensive logging with metadata</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">pid</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">tid</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,&quot;</span>
+<span class="w">                   </span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">category</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">file</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">line</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+
+<span class="c1">// With attributes for structured logging</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">category</span><span class="se">\&quot;</span><span class="s">,&quot;</span>
+<span class="w">                   </span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">attributes</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+
+<span class="c1">// Specific attribute by name</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">bas.uuid</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Sample Output</strong> (from the third example with attributes):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23NOV2025_14:30:45.123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;WARN&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TRADING.RISK&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;attributes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Limit exceeded for account A12345&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="simplified-json-format-qjson">
+<h3>Simplified JSON Format (<code class="docutils literal notranslate"><span class="pre">qjson://</span></code>)<a class="headerlink" href="#simplified-json-format-qjson" title="Link to this heading"></a></h3>
+<p>A convenience format that combines the structured nature of JSON with the
+familiar printf-style syntax. This format is particularly useful for quick
+prototyping and configuration by users familiar with traditional text formats.</p>
+<p><strong>Syntax</strong>: <code class="docutils literal notranslate"><span class="pre">qjson://FORMAT_SPECIFIERS</span></code></p>
+<p><strong>Format Specifiers</strong> (subset of text format specifiers that map to JSON fields):</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Specifier</p></th>
+<th class="head"><p>JSON Field / Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%d</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> (DDMonYYYY format)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%i</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> (ISO 8601 format without fractional seconds)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%I</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">timestamp</span></code> (ISO 8601 format with milliseconds)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%p</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pid</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%t</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tid</span></code> (decimal)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%T</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tid</span></code> (hexadecimal)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%k</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ktid</span></code> (decimal)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%K</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ktid</span></code> (hexadecimal)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%s</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">severity</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%f</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file</span></code> (full path)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%F</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">file</span></code> (basename only)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%l</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">line</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%c</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">category</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%m</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">message</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">%A</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">attributes</span></code> (all user-defined attributes)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">%a[name]</span></code></p></td>
+<td><p>specific attribute by name</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples</strong>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Simple format</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;qjson://%i %s %m&quot;</span><span class="p">);</span>
+
+<span class="c1">// Detailed format</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;qjson://%i %p:%t %s %c %f:%l %m&quot;</span><span class="p">);</span>
+
+<span class="c1">// Custom field names using colon syntax</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;qjson://time:%i level:%s cat:%c msg:%m&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Sample Output</strong> (from the simple format):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-23T14:30:45.123Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;WARN&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Limit exceeded for account A12345&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Sample Output with Custom Field Names</strong> (from the custom names example):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;time&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-11-23T14:30:45.123Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;WARN&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TRADING.RISK&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;msg&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Limit exceeded for account A12345&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="qjson-format-specification-syntax">
+<h4>qjson Format Specification Syntax<a class="headerlink" href="#qjson-format-specification-syntax" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">qjson://</span></code> format specification is stricter than the text format: it only
+allows <code class="docutils literal notranslate"><span class="pre">%</span></code>-specifiers (from the table above), whitespace, commas, and
+label-override prefixes.  Arbitrary literal text is <strong>not</strong> permitted.  In
+particular, a trailing <code class="docutils literal notranslate"><span class="pre">\n</span></code> is unnecessary (the record separator — a newline
+by default — is appended automatically and is independently configurable via
+<code class="docutils literal notranslate"><span class="pre">setRecordSeparator</span></code>) and will be rejected by the parser.</p>
+<p>The full syntax rules are:</p>
+<ul>
+<li><p><strong>Whitespace</strong> (spaces, tabs, newlines) between specifiers is silently
+skipped and has no effect on the output.</p></li>
+<li><p><strong>Commas</strong> may optionally separate specifiers for readability (e.g.,
+<code class="docutils literal notranslate"><span class="pre">qjson://%i,</span> <span class="pre">%s,</span> <span class="pre">%m</span></code>).  Leading commas, trailing commas, and consecutive
+commas are errors.</p></li>
+<li><p><strong>Label overrides</strong> allow renaming the JSON key produced by a specifier.
+Place the desired key name followed by a colon (<code class="docutils literal notranslate"><span class="pre">:</span></code>) immediately before
+the <code class="docutils literal notranslate"><span class="pre">%</span></code>-specifier:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// &quot;ts&quot; instead of &quot;timestamp&quot;, &quot;lvl&quot; instead of &quot;severity&quot;</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;qjson://ts:%i lvl:%s %c %m&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Optional whitespace is allowed between the colon and the <code class="docutils literal notranslate"><span class="pre">%</span></code>.  Label
+overrides are <em>not</em> supported for <code class="docutils literal notranslate"><span class="pre">%A</span></code> (all attributes).</p>
+</li>
+<li><p><strong>Everything else</strong> — including literal characters such as <code class="docutils literal notranslate"><span class="pre">[</span></code>, <code class="docutils literal notranslate"><span class="pre">]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">\n</span></code>, or any punctuation that is not a comma — causes the parser to
+reject the format specification.</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="choosing-the-right-format">
+<h2>Choosing the Right Format<a class="headerlink" href="#choosing-the-right-format" title="Link to this heading"></a></h2>
+<p><strong>Use Text Format</strong> when:</p>
+<ul class="simple">
+<li><p>Human readability is the primary concern</p></li>
+<li><p>Logs are viewed directly in console or log files</p></li>
+<li><p>Minimal parsing is required</p></li>
+<li><p>Backward compatibility with existing log processors is needed</p></li>
+</ul>
+<p><strong>Use JSON Format</strong> when:</p>
+<ul class="simple">
+<li><p>Logs are consumed by structured log aggregation systems (Splunk, Elasticsearch, etc.)</p></li>
+<li><p>You need precise control over JSON field names and structure</p></li>
+<li><p>Integrating with JSON-based monitoring and alerting systems</p></li>
+<li><p>Working with cloud-native logging infrastructure</p></li>
+</ul>
+<p><strong>Use qjson Format</strong> when:</p>
+<ul class="simple">
+<li><p>You want JSON output but prefer the simplicity of printf-style specifiers</p></li>
+<li><p>Rapidly prototyping log formats</p></li>
+<li><p>Transitioning from text to JSON formatting</p></li>
+<li><p>Configuration simplicity is more important than explicit JSON structure control</p></li>
+</ul>
+</section>
+<section id="integration-with-file-observers">
+<h2>Integration with File Observers<a class="headerlink" href="#integration-with-file-observers" title="Link to this heading"></a></h2>
+<p>All BALL observers now support format scheme specification:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ball::FileObserver2</span></code> - via <code class="docutils literal notranslate"><span class="pre">setFormat()</span></code> method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ball::StreamObserver</span></code> - via <code class="docutils literal notranslate"><span class="pre">setFormat()</span></code> method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ball::CstdioObserver</span></code> - via <code class="docutils literal notranslate"><span class="pre">setFormat()</span></code> method</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ball::FileObserver</span></code> - via <code class="docutils literal notranslate"><span class="pre">setFileLogFormat()</span></code> and <code class="docutils literal notranslate"><span class="pre">setStdoutLogFormat()</span></code> methods</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ball::AsyncFileObserver</span></code> - via <code class="docutils literal notranslate"><span class="pre">setFileLogFormat()</span></code> and <code class="docutils literal notranslate"><span class="pre">setStdoutLogFormat()</span></code> methods</p></li>
+</ul>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">FileObserver</span></code> and <code class="docutils literal notranslate"><span class="pre">AsyncFileObserver</span></code> have separate methods for configuring
+file and stdout formats independently, while the newer observers use a single <code class="docutils literal notranslate"><span class="pre">setFormat()</span></code>
+method.</p>
+<section id="configuration-example">
+<h3>Configuration Example<a class="headerlink" href="#configuration-example" title="Link to this heading"></a></h3>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ball_fileobserver2.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ball_loggermanager.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;ball_severityutil.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ball</span><span class="o">::</span><span class="n">LoggerManagerConfiguration</span><span class="w"> </span><span class="n">lmc</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ball</span><span class="o">::</span><span class="n">LoggerManagerScopedGuard</span><span class="w"> </span><span class="n">lmGuard</span><span class="p">(</span><span class="n">configuration</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">observer</span><span class="w"> </span><span class="o">=</span>
+<span class="w">                                    </span><span class="n">bsl</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver2</span><span class="o">&gt;</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Set JSON format for structured logging</span>
+<span class="hll"><span class="w">    </span><span class="n">observer</span><span class="o">-&gt;</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">category</span><span class="se">\&quot;</span><span class="s">,&quot;</span>
+</span><span class="hll"><span class="w">                        </span><span class="s">&quot;</span><span class="se">\&quot;</span><span class="s">file</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">line</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+</span>
+<span class="w">    </span><span class="n">observer</span><span class="o">-&gt;</span><span class="n">enableFileLogging</span><span class="p">(</span><span class="s">&quot;application.log&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">ball</span><span class="o">::</span><span class="n">LoggerManager</span><span class="o">::</span><span class="n">singleton</span><span class="p">().</span><span class="n">registerObserver</span><span class="p">(</span><span class="n">observer</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// All log records will now be formatted as JSON</span>
+<span class="w">    </span><span class="n">BALL_LOG_SET_CATEGORY</span><span class="p">(</span><span class="s">&quot;APPLICATION.STARTUP&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">BALL_LOG_INFO</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Application initialized successfully&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Sample Output</strong> (written to <code class="docutils literal notranslate"><span class="pre">application.log</span></code>):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;23NOV2025_14:35:12.456&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;APPLICATION.STARTUP&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main.cpp&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;line&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Application initialized successfully&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="runtime-format-changes">
+<h3>Runtime Format Changes<a class="headerlink" href="#runtime-format-changes" title="Link to this heading"></a></h3>
+<p>Format specifications can be changed at runtime without restarting the
+application:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver2</span><span class="w"> </span><span class="n">observer</span><span class="p">;</span>
+
+<span class="c1">// Start with text format</span>
+<span class="hll"><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;text://%d %s %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span>
+<span class="c1">// ... application runs ...</span>
+
+<span class="c1">// Switch to JSON format dynamically</span>
+<span class="c1">// (e.g., in response to configuration change or admin command)</span>
+<span class="hll"><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;json://[</span><span class="se">\&quot;</span><span class="s">timestamp</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">severity</span><span class="se">\&quot;</span><span class="s">,</span><span class="se">\&quot;</span><span class="s">message</span><span class="se">\&quot;</span><span class="s">]&quot;</span><span class="p">);</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="fallback-behavior">
+<h2>Fallback Behavior<a class="headerlink" href="#fallback-behavior" title="Link to this heading"></a></h2>
+<p>When an unrecognized scheme is specified or format parsing fails, BALL’s
+behavior depends on whether the observer already has a formatter configured:</p>
+<ul class="simple">
+<li><p><strong>No existing formatter</strong>: Falls back to a default text format</p></li>
+<li><p><strong>Existing formatter</strong>: Keeps the current formatter unchanged</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">setFormat()</span></code>/<code class="docutils literal notranslate"><span class="pre">setFileLogFormat()</span></code>/<code class="docutils literal notranslate"><span class="pre">setStdoutLogFormat()</span></code> methods
+return a non-zero value to indicate an error.</p>
+<p><strong>Default Fallback Format</strong>: <code class="docutils literal notranslate"><span class="pre">text://\n%d</span> <span class="pre">%p:%t</span> <span class="pre">%s</span> <span class="pre">%f:%l</span> <span class="pre">%c</span> <span class="pre">%a</span> <span class="pre">%m\n</span></code></p>
+<p>This ensures that misconfiguration doesn’t result in lost log messages.</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver2</span><span class="w"> </span><span class="n">observer</span><span class="p">;</span>
+
+<span class="c1">// First setFormat call - no existing formatter</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;xml://some-unknown-format&quot;</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">);</span>
+<span class="c1">// Falls back to default text format</span>
+<span class="c1">// Logging will use: &quot;\n%d %p:%t %s %f:%l %c %a %m\n&quot;</span>
+
+<span class="c1">// Second setFormat call - existing formatter is present</span>
+<span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;another-bad://format&quot;</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">);</span>
+<span class="c1">// Keeps the current formatter (default text format from above)</span>
+<span class="c1">// Does NOT replace with fallback again</span>
+</pre></div>
+</div>
+</section>
+<section id="migration-guide">
+<h2>Migration Guide<a class="headerlink" href="#migration-guide" title="Link to this heading"></a></h2>
+<section id="existing-applications">
+<h3>Existing Applications<a class="headerlink" href="#existing-applications" title="Link to this heading"></a></h3>
+<p>Existing BALL applications require no changes. Format strings without a scheme
+prefix are automatically treated as text format:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// These are equivalent:</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;%d %s %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;text://%d %s %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="adopting-json-format">
+<h3>Adopting JSON Format<a class="headerlink" href="#adopting-json-format" title="Link to this heading"></a></h3>
+<p>To migrate to JSON format:</p>
+<ol class="arabic simple">
+<li><p><strong>Identify critical log messages</strong> that should be structured</p></li>
+<li><p><strong>Choose JSON fields</strong> that match your log analysis needs</p></li>
+<li><p><strong>Update format specification</strong> using <code class="docutils literal notranslate"><span class="pre">qjson://</span></code> or <code class="docutils literal notranslate"><span class="pre">json://</span></code> scheme</p></li>
+<li><p><strong>Verify output</strong> in your log aggregation system</p></li>
+<li><p><strong>Update log parsing rules</strong> if necessary</p></li>
+</ol>
+<p>Example migration:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Before: text format</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;%d [%s] %c - %m</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="c1">// After: equivalent qjson format (simpler syntax)</span>
+<span class="n">observer</span><span class="p">.</span><span class="n">setFormat</span><span class="p">(</span><span class="s">&quot;qjson://%d %s %c %m&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use JSON for production logging</strong> to structured log aggregation systems</p></li>
+<li><p><strong>Include timestamps</strong> in all formats for temporal analysis</p></li>
+<li><p><strong>Add category information</strong> to enable log filtering and routing</p></li>
+<li><p><strong>Consider file and line numbers</strong> for debugging but balance against log volume</p></li>
+<li><p><strong>Include attributes</strong> when using contextual logging (see <a class="reference external" href="ball_scoped_attributes.html">ball_scoped_attributes</a>)</p></li>
+<li><p><strong>Test format changes</strong> in development before deploying to production</p></li>
+<li><p><strong>Document format specifications</strong> in configuration management systems</p></li>
+<li><p><strong>Use qjson format</strong> for easier configuration by operations teams</p></li>
+</ol>
+</section>
+<section id="performance-considerations">
+<h2>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Text format</strong> is the most efficient for high-throughput logging</p></li>
+<li><p><strong>JSON formats</strong> add parsing and formatting overhead but remain suitable for most applications</p></li>
+<li><p><strong>Field selection</strong> impacts performance — include only necessary fields</p></li>
+<li><p><strong>Pre-production testing</strong> recommended for performance-critical applications</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__recordformatterregistryutil.html">ball_recordformatterregistryutil</a> - Format registry implementation</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__recordjsonformatter.html">ball_recordjsonformatter</a> - JSON formatter component</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__recordstringformatter.html">ball_recordstringformatter</a> - Text formatter component</p></li>
+<li><p><a class="reference external" href="ball_scoped_attributes.html">ball_scoped_attributes</a> - Adding context with attributes</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__fileobserver2.html">ball_fileobserver2</a> - Enhanced file observer</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

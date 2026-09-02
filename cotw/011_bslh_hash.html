@@ -1,0 +1,374 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #11: bslh_hash &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/011_bslh_hash.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #12: bdldfp_decimal" href="012_bdldfp_decimal.html" />
+    <link rel="prev" title="Component of the Week #10: bsls_asserttest" href="010_bsls_asserttest.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="033_balcl_commandline.html">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="010_bsls_asserttest.html" class="btn btn-neutral float-left" title="Component of the Week #10: bsls_asserttest" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="012_bdldfp_decimal.html" class="btn btn-neutral float-right" title="Component of the Week #12: bdldfp_decimal" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-11-bslh-hash">
+<span id="cotw-011-bslh-hash-top"></span><h1>Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code><a class="headerlink" href="#component-of-the-week-11-bslh-hash" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>Provide composable facilities for defining hash functions.</p></li>
+</ul>
+</dd>
+</dl>
+<p>A hash table is a fundamental associative data structure that provides
+efficient — O(1) — algorithms to look up the data associated with
+a given value of its key type.  This lookup depends on having a quality
+hash function that (quickly) maps arbitrary values of the key type to
+a fixed-width integral type (like <code class="docutils literal notranslate"><span class="pre">std::size_t</span></code>) with as few collisions
+as possible.</p>
+<p>The C++ standard library has, since C++11, provided hash table based containers
+in the form of <code class="docutils literal notranslate"><span class="pre">std::unordered_set</span></code> and <code class="docutils literal notranslate"><span class="pre">std::unordered_map</span></code> (and their
+corresponding multi-value alternatives).   In C++23,
+these expanded to included <code class="docutils literal notranslate"><span class="pre">std::flat_map</span></code>.  BDE provides our own implementations
+in the <code class="docutils literal notranslate"><span class="pre">bsl</span></code> namespace, such as
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__unorderedset.html">bslstl_unorderedset</a>
+and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__unorderedmap.html">bslstl_unorderedmap</a>.
+In addition, BDE has more hash table based associated containers like
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlc__flathashmap.html">bdlc_flathashmap</a>
+and
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlcc__stripedunorderedmap.html">bdlcc_stripedunorderedmap</a>.</p>
+<p>All of these containers depend on being able to compute a hash value for
+an instance of the key type. The standard computes hash values through the
+use of <code class="docutils literal notranslate"><span class="pre">std::hash&lt;T&gt;</span></code>, which is a functor that may be specialized for
+user-defined types.  This approach, however, has drawbacks
+— users are writing
+code themselves in namespace <code class="docutils literal notranslate"><span class="pre">std</span></code>, they must implement a correct and performant
+hashing algorithm themselves, and composing hashing operations in terms of
+hashing each member is not supported by the interface.
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh.html">BDE’s hashing system</a>
+package, which is used by <code class="docutils literal notranslate"><span class="pre">bsl::hash</span></code>, aims to solve all of these
+problems.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bsl::hash</span></code> computes the hash value of an object in three steps:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>1) An instance of a hash algorithm is created (which at the time of this writing
+is, by default, an instance of
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__wyhashincrementalalgorithm.html">bslh::WyHashIncrementalAlgorithm</a>).
+This object will be used to accumulate a hash value efficiently.</p></li>
+<li><p>2) The function <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> is then invoked with two parameters — the
+hash algorithm and the object being hashed, to update the hash value
+recursively for every relevant part of the object being hashed.</p></li>
+<li><p>3) The final hash value that has accumulated in the hash algorithm object
+will be returned.</p></li>
+</ul>
+</div></blockquote>
+<p>This hashing system separates concerns in certain key ways:</p>
+<blockquote>
+<div><ul>
+<li><p>For any user-defined type, a function <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> can be defined that identifies
+the (salient) properties of that type relevant to computing a hash value for objects
+of that type.   For a specific type <code class="docutils literal notranslate"><span class="pre">T</span></code>, a <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> for <code class="docutils literal notranslate"><span class="pre">T</span></code> should be a
+free function template in the same namespace or hidden friend, templated on the
+hash algorithm:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">T</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">t_HASH_ALGORITHM</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">t_HASH_ALGORITHM</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">T</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This function need only do one thing – recursively call <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code>
+for each of the constituent and subobjects of <code class="docutils literal notranslate"><span class="pre">T</span></code> that are salient
+parts of the value of an object of type <code class="docutils literal notranslate"><span class="pre">T</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>For any composite object, <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> can recursively be applied
+to all members that are part of the salient value of the object —
+i.e., exactly those members that participate in the determination of
+object equality done by <code class="docutils literal notranslate"><span class="pre">operator==</span></code>.</p></li>
+<li><p>Raw bytes can be passed to update the hash algorithm directly
+by passing a pointer and size to the call operator of the hash
+algorithm.</p></li>
+<li><p>For more information on implementing correct overloads of
+<code class="docutils literal notranslate"><span class="pre">hashAppend</span></code>, see the
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh.html#bslh-hashappend">discussion on implementing hashAppend</a>
+in the package documentation for
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh.html">bslh</a>.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>A hash algorithm can be selected, independently of the users implementation
+of <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> for their user-defined types. This allows the use of
+tested and vetted hash algorithms that typically provide an a good
+distribution of values, and avoid problems that may cause degenerate
+behavior in associative containers (such as not making use of all the
+bytes of the hash value).</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>By default <code class="docutils literal notranslate"><span class="pre">bslh::Hash</span></code> will use <code class="docutils literal notranslate"><span class="pre">WyHash</span></code>, which provides a good balance
+of performance and sensitivity to its inputs.</p></li>
+<li><p>Users may, for example,
+wish to perform hashing with an algorithm with different
+guarantees, such as
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__siphashalgorithm.html">bslh::SipHashAlgorithm</a>)
+that provides better protections against malicious inputs.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div></blockquote>
+<p>Putting this to use is simple.
+Let’s say you are writing a variation on a popular mining-themed
+game and want to keep track of graffiti written on the faces of
+voxels in your world.  You begin
+by modeling voxel locations
+as a combination of a dimension and coordinates, while each face
+of a voxel can be identified using an enum, both of which
+you combine to make your <code class="docutils literal notranslate"><span class="pre">Face</span></code> type that represents any face
+of any voxel in your universe:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">mine</span><span class="w"> </span><span class="p">{</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Location</span><span class="w"> </span><span class="p">{</span>
+<span class="c1">// ...</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">getDimension</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getX</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getY</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getZ</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="c1">// ...</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Facing</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">e_TOP</span><span class="p">,</span><span class="w"> </span><span class="n">e_BOTTOM</span><span class="p">,</span><span class="w"> </span><span class="n">e_NORTH</span><span class="p">,</span><span class="w"> </span><span class="n">e_SOUTH</span><span class="p">,</span><span class="w"> </span><span class="n">e_EAST</span><span class="p">,</span><span class="w"> </span><span class="n">e_WEST</span>
+<span class="p">};</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Face</span><span class="w"> </span><span class="p">{</span>
+<span class="c1">// ...</span>
+<span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">Location</span><span class="o">&amp;</span><span class="w"> </span><span class="n">getLocation</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">Facing</span><span class="w"> </span><span class="nf">getFacing</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="c1">// ...</span>
+<span class="p">};</span>
+
+<span class="p">}</span><span class="w">  </span><span class="c1">// close namespace mine</span>
+</pre></div>
+</div>
+<p>Now you’d like to track, in an associative container, what
+has been written on each face:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">mine</span><span class="o">::</span><span class="n">Face</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">allGraffiti</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The problem here, of course, is that <code class="docutils literal notranslate"><span class="pre">mine::Face</span></code> does not
+support hashing.   Solving that problem is easy, however,
+by defining a <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> in the same namespace:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">mine</span><span class="w"> </span><span class="p">{</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">t_HASH_ALGORITHM</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">t_HASH_ALGORITHM</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Face</span><span class="o">&amp;</span><span class="w"> </span><span class="n">face</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">bslh</span><span class="o">::</span><span class="n">hashAppend</span><span class="p">;</span>
+<span class="w">    </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="n">face</span><span class="p">.</span><span class="n">getLocation</span><span class="p">());</span>
+<span class="w">    </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="n">face</span><span class="p">.</span><span class="n">getFacing</span><span class="p">());</span>
+<span class="p">}</span>
+<span class="p">}</span><span class="w">  </span><span class="c1">// close namespace mine</span>
+</pre></div>
+</div>
+<p>Of course, this will depend on having <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> work for the members
+we are recursively applying it to — an instance of another user-defined
+type <code class="docutils literal notranslate"><span class="pre">mine::Location</span></code> and our enum, <code class="docutils literal notranslate"><span class="pre">mine::Facing</span></code>.  For the <code class="docutils literal notranslate"><span class="pre">Location</span></code>
+type we do exactly the same thing we did for <code class="docutils literal notranslate"><span class="pre">Face</span></code> and define an overload
+for <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">namespace</span><span class="w"> </span><span class="nn">mine</span><span class="w"> </span><span class="p">{</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">t_HASH_ALGORITHM</span><span class="o">&gt;</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">t_HASH_ALGORITHM</span><span class="o">&amp;</span><span class="w"> </span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Location</span><span class="o">&amp;</span><span class="w"> </span><span class="n">location</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">using</span><span class="w"> </span><span class="n">bslh</span><span class="o">::</span><span class="n">hashAppend</span><span class="p">;</span>
+<span class="w">    </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="n">location</span><span class="p">.</span><span class="n">getDimension</span><span class="p">());</span>
+<span class="w">    </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="n">location</span><span class="p">.</span><span class="n">getX</span><span class="p">());</span>
+<span class="w">    </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="n">location</span><span class="p">.</span><span class="n">getY</span><span class="p">());</span>
+<span class="w">    </span><span class="n">hashAppend</span><span class="p">(</span><span class="n">hashAlg</span><span class="p">,</span><span class="w"> </span><span class="n">location</span><span class="p">.</span><span class="n">getZ</span><span class="p">());</span>
+<span class="p">}</span>
+<span class="p">}</span><span class="w">  </span><span class="c1">// close namespace mine</span>
+</pre></div>
+</div>
+<p>For the enum, the <code class="docutils literal notranslate"><span class="pre">int</span></code> coordinate values, and even for <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code>
+we don’t need to do anythiing else — <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code> already has the needed
+overloads in the right namespaces (<code class="docutils literal notranslate"><span class="pre">bsl</span></code> for <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> and <code class="docutils literal notranslate"><span class="pre">bslh</span></code>
+for the scalar types).</p>
+<p>Now our <code class="docutils literal notranslate"><span class="pre">bsl::unordered_map</span></code> can be used to track all the graffiti we might
+ever want to track:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">initializeGraffiti</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">allGraffiti</span><span class="p">[</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;overworld&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="n">Facing</span><span class="o">::</span><span class="n">e_TOP</span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Spawn Here&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">allGraffiti</span><span class="p">[</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;nether&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="n">Facing</span><span class="o">:</span><span class="n">e_SOUTH</span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Scary Place&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">allGraffiti</span><span class="p">[</span><span class="w"> </span><span class="p">{{</span><span class="s">&quot;end&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">-40</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w"> </span><span class="n">Facing</span><span class="o">:</span><span class="n">e_BOTTOM</span><span class="p">}</span><span class="w"> </span><span class="p">]</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Fall Forever&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you’d like to know more, check out the
+documentation for <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__hash.html">bslh_hash</a>
+for details.   There, and in the
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh.html">bslh</a>
+package, you will find:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Other hash algorithms that can be used instead of the default.</p></li>
+<li><p>The many BDE and <code class="docutils literal notranslate"><span class="pre">std</span></code> types that already have support for <code class="docutils literal notranslate"><span class="pre">hashAppend</span></code>.</p></li>
+</ul>
+</div></blockquote>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

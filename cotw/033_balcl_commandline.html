@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Component of the Week #33: balcl_commandline &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/cotw/033_balcl_commandline.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Component of the Week #34: bdlma_sequentialallocator" href="034_bdlma_sequentialallocator.html" />
+    <link rel="prev" title="Component of the Week #31: bdlb_caselessstringview*" href="031_bdlb_caselessstringview.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="cotw.html">Component of the Week</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="001_bdlb_tokenizer.html">Component of the Week #1: <code class="docutils literal notranslate"><span class="pre">bdlb_tokenizer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="002_bsl_iterator.html">Component of the Week #2: <code class="docutils literal notranslate"><span class="pre">bsl_iterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="003_bdlb_topologicalsortutil.html">Component of the Week #3: <code class="docutils literal notranslate"><span class="pre">bdlb_topologicalsortutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="004_bslalg_numericformatterutil.html">Component of the Week #4: <code class="docutils literal notranslate"><span class="pre">bslalg_numericformatterutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="005_bdlb_numericparseutil.html">Component of the Week #5: <code class="docutils literal notranslate"><span class="pre">bdlb_numericparseutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="006_bdlb_transparent.html">Component of the Week #6: <code class="docutils literal notranslate"><span class="pre">bdlb_transparent*</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="007_bsls_platform.html">Component of the Week #7: <code class="docutils literal notranslate"><span class="pre">bsls_platform</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="008_bdlpcre_regex.html">Component of the Week #8: <code class="docutils literal notranslate"><span class="pre">bdlpcre_regex</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="009_bdls_tempdirectoryguard.html">Component of the Week #9: <code class="docutils literal notranslate"><span class="pre">bdls_tempdirectoryguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="010_bsls_asserttest.html">Component of the Week #10: <code class="docutils literal notranslate"><span class="pre">bsls_asserttest</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="011_bslh_hash.html">Component of the Week #11: <code class="docutils literal notranslate"><span class="pre">bslh_hash</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="012_bdldfp_decimal.html">Component of the Week #12: <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="013_bsls_compilerfeatures.html">Component of the Week #13: <code class="docutils literal notranslate"><span class="pre">bsls_compilerfeatures</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="014_bslim_formatguard.html">Component of the Week #14: <code class="docutils literal notranslate"><span class="pre">bslim_formatguard</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="015_bdlb_bitutil.html">Component of the Week #15: <code class="docutils literal notranslate"><span class="pre">bdlb_bitutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="016_bsldoc_glossary.html">Component of the Week #16: <code class="docutils literal notranslate"><span class="pre">bsldoc_glossary</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="017_bdlc_flathashset.html">Component of the Week #17: <code class="docutils literal notranslate"><span class="pre">bdlc_flathashset</span></code> and <code class="docutils literal notranslate"><span class="pre">bdlc_flathashmap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="018_bdlb_transformiterator.html">Component of the Week #18: <code class="docutils literal notranslate"><span class="pre">bdlb_transformiterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="019_bdlde_utf8util.html">Component of the Week #19: <code class="docutils literal notranslate"><span class="pre">bdlde_utf8util</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="020_bdlb_scopeexit.html">Component of the Week #20: <code class="docutils literal notranslate"><span class="pre">bdlb_scopeexit</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="021_bdlb_doublecompareutil.html">Component of the Week #21: <code class="docutils literal notranslate"><span class="pre">bdlb_doublecompareutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="022_bdlc_bitarray.html">Component of the Week #22: <code class="docutils literal notranslate"><span class="pre">bdlc_bitarray</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="023_bdlt_calendar.html">Component of the Week #23: <code class="docutils literal notranslate"><span class="pre">bdlt_calendar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="024_bsl_searchers.html">Component of the Week #24: Standard Searchers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="025_bsls_nameof.html">Component of the Week #25: <code class="docutils literal notranslate"><span class="pre">bsls_nameof</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="026_bdlf_overloaded.html">Component of the Week #26: <code class="docutils literal notranslate"><span class="pre">bdlf_overloaded</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="027_bdlb_pcgrandomgenerator.html">Component of the Week #27: <code class="docutils literal notranslate"><span class="pre">bdlb_pcgrandomgenerator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="028_bdlf_noop.html">Component of the Week #28: <code class="docutils literal notranslate"><span class="pre">bdlf_noop</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="029_bdljsn_json.html">Component of the Week #29: <code class="docutils literal notranslate"><span class="pre">bdljsn_json</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="030_baltzo_timezoneutil.html">Component of the Week #30: <code class="docutils literal notranslate"><span class="pre">baltzo_timezoneutil</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="031_bdlb_caselessstringview.html">Component of the Week #31: <code class="docutils literal notranslate"><span class="pre">bdlb_caselessstringview*</span></code></a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-command-line-argument-parsing">Basic Command Line Argument Parsing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#for-more-information-see-also">For More Information See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="034_bdlma_sequentialallocator.html">Component of the Week #34: <code class="docutils literal notranslate"><span class="pre">bdlma_sequentialallocator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="035_bdls_fdstreambuf.html">Component of the Week #35: <code class="docutils literal notranslate"><span class="pre">bdls_fdstreambuf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="036_bdlsb_package.html">Component of the Week #36: <code class="docutils literal notranslate"><span class="pre">bdlsb</span></code> - I/O streambufs for memory buffers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="037_ball_administration.html">Component of the Week #37: <code class="docutils literal notranslate"><span class="pre">ball_administration</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="038_bdld_datum.html">Component of the Week #38: <code class="docutils literal notranslate"><span class="pre">bdld_datum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="039_baljsn_simpleformatter.html">Component of the Week #39: <code class="docutils literal notranslate"><span class="pre">baljsn_simpleformatter</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="040_bsls_linkcoercion.html">Component of the Week #40: <code class="docutils literal notranslate"><span class="pre">bsls_linkcoercion</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="cotw.html">Component of the Week</a></li>
+      <li class="breadcrumb-item active">Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="031_bdlb_caselessstringview.html" class="btn btn-neutral float-left" title="Component of the Week #31: bdlb_caselessstringview*" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="034_bdlma_sequentialallocator.html" class="btn btn-neutral float-right" title="Component of the Week #34: bdlma_sequentialallocator" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="component-of-the-week-33-balcl-commandline">
+<span id="cotw-033-balcl-commandline-top"></span><h1>Component of the Week #33: <code class="docutils literal notranslate"><span class="pre">balcl_commandline</span></code><a class="headerlink" href="#component-of-the-week-33-balcl-commandline" title="Link to this heading"></a></h1>
+<dl class="simple">
+<dt><strong>Summary</strong>:</dt><dd><ul class="simple">
+<li><p>A class for representing and manipulating command line arguments in a
+platform-independent way. It is typically used to encapsulate the arguments
+passed to a program’s <code class="docutils literal notranslate"><span class="pre">main(int</span> <span class="pre">argc,</span> <span class="pre">char</span> <span class="pre">*argv[])</span></code> function.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbalcl_1_1CommandLine.html">balcl::CommandLine</a>
+and its helper classes in the <em>balcl</em> package provide a convenient, flexible
+and robust means of parsing command-line arguments.</p>
+<p><em>balcl::CommandLine</em> is a very feature-rich facility, having far too much
+functionality to cover in a “Component of the Week” article.  See the
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balcl__commandline.html">component documentation</a>
+for a comprehensive description.</p>
+<p><em>balcl::CommandLine</em> allows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Single-letter</span> <span class="pre">argument</span> <span class="pre">names</span></code> - specified with a single dash, while
+supporting synonyms for them that are full words specified with a double-dash.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Boolean</span> <span class="pre">single-letter</span> <span class="pre">arguments</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">combined</span></code> - ie, ‘-a’ and ‘-b’ may be
+specified as “-ab” to set both</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Unnamed</span> <span class="pre">positional</span> <span class="pre">arguments</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Arguments</span> <span class="pre">may</span> <span class="pre">be</span> <span class="pre">specified</span> <span class="pre">by</span> <span class="pre">environment</span> <span class="pre">variables</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Non-boolean</span> <span class="pre">arguments</span> <span class="pre">may</span> <span class="pre">be</span> <span class="pre">required</span> <span class="pre">or</span> <span class="pre">optional</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Non-boolean</span> <span class="pre">arguments</span> <span class="pre">may</span> <span class="pre">be</span> <span class="pre">variable-length</span> <span class="pre">arrays</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Non-boolean</span> <span class="pre">arguments</span> <span class="pre">may</span> <span class="pre">have</span> <span class="pre">default</span> <span class="pre">values</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Support</span> <span class="pre">for</span> <span class="pre">automatic</span> <span class="pre">'usage'</span> <span class="pre">message</span> <span class="pre">if</span> <span class="pre">arguments</span> <span class="pre">specified</span> <span class="pre">incorrectly</span></code></p></li>
+</ul>
+<section id="basic-command-line-argument-parsing">
+<h2>Basic Command Line Argument Parsing<a class="headerlink" href="#basic-command-line-argument-parsing" title="Link to this heading"></a></h2>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;balcl_commandline.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;balcl_optioninfo.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;balcl_typeinfo.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;balcl_occurrenceinfo.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_fstream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_string.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="c1">// Variables to hold option values</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w">        </span><span class="n">helpFlag</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">countValue</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">outputFile</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Table of option metadata</span>
+<span class="w">    </span><span class="n">balcl</span><span class="o">::</span><span class="n">OptionInfo</span><span class="w"> </span><span class="n">optionInfos</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;h|help&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;help&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Display Program Help Information&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">balcl</span><span class="o">::</span><span class="n">TypeInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">helpFlag</span><span class="p">),</span>
+<span class="w">            </span><span class="n">balcl</span><span class="o">::</span><span class="n">OccurrenceInfo</span><span class="p">(),</span>
+<span class="w">            </span><span class="s">&quot;&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;c|count&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;count&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Number of times to run&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">balcl</span><span class="o">::</span><span class="n">TypeInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">countValue</span><span class="p">),</span>
+<span class="w">            </span><span class="n">balcl</span><span class="o">::</span><span class="n">OccurrenceInfo</span><span class="p">(),</span>
+<span class="w">            </span><span class="s">&quot;&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="s">&quot;o|output&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;output&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;Output file name&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">balcl</span><span class="o">::</span><span class="n">TypeInfo</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outputFile</span><span class="p">),</span>
+<span class="w">            </span><span class="n">balcl</span><span class="o">::</span><span class="n">OccurrenceInfo</span><span class="o">::</span><span class="n">e_REQUIRED</span><span class="p">,</span>
+<span class="w">            </span><span class="s">&quot;&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// Construct CommandLine with options and arguments</span>
+<span class="w">    </span><span class="n">balcl</span><span class="o">::</span><span class="n">CommandLine</span><span class="w"> </span><span class="n">cmdLine</span><span class="p">(</span><span class="n">optionInfos</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">cmdLine</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">helpFlag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">cmdLine</span><span class="p">.</span><span class="n">printUsage</span><span class="p">();</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">helpFlag</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w">                                  </span><span class="c1">// RETURN</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;helpFlag: &quot;</span><span class="w">   </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">helpFlag</span><span class="w">   </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;countValue: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">countValue</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;outputFile: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">outputFile</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">fstream</span><span class="w"> </span><span class="n">output</span><span class="p">(</span><span class="n">outputFile</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">ios</span><span class="o">::</span><span class="n">out</span><span class="p">);</span>
+<span class="w">    </span><span class="n">BSLS_ASSERT</span><span class="p">(</span><span class="n">output</span><span class="p">.</span><span class="n">is_open</span><span class="p">());</span>
+
+<span class="w">    </span><span class="c1">// Produce output ...</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="for-more-information-see-also">
+<h2>For More Information See Also<a class="headerlink" href="#for-more-information-see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__balcl.html">documentation for balcl package</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbalcl_1_1CommandLine.html">balcl_commandline</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/structbalcl_1_1Constraint.html">balcl_constraint</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbalcl_1_1OccurrenceInfo.html">balcl_occurrenceinfo</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/structbalcl_1_1OptionInfo.html">balcl_optioninfo</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/classbalcl_1_1TypeInfo.html">balcl_typeinfo</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

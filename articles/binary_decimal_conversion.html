@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Binary to Decimal and Back Again &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/binary_decimal_conversion.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="bsl::optional: An Allocator-Aware Optional Type" href="bsl_optional.html" />
     <link rel="prev" title="Concurrent Queue Evaluation" href="concurrent_queue_evaluation/paper.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
@@ -142,84 +109,37 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li>Binary to Decimal and Back Again</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">Binary to Decimal and Back Again</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="bsl_optional.html" class="btn btn-neutral float-right" title="bsl::optional: An Allocator-Aware Optional Type" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="concurrent_queue_evaluation/paper.html" class="btn btn-neutral float-left" title="Concurrent Queue Evaluation" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="bsl_optional.html" class="btn btn-neutral float-right" title="bsl::optional: An Allocator-Aware Optional Type" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>Mar 30, 2021</em></p>
-<div class="section" id="binary-to-decimal-and-back-again">
-<span id="binary-decimal-conversion-top"></span><h1><a class="toc-backref" href="#id2">Binary to Decimal and Back Again</a><a class="headerlink" href="#binary-to-decimal-and-back-again" title="Permalink to this headline">¶</a></h1>
-<div class="contents topic" id="contents">
+<section id="binary-to-decimal-and-back-again">
+<span id="binary-decimal-conversion-top"></span><h1><a class="toc-backref" href="#id2" role="doc-backlink">Binary to Decimal and Back Again</a><a class="headerlink" href="#binary-to-decimal-and-back-again" title="Link to this heading"></a></h1>
+<nav class="contents" id="contents">
 <p class="topic-title">Contents</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#binary-to-decimal-and-back-again" id="id2">Binary to Decimal and Back Again</a></p>
@@ -242,23 +162,23 @@
 </ul>
 </li>
 </ul>
-</div>
-<div class="section" id="abstract">
-<h2><a class="toc-backref" href="#id3">Abstract</a><a class="headerlink" href="#abstract" title="Permalink to this headline">¶</a></h2>
+</nav>
+<section id="abstract">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Abstract</a><a class="headerlink" href="#abstract" title="Link to this heading"></a></h2>
 <p>Handling floating-point numbers in computer systems is hard.  Types like <code class="docutils literal notranslate"><span class="pre">double</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code> (<a class="reference external" href="https://en.wikipedia.org/wiki/IEEE_754-1985">IEEE 754-1985</a>) both provide <em>approximations</em> to the mathematical concept of a real number, which, for the most part, allow us to ignore this complexity.  However, software where we expose the limits of these approximations can be a source of errors, and one area that is a particularly common source of errors at Bloomberg is the conversion between binary representations of floating-point numbers (i.e., <code class="docutils literal notranslate"><span class="pre">double</span></code> and <code class="docutils literal notranslate"><span class="pre">float</span></code>) and decimal representations (like the string “3.14159”).  Such conversions are especially relevant at Bloomberg because financial calculations are governed by laws and expectations that are based on decimal (base-10) thinking.  In this article we seek to explain the complexity in converting between binary and decimal floating-point representations, and to guide developers in performing such conversions safely.</p>
-</div>
-<div class="section" id="introduction">
-<h2><a class="toc-backref" href="#id4">Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="introduction">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Introduction</a><a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>Modern computer systems typically operate on floating-point numbers represented in IEEE-754 binary format.  Binary floating-point numbers are optimal for scientific computations due to the high computational performance enabled by the hardware (FPUs), their high precision, and carefully designed mathematical operations that minimize accumulation of rounding errors during lengthy calculations. However, binary floating-point numbers are far less suitable for computations involving humans, particularly those in the financial sector.</p>
 <p>Financial calculations are governed by laws and expectations that are based on decimal (base-10) thinking. Since binary floating-point cannot represent decimal values exactly, it is difficult to use them while maintaining decimal accuracy requirements. Doing such decimal-based calculations and algorithms using binary floating-point numbers is so hard that it is considered not feasible. The IEEE-754 committee have recognized the issue and added specifications for 3 decimal floating-point types into their 2008 standard: the 32, 64, and 128-bit decimal floating-point formats (BDE provides implementations of decimal floating-point types in the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimal.html">bdldfp_decimal</a> component).</p>
 <p>Having two numeric formats, binary floating-point representations (like <code class="docutils literal notranslate"><span class="pre">float</span></code> and <code class="docutils literal notranslate"><span class="pre">double</span></code>) and decimal floating-point representations (like the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type and any textual representations of a floating-point value) raises the requirement of converting between them.</p>
 <p>The desire to convert numbers from binary floating-point to decimal format is fraught with misunderstanding, and is often accompanied by ill-conceived attempts to “correct rounding errors” and otherwise coerce results into aesthetically pleasing forms. In the Bloomberg environment, there is the additional complication of IBM/Perkin-Elmer/Interdata floating-point. This is a floating-point format that uses a base-16 rather than a base-2 underlying representation, and the Bloomberg environment contains numbers that began as decimals, were converted to IBM format, and then were converted from IBM format to IEEE format.</p>
-</div>
-<div class="section" id="preserving-equality-through-conversions-round-trip-equality">
-<h2><a class="toc-backref" href="#id5">Preserving Equality Through Conversions (“Round-Trip Equality”)</a><a class="headerlink" href="#preserving-equality-through-conversions-round-trip-equality" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="preserving-equality-through-conversions-round-trip-equality">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Preserving Equality Through Conversions (“Round-Trip Equality”)</a><a class="headerlink" href="#preserving-equality-through-conversions-round-trip-equality" title="Link to this heading"></a></h2>
 <p>When we consider conversions between binary and decimal representations an important property we want to maintain is that the converted value in the original representation is equal to its original value (what we call “round-trip equality”). That is, we want to be able take a number in a decimal representation, convert it to a binary representation, and convert it back to a decimal representation and for that resulting value to be equal to the value we started with.</p>
-<div class="section" id="decimal-to-binary-conversion">
-<h3><a class="toc-backref" href="#id6">Decimal to Binary Conversion</a><a class="headerlink" href="#decimal-to-binary-conversion" title="Permalink to this headline">¶</a></h3>
+<section id="decimal-to-binary-conversion">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">Decimal to Binary Conversion</a><a class="headerlink" href="#decimal-to-binary-conversion" title="Link to this heading"></a></h3>
 <p>Generally, when a decimal floating-point value is converted to binary floating-point, the result is the representable binary number nearest in value to that decimal. Unless the decimal value is exactly a multiple of a power of two (e.g., 3.4375 = 55 * 1/16), the converted binary value cannot be equal to the decimal value, it can only be close. It is also desirable that two different decimal values convert to two different binary values.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>D ---4-------------------5-------------&gt; Decimals with K significant digits
 d -9-0-1-2-3-4-5-6-7-8-9-0-1-2-3-4-5-3-&gt; Decimals with K + 1 significant digits
@@ -276,9 +196,9 @@ B ---0----1----2----3----4----5----6---&gt; Binary values
 <p class="admonition-title">Note</p>
 <p>When converting a decimal representation (such as a character string containing a monetary value) to either <code class="docutils literal notranslate"><span class="pre">float</span></code> or <code class="docutils literal notranslate"><span class="pre">double</span></code> the maximum number of decimal digits K that can be represented such that the decimal value can later be restored is expressed by the constants <code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;float&gt;::digits10</span></code> (6) and <code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;double&gt;::digits10</span></code> (15) respectively.</p>
 </div>
-</div>
-<div class="section" id="binary-to-decimal-conversion">
-<h3><a class="toc-backref" href="#id7">Binary to Decimal Conversion</a><a class="headerlink" href="#binary-to-decimal-conversion" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="binary-to-decimal-conversion">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Binary to Decimal Conversion</a><a class="headerlink" href="#binary-to-decimal-conversion" title="Link to this heading"></a></h3>
 <p>Round-trip conversion from binary floating-point to decimal and back requires choosing a number of significant digits for the intermediate decimal representation. Choose too few, and multiple binary values will convert to the same decimal value. For example, B<sub>3</sub>, B<sub>4</sub>, B<sub>5</sub> all convert to D<sub>5</sub>, but B<sub>4</sub> converts to d<sub>50</sub>. There is a minimum number of significant digits such that all representable binary floating-point values will convert to distinct decimal values. For <code class="docutils literal notranslate"><span class="pre">float</span></code>, 9 digits are required and for <code class="docutils literal notranslate"><span class="pre">double</span></code>, 17 digits are required. For example, the two 32-bit float values 0x447FFF92 and 0x447FFF93 both convert to 1023.9933 when only 8 digits are used, but respectively convert to 1023.99329 and 1023.99335 when 9 digits are used. Note that while using this minimum number of digits guarantees unique decimal values, it is also the case that shorter decimal values can convert to the same binary value, and some conversion methods, such as <code class="docutils literal notranslate"><span class="pre">std::to_chars</span></code> (which first appeared in the C++17 Standard) require that for conversion to decimal, a shortest representation that converts back exactly be produced. With our sample numbers, 1023.9933 also converts to 0x447FFF92, so we might prefer that result when converting 0x447FFF92 to decimal rather than the longer 1023.99329.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -292,10 +212,10 @@ B ---0----1----2----3----4----5----6---&gt; Binary values
 <li><p><code class="docutils literal notranslate"><span class="pre">std::numeric_limits&lt;T&gt;::max_digits10</span></code>: the number of decimal digits required to exactly represent all possible values of a binary floating-point representation T (such that values can be restored).</p></li>
 </ul>
 </div>
-</div>
-</div>
-<div class="section" id="conversion-methods">
-<h2><a class="toc-backref" href="#id8">Conversion Methods</a><a class="headerlink" href="#conversion-methods" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="conversion-methods">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Conversion Methods</a><a class="headerlink" href="#conversion-methods" title="Link to this heading"></a></h2>
 <p>Floating-point numbers can be encoded in different formats for a variety of purposes:</p>
 <ul class="simple">
 <li><p>Binary floating-point representation that is commonly used for scientific computations.</p></li>
@@ -303,10 +223,10 @@ B ---0----1----2----3----4----5----6---&gt; Binary values
 <li><p>Decimal character representation used to encode floating-point values in human readable formats, and in text-based interchange (JSON or XML).</p></li>
 </ul>
 <p>The following sections describe different alternatives for converting between these representations:</p>
-<div class="section" id="conversion-from-character-floating-point-representation">
-<h3><a class="toc-backref" href="#id9">Conversion From Character Floating-Point Representation</a><a class="headerlink" href="#conversion-from-character-floating-point-representation" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="from-character-string-to-binary-floating-point-float-double">
-<h4>From Character String to Binary Floating-Point (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)<a class="headerlink" href="#from-character-string-to-binary-floating-point-float-double" title="Permalink to this headline">¶</a></h4>
+<section id="conversion-from-character-floating-point-representation">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Conversion From Character Floating-Point Representation</a><a class="headerlink" href="#conversion-from-character-floating-point-representation" title="Link to this heading"></a></h3>
+<section id="from-character-string-to-binary-floating-point-float-double">
+<h4>From Character String to Binary Floating-Point (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)<a class="headerlink" href="#from-character-string-to-binary-floating-point-float-double" title="Link to this heading"></a></h4>
 <p>If a floating-point value is represented as a (decimal) character string, then a binary floating-point value can be obtained in the following ways:</p>
 <ol class="arabic simple">
 <li><p>Initializing or assigning a binary floating-point variable with a literal in source code (e.g., <code class="docutils literal notranslate"><span class="pre">double</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">1.5;</span></code>). This is the most common type of conversion, which almost no program can do without. This conversion is so integral to the language that it is often overlooked, but the programmer should keep in mind that in order to be able to round-trip the initial value, the number of significant digits should not exceed 6 (7 for the 1*10<sup>-3</sup>.. 8.5*10<sup>9</sup> range) for <code class="docutils literal notranslate"><span class="pre">float</span></code> and 15 for <code class="docutils literal notranslate"><span class="pre">double</span></code>.</p></li>
@@ -352,9 +272,9 @@ B ---0----1----2----3----4----5----6---&gt; Binary values
 </div>
 </div></blockquote>
 <p>All of these functions produce a binary floating-point value which is one of at most two floating-point values closest to the value of the input character string.</p>
-</div>
-<div class="section" id="from-character-string-to-decimal-floating-point-bdldfp-decimal">
-<h4>From Character String to Decimal Floating-Point (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)<a class="headerlink" href="#from-character-string-to-decimal-floating-point-bdldfp-decimal" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="from-character-string-to-decimal-floating-point-bdldfp-decimal">
+<h4>From Character String to Decimal Floating-Point (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)<a class="headerlink" href="#from-character-string-to-decimal-floating-point-bdldfp-decimal" title="Link to this heading"></a></h4>
 <p>A text string, and <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>, are both decimal representations of a floating-point number, and so conversions between them are simpler and exact (assuming the required number of digits can be represented in the target type). The following mechanisms for converting a floating-point value represented as a (decimal) character string to an object of <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type provide the same result value:</p>
 <ol class="arabic simple">
 <li><p>The utility functions in <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimalutil.html">bdldfp_decimalutil</a> component:</p></li>
@@ -370,24 +290,24 @@ B ---0----1----2----3----4----5----6---&gt; Binary values
 <ol class="arabic simple" start="2">
 <li><p>User defined literals in <code class="docutils literal notranslate"><span class="pre">bdldfp::literals::DecimalLiterals</span></code> namespace (<strong>requires</strong> C++11): <code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&quot;&quot;</span> <span class="pre">_d32</span></code>, <code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&quot;&quot;</span> <span class="pre">_d64</span></code>, and <code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&quot;&quot;</span> <span class="pre">_d128</span></code>. These user-defined literal suffixes can be applied to both numeric and string literals (i.e., <code class="docutils literal notranslate"><span class="pre">1.2_d128</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;1.2&quot;_d128</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;inf&quot;_d128</span></code>) to produce a decimal floating-point value of the indicated type by parsing the argument string or numeric value.  (If the numeric form is used, note that a leading sign will not be considered part of the literal, but rather will be a unary operator applied to the literal represented by the remainder of the literal.)</p></li>
 </ol>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdldfp</span><span class="o">::</span><span class="nn">DecimalLiterals</span><span class="p">;</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bdldfp</span><span class="o">::</span><span class="nn">DecimalLiterals</span><span class="p">;</span>
 
-<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal32</span><span class="w">   </span><span class="n">d0</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;1.2&quot;</span><span class="n">_d32</span><span class="p">;</span><span class="w"></span>
-<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal32</span><span class="w">   </span><span class="n">d1</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="mf">1.2</span><span class="n">_d32</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal32</span><span class="w">   </span><span class="n">d0</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;1.2&quot;</span><span class="n">_d32</span><span class="p">;</span>
+<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal32</span><span class="w">   </span><span class="n">d1</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="mf">1.2</span><span class="n">_d32</span><span class="p">;</span>
 
-<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal64</span><span class="w">   </span><span class="n">d2</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;-3.45678901234&quot;</span><span class="n">_d64</span><span class="p">;</span><span class="w"></span>
-<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal64</span><span class="w">   </span><span class="n">d3</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="mf">-3.45678901234</span><span class="n">_d64</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal64</span><span class="w">   </span><span class="n">d2</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;-3.45678901234&quot;</span><span class="n">_d64</span><span class="p">;</span>
+<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal64</span><span class="w">   </span><span class="n">d3</span><span class="w">  </span><span class="o">=</span><span class="w">  </span><span class="mf">-3.45678901234</span><span class="n">_d64</span><span class="p">;</span>
 
-<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal128</span><span class="w">  </span><span class="n">inf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;inf&quot;</span><span class="n">_d128</span><span class="p">;</span><span class="w"></span>
-<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal128</span><span class="w">  </span><span class="n">nan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;nan&quot;</span><span class="n">_d128</span><span class="p">;</span><span class="w"></span>
+<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal128</span><span class="w">  </span><span class="n">inf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;inf&quot;</span><span class="n">_d128</span><span class="p">;</span>
+<span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal128</span><span class="w">  </span><span class="n">nan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;nan&quot;</span><span class="n">_d128</span><span class="p">;</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="conversion-from-decimal-floating-point-representation-bdldfp-decimal">
-<h3><a class="toc-backref" href="#id10">Conversion From Decimal Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)</a><a class="headerlink" href="#conversion-from-decimal-floating-point-representation-bdldfp-decimal" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="from-bdldfp-decimal-to-binary-floating-point-float-double">
-<h4>From <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> to Binary Floating-Point (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)<a class="headerlink" href="#from-bdldfp-decimal-to-binary-floating-point-float-double" title="Permalink to this headline">¶</a></h4>
+</section>
+</section>
+<section id="conversion-from-decimal-floating-point-representation-bdldfp-decimal">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Conversion From Decimal Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)</a><a class="headerlink" href="#conversion-from-decimal-floating-point-representation-bdldfp-decimal" title="Link to this heading"></a></h3>
+<section id="from-bdldfp-decimal-to-binary-floating-point-float-double">
+<h4>From <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> to Binary Floating-Point (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)<a class="headerlink" href="#from-bdldfp-decimal-to-binary-floating-point-float-double" title="Link to this heading"></a></h4>
 <p>If a decimal value is represented as an object of <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type, then a binary floating-point value can be obtained using the following functions:</p>
 <ol class="arabic simple">
 <li><p>The utility functions in the <a class="reference external" href="https://bloomberg.github.io/bde-resources/doxygen/bde_api_prod/group__bdldfp__decimalconvertutil.html">bdldfp_decimalconvertutil</a> component:</p></li>
@@ -399,21 +319,21 @@ B ---0----1----2----3----4----5----6---&gt; Binary values
 </ul>
 <p>These functions result in a binary floating-point representation having the value closest to the value of the input decimal object following the conversion rules defined by IEEE-754.</p>
 </div></blockquote>
-</div>
-<div class="section" id="from-bdldfp-decimal-to-character-floating-point-const-char">
-<h4>From <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> to Character Floating-Point (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>)<a class="headerlink" href="#from-bdldfp-decimal-to-character-floating-point-const-char" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="from-bdldfp-decimal-to-character-floating-point-const-char">
+<h4>From <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> to Character Floating-Point (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>)<a class="headerlink" href="#from-bdldfp-decimal-to-character-floating-point-const-char" title="Link to this heading"></a></h4>
 <p>A text string, and <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>, are both decimal representations of a floating-point number, so conversions between them are simpler and exact (assuming the required number of digits can be represented in the target string). The following mechanisms for converting a <code class="docutils literal notranslate"><span class="pre">bdlfp::Decimal</span></code> object to a (decimal) character string are typically interchangeable, resulting in the same numerical value (potentially formatted differently):</p>
 <ul class="simple">
 <li><p>The stream output operator (<code class="docutils literal notranslate"><span class="pre">operator</span> <span class="pre">&lt;&lt;</span></code>) will write a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value to the output stream. The <code class="docutils literal notranslate"><span class="pre">std::fixed</span></code> and <code class="docutils literal notranslate"><span class="pre">std::scientific</span></code> manipulators are supported for the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> types. If neither of these are supplied, then the decimal value is formated in the “natural” format as described in the IEEE-754 standard. The “natural” format preserves the quantum stored in the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value, such that the formated form of every (bitwise) different <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value formats differently and restores to the same <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value if converted back.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalUtil::format</span></code> formats a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> value placing the output into a buffer. This function implements the same conversion functionality as the stream output operator and provides additional formatting options via a <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalFormatConfig</span></code> parameter (for example, customizing the NaN and/or Infinity output). When the function is invoked without a configuration, then the decimal value is formatted in the “scientific” format.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="conversion-from-binary-floating-point-representation-float-double">
-<h3><a class="toc-backref" href="#id11">Conversion From Binary Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)</a><a class="headerlink" href="#conversion-from-binary-floating-point-representation-float-double" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="conversion-from-binary-floating-point-representation-float-double">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Conversion From Binary Floating-Point Representation (<code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">double</span></code>)</a><a class="headerlink" href="#conversion-from-binary-floating-point-representation-float-double" title="Link to this heading"></a></h3>
 <p>Because binary floating-point values are generally not equal to their decimal progenitors, “converting from binary to decimal” does not have a single meaning, and programmers performing such a conversion must be more precise about the properties of the conversion they want to perform.</p>
-<div class="section" id="from-binary-floating-point-to-character-floating-point-const-char">
-<h4>From Binary Floating-Point to Character Floating-Point (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>)<a class="headerlink" href="#from-binary-floating-point-to-character-floating-point-const-char" title="Permalink to this headline">¶</a></h4>
+<section id="from-binary-floating-point-to-character-floating-point-const-char">
+<h4>From Binary Floating-Point to Character Floating-Point (<code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code>)<a class="headerlink" href="#from-binary-floating-point-to-character-floating-point-const-char" title="Link to this heading"></a></h4>
 <p>A user looking to convert a binary floating-point representation to a character string may have one of a few possible use-cases for the conversion:</p>
 <ol class="arabic simple">
 <li><p>Express the value as the shortest decimal character string that will convert back to the same value. For this conversion, use:</p></li>
@@ -479,9 +399,9 @@ zeros will not be trimmed from the converted value.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">buf[2000];</span> <span class="pre">double</span> <span class="pre">value;</span> <span class="pre">snprintf(buf,</span> <span class="pre">2000,</span> <span class="pre">&quot;%.1100f&quot;,</span> <span class="pre">value);</span></code></p></li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="from-binary-floating-point-to-decimal-floating-point-bdldfp-decimal">
-<h4>From Binary Floating-Point to Decimal Floating-Point (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)<a class="headerlink" href="#from-binary-floating-point-to-decimal-floating-point-bdldfp-decimal" title="Permalink to this headline">¶</a></h4>
+</section>
+<section id="from-binary-floating-point-to-decimal-floating-point-bdldfp-decimal">
+<h4>From Binary Floating-Point to Decimal Floating-Point (<code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code>)<a class="headerlink" href="#from-binary-floating-point-to-decimal-floating-point-bdldfp-decimal" title="Link to this heading"></a></h4>
 <p>A user looking to convert a floating-point representation to a <code class="docutils literal notranslate"><span class="pre">bdlfp::Decimal</span></code> type may have one of a few possible use-cases for the conversion. There are two general mechanisms to perform the conversion (the <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> constructors, and <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalConvertUtil</span></code> functions like <code class="docutils literal notranslate"><span class="pre">bdldfp::DecimalConvertUtil::decimal64FromDouble</span></code>). Below, we enumerate the use-cases and provide the appropriate function(s) and arguments for each.</p>
 <p>When converting from a binary floating-point representation to a <code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal</span></code> type, a user may wish to:</p>
 <ol class="arabic simple">
@@ -503,11 +423,6 @@ zeros will not be trimmed from the converted value.</p>
 <li><p>Express the value rounded to a specific number of significant digits. (The significant digits of a decimal number are the digits with all leading and trailing 0s removed; e.g., 0.00103, 10.3 and 10300 each have 3 significant digits.) This conversion is the one that leads programmers to complain about “rounding error” (for example, .1f rounded to 9 digits is .100000001) but is the appropriate one to use when the programmer knows that the binary value was originally converted from a decimal value with that many significant digits. For this conversion, use:</p>
 <blockquote>
 <div><table class="docutils align-default">
-<colgroup>
-<col style="width: 18%" />
-<col style="width: 40%" />
-<col style="width: 41%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result Type</p></th>
 <th class="head"><p>float</p></th>
@@ -534,11 +449,6 @@ zeros will not be trimmed from the converted value.</p>
 <li><p>Express the value using the minimum number of significant digits for the type of the binary such that converting the decimal value back to binary will yield the same value. (Note that <strong>17</strong> digits are needed for <code class="docutils literal notranslate"><span class="pre">double</span></code> and <strong>9</strong> for <code class="docutils literal notranslate"><span class="pre">float</span></code>, so not all decimal types can hold such a result.) For this conversion, use:</p>
 <blockquote>
 <div><table class="docutils align-default">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 39%" />
-<col style="width: 41%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result Type</p></th>
 <th class="head"><p>float</p></th>
@@ -567,11 +477,6 @@ zeros will not be trimmed from the converted value.</p>
 <li><p>Express the value using a number of decimal places that restores the original decimal value from which the binary value was converted, assuming that the original decimal value had sufficiently few significant digits so that no two values with that number of digits would convert to the same binary value. (That number is <strong>15</strong> for <code class="docutils literal notranslate"><span class="pre">double</span></code> and <strong>6</strong> for <code class="docutils literal notranslate"><span class="pre">float</span></code> in general but <strong>7</strong> over a limited range that spans [1*10<sup>-3</sup> .. 8.5*10<sup>9</sup>]). For this conversion, use:</p>
 <blockquote>
 <div><table class="docutils align-default">
-<colgroup>
-<col style="width: 22%" />
-<col style="width: 39%" />
-<col style="width: 40%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result Type</p></th>
 <th class="head"><p>float</p></th>
@@ -604,11 +509,6 @@ zeros will not be trimmed from the converted value.</p>
 <li><p>Express the value as the shortest decimal number that converts back exactly to the binary value. For example, given the binary value 0x3DCCCCCD above, that corresponding shortest decimal value is (unsurprisingly) .1, while the next lower value 0x3DCCCCCC has the shortest decimal .099999994 and the next higher value 0x3DCCCCCE has the shortest decimal .10000001. This is the most visually appealing result, but can be expensive and slow to compute. For this conversion, use:</p>
 <blockquote>
 <div><table class="docutils align-default">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 40%" />
-<col style="width: 41%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result Type</p></th>
 <th class="head"><p>float</p></th>
@@ -635,10 +535,6 @@ zeros will not be trimmed from the converted value.</p>
 <li><p>Express the value using a number of decimal places that restores the original decimal value assuming that it is a <code class="docutils literal notranslate"><span class="pre">float</span></code> which originated as an IBM/Perkin-Elmer/Interdata float value itself originally converted from a decimal value. For this conversion, use:</p>
 <blockquote>
 <div><table class="docutils align-default">
-<colgroup>
-<col style="width: 34%" />
-<col style="width: 66%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Result Type</p></th>
 <th class="head"><p>float</p></th>
@@ -659,53 +555,37 @@ zeros will not be trimmed from the converted value.</p>
 </div></blockquote>
 </li>
 </ol>
-</div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

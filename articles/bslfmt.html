@@ -1,0 +1,835 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introducing bsl::format &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bslfmt.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BER Encoding Options to Improve Performance" href="ber_array_length_hints.html" />
+    <link rel="prev" title="bdlt::Date Is Always Valid (Except When It Isn’t)" href="valid_dates.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">An introduction to bsl::format (Updated July 15, 2025)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#comparing-format-with-printf">Comparing <code class="docutils literal notranslate"><span class="pre">format</span></code> with <code class="docutils literal notranslate"><span class="pre">printf</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparing-format-with-iostreams">Comparing <code class="docutils literal notranslate"><span class="pre">format</span></code> with <code class="docutils literal notranslate"><span class="pre">iostreams</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comparison-between-std-format-and-bsl-format">Comparison between <code class="docutils literal notranslate"><span class="pre">std::format</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-bsl-format">Using <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simple-example">Simple Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#positional-placeholders">Positional Placeholders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formatting-specifications">Formatting Specifications</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runtime-defined-format-strings">Runtime Defined Format Strings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support-for-allocators">Support for Allocators</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#basic-rules-for-formatting-user-defined-types">Basic rules for formatting user defined types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example-code-for-a-fully-fledged-formatter-for-a-user-defined-type">Example code for a fully-fledged formatter for a user defined type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enabling-bsl-format-for-types-with-an-ostream-insert-operator">Enabling <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> for Types with an <code class="docutils literal notranslate"><span class="pre">ostream</span></code> Insert <code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bslfmt-streamed-a-wrapper-to-format-a-streamable-type"><code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code> - A Wrapper to Format a Streamable Type</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bslfmt-enablestreamedformatter-a-trait-for-marking-a-type-stream-formattable"><code class="docutils literal notranslate"><span class="pre">bslfmt::EnableStreamedFormatter</span></code> - A Trait for Marking a Type Stream-Formattable</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#format-specification-for-streamed-objects">Format Specification for Streamed Objects</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#next-steps">Next Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">Introducing bsl::format</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="valid_dates.html" class="btn btn-neutral float-left" title="bdlt::Date Is Always Valid (Except When It Isn’t)" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="ber_array_length_hints.html" class="btn btn-neutral float-right" title="BER Encoding Options to Improve Performance" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>February 3, 2025</em></p>
+<section id="introducing-bsl-format">
+<h1>Introducing bsl::format<a class="headerlink" href="#introducing-bsl-format" title="Link to this heading"></a></h1>
+<p>BDE 4.20 introduces <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__format.html">bsl::format</a>
+an implementation of the standard library <a class="reference external" href="https://en.cppreference.com/w/cpp/utility/format/format">format</a> facility (introduced in C++20)</p>
+<p>In general, the <code class="docutils literal notranslate"><span class="pre">bsl_format.h</span></code> header provides <code class="docutils literal notranslate"><span class="pre">bsl</span></code> equivalents to the
+the free functions found in the Standard Library <a class="reference external" href="https://en.cppreference.com/w/cpp/header/format">&lt;format&gt;</a>
+header.</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">introductory example</span><a class="headerlink" href="#id4" title="Link to this code"></a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="p">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">bsl</span><span class="p">::</span><span class="nb">format</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">!&quot;</span><span class="p">,</span> <span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="s2">&quot;World&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>C++20’s <code class="docutils literal notranslate"><span class="pre">std::format</span></code> facility is based on the Open Source <code class="docutils literal notranslate"><span class="pre">{fmt}</span></code> library,
+which is itself based on Python’s <code class="docutils literal notranslate"><span class="pre">str.format</span></code> facility.  This facility
+combines the readability and ease of use of <code class="docutils literal notranslate"><span class="pre">printf</span></code> with the type safety and
+extensibility of <code class="docutils literal notranslate"><span class="pre">iostreams</span></code>.</p>
+<p>The BSL implementation for  <code class="docutils literal notranslate"><span class="pre">format</span></code> additionally:</p>
+<ul class="simple">
+<li><p>Provides formatters for key Bloomberg vocabulary types</p></li>
+<li><p>Returns a <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code></p></li>
+<li><p>Supports C++03</p></li>
+<li><p>Supports allocator-aware overloads</p></li>
+</ul>
+<p><strong>Useful Links</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://en.cppreference.com/w/cpp/utility/format/format">cppreference for std::format</a></p></li>
+<li><p><a class="reference external" href="https://en.cppreference.com/w/cpp/utility/format/spec">standard format specification</a></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__format.html">bsl::format</a></p></li>
+<li><p><a class="reference internal" href="#formatter-rules"><span class="std std-ref">Creating a Formatter compatible with bsl::format and std::format</span></a></p></li>
+<li><p><a class="reference external" href="https://www.cppstories.com/2022/custom-stdformat-cpp20/">An external article on writing a custom Formatter</a></p></li>
+</ul>
+<p>We consider <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> appropriate for production use, but additional work is required
+to bring the implementation up to our “gold” standard.  Remaining work includes:</p>
+<ul class="simple">
+<li><p>More thorough documentation and usage examples.</p></li>
+<li><p>Complete BDE test drivers for all components (some components may currently have only breathing tests)</p></li>
+</ul>
+<section id="comparing-format-with-printf">
+<h2>Comparing <code class="docutils literal notranslate"><span class="pre">format</span></code> with <code class="docutils literal notranslate"><span class="pre">printf</span></code><a class="headerlink" href="#comparing-format-with-printf" title="Link to this heading"></a></h2>
+<p>Similar to <code class="docutils literal notranslate"><span class="pre">printf</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> calls are easy to read, and provide a
+separation between the format string and its arguments.  It shares the same
+general philosophy of using placeholders in a format string which are replaced
+by values.</p>
+<p>Unlike <code class="docutils literal notranslate"><span class="pre">printf</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> is memory safe, type safe, and can be
+extended to support user-defined types.  It also provides full format string
+error checking, at compile time (for static format strings on a modern compiler)
+or at runtime (otherwise).   This makes <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> a safer, more extenstible,
+and potentially more performant alternative to <code class="docutils literal notranslate"><span class="pre">printf</span></code>.</p>
+</section>
+<section id="comparing-format-with-iostreams">
+<h2>Comparing <code class="docutils literal notranslate"><span class="pre">format</span></code> with <code class="docutils literal notranslate"><span class="pre">iostreams</span></code><a class="headerlink" href="#comparing-format-with-iostreams" title="Link to this heading"></a></h2>
+<p>C++ <code class="docutils literal notranslate"><span class="pre">iostreams</span></code> provide a facility that is type safe and very easy to extend for
+custom types, but also has a number of drawbacks.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">iostreams</span></code> can be comparatively inefficient.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iostreams</span></code> can be difficult to read and use because variable values are interleaved
+with the text in ad-hoc ways making controlling the rendering and handling localization
+more difficult.</p></li>
+</ul>
+<p>Consider the following example:</p>
+<div class="literal-block-wrapper docutils container" id="id5">
+<div class="code-block-caption"><span class="caption-text">A more complicated format specification to localize with iostreams</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;value a (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;) is less than b (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">A more complicated format specification to localize with printf and format</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;value a (%d) is less than b (%d)&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="n">format</span><span class="p">(</span><span class="s">&quot;value a ({}) is less than b ({})&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<p>Notice, that for <code class="docutils literal notranslate"><span class="pre">printf</span></code> and <code class="docutils literal notranslate"><span class="pre">format</span></code>, it would be easier to create a
+table of localized format strings because there is a single format string per message.</p>
+<p>The rendering of <code class="docutils literal notranslate"><span class="pre">iostreams</span></code> is also complicated by an inconsistent
+approach between standard library manipulators.</p>
+<p>Consider the following example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;0x&quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">hex</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">setfill</span><span class="p">(</span><span class="sc">&#39;0&#39;</span><span class="p">)</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">setw</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w">  </span><span class="c1">// &quot;0x002a&quot;</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="sc">&#39;\n&#39;</span><span class="p">;</span><span class="w">  </span><span class="c1">// What does this print??</span>
+</pre></div>
+</div>
+<p>Notice that rendering the number as hexidecimal is relatively verbose.  Also notice
+that the second <code class="docutils literal notranslate"><span class="pre">cout</span></code> will output “2a” because <code class="docutils literal notranslate"><span class="pre">hex</span></code> is “sticky” and <code class="docutils literal notranslate"><span class="pre">setfill</span></code>
+and <code class="docutils literal notranslate"><span class="pre">setw</span></code> are not.</p>
+<p>Unlike <code class="docutils literal notranslate"><span class="pre">iostreams</span></code>, <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> provides a more efficient facility
+whose rendering is easier to control, and whose text is generally easier to localize.
+The primary drawback for <code class="docutils literal notranslate"><span class="pre">format</span></code> (in comparison to <code class="docutils literal notranslate"><span class="pre">iostreams</span></code>) is that is harder
+to customize <code class="docutils literal notranslate"><span class="pre">format</span></code> for user-defined types.</p>
+</section>
+<section id="comparison-between-std-format-and-bsl-format">
+<h2>Comparison between <code class="docutils literal notranslate"><span class="pre">std::format</span></code> and <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code><a class="headerlink" href="#comparison-between-std-format-and-bsl-format" title="Link to this heading"></a></h2>
+<p>The Bloomberg Standard Library’s <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> provides an implementation of the
+C++20 standard <code class="docutils literal notranslate"><span class="pre">format</span></code> facility.  As outlined in the introduction, <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code>
+provides the following extensions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> will provide support for common Bloomberg vocabary types (currently
+<code class="docutils literal notranslate"><span class="pre">Decimal64</span></code>, but with planned enhancements for <code class="docutils literal notranslate"><span class="pre">bdlt</span></code> date  and time types).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> returns a <code class="docutils literal notranslate"><span class="pre">bsl::string</span></code> (not a <code class="docutils literal notranslate"><span class="pre">std::string</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> is available on all platforms from C++03 onwards (including Sun).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> is fully allocator-aware, with additional overloads taking an
+allocator.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>On modern platforms <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> delegates most of its “heavy lifting” to
+<code class="docutils literal notranslate"><span class="pre">std::format</span></code>.  On older platforms <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> is an entirely
+proprietary implementation.</p>
+</div>
+<p>As a result, on modern platforms the performance (and any behavioral quirks)
+of <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> mirrors that of the platform implementation.</p>
+<p>Because of <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> support for legacy platforms, there are some
+behavioral notes:</p>
+<ul class="simple">
+<li><p>User-defined formatters for <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> need to follow a <a class="reference internal" href="#formatter-rules"><span class="std std-ref">few extra rules</span></a>
+but, providing those rules are followed, they are fully compatible with
+<code class="docutils literal notranslate"><span class="pre">std::format</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> string checking is done at runtime when built with C++
+versions below C++20 and on older compilers.</p></li>
+<li><p>locale-specific formatters are not (currently) provided for BSL types.</p></li>
+<li><p>locale-specific overloads of <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> are only available on C++20 on
+modern compilers.</p></li>
+<li><p>Runtime errors are reported by throwing a <code class="docutils literal notranslate"><span class="pre">bsl::format_error</span></code> rather than a
+<code class="docutils literal notranslate"><span class="pre">std::format_error</span></code>. Note, however, that on modern compilers
+<code class="docutils literal notranslate"><span class="pre">bsl::format_error</span></code> is an alias to <code class="docutils literal notranslate"><span class="pre">std::format_error</span></code> so catching
+<code class="docutils literal notranslate"><span class="pre">bsl::format_error</span></code> will work for both <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> and <code class="docutils literal notranslate"><span class="pre">std::format</span></code>.</p></li>
+</ul>
+</section>
+<section id="using-bsl-format">
+<h2>Using <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code><a class="headerlink" href="#using-bsl-format" title="Link to this heading"></a></h2>
+<section id="simple-example">
+<h3>Simple Example<a class="headerlink" href="#simple-example" title="Link to this heading"></a></h3>
+<p>A simple example of formatting text:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The value of {} is {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Escaped left {{ and right }} braces</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Print a value in braces {{{}}}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Program returned: 0
+Program stdout
+The value of x is 42
+Escaped left { and right } braces
+Print a value in braces {42}
+</pre></div>
+</div>
+</section>
+<section id="positional-placeholders">
+<h3>Positional Placeholders<a class="headerlink" href="#positional-placeholders" title="Link to this heading"></a></h3>
+<p>Positional placeholders are supported:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14159265359</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">    </span><span class="n">width</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">    </span><span class="n">precision</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {2:{0}.{1}f}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">precision</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Note: The numbers in the braces state which arguments to use</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {:{}.{}f}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">precision</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Note: The arguments are in the order of the (unescaped) opening braces &#39;{&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Program returned: 0
+Program stdout
+Pi is    3.142
+Pi is    3.142
+</pre></div>
+</div>
+</section>
+<section id="formatting-specifications">
+<h3>Formatting Specifications<a class="headerlink" href="#formatting-specifications" title="Link to this heading"></a></h3>
+<p>For standard types, the <a class="reference external" href="https://en.cppreference.com/w/cpp/utility/format/spec">formatting specifications</a> look remarkably like <code class="docutils literal notranslate"><span class="pre">printf</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14159265359</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {:f} default precision&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {0:f} default precision&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {:.4f} smaller precision&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {:.4e} exponential&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi is {:20.4e} in a wide field&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Note: the &#39;:&#39; character is required if a format spec is given</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Program returned: 0
+Program stdout
+Pi is 3.14159265359
+Pi is 3.141593 default precision
+Pi is 3.141593 default precision
+Pi is 3.1416 smaller precision
+Pi is 3.1416e+00 exponential
+Pi is           3.1416e+00 in a wide field
+</pre></div>
+</div>
+<p>And they can be combined with positional placeholders:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">day</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">month</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">year</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">24</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The date in US format is {1:02}/{0:02}/{2:02}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The date in UK format is {0:02}/{1:02}/{2:02}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">day</span><span class="p">,</span><span class="w"> </span><span class="n">month</span><span class="p">,</span><span class="w"> </span><span class="n">year</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Note: &quot;:02&quot; indicates zero-padding and field width of 2</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Program returned: 0
+Program stdout
+The date in US format is 01/23/24
+The date in UK format is 23/01/24
+</pre></div>
+</div>
+<p>Alignment and fill specifiers can also be used:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">3.14159265359</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi to the left is   &#39;{:&lt;20f}&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi to the right is  &#39;{:&gt;20f}&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi in the middle is &#39;{:^20f}&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi to the left is   &#39;{:=&lt;20f}&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi to the right is  &#39;{:=&gt;20f}&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Pi in the middle is &#39;{:=^20f}&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Program returned: 0
+Program stdout
+Pi to the left is   &#39;3.141593            &#39;
+Pi to the right is  &#39;            3.141593&#39;
+Pi in the middle is &#39;      3.141593      &#39;
+Pi to the left is   &#39;3.141593============&#39;
+Pi to the right is  &#39;============3.141593&#39;
+Pi in the middle is &#39;======3.141593======&#39;
+</pre></div>
+</div>
+</section>
+<section id="runtime-defined-format-strings">
+<h3>Runtime Defined Format Strings<a class="headerlink" href="#runtime-defined-format-strings" title="Link to this heading"></a></h3>
+<p>Unfortunately using a format string that is defined at runtime is (slightly) more complicated
+(this is addressed in C++23).  For non literal format strings you must use <code class="docutils literal notranslate"><span class="pre">vformat</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Value is {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// The following won&#39;t compile:</span>
+<span class="w">    </span><span class="c1">// bsl::cout &lt;&lt; bsl::format(spec, value);</span>
+
+<span class="w">    </span><span class="c1">// Need to use this instead:</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vformat</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">make_format_args</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Note the following would also give a compile-time error:</span>
+<span class="w">    </span><span class="c1">// bsl::cout &lt;&lt; bsl::vformat(spec, bsl::make_format_args(42));</span>
+<span class="w">    </span><span class="c1">// (arguments have to be lvalues)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Runtime errors are indicated by an exception:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">spec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Value is {:z}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"> </span><span class="c1">// Invalid format spec for int</span>
+
+<span class="w">    </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vformat</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">make_format_args</span><span class="p">(</span><span class="n">value</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format_error</span><span class="o">&amp;</span><span class="w"> </span><span class="n">err</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The error is &#39;{}&#39;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">err</span><span class="p">.</span><span class="n">what</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="support-for-allocators">
+<h3>Support for Allocators<a class="headerlink" href="#support-for-allocators" title="Link to this heading"></a></h3>
+<p>Allocator aware overloads for <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> are available:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">ta</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">testStr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span>
+<span class="w">                </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;Here we do a test with a long string and some number {}&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="mi">42</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">testStr</span><span class="p">.</span><span class="n">get_allocator</span><span class="p">().</span><span class="n">mechanism</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">ta</span><span class="p">.</span><span class="n">numAllocations</span><span class="p">()</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="basic-rules-for-formatting-user-defined-types">
+<span id="formatter-rules"></span><h2>Basic rules for formatting user defined types<a class="headerlink" href="#basic-rules-for-formatting-user-defined-types" title="Link to this heading"></a></h2>
+<p>This article does not go into the details of writing your own
+formatter.   Writing a formatter for <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> is largely the same
+as writing one for <code class="docutils literal notranslate"><span class="pre">std::format</span></code>, with a few additional constraints
+the implementation must follow which are outlined below.</p>
+<p>Below is a template for a formatter that is compatible with both
+<code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> and <code class="docutils literal notranslate"><span class="pre">std::format</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="w">  </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+</span><span class="hll">
+</span><span class="w">  </span><span class="k">namespace</span><span class="w"> </span><span class="nn">bsl</span><span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="w">  </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_CHAR</span><span class="o">&gt;</span>
+</span><span class="w">  </span><span class="k">struct</span><span class="w"> </span><span class="nc">formatter</span><span class="o">&lt;</span><span class="n">MyType</span><span class="p">,</span><span class="w"> </span><span class="n">t_CHAR</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">public</span><span class="o">:</span>
+<span class="w">      </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_PARSE_CONTEXT</span><span class="o">&gt;</span>
+<span class="hll"><span class="w">      </span><span class="k">typename</span><span class="w"> </span><span class="nc">t_PARSE_CONTEXT</span><span class="o">::</span><span class="n">iterator</span><span class="w">  </span><span class="n">BSLS_KEYWORD_CONSTEXPR_CPP20</span><span class="w"> </span><span class="n">parse</span><span class="p">(</span>
+</span><span class="w">                                                        </span><span class="n">t_PARSE_CONTEXT</span><span class="o">&amp;</span><span class="w">  </span><span class="n">pc</span><span class="p">)</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// TODO</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_FORMAT_CONTEXT</span><span class="o">&gt;</span>
+<span class="hll"><span class="w">      </span><span class="k">typename</span><span class="w"> </span><span class="nc">t_FORMAT_CONTEXT</span><span class="o">::</span><span class="n">iterator</span><span class="w"> </span><span class="n">format</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">MyType</span><span class="o">&amp;</span><span class="w">      </span><span class="n">value</span><span class="p">,</span>
+</span><span class="w">                                                 </span><span class="n">t_FORMAT_CONTEXT</span><span class="o">&amp;</span><span class="w">  </span><span class="n">fc</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// TODO</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span><span class="w">  </span><span class="c1">// close namespace bsl</span>
+</pre></div>
+</div>
+<p>Notice there are number of differences between the above formatter and one
+written purely for <code class="docutils literal notranslate"><span class="pre">std::format</span></code>, namely:</p>
+<ul class="simple">
+<li><p>You need to <code class="docutils literal notranslate"><span class="pre">#include</span></code> the correct header:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">#include</span> <span class="pre">&lt;bsl_format.h&gt;</span></code></p></li>
+</ul>
+</li>
+<li><p>You must partially specialize <code class="docutils literal notranslate"><span class="pre">bsl::formatter</span></code> (not <code class="docutils literal notranslate"><span class="pre">std::formatter</span></code> as
+many internet examples show).  I.e., your <code class="docutils literal notranslate"><span class="pre">formatter</span></code> must be declared in the
+<code class="docutils literal notranslate"><span class="pre">bsl</span></code> namespace.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">constexpr</span></code> keyword is required only for C++20, and may fail to compile
+against earlier C++ standards, so use the <code class="docutils literal notranslate"><span class="pre">BSLS_KEYWORD_CONSTEXPR_CPP20</span></code>
+macro instead.</p></li>
+<li><p>The context arguments to <code class="docutils literal notranslate"><span class="pre">parse()</span></code> and <code class="docutils literal notranslate"><span class="pre">format()</span></code> must be templated.</p></li>
+</ul>
+<p>The actual code within the <code class="docutils literal notranslate"><span class="pre">parse</span></code> and <code class="docutils literal notranslate"><span class="pre">format</span></code> function implementations
+should otherwise be the same as when customizing a formatter for
+<code class="docutils literal notranslate"><span class="pre">std::format</span></code>.</p>
+</section>
+<section id="example-code-for-a-fully-fledged-formatter-for-a-user-defined-type">
+<h2>Example code for a fully-fledged formatter for a user defined type<a class="headerlink" href="#example-code-for-a-fully-fledged-formatter-for-a-user-defined-type" title="Link to this heading"></a></h2>
+<p>For interested readers, here is a code example for a more fully-fledged
+formatter for a user defined type <code class="docutils literal notranslate"><span class="pre">Complex</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_format.h&gt;</span>
+
+<span class="c1">/// Example of a type which we wish to format</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Complex</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">d_real</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">d_imaginary</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bsl</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// Formatter needs to be in namespace `bsl`</span>
+
+<span class="c1">/// Partial specialization of `bsl::formatter` for type `Complex`</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_CHAR</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">formatter</span><span class="o">&lt;</span><span class="n">Complex</span><span class="p">,</span><span class="w"> </span><span class="n">t_CHAR</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// DATA</span>
+<span class="w">    </span><span class="n">formatter</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="n">t_CHAR</span><span class="o">&gt;</span><span class="w"> </span><span class="n">d_doubleFormatter</span><span class="p">;</span>
+<span class="w">          </span><span class="c1">// Use a standard formatter to which we delegate</span>
+<span class="w">          </span><span class="c1">// floating point formatting</span>
+
+<span class="w">    </span><span class="kt">bool</span><span class="w">                      </span><span class="n">d_isJ</span><span class="p">;</span>
+<span class="w">          </span><span class="c1">// Whether the imaginary part uses an &#39;i&#39; or a &#39;j&#39;</span>
+
+<span class="w">  </span><span class="k">public</span><span class="o">:</span>
+<span class="w">    </span><span class="c1">// CREATORS</span>
+<span class="w">    </span><span class="n">BSLS_KEYWORD_CONSTEXPR_CPP20</span><span class="w"> </span><span class="n">formatter</span><span class="p">()</span>
+<span class="w">    </span><span class="o">:</span><span class="w"> </span><span class="n">d_doubleFormatter</span><span class="p">()</span>
+<span class="w">    </span><span class="p">,</span><span class="w"> </span><span class="n">d_isJ</span><span class="w"> </span><span class="p">(</span><span class="nb">false</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{}</span>
+
+<span class="w">    </span><span class="c1">// MANIPULATORS</span>
+<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_PARSE_CONTEXT</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="k">typename</span><span class="w"> </span><span class="nc">t_PARSE_CONTEXT</span><span class="o">::</span><span class="n">iterator</span><span class="w"> </span><span class="n">BSLS_KEYWORD_CONSTEXPR_CPP20</span><span class="w"> </span><span class="n">parse</span><span class="p">(</span><span class="n">t_PARSE_CONTEXT</span><span class="o">&amp;</span><span class="w"> </span><span class="n">pc</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">end</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;}&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Initialize the standard floating point formatter</span>
+<span class="w">            </span><span class="c1">// If a default (empty) format specification is provided.</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">d_doubleFormatter</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">pc</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;i&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">*</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;j&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// The user has specified &#39;i&#39; vs &#39;j&#39; for output</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;j&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">d_isJ</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">pc</span><span class="p">.</span><span class="n">advance_to</span><span class="p">(</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// skip &#39;i&#39; or &#39;I&#39;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">end</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// Initialize the format specification with the</span>
+<span class="w">            </span><span class="c1">// provided floating point format</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="sc">&#39;:&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">BSLS_THROW</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">format_error</span><span class="p">(</span><span class="s">&quot;missing separator&quot;</span><span class="p">));</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">pc</span><span class="p">.</span><span class="n">advance_to</span><span class="p">(</span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c1">// skip &#39;:&#39;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="c1">// Update the iterator in the context and return the same.</span>
+<span class="w">        </span><span class="n">pc</span><span class="p">.</span><span class="n">advance_to</span><span class="p">(</span><span class="n">d_doubleFormatter</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">pc</span><span class="p">));</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">pc</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// ACCESSORS</span>
+<span class="w">    </span><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_FORMAT_CONTEXT</span><span class="o">&gt;</span>
+<span class="w">    </span><span class="k">typename</span><span class="w"> </span><span class="nc">t_FORMAT_CONTEXT</span><span class="o">::</span><span class="n">iterator</span><span class="w"> </span><span class="n">format</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Complex</span><span class="o">&amp;</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">t_FORMAT_CONTEXT</span><span class="o">&amp;</span><span class="w"> </span><span class="n">fc</span><span class="p">)</span><span class="w"> </span><span class="k">const</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="k">typename</span><span class="w"> </span><span class="nc">t_FORMAT_CONTEXT</span><span class="o">::</span><span class="n">iterator</span><span class="w"> </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fc</span><span class="p">.</span><span class="n">out</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// Write out the first floating point value</span>
+<span class="w">        </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d_doubleFormatter</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">d_real</span><span class="p">,</span><span class="w"> </span><span class="n">fc</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Write out the separator</span>
+<span class="w">        </span><span class="o">*</span><span class="n">out</span><span class="o">++</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">t_CHAR</span><span class="p">)</span><span class="sc">&#39;+&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Update the iterator in the context before passing it to the</span>
+<span class="w">        </span><span class="c1">// floating point formatter again.</span>
+<span class="w">        </span><span class="n">fc</span><span class="p">.</span><span class="n">advance_to</span><span class="p">(</span><span class="n">out</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Write out the second floating point value</span>
+<span class="w">        </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d_doubleFormatter</span><span class="p">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">d_imaginary</span><span class="p">,</span><span class="w"> </span><span class="n">fc</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// Write out &#39;i&#39; or &#39;j&#39; for the imaginary part</span>
+<span class="w">        </span><span class="o">*</span><span class="n">out</span><span class="o">++</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">d_isJ</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">t_CHAR</span><span class="p">)</span><span class="sc">&#39;j&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">t_CHAR</span><span class="p">)</span><span class="sc">&#39;i&#39;</span><span class="p">;</span>
+<span class="w">        </span><span class="c1">// Update the iterator in the context and return the same.</span>
+<span class="w">        </span><span class="n">fc</span><span class="p">.</span><span class="n">advance_to</span><span class="p">(</span><span class="n">out</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">out</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+<span class="p">}</span><span class="w">  </span><span class="c1">// close namespace bsl</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">Complex</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">2.71828182845</span><span class="p">,</span><span class="w"> </span><span class="mf">3.14159265359</span><span class="p">};</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Value is {}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Value is {0:}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Value is {::}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Value is {:j:}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;Value is {:j:.2f}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">wcout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="sa">L</span><span class="s">&quot;Value is {:j:}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Program returned: 0
+Program stdout
+Value is 2.71828182845+3.14159265359i
+Value is 2.71828182845+3.14159265359i
+Value is 2.71828182845+3.14159265359i
+Value is 2.71828182845+3.14159265359j
+Value is 2.72+3.14j
+Value is 2.71828182845+3.14159265359j
+</pre></div>
+</div>
+<p>The examples above are tested in the unit test for <a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslfmt/bslfmt_format.t.cpp">bslfmt_format</a>.</p>
+</section>
+<section id="enabling-bsl-format-for-types-with-an-ostream-insert-operator">
+<h2>Enabling <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> for Types with an <code class="docutils literal notranslate"><span class="pre">ostream</span></code> Insert <code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code><a class="headerlink" href="#enabling-bsl-format-for-types-with-an-ostream-insert-operator" title="Link to this heading"></a></h2>
+<p><em>July 15, 2025</em></p>
+<p>BDE 4.26 and 4.27 introduced a couple new features that enable the use of
+<code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> with types that provide <code class="docutils literal notranslate"><span class="pre">ostream</span></code> insert <code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code>, but
+that do not yet (or may never) provide a formatter specialization.  Currently
+<code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> supports formatting of the usual suspects: fundamental types,
+string-like types, and even decimal floating point.  Over time the range of
+types supported by <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> will expand, for example, BDE plans to
+introduce formatting of date and time types (based on standard formatting
+specifications for <a class="reference external" href="https://en.cppreference.com/w/cpp/chrono.html"><code class="docutils literal notranslate"><span class="pre">&lt;chrono&gt;</span></code></a>).</p>
+<p>However, there are many types that do not yet – or may never – have
+formatters defined for them.  Many of those types will have an <code class="docutils literal notranslate"><span class="pre">ostream</span></code> insert
+<code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code>, (1) because format is a comparatively new feature, and
+(2) implementing a formatter is more involved than implementing <code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code>,
+and many types that do not need more complicated format specifications may
+forgo implementing a formatter entirely.  For those types the existing
+<code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code> will typically provide a reasonable basis for formatting.</p>
+<p>There are a couple features (introduced in BDE 4.26 and BDE 4.27) that enable
+the use of <a class="reference external" href="bde-resources/doxygen/bde_api_prod/group__bslfmt__format.html"><code class="docutils literal notranslate"><span class="pre">bsl::format</span></code></a> with types that provide stream based
+<code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code> but do not yet (or may never) provide a formatter
+specialization.</p>
+<ol class="arabic simple">
+<li><p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__streamed.html"><code class="docutils literal notranslate"><span class="pre">bslfmt_streamed</span></code></a> component provides a <code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code>
+function that that returns a formattable reference wrapper to a streamable
+object.</p></li>
+<li><p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__enablestreamedformatter.html"><code class="docutils literal notranslate"><span class="pre">bslfmt_enablestreamedformatter</span></code></a> component provides a trait that a
+type owner can define for a type to enable using the streaming based
+formatter automatically (without clients needing to use
+<code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code>).</p></li>
+</ol>
+<section id="bslfmt-streamed-a-wrapper-to-format-a-streamable-type">
+<h3><code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code> - A Wrapper to Format a Streamable Type<a class="headerlink" href="#bslfmt-streamed-a-wrapper-to-format-a-streamable-type" title="Link to this heading"></a></h3>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__streamed.html"><code class="docutils literal notranslate"><span class="pre">bslfmt_streamed</span></code></a> component provides the <cite>bslfmt::streamed</cite>
+function that is a factory taking any “streamable” type and returning a wrapper
+around it that is formattable:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="hll"><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The value is {}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bslfmt</span><span class="o">::</span><span class="n">streamed</span><span class="p">(</span><span class="n">streamableObject</span><span class="p">));</span>
+</span></pre></div>
+</div>
+<p>This is particularly valuable for types you do not own because, in general,
+only the owners of a type should create a formatter specialization
+for that type.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code> is a factory function that returns an instance of a
+<code class="docutils literal notranslate"><span class="pre">bslfmt::Streamed</span></code> template for the given “streamable” type, and
+<code class="docutils literal notranslate"><span class="pre">&lt;bslfmt_streamed.h&gt;</span></code> defines a formatter for all <code class="docutils literal notranslate"><span class="pre">bslfmt::Streamed</span></code>
+instances.  <code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code> has been inspired by <a class="reference external" href="https://fmt.dev/11.1/api/#stdostream-support"><code class="docutils literal notranslate"><span class="pre">fmt::streamed</span></code></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Using <code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code> on a type that has a formatter specialization will
+produce a compiler warning on modern compilers. This is because <code class="docutils literal notranslate"><span class="pre">bslfmt::streamed</span></code>
+is intended as a stop-gap for users where a formatter specialization is not (yet)
+available.</p>
+</div>
+</section>
+<section id="bslfmt-enablestreamedformatter-a-trait-for-marking-a-type-stream-formattable">
+<h3><code class="docutils literal notranslate"><span class="pre">bslfmt::EnableStreamedFormatter</span></code> - A Trait for Marking a Type Stream-Formattable<a class="headerlink" href="#bslfmt-enablestreamedformatter-a-trait-for-marking-a-type-stream-formattable" title="Link to this heading"></a></h3>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__enablestreamedformatter.html"><code class="docutils literal notranslate"><span class="pre">bslfmt_enablestreamedformatter</span></code></a> component provides the
+<code class="docutils literal notranslate"><span class="pre">bslfmt::EnableStreamedFormatter</span></code> (nested-trait-compatible) type trait that
+makes “streamable” types directly formattable:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Identifier</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="c1">// A type that stores a string of up to 10 characters</span>
+<span class="w">     </span><span class="p">...</span>
+<span class="w">   </span><span class="k">public</span><span class="o">:</span>
+<span class="w">     </span><span class="c1">// TRAITS</span>
+<span class="hll"><span class="w">     </span><span class="n">BSLMF_NESTED_TRAIT_DECLARATION</span><span class="p">(</span><span class="n">Identifier</span><span class="p">,</span>
+</span><span class="hll"><span class="w">                                    </span><span class="n">bslfmt</span><span class="o">::</span><span class="n">EnableStreamedFormatter</span><span class="p">);</span>
+</span><span class="w"> </span><span class="p">};</span>
+
+<span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span><span class="w"> </span><span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">os</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Identifier</span><span class="o">&amp;</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span><span class="w"> </span><span class="p">...</span>
+
+<span class="w"> </span><span class="n">Identifier</span><span class="w"> </span><span class="n">id</span><span class="p">(</span><span class="s">&quot;12345&quot;</span><span class="p">);</span>
+
+<span class="hll"><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The identifier is {:0&gt;10}</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">);</span>
+</span>
+<span class="hll"><span class="w"> </span><span class="c1">// Will output: &quot;The identifier is 0000012345\n&quot;</span>
+</span></pre></div>
+</div>
+<p>This trait provides a short-hand for making a type formattable in situations where
+there is no value in providing a formatter specialization.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Use this option with caution.  Be aware that enabling this trait effectively promises
+that a particular output-format and string-like formatting options are supported
+for your type, which may constrain an implementation of a custom formatter
+in the future (that might have better performance or provide conflicting formatting options).</p>
+</div>
+</section>
+<section id="format-specification-for-streamed-objects">
+<h3>Format Specification for Streamed Objects<a class="headerlink" href="#format-specification-for-streamed-objects" title="Link to this heading"></a></h3>
+<p>The formatting logic used to format streamable types is simple.  Essentially
+the output of the <code class="docutils literal notranslate"><span class="pre">ostream</span></code> insert <code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code> is treated as a (possibly
+UTF-8) string.  This also means that objects that are formatted using either
+the wrapper or the trait-enabled formatter have the same format specification
+syntax and capabilities as string-like types (see the
+<a class="reference external" href="https://en.cppreference.com/w/cpp/utility/format/spec.html">standard format specification for strings</a>).</p>
+<p>The following table shows the formatting capabilities given an imaginary object
+that outputs “012345” when streamed:</p>
+<blockquote>
+<div><table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Width</p></th>
+<th class="head"><p>Alignment</p></th>
+<th class="head"><p>Pad Char</p></th>
+<th class="head"><p>Precision</p></th>
+<th class="head"><p>Format Spec.</p></th>
+<th class="head"><p>Output Text</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;012345&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:.3}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;012&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:8}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;012345</span>&#160; <span class="pre">&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>left</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:&lt;8}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;012345</span>&#160; <span class="pre">&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>center</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:^8}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;</span> <span class="pre">012345</span> <span class="pre">&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>right</p></td>
+<td><p>N/A</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:&gt;8}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;</span>&#160; <span class="pre">012345&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>center</p></td>
+<td><p>=</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:=^8}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;=012345=&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>center</p></td>
+<td><p>*</p></td>
+<td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;{:\*^6.2}&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;\*\*01\*\*&quot;</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading"></a></h2>
+<p>Now that the initial release of <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> has been completed,
+the following are our immediate goals:</p>
+<ul class="simple">
+<li><p>Add support for <code class="docutils literal notranslate"><span class="pre">bdlt</span></code> date and time types (no localization support planned)</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

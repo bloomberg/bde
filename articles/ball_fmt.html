@@ -1,0 +1,198 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introducing BALL_FMT: BALL Logger Support for std::format-style Text Formatting &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/ball_fmt.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Getting Started Writing Allocator-Aware Software" href="getting_started_with_aa.html" />
+    <link rel="prev" title="BER Encoding Options to Improve Performance" href="ber_array_length_hints.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">Introducing <code class="docutils literal notranslate"><span class="pre">BALL_FMT</span></code>: BALL Logger Support for <code class="docutils literal notranslate"><span class="pre">std::format</span></code>-style Text Formatting</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="ber_array_length_hints.html" class="btn btn-neutral float-left" title="BER Encoding Options to Improve Performance" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="getting_started_with_aa.html" class="btn btn-neutral float-right" title="Getting Started Writing Allocator-Aware Software" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>July 7, 2025</em></p>
+<section id="introducing-ball-fmt-ball-logger-support-for-std-format-style-text-formatting">
+<h1>Introducing <code class="docutils literal notranslate"><span class="pre">BALL_FMT</span></code>: BALL Logger Support for <code class="docutils literal notranslate"><span class="pre">std::format</span></code>-style Text Formatting<a class="headerlink" href="#introducing-ball-fmt-ball-logger-support-for-std-format-style-text-formatting" title="Link to this heading"></a></h1>
+<p>BDE 4.26.0 introduced the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__fmt.html">ball_fmt</a> component that provides logging macros that accept a
+format specifications and substitution parameters mirroring those introduced in
+standard C++20 facility <code class="docutils literal notranslate"><span class="pre">bsl::format</span></code> (see the article <a class="reference external" href="bslfmt.html">Introducing bsl::format</a>):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="n">BALL_LOG_SET_CATEGORY</span><span class="p">(</span><span class="s">&quot;EXAMPLE.CATEGORY&quot;</span><span class="p">);</span>
+
+<span class="hll"><span class="w"> </span><span class="n">BALL_FMT_TRACE</span><span class="p">(</span><span class="s">&quot;Examining record number {}...&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">recNumber</span><span class="p">);</span>
+</span>
+<span class="hll"><span class="w"> </span><span class="n">BALL_FMT_ERROR</span><span class="p">(</span><span class="s">&quot;Endpoint &#39;{}&#39; is not in the allowed list&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">endPoint</span><span class="p">);</span>
+</span></pre></div>
+</div>
+<p>Logging is a place where the benefits of the new standard formatting facilities
+really shine, allowing developers to more easily craft log messages that output
+in a desired format, while being more readable in source code.</p>
+<p>Of course, it is also possible to log within a block into the same record as we
+can with the streaming log macros:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">myVector</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">328</span><span class="p">);</span>
+<span class="hll"><span class="w"> </span><span class="n">BALL_LOG_TRACE_BLOCK</span><span class="w"> </span><span class="p">{</span>
+</span><span class="hll"><span class="w">     </span><span class="n">BALL_FMT</span><span class="p">(</span><span class="s">&quot;myVector = [ &quot;</span><span class="p">);</span>
+</span><span class="w">     </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">position</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">     </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span><span class="w"> </span><span class="n">it</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">myVector</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span>
+<span class="w">                                           </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">myVector</span><span class="p">.</span><span class="n">end</span><span class="p">();</span>
+<span class="w">         </span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">end</span><span class="p">;</span>
+<span class="w">         </span><span class="o">++</span><span class="n">it</span><span class="p">,</span><span class="w"> </span><span class="o">++</span><span class="n">position</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="w">         </span><span class="n">BALL_FMT</span><span class="p">(</span><span class="s">&quot;{}:{} &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">position</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">it</span><span class="p">);</span>
+</span><span class="w">     </span><span class="p">}</span>
+<span class="hll"><span class="w">     </span><span class="n">BALL_FMT</span><span class="p">(</span><span class="s">&quot;]&quot;</span><span class="p">);</span>
+</span><span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Many existing types do not (and may never) provide <code class="docutils literal notranslate"><span class="pre">bsl::formatter</span></code>
+specializations, and rely on the <code class="docutils literal notranslate"><span class="pre">ostream</span></code> insert <code class="docutils literal notranslate"><span class="pre">operator&lt;&lt;</span></code> to generate
+a text description.  To overcome this gap, clients can use the new
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__streamed.html">bslfmt::streamed</a> wrapper (also released in BDE 4.26):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="n">BALL_LOG_SET_CATEGORY</span><span class="p">(</span><span class="s">&quot;EXAMPLE.CATEGORY&quot;</span><span class="p">);</span>
+
+<span class="hll"><span class="w"> </span><span class="n">BALL_FMT_FATAL</span><span class="p">(</span><span class="s">&quot;Item {:&gt;010} does not exist.&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bslfmt</span><span class="o">::</span><span class="n">streamed</span><span class="p">(</span><span class="n">id</span><span class="p">));</span>
+</span></pre></div>
+</div>
+<p>For more details read the
+<a class="reference external" href="bslfmt.html#enabling-bsl-format-for-types-with-an-ostream-insert-operator">bslfmt::streamed Introduction</a>
+and <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslfmt__streamed.html">bslfmt::streamed</a>.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

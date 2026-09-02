@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bdljsn::Json Enchancements &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bdljsn_enhancements.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BSL Support for C++23" href="cpp23_project.html" />
+    <link rel="prev" title="Articles" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bdljsn::Json Enhancements  (September 3, 2026)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#added-conversions-and-fluent-operators">Added Conversions and Fluent Operators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-bdljsn-jsonnull-constant">The <code class="docutils literal notranslate"><span class="pre">bdljsn::jsonNull</span></code> Constant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initializer-list-enhancements">Initializer List Enhancements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-visit-method">The <code class="docutils literal notranslate"><span class="pre">visit</span></code> Method</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> Enchancements</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="index.html" class="btn btn-neutral float-left" title="Articles" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cpp23_project.html" class="btn btn-neutral float-right" title="BSL Support for C++23" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>Month DD, 2026</em></p>
+<section id="bdljsn-json-enchancements">
+<h1><code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> Enchancements<a class="headerlink" href="#bdljsn-json-enchancements" title="Link to this heading"></a></h1>
+<p>Since <a class="reference external" href="bdljsn">Introducing bdljsn::Json</a> many features have been added that
+make use of that component easier and more effective.  The purpose of this
+article is summarize these features for our users.</p>
+<section id="added-conversions-and-fluent-operators">
+<h2>Added Conversions and Fluent Operators<a class="headerlink" href="#added-conversions-and-fluent-operators" title="Link to this heading"></a></h2>
+<p>Recently added methods and implicit conversions allow users to compose
+and operate on <code class="docutils literal notranslate"><span class="pre">Json</span></code> objects with less code clutter.</p>
+<p>Additionally, many manipulator methods that had previously
+returned <code class="docutils literal notranslate"><span class="pre">void</span></code> now return an reference to the object (a.k.a., a “fluent”
+method).  Successive invocations of these manipulators can now be combined
+into a single expression.</p>
+<p>Consider the assembly of an array-type <cite>Json</cite> object.  Previously that would
+might look like this:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Json</span><span class="w"> </span><span class="n">json</span><span class="p">;</span><span class="w">                                    </span><span class="c1">// Create the `Json` object.</span>
+<span class="n">json</span><span class="p">.</span><span class="n">makeArray</span><span class="p">();</span><span class="w">                             </span><span class="c1">// Make it an array type.</span>
+<span class="n">json</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">Json</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span><span class="w">           </span><span class="c1">// Must access via `theArray`.</span>
+<span class="n">json</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;string&quot;</span><span class="p">));</span><span class="w">     </span><span class="c1">// `pushBack` `Json` objects.</span>
+<span class="n">json</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">Json</span><span class="p">(</span><span class="nb">false</span><span class="p">));</span><span class="w">        </span><span class="c1">// &quot;                         &quot;</span>
+<span class="n">json</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">Json</span><span class="p">(</span><span class="n">JsonObject</span><span class="p">()));</span><span class="w"> </span><span class="c1">// &quot;                         &quot;</span>
+<span class="n">json</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">pushBack</span><span class="p">(</span><span class="n">Json</span><span class="p">(</span><span class="n">JsonNull</span><span class="p">()));</span><span class="w">   </span><span class="c1">// &quot;                         &quot;</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span><span class="w">           </span><span class="c1">// Must compare `Json` objects.</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;string&quot;</span><span class="p">));</span><span class="w">     </span><span class="c1">// &quot;                          &quot;</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="nb">false</span><span class="p">));</span><span class="w">        </span><span class="c1">// &quot;                          &quot;</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="n">JsonObject</span><span class="p">()));</span><span class="w"> </span><span class="c1">// &quot;                          &quot;</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="n">JsonNull</span><span class="p">()));</span><span class="w">   </span><span class="c1">// &quot;                          &quot;</span>
+</pre></div>
+</div>
+<p>Now, the same code can be written more concisely:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Json</span><span class="w"> </span><span class="n">json</span><span class="p">;</span><span class="w">                   </span><span class="c1">// Create the (null) `Json` object.</span>
+<span class="n">json</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span><span class="w">            </span><span class="c1">// We need not invoke `makeArray`</span>
+<span class="w">    </span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="s">&quot;string&quot;</span><span class="p">)</span><span class="w">      </span><span class="c1">// We need not invoke `theArray`.</span>
+<span class="w">    </span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span><span class="w">         </span><span class="c1">// Pushed values need not be `Json` objects.</span>
+<span class="w">    </span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">JsonObject</span><span class="p">())</span><span class="w">  </span><span class="c1">// `pushBack` is &quot;fluent&quot; -- need not repeat</span>
+<span class="w">    </span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">JsonNull</span><span class="p">());</span><span class="w">   </span><span class="c1">// the `json` variable name.</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">42</span><span class="p">);</span><span class="w">           </span><span class="c1">// Can compare `Json` objects</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;string&quot;</span><span class="p">);</span><span class="w">     </span><span class="c1">// to non-`Json` values.</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">JsonObject</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">json</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">jsonNull</span><span class="p">);</span><span class="w">     </span><span class="c1">// Note: Use `JsonNull` constant.</span>
+</pre></div>
+</div>
+<p>Notice that the <code class="docutils literal notranslate"><span class="pre">Json</span></code> class now has many methods that mirror methods of
+of <code class="docutils literal notranslate"><span class="pre">JsonArray</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">pushBack</span></code>) so array operations can be performed
+directly on the <code class="docutils literal notranslate"><span class="pre">Json</span></code> object without using the <code class="docutils literal notranslate"><span class="pre">theArray()</span></code> method that
+was previously required.  Moreover, when array operations are applied to
+a <code class="docutils literal notranslate"><span class="pre">Json</span></code> object having type <code class="docutils literal notranslate"><span class="pre">JsonNull</span></code>, that object’s type is implicitly
+converted to <code class="docutils literal notranslate"><span class="pre">JsonArray</span></code>.</p>
+<p>Similarly, many of the methods of <code class="docutils literal notranslate"><span class="pre">JsonObject</span></code> have also been “imported” to
+<code class="docutils literal notranslate"><span class="pre">Json</span></code> and they too implicitly change a <code class="docutils literal notranslate"><span class="pre">Json</span></code> object’s type from
+<code class="docutils literal notranslate"><span class="pre">JsonNull</span></code> to <code class="docutils literal notranslate"><span class="pre">JsonObject</span></code>.</p>
+</section>
+<section id="the-bdljsn-jsonnull-constant">
+<h2>The <code class="docutils literal notranslate"><span class="pre">bdljsn::jsonNull</span></code> Constant<a class="headerlink" href="#the-bdljsn-jsonnull-constant" title="Link to this heading"></a></h2>
+<p>Notice in the final line of the previous example that
+<a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__jsonnull.html">bdljsn_jsonnull</a>
+now defines, <code class="docutils literal notranslate"><span class="pre">bdljsn::jsonNull</span></code> (leading lower case <code class="docutils literal notranslate"><span class="pre">j</span></code>),
+a constant having the singular value of the <code class="docutils literal notranslate"><span class="pre">bdljsn::JsonNull</span></code> class.</p>
+</section>
+<section id="initializer-list-enhancements">
+<h2>Initializer List Enhancements<a class="headerlink" href="#initializer-list-enhancements" title="Link to this heading"></a></h2>
+<p>For some time, the <code class="docutils literal notranslate"><span class="pre">bdljsn::JsonArray</span></code> and <code class="docutils literal notranslate"><span class="pre">bdljsn::JsonObect</span></code> and classes
+have provided constuctors and maniuplator
+methods that accept <code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code> class templates.  Thus, users
+have been able to define those objects using braced lists of <code class="docutils literal notranslate"><span class="pre">Json</span></code>
+objects to define <code class="docutils literal notranslate"><span class="pre">JsonArray</span></code> objects and braced lists of key/<code class="docutils literal notranslate"><span class="pre">Json</span></code>
+objects to to define <code class="docutils literal notranslate"><span class="pre">JsonObject</span></code> objects.  For example:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">JsonArray</span><span class="w"> </span><span class="n">array0</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// A list of `Json` objects</span>
+<span class="w">    </span><span class="n">Json</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;string&quot;</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Json</span><span class="p">(</span><span class="nb">true</span><span class="p">),</span>
+<span class="w">    </span><span class="n">Json</span><span class="p">(</span><span class="n">JsonObject</span><span class="p">())</span>
+<span class="p">};</span>
+
+<span class="n">JsonObject</span><span class="w"> </span><span class="n">object0</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// A mapping from key values to `Json` objects.</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;play&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;Waiting for Godot&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;characters&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">Json</span><span class="p">(</span><span class="n">JsonArray</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                            </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;Didi&quot;</span><span class="p">),</span>
+<span class="w">                            </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;Gogo&quot;</span><span class="p">),</span>
+<span class="w">                            </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;Pozzo&quot;</span><span class="p">),</span>
+<span class="w">                            </span><span class="n">Json</span><span class="p">(</span><span class="s">&quot;Lucky&quot;</span><span class="p">)}</span>
+<span class="w">                        </span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>More recently, the implementation has been generalized so those braced lists
+consist of a wide assortment type suitable for constructing <code class="docutils literal notranslate"><span class="pre">Json</span></code> objects.
+Thus, the previous example can now be written more concisely (and more
+readably):</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">JsonArray</span><span class="w"> </span><span class="n">array1</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// The list elements need no longer be `Json` objects.</span>
+<span class="w">    </span><span class="mi">123</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nb">true</span><span class="p">,</span>
+<span class="w">    </span><span class="n">JsonObject</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">JsonObject</span><span class="w"> </span><span class="n">object1</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// The values need no longer be `Json` objects.</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;play&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Waiting for Godot&quot;</span><span class="w"> </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;characters&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">JsonArray</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                        </span><span class="s">&quot;Didi&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s">&quot;Gogo&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s">&quot;Pozzo&quot;</span><span class="p">,</span>
+<span class="w">                        </span><span class="s">&quot;Lucky&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="w"> </span><span class="n">array0</span><span class="w"> </span><span class="o">==</span><span class="w">  </span><span class="n">array1</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">object0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">object1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The types accepted in braced lists include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></li>
+<li><p>integral types</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">float</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">double</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bdldfp::Decimal64</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">char</span> <span class="pre">*</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">bsl::string&amp;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">std::string&amp;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">std::pmr::string&amp;</span></code> (where available)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">bsl::string_view&amp;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">const</span> <span class="pre">std::string_view&amp;</span></code> (where distinct from <code class="docutils literal notranslate"><span class="pre">bsl::string_view</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JsonNull</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JsonNumber</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JsonArray</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">JsonObject</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Json</span></code></p></li>
+</ul>
+</div></blockquote>
+<p>Finally, the <code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> class itself did not and still does <strong>not</strong>
+directly support initializer lists:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Json</span><span class="w"> </span><span class="n">jx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">};</span><span class="w">  </span><span class="c1">// Error.  No such CTOR.</span>
+
+<span class="w">                                   </span><span class="c1">// Note: User intent is ambiguous.</span>
+<span class="w">                                   </span><span class="c1">//  * Object having two members, or</span>
+<span class="w">                                   </span><span class="c1">//  * Array having two elements, each</span>
+<span class="w">                                   </span><span class="c1">//    an array of two elements?</span>
+</pre></div>
+</div>
+<p>To disambiguate intent when creating a <code class="docutils literal notranslate"><span class="pre">Json</span></code> object from an
+<code class="docutils literal notranslate"><span class="pre">std::initializer_list</span></code>, qualify the statement by supplying the
+<code class="docutils literal notranslate"><span class="pre">JsonArray</span></code>/<code class="docutils literal notranslate"><span class="pre">JsonObject</span></code> types explicitly.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="n">Json</span><span class="w"> </span><span class="n">ja</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonArray</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ja</span><span class="p">.</span><span class="n">isArray</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">2</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">ja</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ja</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">isArray</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">ja</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">isArray</span><span class="p">());</span>
+
+<span class="n">Json</span><span class="w"> </span><span class="n">jo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">JsonObject</span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="s">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">jo</span><span class="p">.</span><span class="n">isObject</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">2</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">jo</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">jo</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">));</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">1</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">jo</span><span class="p">[</span><span class="s">&quot;a&quot;</span><span class="p">]);</span>
+<span class="n">assert</span><span class="p">(</span><span class="nb">true</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">jo</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">));</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">2</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">jo</span><span class="p">[</span><span class="s">&quot;b&quot;</span><span class="p">]);</span>
+</pre></div>
+</div>
+</section>
+<section id="the-visit-method">
+<h2>The <code class="docutils literal notranslate"><span class="pre">visit</span></code> Method<a class="headerlink" href="#the-visit-method" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">bdljsn::Json</span></code> class now has the (overloaded) <code class="docutils literal notranslate"><span class="pre">visit</span></code> method which
+supports the “visitor” pattern.  In this pattern, a user-supplied, type-based
+functor is invoked for each of the nodes of a JSON document.
+See <a class="reference external" href="https://bde.bloomberg.com/bde-resources/doxygen/bde_api_prod/group__bdljsn__json.html#bdljsn_json-example-3-using-the-visit-method-to-traverse-a-json-object">bdljsn_json Example 3: Using the visit Method to Traverse a Json Object</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

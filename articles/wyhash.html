@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Selecting wyhash as the Default Hash Algorithm &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/wyhash.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="bsl::chrono Integration with bsl and bdl" href="bde_4.0_chrono.html" />
     <link rel="prev" title="Introducing bdljsn::Json" href="bdljsn.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
@@ -137,92 +104,45 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li>Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="bde_4.0_chrono.html" class="btn btn-neutral float-right" title="bsl::chrono Integration with bsl and bdl" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="bdljsn.html" class="btn btn-neutral float-left" title="Introducing bdljsn::Json" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="bde_4.0_chrono.html" class="btn btn-neutral float-right" title="bsl::chrono Integration with bsl and bdl" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>June 30, 2022</em></p>
-<div class="section" id="selecting-wyhash-as-the-default-hash-algorithm">
-<h1>Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm<a class="headerlink" href="#selecting-wyhash-as-the-default-hash-algorithm" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<section id="selecting-wyhash-as-the-default-hash-algorithm">
+<h1>Selecting <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> as the Default Hash Algorithm<a class="headerlink" href="#selecting-wyhash-as-the-default-hash-algorithm" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>BDE 3.103.0 updated the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__defaulthashalgorithm.html">default hash algorithm</a>
 used by BDE (e.g., by <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslstl__hash.html">bsl::hash</a>) to be
 <a class="reference external" href="https://github.com/wangyi-fudan/wyhash">wyhash</a> (implemented in the BDE component <a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>).</p>
 <p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> demonstrated the best performance of the hash algorithms tested.</p>
-</div>
-<div class="section" id="background">
-<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
 <p>BDE’s previously used an implementation of <a class="reference external" href="https://burtleburtle.net/bob/hash/spooky.html">SpookyHash</a>
 (<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bslh__spookyhashalgorithm.html">bslh_spookyhashalgorithm</a>) as its default hash algorithm.
 This default hash function is intended to be suitable for a general purpose hash table, but is <em>not</em> cryptographically secure.
@@ -233,14 +153,14 @@ whose quality and recency are sometimes hard to judge.  The must useful for our 
 <li><p><a class="reference external" href="https://rurban.github.io/smhasher/doc/table.html">SMhasher Intel Sortable Benchmark Table</a></p></li>
 </ul>
 <p>From SMhasher, and other online resources, we collected a set of candidate default hash algorithms.</p>
-</div>
-<div class="section" id="benchmark-comparisons">
-<h2>Benchmark Comparisons<a class="headerlink" href="#benchmark-comparisons" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="benchmark-comparisons">
+<h2>Benchmark Comparisons<a class="headerlink" href="#benchmark-comparisons" title="Link to this heading"></a></h2>
 <p>The BDE team performed a few rounds of its own testing to confirm and expand on information available online.  The primary
 goal was to find a hash algorithm that performed best on x86 platforms (Linux and Windows), but at the same time did not
 degrade performance noticeably on legacy platforms like Sun and AIX.</p>
-<div class="section" id="initial-algorithm-performance-comparison">
-<h3>Initial Algorithm Performance Comparison<a class="headerlink" href="#initial-algorithm-performance-comparison" title="Permalink to this headline">¶</a></h3>
+<section id="initial-algorithm-performance-comparison">
+<h3>Initial Algorithm Performance Comparison<a class="headerlink" href="#initial-algorithm-performance-comparison" title="Link to this heading"></a></h3>
 <p>The initial comparison tested a number of candidate algorithms on Linux.</p>
 <blockquote>
 <div><ul class="simple">
@@ -248,14 +168,6 @@ degrade performance noticeably on legacy platforms like Sun and AIX.</p>
 </ul>
 </div></blockquote>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 47%" />
-<col style="width: 10%" />
-<col style="width: 10%" />
-<col style="width: 11%" />
-<col style="width: 11%" />
-<col style="width: 13%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Algorithm</p></th>
 <th class="head"><p>4 Bytes</p></th>
@@ -361,22 +273,26 @@ degrade performance noticeably on legacy platforms like Sun and AIX.</p>
 </dd>
 </dl>
 <p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was the fastest general-purpose hash function over a range of input lengths that we measured.</p>
-</div>
-<div class="section" id="avalanche-testing">
-<h3>Avalanche Testing<a class="headerlink" href="#avalanche-testing" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="avalanche-testing">
+<h3>Avalanche Testing<a class="headerlink" href="#avalanche-testing" title="Link to this heading"></a></h3>
 <p>A test for <a class="reference external" href="https://simple.wikipedia.org/wiki/Avalanche_effect">“avalanche effects”</a> was then performed. For this test
 a single bit of input was modified, and the number of bits changed in the resulting hash code was counted.
 The expectation is there should is a 50% chance each output bit will changed if a single input bit is changed.</p>
 <p>The avalanche tests excluded boost crc32 and Fnv64.  As can be observed in the raw results, <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> exhibits a
 clean bell curve similar to our existing default <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> implementation with almost the exact same standard deviation.</p>
-</div>
-<div class="section" id="final-verification-for-wyhash">
-<h3>Final Verification for wyhash<a class="headerlink" href="#final-verification-for-wyhash" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="final-verification-for-wyhash">
+<h3>Final Verification for wyhash<a class="headerlink" href="#final-verification-for-wyhash" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was selected as the primary candidate for the default hash function.  This algorithm was
 implemented in a BDE component (<a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslh/bslh_wyhashalgorithm.h">bslh_wyhashalgorithm</a>)
 and compared against BDE’s previous default hash function <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code>.</p>
 <p>The results of comparing BDE’s <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> implementation against BDE’s <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> implementation are below:</p>
-<img alt="Linux" src="../_images/wyhash_Linux.svg" /><img alt="Sun" src="../_images/wyhash_Sun.svg" /><img alt="AIX" src="../_images/wyhash_AIX.svg" /><img alt="Windows" src="../_images/wyhash_Windows.svg" /><dl class="simple">
+<img alt="Linux" src="../_images/wyhash_Linux.svg" />
+<img alt="Sun" src="../_images/wyhash_Sun.svg" />
+<img alt="AIX" src="../_images/wyhash_AIX.svg" />
+<img alt="Windows" src="../_images/wyhash_Windows.svg" />
+<dl class="simple">
 <dt>Notes:</dt><dd><ul class="simple">
 <li><p>On x86 platforms, <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> performed significantly better than <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> (as expected).</p></li>
 <li><p>On AIX, <code class="docutils literal notranslate"><span class="pre">wyhash</span></code> was faster than <code class="docutils literal notranslate"><span class="pre">SpookyHash</span></code> for smaller inputs (&lt; ~100 bytes) and slower for larger inputs.
@@ -386,52 +302,36 @@ We considered this to be a neutral result.</p></li>
 </dl>
 <p>The decline in performance for larger input on AIX was considered acceptable given the benefits in
 other contexts (especially x86 platforms, where there were substantial improvements).</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

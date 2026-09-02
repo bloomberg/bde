@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Fuzz Testing &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/fuzz_testing.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Introducing bdljsn::Json" href="bdljsn.html" />
     <link rel="prev" title="BSL Support for C++20" href="cpp20_project.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
@@ -124,85 +82,38 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li>Fuzz Testing</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">Fuzz Testing</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="bdljsn.html" class="btn btn-neutral float-right" title="Introducing bdljsn::Json" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="cpp20_project.html" class="btn btn-neutral float-left" title="BSL Support for C++20" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="bdljsn.html" class="btn btn-neutral float-right" title="Introducing bdljsn::Json" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>February 21, 2023</em></p>
-<div class="section" id="fuzz-testing">
-<h1>Fuzz Testing<a class="headerlink" href="#fuzz-testing" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="what-is-fuzz-testing">
-<h2>What Is Fuzz Testing?<a class="headerlink" href="#what-is-fuzz-testing" title="Permalink to this headline">¶</a></h2>
+<section id="fuzz-testing">
+<h1>Fuzz Testing<a class="headerlink" href="#fuzz-testing" title="Link to this heading"></a></h1>
+<section id="what-is-fuzz-testing">
+<h2>What Is Fuzz Testing?<a class="headerlink" href="#what-is-fuzz-testing" title="Link to this heading"></a></h2>
 <p>Fuzz testing consists of exercising component methods using data that is more
 unusual than the hand-crafted cases test writers tend to provide, with a goal
 of exposing possible crashes, memory problems, and a variety of other ill
@@ -216,9 +127,9 @@ is then requested by adding <code class="docutils literal notranslate"><span cla
 When fuzz testing, it is helpful to also specify a sanitizer option in the
 ufid, such as <code class="docutils literal notranslate"><span class="pre">asan</span></code> (the address sanitizer), so that more errors are
 detected.</p>
-</div>
-<div class="section" id="writing-a-fuzz-test">
-<h2>Writing a Fuzz Test<a class="headerlink" href="#writing-a-fuzz-test" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="writing-a-fuzz-test">
+<h2>Writing a Fuzz Test<a class="headerlink" href="#writing-a-fuzz-test" title="Link to this heading"></a></h2>
 <p>A fuzz test is simply a <code class="docutils literal notranslate"><span class="pre">C</span></code> function with a special name,
 <code class="docutils literal notranslate"><span class="pre">LLVMFuzzerTestOneInput</span></code>.  The fuzz testing system calls this function
 repeatedly, supplying different data each time, and the function is responsible
@@ -240,9 +151,9 @@ problematic input, reports the failure, and exits.</p>
 following template, just before <code class="docutils literal notranslate"><span class="pre">main()</span></code>.  The BDE code base has several
 components that have already been modified this way.  Please see those, e.g.,
 <a class="reference external" href="http://bburl/BPUFuzzTest">ball_patternutil.t.cpp</a>, for complete examples.</p>
-</div>
-<div class="section" id="a-fuzz-testing-template">
-<h2>A Fuzz Testing Template<a class="headerlink" href="#a-fuzz-testing-template" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="a-fuzz-testing-template">
+<h2>A Fuzz Testing Template<a class="headerlink" href="#a-fuzz-testing-template" title="Link to this heading"></a></h2>
 <p>The following is an empty example template for a fuzz testing function.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ============================================================================</span>
 <span class="c1">//                              FUZZ TESTING</span>
@@ -258,23 +169,23 @@ components that have already been modified this way.  Please see those, e.g.,
 <span class="cp">#define main test_driver_main</span>
 <span class="cp">#endif</span>
 
-<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"></span>
-<span class="kt">int</span><span class="w"> </span><span class="n">LLVMFuzzerTestOneInput</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"></span>
+<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">LLVMFuzzerTestOneInput</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// Use the specified &#39;data&#39; array of &#39;size&#39; bytes as input to methods of</span>
 <span class="w">    </span><span class="c1">// this component and return zero.</span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">LENGTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">test</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*&gt;</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">LENGTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w">         </span><span class="n">test</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// Use first fuzz byte to select the test case.</span>
-<span class="w">        </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">        </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">)</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+<span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
 <span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span><span class="w">  </span><span class="c1">// Zero is always the leading case.</span>
-<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="no">N</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="k">case</span><span class="w"> </span><span class="no">N</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="c1">// --------------------------------------------------------------------</span>
 <span class="w">        </span><span class="c1">// TESTING &#39;myFunction&#39;</span>
 <span class="w">        </span><span class="c1">//</span>
@@ -286,45 +197,45 @@ components that have already been modified this way.  Please see those, e.g.,
 <span class="w">        </span><span class="c1">// --------------------------------------------------------------------</span>
 
 <span class="w">        </span><span class="c1">// ...  Test myFunction using ASSERT or in other ways ...</span>
-<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
 <span class="w">      </span><span class="c1">// ... other cases ...</span>
-<span class="w">      </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="k">default</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testStatus</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">BSLS_ASSERT_INVOKE</span><span class="p">(</span><span class="s">&quot;FUZZ TEST FAILURES&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">testStatus</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BSLS_ASSERT_INVOKE</span><span class="p">(</span><span class="s">&quot;FUZZ TEST FAILURES&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="generating-fuzz-test-inputs">
-<h2>Generating Fuzz Test Inputs<a class="headerlink" href="#generating-fuzz-test-inputs" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="generating-fuzz-test-inputs">
+<h2>Generating Fuzz Test Inputs<a class="headerlink" href="#generating-fuzz-test-inputs" title="Link to this heading"></a></h2>
 <p>In BDE testing methodology, there are often table-driven tests where the author
 has generated interesting test data by hand, and calls methods with that data,
 perhaps varying some other parameter along the way.  It might look something
 like the following.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">DATA</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;Hello&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;World!&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;------------------------------------------------------------&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="s">&quot;123 123 123 123 123&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="p">};</span><span class="w"></span>
-<span class="kt">size_t</span><span class="w"> </span><span class="n">NUM_DATA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">DATA</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">DATA</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">DATA</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="s">&quot;Hello&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;World!&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;------------------------------------------------------------&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s">&quot;123 123 123 123 123&quot;</span><span class="p">,</span>
+<span class="p">};</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">NUM_DATA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">DATA</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">DATA</span><span class="p">);</span>
 
-<span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">LIMITS</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="p">};</span><span class="w"></span>
-<span class="kt">size_t</span><span class="w"> </span><span class="n">NUM_LIMITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">LIMITS</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">LIMITS</span><span class="p">);</span><span class="w"></span>
+<span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">LIMITS</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="w"> </span><span class="p">};</span>
+<span class="kt">size_t</span><span class="w"> </span><span class="n">NUM_LIMITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">LIMITS</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="o">*</span><span class="n">LIMITS</span><span class="p">);</span>
 
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_DATA</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LIMITS</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">method</span><span class="p">(</span><span class="n">DATA</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">DATA</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="w"> </span><span class="n">LIMITS</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span><span class="w"></span>
-<span class="w">        </span><span class="n">ASSERTV</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_DATA</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NUM_LIMITS</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">method</span><span class="p">(</span><span class="n">DATA</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">strlen</span><span class="p">(</span><span class="n">DATA</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="w"> </span><span class="n">LIMITS</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">        </span><span class="n">ASSERTV</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>In fuzz testing, we generally don’t want to do this.  The intent of fuzz
@@ -333,17 +244,17 @@ as we can, in order to eliminate hidden assumptions in the test data that might
 prevent errors from being noticed.  So, if we are writing a fuzz test with the
 intent of paralleling the normal test above, we might write it like this.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ,,,</span>
-<span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">;</span><span class="w"></span>
-<span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">limit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">FUZZ</span><span class="o">++</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">;</span>
+<span class="w">        </span><span class="o">--</span><span class="n">LENGTH</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
 
-<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">method</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">strnlen</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">),</span><span class="w"> </span><span class="n">limit</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">ASSERTV</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">method</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">strnlen</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">),</span><span class="w"> </span><span class="n">limit</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ASSERTV</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
 <span class="w">  </span><span class="c1">// ...</span>
 </pre></div>
 </div>
@@ -353,9 +264,9 @@ looping through a set of cases.  The fuzz testing infrastructure will do the
 looping for us, and it will come up with combinations of strings and limits
 that we might not see in the hand-written data, and that we might miss if we
 used the fuzz data only for the string but not for the limit.</p>
-</div>
-<div class="section" id="what-does-a-fuzz-test-test">
-<h2>What Does a Fuzz Test Test?<a class="headerlink" href="#what-does-a-fuzz-test-test" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="what-does-a-fuzz-test-test">
+<h2>What Does a Fuzz Test Test?<a class="headerlink" href="#what-does-a-fuzz-test-test" title="Link to this heading"></a></h2>
 <p>Fuzz testing involves a variety of approaches depending on the nature of the
 methods to be tested.  It is up to the author of the fuzz test to decide which
 approaches are appropriate for the tests being conducted.  Given the fuzz test
@@ -371,7 +282,7 @@ fuzz test may simply invoke such methods with the supplied data.  The
 purpose of such a test is to verify that the method does not crash or
 cause any detectable undefined behavior, but not to check that the
 function produces the correct result.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="p">.</span><span class="n">wideFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="p">.</span><span class="n">wideFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span>
 </pre></div>
 </div>
 </dd>
@@ -386,9 +297,9 @@ inputs.</p>
 be tested only if the data falls within the contract.  If the data
 is valid for the contract, the test again simply verifies that the
 method does not crash or cause detectable undefined behavior.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </dd>
@@ -406,14 +317,14 @@ there is a crash or other detectable undefined behavior, that too
 will be caught in either case.  Once again, we are not testing if
 the result of the method is correct.</p>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifdef BDE_BUILD_TARGET_EXC</span>
-<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">AssertTestHandlerGuard</span><span class="w"> </span><span class="n">g</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">ASSERT_SAFE_PASS</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">AssertTestHandlerGuard</span><span class="w"> </span><span class="n">g</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">ASSERT_SAFE_FAIL</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">LENGTH</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;A&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="sc">&#39;(&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">AssertTestHandlerGuard</span><span class="w"> </span><span class="n">g</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ASSERT_SAFE_PASS</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">));</span>
+<span class="p">}</span>
+<span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bsls</span><span class="o">::</span><span class="n">AssertTestHandlerGuard</span><span class="w"> </span><span class="n">g</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ASSERT_SAFE_FAIL</span><span class="p">(</span><span class="n">obj</span><span class="p">.</span><span class="n">narrowFun</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">));</span>
+<span class="p">}</span>
 <span class="cp">#endif</span>
 </pre></div>
 </div>
@@ -437,12 +348,12 @@ be.  This is not always feasible, since such determination (e.g.,
 well-formedness of XML or JSON) may sometimes be as complex and prone
 to error as the component under test itself.</p>
 <blockquote>
-<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
-<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="sc">&#39;9&#39;</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">checkAllNumeric</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span><span class="w"></span>
-<span class="n">ASSERTV</span><span class="p">(</span><span class="n">allNumeric</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w"></span>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">bool</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sc">&#39;0&#39;</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">FUZZ</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="sc">&#39;9&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="p">.</span><span class="n">checkAllNumeric</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">);</span>
+<span class="n">ASSERTV</span><span class="p">(</span><span class="n">allNumeric</span><span class="p">,</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">allNumeric</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -451,9 +362,9 @@ to error as the component under test itself.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="generating-function-input-from-fuzz-data">
-<h2>Generating Function Input from Fuzz Data<a class="headerlink" href="#generating-function-input-from-fuzz-data" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="generating-function-input-from-fuzz-data">
+<h2>Generating Function Input from Fuzz Data<a class="headerlink" href="#generating-function-input-from-fuzz-data" title="Link to this heading"></a></h2>
 <p>The two components <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzdataview.h">bslim_fuzzdataview</a>
 and <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzutil.h">bslim_fuzzutil</a>
 can simplify the creation of function input from raw fuzz data.
@@ -465,18 +376,18 @@ the fuzz data.</p>
 <p>For example, imagine we are fuzzing a parser and want to use fuzz data to
 populate a configuration object:</p>
 <blockquote>
-<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="k">typedef</span><span class="w"> </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzUtil</span><span class="w"> </span><span class="n">FuzzUtil</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzDataView</span><span class="w"> </span><span class="nf">fuzzData</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">Options</span><span class="w"> </span><span class="n">options</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setMaxDepth</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeNumberInRange</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setSkipUnknownElements</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeBool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">));</span><span class="w"></span>
-<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setValidateSchema</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeBool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">));</span><span class="w"></span>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">typedef</span><span class="w"> </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzUtil</span><span class="w"> </span><span class="n">FuzzUtil</span><span class="p">;</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bslim</span><span class="o">::</span><span class="n">FuzzDataView</span><span class="w"> </span><span class="nf">fuzzData</span><span class="p">(</span><span class="n">FUZZ</span><span class="p">,</span><span class="w"> </span><span class="n">LENGTH</span><span class="p">)</span>
+<span class="w">    </span><span class="n">Options</span><span class="w"> </span><span class="n">options</span><span class="p">;</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setMaxDepth</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeNumberInRange</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">128</span><span class="p">));</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setSkipUnknownElements</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeBool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">));</span>
+<span class="w">    </span><span class="n">options</span><span class="p">.</span><span class="n">setValidateSchema</span><span class="p">(</span><span class="n">FuzzUtil</span><span class="o">::</span><span class="n">consumeBool</span><span class="p">(</span><span class="o">&amp;</span><span class="n">fuzzData</span><span class="p">));</span>
 
-<span class="w">    </span><span class="n">Obj</span><span class="w"> </span><span class="n">mX</span><span class="p">;</span><span class="w"></span>
-<span class="w">    </span><span class="n">mX</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fuzzData</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">fuzzData</span><span class="p">.</span><span class="n">length</span><span class="p">(),</span><span class="w"> </span><span class="n">options</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">Obj</span><span class="w"> </span><span class="n">mX</span><span class="p">;</span>
+<span class="w">    </span><span class="n">mX</span><span class="p">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fuzzData</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">fuzzData</span><span class="p">.</span><span class="n">length</span><span class="p">(),</span><span class="w"> </span><span class="n">options</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">break</span><span class="p">;</span>
 <span class="w">  </span><span class="c1">// ...</span>
 </pre></div>
 </div>
@@ -486,9 +397,9 @@ process of creating higher level types. For instance, <a class="reference extern
 builds upon <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzdataview.h">bslim_fuzzdataview</a>
 and <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde/bde/blob/main/groups/bsl/bslim/bslim_fuzzutil.h">bslim_fuzzutil</a>
 to create date values for testing functions that accept dates as parameters.</p>
-</div>
-<div class="section" id="fuzzing-functions-with-preconditions">
-<span id="fuzzing-preconditions"></span><h2>Fuzzing Functions with Preconditions<a class="headerlink" href="#fuzzing-functions-with-preconditions" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="fuzzing-functions-with-preconditions">
+<span id="fuzzing-preconditions"></span><h2>Fuzzing Functions with Preconditions<a class="headerlink" href="#fuzzing-functions-with-preconditions" title="Link to this heading"></a></h2>
 <p>When fuzzing a function with preconditions (i.e., a function with a “narrow
 contract”), if we naively supply fuzz data as input, we will frequently invoke
 the function out of contract. This has two problems, the first theoretical, the
@@ -507,15 +418,15 @@ which provides the macros <code class="docutils literal notranslate"><span class
 uses of <code class="docutils literal notranslate"><span class="pre">BSLS_ASSERT</span></code> that enforce preconditions for the function under test.</p>
 <p>For example:</p>
 <blockquote>
-<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">double</span><span class="w"> </span><span class="nf">mySqrt</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span><span class="w"></span>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">double</span><span class="w"> </span><span class="nf">mySqrt</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">x</span><span class="p">)</span>
 <span class="w">    </span><span class="c1">// Return the square root of the specified &#39;x&#39;.  The behavior is</span>
 <span class="w">    </span><span class="c1">// undefined unless &#39;x &gt;= 0&#39;.</span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">BSLS_PRECONDITIONS_BEGIN</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="n">BSLS_ASSERT</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x</span><span class="p">);</span><span class="w"></span>
-<span class="w">    </span><span class="n">BSLS_PRECONDITIONS_END</span><span class="p">();</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">BSLS_PRECONDITIONS_BEGIN</span><span class="p">();</span>
+<span class="w">    </span><span class="n">BSLS_ASSERT</span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x</span><span class="p">);</span>
+<span class="w">    </span><span class="n">BSLS_PRECONDITIONS_END</span><span class="p">();</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -538,9 +449,9 @@ failures, which should be reported as errors.</p>
 <p>Prior to invoking <code class="docutils literal notranslate"><span class="pre">BSLS_FUZZTEST_EVALUATE</span></code> we must create a
 <code class="docutils literal notranslate"><span class="pre">FuzzTestHandlerGuard</span></code> like so:</p>
 <blockquote>
-<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">FuzzTestHandlerGuard</span><span class="w"> </span><span class="n">hg</span><span class="p">;</span><span class="w"></span>
+<div><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bsls</span><span class="o">::</span><span class="n">FuzzTestHandlerGuard</span><span class="w"> </span><span class="n">hg</span><span class="p">;</span>
 
-<span class="n">BSLS_FUZZTEST_EVALUATE</span><span class="p">(</span><span class="n">mySqrt</span><span class="p">(</span><span class="n">input</span><span class="p">));</span><span class="w"></span>
+<span class="n">BSLS_FUZZTEST_EVALUATE</span><span class="p">(</span><span class="n">mySqrt</span><span class="p">(</span><span class="n">input</span><span class="p">));</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -550,9 +461,9 @@ precondition failures even though they are generated by this other component.
 To ignore top-level precondition failures originating in another component, we
 use <code class="docutils literal notranslate"><span class="pre">BSLS_FUZZTEST_EVALUATE_RAW</span></code>; however, like the non-RAW version, this
 ignores only top-level precondition failures.</p>
-</div>
-<div class="section" id="building-and-running-fuzz-tests">
-<h2>Building and Running Fuzz Tests<a class="headerlink" href="#building-and-running-fuzz-tests" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="building-and-running-fuzz-tests">
+<h2>Building and Running Fuzz Tests<a class="headerlink" href="#building-and-running-fuzz-tests" title="Link to this heading"></a></h2>
 <p>BDE libraries and test drivers can be built and linked to enable fuzz testing
 using <code class="docutils literal notranslate"><span class="pre">clang</span></code> compilers.  It is best to use the most recent version of the
 compiler available, as the fuzz testing system is frequently updated.</p>
@@ -611,9 +522,9 @@ unguided.  (Although in that case, we suggest that a better, or at least
 alternate, option is to write test cases that generate structured input using
 the fuzz data as a base.)  The corpus directory may start off empty, in which
 case fuzz testing will generate and save its data from scratch.</p>
-</div>
-<div class="section" id="interpreting-fuzz-test-results">
-<h2>Interpreting Fuzz Test Results<a class="headerlink" href="#interpreting-fuzz-test-results" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="interpreting-fuzz-test-results">
+<h2>Interpreting Fuzz Test Results<a class="headerlink" href="#interpreting-fuzz-test-results" title="Link to this heading"></a></h2>
 <p>For comprehensive details on the output produced by fuzz testing, see the
 documentation <a class="reference external" href="https://llvm.org/docs/LibFuzzer.html#output">here</a>.</p>
 <p>The fuzz tester writes output describing what it’s doing as it does it, which
@@ -625,7 +536,7 @@ be the problem, and whatever data it can provide as to its location.  It will
 write the fuzz data that caused the problem to a file named <code class="docutils literal notranslate"><span class="pre">crash-...</span></code>.</p>
 <p>Here is some sample output for a one-line fuzz test that treats the fuzz data
 as a pointer and tries to indirect it, which causes an immediate failure.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">LLVMFuzzerTestOneInput</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">LLVMFuzzerTestOneInput</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">**</span><span class="n">f</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INFO: Seed: 1428378131
@@ -695,9 +606,9 @@ artifact_prefix=&#39;./&#39;; Test unit written to ./crash-da39a3ee5e6b4b0d3255b
 Base64:
 </pre></div>
 </div>
-</div>
-<div class="section" id="debugging-failed-fuzz-tests">
-<h2>Debugging Failed Fuzz Tests<a class="headerlink" href="#debugging-failed-fuzz-tests" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="debugging-failed-fuzz-tests">
+<h2>Debugging Failed Fuzz Tests<a class="headerlink" href="#debugging-failed-fuzz-tests" title="Link to this heading"></a></h2>
 <p>Generally speaking, once a problem is detected, testing needs to fall back to
 ordinary debugging; fuzz testing tells you that a problem exists with a
 specified input, and it is then up to you to locate the problem.  Depending on
@@ -729,51 +640,35 @@ at ft.t.cpp:1
 ...
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

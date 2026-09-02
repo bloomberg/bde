@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bdxa::SimpleTask: A Simple Experimental Coroutine Task Type &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/bdxa_simpletask.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code>: A Simple Experimental Coroutine Task Type</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p><em>January 16, 2026</em></p>
+<section id="bdxa-simpletask-a-simple-experimental-coroutine-task-type">
+<span id="bdxa-simpletask-top"></span><h1><code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code>: A Simple Experimental Coroutine Task Type<a class="headerlink" href="#bdxa-simpletask-a-simple-experimental-coroutine-task-type" title="Link to this heading"></a></h1>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Starting with BDX 4.34.0, the header <code class="docutils literal notranslate"><span class="pre">&lt;bdxa_simpletask.h&gt;</span></code> introduces the class
+template <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code> along with a supporting utility class,
+<code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTaskUtil</span></code>. These types provide a lightweight mechanism for working
+with coroutines that represent deferred units of work.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask&lt;R&gt;</span></code> is an awaitable type that can be used as the return type
+of a coroutine. Such a coroutine does not begin executing immediately when it is
+called. Instead, the coroutine suspends before executing its body and returns a
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> object to the caller. When the coroutine is later awaited or
+otherwise resumed, execution begins at the start of the coroutine body and
+continues until completion. At completion, a value of type <code class="docutils literal notranslate"><span class="pre">R</span></code> is produced via
+<code class="docutils literal notranslate"><span class="pre">co_return</span></code>. Coroutines that do not produce a value may return
+<code class="docutils literal notranslate"><span class="pre">SimpleTask&lt;void&gt;</span></code>.</p>
+<p>Conceptually, a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> object acts as a handle to a deferred computation
+that can be resumed at a time chosen by the caller. If the coroutine eventually
+runs to completion, the <code class="docutils literal notranslate"><span class="pre">co_await</span></code> expression used to await the
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> evaluates to the value provided by <code class="docutils literal notranslate"><span class="pre">co_return</span></code>.</p>
+<p>One important property of <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutines is that they have <strong>no
+scheduler affinity</strong>. Each time a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine resumes after a
+suspension point, the coroutine continues executing on whichever thread triggered
+the resumption. That thread may differ from the thread that previously executed
+the coroutine, and the implications of this behavior are discussed in detail
+later in this article.</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h2>
+<p>Let’s consider a possibly asynchronous task that uses other APIs (possibly
+asynchronously) to query the value of the 1000th prime from some service.
+(Note that this example is available in its entirety as one of the usage
+examples in <code class="docutils literal notranslate"><span class="pre">bdxa_simpletask</span></code>.)</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdxa</span><span class="o">::</span><span class="n">SimpleTask</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">get1000thPrime</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">apiToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">GetAPIToken</span><span class="p">(</span><span class="mi">30782530</span><span class="p">);</span>
+<span class="w">    </span><span class="k">co_return</span><span class="w"> </span><span class="k">co_await</span><span class="w"> </span><span class="n">GetNthPrime</span><span class="p">(</span><span class="n">apiToken</span><span class="p">,</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The function <code class="docutils literal notranslate"><span class="pre">get1000thPrime</span></code> is a coroutine, as indicated by the presence of
+the <code class="docutils literal notranslate"><span class="pre">co_await</span></code> and <code class="docutils literal notranslate"><span class="pre">co_return</span></code> keywords in its body rather than by its return
+type. All coroutines that return <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code> suspend immediately when
+called. Evaluating the expression <code class="docutils literal notranslate"><span class="pre">get1000thPrime()</span></code> does <em>not</em> execute the
+first statement of the body. Instead, evaluating the expression returns a
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> object that can later be used to resume execution.</p>
+<p>One way to resume a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine is synchronously, using
+<code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTaskUtil::syncAwait</span></code>. The <code class="docutils literal notranslate"><span class="pre">syncAwait</span></code> function blocks the calling
+thread until the coroutine completes, either by executing <code class="docutils literal notranslate"><span class="pre">co_return</span></code>,
+reaching the end of its body, or throwing an exception. For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">example1</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bdxa</span><span class="o">::</span><span class="n">SimpleTask</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">task</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get1000thPrime</span><span class="p">();</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdxa</span><span class="o">::</span><span class="n">SimpleTaskUtil</span><span class="o">::</span><span class="n">syncAwait</span><span class="p">(</span><span class="n">bsl</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">task</span><span class="p">));</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">7919</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">GetNthPrime</span></code> queues a network request, the <code class="docutils literal notranslate"><span class="pre">syncAwait</span></code> call may block
+until an I/O thread receives and processes the response. That execution model
+demonstrates lazy execution, but it does not provide true asynchronous behavior.
+The synchronous blocking behavior therefore offers no advantage over representing
+the work as a <code class="docutils literal notranslate"><span class="pre">bsl::function</span></code> that is executed once by invoking it.</p>
+<p>More commonly, users want the coroutine to begin executing while allowing other
+work to proceed whenever the coroutine suspends. That form of execution is
+achieved by awaiting the <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> from another coroutine. For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bdxa</span><span class="o">::</span><span class="n">SimpleTask</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">print1000thPrime</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;The 1000th prime is {}&quot;</span><span class="p">,</span>
+<span class="w">                             </span><span class="k">co_await</span><span class="w"> </span><span class="n">get1000thPrime</span><span class="p">());</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">print1000thPrime</span></code> reaches the <code class="docutils literal notranslate"><span class="pre">co_await</span></code> expression, execution resumes
+the <code class="docutils literal notranslate"><span class="pre">get1000thPrime</span></code> coroutine, which runs until it reaches its next suspension
+point. If <code class="docutils literal notranslate"><span class="pre">get1000thPrime</span></code> has not yet completed, execution of
+<code class="docutils literal notranslate"><span class="pre">print1000thPrime</span></code> cannot continue, since the value required to complete the
+formatting operation is not yet available. As a result, the
+<code class="docutils literal notranslate"><span class="pre">print1000thPrime</span></code> coroutine also suspends, and control returns to the
+enclosing context.</p>
+<p>At this point, two mechanisms for starting a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine have been
+introduced: awaiting the <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> from another <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine,
+and invoking <code class="docutils literal notranslate"><span class="pre">syncAwait</span></code> from non-coroutine code. Those two mechanisms are not
+sufficient to achieve true asynchronous execution. An outer coroutine that
+awaits an inner <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine cannot continue while the inner
+coroutine remains suspended. Similarly, non-coroutine code that uses
+<code class="docutils literal notranslate"><span class="pre">syncAwait</span></code> must block until completion.</p>
+<p>To support practical asynchronous execution, non-coroutine code must be able to
+asynchronously await awaitable objects such as <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code>. That capability
+is provided by additional libraries, such as the C++26 execution library
+(Senders and Receivers). Libraries of that kind rely on
+<code class="docutils literal notranslate"><span class="pre">SimpleTaskUtil::asAwaitable</span></code> to convert a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> into a generic
+awaitable that can participate in an asynchronous execution framework. The
+interaction between <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> and such libraries is explained further in
+the Appendix.</p>
+</section>
+<section id="overview-of-coroutine-return-types">
+<h2>Overview of Coroutine Return Types<a class="headerlink" href="#overview-of-coroutine-return-types" title="Link to this heading"></a></h2>
+<p>A coroutine is a special kind of function that can suspend execution and later
+resume from the point of suspension. An overview of coroutines is available in
+the 2024 BDE Expo presentation
+<a class="reference external" href="https://mediaspace.blpvideohub.com/media/1_pd05wwsr">bdla::Task: Understanding how to control coroutines, by example</a>.
+The remainder of this article assumes familiarity with the material presented
+there.</p>
+<p>The declared return type of a coroutine serves two distinct roles. First, since a
+coroutine is still a function, calling the coroutine produces an object whose
+type is the declared return type. Second, the return type determines key aspects
+of the coroutine’s execution by selecting the associated promise type.</p>
+<p>As a result, achieving the desired behavior from a coroutine requires not only
+correctly implementing the coroutine body but also choosing an appropriate
+return type. Defining a custom coroutine return type involves significant
+boilerplate, so developers typically rely on return types provided by libraries.</p>
+<p>BDX provides one such return type: <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask&lt;R&gt;</span></code>. Declaring a coroutine
+with this return type specifies that calling the coroutine returns a
+<code class="docutils literal notranslate"><span class="pre">SimpleTask&lt;R&gt;</span></code> object and that the coroutine exhibits behaviors defined by the
+<code class="docutils literal notranslate"><span class="pre">bdxa_simpletask</span></code> component. One such behavior is immediate suspension before
+the coroutine body begins executing. If those semantics are not appropriate,
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> should not be used.</p>
+</section>
+<section id="summary-of-bdxa-simpletask-coroutine-behavior">
+<h2>Summary of <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code> Coroutine Behavior<a class="headerlink" href="#summary-of-bdxa-simpletask-coroutine-behavior" title="Link to this heading"></a></h2>
+<p>A coroutine that returns <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask&lt;R&gt;</span></code> has the following properties:</p>
+<ul class="simple">
+<li><p>Memory for the coroutine frame is allocated using the currently installed
+default allocator, or a user-specified allocator if one is provided. A user
+specifies an allocator by declaring the coroutine such that its first parameter
+has type <code class="docutils literal notranslate"><span class="pre">bsl::allocator_arg_t</span></code> and its second parameter is a
+<code class="docutils literal notranslate"><span class="pre">bsl::allocator</span></code> type.</p></li>
+<li><p>Calling the coroutine returns immediately without executing the body. The body
+begins executing only when the coroutine is resumed.</p></li>
+<li><p>The coroutine completes either by executing <code class="docutils literal notranslate"><span class="pre">co_return</span></code> or by throwing an
+exception. If <code class="docutils literal notranslate"><span class="pre">R</span></code> is <code class="docutils literal notranslate"><span class="pre">void</span></code>, reaching the end of the body is equivalent to
+<code class="docutils literal notranslate"><span class="pre">co_return</span></code>. The resulting value or exception is stored for later retrieval.</p></li>
+<li><p>The coroutine is ill formed if it contains a <code class="docutils literal notranslate"><span class="pre">co_yield</span></code> expression.
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutines can produce only a single result.</p></li>
+<li><p>When the coroutine completes, control returns to the coroutine that originally
+resumed it.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">R</span></code> is allocator-aware, the allocator used to allocate the coroutine frame
+is also used to construct the result object. For example, if <code class="docutils literal notranslate"><span class="pre">R</span></code> is
+<code class="docutils literal notranslate"><span class="pre">bsl::vector&lt;int&gt;</span></code>, the vector returned by <code class="docutils literal notranslate"><span class="pre">co_await</span></code> or <code class="docutils literal notranslate"><span class="pre">syncAwait</span></code> uses
+the same allocator as the coroutine frame. The allocator used for the coroutine
+frame does not implicitly propagate to coroutines invoked by the original
+coroutine.</p></li>
+</ul>
+</section>
+<section id="awaiting-bdxa-simpletask">
+<h2>Awaiting <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code><a class="headerlink" href="#awaiting-bdxa-simpletask" title="Link to this heading"></a></h2>
+<p>Any coroutine that returns <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask&lt;R&gt;</span></code> may <code class="docutils literal notranslate"><span class="pre">co_await</span></code> an rvalue of
+type <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask&lt;S&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">S</span></code> may be the same as or different from
+<code class="docutils literal notranslate"><span class="pre">R</span></code>. Awaiting a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> suspends the awaiting coroutine and resumes the
+awaited coroutine. When the awaited coroutine completes, the awaiting coroutine
+is immediately resumed, and the <code class="docutils literal notranslate"><span class="pre">co_await</span></code> expression either yields a value of
+type <code class="docutils literal notranslate"><span class="pre">S</span></code> or propagates an exception.</p>
+<p>As noted earlier, <code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTask</span></code> coroutines have no scheduler affinity.
+When such a coroutine suspends and is later resumed, execution may continue on a
+different thread, potentially from a different thread pool. That behavior often
+occurs when a coroutine suspends while waiting for I/O and is resumed by an I/O
+thread that detects completion.</p>
+<p>The absence of scheduler affinity can produce surprising or undesirable results.
+An I/O thread may end up executing expensive computations in the coroutine body
+until the next suspension point, delaying the I/O thread’s primary responsibility
+of handling additional input. In addition, using thread-local variables or APIs
+that rely on thread-local storage inside a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine is dangerous.
+Accessing a thread-local object before and after a suspension point may refer to
+different instances of that object.</p>
+<p>Adding general-purpose scheduler affinity would significantly increase the
+complexity of <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code>. Users who require scheduler control may instead
+benefit from the forthcoming BDXA execution library, which is modeled after the
+C++26 execution library. That library will provide a <code class="docutils literal notranslate"><span class="pre">Task</span></code> type that stores a
+scheduler and ensures that coroutine resumption always occurs on the associated
+scheduler.</p>
+<p><code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> can be viewed as a degenerate form of such a <code class="docutils literal notranslate"><span class="pre">Task</span></code>, in which
+work is completed inline without explicit scheduling. As a result, a
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine written today is expected to interoperate smoothly with
+<code class="docutils literal notranslate"><span class="pre">Task</span></code> in the future, and migrating a coroutine from <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> to <code class="docutils literal notranslate"><span class="pre">Task</span></code>
+should be straightforward when the latter becomes available.</p>
+<p>Coroutines with non-<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> return types can also await a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code>,
+but only after wrapping the <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> with
+<code class="docutils literal notranslate"><span class="pre">bdxa::SimpleTaskUtil::asAwaitable</span></code>. The <code class="docutils literal notranslate"><span class="pre">asAwaitable</span></code> function enables
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutines to interoperate with other coroutine types and
+execution frameworks. That interoperability is essential for true asynchronous
+execution, since <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> alone cannot be resumed asynchronously from
+non-coroutine code.</p>
+</section>
+<section id="appendix-asynchronous-execution-of-simpletask-coroutines">
+<h2>Appendix: Asynchronous Execution of <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> Coroutines<a class="headerlink" href="#appendix-asynchronous-execution-of-simpletask-coroutines" title="Link to this heading"></a></h2>
+<p>This appendix explains how <code class="docutils literal notranslate"><span class="pre">bdxa_simpletask</span></code> fits into a broader asynchronous
+execution framework such as Senders and Receivers. Understanding the material in
+this section is not required to <em>use</em> such frameworks with <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code>, but
+the discussion may help clarify how the pieces fit together.</p>
+<p>Asynchronous resumption refers to resuming a coroutine from its suspension point,
+allowing the coroutine to execute until it reaches the next suspension, and then
+returning control to the resumer. During that execution window, the coroutine may
+initiate background work that will eventually resume the coroutine again.
+Although <code class="docutils literal notranslate"><span class="pre">bdxa_simpletask</span></code> does not directly provide a mechanism to
+asynchronously resume a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutine, indirect mechanisms can be
+used to achieve that behavior.</p>
+<p>Correct asynchronous execution requires careful lifetime management. Control
+returns to the resumer when the coroutine suspends, and the coroutine may later
+be resumed by another thread. Destroying the coroutine before final completion
+under those conditions results in undefined behavior. A separate mechanism is
+therefore required to notify the owner when the coroutine has completed.</p>
+<p>In C++, asynchronous resumption is performed by calling <code class="docutils literal notranslate"><span class="pre">resume</span></code> on a
+<code class="docutils literal notranslate"><span class="pre">std::coroutine_handle</span></code>. Since <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> does not expose the coroutine
+handle that it owns, asynchronous resumption must be mediated by another
+coroutine. That intermediary coroutine awaits the <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> and exposes its
+own coroutine handle to non-coroutine code. When the <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> completes, it
+resumes the intermediary coroutine, which moves responsibility for lifetime
+management up one level.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">SimpleTaskUtil::asAwaitable</span></code> function is essential to this design, since
+the function enables non-<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> coroutines to await <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code>
+coroutines.</p>
+<p>For example, the Senders and Receivers library uses an internal coroutine in its
+implementation of <code class="docutils literal notranslate"><span class="pre">connect</span></code>. That internal coroutine allows any awaitable,
+including an awaitable backed by a coroutine, to be treated as a sender and
+resumed asynchronously. When the internal coroutine is resumed—indicating, in
+the case of a <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> awaitable, that the <code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> has completed—the
+internal coroutine suspends again and invokes the receiver’s completion
+function. That completion propagates through a chain of operation states until
+execution reaches user code, at which point it is safe to destroy the
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code>. Since the internal coroutine is not exposed to the user,
+<code class="docutils literal notranslate"><span class="pre">SimpleTask</span></code> integrates seamlessly with sender algorithms such as
+<code class="docutils literal notranslate"><span class="pre">when_all</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

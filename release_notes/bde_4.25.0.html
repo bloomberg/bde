@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BDE 4.25.0 Release &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/release_notes/bde_4.25.0.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="BDE 4.24.0 Release" href="bde_4.24.0.html" />
+    <link rel="prev" title="BDE 4.26.0 Release" href="bde_4.26.0.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="release_notes.html">Release Notes</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bde_4.39.0.html">BDE 4.39.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.38.0.html">BDE 4.38.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.37.0.html">BDE 4.37.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.36.0.html">BDE 4.36.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.35.0.html">BDE 4.35.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.34.0.html">BDE 4.34.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.33.0.html">BDE 4.33.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.32.0.html">BDE 4.32.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.31.0.html">BDE 4.31.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.30.0.html">BDE 4.30.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.29.0.html">BDE 4.29.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.28.0.html">BDE 4.28.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.27.0.html">BDE 4.27.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.26.0.html">BDE 4.26.0 Release</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">BDE 4.25.0 Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schedule">Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bde-4-25-0-release-highlights">BDE 4.25.0 Release Highlights</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parsing-timestamps-in-iso-8601-format-is-now-faster">Parsing Timestamps in ISO-8601 Format Is Now Faster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#baltzo-now-supports-version-4-iana-time-zone-data-files">baltzo Now Supports Version 4 IANA Time Zone Data Files</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-tickets">Fixed Tickets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.24.0.html">BDE 4.24.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.23.0.html">BDE 4.23.0 Release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="archived_release_notes.html">Archived Release Notes</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles/fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="release_notes.html">Release Notes</a></li>
+      <li class="breadcrumb-item active">BDE 4.25.0 Release</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="bde_4.26.0.html" class="btn btn-neutral float-left" title="BDE 4.26.0 Release" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bde_4.24.0.html" class="btn btn-neutral float-right" title="BDE 4.24.0 Release" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bde-4-25-0-release">
+<span id="bde4-25-0-top"></span><h1>BDE 4.25.0 Release<a class="headerlink" href="#bde-4-25-0-release" title="Link to this heading"></a></h1>
+<section id="schedule">
+<span id="bde4-25-0-schedule"></span><h2>Schedule<a class="headerlink" href="#schedule" title="Link to this heading"></a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><p>The BDE team announces that the BDE 4.25.0 production release was
+completed on <strong>Wednesday, May 28, 2025</strong>.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="bde-4-25-0-release-highlights">
+<h2>BDE 4.25.0 Release Highlights<a class="headerlink" href="#bde-4-25-0-release-highlights" title="Link to this heading"></a></h2>
+<section id="parsing-timestamps-in-iso-8601-format-is-now-faster">
+<h3>Parsing Timestamps in ISO-8601 Format Is Now Faster<a class="headerlink" href="#parsing-timestamps-in-iso-8601-format-is-now-faster" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdlt__iso8601util.html">bdlt_iso8601util</a>
+has been updated to use SSE4.2 (or AVX2, when available) when parsing
+timestamps that are in the default 32-character format for <code class="docutils literal notranslate"><span class="pre">DatetimeTz</span></code>.
+Thanks to Cameron Desrochers for the contribution!</p>
+</section>
+<section id="baltzo-now-supports-version-4-iana-time-zone-data-files">
+<h3>baltzo Now Supports Version 4 IANA Time Zone Data Files<a class="headerlink" href="#baltzo-now-supports-version-4-iana-time-zone-data-files" title="Link to this heading"></a></h3>
+<p>This release updates the <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__baltzo__timezoneutil.html">baltzo</a>
+time zone library to accept <a class="reference external" href="https://man7.org/linux/man-pages/man5/tzfile.5.html">version 4 IANA time zone data files</a>,
+but without adding support for the new data fields added into the version 4
+file format.  The version 4 format allows the data to account for leap second
+corrections <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.  <code class="docutils literal notranslate"><span class="pre">baltzo</span></code> will accept a version 4 file, but ignores leap
+second information and does not apply leap second corrections in time zone
+conversions.</p>
+</section>
+</section>
+<section id="fixed-tickets">
+<h2>Fixed Tickets<a class="headerlink" href="#fixed-tickets" title="Link to this heading"></a></h2>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 100.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Summary</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>‘bdlat_valuetypefunctions’: Incomplete support for ‘bsl::vector’</p></td>
+</tr>
+<tr class="row-odd"><td><p>baltzo upgrade to handle version 4 binary files</p></td>
+</tr>
+<tr class="row-even"><td><p>bsl::format Bring ‘bslfmt_standardformatspecification’ to gold quality</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address darwin deprecation issue with bslma_allocatortraits.h line 947</p></td>
+</tr>
+<tr class="row-even"><td><p>bdesu_fileutil case 4</p></td>
+</tr>
+<tr class="row-odd"><td><p>Missing Coordinated Universal Time in baltzo_windowstimezoneutil (nightly build failure)</p></td>
+</tr>
+<tr class="row-even"><td><p>Please address ball_logthrottle intermittent errors</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please reduce warnings in bsl for UBSAN</p></td>
+</tr>
+<tr class="row-even"><td><p>Please address ball_asyncfileobserver intermittent errors</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address balm_publicationscheduler.t.cpp cases 1 and 4 issues on windows</p></td>
+</tr>
+<tr class="row-even"><td><p>Please correct darwin bdl warnings</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct bslstl_deque issues on SunOS cpp03 and cpp11</p></td>
+</tr>
+<tr class="row-even"><td><p>Please address bsls_libraryfeatures.t case 22 issue on windows</p></td>
+</tr>
+<tr class="row-odd"><td><p>Speed up ISO-8601 parsing of default-formatted DatetimeTz objects by ~3.9x</p></td>
+</tr>
+<tr class="row-even"><td><p>Move bces_atomictypes.t.cpp case 9 to case -1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix nullptr use in bdlpcre::RegEx::replace when passing a null errorOffset ptr</p></td>
+</tr>
+<tr class="row-even"><td><p>Please correct failure in bdls_fdstreambuf case 8</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct bslstl_span case 2 issue on darwin</p></td>
+</tr>
+<tr class="row-even"><td><p>Adjust bcemt_threadutil case 5 thresholds</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reduce nightly build issues observed in the 20250425 report</p></td>
+</tr>
+<tr class="row-even"><td><p>Correct bdlm_metricsregistry.t.cpp warning</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address ball_fileobserver2.t.cpp case 8 issue on windows (different failure i believe)</p></td>
+</tr>
+<tr class="row-even"><td><p>Please address balm_metricsmanager intermittant failure on windows</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address the warnings stemming from bslma_allocatortraits.h on darwin</p></td>
+</tr>
+<tr class="row-even"><td><p>Please correct bslma_allocatorutil.t.cpp compile failures in gcc-13</p></td>
+</tr>
+<tr class="row-odd"><td><p>Correct comment and test for writer preference in bslmt_readerwritermutex.t.cpp around line 600</p></td>
+</tr>
+<tr class="row-even"><td><p>formatterspecificationumericvalue test does not build darwin cpp20</p></td>
+</tr>
+<tr class="row-odd"><td><p>Investigate timeouts in bdlmt</p></td>
+</tr>
+<tr class="row-even"><td><p>Reduce bsl issues observed in the 20250429 nightly build report</p></td>
+</tr>
+<tr class="row-odd"><td><p>Address warnings in bsl for gcc-12 dbg_64_cpp03</p></td>
+</tr>
+<tr class="row-even"><td><p>Correct concurrency error in bslmt_turnstile</p></td>
+</tr>
+<tr class="row-odd"><td><p>reduce UB in bslstl_multiset_test.t</p></td>
+</tr>
+<tr class="row-even"><td><p>Please reduce bdl issues observed in 20250430 nightly build report</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address darwin bsl compile errors observed in nightly build report on 20250430</p></td>
+</tr>
+<tr class="row-even"><td><p>Fix enabling std::format on Darwin clang-17</p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove the non-compiling unorderedmap test (in case 18) for clang+LLVM std lib</p></td>
+</tr>
+<tr class="row-even"><td><p>add <cite>bslmt::FastPostSemaphoreImpl::getValueRaw</cite> to improve testability and retry failed thread creation in test driver</p></td>
+</tr>
+<tr class="row-odd"><td><p>Correct bslmt_fastpostsemaphoreimpl test for reviews in anone builds</p></td>
+</tr>
+<tr class="row-even"><td><p>balst_resolverimpl_elf: investigate finding executables via ‘/proc/&lt;pid&gt;’ rather than real file system</p></td>
+</tr>
+<tr class="row-odd"><td><p>Investigate issues from nightly build report on 20250501</p></td>
+</tr>
+<tr class="row-even"><td><p>Please investigate bdesu_fileutil case 12 failure</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct balxml_minireader.t.cpp case 15 error</p></td>
+</tr>
+<tr class="row-even"><td><p>Correct darwin bsl warnings, attempt #2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address bslfmt_formatspecificationparser case 3 errors</p></td>
+</tr>
+<tr class="row-even"><td><p>Improve bsl and bdl issues reported in the 20250502 nightly build</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct bslmt_formatterfloating cases 3 and 4 issues</p></td>
+</tr>
+<tr class="row-even"><td><p>Please improve balb_pipetaskmanager case 6</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct all non-deprecation warnings in bhl and a_bhlopenssl</p></td>
+</tr>
+<tr class="row-even"><td><p>Please make minor improvements to bslmt_throughputbenchmark and bdlmt_eventscheduler</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please clean bsl warnings on Windows</p></td>
+</tr>
+<tr class="row-even"><td><p>Please address warings in bsl for gcc-12 opt_dbg_safe_64_cpp20</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please add threadpool start retry logic to bdlmt_signaler</p></td>
+</tr>
+<tr class="row-even"><td><p>Please investigte bdls_processutil case 4 failure on windows</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address UBSAN compile warning</p></td>
+</tr>
+<tr class="row-even"><td><p>Please correct bslalg_numericformatterutil.t.cpp compile error for Sun cc</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please correct all correctable bsl warnings</p></td>
+</tr>
+<tr class="row-even"><td><p>Please correct UBSAN issues in bslfmt</p></td>
+</tr>
+<tr class="row-odd"><td><p>bslfmt_formatternumericvalue.t.cpp does not compile Darwin clang-17</p></td>
+</tr>
+<tr class="row-even"><td><p>bde-docs: Add note about using uv for package management</p></td>
+</tr>
+<tr class="row-odd"><td><p>Including bsl_forward_list.h gives compile error unless bsl_memory.h is included first</p></td>
+</tr>
+<tr class="row-even"><td><p>bbs_build fails to find openssl in Docker container</p></td>
+</tr>
+<tr class="row-odd"><td><p>Please address (new) imtermittent issues with ball_logthrottle cases 6 and 7 on Darwin</p></td>
+</tr>
+<tr class="row-even"><td><p>bslfmt Formatter Examples do not compile</p></td>
+</tr>
+<tr class="row-odd"><td><p>Support user home path expansion on install</p></td>
+</tr>
+<tr class="row-even"><td><p>Enable build with homebrew clang on darwin in bde-tools bbs_build</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">2</a><span class="fn-bracket">]</span></span>
+<p>Leap seconds have <a class="reference external" href="https://jjy.nict.go.jp/mission/page1-e.html">historically been seconds added to the clock</a>
+to acccount for the slower rotation of the Earth, but there has been recent
+discussion of the need to add <a class="reference external" href="https://www.timeanddate.com/time/negative-leap-second-maybe.html">negative leap seconds</a>.
+Version 4 format adds support for negative leap seconds.</p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

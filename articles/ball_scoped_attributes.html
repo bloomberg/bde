@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Adding Context to Your Application Log &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/articles/ball_scoped_attributes.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="BER Date-and-Time Format" href="ber_format.html" />
     <link rel="prev" title="bsl::optional: An Allocator-Aware Optional Type" href="bsl_optional.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,8 +56,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datum_quick_intro.html">bdld::Datum Quick Introduction (December 4, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
@@ -143,108 +110,61 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">Articles</a> &raquo;</li>
-        
-      <li>Adding Context to Your Application Log</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">Adding Context to Your Application Log</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="ber_format.html" class="btn btn-neutral float-right" title="BER Date-and-Time Format" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="bsl_optional.html" class="btn btn-neutral float-left" title="bsl::optional: An Allocator-Aware Optional Type" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="ber_format.html" class="btn btn-neutral float-right" title="BER Date-and-Time Format" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>Jan 6, 2021</em></p>
-<div class="section" id="adding-context-to-your-application-log">
-<span id="ball-scoped-attributes-top"></span><h1>Adding Context to Your Application Log<a class="headerlink" href="#adding-context-to-your-application-log" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<section id="adding-context-to-your-application-log">
+<span id="ball-scoped-attributes-top"></span><h1>Adding Context to Your Application Log<a class="headerlink" href="#adding-context-to-your-application-log" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>The BDE 3.71 release adds new features to the <cite>ball</cite> logging framework, the most
 important of which is the ability to add attributes to log records.</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">processData</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w">        </span><span class="n">security</span><span class="p">,</span><span class="w"></span>
-<span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&amp;</span><span class="w">  </span><span class="n">data</span><span class="p">)</span><span class="w"></span>
-<span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="hll"><span class="w">      </span><span class="n">ball</span><span class="o">::</span><span class="n">ScopedAttribute</span><span class="w"> </span><span class="n">securityAttribute</span><span class="p">(</span><span class="s">&quot;mylibrary.security&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">security</span><span class="p">);</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">processData</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w">        </span><span class="n">security</span><span class="p">,</span>
+<span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;&amp;</span><span class="w">  </span><span class="n">data</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="w">      </span><span class="n">ball</span><span class="o">::</span><span class="n">ScopedAttribute</span><span class="w"> </span><span class="n">securityAttribute</span><span class="p">(</span><span class="s">&quot;mylibrary.security&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">security</span><span class="p">);</span>
 </span>
 <span class="w">      </span><span class="c1">// ...</span>
 
-<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reticulateSplines</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reticulateSplines</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
 
-<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span><span class="w"></span>
-<span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
 
-<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">reticulateSplines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="w"></span>
-<span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">reticulateSplines</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="w"> </span><span class="p">{</span>
 <span class="w">     </span><span class="c1">// ...</span>
 
-<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="hll"><span class="w">         </span><span class="n">BALL_LOG_ERROR</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error computing splines (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">;</span><span class="w"></span>
-</span><span class="w">     </span><span class="p">}</span><span class="w"></span>
-<span class="w">     </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span><span class="w"></span>
-<span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="w">     </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rc</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="hll"><span class="w">         </span><span class="n">BALL_LOG_ERROR</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Error computing splines (&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">rc</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">;</span>
+</span><span class="w">     </span><span class="p">}</span>
+<span class="w">     </span><span class="k">return</span><span class="w"> </span><span class="n">rc</span><span class="p">;</span>
+<span class="w"> </span><span class="p">}</span>
 </pre></div>
 </div>
 <p>In the above example a logging attribute, “mylibrary.security”, is associated
@@ -263,9 +183,9 @@ easily parsed by log management systems like Humio or Splunk.</p>
 <p>Attributes will not appear in your log unless your <strong>ball::Observer format
 specification is configured to render attributes</strong> (see below).</p>
 </div>
-</div>
-<div class="section" id="configuring-an-observer-to-output-attributes">
-<h2>Configuring an Observer to Output Attributes<a class="headerlink" href="#configuring-an-observer-to-output-attributes" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="configuring-an-observer-to-output-attributes">
+<h2>Configuring an Observer to Output Attributes<a class="headerlink" href="#configuring-an-observer-to-output-attributes" title="Link to this heading"></a></h2>
 <p>Log attributes are not rendered by default as part of the log message (for
 backward compatibility).  Clients can enable log attributes to be rendered for
 observers that support log record formatting:</p>
@@ -281,10 +201,6 @@ observers that support log record formatting:</p>
 component, which supports the following (new) format specifiers to render log
 attributes:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Format Specifier</p></th>
 <th class="head"><p>Description</p></th>
@@ -304,41 +220,41 @@ attributes:</p>
 </table>
 <p>The following code snippet illustrates the creation and configuration commonly used
 by observers:</p>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">initFileObserver</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">initFileObserver</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">   </span><span class="c1">// &#39;ball::FileObserver&#39; uses an internal record string formatter and</span>
 <span class="w">   </span><span class="c1">// is configured by supplying a format string via &#39;setLogFormat().</span>
 
-<span class="w">   </span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">alloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">Default</span><span class="o">::</span><span class="n">globalAllocator</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">alloc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bslma</span><span class="o">::</span><span class="n">Default</span><span class="o">::</span><span class="n">globalAllocator</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 
-<span class="w">   </span><span class="n">bsl</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver</span><span class="o">&gt;</span><span class="w"> </span><span class="n">observer</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
-<span class="w">       </span><span class="n">bsl</span><span class="o">::</span><span class="n">allocate_shared</span><span class="o">&lt;</span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver</span><span class="o">&gt;</span><span class="p">(</span><span class="n">alloc</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="n">bsl</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver</span><span class="o">&gt;</span><span class="w"> </span><span class="n">observer</span><span class="w"> </span><span class="o">=</span>
+<span class="w">       </span><span class="n">bsl</span><span class="o">::</span><span class="n">allocate_shared</span><span class="o">&lt;</span><span class="n">ball</span><span class="o">::</span><span class="n">FileObserver</span><span class="o">&gt;</span><span class="p">(</span><span class="n">alloc</span><span class="p">);</span>
 
 
 <span class="w">   </span><span class="c1">// Set the log format for file and console logs to &quot;\n%d %p:%t %s %f:%l %c %a %m\n&quot;</span>
-<span class="w">   </span><span class="n">observer</span><span class="o">-&gt;</span><span class="n">setLogFormat</span><span class="p">(</span><span class="n">ball</span><span class="o">::</span><span class="n">RecordStringFormatter</span><span class="o">::</span><span class="n">k_BASIC_ATTRIBUTE_FORMAT</span><span class="p">,</span><span class="w"></span>
-<span class="w">                          </span><span class="n">ball</span><span class="o">::</span><span class="n">RecordStringFormatter</span><span class="o">::</span><span class="n">k_BASIC_ATTRIBUTE_FORMAT</span><span class="p">);</span><span class="w"></span>
+<span class="w">   </span><span class="n">observer</span><span class="o">-&gt;</span><span class="n">setLogFormat</span><span class="p">(</span><span class="n">ball</span><span class="o">::</span><span class="n">RecordStringFormatter</span><span class="o">::</span><span class="n">k_BASIC_ATTRIBUTE_FORMAT</span><span class="p">,</span>
+<span class="w">                          </span><span class="n">ball</span><span class="o">::</span><span class="n">RecordStringFormatter</span><span class="o">::</span><span class="n">k_BASIC_ATTRIBUTE_FORMAT</span><span class="p">);</span>
 
-<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">observer</span><span class="o">-&gt;</span><span class="n">enableFileLogging</span><span class="p">(</span><span class="s">&quot;myapplication.log.%T&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">       </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Failed to enable logging&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
-<span class="w">       </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span>
-<span class="w">   </span><span class="p">}</span><span class="w"></span>
-<span class="w">   </span><span class="n">ball</span><span class="o">::</span><span class="n">LoggerManager</span><span class="o">::</span><span class="n">singleton</span><span class="p">().</span><span class="n">registerObserver</span><span class="p">(</span><span class="n">observer</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">observer</span><span class="o">-&gt;</span><span class="n">enableFileLogging</span><span class="p">(</span><span class="s">&quot;myapplication.log.%T&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Failed to enable logging&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">       </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">   </span><span class="n">ball</span><span class="o">::</span><span class="n">LoggerManager</span><span class="o">::</span><span class="n">singleton</span><span class="p">().</span><span class="n">registerObserver</span><span class="p">(</span><span class="n">observer</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">);</span>
+<span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
-<div class="section" id="new-suggested-log-record-format">
-<h3>New Suggested Log Record Format<a class="headerlink" href="#new-suggested-log-record-format" title="Permalink to this headline">¶</a></h3>
+<section id="new-suggested-log-record-format">
+<h3>New Suggested Log Record Format<a class="headerlink" href="#new-suggested-log-record-format" title="Link to this heading"></a></h3>
 <p>The logger now provides a new constant,
 <code class="docutils literal notranslate"><span class="pre">ball::RecordStringFormatter::k_BASIC_ATTRIBUTE_FORMAT</span></code>, which is the
 recommended log format specification for most users (see the example above).
 The default log format specification remains the same to avoid changing
 behavior for existing applications.  Note that the default format
 specification might be changed in a subsequent release of BDE.</p>
-</div>
-</div>
-<div class="section" id="details-on-using-attributes">
-<h2>Details on Using Attributes<a class="headerlink" href="#details-on-using-attributes" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="details-on-using-attributes">
+<h2>Details on Using Attributes<a class="headerlink" href="#details-on-using-attributes" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">ball</span></code> library provides the following classes that implement ready-to-use
 application solutions for log attributes:</p>
 <ul class="simple">
@@ -369,9 +285,9 @@ We recommend reaching out to the BDE team for guidance before using these featur
 <p class="admonition-title">Important</p>
 <p>Use of <code class="docutils literal notranslate"><span class="pre">ball::UserFields</span></code> is now deprecated in favor of the new log attributes API.</p>
 </div>
-</div>
-<div class="section" id="attribute-naming-recommendations">
-<h2>Attribute Naming Recommendations<a class="headerlink" href="#attribute-naming-recommendations" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="attribute-naming-recommendations">
+<h2>Attribute Naming Recommendations<a class="headerlink" href="#attribute-naming-recommendations" title="Link to this heading"></a></h2>
 <p>Use the following naming conventions for attribute names:</p>
 <ul class="simple">
 <li><p>An attribute name should start with an alphabetic character; no other
@@ -383,10 +299,10 @@ underscores(‘_’), and dots(‘.’).  Do not use any other special character
 </ul>
 <p>It is highly recommended to use “namespaces” when naming attributes to avoid
 attribute name collisions.  For example, consider these attribute names:</p>
-<table class="colwidths-given docutils align-left">
+<table class="docutils align-left">
 <colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Attribute Name</p></th>
@@ -419,9 +335,9 @@ guarantee uniqueness of attribute names.</p>
 <strong>not</strong> quoted, whereas attribute values, if they are strings, are
 <strong>always</strong> quoted.</p>
 </div>
-</div>
-<div class="section" id="humio-and-splunk">
-<h2>Humio and Splunk<a class="headerlink" href="#humio-and-splunk" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="humio-and-splunk">
+<h2>Humio and Splunk<a class="headerlink" href="#humio-and-splunk" title="Link to this heading"></a></h2>
 <p>Humio and Splunk are two popular log management systems used at Bloomberg.
 The format of the log attributes rendered by the <code class="docutils literal notranslate"><span class="pre">ball</span></code> logging system is
 designed to be parsed automatically by these systems.</p>
@@ -430,9 +346,9 @@ to be easily digested by these systems.  For example, providing information
 as key-value pairs, where appropriate.  Additional information can be found at
 <a class="reference external" href="https://dev.splunk.com/enterprise/docs/developapps/addsupport/logging/loggingbestpractices/">Splunk Logging Best Practices</a>
 and <a class="reference external" href="https://docs.humio.com/docs/ingesting-data/parsers/built-in-parsers/#kv">Humio Built-In Parsers</a>.</p>
-</div>
-<div class="section" id="performance">
-<h2>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="performance">
+<h2>Performance<a class="headerlink" href="#performance" title="Link to this heading"></a></h2>
 <p>The benchmark below gives some insight into the the cost of attribute-based
 logging and other logging features.  The absolute times should be taken with
 a grain of salt – they are specific to the platform, archicture, build mode,
@@ -448,14 +364,9 @@ to a test-run A, which is (as close as possible) identical, but with the log
 category disabled so the logging statement does not write to the log.  The
 Marginal Cost (MC) is computed using (A’-A)/N (N is the number of test
 iterations, in this case 5,000,000).</p>
-<div class="section" id="results">
-<h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h3>
+<section id="results">
+<h3>Results<a class="headerlink" href="#results" title="Link to this heading"></a></h3>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 37%" />
-<col style="width: 9%" />
-<col style="width: 53%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Operation</p></th>
 <th class="head"><p>Time
@@ -514,9 +425,9 @@ attribute containers (see <a class="reference internal" href="#details-on-using-
 <li><p>Most users should enable the (non-default) format specification to
 enable attributes to be published to their log.</p></li>
 </ul>
-</div>
-<div class="section" id="benchmark-details">
-<h3>Benchmark Details<a class="headerlink" href="#benchmark-details" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="benchmark-details">
+<h3>Benchmark Details<a class="headerlink" href="#benchmark-details" title="Link to this heading"></a></h3>
 <p>The source code and build instructions for the benchmark are here:
 <a class="reference external" href="https://bbgithub.dev.bloomberg.com/bde-extras/ball-benchmark">https://bbgithub.dev.bloomberg.com/bde-extras/ball-benchmark</a></p>
 <p>The data for the test run is here: <a class="reference external" href="https://docs.google.com/spreadsheets/d/1DywghXtKFKNxL7QgvHG-v8FYLdLX84yEb-4vJ1if8To/edit#gid=1672704556">Ball Attributes Benchmark Google Sheet</a></p>
@@ -531,61 +442,45 @@ enable attributes to be published to their log.</p></li>
 </ul>
 </dd>
 </dl>
-</div>
-</div>
-<div class="section" id="other-features">
-<h2>Other Features<a class="headerlink" href="#other-features" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="other-features">
+<h2>Other Features<a class="headerlink" href="#other-features" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__streamobserver.html">ball::StreamObserver</a> now supports log record formatting by suppling a
 <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__ball__recordstringformatter.html">ball::RecordStringFormatter</a> .</p></li>
 <li><p>The BDE team is working on a JSON log record string formatter that will render published
 log records as JSON.  This is expected to be released at the end of Q1.</p></li>
 </ul>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

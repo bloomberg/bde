@@ -1,92 +1,49 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Forwarding Headers in BSL &mdash; BDE Documentation  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/bde.css" type="text/css" />
-
-  
-  
-
-  
-  
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
 
   
     <link rel="canonical" href="https://bloomberg.github.io/white_papers/forwarding-headers.html" />
-
-  
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Making C++ Software Allocator Aware" href="making_cpp_software_allocator_aware.html" />
     <link rel="prev" title="White Papers" href="index.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
 
           
-            <a href="../index.html" class="icon icon-home"> BDE Documentation
           
-
-          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
@@ -99,6 +56,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">White Papers</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Forwarding Headers in BSL (Jan 08, 2023)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#introduction">Introduction</a></li>
@@ -138,85 +96,38 @@
 <li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">BDE Documentation</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
-          <li><a href="index.html">White Papers</a> &raquo;</li>
-        
-      <li>Forwarding Headers in BSL</li>
-    
-    
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">White Papers</a></li>
+      <li class="breadcrumb-item active">Forwarding Headers in BSL</li>
       <li class="wy-breadcrumbs-aside">
-        
-          
-        
       </li>
-    
-  </ul>
-
-  
-  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
-      
-        <a href="making_cpp_software_allocator_aware.html" class="btn btn-neutral float-right" title="Making C++ Software Allocator Aware" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-      
-      
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
         <a href="index.html" class="btn btn-neutral float-left" title="White Papers" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-      
+        <a href="making_cpp_software_allocator_aware.html" class="btn btn-neutral float-right" title="Making C++ Software Allocator Aware" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
   </div>
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <p><em>January 08, 2023</em></p>
-<div class="section" id="forwarding-headers-in-bsl">
-<h1>Forwarding Headers in BSL<a class="headerlink" href="#forwarding-headers-in-bsl" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<section id="forwarding-headers-in-bsl">
+<h1>Forwarding Headers in BSL<a class="headerlink" href="#forwarding-headers-in-bsl" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
 <p>This document provides a specification for rendering a forwarding header – that is,
 a header containing only forward declarations for types in an associated component.
 Forward declarations are often used to reduce compile time in instances where a
@@ -235,9 +146,9 @@ benefit from forwarding headers, and the set of initial components for which BDE
 plans to create forward declaration headers. Decisions about which types to
 provide forward declaration headers for do, however, rely on the engineering
 judgement of component owners and their users.</p>
-</div>
-<div class="section" id="goals-and-guidelines">
-<h2>Goals and Guidelines<a class="headerlink" href="#goals-and-guidelines" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="goals-and-guidelines">
+<h2>Goals and Guidelines<a class="headerlink" href="#goals-and-guidelines" title="Link to this heading"></a></h2>
 <p>In order to better insulate both library providers and clients from library changes,
 without requiring clients to always include full headers even when complete class
 definitions are not necessary, BDE wants to provide forwarding headers as an optional
@@ -282,9 +193,9 @@ used within BDE itself.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="guidance-on-prioritizing-components-for-forwarding-headers">
-<h2>Guidance on Prioritizing Components for Forwarding Headers<a class="headerlink" href="#guidance-on-prioritizing-components-for-forwarding-headers" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="guidance-on-prioritizing-components-for-forwarding-headers">
+<h2>Guidance on Prioritizing Components for Forwarding Headers<a class="headerlink" href="#guidance-on-prioritizing-components-for-forwarding-headers" title="Link to this heading"></a></h2>
 <p>While theoretically forwarding headers could be created for any component, they
 are particularly relevant to vocabulary types (i.e., types that are regularly
 passed by pointer or reference in function interfaces) with large compile times
@@ -293,9 +204,9 @@ passed by pointer or reference in function interfaces) with large compile times
 we believe are extensively forward-declared across the Bloomberg codebase. This
 will likely consist of <code class="docutils literal notranslate"><span class="pre">bdldfp_decimal</span></code>, <code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code> and much of the
 <code class="docutils literal notranslate"><span class="pre">bdlt</span></code> package. Additional headers may also be added depending on feedback received.</p>
-</div>
-<div class="section" id="entity-types-that-should-be-forwarded">
-<h2>Entity Types That Should Be Forwarded<a class="headerlink" href="#entity-types-that-should-be-forwarded" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="entity-types-that-should-be-forwarded">
+<h2>Entity Types That Should Be Forwarded<a class="headerlink" href="#entity-types-that-should-be-forwarded" title="Link to this heading"></a></h2>
 <blockquote>
 <div><ul>
 <li><dl>
@@ -347,9 +258,9 @@ this is a strong motivator.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="entity-types-that-should-not-be-forwarded">
-<h2>Entity Types That Should Not Be Forwarded<a class="headerlink" href="#entity-types-that-should-not-be-forwarded" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="entity-types-that-should-not-be-forwarded">
+<h2>Entity Types That Should Not Be Forwarded<a class="headerlink" href="#entity-types-that-should-not-be-forwarded" title="Link to this heading"></a></h2>
 <blockquote>
 <div><ul class="simple">
 <li><dl class="simple">
@@ -409,9 +320,9 @@ need to consider them we are open to doing so.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="changes-to-existing-headers">
-<h2>Changes to Existing Headers<a class="headerlink" href="#changes-to-existing-headers" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="changes-to-existing-headers">
+<h2>Changes to Existing Headers<a class="headerlink" href="#changes-to-existing-headers" title="Link to this heading"></a></h2>
 <p>Two changes to existing files in a component should be made:</p>
 <blockquote>
 <div><ul>
@@ -430,14 +341,10 @@ both when a forwarding header has been included and when it has not.</p>
 header compiles on its own when included as the first non-vacuous statement
 in a file (and thus has no dependencies).</p>
 <table class="docutils align-default" id="id1" style="width: 100%">
-<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">abc_component.h</span></code></span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">abc_component.h</span></code></span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
 <tbody>
 <tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id2">
-<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ... Documentation</span>
 
 <span class="hll">
@@ -448,10 +355,10 @@ in a file (and thus has no dependencies).</p>
 </div>
 </td>
 <td><div class="literal-block-wrapper docutils container" id="id3">
-<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ... Documentation</span>
 
-<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.fwd.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.fwd.h&gt;</span>
 </span>
 <span class="c1">// ... Rest of includes</span>
 </pre></div>
@@ -471,16 +378,12 @@ the primary header).</p>
 <p>This verifies that the reverse include order - primary header then forwarding
 header - compiles with no issues and does not break a component.</p>
 <table class="docutils align-default" id="id4" style="width: 100%">
-<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">abc_component.t.cpp</span></code> (first line truncated to fit on page)</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">abc_component.t.cpp</span></code> (first line truncated to fit on page)</span><a class="headerlink" href="#id4" title="Link to this table"></a></caption>
 <tbody>
 <tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id5">
-<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id5" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// abc_component.t.cpp                    ... -*-C++-*-</span>
-<span class="linenos">2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.h&gt;</span><span class="cp"></span>
+<span class="linenos">2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.h&gt;</span>
 <span class="hll"><span class="linenos">3</span>
 </span><span class="linenos">4</span>
 <span class="linenos">5</span><span class="c1">// ... Rest of includes</span>
@@ -489,10 +392,10 @@ header - compiles with no issues and does not break a component.</p>
 </div>
 </td>
 <td><div class="literal-block-wrapper docutils container" id="id6">
-<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1">// abc_component.t.cpp                    ... -*-C++-*-</span>
-<span class="linenos">2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.h&gt;</span><span class="cp"></span>
-<span class="hll"><span class="linenos">3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.fwd.h&gt;</span><span class="cp"></span>
+<span class="linenos">2</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.h&gt;</span>
+<span class="hll"><span class="linenos">3</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;abc_component.fwd.h&gt;</span>
 </span><span class="linenos">4</span>
 <span class="linenos">5</span><span class="c1">// ... Rest of includes</span>
 </pre></div>
@@ -507,15 +410,15 @@ header - compiles with no issues and does not break a component.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="forwarding-header-structure-and-layout">
-<h2>Forwarding Header Structure and Layout<a class="headerlink" href="#forwarding-header-structure-and-layout" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="forwarding-header-structure-and-layout">
+<h2>Forwarding Header Structure and Layout<a class="headerlink" href="#forwarding-header-structure-and-layout" title="Link to this heading"></a></h2>
 <p>Every component <code class="docutils literal notranslate"><span class="pre">abc_component</span></code> may optionally provide a forwarding header with the
 extension <code class="docutils literal notranslate"><span class="pre">.fwd.h</span></code> named <code class="docutils literal notranslate"><span class="pre">abc_component.fwd.h</span></code>.</p>
 <p>The code for the following example can be found at
 <a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslma/bslma_allocator.fwd.h">bslma_allocator.fwd.h</a></p>
 <div class="literal-block-wrapper docutils container" id="id7">
-<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.h</span></code></span><a class="headerlink" href="#id7" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.h</span></code></span><a class="headerlink" href="#id7" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// bslma_allocator.fwd.h                                              -*-C++-*-</span>
 <span class="cp">#ifndef FWD_INCLUDED_BSLMA_ALLOCATOR</span>
 <span class="cp">#define FWD_INCLUDED_BSLMA_ALLOCATOR</span>
@@ -532,10 +435,10 @@ extension <code class="docutils literal notranslate"><span class="pre">.fwd.h</s
 <span class="c1">// the declared names and see &#39;bslma_allocator.h&#39; for documentation on those</span>
 <span class="c1">// names.</span>
 
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">bslma</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">bslma</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">Allocator</span><span class="p">;</span><span class="w"></span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Allocator</span><span class="p">;</span>
 
 <span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
 <span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
@@ -585,9 +488,9 @@ and pointing to the primary header for all actual documentation.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="testing-goals">
-<h2>Testing Goals<a class="headerlink" href="#testing-goals" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="testing-goals">
+<h2>Testing Goals<a class="headerlink" href="#testing-goals" title="Link to this heading"></a></h2>
 <p>The following salient aspects of a forwarding header need to be tested to verify
 that the header will work correctly, and many (but not all) of these are
 accomplished without any need to build and run a distinct test driver file</p>
@@ -631,9 +534,9 @@ deployed to validate this.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-<div class="section" id="forwarding-header-test-driver-structure-and-layout">
-<h2>Forwarding Header Test Driver Structure and Layout<a class="headerlink" href="#forwarding-header-test-driver-structure-and-layout" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="forwarding-header-test-driver-structure-and-layout">
+<h2>Forwarding Header Test Driver Structure and Layout<a class="headerlink" href="#forwarding-header-test-driver-structure-and-layout" title="Link to this heading"></a></h2>
 <p>The forwarding header test driver will be a somewhat standard BDE test driver with the following changes (
 The code for this example can be found at
 <a class="reference external" href="https://github.com/bloomberg/bde/blob/main/groups/bsl/bslma/bslma_allocator.fwd.t.cpp">bslma_allocator.fwd.t.cpp</a>
@@ -641,51 +544,51 @@ The code for this example can be found at
 <p>Only the forwarding header and basic test support headers
 (<code class="docutils literal notranslate"><span class="pre">bslim_testutil.h</span></code>, stdio, and cstdlib) will be included before the test driver code.</p>
 <div class="literal-block-wrapper docutils container" id="id8">
-<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> include files</span><a class="headerlink" href="#id8" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> include files</span><a class="headerlink" href="#id8" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// bslma_allocator.fwd.t.cpp                                          -*-C++-*-</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslim_testutil.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslim_testutil.h&gt;</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_ostream.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_ostream.h&gt;</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cstdlib.h&gt;</span><span class="cp"></span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cstring.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cstdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cstring.h&gt;</span>
 
-<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span><span class="w"></span>
-<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span><span class="w"></span>
-<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="p">;</span><span class="w"></span>
-<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
-<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">atoi</span><span class="p">;</span><span class="w"></span>
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">cerr</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="k">using</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">atoi</span><span class="p">;</span>
 </pre></div>
 </div>
 </div>
 <p>A local support template, <code class="docutils literal notranslate"><span class="pre">isIncomplete</span></code>, will be defined in an anonymous namespace:</p>
 <div class="literal-block-wrapper docutils container" id="id9">
-<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> isIncomplete</span><a class="headerlink" href="#id9" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> isIncomplete</span><a class="headerlink" href="#id9" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ============================================================================</span>
 <span class="c1">//               STANDARD FORWARDING HEADER TESTING UTILITIES</span>
 <span class="c1">// ----------------------------------------------------------------------------</span>
 
-<span class="k">namespace</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">t_TYPE</span><span class="p">)]);</span><span class="w"></span>
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(...);</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">t_TYPE</span><span class="p">)]);</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(...);</span>
 <span class="w">    </span><span class="c1">// Return &#39;true&#39; when invoked with literal &#39;0&#39; argument if &#39;t_TYPE&#39; is</span>
 <span class="w">    </span><span class="c1">// incomplete, &#39;false&#39; if &#39;t_TYPE&#39; is complete.</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
-<span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">t_TYPE</span><span class="p">)])</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">t_TYPE</span><span class="p">)])</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
 
-<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span><span class="w"></span>
-<span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(...)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">t_TYPE</span><span class="o">&gt;</span>
+<span class="kt">bool</span><span class="w"> </span><span class="n">isIncomplete</span><span class="p">(...)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
 
 <span class="p">}</span><span class="w">  </span><span class="c1">// close unnamed namespace</span>
 </pre></div>
@@ -693,12 +596,12 @@ The code for this example can be found at
 </div>
 <p>A special function <code class="docutils literal notranslate"><span class="pre">testTypeCompleteness</span></code> will be forward-declared before <code class="docutils literal notranslate"><span class="pre">main</span></code></p>
 <div class="literal-block-wrapper docutils container" id="id10">
-<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> testTypeCompleteness</span><a class="headerlink" href="#id10" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> testTypeCompleteness</span><a class="headerlink" href="#id10" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// ============================================================================</span>
 <span class="c1">//                         NAME COMPLETION DECLARATION</span>
 <span class="c1">// ----------------------------------------------------------------------------</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testTypeCompleteness</span><span class="p">();</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testTypeCompleteness</span><span class="p">();</span>
 <span class="w">    </span><span class="c1">// Verify that the names declared in this forwarding header are complete</span>
 <span class="w">    </span><span class="c1">// when the primary header is included.  Note that the definition of this</span>
 <span class="w">    </span><span class="c1">// function is at the end of this file after &#39;main&#39; and the inclusion of the</span>
@@ -709,8 +612,8 @@ The code for this example can be found at
 <p>A standard BDE test drive <code class="docutils literal notranslate"><span class="pre">main</span></code> will be defined, with one test case that
 verifies that all names that should be forwarded are defined and incomplete</p>
 <div class="literal-block-wrapper docutils container" id="id11">
-<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> single test case</span><a class="headerlink" href="#id11" title="Permalink to this code">¶</a></div>
-<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> single test case</span><a class="headerlink" href="#id11" title="Link to this code"></a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// --------------------------------------------------------------------</span>
 <span class="w">  </span><span class="c1">// FORWARD DECLARATIONS</span>
 <span class="w">  </span><span class="c1">//</span>
@@ -731,12 +634,12 @@ verifies that all names that should be forwarded are defined and incomplete</p>
 <span class="w">  </span><span class="c1">//:   by including the primary header.</span>
 <span class="w">  </span><span class="c1">// --------------------------------------------------------------------</span>
 
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">FORWARD DECLARATIONS&quot;</span><span class="w"></span>
-<span class="w">                      </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">====================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span><span class="w"> </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">FORWARD DECLARATIONS&quot;</span>
+<span class="w">                      </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">====================</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
 
-<span class="w">  </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">isIncomplete</span><span class="o">&lt;</span><span class="n">BloombergLP</span><span class="o">::</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
+<span class="w">  </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">isIncomplete</span><span class="o">&lt;</span><span class="n">BloombergLP</span><span class="o">::</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
 
-<span class="w">  </span><span class="n">testTypeCompleteness</span><span class="p">();</span><span class="w"></span>
+<span class="w">  </span><span class="n">testTypeCompleteness</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -745,15 +648,15 @@ being forwarded are verified to be incomplete) the primary header will be
 included and the <code class="docutils literal notranslate"><span class="pre">testTypeCompleteness</span></code> function will be defined to verify that the
 names needed are made complete by the primary header:</p>
 <div class="literal-block-wrapper docutils container" id="id12">
-<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> definition of testTypeCompleteness</span><a class="headerlink" href="#id12" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">bslma_allocator.fwd.t.cpp</span></code> definition of testTypeCompleteness</span><a class="headerlink" href="#id12" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Verify that the primary header can be included *after* the forwarding</span>
 <span class="c1">// header.</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testTypeCompleteness</span><span class="p">()</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="o">!</span><span class="n">isIncomplete</span><span class="o">&lt;</span><span class="n">BloombergLP</span><span class="o">::</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">testTypeCompleteness</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="o">!</span><span class="n">isIncomplete</span><span class="o">&lt;</span><span class="n">BloombergLP</span><span class="o">::</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </div>
@@ -763,9 +666,9 @@ the forwarding header and then defined by the primary header.</p>
 <p>These checks could also be done as a <code class="docutils literal notranslate"><span class="pre">static_assert</span></code> when available, or using <code class="docutils literal notranslate"><span class="pre">BSLMF_ASSERT</span></code>,
 but we want to minimize the code dependencies of this pattern in order to make it viable
 at every level in the BDE codebase.</p>
-</div>
-<div class="section" id="client-usage">
-<h2>Client Usage<a class="headerlink" href="#client-usage" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="client-usage">
+<h2>Client Usage<a class="headerlink" href="#client-usage" title="Link to this heading"></a></h2>
 <p>For clients of a library providing bde-style forwarding headers there are a few
 important things to consider.</p>
 <blockquote>
@@ -786,22 +689,18 @@ every developer should be aware of and consider as an option.</p>
 </li>
 </ul>
 </div></blockquote>
-<div class="section" id="replacing-forward-declarations">
-<h3>Replacing Forward Declarations<a class="headerlink" href="#replacing-forward-declarations" title="Permalink to this headline">¶</a></h3>
+<section id="replacing-forward-declarations">
+<h3>Replacing Forward Declarations<a class="headerlink" href="#replacing-forward-declarations" title="Link to this heading"></a></h3>
 <p>The most frequent expected use for forwarding headers, is to replace already existing
 cross-package forward declarations (which are not permitted per the
 <a class="reference internal" href="../knowledge_base/coding_standards.html#rule-4-4-3"><span class="std std-ref">Coding Standards Rule 4.4.3</span></a>
 ) with an include of the corresponding
 forwarding header instead. For example, consider the following change:</p>
 <table class="docutils align-default" id="id13" style="width: 100%">
-<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_header.h</span></code></span><a class="headerlink" href="#id13" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_header.h</span></code></span><a class="headerlink" href="#id13" title="Link to this table"></a></caption>
 <tbody>
 <tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id14">
-<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id14" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id14" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_header.h</span>
 
 <span class="cp">#ifndef INCLUDED_MY_HEADER</span>
@@ -812,9 +711,9 @@ forwarding header instead. For example, consider the following change:</p>
 <span class="c1">// ... Some includes</span>
 <span class="hll">
 </span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
 
-<span class="hll"><span class="k">namespace</span><span class="w"> </span><span class="nn">bslma</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Allocator</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="hll"><span class="k">namespace</span><span class="w"> </span><span class="nn">bslma</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Allocator</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
 </span>
 <span class="c1">// ... The rest of my header</span>
 
@@ -826,7 +725,7 @@ forwarding header instead. For example, consider the following change:</p>
 </div>
 </td>
 <td><div class="literal-block-wrapper docutils container" id="id15">
-<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id15" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id15" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_header.h</span>
 
 <span class="cp">#ifndef INCLUDED_MY_HEADER</span>
@@ -835,9 +734,9 @@ forwarding header instead. For example, consider the following change:</p>
 <span class="c1">// ... Documentation</span>
 
 <span class="c1">// ... Some includes</span>
-<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span>
 </span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
 
 <span class="hll">
 </span>
@@ -856,9 +755,9 @@ forwarding header instead. For example, consider the following change:</p>
 <p>This would enable the providers of <code class="docutils literal notranslate"><span class="pre">bslma::Allocator</span></code> to freely update that
 declaration to something which might not be compatible, such as changing
 it to a struct or a typedef, without any impact on the owners of <code class="docutils literal notranslate"><span class="pre">my_header</span></code>.</p>
-</div>
-<div class="section" id="replacing-full-includes-with-forwarding-headers">
-<h3>Replacing Full Includes with Forwarding Headers<a class="headerlink" href="#replacing-full-includes-with-forwarding-headers" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="replacing-full-includes-with-forwarding-headers">
+<h3>Replacing Full Includes with Forwarding Headers<a class="headerlink" href="#replacing-full-includes-with-forwarding-headers" title="Link to this heading"></a></h3>
 <p>The other potential beneficiary of a forwarding header is the library client
 who wants to minimize the overhead of their header on their own clients by
 only including the needed level of dependency on a component that provides a
@@ -871,14 +770,10 @@ names it provides.</p>
 <p>This same code can instead be modified to only utilize the forwarding header
 in its own header:</p>
 <table class="docutils align-default" id="id16" style="width: 100%">
-<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_util.h</span></code></span><a class="headerlink" href="#id16" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_util.h</span></code></span><a class="headerlink" href="#id16" title="Link to this table"></a></caption>
 <tbody>
 <tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id17">
-<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id17" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id17" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.h</span>
 
 <span class="cp">#ifndef INCLUDED_MY_UTIL</span>
@@ -887,19 +782,19 @@ in its own header:</p>
 <span class="c1">// ... Documentation</span>
 
 <span class="c1">// ... Some includes</span>
-<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span>
 </span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">namespace</span><span class="w"> </span><span class="nn">my</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">my</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">struct</span><span class="w"> </span><span class="nc">Util</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Util</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">);</span>
 <span class="w">   </span><span class="c1">// Do stuff using the specified &#39;allocator&#39;</span>
 <span class="w">   </span><span class="c1">// to provide memory.</span>
 
-<span class="p">};</span><span class="w"></span>
+<span class="p">};</span>
 
 <span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
 <span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
@@ -910,7 +805,7 @@ in its own header:</p>
 </div>
 </td>
 <td><div class="literal-block-wrapper docutils container" id="id18">
-<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id18" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id18" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.h</span>
 
 <span class="cp">#ifndef INCLUDED_MY_HEADER</span>
@@ -919,19 +814,19 @@ in its own header:</p>
 <span class="c1">// ... Documentation</span>
 
 <span class="c1">// ... Some includes</span>
-<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.fwd.h&gt;</span>
 </span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">namespace</span><span class="w"> </span><span class="nn">my</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">my</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">struct</span><span class="w"> </span><span class="nc">Util</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Util</span><span class="w"> </span><span class="p">{</span>
 
-<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">);</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">);</span>
 <span class="w">   </span><span class="c1">// Do stuff using the specified &#39;allocator&#39;</span>
 <span class="w">   </span><span class="c1">// to provide memory.</span>
 
-<span class="p">};</span><span class="w"></span>
+<span class="p">};</span>
 
 <span class="p">}</span><span class="w">  </span><span class="c1">// close package namespace</span>
 <span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
@@ -947,27 +842,23 @@ in its own header:</p>
 <p>In addition, the implementation file can be modified add the inclusion of the
 component’s primary header:</p>
 <table class="docutils align-default" id="id19" style="width: 100%">
-<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_util.cpp</span></code></span><a class="headerlink" href="#id19" title="Permalink to this table">¶</a></caption>
-<colgroup>
-<col style="width: 50%" />
-<col style="width: 50%" />
-</colgroup>
+<caption><span class="caption-text"><code class="docutils literal notranslate"><span class="pre">my_util.cpp</span></code></span><a class="headerlink" href="#id19" title="Link to this table"></a></caption>
 <tbody>
 <tr class="row-odd"><td><div class="literal-block-wrapper docutils container" id="id20">
-<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id20" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">Before</span><a class="headerlink" href="#id20" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.cpp</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;my_util.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;my_util.h&gt;</span>
 
 <span class="hll">
 </span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="nf">my::Util::doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">my::Util::doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">)</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="c1">// ... Make actual use of &#39;allocator&#39;.</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
 
 <span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
 </pre></div>
@@ -975,20 +866,20 @@ component’s primary header:</p>
 </div>
 </td>
 <td><div class="literal-block-wrapper docutils container" id="id21">
-<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id21" title="Permalink to this code">¶</a></div>
+<div class="code-block-caption"><span class="caption-text">After</span><a class="headerlink" href="#id21" title="Link to this code"></a></div>
 <div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// my_util.h</span>
 
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;my_util.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;my_util.h&gt;</span>
 
-<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span><span class="cp"></span>
+<span class="hll"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_allocator.h&gt;</span>
 </span>
-<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="w"> </span><span class="p">{</span>
 
-<span class="kt">int</span><span class="w"> </span><span class="nf">my::Util::doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">)</span><span class="w"></span>
-<span class="p">{</span><span class="w"></span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">my::Util::doStuff</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">allocator</span><span class="p">)</span>
+<span class="p">{</span>
 <span class="w">    </span><span class="c1">// ... Make actual use of &#39;allocator&#39;.</span>
-<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
 
 <span class="p">}</span><span class="w">  </span><span class="c1">// close enterprise namespace</span>
 </pre></div>
@@ -1000,10 +891,10 @@ component’s primary header:</p>
 </table>
 <p>This reduces the coupling between the component depended upon (<code class="docutils literal notranslate"><span class="pre">bslma_allocator</span></code>)
 and clients of <code class="docutils literal notranslate"><span class="pre">my_util</span></code>, without any risk of additional maintenance burdens.</p>
-</div>
-</div>
-<div class="section" id="future-considerations">
-<h2>Future Considerations<a class="headerlink" href="#future-considerations" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="future-considerations">
+<h2>Future Considerations<a class="headerlink" href="#future-considerations" title="Link to this heading"></a></h2>
 <p>Here are examples of further work we may wish to consider in the future:</p>
 <blockquote>
 <div><ul class="simple">
@@ -1032,51 +923,35 @@ the corresponding forwarding headers.</p>
 </li>
 </ul>
 </div></blockquote>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2024, Bloomberg LP.
-
-    </p>
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

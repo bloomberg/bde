@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bdld::Datum Quick Introduction &mdash; BDE Documentation  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d75fae25" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/bde.css?v=e25bca04" />
+
+  
+    <link rel="canonical" href="https://bloomberg.github.io/articles/datum_quick_intro.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bdlt::Date Is Always Valid (Except When It Isn’t)" href="valid_dates.html" />
+    <link rel="prev" title="BALL Record Formatter Plugins: Flexible Log Output Formatting" href="ball_record_formatter_plugins.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BDE Documentation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Library Information</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/build.html">Build Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/source_code.html">Source Code</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../library_information/supported_platforms.html">Supported Platforms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release_notes/release_notes.html">Release Notes</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/coding_standards.html">BDE C++ Coding Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/resources_by_topic.html">Resources By Topic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cotw/cotw.html">Component of the Week</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../white_papers/index.html">White Papers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bdljsn_enhancements.html">bdljsn::Json Enhancements  (September 3, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp23_project.html">BSL Support for C++23 (June 1, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdlt-format.html">bsl::format for bdlt Value Types (April 6, 2026)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_record_formatter_plugins.html">BALL Record Formatter Plugins (March 23, 2026)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bdld::Datum Quick Introduction (December 4, 2025)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#understanding-datum-s-memory-model">Understanding Datum’s Memory Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#creating-datum-values">Creating Datum Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#external-references-vs-owned-data">External References vs. Owned Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-arrays">Working with Arrays</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#working-with-maps">Working with Maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-bdld-package-ecosystem">The bdld Package Ecosystem</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#user-defined-types">User-Defined Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deep-copying-with-clone">Deep Copying with clone</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#efficient-memory-management-with-managed-allocators">Efficient Memory Management with Managed Allocators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="valid_dates.html">bdlt::Date Is Always Valid (Except When It Isn't) (August 13, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bslfmt.html">An introduction to bsl::format (Updated July 15, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_array_length_hints.html">BER Encoding Options to Improve Performance (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_fmt.html">Announcing ball_fmt (July 7, 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started_with_aa.html">Getting Started Writing Allocator Aware Software (May 30, 2024)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_variant.html">bsl::variant: An Allocator-Aware Sum Type (December 25, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cpp20_project.html">BSL Support for C++20 (August 28, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing (Feb 21, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bdljsn.html">Introducing bdljsn::Json (January 18, 2023)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wyhash.html">Selecting wyhash as the Default Hash Algorithm (June 30, 2022)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bde_4.0_chrono.html">bsl::chrono Integration with bsl and bdl (November 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="concurrent_queue_evaluation/paper.html">Concurrent Queue Evaluation (March 31, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="binary_decimal_conversion.html">Binary to Decimal and Back Again. (March 30, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bsl_optional.html">bsl::optional: An Allocator-Aware Optional Type. (February 1, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ball_scoped_attributes.html">Adding Context to your Application Log. (January 6, 2021)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ber_format.html">BER Date and Time Format Specification. (January 9, 2020)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mpcheck.html">Avoiding Common Problems with Smart Pointers. (December 17, 2019)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-resources/pdfs/BDETypeTaxonomy.pdf">Taxonomy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/faq.html">BDE FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fuzz_testing.html">Fuzz Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../knowledge_base/contributing.html">Contributing to BDE</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Tools</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools">BBS Build System</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://bloomberg.github.io/bde-tools/misc/sim_cpp11_features.html">Simulating Variadic Templates</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BDE Documentation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Articles</a></li>
+      <li class="breadcrumb-item active">bdld::Datum Quick Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul><div class="rst-breadcrumbs-buttons" role="navigation" aria-label="Sequential page navigation">
+        <a href="ball_record_formatter_plugins.html" class="btn btn-neutral float-left" title="BALL Record Formatter Plugins: Flexible Log Output Formatting" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="valid_dates.html" class="btn btn-neutral float-right" title="bdlt::Date Is Always Valid (Except When It Isn’t)" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+  </div>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bdld-datum-quick-introduction">
+<span id="datum-quick-intro"></span><h1>bdld::Datum Quick Introduction<a class="headerlink" href="#bdld-datum-quick-introduction" title="Link to this heading"></a></h1>
+<p>The <a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datum.html">bdld_datum</a>
+component defines a mechanism, <code class="docutils literal notranslate"><span class="pre">bdld::Datum</span></code>, that provides a space-efficient
+discriminated union (i.e., a variant) that can hold values of many different
+types - from scalars like integers and doubles to aggregates like arrays and
+maps. Unlike typical BDE types, <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is <strong>not a value-semantic type</strong> but
+behaves more like a <strong>pointer</strong>, requiring explicit memory management similar
+to raw pointers. However, <code class="docutils literal notranslate"><span class="pre">Datum</span></code> <strong>does provide equality comparison
+operators</strong> (<code class="docutils literal notranslate"><span class="pre">operator==</span></code> and <code class="docutils literal notranslate"><span class="pre">operator!=</span></code>) that compare the values to
+which the <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects refer, not just the addresses.</p>
+<p>This design makes <code class="docutils literal notranslate"><span class="pre">Datum</span></code> particularly well-suited for applications that need
+to create and copy very large numbers of variant values, such as:</p>
+<ul class="simple">
+<li><p><strong>Interfacing with dynamic languages</strong> like JavaScript</p></li>
+<li><p><strong>Creating scripting languages</strong> like Bloomberg’s HSL (Hypersheet Scripting Language)</p></li>
+<li><p><strong>Spreadsheet implementations</strong> where cells can contain different types</p></li>
+<li><p><strong>Data interchange</strong> and serialization scenarios</p></li>
+</ul>
+<p>The key characteristic that distinguishes <code class="docutils literal notranslate"><span class="pre">Datum</span></code> from other BDE types is its
+pointer-like behavior: copying a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> performs a shallow copy (like
+copying a pointer), and memory must be explicitly managed using static
+<code class="docutils literal notranslate"><span class="pre">Datum::create*</span></code> and <code class="docutils literal notranslate"><span class="pre">Datum::destroy</span></code> functions. However, when deep copying
+is needed, <code class="docutils literal notranslate"><span class="pre">Datum</span></code> provides a <code class="docutils literal notranslate"><span class="pre">clone</span></code> method that creates independent,
+self-contained copies where even external references are copied as owned
+entities.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">Datum</span></code> is a POD (Plain Old Data) type, meaning instances are bitwise
+copyable and have trivial initialization, assignment, and destruction. This
+makes <code class="docutils literal notranslate"><span class="pre">Datum</span></code> extremely efficient but requires careful attention to memory
+management.</p>
+</div>
+<section id="understanding-datum-s-memory-model">
+<h2>Understanding Datum’s Memory Model<a class="headerlink" href="#understanding-datum-s-memory-model" title="Link to this heading"></a></h2>
+<p>The most important aspect of <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is understanding its memory model, which
+is fundamentally different from typical BDE value-semantic types:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datum.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Values that fit in the Datum footprint require no allocation</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">integer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">boolean</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createBoolean</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">floating</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDouble</span><span class="p">(</span><span class="mf">3.14159</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Integer: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">integer</span><span class="p">.</span><span class="n">theInteger</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Boolean: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">boolean</span><span class="p">.</span><span class="n">theBoolean</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Double:  &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">floating</span><span class="p">.</span><span class="n">theDouble</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Destroy is not mandatory - these values are stored inline</span>
+
+<span class="w">    </span><span class="c1">// Create a long string that exceeds short-string optimization</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">longText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This is a long string that will definitely &quot;</span>
+<span class="w">                           </span><span class="s">&quot;exceed the short string optimization limit &quot;</span>
+<span class="w">                           </span><span class="s">&quot;on 64-bit platforms and require allocation&quot;</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="n">longText</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;String:  &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">str</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address: &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// This is a shallow copy - both point to the same string data!</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">str2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Shallow copy: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">str2</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:      &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">str2</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Shallow copy equal? &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">str</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">str2</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Same address? &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">str2</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span>
+<span class="w">                  </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Only destroy once (destroying twice would be an error)</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// str2 now refers to deallocated memory - do not use it!</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The analogy to raw pointers is instructive: <code class="docutils literal notranslate"><span class="pre">Datum::create*</span></code> is like <code class="docutils literal notranslate"><span class="pre">new</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Datum::destroy</span></code> is like <code class="docutils literal notranslate"><span class="pre">delete</span></code>, and copying a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is like copying
+a pointer (both point to the same memory).</p>
+</section>
+<section id="creating-datum-values">
+<h2>Creating Datum Values<a class="headerlink" href="#creating-datum-values" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Datum</span></code> provides a rich set of factory functions for creating values. Some
+types never allocate memory, while others may or may not depending on the value:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="c1">// Scalar types that never require allocation</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">nil</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createNull</span><span class="p">();</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">integer</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">123</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">real</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDouble</span><span class="p">(</span><span class="mf">2.718</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">boolean</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createBoolean</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">date</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDate</span><span class="p">(</span><span class="n">bdlt</span><span class="o">::</span><span class="n">Date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">27</span><span class="p">));</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">time</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createTime</span><span class="p">(</span><span class="n">bdlt</span><span class="o">::</span><span class="n">Time</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">));</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Integer:          &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">integer</span><span class="p">.</span><span class="n">theInteger</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Real:             &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">real</span><span class="p">.</span><span class="n">theDouble</span><span class="p">()</span><span class="w">     </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Date:             &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">date</span><span class="p">.</span><span class="n">theDate</span><span class="p">()</span><span class="w">       </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Types that may require allocation</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">int64</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger64</span><span class="p">(</span><span class="mf">1L</span><span class="n">L</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">datetime</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDatetime</span><span class="p">(</span>
+<span class="w">                            </span><span class="n">bdlt</span><span class="o">::</span><span class="n">Datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">interval</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDatetimeInterval</span><span class="p">(</span>
+<span class="w">                            </span><span class="n">bdlt</span><span class="o">::</span><span class="n">DatetimeInterval</span><span class="p">(</span><span class="mi">24</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">decimal</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDecimal64</span><span class="p">(</span>
+<span class="w">                            </span><span class="n">bdldfp</span><span class="o">::</span><span class="n">Decimal64</span><span class="p">(</span><span class="mf">123.45</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Int64:            &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">int64</span><span class="p">.</span><span class="n">theInteger64</span><span class="p">()</span><span class="w">   </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Datetime:         &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">datetime</span><span class="p">.</span><span class="n">theDatetime</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Strings - owned vs. referenced</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">ownedStr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;owned&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">refStr</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createStringRef</span><span class="p">(</span><span class="s">&quot;literal&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Owned string:     &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">ownedStr</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;String reference: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">refStr</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w">   </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Clean up owned values</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">int64</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">datetime</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">decimal</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">ownedStr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="c1">// Note: refStr references external data, but may have allocated metadata</span>
+</pre></div>
+</div>
+</section>
+<section id="external-references-vs-owned-data">
+<h2>External References vs. Owned Data<a class="headerlink" href="#external-references-vs-owned-data" title="Link to this heading"></a></h2>
+<p>A key feature of <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is its ability to reference external data without
+taking ownership, which is crucial for performance when data will outlive the
+<code class="docutils literal notranslate"><span class="pre">Datum</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">literal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This string exists for the program lifetime&quot;</span><span class="p">;</span>
+
+<span class="c1">// Create a reference to the external string - no copy made</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">refDatum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createStringRef</span><span class="p">(</span><span class="n">literal</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">refDatum</span><span class="p">.</span><span class="n">isString</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">refDatum</span><span class="p">.</span><span class="n">isExternalReference</span><span class="p">());</span><span class="w">  </span><span class="c1">// true!</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;External reference: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">refDatum</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; (isExternal: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">refDatum</span><span class="p">.</span><span class="n">isExternalReference</span><span class="p">()</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:            &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">refDatum</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Destroy will not free the string itself</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">refDatum</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="c1">// literal is still valid here</span>
+
+<span class="c1">// Compare with an owned string</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">ownedDatum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;copied&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">ownedDatum</span><span class="p">.</span><span class="n">isString</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="o">!</span><span class="n">ownedDatum</span><span class="p">.</span><span class="n">isExternalReference</span><span class="p">());</span><span class="w">  </span><span class="c1">// false - Datum owns it</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Owned string: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">ownedDatum</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; (isExternal: &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">ownedDatum</span><span class="p">.</span><span class="n">isExternalReference</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;true&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span><span class="p">)</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:      &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ownedDatum</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Destroy will free the copied string</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">ownedDatum</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This distinction is essential: factory methods like <code class="docutils literal notranslate"><span class="pre">createStringRef</span></code> and
+<code class="docutils literal notranslate"><span class="pre">createArrayReference</span></code> create references to external data (where
+<code class="docutils literal notranslate"><span class="pre">isExternalReference()</span></code> returns <code class="docutils literal notranslate"><span class="pre">true</span></code>), while methods like <code class="docutils literal notranslate"><span class="pre">copyString</span></code>
+and <code class="docutils literal notranslate"><span class="pre">adoptArray</span></code> create owned data.</p>
+</section>
+<section id="working-with-arrays">
+<h2>Working with Arrays<a class="headerlink" href="#working-with-arrays" title="Link to this heading"></a></h2>
+<p>Arrays of <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects can be created in multiple ways. The <code class="docutils literal notranslate"><span class="pre">bdld</span></code>
+package provides builder components to simplify array construction:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datum.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datumarraybuilder.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cassert.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="c1">// Using DatumArrayBuilder (recommended approach)</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">DatumArrayBuilder</span><span class="w"> </span><span class="nf">builder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">2</span><span class="p">));</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDouble</span><span class="p">(</span><span class="mf">3.14</span><span class="p">));</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;four&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">));</span>
+
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">array</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">commit</span><span class="p">();</span>
+
+<span class="c1">// Access array elements</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">array</span><span class="p">.</span><span class="n">isArray</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">4</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">length</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">1</span><span class="w">    </span><span class="o">==</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="n">theInteger</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="mf">3.14</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">()[</span><span class="mi">2</span><span class="p">].</span><span class="n">theDouble</span><span class="p">());</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Array length: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">().</span><span class="n">length</span><span class="p">()</span><span class="w">       </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;  Element 0: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="n">theInteger</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;  Element 2: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">()[</span><span class="mi">2</span><span class="p">].</span><span class="n">theDouble</span><span class="p">()</span><span class="w">  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;  Element 3: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">array</span><span class="p">.</span><span class="n">theArray</span><span class="p">()[</span><span class="mi">3</span><span class="p">].</span><span class="n">theString</span><span class="p">()</span><span class="w">  </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Destroy recursively frees all elements</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">array</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The builder pattern handles all the complexity of memory allocation and
+exception safety, making it the preferred approach for constructing arrays.</p>
+</section>
+<section id="working-with-maps">
+<h2>Working with Maps<a class="headerlink" href="#working-with-maps" title="Link to this heading"></a></h2>
+<p>Maps provide key-value storage where keys are strings and values are <code class="docutils literal notranslate"><span class="pre">Datum</span></code>
+objects:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datum.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datummapbuilder.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bslma_testallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cassert.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="c1">// Using DatumMapBuilder (recommended approach)</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">DatumMapBuilder</span><span class="w"> </span><span class="nf">builder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span><span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">));</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">,</span><span class="w">     </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">30</span><span class="p">));</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="s">&quot;active&quot;</span><span class="p">,</span><span class="w">  </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createBoolean</span><span class="p">(</span><span class="nb">true</span><span class="p">));</span>
+<span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="s">&quot;balance&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDouble</span><span class="p">(</span><span class="mf">1234.56</span><span class="p">));</span>
+
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">record</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">commit</span><span class="p">();</span>
+
+<span class="c1">// Access map elements</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">record</span><span class="p">.</span><span class="n">isMap</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="mi">4</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">record</span><span class="p">.</span><span class="n">theMap</span><span class="p">().</span><span class="n">size</span><span class="p">());</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Map size: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">record</span><span class="p">.</span><span class="n">theMap</span><span class="p">().</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Find by key</span>
+<span class="k">const</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">record</span><span class="p">.</span><span class="n">theMap</span><span class="p">().</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">name</span><span class="o">-&gt;</span><span class="n">isString</span><span class="p">());</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="s">&quot;Alice&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">name</span><span class="o">-&gt;</span><span class="n">theString</span><span class="p">());</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Name: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">name</span><span class="o">-&gt;</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">const</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">*</span><span class="w"> </span><span class="n">age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">record</span><span class="p">.</span><span class="n">theMap</span><span class="p">().</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">);</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">age</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Age: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">age</span><span class="o">-&gt;</span><span class="n">theInteger</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Destroy recursively frees the entire map structure</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Maps can be sorted by key for efficient O(log N) lookup, or unsorted for O(N)
+lookup. The <code class="docutils literal notranslate"><span class="pre">DatumMapBuilder</span></code> provides control over this behavior.</p>
+</section>
+<section id="the-bdld-package-ecosystem">
+<h2>The bdld Package Ecosystem<a class="headerlink" href="#the-bdld-package-ecosystem" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">bdld</span></code> package provides several supporting components that work with
+<code class="docutils literal notranslate"><span class="pre">Datum</span></code>:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__manageddatum.html"><strong>bdld_manageddatum</strong></a> -  Provides a smart-pointer-like wrapper that adds
+value-semantic operations and automatic memory management to <code class="docutils literal notranslate"><span class="pre">Datum</span></code>,
+making it easier to use in containers and other value-semantic contexts</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumarraybuilder.html"><strong>bdld_datumarraybuilder</strong></a> - Utility for building <code class="docutils literal notranslate"><span class="pre">Datum</span></code> arrays in an
+exception-safe manner, particularly useful when the array size isn’t known
+in advance</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datummapbuilder.html"><strong>bdld_datummapbuilder</strong></a> - Utility for building <code class="docutils literal notranslate"><span class="pre">Datum</span></code> maps (string keys)</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumintmapbuilder.html"><strong>bdld_datumintmapbuilder</strong></a> - Utility for building <code class="docutils literal notranslate"><span class="pre">Datum</span></code> int-maps (integer keys)</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datummapowningkeysbuilder.html"><strong>bdld_datummapowningkeysbuilder</strong></a> - Utility for building maps where the
+<code class="docutils literal notranslate"><span class="pre">Datum</span></code> owns copies of the string keys</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datummaker.html"><strong>bdld_datummaker</strong></a> - Provides a concise syntax for creating complex nested
+<code class="docutils literal notranslate"><span class="pre">Datum</span></code> structures, especially useful in tests</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumutil.html"><strong>bdld_datumutil</strong></a> - Additional utility functions for working with <code class="docutils literal notranslate"><span class="pre">Datum</span></code>
+objects</p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumerror.html"><strong>bdld_datumerror</strong></a> - Type for representing error values within a <code class="docutils literal notranslate"><span class="pre">Datum</span></code></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumudt.html"><strong>bdld_datumudt</strong></a> - Type for representing user-defined types within a <code class="docutils literal notranslate"><span class="pre">Datum</span></code></p></li>
+<li><p><a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datumbinaryref.html"><strong>bdld_datumbinaryref</strong></a> - Type for representing binary data within a <code class="docutils literal notranslate"><span class="pre">Datum</span></code></p></li>
+</ul>
+</section>
+<section id="user-defined-types">
+<h2>User-Defined Types<a class="headerlink" href="#user-defined-types" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Datum</span></code> can hold opaque user-defined types, making it extensible for custom
+data:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">MyCustomType</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">id</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">MY_TYPE_ID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1001</span><span class="w"> </span><span class="p">};</span><span class="w">  </span><span class="c1">// Application-defined type identifier</span>
+
+<span class="n">MyCustomType</span><span class="w"> </span><span class="n">custom</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w"> </span><span class="mf">3.14159</span><span class="w"> </span><span class="p">};</span>
+
+<span class="c1">// Create a Datum holding the UDT</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">udtDatum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createUdt</span><span class="p">(</span><span class="o">&amp;</span><span class="n">custom</span><span class="p">,</span><span class="w"> </span><span class="n">MY_TYPE_ID</span><span class="p">);</span>
+
+<span class="n">assert</span><span class="p">(</span><span class="n">udtDatum</span><span class="p">.</span><span class="n">isUdt</span><span class="p">());</span>
+
+<span class="c1">// Retrieve the UDT</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">DatumUdt</span><span class="w"> </span><span class="n">udt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">udtDatum</span><span class="p">.</span><span class="n">theUdt</span><span class="p">();</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">MY_TYPE_ID</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">udt</span><span class="p">.</span><span class="n">type</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="o">&amp;</span><span class="n">custom</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">MyCustomType</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">udt</span><span class="p">.</span><span class="n">data</span><span class="p">()));</span>
+
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;UDT type: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">udt</span><span class="p">.</span><span class="n">type</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">MyCustomType</span><span class="o">*</span><span class="w"> </span><span class="n">retrieved</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">MyCustomType</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">udt</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;UDT id: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">retrieved</span><span class="o">-&gt;</span><span class="n">id</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;, value: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">retrieved</span><span class="o">-&gt;</span><span class="n">value</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Note: UDTs are always external references</span>
+<span class="c1">// Datum::destroy does nothing for the UDT itself</span>
+</pre></div>
+</div>
+<p>User-defined types are opaque to <code class="docutils literal notranslate"><span class="pre">Datum</span></code> - it only stores a pointer and type
+identifier. The application is responsible for managing the lifetime of UDT
+objects.</p>
+</section>
+<section id="deep-copying-with-clone">
+<h2>Deep Copying with clone<a class="headerlink" href="#deep-copying-with-clone" title="Link to this heading"></a></h2>
+<p>While copying a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> performs a shallow copy, the <code class="docutils literal notranslate"><span class="pre">clone</span></code> method
+creates a deep copy with independent lifetime. Importantly, <code class="docutils literal notranslate"><span class="pre">clone</span></code> converts
+external references into owned data: a string reference becomes an owned string,
+and an array reference becomes an owned array with deep-copied elements. The
+only exception is user-defined types (UDTs), which remain as opaque pointers
+since <code class="docutils literal notranslate"><span class="pre">Datum</span></code> cannot know how to copy them:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="c1">// Create a long string that exceeds short-string optimization</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">longText</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;This is a long string that will definitely &quot;</span>
+<span class="w">                       </span><span class="s">&quot;exceed the short string optimization limit &quot;</span>
+<span class="w">                       </span><span class="s">&quot;on 64-bit platforms and require allocation&quot;</span><span class="p">;</span>
+
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">original</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="n">longText</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Original: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:  &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Shallow copy - both refer to the same string</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">shallowCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Shallow copy equal? &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">shallowCopy</span><span class="p">)</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Same address? &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">shallowCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span>
+<span class="w">              </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Deep copy - creates independent copy of the string</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">deepCopy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">original</span><span class="p">.</span><span class="n">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Deep copy: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Address:   &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">())</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Deep copy equal? &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Different address? &quot;</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">original</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">().</span><span class="n">data</span><span class="p">()</span>
+<span class="w">              </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;yes&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;no&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Now we can safely destroy the original</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">original</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="c1">// deepCopy is still valid and independent</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">deepCopy</span><span class="p">.</span><span class="n">isString</span><span class="p">());</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">longText</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">());</span>
+<span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Deep copy still valid: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">deepCopy</span><span class="p">.</span><span class="n">theString</span><span class="p">()</span>
+<span class="w">          </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// Clean up the deep copy</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">destroy</span><span class="p">(</span><span class="n">deepCopy</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="c1">// Note: shallowCopy now refers to freed memory - do not use!</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">clone</span></code> method is particularly useful when you need to transfer ownership
+or extend the lifetime of a <code class="docutils literal notranslate"><span class="pre">Datum</span></code> beyond its original context.</p>
+</section>
+<section id="efficient-memory-management-with-managed-allocators">
+<h2>Efficient Memory Management with Managed Allocators<a class="headerlink" href="#efficient-memory-management-with-managed-allocators" title="Link to this heading"></a></h2>
+<p>A common pattern when working with <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is to perform computations that
+create many temporary <code class="docutils literal notranslate"><span class="pre">Datum</span></code> values, extract the result, and then discard
+all the temporaries. Using a managed allocator (e.g.,
+<code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code>) for this pattern provides exceptional
+performance and safety benefits.</p>
+<p>The key insight is that managed allocators like <code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code>
+allocate memory from a buffer and can deallocate all memory at once by simply
+resetting their state. This means we can create arbitrarily many temporary
+<code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects during a calculation without worrying about:</p>
+<ul class="simple">
+<li><p><strong>Double-free errors</strong> from shallow copies</p></li>
+<li><p><strong>Circular dependencies</strong> in complex data structures</p></li>
+<li><p><strong>Individual deallocation overhead</strong> for each temporary</p></li>
+</ul>
+<p>The pattern is simple: allocate all temporaries with a managed allocator,
+use <code class="docutils literal notranslate"><span class="pre">clone</span></code> to copy the final result to a longer-lived allocator, then
+“wink” all temporaries out of existence by releasing the managed allocator:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datum.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_manageddatum.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdld_datumarraybuilder.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlma_sequentialallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bdlma_testallocator.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_cassert.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;bsl_iostream.h&gt;</span>
+
+<span class="k">using</span><span class="w"> </span><span class="k">namespace</span><span class="w"> </span><span class="nn">BloombergLP</span><span class="p">;</span>
+
+<span class="c1">// Approach 1: Return a ManagedDatum using the provided allocator</span>
+<span class="n">bdld</span><span class="o">::</span><span class="n">ManagedDatum</span><span class="w"> </span><span class="nf">computeResult</span><span class="p">(</span><span class="n">bslma</span><span class="o">::</span><span class="n">Allocator</span><span class="w"> </span><span class="o">*</span><span class="n">resultAllocator</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bdlma</span><span class="o">::</span><span class="n">SequentialAllocator</span><span class="w"> </span><span class="n">tempAllocator</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create many intermediate values during computation</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">step1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;intermediate_1&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tempAllocator</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">step2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;intermediate_2&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tempAllocator</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">step3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;intermediate_3&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tempAllocator</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Build an array with intermediate results</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">DatumArrayBuilder</span><span class="w"> </span><span class="n">builder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tempAllocator</span><span class="p">);</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">step1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">step2</span><span class="p">);</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">step3</span><span class="p">);</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createDouble</span><span class="p">(</span><span class="mf">3.14159</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// The result is also in temporary storage</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">tempResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">commit</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Note: All these Datum objects share the tempAllocator</span>
+<span class="w">    </span><span class="c1">// We have multiple shallow copies referring to the same data</span>
+<span class="w">    </span><span class="c1">// But we don&#39;t need to track which ones to destroy!</span>
+
+<span class="w">    </span><span class="c1">// Clone the result to permanent storage</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">ManagedDatum</span><span class="w"> </span><span class="n">result</span><span class="p">(</span><span class="n">resultAllocator</span><span class="p">);</span>
+<span class="w">    </span><span class="n">result</span><span class="p">.</span><span class="n">clone</span><span class="p">(</span><span class="n">tempResult</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// &quot;Wink&quot; all temporaries out of existence - no individual destroy calls!</span>
+<span class="w">    </span><span class="n">tempAllocator</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// Note that this `release()` call is for demonstration purposes only, the</span>
+<span class="w">    </span><span class="c1">// destructor of a managed allocator releases all memory allocated.</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Approach 2: Use an out-parameter for the result</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">computeResultOutParam</span><span class="p">(</span><span class="n">bdld</span><span class="o">::</span><span class="n">ManagedDatum</span><span class="w"> </span><span class="o">*</span><span class="n">result</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bdlma</span><span class="o">::</span><span class="n">SequentialAllocator</span><span class="w"> </span><span class="n">tempAllocator</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create temporary values (same as above)</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">step1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">copyString</span><span class="p">(</span><span class="s">&quot;computed&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tempAllocator</span><span class="p">);</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">step2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="o">::</span><span class="n">createInteger</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">DatumArrayBuilder</span><span class="w"> </span><span class="n">builder</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tempAllocator</span><span class="p">);</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">step1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">builder</span><span class="p">.</span><span class="n">pushBack</span><span class="p">(</span><span class="n">step2</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">Datum</span><span class="w"> </span><span class="n">tempResult</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="n">commit</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Clone into the out-parameter&#39;s allocator</span>
+<span class="w">    </span><span class="n">result</span><span class="o">-&gt;</span><span class="n">adopt</span><span class="p">(</span><span class="n">tempResult</span><span class="p">.</span><span class="n">clone</span><span class="p">(</span><span class="n">result</span><span class="o">-&gt;</span><span class="n">allocator</span><span class="p">()));</span>
+
+<span class="w">    </span><span class="c1">// Wink out all temporaries</span>
+<span class="w">    </span><span class="n">tempAllocator</span><span class="p">.</span><span class="n">release</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="n">bslma</span><span class="o">::</span><span class="n">TestAllocator</span><span class="w"> </span><span class="n">ta</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Using approach 1: function returns result</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">ManagedDatum</span><span class="w"> </span><span class="n">result1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">computeResult</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">result1</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">isArray</span><span class="p">());</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">5</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result1</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">theArray</span><span class="p">().</span><span class="n">length</span><span class="p">());</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Result 1 array length: &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result1</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">theArray</span><span class="p">().</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;  Element 0: &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result1</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">theArray</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="n">theString</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Using approach 2: out-parameter</span>
+<span class="w">    </span><span class="n">bdld</span><span class="o">::</span><span class="n">ManagedDatum</span><span class="w"> </span><span class="n">result2</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ta</span><span class="p">);</span>
+<span class="w">    </span><span class="n">computeResultOutParam</span><span class="p">(</span><span class="o">&amp;</span><span class="n">result2</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="n">result2</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">isArray</span><span class="p">());</span>
+<span class="w">    </span><span class="n">assert</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">result2</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">theArray</span><span class="p">().</span><span class="n">length</span><span class="p">());</span>
+
+<span class="w">    </span><span class="n">bsl</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Result 2 array length: &quot;</span>
+<span class="w">              </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">result2</span><span class="p">.</span><span class="n">datum</span><span class="p">().</span><span class="n">theArray</span><span class="p">().</span><span class="n">length</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">bsl</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// ManagedDatum handles cleanup automatically</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This pattern provides several critical advantages:</p>
+<dl class="simple">
+<dt><strong>Safety from Shallow Copies</strong></dt><dd><p>Since all temporaries disappear at once via <code class="docutils literal notranslate"><span class="pre">release()</span></code>, we never risk
+double-freeing memory even if we made shallow copies during computation.
+The managed allocator doesn’t care how many <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects refer to
+the same string - when we release, everything goes away atomically.</p>
+</dd>
+<dt><strong>No Circular Dependency Concerns</strong></dt><dd><p>Complex calculations might create <code class="docutils literal notranslate"><span class="pre">Datum</span></code> arrays that reference other
+arrays, potentially forming cycles. With individual <code class="docutils literal notranslate"><span class="pre">destroy</span></code> calls, this
+would be problematic. With <code class="docutils literal notranslate"><span class="pre">SequentialAllocator::release()</span></code>, cycles don’t
+matter - everything is discarded together.</p>
+</dd>
+<dt><strong>Exceptional Performance</strong></dt><dd><p>Managed allocators like <code class="docutils literal notranslate"><span class="pre">SequentialAllocator</span></code> are extremely fast (just
+pointer bumping), and bulk deallocation via <code class="docutils literal notranslate"><span class="pre">release()</span></code> is instant. For
+computations creating thousands of temporary <code class="docutils literal notranslate"><span class="pre">Datum</span></code> values, this can be
+orders of magnitude faster than individual allocate/deallocate cycles.</p>
+</dd>
+<dt><strong>Simplified Code</strong></dt><dd><p>No need to carefully track which <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects to destroy or worry about
+the order of destruction. Just <code class="docutils literal notranslate"><span class="pre">clone</span></code> the result and <code class="docutils literal notranslate"><span class="pre">release</span></code> the rest.</p>
+</dd>
+</dl>
+<p>This pattern is used extensively in systems like Bloomberg’s expression
+evaluators and scripting language implementations, where complex calculations
+create vast numbers of temporary values that only need to live for the duration
+of a single computation.</p>
+<p>See <a class="reference internal" href="../cotw/034_bdlma_sequentialallocator.html#cotw-034-bdlma-sequentialallocator-top"><span class="std std-ref">Component of the Week #34: bdlma_sequentialallocator</span></a> for more information on
+<code class="docutils literal notranslate"><span class="pre">bdlma::SequentialAllocator</span></code>.</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bdld::Datum</span></code> is a unique and powerful tool in the BDE arsenal. Its
+pointer-like behavior and small footprint make it invaluable for scenarios
+requiring large numbers of variant values, such as scripting language
+implementations and dynamic data interchange. While it requires more careful
+memory management than typical BDE types, the <code class="docutils literal notranslate"><span class="pre">bdld</span></code> package provides
+excellent supporting components (<code class="docutils literal notranslate"><span class="pre">ManagedDatum</span></code>, various builders) that
+simplify working with <code class="docutils literal notranslate"><span class="pre">Datum</span></code> objects.</p>
+<p>The key to successfully using <code class="docutils literal notranslate"><span class="pre">Datum</span></code> is understanding its memory model:
+treat it like a smart raw pointer that requires explicit <code class="docutils literal notranslate"><span class="pre">destroy</span></code> calls,
+and use the builder components and <code class="docutils literal notranslate"><span class="pre">ManagedDatum</span></code> to handle the complexity
+in production code.</p>
+<p>For more information, including comprehensive details on all supported types
+and memory management patterns, see the
+<a class="reference external" href="/bde-resources/doxygen/bde_api_prod/group__bdld__datum.html">component documentation</a>
+and the related components in the <code class="docutils literal notranslate"><span class="pre">bdld</span></code> package.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Bloomberg LP.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

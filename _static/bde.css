@@ -15,6 +15,10 @@ p {
     border-style: none;
 }
 
+.rst-content table.docutils {
+    float: none;
+}
+
 .rubric > .faq-header-class {
     display: block;
     font-size: 1.4em;
