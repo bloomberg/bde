@@ -720,9 +720,9 @@ struct Optional_DataImp {
     /// providing modifiable access to the underlying `t_TYPE` object.
     template <class t_INIT_LIST_TYPE, class... t_ARGS>
     t_TYPE& emplace(
-                 bslma::Allocator                            *allocator,
-                 std::initializer_list<t_INIT_LIST_TYPE>      initializer_list,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)... args);
+                bslma::Allocator                            *allocator,
+                std::initializer_list<t_INIT_LIST_TYPE>      initializer_list,
+                BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)... args);
 #  endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #endif
 
@@ -1660,9 +1660,9 @@ class Optional_Base<t_TYPE, false> {
 #   endif  // BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS
 #endif
 
-    /// These allocator-extended constructors cannot be called, and are provided
-    /// only to prevent compilation errors when `optional` is explicitly
-    /// instantiated.
+    /// These allocator-extended constructors cannot be called, and are
+    /// provided only to prevent compilation errors when `optional` is
+    /// explicitly instantiated.
     Optional_Base(bsl::allocator_arg_t, AllocType);
 
     Optional_Base(bsl::allocator_arg_t, AllocType, bsl::nullopt_t);
@@ -3009,6 +3009,19 @@ BSLSTL_OPTIONAL_CONSTEXPR20
 compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
                                               const bsl::optional<t_LHS>& lhs,
                                               const std::optional<t_RHS>& rhs);
+
+/// Perform a three-way comparison of the specified `lhs` and the specified
+/// `rhs` objects by using the comparison operators of `t_LHS` and `t_RHS`;
+/// return the result of that comparison.  This function can be called in
+/// constant expressions only if `t_RHS` is not allocator-aware.  Note that
+/// this overload is needed on some versions of GCC (because of a partial
+/// ordering bug) to take precedence over the overload that compares a
+/// `std::optional` with a value.
+template <class t_LHS, three_way_comparable_with<t_LHS> t_RHS>
+BSLSTL_OPTIONAL_CONSTEXPR20
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                              const std::optional<t_LHS>& lhs,
+                                              const bsl::optional<t_RHS>& rhs);
 #endif
 
 # ifdef BSLSTL_OPTIONAL_USES_STD_ALIASES
@@ -3171,9 +3184,9 @@ make_optional(bsl::allocator_arg_t,
 /// compile if `t_TYPE` doesn't use allocators.
 template <class t_TYPE, class... t_ARGS>
 bsl::optional<t_TYPE> make_optional(
-                   bsl::allocator_arg_t,
-                   typename bsl::optional<t_TYPE>::allocator_type const& alloc,
-                   BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...          args);
+                  bsl::allocator_arg_t,
+                  typename bsl::optional<t_TYPE>::allocator_type const& alloc,
+                  BSLS_COMPILERFEATURES_FORWARD_REF(t_ARGS)...          args);
 
 #  if defined(BSLS_COMPILERFEATURES_SUPPORT_GENERALIZED_INITIALIZERS)
 /// Return an `optional` object containing a `t_TYPE` object created by
@@ -6163,6 +6176,20 @@ compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
     }
     return lhs_has_value <=> rhs_has_value;
 }
+
+template <class t_LHS, three_way_comparable_with<t_LHS> t_RHS>
+BSLSTL_OPTIONAL_CONSTEXPR20
+compare_three_way_result_t<t_LHS, t_RHS> operator<=>(
+                                               const std::optional<t_LHS>& lhs,
+                                               const bsl::optional<t_RHS>& rhs)
+{
+    const bool lhs_has_value = lhs.has_value(),
+               rhs_has_value = rhs.has_value();
+    if (lhs_has_value && rhs_has_value) {
+        return *lhs <=> *rhs;
+    }
+    return lhs_has_value <=> rhs_has_value;
+}
 #endif  // BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&
         // BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
 
@@ -6455,18 +6482,13 @@ make_optional(std::initializer_list<t_INIT_LIST_TYPE>      il,
 
 // There is a problem in the standard definition of the is-optional concept
 // that results in types inheriting from std::optional not being identified
-// correctly as optional types.  The end result is endless recursion evaluating
-// the requires clause for the spaceship operator when it is implemented
-// according to the C++20 specification, which happens for GCC 11-14 and
-// MSVC-2022 prior to MSVC 19.36 when building with C++20 and later. In MSVC
-// 19.36 Microsoft implemented the solution suggested in LWG-3746, so the
-// workaround is not required for that and subsequent versions; similarly, the
-// issue will be resolved in GCC 15 (to be released).
-//
-// The issue with the standard is tracked here:
-// https://cplusplus.github.io/LWG/issue3746
-//
-// See DRQS 170388558 for more information
+// correctly as optional types.  In C++20, this results in an endless recursion
+// evaluating the requires clause for the spaceship operator.  The underlying
+// issue has been addressed in the Standard by LWG-3746
+// (https://cplusplus.github.io/LWG/issue3746), which has been applied in
+// MSVC-2022 19.36, and in libstdc++ 15.  The fix in libstdc++ uncovered other
+// issues related to overload resolution in GCC.  See implementation notes for
+// more information.
 //
 // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED and
 // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_MSVC_WORKAROUND_NEEDED are deliberately

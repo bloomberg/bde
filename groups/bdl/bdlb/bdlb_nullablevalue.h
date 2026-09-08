@@ -1125,6 +1125,10 @@ bool operator>=(const LHS_TYPE&                lhs,
 /// Perform a three-way comparison of the specified `lhs` and the specified
 /// `rhs` objects by using the comparison operators of `t_LHS` and `t_RHS`;
 /// return the result of that comparison.
+///
+/// Note that overloads with `std::optional` on either side are needed for some
+/// versions of GCC (because of a partial ordering bug) in order to take
+/// precedence over the overload that compares a `std::optional` with a value.
 template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
 constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
                                            const NullableValue<LHS_TYPE>& lhs,
@@ -1137,6 +1141,10 @@ template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
 constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
                                            const NullableValue<LHS_TYPE>& lhs,
                                            const std::optional<RHS_TYPE>& rhs);
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE> operator<=>(
+                                           const std::optional<LHS_TYPE>& lhs,
+                                           const NullableValue<RHS_TYPE>& rhs);
 template <class LHS_TYPE, class RHS_TYPE>
     requires(!NullableValue_DerivedFromOptional<RHS_TYPE>) &&
               bsl::three_way_comparable_with<LHS_TYPE, RHS_TYPE>
@@ -2418,6 +2426,14 @@ bdlb::operator<=>(const NullableValue<LHS_TYPE>& lhs, const RHS_TYPE& rhs)
     return static_cast<const bsl::optional<LHS_TYPE>&>(lhs) <=> rhs;
 }
 
+template <class LHS_TYPE, bsl::three_way_comparable_with<LHS_TYPE> RHS_TYPE>
+constexpr std::compare_three_way_result_t<LHS_TYPE, RHS_TYPE>
+bdlb::operator<=>(const std::optional<LHS_TYPE>& lhs,
+                  const NullableValue<RHS_TYPE>& rhs)
+{
+    return lhs <=> static_cast<const bsl::optional<RHS_TYPE>&>(rhs);
+}
+
 template <class TYPE>
 constexpr std::strong_ordering
 bdlb::operator<=>(const NullableValue<TYPE>& value,
@@ -2574,7 +2590,7 @@ bdlb::swap(NullableValue<TYPE>& lhs, NullableValue<TYPE>& rhs)
 }  // close enterprise namespace
 
 #ifdef BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
-// This hack works around a bug in gcc's defintion for is-optional.  See
+// This hack works around a bug in gcc's definition for is-optional.  See
 // bslstl_optional.h for more information.
 
 namespace std {
@@ -2585,8 +2601,8 @@ inline constexpr bool __is_optional_v<BloombergLP::bdlb::NullableValue<_Tp>> =
 #endif // BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_GNU_WORKAROUND_NEEDED
 
 #ifdef BSLSTL_OPTIONAL_CPP20_IS_OPTIONAL_MSVC_WORKAROUND_NEEDED
-// This hack works around a bug in MSVC's C++20 defintion for is-optional. See
-// bslstl_optional.h for more information.
+// This hack works around a bug in MSVC's C++20 definition for is-optional.
+// See bslstl_optional.h for more information.
 
 namespace std {
 template <typename _Tp>

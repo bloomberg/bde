@@ -65,6 +65,51 @@ BSLS_IDENT_RCSID(bslstl_optional_cpp, "$Id$ $CSID$")
 // problem, we give 'nullopt_t' a constructor template, so that any attempt to
 // implicitly convert a braced-init-list to 'nullopt_t' will fail: the template
 // parameter cannot be deduced.
+//
+///Relational operators and `<=>`
+///- - - - - - - - - - - - - - -
+// The interaction between the relational operators provided by `bsl::optional`
+// and those provided by `std::optional` is subtle and varies across platforms:
+//
+// * In libstdc++ 11 to 14, if `std::optional` does not treat `bsl::optional`
+//   as an optional (using its `__is_optional_v` implementation type trait)
+//   then a constraint resolution cycle will manifest during overload
+//   resolution of `operator<` when applied to `bsl::optional` for a
+//   non-allocator-aware type (which inherits from `std::optional`).  On those
+//   platforms we overload that trait ourselves for `bsl::optional` and avoid
+//   the cycle.
+// * In libstdc++ 15 and above, a fix for LWG3746 was applied which changes the
+//   constraints on `operator<=>` so that derived classes are recognized and
+//   do not result in a cycle.
+// * MSVC-2022 prior to MSVC 19.36 had the same issue of cyclic constraints
+//   that was resolved by LWG3746, and required specializing
+//   `std::_Is_specialization_v<bsl::optional<_Tp>, std::optional>` to avoid
+//   the constraint cycle.  Newer versions implement LWG3746.
+// * In GCC (at least up to 16) the fixes to overload resolution from CWG2445
+//   have not yet been applied
+//   (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=127209), so a rewritten
+//   candidate (with parameters reversed) does not win overload resolution the
+//   same way the actual reversed candidate would.  This results in the
+//   libstdc++ 15 fix for LWG3746 unearthing a different problem that had
+//   previously been masked by hacking library traits, where (for
+//   allocator-aware types `T`) the `operator<=>` for values wins overload
+//   resolution when comparing a `std::optional<T>` on the left to a
+//   `bsl::optional<T>` on the right (because `bsl::optional<T>` itself is
+//   three-way-comparable with `T`).
+//
+// Because of the above, we do not rely on rewriting of `operator<=>` when
+// interacting with `std::optional` and instead provide two overloads, one with
+// `std::optional` on the right and one with `std::optional` on the left.  This
+// solution works properly on all platforms.  The library traits hacks are
+// still needed on older libstdc++ and MSVC versions in order to avoid the
+// constraint resolution cycle.
+//
+// The original work that led to these workarounds was tracked in
+// DRQS 170388558, which has further information.
+//
+// At some point in the future we could remove the extra overload and various
+// workarounds when all of our supported platforms have consistent overload
+// resolution behavior as well as fixes for LWG3746.
 
 namespace bsl {
 

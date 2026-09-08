@@ -134,29 +134,31 @@ using bsls::NameOf;
 //
 // FREE OPERATORS
 // [ 5] bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 5] bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 5] bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
+// [ 5] bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [ 5] bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
 // [ 5] bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
 // [ 5] bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
 // [ 5] bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
 // [ 5] bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
 // [ 5] bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+// [ 5] auto operator<=>(const NullableValue<L>&, const std::optional<R>&);
+// [ 5] auto operator<=>(const std::optional<L>&, const NullableValue<R>&);
 // [27] bool operator==(const NullableValue<LHS_TYPE>&, bsl::nullopt_t);
 // [27] bool operator!=(const NullableValue<LHS_TYPE>&, bsl::nullopt_t);
 // [27] bool operator< (const NullableValue<LHS_TYPE>&, bsl::nullopt_t);
 // [27] bool operator<=(const NullableValue<LHS_TYPE>&, bsl::nullopt_t);
 // [27] bool operator>=(const NullableValue<LHS_TYPE>&, bsl::nullopt_t);
 // [27] bool operator> (const NullableValue<LHS_TYPE>&, bsl::nullopt_t);
-// [ 5] bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [ 5] bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [ 5] bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [ 5] bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [ 5] bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-// [ 5] bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
 // [27] bool operator==(bsl::nullopt_t, const NullableValue<LHS_TYPE>&);
 // [27] bool operator!=(bsl::nullopt_t, const NullableValue<LHS_TYPE>&);
 // [27] bool operator< (bsl::nullopt_t, const NullableValue<LHS_TYPE>&);
@@ -401,7 +403,8 @@ void testRelationalOperationsNonNull(const INIT_TYPE& lesserVal,
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
     defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-    if constexpr (bsl::three_way_comparable_with<FIRST_TYPE, SECOND_TYPE>) {
+    if constexpr (requires { firstLesser  <=> secondLesser;
+                             secondLesser <=> firstLesser;  }) {
         ASSERTV( ((firstLesser   <=> secondLesser ) == 0));
         ASSERTV(!((firstLesser   <=> secondLesser ) != 0));
         ASSERTV(!((firstLesser   <=> secondLesser )  < 0));
@@ -501,7 +504,8 @@ void testRelationalOperationsOneNull(const INIT_TYPE& initValue)
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
     defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-    if constexpr (bsl::three_way_comparable_with<FIRST_NV_TYPE, SECOND_TYPE>) {
+    if constexpr (requires { firstNullNV <=> secondValue;
+                             secondValue <=> firstNullNV; }) {
         ASSERTV(!((firstNullNV <=> secondValue) == 0));
         ASSERTV( ((firstNullNV <=> secondValue) != 0));
         ASSERTV( ((firstNullNV <=> secondValue)  < 0));
@@ -556,8 +560,8 @@ void testRelationalOperationsBothNull()
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
     defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS
-    if constexpr (bsl::three_way_comparable_with<FIRST_NV_TYPE,
-                                                 SECOND_NV_TYPE>) {
+    if constexpr (requires { firstNull  <=> secondNull;
+                             secondNull <=> firstNull;  }) {
         ASSERTV( ((firstNull  <=> secondNull) == 0));
         ASSERTV(!((firstNull  <=> secondNull) != 0));
         ASSERTV(!((firstNull  <=> secondNull)  < 0));
@@ -626,7 +630,7 @@ void testRelationalOperations(const INIT_TYPE& lesserVal,
 
 #if defined BSLS_COMPILERFEATURES_SUPPORT_THREE_WAY_COMPARISON &&             \
     defined BSLS_LIBRARYFEATURES_HAS_CPP20_CONCEPTS &&                        \
-	defined BSLSTL_OPTIONAL_USES_STD_ALIASES
+    defined BSLSTL_OPTIONAL_USES_STD_ALIASES
 
     ASSERTV((
         bsl::three_way_comparable_with<FIRST_TYPE, SECOND_NV_TYPE> ==
@@ -6218,7 +6222,8 @@ void runTestCase18()
                     case  3: { ThrowingHelper helper(3, 3, 3); }       break;
                     case  4: { ThrowingHelper helper(4, 4, 4, 4); }    break;
                     case  5: { ThrowingHelper helper(5, 5, 5, 5, 5); } break;
-                    default: { ASSERT(0 == "Unexpected argument count"); } break;
+                    default: { ASSERT(0 == "Unexpected argument count"); }
+                        break;
                 }
 
                 ASSERTV(numParams, 0 == "expected exception missing");
@@ -13046,10 +13051,13 @@ int main(int argc, char *argv[])
         //
         // 16. `X >= Y` if and only if `X > Y` exclusive-or `X == Y`.
         //
-        // 17. Non-modifiable objects can be compared (i.e., objects or
+        // 17. Any time `<=>` is applicable to a pair of objects its return
+        //    value should be consistent with the above.
+        //
+        // 18. Non-modifiable objects can be compared (i.e., objects or
         //    providing only non-modifiable access).
         //
-        // 18. Either member comparison function or free comparison function
+        // 19. Either member comparison function or free comparison function
         //    make it possible to compare nullable object and another object.
         //
         // Plan:
@@ -13059,7 +13067,7 @@ int main(int argc, char *argv[])
         //    several `bdlb::NullableValue` objects having the same values or
         //    null value. Loop through the cross product of the test data.  For
         //    each couple, check the correctness of the return value of all
-        //    relational operators (==, !=, <, >, <=, >=).
+        //    relational operators (==, !=, <, >, <=, >=, <=>).
         //
         // 2. Create several objects of special types
         //    `FirstFunctionComparableType` and `SecondFunctionComparableType`
@@ -13067,40 +13075,51 @@ int main(int argc, char *argv[])
         //    `bdlb::NullableValue` objects having the same values or null
         //    value. Loop through the cross product of the test data.  For each
         //    couple, check the correctness of the return value of all
-        //    relational operators (==, !=, <, >, <=, >=).
+        //    relational operators (==, !=, <, >, <=, >=, <=>).
         //
         // 3. Create several objects of integer and long integer types.  Then
         //    create several `bdlb::NullableValue` objects having the same
         //    values or null value. Loop through the cross product of the test
         //    data.  For each couple, check the correctness of the return value
-        //    of all relational operators (==, !=, <, >, <=, >=).
+        //    of all relational operators (==, !=, <, >, <=, >=, <=>).
         //
         // 4. Create several objects of comparable `bsl::string` and
         //    `bslstl::StringRef` types.  Then create several
         //    `bdlb::NullableValue` objects having the same values or null
         //    value. Loop through the cross product of the test data.  For each
         //    couple, check the correctness of the return value of all
-        //    relational operators (==, !=, <, >, <=, >=).  (C-1..18)
+        //    relational operators (==, !=, <, >, <=, >=, <=>).  (C-1..19)
+        //
+        // 5. Tests of `<=>` are performed under an `if constexpr` testing
+        //    that `<=>` can be applied to the relevant objects.  Note that
+        //    we should not limit such tests to the cases where
+        //    the `bsl::three_way_comparable_with` trait is applicable because
+        //    that trait does not recognize many cases where conversions allow
+        //    the use of `<=>`.
         //
         // Testing:
         //   bool operator==(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
-        //   bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
         //   bool operator==(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-        //   bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator!=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
         //   bool operator!=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-        //   bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator< (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
         //   bool operator< (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-        //   bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator<=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
         //   bool operator<=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-        //   bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator> (const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
         //   bool operator> (const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
-        //   bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator>=(const NullableValue<LHS_TYPE>&, <RHS_TYPE>&);
         //   bool operator>=(const LHS_TYPE&, const NullableValue<RHS_TYPE>&);
+        //   bool operator==(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator!=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator< (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator<=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator> (const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   bool operator>=(const NullableValue<LHS_TYPE>&, const RHS_TYPE&);
+        //   auto operator<=>(const NullableValue<L>&,
+        //                    const std::optional<R>&);
+        //   auto operator<=>(const std::optional<L>&,
+        //                    const NullableValue<R>&);
         // --------------------------------------------------------------------
 
         if (verbose) cout << "\nTESTING EQUALITY AND RELATIONAL OPERATORS"
