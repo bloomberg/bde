@@ -199,9 +199,7 @@ BSLS_IDENT("$Id: $")
 
 #include <balscm_version.h>
 
-#include <ball_categorycallbacks.h>
 #include <ball_loggermanagerdefaults.h>
-#include <ball_thresholddefaults.h>
 
 #include <bslma_allocator.h>
 #include <bslma_usesbslmaallocator.h>
@@ -249,12 +247,13 @@ class LoggerManagerConfiguration {
 
     /// `CategoryNameFilterCallback` is the type of the user-supplied
     /// functor that translates external category names to internal names.
-    typedef CategoryCallbacks::NameFilter CategoryNameFilterCallback;
+    typedef bsl::function<void(bsl::string *, const char *)>
+                                                    CategoryNameFilterCallback;
 
     /// `DefaultThresholdLevelsCallback` is the type of the functor that
     /// determines default threshold levels for categories added to the
     /// registry by the `setCategory(const char *)` method.
-    typedef CategoryCallbacks::DefaultThresholdLevels
+    typedef bsl::function<void(int *, int *, int *, int *, const char *)>
                                                 DefaultThresholdLevelsCallback;
 
     enum LogOrder {

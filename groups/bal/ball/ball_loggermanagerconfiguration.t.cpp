@@ -148,7 +148,7 @@ typedef bsl::function<void(int *, int *, int *, int *, const char*)> DtCb;
         fields->appendString("example user field value");
     }
 // ```
-// Next, we define a function `inititialize` in which we will create and
+// Next, we define a function `initialize` in which we will create and
 // configure a `ball::LoggerManagerConfiguration` object (see
 // {`ball_loggermanager`} for an example of how to create the logger-manager
 // singleton object):
