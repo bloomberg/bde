@@ -16,7 +16,7 @@
 
 /Hierarchical Synopsis
 /---------------------
- The 'bslma' package currently has 59 components having 16 levels of physical
+ The 'bslma' package currently has 60 components having 16 levels of physical
  dependency.  The list below shows the hierarchical ordering of the components.
  The order of components within each level is not architecturally significant,
  just alphabetical.
@@ -81,13 +81,14 @@
 
    4. bslma_allocator
 
-   3. bslma_hasallocatortype
+   3. bslma_deleterhelper
+      bslma_hasallocatortype
       bslma_memoryresourceimpsupport
 
    2. bslma_allocatortraits_cpp03                                     !PRIVATE!
-      bslma_deleterhelper
       bslma_isstdallocator
       bslma_memoryresource
+      bslma_pointerutil
       bslma_polymorphicallocator_cpp03                                !PRIVATE!
 
    1. bslma_allocatorutil_cpp03                                       !PRIVATE!
@@ -224,6 +225,9 @@
 :
 : 'bslma_newdeleteallocator':
 :      Provide singleton new/delete adaptor to `bslma::Allocator` protocol.
+:
+: 'bslma_pointerutil':
+:      Provide utilities for pointer manipulation.
 :
 : 'bslma_polymorphicallocator':
 :      Provide an allocator interface for `bsl::memory_resource` objects.

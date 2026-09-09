@@ -419,7 +419,7 @@
 :      Provide C++03 implementation for bslmf_nthparameter.h
 :
 : 'bslmf_referencewrapper':
-:      Provide copyable, assignable object wrapper for references.
+:      Provide a copyable, assignable object wrapper for references.
 :
 : 'bslmf_removeconst':
 :      Provide a meta-function for removing top-level `const`-qualifier.

@@ -1,6 +1,53 @@
-bsl-internal (4.39.0.0) unstable; urgency=low
+bsl-internal (4.40.1.0) unstable; urgency=low
 
-  * b6d2bde99 Bumped version to 4.39.0.0
+  * 083999827 Bumped version to 4.40.1.0
+  * c9497e0ea Revert 5652 hieararchical category speedup radix tree (#5974)
+
+ -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 7 Sep 2026 16:22:48 -0400
+
+bsl-internal (4.40.0.0) git; urgency=low
+
+  * 969a9336a Changelog for version 4.40.0.0
+  * 6789058ed Bumped version to 4.40.0.0
+  * 730b86124 drqs-180328313: `baljsn_jsonconverteroptions` (#5876)
+  * 931b0fd6e Fix bad version checks (#5949)
+  * d9c54128a Update default for seconds precision. (#5951)
+  * 3cde43c6b Remove stale platfrom support (#5950)
+  * f10c3ce16 Enable Doxygen generation verify step (#5948)
+  * b40e2e044 Modernize bslmf_referencewrapper for C++11 baseline (#5945)
+  * 2102ed028 Fix typos in macro names in scopeexit. (#5947)
+  * ad4f1b614 Add fuzzing harness for bdld_datumutil (#5927)
+  * 34494286d Drqs 184194259 balb pipecontrolchannel configure permissions (#5932)
+  * 8f1854a80 Regenerate bslma_bslallocator_cpp03.h (#5937)
+  * a9b5395a9 Fix C++11 constexpr functions (#5935)
+  * 4b09af287 Apply workaround for gcc 12.1 missing names in <iosfwd> (#5936)
+  * c539f190a Bdlsb memoutstreambuf drqs 184444377 (#5913)
+  * a9fe85661 drqs-184222294: `bslstl_string`: Doc short-string optimization (SSO). (#5906)
+  * d47fd39f5 Update bdlt_monthofyear.h (#5934)
+  * 183cc199f Drqs 184619602 guid formatter (#5931)
+  * 6fd0c8763 Drqs 142574539 thread time methods (#5907)
+  * e126e620b Fix Solaris warning introduced by updated test driver (#5930)
+  * c1b0da65f Add throwBadFunctionCall to InvokerUtil (#5929)
+  * d4c9aa23a Clean up presentation of bsls_consteval (#5928)
+  * efe0c7050 drqs-184307810: `bdljsn::Json::contains` and `::insert` (#5871)
+  * 415bd2fdf Enable Alexandria (#5925)
+  * 6a9e6b364 Regenerate bslstl_vector_cpp03.h (#5926)
+  * c7921b77d improve bslstl_vector doc (#5923)
+  * 9370cf6cb improve schedule*Event* doc (#5867)
+  * 4f943e7c4 minor formatting fixes (#5924)
+  * f56b9ea53 Fix rendering of coding style exception (#5922)
+  * d0dda327a Add missing transitive includes (#5895)
+  * 39cd34a38 Remove unused component bslstl_algorithmworkaround (#5878)
+  * a29750c81 Add some missing flags to printFlags (#5836)
+  * d84e39953 Document `BDE_BUILD_DBG/OPT`. (#5911)
+  * b9fcebd0b Hierarchical category speedup radix tree (#5652)
+  * b739a7c29 Address Clang warnings in C++23 on nightlies (#5920)
+  * 16d5a9562 Remove obsolete support for non-concurrent builds (#5748)
+  * 82099dcc3 Factor common pointer utilities into a single component (#5854)
+  * 3acab2b1c Fix 24:00:00 Datetime in 32bit Datum. (#5919)
+  * e7a3ce9e5 bdls_FileSystemUtil test improvements (#5918)
+  * 02d9152fa Releases/4.39.x (#5916)
+  * ed0b76e93 Drqs184285128 vector cpp17 ranges (#5891)
   * 4f53bd5d3 Prevent large allocations from untrusted input (#5908)
   * 2395702f2 Add missing private: for // NOT IMPLEMENTED (#5914)
   * bf1fe501b Delete `and_then` and `or_else` in `bdlb::NullableValue` (#5874)
@@ -28,7 +75,7 @@ bsl-internal (4.39.0.0) unstable; urgency=low
   * dee0edd40 Remove buffer overrun. (#5866)
   * 5eeddba6f Remove unused parameter warning. (#5863)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Tue, 23 Jun 2026 16:05:01 -0400
+ -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 2 Aug 2026 12:54:55 -0400
 
 bsl-internal (4.38.0.0) git; urgency=low
 

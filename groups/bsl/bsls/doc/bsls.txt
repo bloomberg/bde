@@ -69,6 +69,7 @@
       bsls_asserttestexception
       bsls_atomicoperations_sparc_sun_cc_default                      !PRIVATE!
       bsls_bsllockimpl_win32                                          !PRIVATE!
+      bsls_consteval
       bsls_cpp11                                         !DEPRECATED!
       bsls_libraryfeatures
       bsls_pointercastutil
@@ -78,7 +79,6 @@
       bsls_annotation                                    !DEPRECATED!
       bsls_atomicoperations_powerpc32_aix_xlc                         !PRIVATE!
       bsls_atomicoperations_powerpc64_aix_xlc                         !PRIVATE!
-      bsls_consteval
       bsls_keyword
       bsls_nullptr
       bsls_performancehint
