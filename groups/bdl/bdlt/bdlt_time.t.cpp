@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
-            for (int j = 0; i < NUM_VALUES; ++i) {
+            for (int j = 0; j < NUM_VALUES; ++j) {
                 const int HOUR   = VALUES[j].d_hour;
                 const int MINUTE = VALUES[j].d_minute;
                 const int SECOND = VALUES[j].d_second;

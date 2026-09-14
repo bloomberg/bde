@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
             const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
-            for (int j = 0; i < NUM_VALUES; ++i) {
+            for (int j = 0; j < NUM_VALUES; ++j) {
                 const int HOUR   = VALUES[j].d_hour;
                 const int MINUTE = VALUES[j].d_minute;
                 const int SECOND = VALUES[j].d_second;
@@ -5081,7 +5081,7 @@ if (veryVerbose)
             const int NUM_VALUES =
                               static_cast<int>(sizeof VALUES / sizeof *VALUES);
 
-            for (int j = 0; i < NUM_VALUES; ++i) {
+            for (int j = 0; j < NUM_VALUES; ++j) {
                 const int HOUR   = VALUES[j].d_hour;
                 const int MINUTE = VALUES[j].d_minute;
                 const int SECOND = VALUES[j].d_second;
@@ -6768,7 +6768,8 @@ if (veryVerbose)
         //
         // 11. The equality operator's signature and return type are standard.
         //
-        // 12. The inequality operator's signature and return type are standard.
+        // 12. The inequality operator's signature and return type are
+        //     standard.
         //
         // Plan:
         // 1. Use the respective addresses of `operator==` and `operator!=` to
@@ -7807,9 +7808,9 @@ if (veryVerbose)
         // 7. Assign `x` from `w`.                  { w:B x:B y:C z:D}
         // 8. Assign `x` from `y`.                  { w:B x:C y:C z:D}
         // 9. Assign `w` from `w` (aliasing).       { w:B x:B y:C z:D}
-        // 10. Exercise the constructor that takes a `Date` object, but sets the
-        //    time to the default value.  Confirm that the time can
-        //    subsequently be set to a new value.
+        // 10. Exercise the constructor that takes a `Date` object, but sets
+        //     the time to the default value.  Confirm that the time can
+        //     subsequently be set to a new value.
         //
         // Testing:
         //   BREATHING TEST
