@@ -215,9 +215,9 @@ bslfmt.txt
  decision (unlike creating a formatter).
 
  The wrapper has a simple, (as) short (as possible) syntax:
-```
+..
   bsl::string bsl::format("{:-^12}", bslfmt::streamed(streamableType));
-```
+..
 
  The above code uses the `ostream` insert `operator<<` of `StreamableType` to
  "convert" the object to string and formats the string according to the format
@@ -259,12 +259,12 @@ bslfmt.txt
  string-like formatting specification and your new formatting specification.
 
  Enabling the formatting is as simple as:
-```
+..
   public:
     // TRAITS
     BSLMF_NESTED_TRAIT_DECLARATION(NowFormattableType,
                                    bslfmt::EnableStreamedFormatter);
-```
+..
 
  **Consequences**
    * You may be locked into supporting the string-like format specification and
@@ -298,14 +298,14 @@ bslfmt.txt
  (http://www.en.cppreference.com/w/cpp/utility/format/spec.html)
 
  Imagine we have a simple type that outputs "12345" when output to a stream:
-```
+..
  class Streamable {};
 
  std::ostream& operator<<(std::ostream& os, const Streamable&)
  {
      return os << "012345";
  }
-```
+..
  The following table describes the effect of different format specifications:
 
  | Width | Alignment | Pad Char | Precision | Format Spec | Output Text  |

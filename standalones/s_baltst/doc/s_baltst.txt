@@ -279,15 +279,15 @@
  bizarre (apparently 'impossible') and hard to understand compiler errors are
  generated.  An order of the class definitions that has been found to work is:
 ..
-7.  Choice1
-    Choice2
-    Sequence2
-    Sequence3
-    Sequence4
-    Sequence5
-    Sequence6
-    Choice3
-    Sequence1
+ 7.  Choice1
+     Choice2
+     Sequence2
+     Sequence3
+     Sequence4
+     Sequence5
+     Sequence6
+     Choice3
+     Sequence1
 ..
  Define all the classes first and all definitions of inline and template
  functions should follow the last one.
