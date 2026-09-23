@@ -220,7 +220,7 @@ namespace {
 class SetValueFunctor {
 
     // CLASS DATA
-    static int s_value;  // Value getting set.
+    static bsls::AtomicInt s_value;  // Value getting set.
 
     // DATA
     int d_value;
@@ -244,7 +244,7 @@ class SetValueFunctor {
                              // SetValueFunctor
                              // ---------------
 
-int SetValueFunctor::s_value = 0;
+bsls::AtomicInt SetValueFunctor::s_value(0);
 
 // CREATORS
 SetValueFunctor::SetValueFunctor(int value)
@@ -255,7 +255,7 @@ SetValueFunctor::SetValueFunctor(int value)
 // MANIPULATORS
 void SetValueFunctor::operator()(int)
 {
-    s_value = d_value;
+    s_value.storeRelaxed(d_value);
 }
 
                                // ===========
@@ -267,7 +267,7 @@ void SetValueFunctor::operator()(int)
 class InitFunctor {
 
     // CLASS DATA
-    static int s_value;  // Value getting set.
+    static bsls::AtomicInt s_value;  // Value getting set.
 
     // DATA
     int d_value;
@@ -291,7 +291,7 @@ class InitFunctor {
                                // InitFunctor
                                // -----------
 
-int InitFunctor::s_value = 0;
+bsls::AtomicInt InitFunctor::s_value(0);
 
 // CREATORS
 InitFunctor::InitFunctor(int value)
@@ -302,7 +302,7 @@ InitFunctor::InitFunctor(int value)
 // MANIPULATORS
 void InitFunctor::operator()()
 {
-    s_value = d_value;
+    s_value.storeRelaxed(d_value);
 }
 
                             // =================
