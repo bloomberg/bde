@@ -89,7 +89,7 @@ struct Overloaded_FunctionPointer
     // ACCESSORS
 
     /// Call the function passed to the constructor with the specified `args`.
-    RET operator()(ARGS&&... args) const;
+    RET operator()(ARGS... args) const;
 };
 
                    // ========================================
@@ -117,7 +117,7 @@ struct Overloaded_NoexceptFunctionPointer
     // ACCESSORS
 
     /// Call the function passed to the constructor with the specified `args`.
-    RET operator()(ARGS&&... args) const noexcept;
+    RET operator()(ARGS... args) const noexcept;
 };
 
                    // ======================================
@@ -146,7 +146,7 @@ struct Overloaded_MemberFunctionPointer
 
     /// Call the member function passed to the constructor using the specified
     /// `obj` with the specified `args`, and return the result of the call.
-    RET operator()(OBJ * obj, ARGS&&... args) const;
+    RET operator()(OBJ * obj, ARGS... args) const;
 };
 
                  // ===========================================
@@ -175,7 +175,7 @@ struct Overloaded_ConstMemberFunctionPointer
 
     /// Call the member function passed to the constructor using the specified
     /// `obj` with the specified `args`, and return the result of the call.
-    RET operator()(const OBJ * obj, ARGS&&... args) const;
+    RET operator()(const OBJ * obj, ARGS... args) const;
 };
 
                 // ==============================================
@@ -204,7 +204,7 @@ struct Overloaded_NoexceptMemberFunctionPointer
 
     /// Call the member function passed to the constructor using the specified
     /// `obj` with the specified `args`, and return the result of the call.
-    RET operator()(OBJ * obj, ARGS&&... args) const noexcept;
+    RET operator()(OBJ * obj, ARGS... args) const noexcept;
 };
 
              // ===================================================
@@ -233,7 +233,7 @@ struct Overloaded_ConstNoexceptMemberFunctionPointer
 
     /// Call the member function passed to the constructor using the specified
     /// `obj` with the specified `args`, and return the result of the call.
-    RET operator()(const OBJ * obj, ARGS&&... args) const noexcept;
+    RET operator()(const OBJ * obj, ARGS... args) const noexcept;
 
 };
 
@@ -329,7 +329,7 @@ Overloaded_FunctionPointer<RET, ARGS...>::Overloaded_FunctionPointer(
 
 template <class RET, class ...ARGS>
 inline
-RET Overloaded_FunctionPointer<RET, ARGS...>::operator()(ARGS&&... args) const
+RET Overloaded_FunctionPointer<RET, ARGS...>::operator()(ARGS... args) const
 {
     return d_fp(std::forward<ARGS>(args)...);
 }
@@ -350,7 +350,7 @@ Overloaded_NoexceptFunctionPointer<RET, ARGS...>
 template <class RET, class ...ARGS>
 inline
 RET Overloaded_NoexceptFunctionPointer<RET, ARGS...>::operator()
-                                                (ARGS&&... args) const noexcept
+                                                  (ARGS... args) const noexcept
 {
     return d_fp(std::forward<ARGS>(args)...);
 }
@@ -371,7 +371,7 @@ Overloaded_MemberFunctionPointer<OBJ, RET, ARGS...>
 template <class OBJ, class RET, class ...ARGS>
 inline
 RET Overloaded_MemberFunctionPointer<OBJ, RET, ARGS...>::operator()
-                                              (OBJ * obj, ARGS&&... args) const
+                                                (OBJ * obj, ARGS... args) const
 {
     return (obj->*d_fp)(std::forward<ARGS>(args)...);
 }
@@ -392,7 +392,7 @@ Overloaded_ConstMemberFunctionPointer<OBJ, RET, ARGS...>
 template <class OBJ, class RET, class ...ARGS>
 inline
 RET Overloaded_ConstMemberFunctionPointer<OBJ, RET, ARGS...>::operator()
-                                        (const OBJ * obj, ARGS&&... args) const
+                                          (const OBJ * obj, ARGS... args) const
 {
     return (obj->*d_fp)(std::forward<ARGS>(args)...);
 }
@@ -413,7 +413,7 @@ Overloaded_NoexceptMemberFunctionPointer<OBJ, RET, ARGS...>
 template <class OBJ, class RET, class ...ARGS>
 inline
 RET Overloaded_NoexceptMemberFunctionPointer<OBJ, RET, ARGS...>
-                         ::operator()(OBJ * obj, ARGS&&... args) const noexcept
+                           ::operator()(OBJ * obj, ARGS... args) const noexcept
 {
     return (obj->*d_fp)(std::forward<ARGS>(args)...);
 }
@@ -434,7 +434,7 @@ Overloaded_ConstNoexceptMemberFunctionPointer<OBJ, RET, ARGS...>
 template <class OBJ, class RET, class ...ARGS>
 inline
 RET Overloaded_ConstNoexceptMemberFunctionPointer<OBJ, RET, ARGS...>
-                   ::operator()(const OBJ * obj, ARGS&&... args) const noexcept
+                     ::operator()(const OBJ * obj, ARGS... args) const noexcept
 {
     return (obj->*d_fp)(std::forward<ARGS>(args)...);
 }

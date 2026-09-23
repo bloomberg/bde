@@ -38,7 +38,8 @@ using namespace bsl;
 // [2] FREE FUNCTIONS AND MEMBER FUNCTIONS
 // [3] TEMPLATED FREE FUNCTIONS AND MEMBER FUNCTIONS
 // [4] WORKING WITH `VARIANT`
-// [5] USAGE EXAMPLE
+// [5] FUNCTION POINTERS WITH REFERENCE PARAMETERS
+// [6] USAGE EXAMPLE
 
 // ============================================================================
 //                     STANDARD BDE ASSERT TEST FUNCTION
@@ -125,6 +126,14 @@ namespace FreeFN {
     int HandleInt                     (int) { return kInt; }
     int HandleUnsignedInt    (unsigned int) { return kUnsignedInt; }
 
+    // The same handlers, taking their argument by reference.
+    int HandleShortRef        (const short&)          { return kShort; }
+    int HandleUnsignedShortRef(const unsigned short&)
+    {
+        return kUnsignedShort;
+    }
+    int HandleDoubleRef       (const double&)         { return kDouble; }
+
     int TemplateFN() { return kVoid; }
 
     // A templated function that returns an enum value corresponding to the
@@ -176,7 +185,7 @@ struct staticTemplateMF {
 
 # if defined(BSLS_COMPILERFEATURES_SUPPORT_STATIC_CALL_OPERATOR)
     // Declaring overloaded `operator()` as `static` is a C++23 feature
-    // backported as an extension by Clang.#ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
+    // backported as an extension by Clang.
 #   ifdef BSLS_PLATFORM_HAS_PRAGMA_GCC_DIAGNOSTIC
 #       pragma GCC diagnostic push
 #       pragma GCC diagnostic ignored "-Wc++23-extensions"
@@ -272,6 +281,50 @@ void checkEm(const CALLABLE& call)
     ASSERT(kLongDouble    == call(2.0L));
 
     ASSERT(kStringView    == call(string_view("2.0")));
+
+    short          lvShort       = 2;
+    unsigned short lvUShort      = 2;
+    int            lvInt         = 2;
+    unsigned int   lvUInt        = 2;
+
+    float          lvFloat       = 2.0f;
+    double         lvDouble      = 2.0;
+    long double    lvLongDouble  = 2.0L;
+
+    string_view    lvStringView("2.0");
+
+    ASSERT(kShort         == call(lvShort));
+    ASSERT(kUnsignedShort == call(lvUShort));
+    ASSERT(kInt           == call(lvInt));
+    ASSERT(kUnsignedInt   == call(lvUInt));
+
+    ASSERT(kFloat         == call(lvFloat));
+    ASSERT(kDouble        == call(lvDouble));
+    ASSERT(kLongDouble    == call(lvLongDouble));
+
+    ASSERT(kStringView    == call(lvStringView));
+
+    const short&          clvShort      = lvShort;
+    const unsigned short& clvUShort     = lvUShort;
+    const int&            clvInt        = lvInt;
+    const unsigned int&   clvUInt       = lvUInt;
+
+    const float&          clvFloat      = lvFloat;
+    const double&         clvDouble     = lvDouble;
+    const long double&    clvLongDouble = lvLongDouble;
+
+    const string_view&    clvStringView = lvStringView;
+
+    ASSERT(kShort         == call(clvShort));
+    ASSERT(kUnsignedShort == call(clvUShort));
+    ASSERT(kInt           == call(clvInt));
+    ASSERT(kUnsignedInt   == call(clvUInt));
+
+    ASSERT(kFloat         == call(clvFloat));
+    ASSERT(kDouble        == call(clvDouble));
+    ASSERT(kLongDouble    == call(clvLongDouble));
+
+    ASSERT(kStringView    == call(clvStringView));
 }
 
 /// Call the `operator()` of the specified `call` the specified `p` and
@@ -292,6 +345,50 @@ void checkEm(const CALLABLE& call, PARAM p)
     ASSERT(kLongDouble    == call(p, 2.0L));
 
     ASSERT(kStringView    == call(p, string_view("2.0")));
+
+    short          lvShort       = 2;
+    unsigned short lvUShort      = 2;
+    int            lvInt         = 2;
+    unsigned int   lvUInt        = 2;
+
+    float          lvFloat       = 2.0f;
+    double         lvDouble      = 2.0;
+    long double    lvLongDouble  = 2.0L;
+
+    string_view    lvStringView("2.0");
+
+    ASSERT(kShort         == call(p, lvShort));
+    ASSERT(kUnsignedShort == call(p, lvUShort));
+    ASSERT(kInt           == call(p, lvInt));
+    ASSERT(kUnsignedInt   == call(p, lvUInt));
+
+    ASSERT(kFloat         == call(p, lvFloat));
+    ASSERT(kDouble        == call(p, lvDouble));
+    ASSERT(kLongDouble    == call(p, lvLongDouble));
+
+    ASSERT(kStringView    == call(p, lvStringView));
+
+    const short&          clvShort      = lvShort;
+    const unsigned short& clvUShort     = lvUShort;
+    const int&            clvInt        = lvInt;
+    const unsigned int&   clvUInt       = lvUInt;
+
+    const float&          clvFloat      = lvFloat;
+    const double&         clvDouble     = lvDouble;
+    const long double&    clvLongDouble = lvLongDouble;
+
+    const string_view&    clvStringView = lvStringView;
+
+    ASSERT(kShort         == call(p, clvShort));
+    ASSERT(kUnsignedShort == call(p, clvUShort));
+    ASSERT(kInt           == call(p, clvInt));
+    ASSERT(kUnsignedInt   == call(p, clvUInt));
+
+    ASSERT(kFloat         == call(p, clvFloat));
+    ASSERT(kDouble        == call(p, clvDouble));
+    ASSERT(kLongDouble    == call(p, clvLongDouble));
+
+    ASSERT(kStringView    == call(p, clvStringView));
 }
 #endif
 
@@ -320,7 +417,7 @@ int main(int argc, char *argv[])
     ASSERT(true);  // silence `unused function` warning on C++11
 
     switch (test) { case 0:  // Zero is always the leading case.
-      case 5: {
+      case 6: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -343,8 +440,8 @@ int main(int argc, char *argv[])
                           << "USAGE EXAMPLE" << endl
                           << "=============" << endl;
 
-        // First, create a bsl::variant object that can contain several different
-        // types.
+        // First, create a bsl::variant object that can contain several
+        // different types.
         // ```
         bsl::variant<unsigned, double, bsl::string> v;
         // ```
@@ -370,8 +467,109 @@ int main(int argc, char *argv[])
 
 #endif
       } break;
+      case 5: {
+        // --------------------------------------------------------------------
+        // FUNCTION POINTERS WITH REFERENCE PARAMETERS
+        //
+        // Concerns:
+        // 1. An overload set calls the function that would be selected by
+        //    overload resolution for the supplied argument when every
+        //    function in the set takes its argument by reference.
+        //
+        // 2. An overload set calls the function that would be selected by
+        //    overload resolution for the supplied argument when the set mixes
+        //    functions taking their argument by value with functions taking
+        //    it by reference.
+        //
+        // 3. An overload set calls the function that would be selected by
+        //    overload resolution for the supplied argument when every
+        //    function takes its argument by value.
+        //
+        // Plan:
+        // 1. Create an overload set from function pointers whose parameters
+        //    are all references, call it directly with an rvalue, a
+        //    modifiable lvalue, and a non-modifiable lvalue of each parameter
+        //    type, and verify that the return value identifies the function
+        //    that was called.  (C-1)
+        //
+        // 2. Repeat for an overload set built from one function taking its
+        //    argument by value and one taking its argument by reference.
+        //    (C-2)
+        //
+        // 3. Repeat for an overload set whose functions all take their
+        //    argument by value.  (C-3)
+        //
+        // Testing:
+        //   FUNCTION POINTERS WITH REFERENCE PARAMETERS
+        // --------------------------------------------------------------------
+#ifdef BSLS_COMPILERFEATURES_SUPPORT_CTAD
 
+        if (verbose) cout << endl
+                 << "FUNCTION POINTERS WITH REFERENCE PARAMETERS" << endl
+                 << "===========================================" << endl;
 
+        {
+            bdlf::Overloaded over{&FreeFN::HandleShortRef,
+                                  &FreeFN::HandleUnsignedShortRef};
+
+            short          lvShort  = 2;
+            unsigned short lvUShort = 2;
+
+            const short&          clvShort  = lvShort;
+            const unsigned short& clvUShort = lvUShort;
+
+            ASSERT(kShort         == over(         (short)2));
+            ASSERT(kUnsignedShort == over((unsigned short)2));
+
+            ASSERT(kShort         == over(lvShort));
+            ASSERT(kUnsignedShort == over(lvUShort));
+
+            ASSERT(kShort         == over(clvShort));
+            ASSERT(kUnsignedShort == over(clvUShort));
+        }
+
+        {
+            bdlf::Overloaded over{&FreeFN::HandleInt,
+                                  &FreeFN::HandleDoubleRef};
+
+            int    lvInt    = 2;
+            double lvDouble = 2.0;
+
+            const int&    clvInt    = lvInt;
+            const double& clvDouble = lvDouble;
+
+            ASSERT(kInt    == over(2));
+            ASSERT(kDouble == over(2.0));
+
+            ASSERT(kInt    == over(lvInt));
+            ASSERT(kDouble == over(lvDouble));
+
+            ASSERT(kInt    == over(clvInt));
+            ASSERT(kDouble == over(clvDouble));
+        }
+
+        {
+            bdlf::Overloaded over{&FreeFN::HandleInt,
+                                  &FreeFN::HandleShort};
+
+            int   lvInt   = 2;
+            short lvShort = 2;
+
+            const int&   clvInt   = lvInt;
+            const short& clvShort = lvShort;
+
+            ASSERT(kInt   == over(2));
+            ASSERT(kShort == over((short)2));
+
+            ASSERT(kInt   == over(lvInt));
+            ASSERT(kShort == over(lvShort));
+
+            ASSERT(kInt   == over(clvInt));
+            ASSERT(kShort == over(clvShort));
+        }
+
+#endif
+      } break;
       case 4: {
         // --------------------------------------------------------------------
         // WORKING WITH `VARIANT`
