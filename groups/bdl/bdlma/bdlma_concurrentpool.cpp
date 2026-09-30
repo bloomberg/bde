@@ -4,373 +4,484 @@
 #include <bsls_ident.h>
 BSLS_IDENT_RCSID(bdlma_concurrentpool_cpp,"$Id$ $CSID$")
 
+#include <bslmf_assert.h>
+
 #include <bslmt_lockguard.h>
 
 #include <bsls_alignmentutil.h>
 #include <bsls_assert.h>
-#include <bsls_performancehint.h>
 
-#include <bsl_algorithm.h>  // for 'max()'
-#include <bsl_cstddef.h>    // for 'offsetof()'
-#include <bsl_cstdlib.h>
+///Implementation Note
+///===================
+// The implementation is composed of three parts: replenishment, deallocation,
+// and reuse.  Deallocation is the simplest, returned memory is added to the
+// one element reuse cache (`d_reuseCache`) or one of a few linked lists
+// (`d_freeLists`).  Reuse occurs in two ways: through the one element reuse
+// cache and as part of the allocation process when sufficient memory is
+// available in the free lists (a chunk's worth of elements).  Allocation, for
+// most threads, is simply taking the element in the one element reuse cache
+// or, if none is available, an element from the allocation cache
+// (`d_allocCache`).  The allocation cache is an array of addresses previously
+// obtained from the underlying allocator; each non-null element points to one
+// block. The allocation cache is divided into segments, which are contiguous
+// sequences of `d_chunkSize` elements. Within each segment, the address stored
+// in the left-most element is also designated as a token whose
+// possession by a thread signifies a lock on the underlying allocator (reading
+// a non-null value implies the reading thread has an exclusive lock on the
+// allocator, a null value implies the thread must wait for the token). At any
+// given time, there is either exactly one token in the allocation cache or
+// none, meaning that the underlying allocator is unlocked or locked,
+// respectively.  When the index of the cache element modulo the chunk size is
+// zero, the thread is selected to perform a replenishment of the allocation
+// cache.  First, the selected thread waits for the allocation token.  Then,
+// the thread determines whether to use memory from the deallocation lists or
+// to allocate additional memory.  If there is sufficient reuseable memory,
+// memory is taken from the deallocations lists, the allocation cache is
+// populated, and the token is provided for the next allocation to proceed.
+// Otherwise, memory is allocated, the token is provided for the next
+// allocation to proceed, and the allocation cache is populated.  As such, a
+// lock on the allocator is obtained by holding the token.  Note that while the
+// token is handed to the next location that indicates a replenishment, the
+// indices serviced by the replenishment are located to minimize the
+// contention.
+//
+// For example, if `d_chunkSize` is four, then there are four elements in each
+// segment, and the below depicts the layout of `d_allocCache`.  A
+// replenishment will place a token into the next token location when it
+// completes population of chunk that is "far" from where the next allocation
+// result is taken from (i.e., the first element of the next segment, and all
+// elements except the first element of a different, further away segment).
+// ```
+//                                   +-- current index location with token
+//       +-- new values loaded here  |               +-- next token location
+//       v                           v               v
+// +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ ...
+// | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | X | X | X | X | 0 | X | X | X |
+// +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+ ...
+// ```
 
 namespace BloombergLP {
+namespace bdlma {
+
 namespace {
 
-                                  // -----
-                                  // TYPES
-                                  // -----
-
-/// This `struct` implements a link data structure that stores the address
-/// of the next link, used to implement the internal linked list of free
-/// memory blocks.  Note that this type is copied from
-/// `bdlma_concurrentpool.h` to provide access to this type from static
-/// methods.
-struct LLink {
-
-    union {
-        bsls::AtomicOperations::AtomicTypes::Int d_refCount;
-        bsls::AlignmentUtil::MaxAlignedType      d_dummy;
-    };
-    LLink *d_next_p;
-};
-
-                                // ---------
-                                // CONSTANTS
-                                // ---------
-
-enum {
-    k_INITIAL_CHUNK_SIZE =  1, // default 'numObjects' value
-
-    k_MAX_CHUNK_SIZE     = 32  // minimum 'd_numObjects' value beyond which
-                               // 'd_numObjects' becomes positive
-};
-
-}  // close unnamed namespace
-
-// implementation details of private support functions
+// HELPER FUNCTIONS
 
 /// Round up the specified `x` to the nearest whole integer multiple of the
-/// specified `y`.
+/// specified `y`.  The behavior is undefined unless `1 <= y`.
 static inline
 bsls::Types::size_type roundUp(bsls::Types::size_type x,
                                bsls::Types::size_type y)
 {
+    BSLS_ASSERT(1 <= y);
+
     return (x + y - 1) / y * y;
 }
 
-/// Return a linked-list link at the specified `address`.
-static inline
-LLink *toLink(char *address)
-{
-    // Note that a 'char *' cannot be converted directly to a 'LLink *'.
-
-    return static_cast<LLink *>(static_cast<void *>(address));
-}
-
-// private support functions
-
-/// Return the number of bytes that must be allocated to provide an aligned
-/// block of memory of the specified `blockSize` that can also be used to
-/// represent a `object` `LLink` (on the `bdlma::ConcurrentPool` objects
-/// free list).  Note that this value is the maximum of either the size of a
-/// `LLink` object or `blockSize` rounded up to the alignment required for a
-/// `LLink` object (i.e., the maximum platform alignment).
-static inline
-bsls::Types::size_type computeInternalBlockSize(
-                                              bsls::Types::size_type blockSize)
-{
-    const bsls::Types::size_type HEADER_LENGTH  = offsetof(LLink, d_next_p);
-    const bsls::Types::size_type MINIMUM_LENGTH = sizeof(LLink);
-
-    return roundUp(bsl::max(blockSize + HEADER_LENGTH, MINIMUM_LENGTH),
-                   bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
-}
-
-/// Append to the specified `nextList`, `numBlocks` free memory blocks each
-/// having the specified `blockSize`, using memory provided by the specified
-/// `blockList`.  The behavior is undefined unless `1 <= blockSize` and
-/// `1 <= numBlocks`.
-static
-void replenishImp(bsls::AtomicPointer<LLink>       *nextList,
-                  bdlma::InfrequentDeleteBlockList *blockList,
-                  bsls::Types::size_type            blockSize,
-                  int                               numBlocks)
-{
-    using namespace BloombergLP;
-
-    BSLS_ASSERT(blockList);
-    BSLS_ASSERT(1 <= blockSize);
-    BSLS_ASSERT(1 <= numBlocks);
-
-    char  *start = static_cast<char *>(
-                                  blockList->allocate(numBlocks * blockSize));
-    char  *end   = start + (numBlocks - 1) * blockSize;
-    for (char *p = start; p < end; p += blockSize) {
-        LLink *nextLink = toLink(p);
-        bsls::AtomicOperations::initInt(&nextLink->d_refCount, 0 );
-        nextLink->d_next_p = toLink(p + blockSize);
-    }
-    bsls::AtomicOperations::initInt(&toLink(end)->d_refCount, 0 );
-
-    LLink *old;
-    do {
-        old                   = *nextList;
-        toLink(end)->d_next_p = old;
-    } while (old != nextList->testAndSwap(old, toLink(start)));
-}
-
-namespace bdlma {
+}  // close unnamed namespace
 
                            // --------------------
                            // class ConcurrentPool
                            // --------------------
 
 // PRIVATE MANIPULATORS
-void ConcurrentPool::replenish()
+void *ConcurrentPool::allocateWithoutReuseCache()
 {
-    replenishImp(reinterpret_cast<bsls::AtomicPointer<LLink> *>(&d_freeList),
-                 &d_blockList,
-                 d_internalBlockSize,
-                 d_chunkSize);
+    void *address;
 
-    if (bsls::BlockGrowth::BSLS_GEOMETRIC == d_growthStrategy
-     && d_chunkSize < d_maxBlocksPerChunk) {
+    do {
+        Uint64 index = (AtomicOp::addUint64NvAcqRel(
+                         &d_nextAllocIndex.d_value, 1) - 1) & d_allocIndexMask;
 
-        if (d_chunkSize * 2 <= d_maxBlocksPerChunk) {
-            d_chunkSize = d_chunkSize * 2;
+        // obtain address to return
+        address = AtomicOp::swapPtrAcqRel(&d_allocCache[index], 0);
+        while (0 == address) {
+            // wait for another thread to complete a replenish
+
+            bslmt::ThreadUtil::yield();
+            address = AtomicOp::swapPtrAcqRel(&d_allocCache[index], 0);
+        }
+
+        if (0 == (index & d_allocIndexInChunkMask)) {
+            // Either perform the initial allocation or replenish the -2nd
+            // (empty) chunk then advance the token to the next chunk.  Note
+            // that only one thread can hold the token and the token acts as a
+            // lock for using the allocator and the data members `d_reuseIndex`
+            // and `d_reuseList` (though this entire block scope is a critical
+            // section).
+
+            if (d_chunkSize <=
+                         AtomicOp::getUint64Acquire(&d_numAvailable.d_value)) {
+                // Replenish from the `d_reuseList` and the free lists since
+                // there are (or soon will be) enough blocks to fill a segment.
+                // If `d_reuseList` does not have sufficient blocks, the free
+                // lists are iterated over.  All of the blocks from a free list
+                // are taken and used (to avoid ABA problem), and if there is a
+                // need for more blocks the next free list is taken.  Any
+                // excess blocks are stored in `d_reuseList` for the next
+                // replenishment.  As an optimization, `d_reuseIndex` is used
+                // to store the next free list to take from, since the free
+                // lists should have - roughly - the same number of total
+                // blocks inserted into each them.  Note that the free lists
+                // could always be used in any order; `d_reuseIndex` is not
+                // needed for correctness.
+
+                AtomicOp::addUint64AcqRel(&d_numAvailable.d_value,
+                                          -static_cast<Uint64>(d_chunkSize));
+
+                Uint64 offset = (index + d_allocCacheSize - 2 * d_chunkSize)
+                                                            & d_allocIndexMask;
+                for (size_type i = 1; i < d_chunkSize; ++i) {
+                    while (0 == d_reuseList) {
+                        d_reuseList = AtomicOp::swapPtrAcqRel(
+                                   &d_freeLists[  d_reuseIndex
+                                                & k_FREE_INDEX_MASK].d_ptr, 0);
+
+                        ++d_reuseIndex;
+
+                        // Note that since the next attempt is on a different
+                        // reuse list, do not `yield`.
+                    }
+
+                    void *next = static_cast<Link *>(d_reuseList)->d_next_p;
+
+                    while (0 != AtomicOp::testAndSwapPtrAcqRel(
+                                                     &d_allocCache[offset + i],
+                                                     0,
+                                                     d_reuseList)) {
+                        bslmt::ThreadUtil::yield();
+                    }
+
+                    d_reuseList = next;
+                }
+
+                while (0 == d_reuseList) {
+                    d_reuseList = AtomicOp::swapPtrAcqRel(
+                                   &d_freeLists[  d_reuseIndex
+                                                & k_FREE_INDEX_MASK].d_ptr, 0);
+
+                    ++d_reuseIndex;
+
+                    // Note that since the next attempt is on a different reuse
+                    // list, do not `yield`.
+                }
+
+                Uint64 nextTokenIndex = (index + d_chunkSize)
+                                                            & d_allocIndexMask;
+                void *val = d_reuseList;
+                d_reuseList = static_cast<Link *>(d_reuseList)->d_next_p;
+                AtomicOp::swapPtrAcqRel(&d_allocCache[nextTokenIndex], val);
+            }
+            else if (address != this) {
+                // insufficient free blocks; replenish using an allocation
+
+                Uint64 offset = (index + d_allocCacheSize - 2 * d_chunkSize)
+                                                            & d_allocIndexMask;
+                Uint64 tokenIndex = (index + d_chunkSize) & d_allocIndexMask;
+
+                AllocateProctor proctor(
+                                this,
+                                offset,
+                                tokenIndex,
+                                address);
+                void *memory = d_blockList.allocate(d_chunkSize
+                                                        * d_internalBlockSize);
+                proctor.release();
+
+                populateAllocCache(offset,
+                                   tokenIndex,
+                                   memory,
+                                   memory,
+                                   d_internalBlockSize);
+            }
+            else {
+                // initial allocation
+
+                AllocateProctor proctor(
+                                      this,
+                                      index,
+                                      (index + d_chunkSize) & d_allocIndexMask,
+                                      this);
+
+                // allocate enough to pre-populate all but one of the chunks
+                // (replenish populates the chunk two prior to the allocator
+                // token and need to populate the chunk the allocation for
+                // this token location would normally populate):
+                //   * d_allocCacheSize is the full number of elements
+                //   * - d_chunkSize removes the one chunk
+                //   * - d_allocCacheSize / d_chunkSize + 1 token slots
+                //   * + 2 for the result and the token
+                address = d_blockList.allocate(
+                                          (  d_allocCacheSize
+                                           - d_chunkSize
+                                           - d_allocCacheSize / d_chunkSize + 1
+                                           + 2) * d_internalBlockSize);
+
+                proctor.release();
+
+                // reserve the first `address` location for the return value
+                // and the second for the token
+                size_type j = 2;
+                for (size_type i = 0;
+                     i < d_allocCacheSize - d_chunkSize;
+                     ++i) {
+                    if (0 == (i & d_allocIndexInChunkMask)) {
+                        bsls::AtomicOperations::setPtrRelease(
+                                 &d_allocCache[(index + i) & d_allocIndexMask],
+                                 0);
+                    }
+                    else {
+                        bsls::AtomicOperations::setPtrRelease(
+                                 &d_allocCache[(index + i) & d_allocIndexMask],
+                                 static_cast<char *>(address)
+                                                    + j * d_internalBlockSize);
+                        ++j;
+                    }
+                }
+
+                // place the allocation token
+                bsls::AtomicOperations::setPtrRelease(
+                       &d_allocCache[(index + d_chunkSize) & d_allocIndexMask],
+                       static_cast<char *>(address) + d_internalBlockSize);
+            }
+        }
+
+        // `address == this` indicates an exception occurred (perhaps not
+        // during the current invocation of `allocate`) and this `allocate`
+        // failed
+    } while (address == this);
+
+    return address;
+}
+
+void ConcurrentPool::initialize()
+{
+    bsls::AtomicOperations::setPtrRelease(&d_reuseCache.d_ptr, 0);
+
+    for (size_type i = 1; i < d_allocCacheSize; ++i) {
+        bsls::AtomicOperations::setPtrRelease(&d_allocCache[i], 0);
+    }
+
+    for (int i = 0; i < k_NUM_FREE_LISTS; ++i) {
+        bsls::AtomicOperations::setPtrRelease(&d_freeLists[i].d_ptr, 0);
+    }
+
+    bsls::AtomicOperations::initUint64(&d_nextAllocIndex.d_value, 0ull);
+    bsls::AtomicOperations::initUint64(&d_numAvailable.d_value,   0ull);
+
+    d_reuseIndex = 0;
+    d_reuseList = 0;
+
+    // place the allocation token indicating the initial allocation must occur
+    bsls::AtomicOperations::setPtrRelease(&d_allocCache[0], this);
+}
+
+void ConcurrentPool::initializeParameters()
+{
+    BSLMF_ASSERT(0 == (k_NUM_FREE_LISTS & (k_NUM_FREE_LISTS - 1)));
+
+    d_internalBlockSize = roundUp(d_blockSize,
+                                  bsls::AlignmentUtil::BSLS_MAX_ALIGNMENT);
+
+    // initialize chunk and cache size to efficient values
+    d_chunkSize      = 32;
+    d_allocCacheSize = 256;
+
+    // reduce pre-allocated memory requirements for large block sizes,
+    // while maintaining algorithm invariants
+    size_type blockSize = 8192;
+    while (d_internalBlockSize > blockSize && d_allocCacheSize > 8) {
+        blockSize *= 2;
+        if (d_allocCacheSize > 4 * d_chunkSize) {
+            d_allocCacheSize /= 2;
         }
         else {
-            d_chunkSize = d_maxBlocksPerChunk;
+            d_chunkSize /= 2;
         }
     }
+
+    // verify algorithm invariants
+    BSLS_ASSERT(d_allocCacheSize >= 4 * d_chunkSize);
+    BSLS_ASSERT(d_allocCacheSize <= k_MAX_ALLOC_CACHE_SIZE);
+
+    d_allocIndexInChunkMask = d_chunkSize - 1;
+    d_allocIndexMask        = d_allocCacheSize - 1;
+
+    // verify mask validity
+    BSLS_ASSERT(0 <  d_allocIndexInChunkMask);
+    BSLS_ASSERT(0 <  d_allocIndexMask);
+    BSLS_ASSERT(0 == (d_chunkSize & d_allocIndexInChunkMask));
+    BSLS_ASSERT(0 == (d_allocCacheSize & d_allocIndexMask));
+}
+
+void ConcurrentPool::lockAllocator(Uint64 *index, void **address)
+{
+    *index = -static_cast<Uint64>(d_chunkSize);
+    do {
+        *index = (*index + d_chunkSize) & d_allocIndexMask;
+        *address = AtomicOp::swapPtrAcqRel(&d_allocCache[*index], 0);
+    } while (0 == *address);
+}
+
+void ConcurrentPool::populateAllocCache(Uint64                  index,
+                                        Uint64                  tokenIndex,
+                                        void                   *token,
+                                        void                   *memory,
+                                        bsls::Types::size_type  size)
+{
+    for (size_type i = 1; i < d_chunkSize; ++i) {
+        while (0 != AtomicOp::testAndSwapPtrAcqRel(
+                                     &d_allocCache[index + i],
+                                     0,
+                                     static_cast<char *>(memory) + i * size)) {
+            bslmt::ThreadUtil::yield();
+        }
+    }
+
+    AtomicOp::swapPtrAcqRel(&d_allocCache[tokenIndex], token);
 }
 
 // CREATORS
 ConcurrentPool::ConcurrentPool(bsls::Types::size_type  blockSize,
                                bslma::Allocator       *basicAllocator)
 : d_blockSize(blockSize)
-, d_chunkSize(k_INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
-, d_growthStrategy(bsls::BlockGrowth::BSLS_GEOMETRIC)
-, d_freeList(0)
 , d_blockList(basicAllocator)
+, d_mutex()
 {
     BSLS_ASSERT(1 <= blockSize);
 
-    d_internalBlockSize = computeInternalBlockSize(blockSize);
-}
-
-ConcurrentPool::ConcurrentPool(bsls::Types::size_type       blockSize,
-                               bsls::BlockGrowth::Strategy  growthStrategy,
-                               bslma::Allocator            *basicAllocator)
-: d_blockSize(blockSize)
-, d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? k_MAX_CHUNK_SIZE : k_INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(k_MAX_CHUNK_SIZE)
-, d_growthStrategy(growthStrategy)
-, d_freeList(0)
-, d_blockList(basicAllocator)
-{
-    BSLS_ASSERT(1 <= blockSize);
-
-    d_internalBlockSize = computeInternalBlockSize(blockSize);
-}
-
-ConcurrentPool::ConcurrentPool(bsls::Types::size_type       blockSize,
-                               bsls::BlockGrowth::Strategy  growthStrategy,
-                               int                          maxBlocksPerChunk,
-                               bslma::Allocator            *basicAllocator)
-: d_blockSize(blockSize)
-, d_chunkSize(bsls::BlockGrowth::BSLS_CONSTANT == growthStrategy
-              ? maxBlocksPerChunk : k_INITIAL_CHUNK_SIZE)
-, d_maxBlocksPerChunk(maxBlocksPerChunk)
-, d_growthStrategy(growthStrategy)
-, d_freeList(0)
-, d_blockList(basicAllocator)
-{
-    BSLS_ASSERT(1 <= blockSize);
-    BSLS_ASSERT(1 <= maxBlocksPerChunk);
-
-    d_internalBlockSize = computeInternalBlockSize(blockSize);
+    initializeParameters();
+    initialize();
 }
 
 ConcurrentPool::~ConcurrentPool()
 {
-    BSLS_ASSERT(static_cast<int>(sizeof(LLink)) <= d_internalBlockSize);
-    BSLS_ASSERT(0 != d_chunkSize);
 }
 
 // MANIPULATORS
-void *ConcurrentPool::allocate()
-{
-    Link *p;
-    for (;;) {
-        p = d_freeList.loadRelaxed();
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY(!p)) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
-            p = d_freeList;
-            if (!p) {
-                replenish();
-                continue;
-            }
-        }
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_UNLIKELY
-                  (2 != bsls::AtomicOperations::addIntNv(&p->d_refCount, 2))) {
-            BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-            for (int i = 0; i < 3; ++i) {
-                // To avoid unnecessary contention, assume that if we did not
-                // get the first reference, then the other thread is about to
-                // complete the pop.  Wait for a few cycles until it does.  If
-                // it does not complete then go on and try to acquire it
-                // ourselves.
-
-                if (d_freeList.loadRelaxed() != p) {
-                    break;
-                }
-            }
-        }
-
-        // Force a dependent read of 'd_next_p' to make sure that we're not
-        // racing against another thread calling 'deallocate' for 'p' and that
-        // checked the refcount *before* we incremented it, put back 'p' in the
-        // freelist with a potentially different 'd_next_p'.
-        //
-        // There are two possibilities in this particular case:
-        //   - The following 'loadRelaxed()' will return the new 'freelist'
-        //     value (== p) and because of the release barrier before the last
-        //     CAS in deallocate, we can observe the new 'd_next_p' value (this
-        //     relies on dependent load ordering)
-        //   - loadRelaxed() will return the "old" (!= p) and the CAS and thus
-        //     the condition will be false.
-        //
-        // Note that 'h' is made volatile so that the compiler does not replace
-        // the 'h->d_inUse' load with 'p->d_inUse' (and thus removing the data
-        // dependency).  TBD to be completely thorough 'h->d_next_p' needs a
-        // load dependent barrier (no-op on all current architectures though).
-
-        const Link * volatile h = d_freeList.loadRelaxed();
-
-        // gcc 4.3, 4.4 seems to have trouble processing likely(a && b), using
-        // likely(a) && likely(b) fixes the problem.  3.4.6 seems to generate
-        // the proper code though.
-
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(h == p)
-         && BSLS_PERFORMANCEHINT_PREDICT_LIKELY(
-                                d_freeList.testAndSwap(p, h->d_next_p) == p)) {
-            break;
-        }
-
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-        for (;;) {
-            int refCount = bsls::AtomicOperations::getInt(&p->d_refCount);
-
-            if (refCount & 1) {
-                if (refCount ==
-                        bsls::AtomicOperations::testAndSwapInt(
-                            &p->d_refCount,
-                            refCount,
-                            refCount^1)) {
-                    // The node is now free but not on the free list.  Try to
-                    // take it.
-
-                    return static_cast<void *>(const_cast<Link **>(
-                                                      &p->d_next_p)); // RETURN
-                }
-            }
-            else if (refCount ==
-                        bsls::AtomicOperations::testAndSwapInt(
-                            &p->d_refCount,
-                            refCount,
-                            refCount - 2)) {
-                break;
-            }
-        }
-    }
-
-    return static_cast<void *>(const_cast<Link **>(&p->d_next_p));
-}
-
-void ConcurrentPool::deallocate(void *address)
-{
-    Link *p = static_cast<Link *>(static_cast<void *>(
-                     static_cast<char *>(address) - offsetof(Link, d_next_p)));
-    int refCount = bsls::AtomicOperations::getIntRelaxed(&p->d_refCount);
-    for (;;) {
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
-            refCount = bsls::AtomicOperations::testAndSwapInt(&p->d_refCount,
-                                                              2,
-                                                              0);
-            if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(2 == refCount)) {
-                break;
-            }
-        }
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-
-        const int oldRefCount = refCount;
-        refCount = bsls::AtomicOperations::testAndSwapInt(&p->d_refCount,
-                                                          refCount,
-                                                          refCount - 1);
-        if (oldRefCount == refCount) {
-            // Someone else is still trying to pop this item.  Just let them
-            // have it.
-
-            return;                                                   // RETURN
-        }
-    }
-
-    Link *old = d_freeList.loadRelaxed();
-    for (;;) {
-        p->d_next_p = old;
-        const Link * const swap = old;
-        old = d_freeList.testAndSwap(old, p);  // release
-        if (BSLS_PERFORMANCEHINT_PREDICT_LIKELY(swap == old)) {
-            break;
-        }
-        BSLS_PERFORMANCEHINT_UNLIKELY_HINT;
-    }
-}
-
 void ConcurrentPool::reserveCapacity(int numBlocks)
 {
     BSLS_ASSERT(0 <= numBlocks);
 
-    bslmt::LockGuard<bslmt::Mutex> guard(&d_mutex);
+    // synchronize with `release` and other `reserveCapacity`
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
 
-    Link *list = d_freeList.swap(0);
-    Link *last = list;
+    // synchronize with `allocate`
+    Uint64  index;
+    void   *token;
+    lockAllocator(&index, &token);
 
-    while (last) {
-        --numBlocks;
-        if (!last->d_next_p) break;
-        last = last->d_next_p;
+    numBlocks = static_cast<int>(roundUp(numBlocks, d_chunkSize));
+
+    Uint64 avail = AtomicOp::getUint64Acquire(&d_numAvailable.d_value);
+    if (avail < static_cast<Uint64>(numBlocks)) {
+        numBlocks -= static_cast<int>(avail);
+
+        size_type initialBlocks = 0;
+        if (token == this) {
+            // `reserveCapacity` was invoked before initial cache allocation;
+            // need to allocate enough for the initial cache plus the reserve
+
+            // allocate enough to pre-populate all but two of the chunks
+            // (replenish populates the chunk two prior to the allocator
+            // token):
+            //   * d_allocCacheSize is the full number of elements
+            //   * - 2 * d_chunkSize removes the two chunks
+            //   * - d_allocCacheSize / d_chunkSize + 2 token slots
+            //   * + 1 for the token
+            initialBlocks = d_allocCacheSize
+                           - 2 * d_chunkSize
+                           - d_allocCacheSize / d_chunkSize + 2
+                           + 1;
+        }
+
+        ReplaceValueProctor guard(this, index, token);
+        char *memory = static_cast<char *>(d_blockList.allocate(
+                              static_cast<size_type>(initialBlocks + numBlocks)
+                                                       * d_internalBlockSize));
+        guard.release();
+
+        // place blocks for reserved capacity in the reuse list
+
+        for (int i = 0; i < numBlocks - 1; ++i) {
+            reinterpret_cast<Link *>(
+                                  memory + i * d_internalBlockSize)->d_next_p =
+                                          memory + (i+1) * d_internalBlockSize;
+        }
+
+        char *tail = memory + (numBlocks - 1) * d_internalBlockSize;
+        reinterpret_cast<Link *>(tail)->d_next_p = d_reuseList;
+        d_reuseList = memory;
+
+        AtomicOp::addUint64AcqRel(&d_numAvailable.d_value, numBlocks);
+
+        if (token == this) {
+            // place blocks for initial allocation
+
+            // reserve the first `address` location for the token
+            token = static_cast<char *>(memory) +
+                                               numBlocks * d_internalBlockSize;
+            int j = numBlocks + 1;
+            for (size_type i = 0;
+                 i < d_allocCacheSize - 2 * d_chunkSize;
+                 ++i) {
+                if (0 == (i & d_allocIndexInChunkMask)) {
+                    bsls::AtomicOperations::setPtrRelease(
+                                 &d_allocCache[(index + i) & d_allocIndexMask],
+                                 0);
+                }
+                else {
+                    bsls::AtomicOperations::setPtrRelease(
+                               &d_allocCache[(index + i) & d_allocIndexMask],
+                               static_cast<char *>(memory)
+                                                    + j * d_internalBlockSize);
+                    ++j;
+                }
+            }
+        }
     }
 
-    if (last) {
-        Link *old;
-
-        do {
-            old = d_freeList;
-            last->d_next_p = old;
-        } while (old != d_freeList.testAndSwap(old, list));
-    }
-
-    if (numBlocks > 0) {
-        replenishImp(
-                   reinterpret_cast<bsls::AtomicPointer<LLink> *>(&d_freeList),
-                   &d_blockList,
-                   d_internalBlockSize,
-                   numBlocks);
-    }
+    unlockAllocator(index, token);
 }
+
+// DEPRECATED METHODS
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE4.40
+ConcurrentPool::ConcurrentPool(
+                             bsls::Types::size_type       blockSize,
+                             bsls::BlockGrowth::Strategy  /* growthStrategy */,
+                             bslma::Allocator            *basicAllocator)
+: d_blockSize(blockSize)
+, d_blockList(basicAllocator)
+, d_mutex()
+{
+    BSLS_ASSERT(1 <= blockSize);
+
+    initializeParameters();
+    initialize();
+}
+
+ConcurrentPool::ConcurrentPool(
+                          bsls::Types::size_type       blockSize,
+                          bsls::BlockGrowth::Strategy  /* growthStrategy */,
+                          int                          /* maxBlocksPerChunk */,
+                          bslma::Allocator            *basicAllocator)
+: d_blockSize(blockSize)
+, d_blockList(basicAllocator)
+, d_mutex()
+{
+    BSLS_ASSERT(1 <= blockSize);
+
+    initializeParameters();
+    initialize();
+}
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE4.40
 
 }  // close package namespace
 }  // close enterprise namespace
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2026 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.

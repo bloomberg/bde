@@ -888,8 +888,8 @@ int main(int argc, char *argv[])
 
         const bsls::Types::size_type k_LARGE =
                                              sizeof(bsls::Types::size_type) > 4
-                                           ? 0x8000000000000000ull
-                                           : 0x80000000u;
+                                           ? 0x0080000000000000ull
+                                           : 0x00800000u;
 
         {
             TrackingAllocator supplied;
@@ -1645,10 +1645,10 @@ int main(int argc, char *argv[])
                         const bslma::TestAllocator& TA = tas[i];
 
                         ASSERTV(i, TA.numAllocations(),
-                                2 == TA.numAllocations());
+                                1 == TA.numAllocations());
 
                         ASSERTV(i, TA.numBlocksInUse(),
-                                2 == TA.numBlocksInUse());
+                                1 == TA.numBlocksInUse());
 
                         ASSERTV(i, TA.numDeallocations(),
                                 0 == TA.numDeallocations());

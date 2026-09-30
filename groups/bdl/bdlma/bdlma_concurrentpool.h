@@ -15,13 +15,13 @@ BSLS_IDENT("$Id: $")
 //@DESCRIPTION: This component implements a memory pool,
 // `bdlma::ConcurrentPool`, that allocates and manages memory blocks of some
 // uniform size specified at construction.  A `bdlma::ConcurrentPool` object
-// maintains an internal linked list of free memory blocks, and dispenses one
-// block for each `allocate` method invocation.  When a memory block is
-// deallocated, it is returned to the free list for potential reuse.
+// maintains an internal pool of free memory blocks, and dispenses one block
+// for each `allocate` method invocation.  When a memory block is deallocated,
+// it is returned for potential reuse.
 //
-// Whenever the linked list of free memory blocks is depleted, the
-// `bdlma::ConcurrentPool` replenishes the list by first allocating a large,
-// contiguous "chunk" of memory, then splitting the chunk into multiple memory
+// Whenever the pool of free memory blocks is depleted, the
+// `bdlma::ConcurrentPool` replenishes the pool by allocating a contiguous
+// "chunk" of memory, then splitting the chunk into multiple memory
 // blocks.  A chunk and its constituent memory blocks can be depicted visually:
 // ```
 //    +-----+--- memory blocks of uniform size
@@ -34,45 +34,11 @@ BSLS_IDENT("$Id: $")
 //              V
 //          a "chunk"
 // ```
-// Note that the size of the allocated chunk is determined by both the growth
-// strategy and maximum blocks per chunk, either of which can be optionally
-// specified at construction (see the "Configuration at Construction" section).
 //
-///Configuration at Construction
-///-----------------------------
 // When creating a `bdlma::ConcurrentPool`, clients must specify the specific
-// block size managed and dispensed by the pool.  Furthermore, clients can
-// optionally configure:
-//
-// 1. GROWTH STRATEGY -- geometrically growing chunk size starting from 1 (in
-//    terms of the number of memory blocks per chunk), or fixed chunk size.  If
-//    the growth strategy is not specified, geometric growth is used.
-// 2. MAX BLOCKS PER CHUNK -- the maximum number of memory blocks within a
-//    chunk.  If the maximum blocks per chunk is not specified, an
-//    implementation-defined default value is used.
-// 3. BASIC ALLOCATOR -- the allocator used to supply memory to replenish the
-//    internal pool.  If not specified, the currently installed default
-//    allocator (see `bslma_default`) is used.
-//
-// For example, if geometric growth is used and the maximum blocks per chunk is
-// specified as 30, the chunk size grows geometrically, starting from 1, until
-// the specified maximum blocks per chunk, as follows:
-// ```
-// 1, 2, 4, 8, 16, 30, 30, 30 ...
-// ```
-// If constant growth is used, the chunk size is always the specified maximum
-// blocks per chunk (or an implementation-defined value if the maximum blocks
-// per chunk is not specified), for example:
-// ```
-// 30, 30, 30 ...
-// ```
-// A default-constructed pool has an initial chunk size of 1 (i.e., the number
-// of memory blocks of a given size allocated at once to replenish a pool's
-// memory), and the pool's chunk size grows geometrically until it reaches an
-// implementation-defined maximum, at which it is capped.  Finally, unless
-// otherwise specified, all memory comes from the allocator that was the
-// currently installed default allocator at the time the
-// `bdlma::ConcurrentPool` was created.
+// block size managed and dispensed by the pool, and optionally the allocator
+// used to supply memory to replenish the internal pool.  If not specified, the
+// currently installed default allocator (see `bslma_default`) is used.
 //
 ///Overloaded Global Operator `new`
 ///--------------------------------
@@ -185,13 +151,41 @@ BSLS_IDENT("$Id: $")
 //         // '0 <= index < length()'.
 // };
 // ```
+// // CREATORS
+// template <class T>
+// my_PooledArray<T>::my_PooledArray(bslma::Allocator *basicAllocator)
+// : d_array_p(basicAllocator)
+// , d_pool(sizeof(T), basicAllocator)
+// {
+// }
+// ```
+// Since all memory is managed by `d_pool`, we do not have to explicitly invoke
+// `deleteObject` to reclaim outstanding memory.  The destructor of the pool
+// will automatically deallocate all array elements:
+// ```
+// template <class T>
+// my_PooledArray<T>::~my_PooledArray()
+// {
+//     // Elements are automatically deallocated when 'd_pool' is destroyed.
+// }
+// ```
+// // MANIPULATORS
+// ```
+// Note that the overloaded "placement" `new` is used to allocate new nodes:
+// ```
+// template <class T>
+// void my_PooledArray<T>::append(const T& value)
+// {
+//     T *tmp = new (d_pool) T(value);
+//     d_array_p.push_back(tmp);
+// }
+// ```
 // In the `removeAll` method, all elements are deallocated by invoking the
 // pool's `release` method.  This technique implies significant performance
 // gain when the array contains many elements:
-// ```
-// // MANIPULATORS
 // template <class T>
 // inline
+// ```
 // void my_PooledArray<T>::removeAll()
 // {
 //     d_array_p.clear();
@@ -216,53 +210,23 @@ BSLS_IDENT("$Id: $")
 //     return *d_array_p[index];
 // }
 // ```
-// Note that the growth strategy and maximum chunk size of the pool is left as
-// the default value:
-// ```
-// // my_poolarray.cpp
-//
-// // CREATORS
-// template <class T>
-// my_PooledArray<T>::my_PooledArray(bslma::Allocator *basicAllocator)
-// : d_array_p(basicAllocator)
-// , d_pool(sizeof(T), basicAllocator)
-// {
-// }
-// ```
-// Since all memory is managed by `d_pool`, we do not have to explicitly invoke
-// `deleteObject` to reclaim outstanding memory.  The destructor of the pool
-// will automatically deallocate all array elements:
-// ```
-// template <class T>
-// my_PooledArray<T>::~my_PooledArray()
-// {
-//     // Elements are automatically deallocated when 'd_pool' is destroyed.
-// }
-// ```
-// Note that the overloaded "placement" `new` is used to allocate new nodes:
-// ```
-// template <class T>
-// void my_PooledArray<T>::append(const T& value)
-// {
-//     T *tmp = new (d_pool) T(value);
-//     d_array_p.push_back(tmp);
-// }
-// ```
 
 #include <bdlscm_version.h>
 
-#include <bslmt_mutex.h>
-
 #include <bdlma_infrequentdeleteblocklist.h>
-
 #include <bslma_allocator.h>
 #include <bslma_deleterhelper.h>
 
-#include <bsls_alignmentutil.h>
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
+#include <bslmt_platform.h>
+#include <bslmt_threadutil.h>
+
 #include <bsls_assert.h>
 #include <bsls_atomic.h>
 #include <bsls_atomicoperations.h>
 #include <bsls_blockgrowth.h>
+#include <bsls_compilerfeatures.h>
 #include <bsls_platform.h>
 #include <bsls_types.h>
 
@@ -277,66 +241,231 @@ namespace bdlma {
 
 /// This class implements a memory pool that allocates and manages memory
 /// blocks of some uniform size specified at construction.  This memory pool
-/// maintains an internal linked list of free memory blocks, and dispenses
-/// one block for each `allocate` method invocation.  When a memory block is
-/// deallocated, it is returned to the free list for potential reuse.
+/// maintains an internal pool of free memory blocks, and dispenses one block
+/// for each `allocate` method invocation.  When a memory block is deallocated,
+/// it is returned to the pool for potential reuse.
 ///
 /// This class guarantees thread safety while allocating or releasing
-/// memory.
+/// memory (assuming released memory is no longer accessible outside of this
+/// class).  Specifically, allocation and deallocating blocks from the pool is
+/// thread-safe.  The underlying allocator used to replenish the pool's memory
+/// is used under a lock, allowing for thread-safe use of a non-thread-safe
+/// allocator *assuming* the allocator is not used concurrently outside of the
+/// pool (including other instances of the pool).  The 'release' method has
+/// additional restrictions for thread-safe usage.
 class ConcurrentPool {
 
     // PRIVATE TYPES
+    typedef bdlma::InfrequentDeleteBlockList             BlockList;
+    typedef bsls::AtomicOperations::AtomicTypes::Uint64  AtomicUint64;
+    typedef bsls::AtomicOperations::AtomicTypes::Pointer AtomicPtr;
+    typedef bsls::AtomicOperations                       AtomicOp;
+    typedef bsls::Types::size_type                       size_type;
+    typedef bsls::Types::Uint64                          Uint64;
 
-    /// This `struct` implements a link data structure that stores the
-    /// address of the next link, and is used to implement the internal
-    /// linked list of free memory blocks.  Note that this type is
-    /// replicated in `bdlma_concurrentpool.cpp` to provide access to a
-    /// compatible type from static methods defined in `bdema_pool.cpp`.
-    struct Link {
+    /// This class provides a proctor to handle an exception during allocation
+    /// in the `allocate` method.
+    class AllocateProctor {
+        // DATA
+        ConcurrentPool *d_pool_p;      // pool being proctored
+        Uint64          d_index;       // index in the allocation cache
+        Uint64          d_tokenIndex;  // index to place 'd_token'
+        void           *d_token;       // value to be placed
 
-        union {
-            bsls::AtomicOperations::AtomicTypes::Int d_refCount;
-            bsls::AlignmentUtil::MaxAlignedType      d_dummy;
-        };
-        Link  *volatile d_next_p;   // pointer to next link
+      public:
+        // CREATORS
+
+        /// Create a proctor for the specified `pool` to, if `release` is not
+        /// invoked, assign appropriate values to allow continued operation
+        /// after an allocation exception.
+        AllocateProctor(ConcurrentPool *pool,
+                        Uint64          index,
+                        Uint64          tokenIndex,
+                        void           *token);
+
+        /// Destroy this proctor.  If `release` was not invoked, assign
+        /// appropriate values to allow continued operation after an allocation
+        /// exception.
+        ~AllocateProctor();
+
+        // MANIPULATORS
+
+        /// Release this proctor.
+        void release();
     };
 
+    /// This `struct` implements a link data structure that stores the
+    /// address of the next link, and is used to implement the linked lists
+    /// of returned memory blocks.
+    struct Link {
+        void *d_next_p;
+    };
+
+    /// This `union` provides an atomic pointer with sufficient padding to
+    /// occupy a cache line.
+    union PaddedAtomicPtr {
+        AtomicPtr d_ptr;
+        char      d_pad[bslmt::Platform::e_CACHE_LINE_SIZE];
+    };
+
+    /// This `union` provides an atomic integer with sufficient padding to
+    /// occupy a cache line.
+    union PaddedAtomicUint64 {
+        AtomicUint64 d_value;
+        char         d_pad[bslmt::Platform::e_CACHE_LINE_SIZE];
+    };
+
+    /// This class provides a proctor to replace a value in the allocation
+    /// cache.
+    class ReplaceValueProctor {
+        // DATA
+        ConcurrentPool *d_pool_p;  // pool being guarded
+        Uint64          d_index;   // index in the allocation cache
+        void           *d_value;   // value to load into the allocation cache
+
+      public:
+        // CREATORS
+
+        /// Create a proctor for the specified `pool` to, if `release` is not
+        /// invoked, loads a specified `value` into the allocation cache at
+        /// the specified `index` location.
+        ReplaceValueProctor(ConcurrentPool *pool,
+                            Uint64          index,
+                            void           *value);
+
+        /// Destroy this proctor.  If `release` was not invoked, load the
+        /// stored value into the allocation cache at the stored index
+        /// location.
+        ~ReplaceValueProctor();
+
+        // MANIPULATORS
+
+        /// Release this proctor.
+        void release();
+    };
+
+    // CONSTANTS
+    static const int k_MAX_ALLOC_CACHE_SIZE = 256;  // maximum value for
+                                                    // `d_allocCacheSize`
+
+    static const int k_NUM_FREE_LISTS       = 4;    // number of free lists;
+                                                    // must be a power of two
+
+    static const Uint64 k_FREE_INDEX_MASK   = k_NUM_FREE_LISTS - 1;
+
     // DATA
-    bsls::Types::size_type d_blockSize;  // size of each allocated memory block
-                                         // returned to client
+    size_type           d_blockSize;          // size of allocated memory
+                                              // returned to client
 
-    bsls::Types::size_type d_internalBlockSize;
-                                         // actual size of each block
-                                         // maintained on free list (contains
-                                         // overhead for 'Link')
+    size_type           d_internalBlockSize;  // adjusted block size to allow
+                                              // for alignment and a free list
 
-    int                    d_chunkSize;  // current chunk size (in
-                                         // blocks-per-chunk)
+    size_type           d_chunkSize;          // blocks per chunk; must be a
+                                              // power of two
 
-    int                    d_maxBlocksPerChunk;
-                                         // maximum chunk size (in
-                                         // blocks-per-chunk)
+    size_type           d_allocCacheSize;     // block addresses in cache; must
+                                              // be a power of two and at least
+                                              // 4 * d_chunkSize
 
-    bsls::BlockGrowth::Strategy d_growthStrategy;
-                                         // growth strategy of the chunk size
+    Uint64              d_allocIndexInChunkMask;
+                                              // bitmask to obtain index in
+                                              // chunk
 
-    bsls::AtomicPointer<Link> d_freeList;
-                                         // linked list of free memory blocks
+    Uint64              d_allocIndexMask;     // bitmask to obtain index in
+                                              // `d_allocCache`
 
-    bdlma::InfrequentDeleteBlockList d_blockList;
-                                         // memory manager for allocated memory
+    BlockList           d_blockList;          // memory manager; access
+                                              // protected by owning the
+                                              // "token"
 
-    bslmt::Mutex      d_mutex;           // protects access to the block list
+    char                d_pad0[bslmt::Platform::e_CACHE_LINE_SIZE];
+                                              // padding to prevent subsequent
+                                              // data from being in the same
+                                              // cache line as the prior data
+
+    PaddedAtomicPtr     d_reuseCache;         // one element cache of a
+                                              // reusable address
+
+    AtomicPtr           d_allocCache[k_MAX_ALLOC_CACHE_SIZE];
+                                              // memory addresses available for
+                                              // allocation
+
+    char                d_pad1[bslmt::Platform::e_CACHE_LINE_SIZE];
+                                              // padding to prevent subsequent
+                                              // data from being in the same
+                                              // cache line as the prior data
+
+    PaddedAtomicUint64  d_nextAllocIndex;     // next index for taking a value
+                                              // from `d_allocCache`
+
+    Uint64              d_reuseIndex;         // index into `d_freeLists` for
+                                              // taking returned memory from
+                                              // the available lists; access
+                                              // protected by owning the
+                                              // "token"
+
+    void               *d_reuseList;          // residual values from a
+                                              // `d_freeLists`; access
+                                              // protected by owning the
+                                              // "token"
+
+    char                d_pad2[bslmt::Platform::e_CACHE_LINE_SIZE];
+                                              // padding to prevent subsequent
+                                              // data from being in the same
+                                              // cache line as the prior data
+
+    PaddedAtomicPtr     d_freeLists[k_NUM_FREE_LISTS];
+                                              // linked lists of returned
+                                              // memory
+
+    PaddedAtomicUint64  d_numAvailable;       // number of available blocks in
+                                              // the `d_freeLists` and
+                                              // `d_reuseList`; lower bits used
+                                              // as index into `d_freeLists`
+                                              // for where to return memory
+
+    bslmt::Mutex        d_mutex;              // protects `d_allocCache`
+                                              // during `release` and
+                                              // `reserveCapacity`
 
     // PRIVATE MANIPULATORS
 
-    /// Dynamically allocate a new chunk using the pool's underlying growth
-    /// strategy, and use the chunk to replenish the free memory list of
-    /// this pool.  The behavior is undefined unless the calling thread has
-    /// a lock on `d_mutex`.
-    void replenish();
+    /// Return the address of a contiguous block of memory having the fixed
+    /// block size specified at construction.  The behavior is undefined unless
+    /// the invocation of this method is not concurrent with an invocation of
+    /// `release()`.
+    void *allocateWithoutReuseCache();
 
-  private:
+    /// Initialize this pool.  The behavior is undefined unless
+    /// `initializeParameters()` has previously been invoked.
+    void initialize();
+
+    /// Initialize the parameters of this pool.  The behavior is undefined
+    /// unless `d_blockSize` has already been initialized.
+    void initializeParameters();
+
+    /// Obtain exclusive usage of the allocator and return in the specified
+    /// `index` and `address` the information necessary to unlock the
+    /// allocator.
+    void lockAllocator(Uint64 *index, void **address);
+
+    /// Populate the allocation cache chunk, starting with the specified
+    /// `index` location, values from the specified `memory` having blocks of
+    /// specified `size`, then load into the specified `tokenIndex` location
+    /// with the specified `token`.  Specifically, for
+    /// `i = 1 .. d_chunkSize-1`, load `memory + i * size` into allocation
+    /// cache location `index + i`.
+    void populateAllocCache(Uint64                  index,
+                            Uint64                  tokenIndex,
+                            void                   *token,
+                            void                   *memory,
+                            bsls::Types::size_type  size);
+
+    /// Release exclusive usage of the allocator and using the information
+    /// specified in `index` and `address`.
+    void unlockAllocator(Uint64 index, void *address);
+
+
     // NOT IMPLEMENTED
     ConcurrentPool(const ConcurrentPool&);
     ConcurrentPool& operator=(const ConcurrentPool&);
@@ -346,28 +475,11 @@ class ConcurrentPool {
 
     /// Create a memory pool that returns blocks of contiguous memory of the
     /// specified `blockSize` (in bytes) for each `allocate` method
-    /// invocation.  Optionally specify a `growthStrategy` used to control
-    /// the growth of internal memory chunks (from which memory blocks are
-    /// dispensed).  If `growthStrategy` is not specified, geometric growth
-    /// is used.  Optionally specify `maxBlocksPerChunk` as the maximum
-    /// chunk size.  If geometric growth is used, the chunk size grows
-    /// starting at `blockSize`, doubling in size until the size is exactly
-    /// `blockSize * maxBlocksPerChunk`.  If constant growth is used, the
-    /// chunk size is always `maxBlocksPerChunk`.  If `maxBlocksPerChunk` is
-    /// not specified, an implementation-defined value is used.  Optionally
-    /// specify a `basicAllocator` used to supply memory.  If
-    /// `basicAllocator` is 0, the currently installed default allocator is
-    /// used.  The behavior is undefined unless `1 <= blockSize` and
-    /// `1 <= maxBlocksPerChunk`.
+    /// invocation.  Optionally specify a `basicAllocator` used to supply
+    /// memory.  If `basicAllocator` is 0, the currently installed default
+    /// allocator is used.  The behavior is undefined unless `1 <= blockSize`.
     explicit ConcurrentPool(bsls::Types::size_type  blockSize,
                             bslma::Allocator       *basicAllocator = 0);
-    ConcurrentPool(bsls::Types::size_type       blockSize,
-                   bsls::BlockGrowth::Strategy  growthStrategy,
-                   bslma::Allocator            *basicAllocator = 0);
-    ConcurrentPool(bsls::Types::size_type       blockSize,
-                   bsls::BlockGrowth::Strategy  growthStrategy,
-                   int                          maxBlocksPerChunk,
-                   bslma::Allocator            *basicAllocator = 0);
 
     /// Destroy this pool, releasing all associated memory back to the
     /// underlying allocator.
@@ -376,7 +488,9 @@ class ConcurrentPool {
     // MANIPULATORS
 
     /// Return the address of a contiguous block of memory having the fixed
-    /// block size specified at construction.
+    /// block size specified at construction.  The behavior is undefined unless
+    /// the invocation of this method is not concurrent with an invocation of
+    /// `release()`.
     void *allocate();
 
     /// Relinquish the memory block at the specified `address` back to this
@@ -404,7 +518,11 @@ class ConcurrentPool {
     template <class TYPE>
     void deleteObjectRaw(const TYPE *object);
 
-    /// Relinquish all memory currently allocated via this pool object.
+    /// Relinquish all memory currently allocated via this pool object and
+    /// return to the underlying allocator memory that was allocated after
+    /// construction of this pool object.  The behavior is undefined unless
+    /// invocations of this method are not concurrent with uses of `allocate`,
+    /// `deallocate`, and `deleteObject*`.
     void release();
 
     /// Reserve memory from this pool to satisfy memory requests for at
@@ -425,6 +543,28 @@ class ConcurrentPool {
     /// that this allocator can not be used to deallocate memory
     /// allocated through this pool.
     bslma::Allocator *allocator() const;
+
+    // DEPRECATED METHODS
+
+#ifndef BDE_OMIT_INTERNAL_DEPRECATED  // BDE4.40
+    /// Create a memory pool that returns blocks of contiguous memory of the
+    /// specified `blockSize` (in bytes) for each `allocate` method
+    /// invocation.  Optionally specify a `growthStrategy`, which is ignored.
+    /// Optionally specify `maxBlocksPerChunk`, which is ignored.  Optionally
+    /// specify a `basicAllocator` used to supply memory.  If `basicAllocator`
+    /// is 0, the currently installed default allocator is used.  The behavior
+    /// is undefined unless `1 <= blockSize`.
+    ///
+    /// @DEPRECATED: Use `ConcurrentPool(size_type, allocator)` instead.
+    ConcurrentPool(bsls::Types::size_type       blockSize,
+                   bsls::BlockGrowth::Strategy  growthStrategy,
+                   bslma::Allocator            *basicAllocator = 0);
+    ConcurrentPool(bsls::Types::size_type       blockSize,
+                   bsls::BlockGrowth::Strategy  growthStrategy,
+                   int                          maxBlocksPerChunk,
+                   bslma::Allocator            *basicAllocator = 0);
+#endif  // BDE_OMIT_INTERNAL_DEPRECATED -- BDE4.40
+
 };
 
 }  // close package namespace
@@ -463,31 +603,30 @@ class ConcurrentPool {
 /// from the specified `pool`.  The behavior is undefined unless `size` is
 /// the same or smaller than the `blockSize` with which `pool` was
 /// constructed.  Note that an object may allocate additional memory
+/// internally, requiring the allocator to be passed in as a constructor
+/// argument:
+///..
+///  my_Type *newMyType(bdlma::ConcurrentPool *pool,
+///                     bslma::Allocator      *basicAllocator)
+///  {
+///      return new (*pool) my_Type(..., basicAllocator);
+///  }
+///..
+/// Also note that the analogous version of 'operator delete' should not be
+/// called directly.  Instead, this component provides a static template
+/// member function, 'deleteObject', parameterized by 'TYPE':
+///..
+///  void deleteMyType(my_Type *t, bdlma::ConcurrentPool *pool)
+///  {
+///      pool->deleteObject(t);
+///  }
+///..
+/// 'deleteObject' performs the following:
+///..
+///  t->~my_Type();
+///  pool->deallocate(t);
+///..
 void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentPool& pool);
-
-    // internally, requiring the allocator to be passed in as a constructor
-    // argument:
-    //..
-    //  my_Type *newMyType(bdlma::ConcurrentPool *pool,
-    //                     bslma::Allocator      *basicAllocator)
-    //  {
-    //      return new (*pool) my_Type(..., basicAllocator);
-    //  }
-    //..
-    // Also note that the analogous version of 'operator delete' should not be
-    // called directly.  Instead, this component provides a static template
-    // member function, 'deleteObject', parameterized by 'TYPE':
-    //..
-    //  void deleteMyType(my_Type *t, bdlma::ConcurrentPool *pool)
-    //  {
-    //      pool->deleteObject(t);
-    //  }
-    //..
-    // 'deleteObject' performs the following:
-    //..
-    //  t->~my_Type();
-    //  pool->deallocate(t);
-    //..
 
 /// Use the specified `pool` to deallocate the memory at the specified
 /// `address`.  The behavior is undefined unless `address` was allocated
@@ -505,11 +644,119 @@ void operator delete(void *address, BloombergLP::bdlma::ConcurrentPool& pool);
 namespace BloombergLP {
 namespace bdlma {
 
+                  // -------------------------------------
+                  // class ConcurrentPool::AllocateProctor
+                  // -------------------------------------
+
+// CREATORS
+inline
+ConcurrentPool::AllocateProctor::AllocateProctor(ConcurrentPool *pool,
+                                                 Uint64          index,
+                                                 Uint64          tokenIndex,
+                                                 void           *token)
+: d_pool_p(pool)
+, d_index(index)
+, d_tokenIndex(tokenIndex)
+, d_token(token)
+{
+}
+
+inline
+ConcurrentPool::AllocateProctor::~AllocateProctor()
+{
+    if (d_pool_p) {
+        // use the pool's address to indicate an exception occurred
+        d_pool_p->populateAllocCache(d_index,
+                                     d_tokenIndex,
+                                     d_token,
+                                     static_cast<void *>(d_pool_p),
+                                     0);
+    }
+}
+
+// MANIPULATORS
+inline
+void ConcurrentPool::AllocateProctor::release()
+{
+    d_pool_p = 0;
+}
+
+                // ------------------------------------------
+                // class ConcurrentPool::ReplaceValueProctor
+                // ------------------------------------------
+
+// CREATORS
+inline
+ConcurrentPool::ReplaceValueProctor::ReplaceValueProctor(ConcurrentPool *pool,
+                                                         Uint64          index,
+                                                         void           *value)
+: d_pool_p(pool)
+, d_index(index)
+, d_value(value)
+{
+}
+
+inline
+ConcurrentPool::ReplaceValueProctor::~ReplaceValueProctor()
+{
+    if (d_pool_p) {
+        bsls::AtomicOperations::setPtrRelease(&d_pool_p->d_allocCache[d_index],
+                                              d_value);
+    }
+}
+
+// MANIPULATORS
+inline
+void ConcurrentPool::ReplaceValueProctor::release()
+{
+    d_pool_p = 0;
+}
+
                            // --------------------
                            // class ConcurrentPool
                            // --------------------
 
+// PRIVATE MANIPULATORS
+inline
+void ConcurrentPool::unlockAllocator(Uint64 index, void *address)
+{
+    AtomicOp::swapPtrAcqRel(&d_allocCache[index], address);
+}
+
 // MANIPULATORS
+inline
+void *ConcurrentPool::allocate()
+{
+    // attempt reuse from reuse cache
+    void *address = AtomicOp::swapPtrAcqRel(&d_reuseCache.d_ptr, 0);
+
+    return (0 != address ? address : allocateWithoutReuseCache());
+}
+
+inline
+void ConcurrentPool::deallocate(void *address)
+{
+    // attempt to place in reuse cache
+    if (0 == AtomicOp::testAndSwapPtrAcqRel(&d_reuseCache.d_ptr, 0, address)) {
+        return;                                                       // RETURN
+    }
+
+    // place into a free list
+    Uint64 index = (  (AtomicOp::addUint64NvAcqRel(&d_numAvailable.d_value,
+                                                   1) - 1)
+                    & k_FREE_INDEX_MASK);
+
+    AtomicPtr *list = &d_freeLists[index].d_ptr;
+
+    void *oldList = AtomicOp::getPtrAcquire(list);
+    void *prevOldList;
+    do {
+        prevOldList = oldList;
+        static_cast<Link *>(address)->d_next_p = oldList;
+        oldList = AtomicOp::testAndSwapPtrAcqRel(list, oldList, address);
+    } while (oldList != prevOldList);
+}
+
 template<class TYPE>
 inline
 void ConcurrentPool::deleteObject(const TYPE *object)
@@ -527,10 +774,13 @@ void ConcurrentPool::deleteObjectRaw(const TYPE *object)
 inline
 void ConcurrentPool::release()
 {
-    d_mutex.lock();
-    d_freeList = (Link*)0;
+    // synchronize with `reserveCapacity` and other `release`
+    bslmt::LockGuard<bslmt::Mutex> lockGuard(&d_mutex);
+
+    // release memory
     d_blockList.release();
-    d_mutex.unlock();
+
+    initialize();
 }
 
 // ACCESSORS
@@ -555,16 +805,7 @@ bslma::Allocator *ConcurrentPool::allocator() const
 inline
 void *operator new(bsl::size_t size, BloombergLP::bdlma::ConcurrentPool& pool)
 {
-#if defined(BSLS_ASSERT_SAFE_IS_USED)
-    // gcc-4.8.1 introduced a new warning for unused typedefs, so this typedef
-    // should only be present in SAFE mode builds (where it is used).
-
-    typedef BloombergLP::bsls::AlignmentUtil Util;
-
-    BSLS_ASSERT_SAFE(size <= pool.blockSize()
-                  && Util::calculateAlignmentFromSize(size)
-                       <= Util::calculateAlignmentFromSize(pool.blockSize()));
-#endif
+    BSLS_ASSERT_SAFE(size <= pool.blockSize());
 
     static_cast<void>(size);  // suppress "unused parameter" warnings
     return pool.allocate();
@@ -579,7 +820,7 @@ void operator delete(void *address, BloombergLP::bdlma::ConcurrentPool& pool)
 #endif
 
 // ----------------------------------------------------------------------------
-// Copyright 2016 Bloomberg Finance L.P.
+// Copyright 2026 Bloomberg Finance L.P.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
