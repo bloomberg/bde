@@ -113,7 +113,12 @@ struct AtomicOperations_X86_WIN_MSVC
 
     static Types::Int64 getInt64(const AtomicTypes::Int64 *atomicInt);
 
+    static Types::Int64 getInt64Relaxed(const AtomicTypes::Int64 *atomicInt);
+
     static void setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value);
+
+    static void setInt64Relaxed(AtomicTypes::Int64 *atomicInt,
+                                Types::Int64 value);
 
     static Types::Int64 swapInt64(AtomicTypes::Int64 *atomicInt,
                                   Types::Int64 swapValue);
@@ -213,6 +218,13 @@ Types::Int64 AtomicOperations_X86_WIN_MSVC::
 }
 
 inline
+Types::Int64 AtomicOperations_X86_WIN_MSVC::
+    getInt64Relaxed(const AtomicTypes::Int64 *atomicInt)
+{
+    return __iso_volatile_load64(&atomicInt->d_value);
+}
+
+inline
 void AtomicOperations_X86_WIN_MSVC::
     setInt64(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
 {
@@ -220,11 +232,18 @@ void AtomicOperations_X86_WIN_MSVC::
 }
 
 inline
+void AtomicOperations_X86_WIN_MSVC::
+    setInt64Relaxed(AtomicTypes::Int64 *atomicInt, Types::Int64 value)
+{
+    __iso_volatile_store64(&atomicInt->d_value, value);
+}
+
+inline
 Types::Int64 AtomicOperations_X86_WIN_MSVC::
     swapInt64(AtomicTypes::Int64 *atomicInt,
               Types::Int64 swapValue)
 {
-    Types::Int64 actual = atomicInt->d_value;
+    Types::Int64 actual = getInt64Relaxed(atomicInt);
     Types::Int64 expected;
 
     do
@@ -253,7 +272,7 @@ Types::Int64 AtomicOperations_X86_WIN_MSVC::
     addInt64Nv(AtomicTypes::Int64 *atomicInt,
                Types::Int64 value)
 {
-    Types::Int64 actual = atomicInt->d_value;
+    Types::Int64 actual = getInt64Relaxed(atomicInt);
     Types::Int64 expected;
 
     do
