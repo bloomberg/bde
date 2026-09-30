@@ -43,6 +43,7 @@
 #include <bsl_string_view.h>
 
 #include <bsls_assert.h>
+#include <bsls_nameof.h>
 #include <bsls_types.h>
 
 #include <s_baltst_customizedbase64binary.h>
@@ -56,6 +57,7 @@ using bsl::cout;
 using bsl::cerr;
 using bsl::endl;
 using bsl::flush;
+using bsls::NameOf;
 namespace test = BloombergLP::s_baltst;
 
 // ============================================================================
@@ -131,11 +133,12 @@ class AssertParsedTextIsEqual {
                     const TYPE&             expectedValue,
                     int                     formattingMode) const
     {
-        TYPE value;
-        int  rc = balxml::TypesParserUtil::parse(&value,
-                                                 xml.data(),
-                                                 static_cast<int>(xml.length()),
-                                                 formattingMode);
+        TYPE      value;
+        const int length = static_cast<int>(xml.length());
+        const int rc     = balxml::TypesParserUtil::parse(&value,
+                                                          xml.data(),
+                                                          length,
+                                                          formattingMode);
         LOOP1_ASSERT(line, 0 == rc);
         LOOP1_ASSERT(line, expectedValue == value);
     }
@@ -6632,20 +6635,44 @@ int main(int argc, char *argv[])
         {
             typedef char Type;
 
+            // The integral tables from here through `unsigned int` mix valid
+            // text with text that must be rejected: values outside the range
+            // of the target type, a leading `-` on an unsigned type, and
+            // leading whitespace.  The latter two are not in the lexical space
+            // of the XML Schema integral types; a leading `+` is, and must
+            // parse.  Note that `bsl::from_chars` does *not* accept a leading
+            // `+`, so a `<charconv>` reimplementation would have to strip the
+            // sign first, the way `bdlb::NumericParseUtil::parseUint` does.
+            //
+            // `NA` marks the `result` column of a row that must be rejected,
+            // where no value is expected to be produced.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input         result
-                //----    -----       -----------
-                { L_,     "-128X",     (Type)-128      },
-                { L_,     "-127X",     (Type)-127      },
-                { L_,     "-1X",       (Type)-1        },
-                { L_,     "0X",              0         },
-                { L_,     "1X",              1         },
-                { L_,     "126X",            126       },
-                { L_,     "127X",            127       },
+                //line    input        valid    result
+                //----    -----        -----    -----------
+                { L_,     "-128X",     true,    (Type)-128      },
+                { L_,     "-127X",     true,    (Type)-127      },
+                { L_,     "-1X",       true,    (Type)-1        },
+                { L_,     "0X",        true,          0         },
+                { L_,     "+0X",       true,          0         },
+                { L_,     "1X",        true,          1         },
+                { L_,     "126X",      true,          126       },
+                { L_,     "127X",      true,          127       },
+                { L_,     "+127X",     true,          127       },
+
+                // out of range, leading whitespace
+
+                { L_,     "128X",      false,         NA        },
+                { L_,     "+128X",     false,         NA        },
+                { L_,     "-129X",     false,         NA        },
+                { L_,     "  12X",     false,         NA        },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6654,14 +6681,19 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        (0 == retCode) == IS_VALID);
+                if (IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                            EXPECTED_RESULT == X);
+                }
             }
         }
 
@@ -6669,20 +6701,33 @@ int main(int argc, char *argv[])
         {
             typedef short Type;
 
+            // `NA`: see the note on the `char` table above.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "-32768X",   -32768          },
-                { L_,     "-32767X",   -32767          },
-                { L_,     "-1X",       -1              },
-                { L_,     "0X",        0               },
-                { L_,     "1X",        1               },
-                { L_,     "32766X",    32766           },
-                { L_,     "32767X",    32767           },
+                //line    input        valid    result
+                //----    -----        -----    ------
+                { L_,     "-32768X",   true,    -32768          },
+                { L_,     "-32767X",   true,    -32767          },
+                { L_,     "-1X",       true,    -1              },
+                { L_,     "0X",        true,    0               },
+                { L_,     "1X",        true,    1               },
+                { L_,     "32766X",    true,    32766           },
+                { L_,     "32767X",    true,    32767           },
+                { L_,     "+32767X",   true,    32767           },
+
+                // out of range, leading whitespace
+
+                { L_,     "32768X",    false,   NA              },
+                { L_,     "+32768X",   false,   NA              },
+                { L_,     "-32769X",   false,   NA              },
+                { L_,     "  12X",     false,   NA              },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6691,14 +6736,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 
@@ -6706,20 +6760,42 @@ int main(int argc, char *argv[])
         {
             typedef int Type;
 
+            // `NA`: see the note on the `char` table above.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input            result
-                //----    -----            ------
-                { L_,     "-2147483648X",   -2147483647-1     },
-                { L_,     "-2147483647X",   -2147483647       },
-                { L_,     "-1X",            -1                },
-                { L_,     "0X",             0                 },
-                { L_,     "1X",             1                 },
-                { L_,     "2147483646X",    2147483646        },
-                { L_,     "2147483647X",    2147483647        },
+                //line    input                  valid    result
+                //----    -----                  -----    ------
+                { L_,     "-2147483648X",         true,    -2147483647-1  },
+                { L_,     "-2147483647X",         true,    -2147483647    },
+                { L_,     "-1X",                  true,    -1             },
+                { L_,     "0X",                   true,    0              },
+                { L_,     "1X",                   true,    1              },
+                { L_,     "2147483646X",          true,    2147483646     },
+                { L_,     "2147483647X",          true,    2147483647     },
+                { L_,     "+2147483647X",         true,    2147483647     },
+
+                // out of range, leading whitespace
+
+                { L_,     "2147483648X",          false,   NA             },
+                { L_,     "+2147483648X",         false,   NA             },
+                { L_,     "-2147483649X",         false,   NA             },
+                { L_,     "9223372036854775807X", false,   NA             },
+                { L_,     "  12X",                false,   NA             },
+
+                // a sign on its own, or a doubled/conflicting sign
+
+                { L_,     "+X",                   false,   NA             },
+                { L_,     "-X",                   false,   NA             },
+                { L_,     "++1X",                 false,   NA             },
+                { L_,     "+-1X",                 false,   NA             },
+                { L_,     "-+1X",                 false,   NA             },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6728,14 +6804,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 
@@ -6743,21 +6828,47 @@ int main(int argc, char *argv[])
         {
             typedef bsls::Types::Int64 Type;
 
+            // `NA`: see the note on the `char` table above.  Note that a value
+            // may be out of range for `Int64` while remaining a perfectly
+            // legal `Uint64`, so the unsigned range is rejected here.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     "-9223372036854775808X",
+                //line    input                      valid   result
+                //----    -----                      -----   ------
+                { L_,     "-9223372036854775808X",   true,
                                 static_cast<Type>(-9223372036854775808ULL)  },
-                { L_,     "-9223372036854775807X",  -9223372036854775807LL   },
-                { L_,     "-1X",                    -1LL                     },
-                { L_,     "0X",                     0LL                      },
-                { L_,     "1X",                     1LL                      },
-                { L_,     "9223372036854775806X",   9223372036854775806LL    },
-                { L_,     "9223372036854775807X",   9223372036854775807LL    },
+                { L_,     "-9223372036854775807X",   true,
+                                                    -9223372036854775807LL  },
+                { L_,     "-1X",                     true,   -1LL           },
+                { L_,     "-0X",                     true,   0LL            },
+                { L_,     "0X",                      true,   0LL            },
+                { L_,     "1X",                      true,   1LL            },
+                { L_,     "+1X",                     true,   1LL            },
+                { L_,     "9223372036854775806X",    true,
+                                                     9223372036854775806LL  },
+                { L_,     "9223372036854775807X",    true,
+                                                     9223372036854775807LL  },
+
+                // out of range, including the legal-as-`Uint64` range
+
+                { L_,     "9223372036854775808X",    false,  NA             },
+                { L_,     "+9223372036854775808X",   false,  NA             },
+                { L_,     "-9223372036854775809X",   false,  NA             },
+                { L_,     "18446744073709551615X",   false,  NA             },
+                { L_,     "18446744073709551616X",   false,  NA             },
+
+                // malformed
+
+                { L_,     "-X",                      false,  NA             },
+                { L_,     " 1X",                     false,  NA             },
+                { L_,     "1abcX",                   false,  NA             },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6766,14 +6877,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 
@@ -6781,17 +6901,31 @@ int main(int argc, char *argv[])
         {
             typedef unsigned char Type;
 
+            // `NA`: see the note on the `char` table above.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "0X",        0               },
-                { L_,     "1X",        1               },
-                { L_,     "254X",      254             },
-                { L_,     "255X",      255             },
+                //line    input        valid    result
+                //----    -----        -----    ------
+                { L_,     "0X",        true,    0               },
+                { L_,     "+0X",       true,    0               },
+                { L_,     "1X",        true,    1               },
+                { L_,     "254X",      true,    254             },
+                { L_,     "255X",      true,    255             },
+                { L_,     "+255X",     true,    255             },
+
+                // out of range, negated, leading whitespace
+
+                { L_,     "256X",      false,   NA              },
+                { L_,     "+256X",     false,   NA              },
+                { L_,     "-1X",       false,   NA              },
+                { L_,     "  12X",     false,   NA              },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6800,14 +6934,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 
@@ -6815,17 +6958,30 @@ int main(int argc, char *argv[])
         {
             typedef unsigned short Type;
 
+            // `NA`: see the note on the `char` table above.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input       result
-                //----    -----       ------
-                { L_,     "0X",        0               },
-                { L_,     "1X",        1               },
-                { L_,     "65534X",    65534           },
-                { L_,     "65535X",    65535           },
+                //line    input        valid    result
+                //----    -----        -----    ------
+                { L_,     "0X",        true,    0               },
+                { L_,     "1X",        true,    1               },
+                { L_,     "65534X",    true,    65534           },
+                { L_,     "65535X",    true,    65535           },
+                { L_,     "+65535X",   true,    65535           },
+
+                // out of range, negated, leading whitespace
+
+                { L_,     "65536X",    false,   NA              },
+                { L_,     "+65536X",   false,   NA              },
+                { L_,     "-1X",       false,   NA              },
+                { L_,     "  12X",     false,   NA              },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6834,14 +6990,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 
@@ -6849,17 +7014,38 @@ int main(int argc, char *argv[])
         {
             typedef unsigned int Type;
 
+            // `NA`: see the note on the `char` table above.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input            result
-                //----    -----            ------
-                { L_,     "0X",             0               },
-                { L_,     "1X",             1               },
-                { L_,     "4294967294X",    4294967294U     },
-                { L_,     "4294967295X",    4294967295U     },
+                //line    input                   valid    result
+                //----    -----                   -----    ------
+                { L_,     "0X",                    true,    0            },
+                { L_,     "1X",                    true,    1            },
+                { L_,     "4294967294X",           true,    4294967294U  },
+                { L_,     "4294967295X",           true,    4294967295U  },
+                { L_,     "+4294967295X",          true,    4294967295U  },
+
+                // out of range, negated, leading whitespace
+
+                { L_,     "4294967296X",           false,   NA           },
+                { L_,     "+4294967296X",          false,   NA           },
+                { L_,     "9999999999X",           false,   NA           },
+                { L_,     "18446744073709551615X", false,   NA           },
+                { L_,     "-1X",                   false,   NA           },
+                { L_,     "-4294967295X",          false,   NA           },
+                { L_,     "  12X",                 false,   NA           },
+
+                // a sign on its own, or a doubled sign
+
+                { L_,     "+X",                    false,   NA           },
+                { L_,     "++1X",                  false,   NA           },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6868,14 +7054,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 
@@ -6883,17 +7078,39 @@ int main(int argc, char *argv[])
         {
             typedef bsls::Types::Uint64 Type;
 
+            // `NA`: see the note on the `char` table above.
+
+            const Type NA = 0;
+
             static const struct {
                 int         d_lineNum;
                 const char *d_input;
+                bool        d_isValid;
                 Type        d_result;
             } DATA[] = {
-                //line    input                     result
-                //----    -----                     ------
-                { L_,     "0X",                     0ULL                     },
-                { L_,     "1X",                     1ULL                     },
-                { L_,     "18446744073709551614X",  18446744073709551614ULL  },
-                { L_,     "18446744073709551615X",  18446744073709551615ULL  },
+                //line    input                      valid   result
+                //----    -----                      -----   ------
+                { L_,     "0X",                      true,   0ULL           },
+                { L_,     "1X",                      true,   1ULL           },
+                { L_,     "+1X",                     true,   1ULL           },
+                { L_,     "18446744073709551614X",   true,
+                                                 18446744073709551614ULL    },
+                { L_,     "18446744073709551615X",   true,
+                                                 18446744073709551615ULL    },
+
+                // out of range, negated
+
+                { L_,     "18446744073709551616X",   false,  NA             },
+                { L_,     "+18446744073709551616X",  false,  NA             },
+                { L_,     "18446744073709551620X",   false,  NA             },
+                { L_,     "99999999999999999999X",   false,  NA             },
+                { L_,     "184467440737095516150X",  false,  NA             },
+                { L_,     "-1X",                     false,  NA             },
+
+                // malformed
+
+                { L_,     " 1X",                     false,  NA             },
+                { L_,     "1abcX",                   false,  NA             },
             };
             const int NUM_DATA = sizeof DATA / sizeof *DATA;
 
@@ -6902,14 +7119,23 @@ int main(int argc, char *argv[])
                 const char *INPUT           = DATA[i].d_input;
                 const int   INPUT_LENGTH    =
                                       static_cast<int>(bsl::strlen(INPUT)) - 1;
+                const bool  IS_VALID        = DATA[i].d_isValid;
                 const Type  EXPECTED_RESULT = DATA[i].d_result;
 
                 Type mX(!EXPECTED_RESULT);  const Type& X = mX;
 
                 int retCode = Util::parseDecimal(&mX, INPUT, INPUT_LENGTH);
 
-                LOOP2_ASSERT(LINE, retCode, 0               == retCode);
-                LOOP2_ASSERT(LINE, X,       EXPECTED_RESULT == X);
+                if (!IS_VALID) {
+                    ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                            0 != retCode);
+                    continue;                                       // CONTINUE
+                }
+
+                ASSERTV(NameOf<Type>(), LINE, INPUT, retCode,
+                        0 == retCode);
+                ASSERTV(NameOf<Type>(), LINE, INPUT, EXPECTED_RESULT, X,
+                        EXPECTED_RESULT == X);
             }
         }
 

@@ -9,6 +9,8 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 #include <balxml_base64parser.h>
 #include <balxml_hexparser.h>
 
+#include <bdlb_numericparseutil.h>
+
 #include <bdlsb_fixedmeminstreambuf.h>
 
 #include <bdldfp_decimalutil.h>
@@ -20,6 +22,7 @@ BSLS_IDENT_RCSID(balxml_typesparserutil_cpp,"$Id$ $CSID$")
 #include <bsl_cstring.h>
 #include <bsl_iterator.h>
 #include <bsl_limits.h>
+#include <bsl_string_view.h>
 #include <bsl_cerrno.h>
 #include <bsl_cfloat.h>
 #include <bsl_cmath.h>
@@ -184,82 +187,57 @@ int parseDouble(double     *result,
     }
 }
 
-/// Parse an unsigned long decimal string
+/// Parse a signed decimal string.
 int parseInt(int *result, const char *input, int inputLength)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
-    enum { BUFLEN = 80 };
 
-    int consumed = 0;
-
-    if (0 == inputLength) {
+    if (0 >= inputLength) {
         return BAEXML_FAILURE;                                        // RETURN
     }
-    else if (inputLength < BUFLEN) {
-        // Use a fixed-length buffer for efficiency.
-        char  buffer[BUFLEN];
-        bsl::memcpy(buffer, input, inputLength);
-        buffer[inputLength] = '\0';
 
-        errno = 0;
-        char *end = 0;
-        *result = (int) bsl::strtol(buffer, &end, 10);
-        consumed = static_cast<int>(end - buffer);
-    }
-    else {
-        // Use a string for dynamic allocation.
-        bsl::string tmp(input, inputLength);
-        const char *begin = tmp.c_str();
+    // 'NumericParseUtil' reports overflow through 'remainder', so the
+    // 'remainder.empty()' check below is also the range check.
 
-        errno = 0;
-        char *end = 0;
-        *result = (int) bsl::strtol(begin, &end, 10);
-        consumed = static_cast<int>(end - begin);
-    }
+    int              parsedValue;
+    bsl::string_view remainder;
 
-    if (errno != 0 || consumed != inputLength) {
+    if (0 != bdlb::NumericParseUtil::parseInt(
+                                      &parsedValue,
+                                      &remainder,
+                                      bsl::string_view(input, inputLength)) ||
+        !remainder.empty()) {
         return BAEXML_FAILURE;                                        // RETURN
     }
+
+    *result = parsedValue;
 
     return BAEXML_SUCCESS;
 }
 
-/// Parse an unsigned long decimal string
+/// Parse an unsigned decimal string.
 int parseUnsignedInt(unsigned int *result, const char *input, int inputLength)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
-    enum { BUFLEN = 80 };
 
-    int consumed = 0;
-
-    if (0 == inputLength) {
+    if (0 >= inputLength) {
         return BAEXML_FAILURE;                                        // RETURN
     }
-    else if (inputLength < BUFLEN) {
-        // Use a fixed-length buffer for efficiency.
-        char  buffer[BUFLEN];
-        bsl::memcpy(buffer, input, inputLength);
-        buffer[inputLength] = '\0';
 
-        errno = 0;
-        char *end = 0;
-        *result = (int) bsl::strtoul(buffer, &end, 10);
-        consumed = static_cast<int>(end - buffer);
-    }
-    else {
-        // Use a string for dynamic allocation.
-        bsl::string tmp(input, inputLength);
-        const char *begin = tmp.c_str();
+    // See 'parseInt' above regarding 'remainder'.
 
-        errno = 0;
-        char *end = 0;
-        *result = (unsigned int) bsl::strtoul(begin, &end, 10);
-        consumed = static_cast<int>(end - begin);
-    }
+    unsigned int     parsedValue;
+    bsl::string_view remainder;
 
-    if (errno != 0 || consumed != inputLength) {
+    if (0 != bdlb::NumericParseUtil::parseUint(
+                                      &parsedValue,
+                                      &remainder,
+                                      bsl::string_view(input, inputLength)) ||
+        !remainder.empty()) {
         return BAEXML_FAILURE;                                        // RETURN
     }
+
+    *result = parsedValue;
 
     return BAEXML_SUCCESS;
 }
@@ -417,31 +395,28 @@ int
 TypesParserUtil_Imp::parseDecimal(bsls::Types::Int64         *result,
                                   const char                 *input,
                                   int                         inputLength,
-                                  bdlat_TypeCategory::Simple  sc)
+                                  bdlat_TypeCategory::Simple)
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
-    int sign = 0;
-    if (inputLength > 0 && '-' == input[0]) {
-        sign = -1;
-        ++input;
-        --inputLength;
+    if (0 >= inputLength) {
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
-    // Parse remaining portion as unsigned
-    bsls::Types::Uint64 temp = 0;
-    int rc = parseDecimal(&temp, input, inputLength, sc);
-    if (rc != 0) {
-        return rc;                                                    // RETURN
+    // See 'u::parseInt' above regarding 'remainder'.
+
+    bsls::Types::Int64 parsedValue;
+    bsl::string_view   remainder;
+
+    if (0 != bdlb::NumericParseUtil::parseInt64(
+                                      &parsedValue,
+                                      &remainder,
+                                      bsl::string_view(input, inputLength)) ||
+        !remainder.empty()) {
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
-    // TBD Microsoft is warning that -temp is still an unsigned value.  Rather
-    // than silence the warning, note that there is an unvalidated assumption
-    // that temp <= INT_MAX.  It is not clear from the contract in the header
-    // how to handle such a case, although returning 'BAEXML_FAILURE' might be
-    // most appropriate.
-
-    *result = sign ? -temp : temp;
+    *result = parsedValue;
 
     return BAEXML_SUCCESS;
 }
@@ -477,24 +452,24 @@ int TypesParserUtil_Imp::parseDecimal(bsls::Types::Uint64        *result,
 {
     enum { BAEXML_SUCCESS = 0, BAEXML_FAILURE = -1 };
 
-    if (0 == inputLength) {
+    if (0 >= inputLength) {
         return BAEXML_FAILURE;                                        // RETURN
     }
 
-    bsls::Types::Uint64 val = 0;
+    // See 'u::parseInt' above regarding 'remainder'.
 
-    for (; 0 < inputLength; --inputLength) {
-        int c = *input++;
-        if ('0' <= c && c <= '9') {
-            val *= 10;
-            val += c - '0';
-        }
-        else {
-            return BAEXML_FAILURE;                                    // RETURN
-        }
+    bsls::Types::Uint64 parsedValue;
+    bsl::string_view    remainder;
+
+    if (0 != bdlb::NumericParseUtil::parseUint64(
+                                      &parsedValue,
+                                      &remainder,
+                                      bsl::string_view(input, inputLength)) ||
+        !remainder.empty()) {
+        return BAEXML_FAILURE;                                        // RETURN
     }
 
-    *result = val;
+    *result = parsedValue;
 
     return BAEXML_SUCCESS;
 }
