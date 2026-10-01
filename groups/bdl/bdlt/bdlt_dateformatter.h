@@ -11,19 +11,29 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DateFormatter: date specifier formatter template
 //  bsl::formatter<bdlt::Date, t_CHAR>: specialization
 //
-//@SEE_ALSO: bdlt_date, bdlt_formatter
+//@SEE_ALSO: bdlt_date, bdlt_formatdoc, bdlt_formatter
 //
 //@DESCRIPTION: This component provides `bdlt::DateFormatter` and a
 // specialization of `bsl::formatter` that allow `bsl::format` to output
 // values of `bdlt::Date`.
 //
-// The formatter supports various `Date` format specifiers including:
-// - Year: 'Y' (4-digit), 'y' (2-digit), 'C' (century)
-// - Month: 'm' (numeric), 'b'/'h' (abbreviated name)
-// - Day: 'd' (zero-padded), 'e' (space-padded)
-// - Day of week: 'a' (abbreviated name), 'u'/'w' (numeric)
-// - Day of year: 'j' (numeric)
-// - Compound: "{}" or 'D' (default format), 'F'/'i' (ISO 8601 format)
+// The formatter supports the following `%`-sequences:
+// * Year: `"%Y"` (4-digit), `"%y"` (2-digit)
+// * Century: `"%C"` (2-digit)
+// * Numeric month: `"%m"` (2-digit)
+// * Abbreviation of month: (always 3-letter upper case): `"%b"` or `"%h"`
+// * Day of month: (always 2-digit) `"%d"` (`0`-padded), `"%e"` (space-padded)
+// * Abbreviated day of week: `"%a"` (3 letter upper case)
+// * Day of week: `"%u"` (numeric 1-7, Monday is 1)
+// * Day of week: `"%w"` (numeric 0-6, Sunday is 0)
+// * Day of year: `"%j"` (numeric 3-digit)
+// * Date alone: `"%D"` same as `"{:%d%h%Y}"`
+// * Date alone: `"%F"` Iso8601, like `"{:%Y-%m-%d}"`
+// * Composite: `"{}"` formats the value as if streamed by `<<`
+// * Composite: `"%i"` formats the entire value like Iso8601
+//
+// See `bdlt_formatdoc` for the full description of `bsl::format` support for
+// `bdlt` value types.
 
 #include <bdlscm_version.h>
 

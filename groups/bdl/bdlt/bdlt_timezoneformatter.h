@@ -10,22 +10,24 @@ BSLS_IDENT("$Id: $")
 //@CLASSES:
 //  bdlt::TimeZoneFormatter
 //
+//@SEE_ALSO: bdlt_formatdoc
+//
 //@DESCRIPTION: This component implements a formatter for time zone
-// information.  Output can be done with the 'z' specifier, which outputs a
-// 2-digit hour and a 2-digit minute, sometimes but not always separated by a
-// ':'.
+// information.
 //
 // This formatter interprets the following modifiers:
-// - 'Z' - if the offset is zero, output the time zone as 'Z', otherwise output
-//   it normally.
-// - ':' (colon) - always print a colon between hours and minutes
-// - '_' (underscore) - never print a colon between hours and minutes
-// Note that it is an error for both ':' and '_' to be specified at the same
+// * `:` separate hours and minutes in time zone with `:`
+// * `_` suppress `:` between hours and minutes in time zone
+// * `Z` if time zone offset is 0, display it as `Z`
+// Note that it is an error for both `:` and `_` to be specified at the same
 // time.
 //
-// This formatter interprets only the following format specifier:
-// - 'z' - output the time zone in default format (subject to any applicable
-//   modifiers).
+// This formatter supports only the following `%`-sequence:
+// * Time zone: `"%z"`, 2 digit hour and 2-digit minute offset from UTC, with
+//   or without a colon separating hours and minutes
+//
+// See `bdlt_formatdoc` for the full description of `bsl::format` support for
+// `bdlt` value types.
 
 #include <bdlscm_version.h>
 

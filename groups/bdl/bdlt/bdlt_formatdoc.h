@@ -51,6 +51,7 @@ BSLS_IDENT("$Id: $")
 // * Date alone: `"%D"` same as `"{:%d%h%Y}"`
 // * Date alone: `"%F"` Iso8601, like `"{:%Y-%m-%d}"`
 // * Time alone: `"%T"`, same as `"{:%H:%M:%S}"`, 6 digit fraction
+// * Time alone: `"%R"`, same as `"{:%H:%M}"`
 // * Time zone: `"%z"`, 2 digit hour and 2-digit minute offset from UTC, with
 //   or without a colon separating hours and minutes
 // * Year: `"%Y"` (4-digit), `"%y"` (2-digit)

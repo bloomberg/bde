@@ -154,6 +154,8 @@ int main(int argc, char *argv[])
         // 4. Check output with varying widths and padding (left, right, and
         //    center padding).
         //
+        // 5. The "{:%R}" output is the same as that of "{:%H:%M}".
+        //
         // Plan:
         // 1. Use the `TDATA` table to drive different values of `Time`.
         //
@@ -230,6 +232,32 @@ int main(int argc, char *argv[])
 
             U_TEST_FORMAT(EXPS, "{:.3,%%%n%t%T}", X);
 
+            // `%R` is `%H:%M`.
+
+            exps.clear();
+            bsl::format_to(&exps, "{:02}:{:02}", HOUR, MINUTE);
+
+            U_TEST_FORMAT(EXPS, "{:%R}", X);
+            U_TEST_FORMAT(EXPS, "{:%H:%M}", X);
+
+            const bsl::string nakedHhMm = EXPS;
+            const size_t      hhMmWidth = nakedHhMm.length();
+
+            // Pad `%R` to confirm its anticipated width is computed correctly.
+
+            for (int centerPad = -2; centerPad < 10; ++centerPad) {
+                exps.clear();
+                if (0 < centerPad / 2) {
+                    exps.append(centerPad / 2, '*');
+                }
+                exps += nakedHhMm;
+                int rightPad = centerPad - centerPad / 2;
+                if (0 < rightPad) {
+                    exps.append(rightPad, '*');
+                }
+                U_TEST_FORMAT_ARG(EXPS, "{:*^{}%R}", X, hhMmWidth + centerPad);
+            }
+
             size_t precision = 10;
             exps = oss.str() + "0000";
             do {
@@ -271,7 +299,10 @@ int main(int argc, char *argv[])
                 if (0 < rightPad) {
                     exps.append(rightPad, '*');
                 }
-                U_TEST_FORMAT_ARG(EXPS, "{:*^{}%T}", X, nakedWidth + centerPad);
+                U_TEST_FORMAT_ARG(EXPS,
+                                  "{:*^{}%T}",
+                                  X,
+                                  nakedWidth + centerPad);
             }
        }
 #undef U_TEST_FORMAT

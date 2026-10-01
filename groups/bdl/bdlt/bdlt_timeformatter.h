@@ -11,24 +11,31 @@ BSLS_IDENT("$Id: $")
 //  bdlt::TimeFormatter: time formatter for `bslfmt` framework
 //  bsl::formatter<bdlt::Time, t_CHAR>: specialization
 //
-//@SEE_ALSO: bdlt_time, bslfmt_formatter
+//@SEE_ALSO: bdlt_time, bdlt_formatdoc, bslfmt_formatter
 //
 //@DESCRIPTION: This component provides `bdlt::TimeFormatter` and a
 // specialization of `bsl::formatter` that allow `bsl::format` to output
 // values of `bdlt::Time`.
 //
-// The formatter interprets the following modifiers:
-// - ',' (comma) - the decimal point when displaying seconds is shown as a
-//   comma rather than a period.
+// The formatter interprets the following modifier:
+// * `,` decimal between integral seconds and fraction is a comma instead of a
+//   period
 //
-// The formatter supports various time format specifiers including:
-// - Hour: 'H' (2 digit) "00" - "24"
-// - Hour: 'I' (2 digit) "01" - "12"
-// - AM/PM: 'p' - "AM" or "PM"
-// - Minute: 'M' (2 digits) "00" - "59"
-// - Second: 'S' (2 digits) "00" - "59"
-// - Composite: "{}" or 'T' (time in default format), or 'i' (time in ISO 8601
-//   format)
+// The formatter supports the following `%`-sequences:
+// * Hour: `"%H"` (2 digit) `00` - `24`
+// * Hour: `"%I"` (2 digit) `01` - `12`
+// * AM/PM: `"%p"` - `AM` or `PM`
+// * Minute: `"%M"` (2 digits) `00` - `59`
+// * Second: `"%S"` (2 digits `00` - `59` + `.` + fraction)
+// * Time alone: `"%T"`, same as `"{:%H:%M:%S}"`, 6 digit fraction
+// * Hours and minutes alone: `"%R"`, same as `"{:%H:%M}"`
+// * Composite: `"{}"` formats the value as if streamed by `<<`, default 6
+//   digit precision for seconds
+// * Composite: `"%i"` formats the entire value like Iso8601, where precision
+//   defaults to 3 digits
+//
+// See `bdlt_formatdoc` for the full description of `bsl::format` support for
+// `bdlt` value types.
 
 #include <bdlscm_version.h>
 
@@ -436,6 +443,11 @@ bool TimeFormatter<t_CHAR>::formatNextSpecifier(
       } break;
       case 'S': {
         *outIt = formatSeconds(*outIt, precision(), value);
+      } break;
+      case 'R': {
+        *outIt      = formatHours(*outIt, value);
+        *(*outIt)++ = t_CHAR(':');
+        *outIt      = formatMinutes(*outIt, value);
       } break;
       case 'T': {
         *outIt = formatDefault(*outIt, value);

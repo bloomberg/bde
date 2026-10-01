@@ -11,31 +11,41 @@ BSLS_IDENT("$Id: $")
 //  bdlt::DateTzFormatter: datetz formatter for `bslfmt` framework
 //  bsl::formatter<bdlt::DateTz, t_CHAR>: specialization
 //
-//@SEE_ALSO: bdlt_datetz, bdlt_dateformatter, bslfmt_formatter
+//@SEE_ALSO: bdlt_datetz, bdlt_dateformatter, bdlt_formatdoc, bslfmt_formatter
 //
 //@DESCRIPTION: This component provides `bdlt::DateTzFormatter` and a
 // specialization of `bsl::formatter` that allow `bsl::format` to output
 // values of `bdlt::DateTz`.
 //
 // The formatter interprets the following modifiers:
-// - 'Z' - if the offset is zero, output the time zone as 'Z', otherwise output
-//   it normally.
-// - ':' (colon) - always print a colon between hours and minutes
-// - '_' (underscore) - never print a colon between hours and minutes
-// Note that it is an error for both ':' and '_' to be specified at the same
+// * `:` separate hours and minutes in time zone with `:`
+// * `_` suppress `:` between hours and minutes in time zone
+// * `Z` if time zone offset is 0, display it as `Z`
+// Note that it is an error for both `:` and `_` to be specified at the same
 // time.
 //
-// The formatter supports various `Date` format specifiers including:
-// - Year: 'Y' (4-digit), 'y' (2-digit), 'C' (century)
-// - Month: 'm' (numeric), 'b'/'h' (abbreviated name)
-// - Day: 'd' (zero-padded), 'e' (space-padded)
-// - Day of week: 'a' (abbreviated name), 'u'/'w' (numeric)
-// - Day of year: 'j' (numeric)
+// The formatter supports the following `%`-sequences:
+// * Year: `"%Y"` (4-digit), `"%y"` (2-digit)
+// * Century: `"%C"` (2-digit)
+// * Numeric month: `"%m"` (2-digit)
+// * Abbreviation of month: (always 3-letter upper case): `"%b"` or `"%h"`
+// * Day of month: (always 2-digit) `"%d"` (`0`-padded), `"%e"` (space-padded)
+// * Abbreviated day of week: `"%a"` (3 letter upper case)
+// * Day of week: `"%u"` (numeric 1-7, Monday is 1)
+// * Day of week: `"%w"` (numeric 0-6, Sunday is 0)
+// * Day of year: `"%j"` (numeric 3-digit)
+// * Date alone: `"%D"` same as `"{:%d%h%Y}"`
+// * Date alone: `"%F"` Iso8601, like `"{:%Y-%m-%d}"`
 // all of the above will yield results for `bdlt::DateTz::localDate()`.
-// - Time Zone: 'z' (2 digit hour, 2 digit minute)
-// - Compound: 'D' (default local date format), 'F' (ISO 8601 local date
-//   format) "{}" (default local date format with time zone), 'i' (ISO 8601
-//   local date format with time zone).
+// * Time zone: `"%z"`, 2 digit hour and 2-digit minute offset from UTC, with
+//   or without a colon separating hours and minutes
+// * Composite: `"{}"` formats the value as if streamed by `<<`, no `:`
+//   between hours and minutes of the time zone
+// * Composite: `"%i"` formats the entire value like Iso8601, where there is a
+//   `:` between hours and minutes of the time zone
+//
+// See `bdlt_formatdoc` for the full description of `bsl::format` support for
+// `bdlt` value types.
 
 #include <bdlscm_version.h>
 
