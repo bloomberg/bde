@@ -143,9 +143,9 @@ class TimedCompletionGuard {
     mutable bslmt::Mutex      d_handleMutex;   // mutex protecting
                                                // `d_threadHandle`,
                                                // synchronizes all public
-                                               // methods
+                                               // manipulators
 
-    bslmt::Mutex              d_dataMutex;     // mutex protecting all other
+    mutable bslmt::Mutex      d_dataMutex;     // mutex protecting all other
                                                // data, and used with
                                                // `d_condition`
 
@@ -295,7 +295,7 @@ TimedCompletionGuard::allocator_type TimedCompletionGuard::get_allocator()
 inline
 bool TimedCompletionGuard::isGuarding() const
 {
-    bslmt::LockGuard<bslmt::Mutex> guardHandle(&d_handleMutex);
+    bslmt::LockGuard<bslmt::Mutex> guardData(&d_dataMutex);
 
     return k_DISABLED != d_expiration && k_WAITING != d_expiration;
 }

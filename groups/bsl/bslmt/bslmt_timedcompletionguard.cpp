@@ -34,7 +34,12 @@ void *TimedCompletionGuard::guardThreadFunction(void *arg)
         int rv = obj.d_condition.timedWait(&obj.d_dataMutex, obj.d_expiration);
 
         if (bslmt::Condition::e_TIMED_OUT == rv) {
-            obj.d_handler(obj.d_text.c_str());
+            Handler     handler = obj.d_handler;
+            bsl::string text    = obj.d_text;
+
+            obj.d_dataMutex.unlock();
+            handler(text.c_str());
+            obj.d_dataMutex.lock();
 
             obj.d_expiration = k_WAITING;
             obj.d_text       = "previously expired";

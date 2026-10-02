@@ -8,10 +8,14 @@
 #include <bslma_default.h>
 #include <bslma_testallocator.h>
 
+#include <bslmt_lockguard.h>
+#include <bslmt_mutex.h>
 #include <bslmt_threadutil.h>
+#include <bslmt_timedsemaphore.h>
 
 #include <bsls_assert.h>
 #include <bsls_asserttest.h>
+#include <bsls_systemtime.h>
 #include <bsls_types.h>
 
 #include <bsl_cstring.h>  // `strcmp`
@@ -123,18 +127,39 @@ BSLA_MAYBE_UNUSED void aSsErT(bool condition, const char *message, int line)
 // ----------------------------------------------------------------------------
 
 static bsl::string *s_copiedText_p;
+static bslmt::Mutex s_copyTextMutex;
+static bslmt::TimedSemaphore s_copyTextSemaphore(0);
 
-/// Assign the value in the specified `text` to `*s_copiedText_p`.
+/// Assign the value in the specified `text` to `*s_copiedText_p` and post
+/// to `s_copyTextSemaphore`.
 void copyTextHandler(const char *text)
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
     *s_copiedText_p = text;
+    s_copyTextSemaphore.post();
 }
 
 /// Assign the value in the specified `text` concatenated with a period to
-/// `*s_copiedText_p`.
+/// `*s_copiedText_p` and post to `s_copyTextSemaphore`.
 void otherCopyTextHandler(const char *text)
 {
+    bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
     *s_copiedText_p = bsl::string(text) + ".";
+    s_copyTextSemaphore.post();
+}
+
+/// Load the specified `value` into `*s_copiedText_p`.
+void assignCopiedText(const std::string& value)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
+    *s_copiedText_p = value;
+}
+
+/// Return the comparison of the specified `value` and `*s_copiedText_p`.
+bool compareCopiedText(const std::string& value)
+{
+    bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
+    return *s_copiedText_p == value;
 }
 
 // ============================================================================
@@ -285,7 +310,7 @@ int main(int argc, char *argv[])
                           << "TEST `updateText`" << endl
                           << "=================" << endl;
         {
-            *s_copiedText_p = "";
+            assignCopiedText("");
 
             Obj mX(copyTextHandler);
 
@@ -299,17 +324,19 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.updateText("c"));
 
-            bslmt::ThreadUtil::microSleep(300000);
+            s_copyTextSemaphore.timedWait(bsls::SystemTime::nowRealtimeClock()
+                                           + bsls::TimeInterval(0, 200000000));
 
-            ASSERT(*s_copiedText_p == "c");
+            ASSERT(compareCopiedText("c"));
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(0, 200000000), "a"));
 
             ASSERT(0 == mX.updateText("b"));
 
-            bslmt::ThreadUtil::microSleep(300000);
+            s_copyTextSemaphore.timedWait(bsls::SystemTime::nowRealtimeClock()
+                                           + bsls::TimeInterval(0, 200000000));
 
-            ASSERT(*s_copiedText_p == "b");
+            ASSERT(compareCopiedText("b"));
         }
       } break;
       case 3: {
@@ -577,37 +604,41 @@ int main(int argc, char *argv[])
                 Obj mX(&copyTextHandler);  const Obj& X = mX;
 
                 {
-                    *s_copiedText_p = "";
+                    assignCopiedText("");
 
                     ASSERT(false == X.isGuarding());
 
                     ASSERT(0 == mX.guard(bsls::TimeInterval(0, 100000000),
                                          "a"));
 
-                    ASSERT(true            == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(true == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
-                    bslmt::ThreadUtil::microSleep(200000);
-                    ASSERT(*s_copiedText_p == "a");
+                    s_copyTextSemaphore.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                         + bsls::TimeInterval(0, 200000000));
+                    ASSERT(compareCopiedText("a"));
 
                     ASSERT(false == X.isGuarding());
                 }
                 {
-                    *s_copiedText_p = "";
+                    assignCopiedText("");
 
                     ASSERT(false == X.isGuarding());
 
                     ASSERT(0 == mX.guard(bsls::TimeInterval(0, 400000000),
                                          "b"));
 
-                    ASSERT(true            == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(true == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
                     bslmt::ThreadUtil::microSleep(200000);
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(compareCopiedText(""));
 
-                    bslmt::ThreadUtil::microSleep(300000);
-                    ASSERT(*s_copiedText_p == "b");
+                    s_copyTextSemaphore.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                         + bsls::TimeInterval(0, 200000000));
+                    ASSERT(compareCopiedText("b"));
 
                     ASSERT(false == X.isGuarding());
                 }
@@ -616,18 +647,20 @@ int main(int argc, char *argv[])
                 Obj mX(&otherCopyTextHandler);  const Obj& X = mX;
 
                 {
-                    *s_copiedText_p = "";
+                    assignCopiedText("");
 
                     ASSERT(false == X.isGuarding());
 
                     ASSERT(0 == mX.guard(bsls::TimeInterval(0, 100000000),
                                          "a"));
 
-                    ASSERT(true            == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(true  == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
-                    bslmt::ThreadUtil::microSleep(200000);
-                    ASSERT(*s_copiedText_p == "a.");
+                    s_copyTextSemaphore.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                         + bsls::TimeInterval(0, 200000000));
+                    ASSERT(compareCopiedText("a."));
 
                     ASSERT(false == X.isGuarding());
                 }
@@ -641,47 +674,47 @@ int main(int argc, char *argv[])
                 Obj mX(&copyTextHandler);  const Obj& X = mX;
 
                 {
-                    *s_copiedText_p = "";
+                    assignCopiedText("");
 
                     ASSERT(false == X.isGuarding());
 
                     ASSERT(0 == mX.guard(bsls::TimeInterval(0, 100000000),
                                          "a"));
 
-                    ASSERT(true            == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(true  == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
                     mX.release();
 
-                    ASSERT(false           == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(false == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
                     bslmt::ThreadUtil::microSleep(200000);
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(compareCopiedText(""));
 
                     ASSERT(false == X.isGuarding());
                 }
                 {
-                    *s_copiedText_p = "";
+                    assignCopiedText("");
 
                     ASSERT(false == X.isGuarding());
 
                     ASSERT(0 == mX.guard(bsls::TimeInterval(0, 400000000),
                                          "b"));
 
-                    ASSERT(true            == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(true  == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
                     mX.release();
 
-                    ASSERT(false           == X.isGuarding());
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(false == X.isGuarding());
+                    ASSERT(compareCopiedText(""));
 
                     bslmt::ThreadUtil::microSleep(200000);
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(compareCopiedText(""));
 
                     bslmt::ThreadUtil::microSleep(300000);
-                    ASSERT(*s_copiedText_p == "");
+                    ASSERT(compareCopiedText(""));
 
                     ASSERT(false == X.isGuarding());
                 }
@@ -724,13 +757,21 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(0, 100000000), "a"));
 
-            ASSERT(*s_copiedText_p == "");
-            bslmt::ThreadUtil::microSleep(250000);
-            ASSERT(*s_copiedText_p == "a");
+            {
+                bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
+                ASSERT(*s_copiedText_p == "");
+            }
+
+            s_copyTextSemaphore.timedWait(bsls::SystemTime::nowRealtimeClock()
+                                           + bsls::TimeInterval(0, 200000000));
+            {
+                bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
+                ASSERT(*s_copiedText_p == "a");
+            }
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0), "b"));
         }
-        ASSERT(*s_copiedText_p == "a");
+        ASSERT(compareCopiedText("a"));
       } break;
       default: {
         cerr << "WARNING: CASE `" << test << "' NOT FOUND." << endl;
