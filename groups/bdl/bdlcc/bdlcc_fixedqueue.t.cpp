@@ -652,8 +652,8 @@ static const char* fmt(int n) {
 void test9PushBack(bdlcc::FixedQueue<int> *queue,
                    double                  rate,
                    int                     threshold,
-                   bool                   *stop,
-                   bool                   *thresholdExceeded,
+                   bsls::AtomicBool       *stop,
+                   bsls::AtomicBool       *thresholdExceeded,
                    bslmt::Condition       *thresholdExceededCondition)
 {
     bslmt::Turnstile turnstile(rate);
@@ -2528,9 +2528,9 @@ int main(int argc, char *argv[])
 
             bdlcc::FixedQueue<int> mX(MAX_QUEUE_SIZE);
 
-            bool stop = false;
+            bsls::AtomicBool stop(false);
 
-            bool            thresholdExceeded = false;
+            bsls::AtomicBool thresholdExceeded(false);
             bslmt::Condition thresholdExceededCondition;
             bslmt::Mutex     thresholdExceededMutex;
 
