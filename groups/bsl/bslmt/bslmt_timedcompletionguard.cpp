@@ -37,12 +37,12 @@ void *TimedCompletionGuard::guardThreadFunction(void *arg)
             Handler     handler = obj.d_handler;
             bsl::string text    = obj.d_text;
 
+            obj.d_expiration = k_WAITING;
+            obj.d_text       = "previously expired";
+
             obj.d_dataMutex.unlock();
             handler(text.c_str());
             obj.d_dataMutex.lock();
-
-            obj.d_expiration = k_WAITING;
-            obj.d_text       = "previously expired";
         }
     }
 

@@ -168,6 +168,8 @@ bool compareCopiedText(const std::string& value)
 
 typedef bslmt::TimedCompletionGuard Obj;
 
+const bsls::TimeInterval k_ONE_SECOND(1, 0);
+
 // ============================================================================
 //                                USAGE EXAMPLE
 // ----------------------------------------------------------------------------
@@ -324,18 +326,20 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.updateText("c"));
 
-            s_copyTextSemaphore.timedWait(bsls::SystemTime::nowRealtimeClock()
-                                           + bsls::TimeInterval(0, 200000000));
-
+            ASSERT(bslmt::TimedSemaphore::e_TIMED_OUT !=
+                   s_copyTextSemaphore.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                         + k_ONE_SECOND));
             ASSERT(compareCopiedText("c"));
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(0, 200000000), "a"));
 
             ASSERT(0 == mX.updateText("b"));
 
-            s_copyTextSemaphore.timedWait(bsls::SystemTime::nowRealtimeClock()
-                                           + bsls::TimeInterval(0, 200000000));
-
+            ASSERT(bslmt::TimedSemaphore::e_TIMED_OUT !=
+                   s_copyTextSemaphore.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                         + k_ONE_SECOND));
             ASSERT(compareCopiedText("b"));
         }
       } break;
@@ -499,7 +503,7 @@ int main(int argc, char *argv[])
 
                 ASSERT(na == defaultAllocator.numAllocations());
 
-                ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0), longString));
+                ASSERT(0 == mX.guard(k_ONE_SECOND, longString));
 
                 ASSERT(true == X.isGuarding());
 
@@ -528,8 +532,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(false == X.isGuarding());
 
-                    ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0),
-                                         longString));
+                    ASSERT(0 == mX.guard(k_ONE_SECOND, longString));
 
                     ASSERT(true == X.isGuarding());
 
@@ -554,8 +557,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(na == defaultAllocator.numAllocations());
 
-                    ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0),
-                                         longString));
+                    ASSERT(0 == mX.guard(k_ONE_SECOND, longString));
 
                     ASSERT(true == X.isGuarding());
 
@@ -583,8 +585,7 @@ int main(int argc, char *argv[])
 
                     ASSERT(false == X.isGuarding());
 
-                    ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0),
-                                         longString));
+                    ASSERT(0 == mX.guard(k_ONE_SECOND, longString));
 
                     ASSERT(true == X.isGuarding());
 
@@ -614,9 +615,10 @@ int main(int argc, char *argv[])
                     ASSERT(true == X.isGuarding());
                     ASSERT(compareCopiedText(""));
 
-                    s_copyTextSemaphore.timedWait(
+                    ASSERT(bslmt::TimedSemaphore::e_TIMED_OUT !=
+                           s_copyTextSemaphore.timedWait(
                                            bsls::SystemTime::nowRealtimeClock()
-                                         + bsls::TimeInterval(0, 200000000));
+                                         + k_ONE_SECOND));
                     ASSERT(compareCopiedText("a"));
 
                     ASSERT(false == X.isGuarding());
@@ -635,9 +637,10 @@ int main(int argc, char *argv[])
                     bslmt::ThreadUtil::microSleep(200000);
                     ASSERT(compareCopiedText(""));
 
-                    s_copyTextSemaphore.timedWait(
+                    ASSERT(bslmt::TimedSemaphore::e_TIMED_OUT !=
+                           s_copyTextSemaphore.timedWait(
                                            bsls::SystemTime::nowRealtimeClock()
-                                         + bsls::TimeInterval(0, 200000000));
+                                         + k_ONE_SECOND));
                     ASSERT(compareCopiedText("b"));
 
                     ASSERT(false == X.isGuarding());
@@ -657,9 +660,10 @@ int main(int argc, char *argv[])
                     ASSERT(true  == X.isGuarding());
                     ASSERT(compareCopiedText(""));
 
-                    s_copyTextSemaphore.timedWait(
+                    ASSERT(bslmt::TimedSemaphore::e_TIMED_OUT !=
+                           s_copyTextSemaphore.timedWait(
                                            bsls::SystemTime::nowRealtimeClock()
-                                         + bsls::TimeInterval(0, 200000000));
+                                         + k_ONE_SECOND));
                     ASSERT(compareCopiedText("a."));
 
                     ASSERT(false == X.isGuarding());
@@ -757,19 +761,15 @@ int main(int argc, char *argv[])
 
             ASSERT(0 == mX.guard(bsls::TimeInterval(0, 100000000), "a"));
 
-            {
-                bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
-                ASSERT(*s_copiedText_p == "");
-            }
+            ASSERT(compareCopiedText(""));
 
-            s_copyTextSemaphore.timedWait(bsls::SystemTime::nowRealtimeClock()
-                                           + bsls::TimeInterval(0, 200000000));
-            {
-                bslmt::LockGuard<bslmt::Mutex> guard(&s_copyTextMutex);
-                ASSERT(*s_copiedText_p == "a");
-            }
+            ASSERT(bslmt::TimedSemaphore::e_TIMED_OUT !=
+                   s_copyTextSemaphore.timedWait(
+                                           bsls::SystemTime::nowRealtimeClock()
+                                         + k_ONE_SECOND));
+            ASSERT(compareCopiedText("a"));
 
-            ASSERT(0 == mX.guard(bsls::TimeInterval(1, 0), "b"));
+            ASSERT(0 == mX.guard(k_ONE_SECOND, "b"));
         }
         ASSERT(compareCopiedText("a"));
       } break;
