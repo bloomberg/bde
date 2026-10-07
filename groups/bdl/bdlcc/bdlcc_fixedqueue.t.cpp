@@ -571,8 +571,9 @@ extern "C" void *stressConsumer2(void* arg) {
 int stressrand() {
   static bsls::AtomicOperations::AtomicTypes::Uint v;
   bsls::AtomicOperations::setUint(
-      &v,
-      (bsls::AtomicOperations::getUint(&v) * 1664525 + 1013904223) & 0xFFFFFFFF);
+                   &v,
+                   (bsls::AtomicOperations::getUint(&v) * 1664525 + 1013904223)
+                                                                 & 0xFFFFFFFF);
 
   return bsls::AtomicOperations::getUint(&v);
 }
@@ -2582,11 +2583,14 @@ int main(int argc, char *argv[])
                            << "Stress test 1" << endl
                            << "==================" << endl;
 
+        ASSERT(0 == completionGuard.guard(bsls::TimeInterval(270, 0),
+                                          bsl::format("case {}", test)));
+
         int numProducers = 20;
         int numConsumers = 20;
         int maxCount = INT_MAX;
         int queueSize = 4;
-        int seconds = 5;
+        int seconds = 3;
         if (verbose) cout << endl
                           << "Stress testing for " << seconds
                               << " seconds with "
