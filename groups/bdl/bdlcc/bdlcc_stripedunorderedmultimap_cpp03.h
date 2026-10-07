@@ -1,224 +1,30 @@
-// bdlcc_stripedunorderedmultimap.h                                   -*-C++-*-
-#ifndef INCLUDED_BDLCC_STRIPEDUNORDEREDMULTIMAP
-#define INCLUDED_BDLCC_STRIPEDUNORDEREDMULTIMAP
+// bdlcc_stripedunorderedmultimap_cpp03.h                             -*-C++-*-
 
-#include <bsls_ident.h>
-BSLS_IDENT("$Id: $")
+// Automatically generated file.  **DO NOT EDIT**
 
-//@PURPOSE: Provide a bucket-group locking (*striped*) unordered multimap.
-//
-//@CLASSES:
-//  bdlcc::StripedUnorderedMultiMap: Striped hash multimap
-//
-//@SEE_ALSO: bdlcc_stripedunorderedmap, bdlcc_stripedunorderedimpl
-//
-//@DESCRIPTION: This component provides a single concurrent (fully thread-safe)
-// associative container, `bdlcc::StripedUnorderedMultiMap`, that partitions
-// the underlying hash table into a (user defined) number of "bucket groups"
-// and controls access to each bucket group by a separate read-write lock.
-// This design allows greater concurrency (and improved performance) than a
-// `bsl::unordered_multimap` object protected by a single lock.
-//
-// `bdlcc::StripedUnorderedMultiMap` differs from `bdlcc::StripedUnorderedMap`
-// in that the former allows multiple elements to have the same key value but
-// the later requires that each element have a unique key value.  Methods of
-// the two classes have similar names and semantics differing only where the
-// different key policy pertains.
-//
-// The terms "bucket", "load factor", and "rehash" have the same meaning as
-// they do in the `bslstl_unorderedmultimap` component (see
-// {`bslstl_unorderedmultimap`|Unordered Multimap Configuration}).  A general
-// introduction to these ideas can be found at:
-// https://en.wikipedia.org/wiki/Hash_table
-//
-// `bdlcc::StripedUnorderedMultiMap` (and concurrent containers in general)
-// does not provide iterators that allow users to manipulate or traverse the
-// values of elements in a map.  Alternatively, this container provides the
-// `setComputedValue*` methods that allows users to change the value for a
-// given key via a user provided functor and the `visit` method that will apply
-// a user provided functor the value of every key in the map.
-//
-// The `bdlcc::StripedUnorderedMultiMap` class is an *irregular* value-semantic
-// type, even if `KEY` and `VALUE` are VSTs.  This class does not implement
-// equality comparison, assignment operator, or copy constructor.
-//
-///Thread Safety
-///-------------
-// The `bdlcc::StripedUnorderedMultiMap` class template is fully thread-safe
-// (see {`bsldoc_glossary`|Fully Thread-Safe}), assuming that the allocator is
-// fully thread-safe.  Each method is executed by the calling thread.
-//
-///Runtime Complexity
-///------------------
-// ```
-// +----------------------------------------------------+--------------------+
-// | Operation                                          | Complexity         |
-// +====================================================+====================+
-// | insert, emplace, setValueFirst, setValueAll,       | Average: O[1]      |
-// | setComputedValueAll, setComputedValueFirst, update | Worst:   O[n]      |
-// +----------------------------------------------------+--------------------+
-// | eraseFirst, eraseAll, getValueFirst, getValueAll   | Average: O[1]      |
-// |                                                    | Worst:   O[n]      |
-// +----------------------------------------------------+--------------------+
-// | visit(key, visitor),                               | Average: O[1]      |
-// | visitReadOnly(key, visitor)                        | Worst:   O[n]      |
-// +----------------------------------------------------+--------------------+
-// | insertBulk, k elements                             | Average: O[k]      |
-// |                                                    | Worst:   O[n*k]    |
-// +----------------------------------------------------+--------------------+
-// | examine                                            | Average: O[1]      |
-// |                                                    | Worst:   O[n]      |
-// +----------------------------------------------------+--------------------+
-// | eraseBulkAll, k elements                           | Average: O[k]      |
-// |                                                    | Worst:   O[n*k]    |
-// +----------------------------------------------------+--------------------+
-// | rehash                                             | O[n]               |
-// +----------------------------------------------------+--------------------+
-// | visit(visitor), visitReadOnly(visitor)             | O[n]               |
-// +----------------------------------------------------+--------------------+
-// ```
-//
-///Number of Stripes
-///-----------------
-// Performance improves monotonically when the number of stripes increases.
-// However, the rate of improvement decreases, and reaches a plateau.  The
-// plateau is reached roughly at four times the number of the threads
-// *concurrently* using the hash map.
-//
-///Set vs. Insert Methods
-///----------------------
-// This container provides several `set*` methods and similarly named `insert*`
-// methods that have nearly identical semantics.  Both update the value of an
-// existing element and both add a new element if the element sought is not
-// present.  Conceptually, the emphasis of the `set*` methods is the former, so
-// its return value is the number of elements updated, and the intent of
-// `insert*` methods is to add elements, so its return value is the number of
-// new elements.
-//
-///Rehash
-///------
-//
-///Concurrent Rehash
-///- - - - - - - - -
-// A rehash operation is a re-organization of the hash map to a different
-// number of buckets.  This is a heavy operation that interferes with, but does
-// *not* disallow, other operations on the container.  Rehash is warranted when
-// the current load factor exceeds the current maximum allowed load factor.
-// Expressed explicitly:
-// ```
-// bucketCount() <= maxLoadFactor() * size();
-// ```
-// This above condition is tested implicitly by several methods and if found
-// true (and if rehash is enabled and rehash is not underway), a rehash is
-// started.  The methods that check the load factor are:
-//
-// * All methods that insert elements (i.e., increase `size()`).
-// * The `maxLoadFactor(newMaxLoadFactor)` method.
-// * The `rehash` method.
-//
-///Rehash Control
-/// - - - - - - -
-// `enableRehash` and `disableRehash` methods are provided to control the
-// rehash enable flag.  Note that disabling rehash does not impact a rehash in
-// progress.
-//
-///Usage
-///-----
-// In this section we show intended use of this component.
-//
-///Example 1: Basic Usage
-/// - - - - - - - - - - -
-// This example shows some basic usage of `bdlcc::StripedUnorderedMultiMap`.
-//
-// First, we define a `bdlcc::StripedUnorderedMultiMap` object, `myFriends`,
-// that maps `int` to `bsl::string`:
-// ```
-// bdlcc::StripedUnorderedMultiMap<int, bsl::string> myFriends;
-// ```
-// Notice that we are using the default value number of buckets, number of
-// stripes, and allocator.
-//
-// Then, we insert three elements into the map and verify that the size is the
-// expected value:
-// ```
-// assert(0 == myFriends.size());
-// myFriends.insert(0, "Alex");
-// myFriends.insert(1, "John");
-// myFriends.insert(2, "Rob");
-// assert(3 == myFriends.size());
-// ```
-// Next, we demonstrate `insertBulk` by creating a vector of three key-value
-// pairs and add them to the map using a single method call:
-// ```
-// typedef bsl::pair<int, bsl::string> PairType;
-// bsl::vector<PairType> insertData;
-// insertData.push_back(PairType(3, "Jim"));
-// insertData.push_back(PairType(4, "Jeff"));
-// insertData.push_back(PairType(5, "Ian" ));
-// assert(3 == insertData.size())
-//
-// assert(3 == myFriends.size());
-// myFriends.insertBulk(insertData.begin(), insertData.end());
-// assert(6 == myFriends.size());
-// ```
-// Then, we use `getValueFirst` method to retrieve the previously inserted
-// string associated with the value 1:
-// ```
-// bsl::string value;
-// bsl::size_t rc = myFriends.getValueFirst(&value, 1);
-// assert(1      == rc);
-// assert("John" == value);
-// ```
-// Now, we insert two additional elements, each having key values that already
-// appear in the hash map:
-// ```
-// myFriends.insert(3, "Steve");
-// assert(7 == myFriends.size());
-//
-// myFriends.insert(4, "Tim");
-// assert(8 == myFriends.size());
-// ```
-// Finally, we use the `getValueAll` method to retrieve both values associated
-// with the key 3:
-// ```
-// bsl::vector<bsl::string> values;
-// rc = myFriends.getValueAll(&values, 3);
-// assert(2 == rc);
-//
-// assert(2            == values.size());
-// assert(values.end() != bsl::find(values.begin(), values.end(), "Jim"));
-// assert(values.end() != bsl::find(values.begin(), values.end(), "Steve"));
-// ```
-// Notice that the results have the expected number and values.  Also notice
-// that we must search the results for the expected values because the order in
-// which values are retrieved is not specified.
+#ifndef INCLUDED_BDLCC_STRIPEDUNORDEREDMULTIMAP_CPP03
+#define INCLUDED_BDLCC_STRIPEDUNORDEREDMULTIMAP_CPP03
 
-#include <bdlscm_version.h>
-
-#include <bdlcc_stripedunorderedcontainerimpl.h>
-
-#include <bslmf_movableref.h>
-
-#include <bsls_assert.h>
-#include <bsls_compilerfeatures.h>
-#include <bsls_libraryfeatures.h>
-
-#include <bsl_functional.h>
-
-#include <vector>
-
-#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-// clang-format off
-// Include version that can be compiled with C++03
+//@PURPOSE: Provide C++03 implementation for bdlcc_stripedunorderedmultimap.h
+//
+//@CLASSES: See bdlcc_stripedunorderedmultimap.h for list of classes
+//
+//@SEE_ALSO: bdlcc_stripedunorderedmultimap
+//
+//@DESCRIPTION:  This component is the C++03 translation of a C++11 component,
+// generated by the 'sim_cpp11_features.pl' program.  If the original header
+// contains any specially delimited regions of C++11 code, then this generated
+// file contains the C++03 equivalent, i.e., with variadic templates expanded
+// and rvalue-references replaced by 'bslmf::MovableRef' objects.  The header
+// code in this file is designed to be '#include'd into the original header
+// when compiling with a C++03 compiler.  If there are no specially delimited
+// regions of C++11 code, then this header contains no code and is not
+// '#include'd in the original header.
+//
 // Generated on Fri Aug 07 17:01:27 2026
 // Command line: sim_cpp11_features.py bdlcc_stripedunorderedmultimap.h
 
-# define COMPILING_BDLCC_STRIPEDUNORDEREDMULTIMAP_H
-# include <bdlcc_stripedunorderedmultimap_cpp03.h>
-# undef COMPILING_BDLCC_STRIPEDUNORDEREDMULTIMAP_H
-
-// clang-format on
-#else
+#ifdef COMPILING_BDLCC_STRIPEDUNORDEREDMULTIMAP_H
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -341,12 +147,176 @@ class StripedUnorderedMultiMap {
     /// Prevent future rehash until `enableRehash` is called.
     void disableRehash();
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Emplace into this hash map an element having the specified `key` and
-    /// value constructed from the specified `args`, irrespective of other
-    /// elements in the hash map having the same `key` value.
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.py bdlcc_stripedunorderedmultimap.h
+#ifndef BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT
+#define BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A
+#define BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT
+#endif
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 0
+    void emplace(const KEY& key);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 0
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 1
+    template <class Args_01>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 1
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 2
+    template <class Args_01,
+              class Args_02>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 2
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 3
+    template <class Args_01,
+              class Args_02,
+              class Args_03>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 3
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 4
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 4
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 5
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 5
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 6
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 6
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 7
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 7
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 8
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 8
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 9
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 9
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 10
+    template <class Args_01,
+              class Args_02,
+              class Args_03,
+              class Args_04,
+              class Args_05,
+              class Args_06,
+              class Args_07,
+              class Args_08,
+              class Args_09,
+              class Args_10>
+    void emplace(const KEY& key,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                           BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10);
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_A >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
     template <class... Args>
-    void emplace(const KEY& key, Args&&... args);
+    void emplace(const KEY& key,
+                              BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args);
+// }}} END GENERATED CODE
 #endif
 
     /// Allow rehash.  If conditions warrant, rehash will be started by the
@@ -704,15 +674,293 @@ void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::disableRehash()
     d_imp.disableRehash();
 }
 
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+#if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
+// {{{ BEGIN GENERATED CODE
+// Command line: sim_cpp11_features.py bdlcc_stripedunorderedmultimap.h
+#ifndef BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT
+#define BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT 10
+#endif
+#ifndef BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B
+#define BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT
+#endif
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 0
+template <class KEY, class VALUE, class HASH, class EQUAL>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key)
+{
+    d_imp.emplaceAlways(key);
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 0
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 1
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 1
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 2
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 2
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 3
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 3
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 4
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 4
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 5
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 5
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 6
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 6
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 7
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 7
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 8
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 8
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 9
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 9
+
+#if BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 10
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class Args_01,
+          class Args_02,
+          class Args_03,
+          class Args_04,
+          class Args_05,
+          class Args_06,
+          class Args_07,
+          class Args_08,
+          class Args_09,
+          class Args_10>
+inline
+void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_01) args_01,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_02) args_02,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_03) args_03,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_04) args_04,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_05) args_05,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_06) args_06,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_07) args_07,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_08) args_08,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_09) args_09,
+                            BSLS_COMPILERFEATURES_FORWARD_REF(Args_10) args_10)
+{
+    d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_04, args_04),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_05, args_05),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_06, args_06),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_07, args_07),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_08, args_08),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_09, args_09),
+                             BSLS_COMPILERFEATURES_FORWARD(Args_10, args_10));
+}
+#endif  // BDLCC_STRIPEDUNORDEREDMULTIMAP_VARIADIC_LIMIT_B >= 10
+
+#else
+// The generated code below is a workaround for the absence of perfect
+// forwarding in some compilers.
 template <class KEY, class VALUE, class HASH, class EQUAL>
 template <class... Args>
 inline
 void StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL>::
-                                        emplace(const KEY& key, Args&&... args)
+                                        emplace(const KEY& key,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(Args)... args)
 {
     d_imp.emplaceAlways(key, BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
 }
+// }}} END GENERATED CODE
 #endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -1043,9 +1291,11 @@ UsesBslmaAllocator<bdlcc::StripedUnorderedMultiMap<KEY, VALUE, HASH, EQUAL> >
 }  // close namespace bslma
 }  // close enterprise namespace
 
-#endif // End C++11 code
+#else // if ! defined(DEFINED_BDLCC_STRIPEDUNORDEREDMULTIMAP_H)
+# error Not valid except when included from bdlcc_stripedunorderedmultimap.h
+#endif // ! defined(COMPILING_BDLCC_STRIPEDUNORDEREDMULTIMAP_H)
 
-#endif
+#endif // ! defined(INCLUDED_BDLCC_STRIPEDUNORDEREDMULTIMAP_CPP03)
 
 // ----------------------------------------------------------------------------
 // Copyright 2018 Bloomberg Finance L.P.

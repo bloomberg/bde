@@ -35,6 +35,7 @@
 #include <bsltf_movabletesttype.h>
 #include <bsltf_movablealloctesttype.h>
 #include <bsltf_moveonlyalloctesttype.h>
+#include <bsltf_movestate.h>
 #include <bsltf_nonequalcomparabletesttype.h>
 #include <bsltf_nontypicaloverloadstesttype.h>
 #include <bsltf_simpletesttype.h>
@@ -127,6 +128,8 @@ using namespace bsl;
 // MANIPULATORS
 // [ 8] void clear();
 // [14] void disableRehash();
+// [23] bsl::size_t emplace(const KEY& key, Args&&... args);
+// [23] bsl::size_t tryEmplace(const KEY& key, Args&&... args);
 // [14] void enableRehash();
 // [ 6] bsl::size_t erase(const KEY& key);
 // [ 7] bsl::size_t eraseBulk(RANDOMIT first, last);
@@ -161,7 +164,7 @@ using namespace bsl;
 // [ 4] bslma::Allocator *allocator() const;
 // ----------------------------------------------------------------------------
 // [ 1] BREATHING TEST
-// [23] USAGE EXAMPLE
+// [24] USAGE EXAMPLE
 // [21] DRQS 169188100: ALLOCATOR AWARE DEFAULT CONSTRUCTION
 // [15] TYPE TRAITS
 // [19] MULTI-THREADED STRESS TEST
@@ -2028,7 +2031,7 @@ struct IntToPairConverter {
                                              value,
                                              privateAllocator);
         bslma::DestructorGuard<typename bsl::remove_const<KEY>::type>
-                                                       keyGuard(tempKey.address());
+                                                   keyGuard(tempKey.address());
 
 
         bsls::ObjectBuffer<VALUE> tempValue;
@@ -6165,10 +6168,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
             const int K1B = 1, K2B = 3,          V1B = 11,  V2B = 13;
             const int nnn = -1;
 
-            typedef struct KeyValuesArray {
+            struct KeyValuesArray {
                 int d_key;
                 int d_values[3];
-            } KeyValuesArray;
+            };
 
             const struct {
                 int  d_line;
@@ -7043,7 +7046,7 @@ int main(int argc, char *argv[])
 
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
-      case 23: {
+      case 24: {
         // --------------------------------------------------------------------
         // USAGE EXAMPLE
         //   Extracted from component header file.
@@ -7065,6 +7068,112 @@ int main(int argc, char *argv[])
         usage::example2();
         usage::example3();
 
+      } break;
+      case 23: {
+        // --------------------------------------------------------------------
+        // TESTING `emplace` AND `tryEmplace`
+        //   Verify the methods work as expected.
+        //
+        // Concerns:
+        // 1. The methods `emplace` and `tryEmplace` can construct `VALUE` with
+        //    multiple parameters.
+        //
+        // 2. The methods `emplace` and `tryEmplace` can use move semantics.
+        //
+        // Plan:
+        // 1. Invoke `emplace` and `tryEmplace` with a varying number of
+        //    arguments, verify the return value, and verify the resulting key
+        //    and value attributes using `getValue`.  Also attempt to emplace a
+        //    duplicate key, verify the return value, and verify an element is
+        //    not inserted using `size`.  (C-1)
+        //
+        // 2. Using `bsltf::MovableTestType`, ensure values being emplaced
+        //    are moved when appropriate.  (C-2)
+        //
+        // Testing:
+        //   bsl::size_t emplace(const KEY& key, Args&&... args);
+        //   bsl::size_t tryEmplace(const KEY& key, Args&&... args);
+        // --------------------------------------------------------------------
+
+        if (verbose) cout << "TESTING `emplace` AND `tryEmplace`\n"
+                          << "==================================\n";
+
+          typedef bdlcc::StripedUnorderedMap<int, bdlt::Datetime> Obj;
+
+          {
+              Obj mX;  const Obj& X = mX;
+
+              ASSERT(1 == mX.emplace(0, 2026, 8, 6));
+              ASSERT(1 == mX.emplace(1, 2026, 8, 6, 1));
+              ASSERT(1 == mX.emplace(2, 2026, 8, 6, 1, 2));
+              ASSERT(1 == mX.emplace(3, 2026, 8, 6, 1, 2, 3));
+
+              bdlt::Datetime dt;
+
+              X.getValue(&dt, 0);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6));
+
+              X.getValue(&dt, 1);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1));
+
+              X.getValue(&dt, 2);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1, 2));
+
+              X.getValue(&dt, 3);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1, 2, 3));
+
+              ASSERT(4 == X.size());
+
+              ASSERT(0 == mX.emplace(0, 2026, 8, 6));
+
+              ASSERT(4 == X.size());
+          }
+          {
+              Obj mX;  const Obj& X = mX;
+
+              ASSERT(1 == mX.tryEmplace(0, 2026, 8, 6));
+              ASSERT(1 == mX.tryEmplace(1, 2026, 8, 6, 1));
+              ASSERT(1 == mX.tryEmplace(2, 2026, 8, 6, 1, 2));
+              ASSERT(1 == mX.tryEmplace(3, 2026, 8, 6, 1, 2, 3));
+
+              bdlt::Datetime dt;
+
+              X.getValue(&dt, 0);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6));
+
+              X.getValue(&dt, 1);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1));
+
+              X.getValue(&dt, 2);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1, 2));
+
+              X.getValue(&dt, 3);
+              ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1, 2, 3));
+
+              ASSERT(4 == X.size());
+
+              ASSERT(0 == mX.tryEmplace(0, 2026, 8, 6));
+
+              ASSERT(4 == X.size());
+          }
+          {
+              bdlcc::StripedUnorderedMap<int, bsltf::MovableTestType> mX;
+              bsltf::MovableTestType                                  value;
+
+              mX.emplace(0, value);
+              ASSERT(bsltf::MoveState::e_NOT_MOVED == value.movedFrom());
+
+              mX.emplace(1, bslmf::MovableRefUtil::move(value));
+              ASSERT(bsltf::MoveState::e_MOVED == value.movedFrom());
+
+              value.setData(0);  // reset the `movedFrom` flag
+
+              mX.tryEmplace(2, value);
+              ASSERT(bsltf::MoveState::e_NOT_MOVED == value.movedFrom());
+
+              mX.tryEmplace(3, bslmf::MovableRefUtil::move(value));
+              ASSERT(bsltf::MoveState::e_MOVED == value.movedFrom());
+          }
       } break;
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
       case 22: {

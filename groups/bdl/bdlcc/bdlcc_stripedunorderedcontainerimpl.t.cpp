@@ -123,6 +123,8 @@ using namespace bsl;
 // [ 9] void clear();
 // [15] void disableRehash();
 // [15] void enableRehash();
+// [25] void emplaceAlways(const KEY& key, Args&&... args);
+// [25] bsl::size_t emplaceUnique(const KEY& key, Args&&... args);
 // [ 7] bsl::size_t eraseAll(const KEY& key);
 // [ 7] bsl::size_t eraseFirst(const KEY& key);
 // [23] bsl::size_t eraseIf(const KEY&, Scope, const EraseIfValuePredicate&);
@@ -1190,6 +1192,17 @@ namespace {
 
 bslma::TestAllocator defaultAllocator("default-static", false);
 
+static bool s_setOnConstructionFlag = false;
+
+/// Test `struct` providing a mechanism to detect if its constructor was
+/// invoked.
+struct SetOnConstruction {
+    // CONSTRUCTORS
+
+    /// Construct this class and set 's_setOnConstructionFlag' to 'true'.
+    explicit SetOnConstruction(int) {  s_setOnConstructionFlag = true;  }
+};
+
 /// Convert an `int` value to a `bsl::pair` of the template parameter `KEY`
 /// and `VALUE` types.
 template <class KEY, class VALUE, class ALLOC>
@@ -1225,7 +1238,7 @@ struct IntToPairConverter {
                                              value,
                                              privateAllocator);
         bslma::DestructorGuard<typename bsl::remove_const<KEY>::type>
-                                                       keyGuard(tempKey.address());
+                                                   keyGuard(tempKey.address());
 
         bsls::ObjectBuffer<VALUE> tempValue;
         bsltf::TemplateTestFacility::emplace(tempValue.address(),
@@ -1553,9 +1566,8 @@ class TestDriver {
     static void testCase19();
     static void testCase20();
     static void testCase23();
-
-    /// Code for test cases 1 to 24.
     static void testCase24();
+    static void testCase25();
 };
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
@@ -1567,9 +1579,9 @@ TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase24ThrowingVisitor::
 }
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
-bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase24ThrowingVisitor::operator()(
-                                                                     VALUE*,
-                                                                     const KEY&)
+bool TestDriver<KEY, VALUE, HASH, EQUAL>::TestCase24ThrowingVisitor::
+                                                         operator()(VALUE*,
+                                                                    const KEY&)
 {
     ++d_count;
     if (d_count > d_throwAfter)
@@ -7792,7 +7804,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase24()
 {
     if (verbose)
     {
-        cout << "\nTEST EXCEPTION SAFETY FOR VISITOR FUNCTIONS (No Deadlock)" << endl;
+        cout << "\nTEST EXCEPTION SAFETY FOR VISITOR FUNCTIONS (No Deadlock)"
+             << endl;
     }
 
     bslma::TestAllocator         da("default",  veryVeryVeryVerbose);
@@ -7827,11 +7840,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase24()
 
     // 1. Call visit() with a throwing visitor function.
     {
-        TestCase24ThrowingVisitor throwingVisitorImpl(2);  // Throw after 2 iterations.
+        TestCase24ThrowingVisitor throwingVisitorImpl(2);  // Throw after 2
+                                                           // iterations.
+
         typename Obj::VisitorFunction visitor(throwingVisitorImpl);
 
         dam.reset(); // `bsl::function` constructor allocates from the default
-                        // allocator.
+                     // allocator.
 
         bool exceptionCaught = false;
         try
@@ -7870,8 +7885,802 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase24()
 
     if (verbose)
     {
-         cout << "Container remains fully operational after the visitor exception."
-              << endl;
+        cout << "Container is fully operational after the visitor exception."
+             << endl;
+    }
+}
+
+template <class KEY, class VALUE, class HASH, class EQUAL>
+void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase25()
+{
+    // ------------------------------------------------------------------------
+    // EMPLACE
+    //
+    // Concerns:
+    // 1. The `emplace` method works as expected irrespective of the initial
+    //    number of buckets and number of stripes specified on construction of
+    //    the hash map.
+    //
+    // 2. Expectations of `emplace` operations consist of:
+    //   1. The return value.
+    //   2. The creation of new element according to existing elements of the
+    //      hash map and the `multiplicity` argument.
+    //   3. The placement of any new element in the expected bucket.
+    //   4. Appropriate increases in size of hash map and size of bucket.
+    //   5. The lack of unintended changes to other elements in the hash map,
+    //      if any.
+    //
+    // 3. Allocations by the `emplace` method are taken from the allocator
+    //    specified on construction of the hash map.
+    //
+    // 4. QoI: There is no temporary memory allocation from any allocator.
+    //
+    // 5. Every hash map releases any allocated memory at destruction.
+    //
+    // 6. Any memory allocation is exception neutral.
+    //
+    // Plan:
+    // 1. Each test is repeated for several hash maps, each constructed with
+    //    different, representative arguments.  In different iterations each
+    //    construction parameter is set to its minimal allowed value and to an
+    //    incremented (i.e., non-minimal) value.  (C-1)
+    //
+    // 2. This test follows the depth-ordered enumeration test pattern.  We
+    //    fully test each level before proceeding to the next, where each
+    //    level corresponds to the number of elements held by the hash map
+    //    before invocation of `emplace`.  Testing to level 2 (i.e., up to
+    //    three elements after `emplace` was deemed sufficient).  That allows
+    //    test cases where one or two elements may be affected while there is
+    //    an uninvolved element that is shown to be unchanged.  (C-2)
+    //
+    // 3. Each `emplace` test call has an associated test allocator monitor
+    //    that is wired to the default allocator.  That monitor is checked for
+    //    zero allocations after the test call.  The global allocator is
+    //    verified to have no allocations at the end of `main`.  (C-3..5)
+    //
+    // 4. Each `emplace` test call is wrapped with the
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN` and
+    //    `BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END` macros.  The `loopCount` is
+    //    checked for multiple iterations and the hash map allocator is checked
+    //    for the allocation of memory and the return of all allocated memory.
+    //    (C-6)
+    //
+    // Testing:
+    //   void emplaceAlways(const KEY& key, Args&&... args);
+    //   bsl::size_t emplaceUnique(const KEY& key, Args&&... args);
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << endl
+                      << "EMPLACE" << endl
+                      << "=======" << endl;
+
+    if (veryVeryVerbose) {
+        cout << "KEY  " << ": " << bsls::NameOf<KEY>()   << "\n"
+             << "VALUE" << ": " << bsls::NameOf<VALUE>() << "\n"
+             << "HASH " << ": " << bsls::NameOf<HASH>()  << "\n"
+             << "EQUAL" << ": " << bsls::NameOf<EQUAL>() << endl;
+    }
+
+    bslma::TestAllocator scratch("scratch", veryVeryVeryVerbose);
+
+    // CONCERN: In no case does memory come from the default allocator.
+    bslma::TestAllocatorMonitor dam(&defaultAllocator);
+
+    struct {
+        int         d_line;
+        bsl::size_t d_numBuckets;
+        bsl::size_t d_numStripes;
+    } CONFIGS[] = {
+        //LINE NUM_BUCKETS  NUM_STRIPES
+        //---- -----------  -----------
+        { L_,            2,           1 } // minimum arguments
+      , { L_,            2,           2 } // non-minimum number stripes
+      , { L_,            4,           1 } // non-minimum number buckets
+    };
+    bsl::size_t NUM_CONFIGS = sizeof CONFIGS / sizeof *CONFIGS;
+
+    for (bsl::size_t ti = 0; ti < NUM_CONFIGS; ++ti) {
+        const int         LINE        = CONFIGS[ti].d_line;  (void)LINE;
+        const bsl::size_t NUM_BUCKETS = CONFIGS[ti].d_numBuckets;
+        const bsl::size_t NUM_STRIPES = CONFIGS[ti].d_numStripes;
+
+        if (veryVeryVerbose) { P_(NUM_BUCKETS) P(NUM_STRIPES) }
+
+        if (verbose) cout << "Depth 0" << endl;
+        {
+            const bsls::Types::Int64 EXPECTED_NUM_ALLOCATIONS
+                   = 1 // for container node
+                   + (true == bslma::UsesBslmaAllocator<KEY>  ::value ? 1 : 0)
+                   + (true == bslma::UsesBslmaAllocator<VALUE>::value ? 1 : 0);
+
+            if (veryVeryVerbose) { P(EXPECTED_NUM_ALLOCATIONS) }
+
+            const struct {
+                int         d_line;
+                int         d_key;
+                int         d_value;
+                char        d_multiplicity; // 'U' (unique) or 'A' (always)
+
+                bsl::size_t d_expReturnValue;
+                bsl::size_t d_expSize;
+                bsl::size_t d_expBucketIndex;
+                bsl::size_t d_expBucketSize;
+            } EMPLACES0[] = {
+                //LINE KEY VAL MULT EXP_RC EXP_SIZE EXP_BIDX EXP_BSIZE
+                //---- --- --- ---- ------ -------- -------- ---------
+                { L_,    0, 10, 'U',    1,        1,       0,        1 }
+              , { L_,    0, 10, 'A',    1,        1,       0,        1 }
+              , { L_,    1, 11, 'U',    1,        1,       1,        1 }
+              , { L_,    1, 11, 'A',    1,        1,       1,        1 }
+            };
+            const bsl::size_t NUM_EMPLACES0 = sizeof  EMPLACES0
+                                           / sizeof *EMPLACES0;
+
+            for (bsl::size_t tj = 0; tj < NUM_EMPLACES0; ++tj) {
+                const int   LINE      = EMPLACES0[tj].d_line;
+                const int   keyCode   = EMPLACES0[tj].d_key;
+                const int   valueCode = EMPLACES0[tj].d_value;
+                const KEY   cKEY      = TstFacility::create<KEY  >(  keyCode);
+                const VALUE cVALUE    = TstFacility::create<VALUE>(valueCode);
+                dam.reset(); // `TstFacility::create` allocates from the
+                             // default allocator.
+
+                (void)LINE;
+
+                const bool isUnique = EMPLACES0[tj].d_multiplicity == 'U';
+
+                const bsl::size_t EXP_RC    = EMPLACES0[tj].d_expReturnValue;
+                const bsl::size_t EXP_SIZE  = EMPLACES0[tj].d_expSize;
+                const bsl::size_t EXP_BSIZE = EMPLACES0[tj].d_expBucketSize;
+
+                const bsl::size_t EXP_BIDX  = EMPLACES0[tj].d_key
+                                            % NUM_BUCKETS;
+
+
+                if (veryVeryVerbose) {
+                    const char *MULT_LABEL = isUnique ? "UNIQUE" : "ALWAYS";
+                    P_(keyCode) P_(valueCode) P(MULT_LABEL)
+                }
+
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
+                bslma::TestAllocatorMonitor  sam(&sa);
+                bslma::TestAllocator         da("default",
+                                                veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                int loopCount = 0;  (void)loopCount;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    ++loopCount;
+
+                    // TEST OBJECT
+                    Obj mX(NUM_BUCKETS, NUM_STRIPES, &sa);  const Obj& X = mX;
+                    ASSERT(true        == X.empty());
+                    ASSERT(0           == X.size());
+                    ASSERT(NUM_BUCKETS == X.bucketCount());
+                    ASSERT(NUM_STRIPES == X.numStripes());
+                    ASSERT(&sa         == X.allocator());
+
+                    bsls::Types::Int64          numBlocksTotalAfore
+                                                         = sa.numBlocksTotal();
+                    bslma::TestAllocatorMonitor dam1(&da);
+
+                    if (isUnique) {
+                        bsl::size_t rc =  mX.emplaceUnique(cKEY, cVALUE);
+                        ASSERT(EXP_RC == rc);
+                    } else {
+                         mX.emplaceAlways(cKEY, cVALUE);
+                    }
+
+                    bsls::Types::Int64 numBlocksTotalAfter
+                                                         = sa.numBlocksTotal();
+                    ASSERT(dam1.isTotalSame());
+                    ASSERT(numBlocksTotalAfter
+                         - numBlocksTotalAfore == EXPECTED_NUM_ALLOCATIONS);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    ASSERTV(2                         // CTOR   allocations
+                          + EXPECTED_NUM_ALLOCATIONS  // emplace allocations
+                          + 1 == loopCount);
+#endif
+
+                    const bsl::size_t numElements = X.size();
+                    const bsl::size_t bucketIndex = X.bucketIndex(cKEY);
+                    const bsl::size_t bucketSize  = X.bucketSize(bucketIndex);
+
+                    if (veryVeryVerbose) {
+                        P_(numElements) P_(bucketIndex) P(bucketSize)
+                    }
+
+                    ASSERTV(numElements, EXP_SIZE  == numElements);
+                    ASSERTV(bucketIndex, EXP_BIDX  == bucketIndex);
+                    ASSERTV(bucketSize,  EXP_BSIZE == bucketSize);
+
+                    bsl::vector<VALUE> values(&scratch);
+                    bsl::size_t        rc = X.getValue(&values, cKEY);
+                    ASSERT(numElements == rc);
+                    ASSERT(areEqual(values[0] , cVALUE));
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                ASSERTV(sam.isTotalUp());    // Memory was allocated.
+                ASSERTV(sam.isInUseSame());  // All memory recovered.
+            }  // EMPLACES0
+        }  // Depth 0
+        ASSERT(dam.isTotalSame());
+
+        if (verbose) cout << "Depth 1" << endl;
+        {
+            const int KA = 0; const int VA1 = 10;  const int VA2 = 12;
+            const int KB = 1; const int VB1 = 11;  const int VB2 = 13;
+
+            const struct {
+                int         d_line;
+                const char  d_object;
+                int         d_key;
+                int         d_value;
+                char        d_multiplicity; // 'U' (unique) or 'A' (always)
+
+                bsl::size_t d_expReturnValue;
+                bsl::size_t d_expSize;
+                bsl::size_t d_expCountValue1;
+                bsl::size_t d_expCountValue2;
+            } EMPLACES1[] = {
+                //LINE OBJ  KEY  VAL  MULT EXP_RC EXP_SIZE #V1 #V2
+                //---- ---  ---  ---  ---- ------ -------- --- ---
+                { L_,  'A',  KA, VA1,  'U',     0,       1,  1,  0 }
+              , { L_,  'A',  KA, VA2,  'U',     0,       1,  1,  0 }
+              , { L_,  'B',  KB, VB1,  'U',     0,       1,  1,  0 }
+              , { L_,  'B',  KB, VB2,  'U',     0,       1,  1,  0 }
+              , { L_,  'A',  KA, VA1,  'A',     1,       2,  2,  0 }
+              , { L_,  'A',  KA, VA2,  'A',     1,       2,  1,  1 }
+              , { L_,  'B',  KB, VB1,  'A',     1,       2,  2,  0 }
+              , { L_,  'B',  KB, VB2,  'A',     1,       2,  1,  1 }
+            };
+            const bsl::size_t NUM_EMPLACES1 = sizeof  EMPLACES1
+                                           / sizeof *EMPLACES1;
+
+            for (bsl::size_t tj = 0; tj < NUM_EMPLACES1; ++tj) {
+                const int   LINE      = EMPLACES1[tj].d_line;
+                const char  OBJ       = EMPLACES1[tj].d_object;
+                const int   keyCode   = EMPLACES1[tj].d_key;
+                const int   valueCode = EMPLACES1[tj].d_value;
+                const KEY   cKEY      = TstFacility::create<KEY  >(  keyCode);
+                const VALUE cVALUE    = TstFacility::create<VALUE>(valueCode);
+                dam.reset(); // `TstFacility::create` allocates from the
+                             // default allocator.
+
+                const bool isUnique = EMPLACES1[tj].d_multiplicity == 'U';
+
+                const bsl::size_t EXP_RC   = EMPLACES1[tj].d_expReturnValue;
+                const bsl::size_t EXP_SIZE = EMPLACES1[tj].d_expSize;
+
+                const bsl::size_t EXP_V1COUNT = EMPLACES1[tj].d_expCountValue1;
+                const bsl::size_t EXP_V2COUNT = EMPLACES1[tj].d_expCountValue2;
+
+                const bsl::size_t EXP_BIDX  = EMPLACES1[tj].d_key
+                                             % NUM_BUCKETS;
+                const bsl::size_t EXP_BSIZE = EXP_RC + 1;
+
+                if (veryVeryVerbose) {
+                    const char *MULT_LABEL = isUnique ? "UNIQUE" : "ALWAYS";
+                    P_(keyCode) P_(valueCode) P(MULT_LABEL)
+                }
+
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
+                bslma::TestAllocatorMonitor  sam(&sa);
+                bslma::TestAllocator         da("da",
+                                                veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                int loopCount = 0;  (void)loopCount;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    ++loopCount;
+
+                    ///CREATE TEST OBJECT
+                    ///------------------
+                    // Depth 1 test objects: `A` and `B`, each have one element
+                    // that reside in different buckets.
+
+                    Obj mA(NUM_BUCKETS, NUM_STRIPES, &sa);
+                    Obj mB(NUM_BUCKETS, NUM_STRIPES, &sa);
+
+                    const KEY   cKEY_A   = TstFacility::create<KEY  >(KA);
+                    const KEY   cKEY_B   = TstFacility::create<KEY  >(KB);
+                    const VALUE cVALUE1A = TstFacility::create<VALUE>(VA1);
+                    const VALUE cVALUE1B = TstFacility::create<VALUE>(VB1);
+                    const VALUE cVALUE2A = TstFacility::create<VALUE>(VA2);
+                    const VALUE cVALUE2B = TstFacility::create<VALUE>(VB2);
+
+                    mA.emplaceUnique(cKEY_A, cVALUE1A);
+                    mB.emplaceUnique(cKEY_B, cVALUE1B);
+
+                    Obj  *objPtr = OBJ == 'A' ? &mA : &mB;
+                    Obj&  mX     = *objPtr;  const Obj& X = mX;
+
+                    // CREATE ARGUMENTS;
+                    const VALUE  VALUE1 = OBJ == 'A' ? cVALUE1A : cVALUE1B;
+                    const VALUE  VALUE2 = OBJ == 'A' ? cVALUE2A : cVALUE2B;
+
+                    // EMPLACE TEST
+                    bslma::TestAllocatorMonitor dam1(&da);
+
+                    if (isUnique) {
+                        bsl::size_t rc =  mX.emplaceUnique(cKEY, cVALUE);
+                        ASSERT(EXP_RC == rc);
+                    } else {
+                         mX.emplaceAlways(cKEY, cVALUE);
+                    }
+
+                    // ACCESS RESULTS
+                    ASSERT(dam1.isTotalSame());
+
+                    const bsl::size_t numElements = X.size();
+                    const bsl::size_t bucketIndex = X.bucketIndex(cKEY);
+                    const bsl::size_t bucketSize  = X.bucketSize(bucketIndex);
+
+                    if (veryVeryVerbose) {
+                        P_(numElements) P_(bucketIndex) P(bucketSize)
+                    }
+
+                    ASSERTV(numElements, EXP_SIZE  == numElements);
+                    ASSERTV(bucketIndex, EXP_BIDX  == bucketIndex);
+                    ASSERTV(bucketSize,  EXP_BSIZE == bucketSize);
+
+                    bsl::vector<VALUE> values(&scratch);
+                    bsl::size_t        rc = X.getValue(&values, cKEY);
+
+                    ASSERT(numElements == rc);
+
+                    bsl::size_t V1COUNT = 0;
+                    bsl::size_t V2COUNT = 0;
+                    for (typename bsl::vector<VALUE>::const_iterator
+                                                    itr  = values.begin(),
+                                                    end  = values.end();
+                                                    end != itr; ++itr) {
+                        if (areEqual(*itr, VALUE1)) {
+                            ++V1COUNT;
+                        }
+                        if (areEqual(*itr, VALUE2)) {
+                            ++V2COUNT;
+                        }
+                    }
+
+                    if (veryVeryVerbose) {
+                        P(LINE)
+                        P_(VALUE1) P_(EXP_V1COUNT) P(V1COUNT)
+                        P_(VALUE2) P_(EXP_V2COUNT) P(V2COUNT)
+                    }
+
+                    LOOP_ASSERT(LINE, EXP_V1COUNT == V1COUNT);
+                    LOOP_ASSERT(LINE, EXP_V2COUNT == V2COUNT);
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    ASSERT(1 < loopCount);
+#endif
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+                ASSERTV(sam.isTotalUp());    // Memory was allocated.
+                ASSERTV(sam.isInUseSame());  // All memory recovered.
+
+            }  // EMPLACES1
+        }  // Depth 1
+        ASSERT(dam.isTotalSame());
+
+        if (verbose) cout << "Depth 2" << endl;
+        {
+            // Create keys (K??) and values (V??) for testing.  Note that keys
+            // ending in 'A' (K?A) will be in bucket 0, and keys ending in 'B'
+            // (K?B) will be in bucket 1.
+
+            const int K1A = 0, K2A = 2, K3A = 4, V1A = 10,  V2A = 12, V3A = 14;
+            const int K1B = 1, K2B = 3,          V1B = 11,  V2B = 13;
+            const int nnn = -1;
+
+            struct KeyValuesArray {
+                int d_key;
+                int d_values[3];
+            };
+
+            const struct {
+                int  d_line;
+                int  d_element1key;
+                int  d_element1value;
+                int  d_element2key;
+                int  d_element2value;
+
+                int  d_key;
+                int  d_value;
+                char d_multiplicity; // 'U' (unique) or 'A' (always)
+
+                bsl::size_t    d_expReturnValue;
+                bsl::size_t    d_expSize;
+                KeyValuesArray d_expKeyValuesArray[3];
+            } EMPLACES2[] = {
+
+            ///Recurring Pattern of Emplaces:
+            ///-----------------------------
+            //  - Emplace    matches existing key  and       value.
+            //  - Emplace    matches existing key  but not   value.
+            //  - Emplace mismatches existing keys but same  bucket
+            //  - Emplace mismatches existing keys and other bucket.
+
+            // UNIQUE EMPLACES
+
+            //LINE E1         E2       KEY  VAL MULT  RC SZ Results
+            //---- --------  --------  ---  --- ----  -- -- -------------------
+            // Initially, two identical elements in same bucket.
+            { L_,  K1A, V1A, K1A, V1A, K1A, V1A, 'U',  0, 2,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1A, V1A, K1A, V2A, 'U',  0, 2,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+
+                                                 }},
+            { L_,  K1A, V1A, K1A, V1A, K2A, V2A, 'U',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1A, V1A, K1B, V1B, 'U',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            // Initially two different elements in same bucket.
+            { L_,  K1A, V1A, K2A, V2A, K1A, V1A, 'U',  0, 2,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K2A, V2A, K1A, V2A, 'U',  0, 2,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K2A, V2A, K3A, V3A, 'U',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { K3A, { V3A, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K2A, V2A, K1B, V1B, 'U',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                 }},
+            // Initially two different elements in different buckets.
+            { L_,  K1A, V1A, K1B, V1B, K1A, V1A, 'U',  0, 2,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1B, V1B, K1A, V2A, 'U',  0, 2,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1B, V1B, K2A, V2A, 'U',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K1A, { V2A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1B, V1B, K2B, V2B, 'U',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { K2B, { V2B, nnn, nnn } }
+                                                 }},
+
+            // EMPLACE ALWAYS
+
+            // Initially, two identical elements in same bucket.
+            { L_,  K1A, V1A, K1A, V1A, K1A, V1A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, V1A } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1A, V1A, K1A, V2A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, V2A } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+
+                                                 }},
+            { L_,  K1A, V1A, K1A, V1A, K2A, V2A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1A, V1A, K1B, V1B, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            // Initially two different elements in same bucket.
+            { L_,  K1A, V1A, K2A, V2A, K1A, V1A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K2A, V2A, K1A, V2A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V2A, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K2A, V2A, K3A, V3A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { K3A, { V3A, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K2A, V2A, K1B, V1B, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                 }},
+            // Initially two different elements in different buckets.
+            { L_,  K1A, V1A, K1B, V1B, K1A, V1A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V1A, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1B, V1B, K1A, V2A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, V2A, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { nnn, { nnn, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1B, V1B, K2A, V2A, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K2A, { V2A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                 }},
+            { L_,  K1A, V1A, K1B, V1B, K2B, V2B, 'A',  1, 3,
+                                                 {
+                                                     { K1A, { V1A, nnn, nnn } }
+                                                   , { K1B, { V1B, nnn, nnn } }
+                                                   , { K2B, { V2B, nnn, nnn } }
+                                                 }},
+            };
+
+            const bsl::size_t NUM_EMPLACES2 = sizeof  EMPLACES2
+                                           / sizeof *EMPLACES2;
+
+            for (bsl::size_t tj = 0; tj < NUM_EMPLACES2; ++ tj) {
+                const int         LINE        = EMPLACES2[tj].d_line;
+                const int         E1KEY       = EMPLACES2[tj].d_element1key;
+                const int         E1VALUE     = EMPLACES2[tj].d_element1value;
+                const int         E2KEY       = EMPLACES2[tj].d_element2key;
+                const int         E2VALUE     = EMPLACES2[tj].d_element2value;
+                const int         IKEY        = EMPLACES2[tj].d_key;
+                const int         IVALUE      = EMPLACES2[tj].d_value;
+                const char        IMULT       = EMPLACES2[tj].d_multiplicity;
+
+                if (veryVerbose) {
+                    T_ P(LINE)
+                    T_ P_(E1KEY) P(E1VALUE)
+                    T_ P_(E2KEY) P(E2VALUE)
+                    T_ P_(IKEY)  P_(IVALUE) P(IMULT)
+                }
+
+                const bsl::size_t EXP_RC   = EMPLACES2[tj].d_expReturnValue;
+                const bsl::size_t EXP_SIZE = EMPLACES2[tj].d_expSize;
+
+                if (veryVeryVerbose) {
+                    T_ P_(EXP_RC) P(EXP_SIZE)
+                }
+
+                const KeyValuesArray * const
+                                  EXP_ELEMENTS = EMPLACES2[tj].
+                                                           d_expKeyValuesArray;
+
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
+                bslma::TestAllocatorMonitor  sam(&sa);
+                bslma::TestAllocator         da("da",
+                                                veryVeryVeryVerbose);
+                bslma::DefaultAllocatorGuard dag(&da);
+
+                int loopCount = 0;  (void)loopCount;
+
+                BSLMA_TESTALLOCATOR_EXCEPTION_TEST_BEGIN(sa) {
+                    ++loopCount;
+
+                    // Create Test Object
+                    Obj mX(NUM_BUCKETS, NUM_STRIPES, &sa); const Obj& X = mX;
+
+                    const KEY   E1_KEY   = TstFacility::create<KEY  >(E1KEY);
+                    const KEY   E2_KEY   = TstFacility::create<KEY  >(E2KEY);
+                    const VALUE E1_VALUE = TstFacility::create<VALUE>(E1VALUE);
+                    const VALUE E2_VALUE = TstFacility::create<VALUE>(E2VALUE);
+
+                    // Create Arguments for Emplace Test
+                    const KEY   I_KEY    = TstFacility::create<KEY  >(IKEY);
+                    const VALUE I_VALUE  = TstFacility::create<VALUE>(IVALUE);
+                    dam.reset(); // `TstFacility::create` allocates from the
+                                 // default allocator.
+
+                    mX.emplaceAlways(E1_KEY, E1_VALUE);
+                    mX.emplaceAlways(E2_KEY, E2_VALUE);
+
+                    ASSERT(2 == X.size());
+
+                    const bool isUnique = IMULT == 'U';
+
+                    // Test `emplace`
+                    bslma::TestAllocatorMonitor dam1(&da);
+
+                    if (isUnique) {
+                        bsl::size_t rc =  mX.emplaceUnique(I_KEY, I_VALUE);
+                        ASSERT(EXP_RC == rc);
+                    } else {
+                         mX.emplaceAlways(I_KEY, I_VALUE);
+                    }
+
+                    ASSERT(EXP_SIZE == X.size());
+
+                    // Assess Results
+                    ASSERT(dam1.isTotalSame());
+
+                    for (bsl::size_t i = 0; i < 3; ++i) {
+                        const KeyValuesArray *keyValuesArray = EXP_ELEMENTS;
+
+                        int        key    = keyValuesArray->d_key;
+                        const int *values = keyValuesArray->d_values;
+                        if (nnn == key) {
+                            break;
+                        }
+                        bsl::vector<int>        exp_values(&scratch);
+                        const bsl::vector<int>& EXP_VALUES = exp_values;
+
+                        for (bsl::size_t j = 0; j < 3; ++j) {
+                            int value = values[j];
+                            if (nnn == value) {
+                                break;
+                            }
+                            exp_values.push_back(value);
+
+                            if (veryVeryVerbose) {
+                                cout << "Expected: " << value << " ";
+                            }
+                        }
+                        if (veryVeryVerbose)  cout << endl;
+
+                        const KEY cKEY = TstFacility::create<KEY>(key);
+                        dam.reset(); // `TstFacility::create` allocates from
+                                     // the default allocator.
+
+                        bsl::vector<VALUE> foundValues(&scratch);
+                        bsl::size_t        rc = X.getValue(&foundValues, cKEY);
+                        ASSERT(rc == foundValues.size());
+
+                        // Convert returned values to `int` representation.
+
+                        bsl::vector<int> foundValuesAsInt(&scratch);
+
+                        for (typename bsl::vector<VALUE>::const_iterator
+                                                    itr  = foundValues.begin(),
+                                                    end  = foundValues.end();
+                                                    end != itr; ++itr) {
+                            int asInt = TstFacility::getIdentifier(*itr);
+                            foundValuesAsInt.push_back(asInt);
+
+                            if (veryVeryVerbose) {
+                                cout << "Found   : " << asInt << " ";
+                            }
+                        }
+                        if (veryVeryVerbose)  cout << endl;
+
+                        // Compare found values to expected values.
+
+                        ASSERTV(key,
+                                EXP_VALUES.size(),
+                                foundValuesAsInt.size(),
+                                EXP_VALUES.size() == foundValuesAsInt.size());
+                        ASSERT(EXP_VALUES == foundValuesAsInt);
+                    }
+
+#ifdef BDE_BUILD_TARGET_EXC
+                    ASSERT(1 < loopCount);
+#endif
+
+                } BSLMA_TESTALLOCATOR_EXCEPTION_TEST_END;
+
+                ASSERTV(sam.isTotalUp());    // Memory was allocated.
+                ASSERTV(sam.isInUseSame());  // All memory recovered.
+
+            }  // EMPLACES2
+        }  // Depth 2
+        ASSERT(dam.isTotalSame());
+
+    }  // CONFIGS
+
+    // CONCERN: In no case does memory come from the default allocator.
+    ASSERT(dam.isTotalSame());
+}
+
+void testCase25_valueConstruction()
+{
+    // ------------------------------------------------------------------------
+    // EMPLACE VALUE CONSTRUCTION
+    //
+    // Concerns:
+    // 1. The `emplace` methods can construct `VALUE` with multiple parameters.
+    //
+    // 2. The `emplaceUnique` method does not invoke the `VALUE` constructor if
+    //    the key is already present.
+    //
+    // Plan:
+    // 1. Invoke the methods with variable number of arguments and verify the
+    //    stored value is as expected.  (C-1)
+    //
+    // Testing:
+    //   void emplaceAlways(const KEY& key, Args&&... args);
+    //   bsl::size_t emplaceUnique(const KEY& key, Args&&... args);
+    // ------------------------------------------------------------------------
+
+    if (verbose) cout << endl
+                      << "EMPLACE VALUE CONSTRUCTION" << endl
+                      << "==========================" << endl;
+
+    {
+        typedef bdlcc::StripedUnorderedContainerImpl<int, bdlt::Datetime> Obj;
+        Obj mX;  const Obj& X = mX;
+
+        mX.emplaceUnique(0, 2026, 8, 6);
+        mX.emplaceUnique(1, 2026, 8, 6, 1);
+        mX.emplaceAlways(2, 2026, 8, 6, 1, 2);
+        mX.emplaceAlways(3, 2026, 8, 6, 1, 2, 3);
+
+        bdlt::Datetime dt;
+
+        X.getValue(&dt, 0);
+        ASSERT(dt == bdlt::Datetime(2026, 8, 6));
+
+        X.getValue(&dt, 1);
+        ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1));
+
+        X.getValue(&dt, 2);
+        ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1, 2));
+
+        X.getValue(&dt, 3);
+        ASSERT(dt == bdlt::Datetime(2026, 8, 6, 1, 2, 3));
+    }
+    {
+        typedef bdlcc::StripedUnorderedContainerImpl<int,
+                                                     SetOnConstruction> Obj;
+        Obj mX;
+
+        s_setOnConstructionFlag = false;
+
+        mX.emplaceUnique(1, 1);
+        ASSERT(true  == s_setOnConstructionFlag);
+        s_setOnConstructionFlag = false;
+
+        mX.emplaceUnique(1, 1);
+        ASSERT(false == s_setOnConstructionFlag);
+        s_setOnConstructionFlag = false;
     }
 }
 
@@ -8849,7 +9658,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 int         d_value;
                 char        d_multiplicity; // 'U' (unique) or 'A' (always)
 
-                bsl::size_t d_expRc;
+                bsl::size_t d_expReturnValue;
                 bsl::size_t d_expSize;
                 bsl::size_t d_expBucketIndex;
                 bsl::size_t d_expBucketSize;
@@ -8875,14 +9684,14 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                 (void)LINE;
 
-                bool isUnique = INSERTS0[tj].d_multiplicity == 'U';
+                const bool isUnique = INSERTS0[tj].d_multiplicity == 'U';
 
-                const bsl::size_t  EXP_RC     = INSERTS0[tj].d_expRc;
-                const bsl::size_t  EXP_SIZE   = INSERTS0[tj].d_expSize;
-                const bsl::size_t  EXP_BSIZE  = INSERTS0[tj].d_expBucketSize;
+                const bsl::size_t EXP_RC    = INSERTS0[tj].d_expReturnValue;
+                const bsl::size_t EXP_SIZE  = INSERTS0[tj].d_expSize;
+                const bsl::size_t EXP_BSIZE = INSERTS0[tj].d_expBucketSize;
 
-                const bsl::size_t  EXP_BIDX   = INSERTS0[tj].d_key
-                                              % NUM_BUCKETS;
+                const bsl::size_t EXP_BIDX  = INSERTS0[tj].d_key
+                                            % NUM_BUCKETS;
 
 
                 if (veryVeryVerbose) {
@@ -8891,11 +9700,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     P_(keyCode) P_(valueCode) P(MULT_LABEL)
                 }
 
-                const bool *const vvvV = &veryVeryVeryVerbose;
-
-                bslma::TestAllocator         sa("supplied", *vvvV);
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
                 bslma::TestAllocatorMonitor  sam(&sa);
-                bslma::TestAllocator         da("default",  *vvvV);
+                bslma::TestAllocator         da("default",
+                                                veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 int loopCount = 0;  (void)loopCount;
@@ -8970,7 +9779,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 int         d_value;
                 char        d_multiplicity; // 'U' (unique) or 'A' (always)
 
-                bsl::size_t d_expRc;
+                bsl::size_t d_expReturnValue;
                 bsl::size_t d_expSize;
                 bsl::size_t d_expCountValue1;
                 bsl::size_t d_expCountValue2;
@@ -8999,28 +9808,28 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 dam.reset(); // `TstFacility::create` allocates from the
                              // default allocator.
 
-                bool isUnique = INSERTS1[tj].d_multiplicity == 'U';
+                const bool isUnique = INSERTS1[tj].d_multiplicity == 'U';
 
-                const bsl::size_t  EXP_RC    = INSERTS1[tj].d_expRc;
-                const bsl::size_t  EXP_SIZE  = INSERTS1[tj].d_expSize;
+                const bsl::size_t EXP_RC   = INSERTS1[tj].d_expReturnValue;
+                const bsl::size_t EXP_SIZE = INSERTS1[tj].d_expSize;
 
-                const bsl::size_t  EXP_V1COUNT = INSERTS1[tj].d_expCountValue1;
-                const bsl::size_t  EXP_V2COUNT = INSERTS1[tj].d_expCountValue2;
+                const bsl::size_t EXP_V1COUNT = INSERTS1[tj].d_expCountValue1;
+                const bsl::size_t EXP_V2COUNT = INSERTS1[tj].d_expCountValue2;
 
-                const bsl::size_t  EXP_BIDX  = INSERTS1[tj].d_key
-                                             % NUM_BUCKETS;
-                const bsl::size_t  EXP_BSIZE = EXP_RC + 1;
+                const bsl::size_t EXP_BIDX  = INSERTS1[tj].d_key
+                                            % NUM_BUCKETS;
+                const bsl::size_t EXP_BSIZE = EXP_RC + 1;
 
                 if (veryVeryVerbose) {
                     const char *MULT_LABEL = isUnique ? "UNIQUE" : "ALWAYS";
                     P_(keyCode) P_(valueCode) P(MULT_LABEL)
                 }
 
-                const bool *const vvvV = &veryVeryVeryVerbose;
-
-                bslma::TestAllocator         sa("supplied", *vvvV);
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
                 bslma::TestAllocatorMonitor  sam(&sa);
-                bslma::TestAllocator         da("da",  *vvvV);
+                bslma::TestAllocator         da("da",
+                                                veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 int loopCount = 0;  (void)loopCount;
@@ -9124,10 +9933,10 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
             const int K1B = 1, K2B = 3,          V1B = 11,  V2B = 13;
             const int nnn = -1;
 
-            typedef struct KeyValuesArray {
+            struct KeyValuesArray {
                 int d_key;
                 int d_values[3];
-            } KeyValuesArray;
+            };
 
             const struct {
                 int  d_line;
@@ -9140,7 +9949,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                 int  d_value;
                 char d_multiplicity; // 'U' (unique) or 'A' (always)
 
-                bsl::size_t    d_expRc;
+                bsl::size_t    d_expReturnValue;
                 bsl::size_t    d_expSize;
                 KeyValuesArray d_expKeyValuesArray[3];
             } INSERTS2[] = {
@@ -9154,8 +9963,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
             // UNIQUE INSERTS
 
-            //LINE E1         E2       KEY  VAL MULT  RC SZ "Sorted" Results
-            //---- --------  --------  ---  --- ----  -- -- ----------------
+            //LINE E1         E2       KEY  VAL MULT  RC SZ Results
+            //---- --------  --------  ---  --- ----  -- -- -------------------
             // Initially, two identical elements in same bucket.
             { L_,  K1A, V1A, K1A, V1A, K1A, V1A, 'U',  0, 2,
                                                  {
@@ -9164,7 +9973,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                                                  }},
             { L_,  K1A, V1A, K1A, V1A, K1A, V2A, 'U',  0, 2,
                                                  {
-                                                     { K1A, { V1A, V2A, nnn } }
+                                                     { K1A, { V2A, V1A, nnn } }
                                                    , { nnn, { nnn, nnn, nnn } }
 
                                                  }},
@@ -9329,8 +10138,8 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                     T_ P_(IKEY)  P_(IVALUE) P(IMULT)
                 }
 
-                const bsl::size_t EXP_RC       = INSERTS2[tj].d_expRc;
-                const bsl::size_t EXP_SIZE     = INSERTS2[tj].d_expSize;
+                const bsl::size_t EXP_RC   = INSERTS2[tj].d_expReturnValue;
+                const bsl::size_t EXP_SIZE = INSERTS2[tj].d_expSize;
 
                 if (veryVeryVerbose) {
                     T_ P_(EXP_RC) P(EXP_SIZE)
@@ -9340,11 +10149,11 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                                   EXP_ELEMENTS = INSERTS2[tj].
                                                            d_expKeyValuesArray;
 
-                const bool *const vvvV = &veryVeryVeryVerbose;
-
-                bslma::TestAllocator         sa("supplied", *vvvV);
+                bslma::TestAllocator         sa("supplied",
+                                                veryVeryVeryVerbose);
                 bslma::TestAllocatorMonitor  sam(&sa);
-                bslma::TestAllocator         da("da",  *vvvV);
+                bslma::TestAllocator         da("da",
+                                                veryVeryVeryVerbose);
                 bslma::DefaultAllocatorGuard dag(&da);
 
                 int loopCount = 0;  (void)loopCount;
@@ -9371,7 +10180,7 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
 
                     ASSERT(2 == X.size());
 
-                    bool isUnique = IMULT == 'U';
+                    const bool isUnique = IMULT == 'U';
 
                     // Test `insert`
                     bslma::TestAllocatorMonitor dam1(&da);
@@ -9435,16 +10244,13 @@ void TestDriver<KEY, VALUE, HASH, EQUAL>::testCase3()
                         }
                         if (veryVeryVerbose)  cout << endl;
 
-                        bsl::sort(foundValuesAsInt.begin(),
-                                  foundValuesAsInt.end());
-
                         // Compare found values to expected values.
 
                         ASSERTV(key,
                                 EXP_VALUES.size(),
                                 foundValuesAsInt.size(),
                                 EXP_VALUES.size() == foundValuesAsInt.size());
-                        ASSERT(EXP_VALUES == foundValuesAsInt);
+                        LOOP_ASSERT(LINE, EXP_VALUES == foundValuesAsInt);
                     }
 
 #ifdef BDE_BUILD_TARGET_EXC
@@ -9858,14 +10664,16 @@ int main(int argc, char *argv[])
     // BDE_VERIFY pragma: -TP17 These are defined in the various test functions
     switch (test) { case 0:
       // BDE_VERIFY pragma: -TP05 Defined in the various test functions
+      case 25: {
+        RUN_EACH_TYPE(TestDriver, testCase25, TEST_TYPES_REGULAR);
+        testCase25_valueConstruction();
+      } break;
       case 24: {
         RUN_EACH_TYPE(TestDriver, testCase24, TEST_TYPES_REGULAR);
-        break;
-      }
+      } break;
       case 23: {
         RUN_EACH_TYPE(TestDriver, testCase23, TEST_TYPES_REGULAR);
-        break;
-      }
+      } break;
       case 22: {
         threaded::threadedTest1();
       } break;

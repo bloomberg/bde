@@ -50,12 +50,12 @@ BSLS_IDENT("$Id: $")
 // | Operation                                          | Complexity         |
 // +====================================================+====================+
 // | insert, setValue, setComputedValue, update         | Average: O[1]      |
-// |                                                    | Worst:   O[n]      |
+// | emplace, tryEmplace                                | Worst:   O[n]      |
 // +----------------------------------------------------+--------------------+
 // | erase, getValue                                    | Average: O[1]      |
 // |                                                    | Worst:   O[n]      |
 // +----------------------------------------------------+--------------------+
-// | visit(key, visitor)                                | Average: O[1]      |
+// | visit(key, visitor),                               | Average: O[1]      |
 // | visitReadOnly(key, visitor)                        | Worst:   O[n]      |
 // +----------------------------------------------------+--------------------+
 // | insertBulk, k elements                             | Average: O[k]      |
@@ -350,8 +350,22 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_movableref.h>
 
 #include <bsls_assert.h>
+#include <bsls_compilerfeatures.h>
 
 #include <bsl_functional.h>
+
+#if BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+// clang-format off
+// Include version that can be compiled with C++03
+// Generated on Fri Aug 07 17:09:52 2026
+// Command line: sim_cpp11_features.py bdlcc_stripedunorderedmap.h
+
+# define COMPILING_BDLCC_STRIPEDUNORDEREDMAP_H
+# include <bdlcc_stripedunorderedmap_cpp03.h>
+# undef COMPILING_BDLCC_STRIPEDUNORDEREDMAP_H
+
+// clang-format on
+#else
 
 namespace BloombergLP {
 namespace bdlcc {
@@ -472,6 +486,15 @@ class StripedUnorderedMap {
     /// Prevent future rehash until `enableRehash` is called.
     void disableRehash();
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// If no element in this hash map has the specified `key` value, emplace
+    /// into this hash map an element having the specified `key` and value
+    /// constructed from the specified `args`; otherwise, do nothing.  Return
+    /// the number of elements inserted.
+    template <class... Args>
+    bsl::size_t emplace(const KEY& key, Args&&... args);
+#endif
+
     /// Allow rehash.  If conditions warrant, rehash will be started by the
     /// *next* method call that observes the load factor is exceeded (see
     /// {Concurrent Rehash}).  Note that calling
@@ -576,6 +599,15 @@ class StripedUnorderedMap {
     /// as a copy.  Note that the return value equals the number of elements
     /// found having `key`.
     bsl::size_t setValue(const KEY& key, bslmf::MovableRef<VALUE> value);
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// If no element in this hash map has the specified `key` value, emplace
+    /// into this hash map an element having the specified `key` and value
+    /// constructed from the specified `args`; otherwise, do nothing.  Return
+    /// the number of elements inserted.
+    template <class... Args>
+    bsl::size_t tryEmplace(const KEY& key, Args&&... args);
+#endif
 
     /// Call the specified `visitor` with the element (if one exists) in
     /// this hash map having the specified `key`.  That is:
@@ -768,6 +800,18 @@ void StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::disableRehash()
     d_imp.disableRehash();
 }
 
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class... Args>
+inline
+bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::
+                                        emplace(const KEY& key, Args&&... args)
+{
+    return d_imp.emplaceUnique(key,
+                               BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+}
+#endif
+
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
 void StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::enableRehash()
@@ -867,6 +911,18 @@ bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::setValue(
 {
     return d_imp.setValueFirst(key, bslmf::MovableRefUtil::move(value));
 }
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY, class VALUE, class HASH, class EQUAL>
+template <class... Args>
+inline
+bsl::size_t StripedUnorderedMap<KEY, VALUE, HASH, EQUAL>::
+                                     tryEmplace(const KEY& key, Args&&... args)
+{
+    return d_imp.emplaceUnique(key,
+                               BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+}
+#endif
 
 template <class KEY, class VALUE, class HASH, class EQUAL>
 inline
@@ -1022,8 +1078,9 @@ struct UsesBslmaAllocator<bdlcc::StripedUnorderedMap<KEY, VALUE, HASH, EQUAL> >
 };
 
 }  // close namespace bslma
-
 }  // close enterprise namespace
+
+#endif // End C++11 code
 
 #endif
 
