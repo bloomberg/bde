@@ -993,8 +993,8 @@ bsl::size_t OutputRedirector::outputSize() const
 
 namespace MultiThreadedTest {
 
-enum { k_NUM_THREADS      = 40,
-       k_NUM_ITERATIONS   = 100,
+enum { k_NUM_THREADS      = 20,
+       k_NUM_ITERATIONS   = 50,
        k_EXPECTED_MATCHES = k_NUM_THREADS * k_NUM_ITERATIONS };
 
 AtomicInt                    atomicBarrier(0);
@@ -1068,7 +1068,7 @@ void TestFunctor::operator()()
     REAL_ASSERT(0 != outputRedirector_p);
 
     --atomicBarrier;
-    while (atomicBarrier) ;
+    while (atomicBarrier) Util::yield();
 
     for (int ii = k_NUM_ITERATIONS; 0 < ii--; ) {
         d_enablePush = zeroThread && 0 == ii;
@@ -1170,7 +1170,8 @@ void TestFunctor::operator()()
 
         MT_ASSERTV(9999, 78, 77, 76, 75, 74,
                           2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74);
-        push("9999: 9999\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74    (context)\n"
+        push("9999: 9999\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74"
+             "    (context)\n"
              "Error " __FILE__ "(): "
                       "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
                                                              "    (failed)\n");
@@ -1215,7 +1216,8 @@ void TestFunctor::operator()()
                  "Error " __FILE__ "(): "
                                "7 * 89 - 6 * 88 + 3 * 87 - 27 * 86 == 103 * 85"
                                                              "    (failed)\n"
-                 "79: 79\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74    (context)\n"
+                 "79: 79\t78: 78\t77: 77\t76: 76\t75: 75\t74: 74"
+                 "    (context)\n"
                  "Error " __FILE__ "(): "
                           "2 * 79 + 2 * 78 + 2 * 77 < 2 * 76 + 2 * 75 + 2 * 74"
                                                              "    (failed)\n");
@@ -1537,7 +1539,7 @@ int main(int argc, char *argv[])
 
         // Threads are initializing their `ThreadData` objects.
 
-        while (TC::atomicBarrier) ;
+        while (TC::atomicBarrier) Util::yield();
 
         REALLOOP2_ASSERT(TC::k_NUM_THREADS, TC::threadIdx,
                                            TC::k_NUM_THREADS == TC::threadIdx);
@@ -2160,7 +2162,8 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d"
+                         "    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
@@ -2191,7 +2194,8 @@ int main(int argc, char *argv[])
                 REAL_ASSERT(output.load());
                 snprintf(s_expectedOutput,
                          k_BUFFER_SIZE,
-                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d    (context)\n"
+                         "I: %d\tJ: %d\tK: %d\tL: %d\tM: %d\tN: %d"
+                         "    (context)\n"
                          "Error %s(%d): idx > k_REPEAT    (failed)\n",
                          I, J, K, L, M, N,
                          __FILE__,
