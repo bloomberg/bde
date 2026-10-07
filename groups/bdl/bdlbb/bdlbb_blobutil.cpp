@@ -535,6 +535,16 @@ void BlobUtil::copy(Blob        *dst,
     }
 }
 
+void BlobUtil::deepCopy(Blob *dst, const Blob& src)
+{
+    BSLS_ASSERT(dst);
+    BSLS_ASSERT(dst->factory());
+    BSLS_ASSERT(dst->totalSize() == 0);
+
+    dst->setLength(src.length());
+    copy(dst, 0, src, 0, src.length());
+}
+
 char *BlobUtil::getContiguousRangeOrCopy(char        *dstBuffer,
                                          const Blob&  srcBlob,
                                          int          position,

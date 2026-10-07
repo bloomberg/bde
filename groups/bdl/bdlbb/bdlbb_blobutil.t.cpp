@@ -35,6 +35,7 @@ using namespace bsl;
 //=============================================================================
 //                                  TEST PLAN
 //-----------------------------------------------------------------------------
+// [20] void deepCopy(Blob *dst, const Blob& src);
 // [19] BlobUtilAsciiDumper(const Blob *blob);
 // [19] BlobUtilAsciiDumper(const Blob *blob, int length);
 // [19] BlobUtilAsciiDumper(const Blob *blob, int offset, int length);
@@ -573,6 +574,136 @@ int main(int argc, char *argv[])
     bsls::ReviewFailureHandlerGuard reviewGuard(&bsls::Review::failByAbort);
 
     switch (test) { case 0:
+      case 20: {
+        // -------------------------------------------------------------------
+        // TESTING `deepCopy`
+        //
+        // Concerns:
+        // 1. `deepCopy` produces a `dst` blob whose data is identical to
+        //    `src`, using buffers from the `dst` blob's factory.
+        //
+        // 2. Modifying `dst` after the copy does not affect `src` and vice
+        //    versa.
+        //
+        // 3. An empty `src` produces an empty `dst`.
+        //
+        // 4. `src` and `dst` may alias when empty.
+        //
+        // 5. QoI: Asserted precondition violations are detected when enabled.
+        //
+        // Plan:
+        // 1. Create a source blob with known content spanning multiple
+        //    buffers.
+        //
+        // 2. Deep copy into a destination blob with a different buffer
+        //    factory.
+        //
+        // 3. Verify the data matches using `BlobUtil::compare`.  (C-1)
+        //
+        // 4. Modify various buffers of `dst` and verify `src` is unchanged;
+        //    modify various buffers of `src` and verify `dst` is unchanged.
+        //    (C-2)
+        //
+        // 5. Test with an empty source blob.  (C-3)
+        //
+        // 6. Test with the source and destination being the same (allowed when
+        //    the source/destination has no buffers).  (C-4)
+        //
+        // 7. Verify that, in appropriate build modes, defensive checks are
+        //    triggered for a `dst` with no installed factory, and for one that
+        //    has pre-existing buffers, but not for a valid call (using the
+        //    `BSLS_ASSERTTEST_*` macros).  (C-5)
+        //
+        // Testing:
+        //   void deepCopy(Blob *dst, const Blob& src);
+        // -------------------------------------------------------------------
+
+        if (verbose) cout << "\nTesting `deepCopy`"
+                             "\n==================" << endl;
+        if (verbose) cout << "\tIndependence" << endl;
+        {
+            const char DATA[]   = "Hello, World!";
+            const int  DATA_LEN = sizeof(DATA) - 1;
+
+            const int BUF_SIZE = 1;
+            BlobBufferFactory srcFactory(BUF_SIZE);
+            BlobBufferFactory dstFactory(BUF_SIZE);
+
+            for (int i = 0; i != DATA_LEN; ++i) {
+                bdlbb::Blob src(&srcFactory);
+                bdlbb::BlobUtil::append(&src, DATA, DATA_LEN);
+                char ch = 'X';
+
+                // Verify independence: modifying dst doesn't affect src.
+                bdlbb::Blob dst(&dstFactory);
+                bdlbb::BlobUtil::deepCopy(&dst, src);
+
+                LOOP_ASSERT(i, dst.length() == src.length());
+                LOOP_ASSERT(i, 0 == bdlbb::BlobUtil::compare(src, dst));
+
+                bdlbb::BlobUtil::copy(&dst, i, &ch, 1);
+                LOOP_ASSERT(i, 0 != bdlbb::BlobUtil::compare(src, dst));
+
+                char buf[DATA_LEN] = { 0 };
+                bdlbb::BlobUtil::copy(buf, src, 0, DATA_LEN);
+                LOOP_ASSERT(i, 0 == bsl::memcmp(buf, DATA, DATA_LEN));
+
+                // Verify independence: modifying src doesn't affect dst.
+                dst.removeAll();
+                bdlbb::BlobUtil::deepCopy(&dst, src);
+
+                LOOP_ASSERT(i, dst.length() == src.length());
+                LOOP_ASSERT(i, 0 == bdlbb::BlobUtil::compare(src, dst));
+
+                bdlbb::BlobUtil::copy(&src, i, &ch, 1);
+                LOOP_ASSERT(i, 0 != bdlbb::BlobUtil::compare(src, dst));
+
+                bsl::memset(buf, 0, DATA_LEN);
+                bdlbb::BlobUtil::copy(buf, dst, 0, DATA_LEN);
+                LOOP_ASSERT(i, 0 == bsl::memcmp(buf, DATA, DATA_LEN));
+            }
+        }
+
+        if (verbose) cout << "\tEmpty source" << endl;
+        {
+            BlobBufferFactory bbf(4);
+            bdlbb::Blob src(&bbf);
+            bdlbb::Blob dst(&bbf);
+
+            bdlbb::BlobUtil::deepCopy(&dst, src);
+            ASSERT(0 == dst.length());
+            ASSERT(0 == bdlbb::BlobUtil::compare(src, dst));
+
+            // Aliasing is valid as long as other pre-conditions are met, that
+            // is, `dst` must have a factory and have no buffers
+            bdlbb::BlobUtil::deepCopy(&dst, dst);
+            ASSERT(0 == dst.length());
+            ASSERT(0 == bdlbb::BlobUtil::compare(src, dst));
+        }
+
+        if (verbose) cout << "\tNegative Testing" << endl;
+        {
+            bsls::AssertTestHandlerGuard hG;
+
+            BlobBufferFactory bbf(4);
+            bdlbb::Blob src(&bbf);
+
+            // `dst` has no installed factory
+            bdlbb::Blob noFactory;
+            bdlbb::Blob hasFactory(&bbf);
+            ASSERT_FAIL(bdlbb::BlobUtil::deepCopy( &noFactory, src));
+            ASSERT_PASS(bdlbb::BlobUtil::deepCopy(&hasFactory, src));
+
+            // `dst` has existing capacity
+            hasFactory.setLength(1);
+            hasFactory.setLength(0);
+            ASSERT(hasFactory.numBuffers() == 1);
+            ASSERT(hasFactory.numDataBuffers() == 0);
+            ASSERT_FAIL(bdlbb::BlobUtil::deepCopy(&hasFactory, src));
+            hasFactory.removeAll();
+            ASSERT_PASS(bdlbb::BlobUtil::deepCopy(&hasFactory, src));
+        }
+      } break;
       case 19: {
         // --------------------------------------------------------------------
         // TESTING `BlobUtilAsciiDumper`

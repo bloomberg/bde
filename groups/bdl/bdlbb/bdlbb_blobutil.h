@@ -180,6 +180,16 @@ struct BlobUtil {
                      int          srcOffset,
                      int          length);
 
+    /// Deep copy the data of the specified `src` into the specified `dst`
+    /// using `dst`'s underlying `BlobBufferFactory` to source buffers as
+    /// needed to accommodate the data.  The behavior is undefined unless
+    /// `dst->totalSize() == 0` and `dst` has an underlying factory.  Note that
+    /// `dst->totalSize() == 0` guarantees that `dst` shares no `BlobBuffer`s
+    /// with `src` prior to calling `deepCopy`.  Also note that deep copying
+    /// means that the data itself is copied, which is more expensive than
+    /// sharing reference-counted `BlobBuffer`s between `Blob`s.
+    static void deepCopy(Blob *dst, const Blob& src);
+
     /// Return the address of the byte at the specified `position` in the
     /// specified `srcBlob`, if that address is aligned to the optionally
     /// specified `alignment` and the specified `length` bytes are stored
@@ -334,9 +344,9 @@ struct BlobUtil {
     /// buffers exceeds `INT_MAX`.  Return 0 on success, and a non-zero
     /// value (with no effect) otherwise.  Increment the length of the 'dest
     /// by the size of the `buffer` if `buffer` is inserted *before* the
-    /// logical end of the `dest`.  The length of the `dest` is <u>unchanged</u>
-    /// if inserting at a position following all data buffers (e.g.,
-    /// inserting into an empty blob or inserting a buffer to increase
+    /// logical end of the `dest`.  The length of the `dest` is
+    /// <u>unchanged</u> if inserting at a position following all data buffers
+    /// (e.g., inserting into an empty blob or inserting a buffer to increase
     /// capacity); in that case, the blob length must be changed by an
     /// explicit call to `setLength`.  Buffers at `index` and higher
     /// positions (if any) are shifted up by one index position.
