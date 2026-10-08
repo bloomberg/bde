@@ -1,14 +1,33 @@
-bsl-internal (4.40.1.0) unstable; urgency=low
+bsl-internal (4.41.0.0) unstable; urgency=low
 
-  * 083999827 Bumped version to 4.40.1.0
-  * c9497e0ea Revert 5652 hieararchical category speedup radix tree (#5974)
-
- -- Mike Giroux <mgiroux@bloomberg.net>  Mon, 7 Sep 2026 16:22:48 -0400
-
-bsl-internal (4.40.0.0) git; urgency=low
-
-  * 969a9336a Changelog for version 4.40.0.0
-  * 6789058ed Bumped version to 4.40.0.0
+  * 078d3dd98 Bumped version to 4.41.0.0
+  * 4712408fd increase timeout duration and verify no timeout (#5995)
+  * 9959fbe78 . (#5994)
+  * 017d93818 fix tsan issues (#5993)
+  * 15d3dcf6c drqs-185744795: `bdlt_timeformatter`: Correct component-level doc. (#5973)
+  * 6c61bcacf [DRQS 185647457] balxml_typesparserutil: range-check all integral parsing (#5967)
+  * d611f2dfd Drqs 176120121/bdlma concurrentpool (#5686)
+  * aeafe54ee bsls_atomicoperations: make relaxed 64-bit ops atomic on x86/MSVC (#5986)
+  * c66c6b05c Add missing leading spaces to doc lines (#5990)
+  * bce8eac3c Fix ball.txt markup. (#5989)
+  * 7d1789e41 TSAN race fix in bslmt_throughputbenchmark.t (#5982)
+  * 86e880a37 [DRQS 186194409] bdlf_overloaded fix function pointers with value parameters (#5984)
+  * ec310b87e Fix test inner-bound typos (#5944)
+  * 379c037f5 Merge 4.40.x (#5980)
+  * 92c56bfeb bslstl_optional/bdlb_nullablevalue: spaceship with std::optional (#5970)
+  * fbb71120b Revert 5652 hieararchical category speedup radix tree (#5974) (#5975)
+  * 18bc41c3a bslstl_stringview: restricting testing of construction from std::string_view begin/end to places where it will work consistently (#5969)
+  * f4406b5bf Add deprecation blurb for validateAndSetDateTz (#5965)
+  * c1af5024f [DRQS 184544118] implement bsl::exchange (#5961)
+  * 1fad0fd80 Enable bde_branch_check in Jenkins (#5946)
+  * 084ee1b0a 4 components: changed modifying asserts to be less bad (#5964)
+  * 8402ceccc bslma_testallocator: sscanf returns int, previously we were ignoring when eof was returned then using an uninitialized local variable (#5963)
+  * b73721be2 [DRQS 185716283] bdlt_iso8601util: reject overflow in TimeInterval parsing (#5960)
+  * 98a19cbb9 remove use of volatile (#5959)
+  * 639513cce Minor doc formatting fix (#5958)
+  * c0aed1f66 bdlpcre_regex.t.cpp: fix max align logic (#5957)
+  * 488015c2b Minor doc formatting fixes (#5954)
+  * 13c6d72b9 resolve minor warnings (#5952)
   * 730b86124 drqs-180328313: `baljsn_jsonconverteroptions` (#5876)
   * 931b0fd6e Fix bad version checks (#5949)
   * d9c54128a Update default for seconds precision. (#5951)
@@ -75,7 +94,7 @@ bsl-internal (4.40.0.0) git; urgency=low
   * dee0edd40 Remove buffer overrun. (#5866)
   * 5eeddba6f Remove unused parameter warning. (#5863)
 
- -- Mike Giroux <mgiroux@bloomberg.net>  Sun, 2 Aug 2026 12:54:55 -0400
+ -- Oleg Subbotin <osubbotin@bloomberg.net>  Tue, 6 Oct 2026 14:55:59 +0000
 
 bsl-internal (4.38.0.0) git; urgency=low
 
