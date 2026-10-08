@@ -73,7 +73,7 @@ void *ConcurrentFixedPool::allocateNew()
     }
 
     const int genCount = d_sizeMask + 1;  // initial generation count
-    node->d_next = (unsigned)numNodes + 1 + genCount;
+    node->d_next.storeRelease((unsigned)numNodes + 1 + genCount);
     d_nodes[numNodes] = node;
     return (char *)node + d_dataOffset;
 }
@@ -121,13 +121,14 @@ void *ConcurrentFixedPool::allocate()
     Node *node;
 
     while (1) {
-        head = d_freeList.loadRelaxed();
+        head = d_freeList.loadAcquire();
         if (!head) {
             return allocateNew();                                     // RETURN
         }
 
         node = d_nodes[((unsigned)head & d_sizeMask) - 1];
-        if (head == d_freeList.testAndSwap(head, node->d_next)) {
+        if (head == d_freeList.testAndSwapAcqRel(head,
+                                                 node->d_next.loadAcquire())) {
             break;
         }
 
@@ -135,7 +136,7 @@ void *ConcurrentFixedPool::allocate()
     }
 
     const int genCount = d_sizeMask + 1;  // generation count increment
-    node->d_next = (unsigned)head + genCount;
+    node->d_next.storeRelease((unsigned)head + genCount);
 
     return (char *)node + d_dataOffset;
 }
@@ -145,12 +146,13 @@ void ConcurrentFixedPool::deallocate(void *address)
     int contentionCount = 0;
 
     Node *node = (Node *)(void *)((char *)address - d_dataOffset);
-    int  index = node->d_next;  // 'd_next' contains the link index of this
-                                // link node advanced by one generation.
+    int  index = node->d_next.loadAcquire();  // 'd_next' contains the link
+                                              // index of this link node
+                                              // advanced by one generation.
     while (1) {
-        int old = d_freeList.loadRelaxed();
-        node->d_next = old;
-        if (old == d_freeList.testAndSwap(old, index)) {
+        int old = d_freeList.loadAcquire();
+        node->d_next.storeRelease(old);
+        if (old == d_freeList.testAndSwapAcqRel(old, index)) {
             break;
         }
 
@@ -162,7 +164,7 @@ void ConcurrentFixedPool::release()
 {
     bslmt::LockGuard<bslmt::Mutex> guard(&d_nodePoolMutex);
 
-    d_freeList = 0;
+    d_freeList.storeRelease(0);
     d_numNodes = 0;
 
     d_nodePool.release();
@@ -183,18 +185,19 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
     // Reserve nodes using the free list.
     while (numObjects) {
-        int head = d_freeList.loadRelaxed();
+        int head = d_freeList.loadAcquire();
         if (!head) {
             break;
         }
 
         Node *node = d_nodes[((unsigned)head & d_sizeMask) - 1];
-        if (head != d_freeList.testAndSwap(head, node->d_next)) {
+        if (head != d_freeList.testAndSwapAcqRel(head,
+                                                 node->d_next.loadAcquire())) {
             backoff(&contentionCount, d_backoffLevel);
             continue;
         }
 
-        lastNode->d_next = (unsigned)head + genCount;
+        lastNode->d_next.storeRelease((unsigned)head + genCount);
         lastNode = node;
 
         --numObjects;
@@ -219,7 +222,7 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
         d_nodes[numNodes] = node;
 
-        lastNode->d_next = (unsigned)numNodes + 1 + genCount;
+        lastNode->d_next.storeRelease((unsigned)numNodes + 1 + genCount);
         lastNode = node;
 
         --numObjects;
@@ -227,11 +230,11 @@ int ConcurrentFixedPool::reserveCapacity(int numObjects)
 
     // Add the reserved nodes to the free list.
     if (lastNode != &reserved) {
-        int head = reserved.d_next;
+        int head = reserved.d_next.loadAcquire();
         while (1) {
-            int old = d_freeList.loadRelaxed();
-            lastNode->d_next = old;
-            if (old == d_freeList.testAndSwap(old, head)) {
+            int old = d_freeList.loadAcquire();
+            lastNode->d_next.storeRelease(old);
+            if (old == d_freeList.testAndSwapAcqRel(old, head)) {
                 break;
             }
         }

@@ -149,9 +149,9 @@ namespace bdlma {
 struct ConcurrentFixedPool_Node {
 
     // DATA
-    unsigned d_next;  // index of next free node when on free list; otherwise,
-                      // index of this node itself adjusted with a generation
-                      // count
+    bsls::AtomicUint d_next;  // index of next free node when on free list;
+                              // otherwise, index of this node itself adjusted
+                              // with a generation count
 };
 
                         // =========================
@@ -417,7 +417,7 @@ int ConcurrentFixedPool::indexFromAddress(void *address) const
 {
     const Node * const node = (const Node *)(void *)
                                               ((char *)address - d_dataOffset);
-    return (node->d_next & d_sizeMask) - 1;
+    return (node->d_next.loadAcquire() & d_sizeMask) - 1;
 }
 
 inline
