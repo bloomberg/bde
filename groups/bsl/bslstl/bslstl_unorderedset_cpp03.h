@@ -21,8 +21,8 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar 19 20:53:55 2026
-// Command line: sim_cpp11_features.pl bslstl_unorderedset.h
+// Generated on Mon Oct 05 17:45:04 2026
+// Command line: sim_cpp11_features.py bslstl_unorderedset.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDSET_H
 
@@ -537,8 +537,7 @@ class unordered_set {
     {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
-        HashTableLink *result =
-                d_impl.insertIfMissingTransparent(
+        HashTableLink *result = d_impl.insertKeyIfMissing(
                              &isInsertedFlag,
                              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
         return ResultType(iterator(result), isInsertedFlag);
@@ -649,7 +648,7 @@ class unordered_set {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedset.h
+// Command line: sim_cpp11_features.py bslstl_unorderedset.h
 #ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT 10
 #endif
@@ -2184,7 +2183,7 @@ void unordered_set<KEY, HASH, EQUAL, ALLOCATOR>::clear() BSLS_KEYWORD_NOEXCEPT
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedset.h
+// Command line: sim_cpp11_features.py bslstl_unorderedset.h
 #ifndef BSLSTL_UNORDEREDSET_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDSET_VARIADIC_LIMIT 10
 #endif

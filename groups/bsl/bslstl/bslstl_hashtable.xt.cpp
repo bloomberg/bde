@@ -24,6 +24,7 @@
 #include <bslmf_isfunction.h>
 #include <bslmf_istriviallycopyable.h>
 #include <bslmf_istriviallydefaultconstructible.h>
+#include <bslmf_movableref.h>
 #include <bslmf_removeconst.h>
 
 #include <bsls_assert.h>
@@ -38,6 +39,8 @@
 #include <bsltf_convertiblevaluewrapper.h>
 #include <bsltf_degeneratefunctor.h>
 #include <bsltf_evilbooleantype.h>
+#include <bsltf_movabletesttype.h>
+#include <bsltf_movestate.h>
 #include <bsltf_nonequalcomparabletesttype.h>
 #include <bsltf_stdstatefulallocator.h>
 #include <bsltf_stdtestallocator.h>
@@ -188,9 +191,7 @@ using namespace BloombergLP;
 //*[13] template <class P> Link *insert(P&& obj);
 //*[13] template <class P> Link *insert(P&& obj, const Link *hint);
 //*[16] template <class P> Link *insertIfMissing(bool *isInserted, P&& obj);
-//*[16] Link *insertIfMissing(bool *isInsertedFlag, const ValueType& obj);
-// [  ] Link *insertIfMissing(bool *isInsertedFlag, MovableRef<ValueType> obj);
-//*[17] Link *insertIfMissing(const KeyType& key);
+//*[17] Link *insertKeyIfMissing(bool *isInsertedFlag, KEY&& key);
 // [  ] remove(bslalg::BidirectionalLink *node);
 // [ 2] removeAll();
 //*[11] rehashForNumBuckets(SizeType newNumBuckets);
@@ -3796,6 +3797,148 @@ struct TransparentHasher
     }
 };
 
+//@bdetdsplit FOR 25 BEGIN
+
+                        // ===========================
+                        // struct MovableRefTestHasher
+                        // ===========================
+
+/// This class is a hash functor whose call operator is a template, so it does
+/// not accept its argument through an implicit conversion, and that does not
+/// accept an rvalue argument.  The call operator is not `const`, so it can be
+/// called by a hash table only through its hash wrapper.
+struct MovableRefTestHasher {
+
+    /// Return the value of the specified `key` as a hash code.
+    template <class KEY>
+    size_t operator()(const KEY& key)
+    {
+        return static_cast<size_t>(key.data());
+    }
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    template <class KEY>
+    size_t operator()(const KEY&& key) = delete;
+#endif
+};
+
+                      // ===============================
+                      // struct MovableRefTestComparator
+                      // ===============================
+
+/// This class is an equality functor whose call operator is a template, so it
+/// does not accept its arguments through an implicit conversion, and that does
+/// not accept rvalue arguments.
+struct MovableRefTestComparator {
+
+    /// Return `true` if the specified `lhs` has the same value as the
+    /// specified `rhs`, and `false` otherwise.
+    template <class LHS, class RHS>
+    bool operator()(const LHS& lhs, const RHS& rhs) const
+    {
+        return lhs.data() == rhs.data();
+    }
+
+#if defined(BSLMF_MOVABLEREF_USES_RVALUE_REFERENCES)
+    template <class LHS, class RHS>
+    bool operator()(const LHS&& lhs, const RHS& rhs) const = delete;
+
+    template <class LHS, class RHS>
+    bool operator()(const LHS& lhs, const RHS&& rhs) const = delete;
+
+    template <class LHS, class RHS>
+    bool operator()(const LHS&& lhs, const RHS&& rhs) const = delete;
+#endif
+};
+
+                   // ======================================
+                   // struct TransparentMovableRefTestHasher
+                   // ======================================
+
+/// This class is a `MovableRefTestHasher` that is additionally classified as
+/// transparent by the `bslmf::IsTransparentPredicate` metafunction.
+struct TransparentMovableRefTestHasher : MovableRefTestHasher {
+    typedef void is_transparent;
+};
+
+                         // ======================
+                         // class CopyMoveCountKey
+                         // ======================
+
+/// This class is a key type that supports copy and move constructor counters
+/// and can be used in tests that check for unnecessary copies.
+class CopyMoveCountKey {
+    // CLASS DATA
+    static int s_numCopies;
+    static int s_numMoves;
+
+    // DATA
+    int d_data;
+
+  public:
+    // CLASS METHODS
+
+    /// Return the number of copy constructions since the last call to
+    /// `resetCounters`.
+    static int numCopies() { return s_numCopies; }
+
+    /// Return the number of move constructions since the last call to
+    /// `resetCounters`.
+    static int numMoves() { return s_numMoves; }
+
+    /// Reset the copy and move construction counters to 0.
+    static void resetCounters()
+    {
+        s_numCopies = 0;
+        s_numMoves  = 0;
+    }
+
+    // CREATORS
+
+    /// Create an object having the specified `data`.
+    explicit CopyMoveCountKey(int data)
+    : d_data(data)
+    {
+    }
+
+    /// Create an object having the value of the specified `original`, and
+    /// increment the copy construction counter.
+    CopyMoveCountKey(const CopyMoveCountKey& original)
+    : d_data(original.d_data)
+    {
+        ++s_numCopies;
+    }
+
+    /// Create an object having the value of the specified `original`, and
+    /// increment the move construction counter.
+    CopyMoveCountKey(bslmf::MovableRef<CopyMoveCountKey> original)
+    : d_data(bslmf::MovableRefUtil::access(original).d_data)
+    {
+        ++s_numMoves;
+    }
+
+    // ACCESSORS
+
+    /// Return the data of this object.
+    int data() const { return d_data; }
+};
+
+// CLASS DATA
+int CopyMoveCountKey::s_numCopies = 0;
+int CopyMoveCountKey::s_numMoves  = 0;
+
+                 // ==========================================
+                 // struct TransparentMovableRefTestComparator
+                 // ==========================================
+
+/// This class is a `MovableRefTestComparator` that is additionally classified
+/// as transparent by the `bslmf::IsTransparentPredicate` metafunction.
+struct TransparentMovableRefTestComparator : MovableRefTestComparator {
+    typedef void is_transparent;
+};
+
+//@bdetdsplit FOR 25 END
+
 /// Search for a key equal to the specified `initKeyValue` in the specified
 /// `container`, and count the number of conversions expected based on the
 /// specified `isTransparent`.  Note that `Container` may resolve to a
@@ -3875,7 +4018,8 @@ void testSetTransparentComparator(t_CONTAINER& container,
                 expectedConversionCount,      existingKey.conversionCount(),
                 expectedConversionCount ==    existingKey.conversionCount());
 
-        const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
+        const Count bucketNotFound =
+                                   container.bucketIndexForKey(nonExistingKey);
         (void) bucketNotFound;
         ASSERTV(isTransparent,
                 expectedConversionCount,   nonExistingKey.conversionCount(),
@@ -3963,7 +4107,8 @@ void testMapTransparentComparator(t_CONTAINER& container,
                 expectedConversionCount,      existingKey.conversionCount(),
                 expectedConversionCount ==    existingKey.conversionCount());
 
-        const Count bucketNotFound = container.bucketIndexForKey(nonExistingKey);
+        const Count bucketNotFound =
+                                   container.bucketIndexForKey(nonExistingKey);
         (void) bucketNotFound;
         ASSERTV(isTransparent,
                 expectedConversionCount,   nonExistingKey.conversionCount(),
@@ -3992,9 +4137,10 @@ void testSetTransparentComparatorMutable(const t_CONTAINER& container,
                                                         : -100);
 
     {
-        // Testing `insertIfMissingTransparent`.   Note that this is only
-        // available when isTransparent is true; but we match the structure of
-        // the other test routines to make reading easier.
+        // Testing `insertKeyIfMissing` on a set-like hash table.  Note that a
+        // key of a different type is accepted only when isTransparent is true;
+        // but we match the structure of the other test routines to make
+        // reading easier.
         existingKey.resetConversionCount();
         nonExistingKey.resetConversionCount();
 
@@ -4003,7 +4149,7 @@ void testSetTransparentComparatorMutable(const t_CONTAINER& container,
         Link      link;
 
         // with an existing key
-        link = c.insertIfMissingTransparent(&wasInserted, existingKey);
+        link = c.insertKeyIfMissing(&wasInserted, existingKey);
         ASSERT(!wasInserted);
         ASSERT(size == c.size());
         ASSERT(existingKey.value() ==
@@ -4019,7 +4165,7 @@ void testSetTransparentComparatorMutable(const t_CONTAINER& container,
         // lookup fails, it gets inserted into the map.  If we do have a
         // transparent comparator, the lookup is done w/o conversion, but then
         // the value gets converted in order to put it into the map.
-        link = c.insertIfMissingTransparent(&wasInserted, nonExistingKey);
+        link = c.insertKeyIfMissing(&wasInserted, nonExistingKey);
         ASSERT( wasInserted);
         ASSERT(size + 1 == c.size());
         ASSERT(nonExistingKey.value() ==
@@ -8761,8 +8907,8 @@ if (veryVerbose) puts("Usage Example1");
     {
     }
 // ```
-// As with `MyHashedSet`, the `insertIfMissing` method of `bslstl::HashTable`
-// provides the semantics we need: an element is inserted only if no such
+// As with `MyHashedSet`, `bslstl::HashTable::insertKeyIfMissing` provides the
+// semantics we need: an element is inserted only if no such
 // element (no element with the same key) in the container, and a reference to
 // that element (`node`) is returned.  Here, we use `node` to obtain and return
 // a reference offering modifiable access to the `second` member of the
@@ -8783,7 +8929,8 @@ if (veryVerbose) puts("Usage Example1");
         typedef typename ImpHashTable::NodeType        HashTableNode;
         typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
 
-        HashTableLink *node = d_impl.insertIfMissing(key);
+        bool           isInserted;  // not used
+        HashTableLink *node = d_impl.insertKeyIfMissing(&isInserted, key);
         return static_cast<HashTableNode *>(node)->value().second;
     }
 
@@ -9753,28 +9900,57 @@ int main(int argc, char *argv[])
         // TESTING TRANSPARENT COMPARATOR
         //
         // Concerns:
-        // 1. `unordered_map` does not have a transparent set of lookup
-        //    functions if the comparator is not transparent.
+        // 1. If the hasher and the comparator are transparent, the lookup
+        //    functions accept a key of a type other than `KeyType` and do not
+        //    convert it to `KeyType`.  Note that converting such a key for
+        //    non-transparent functors is the responsibility of the
+        //    containers, and is tested in their test drivers.
         //
-        // 2. `unordered_map` has a transparent set of lookup functions if the
-        //    comparator is transparent.
+        // 2. The hasher and the comparator are called with an lvalue referring
+        //    to the key itself, and never with a `bslmf::MovableRef` wrapper
+        //    around it or with an rvalue, so that a key is not moved from
+        //    before it is inserted.
+        //
+        // 3. A hasher whose call operator is not `const` is supported.
+        //
+        // 4. A key that is an rvalue or a `bslmf::MovableRef` is moved from
+        //    when it is inserted.
+        //
+        // 5. Inserting a `ValueType` object whose key is already present does
+        //    not copy or move that object.
         //
         // Plan:
-        // 1. Construct a non-transparent map and call the lookup functions
-        //    with a type that is convertible to the `value_type`.  There
-        //    should be exactly one conversion per call to a lookup function.
-        //    (C-1)
+        // 1. Construct a hash table having transparent functors and call the
+        //    lookup functions with a type that is convertible to `KeyType`.
+        //    There should be no conversions.  (C-1)
         //
-        // 2. Construct a transparent map and call the lookup functions with a
-        //    type that is convertible to the `value_type`.  There should be no
-        //    conversions.  (C-2)
+        // 2. Using functors whose call operators are templates, and that
+        //    therefore do not accept an argument through an implicit
+        //    conversion, and that reject rvalue arguments, move keys that
+        //    both do and do not already exist into hash tables having
+        //    transparent and non-transparent functors, and perform lookups
+        //    with moved keys, with and without hints.  Verify that a moved key
+        //    is moved from if and only if it is inserted.  (C-2, 4)
+        //
+        // 3. Make the call operator of the hasher used in P-2 non-`const`.
+        //    (C-3)
+        //
+        // 4. Using a key type that counts its copy and move constructions,
+        //    insert `ValueType` lvalues and rvalues whose keys are already
+        //    present, and verify that no copy or move occurs.  (C-5)
         //
         // Testing:
-        //   CONCERN: `find`              handles transparent comparators.
-        //   CONCERN: `findRance`         handles transparent comparators.
-        //   CONCERN: `bucketIndexForKey` handles transparent comparators.
-        //   CONCERN: `operator []`       handles transparent comparators.
-        //   CONCERN: `tryEmplace`        handles transparent comparators.
+        //   CONCERN: `find`               handles transparent comparators.
+        //   CONCERN: `findRange`          handles transparent comparators.
+        //   CONCERN: `bucketIndexForKey`  handles transparent comparators.
+        //   CONCERN: `tryEmplace`         handles transparent comparators.
+        //   CONCERN: `insertOrAssign`     handles transparent comparators.
+        //   CONCERN: `insertKeyIfMissing` handles transparent comparators.
+        //   CONCERN: `insertIfMissing` does not copy or move a duplicate.
+        //   CONCERN: A `MovableRef` key is unwrapped before it is hashed.
+        //   CONCERN: A `MovableRef` key is unwrapped before it is compared.
+        //   CONCERN: A moved key is hashed and compared as an lvalue.
+        //   CONCERN: Transparent functions support a non-`const` hasher.
         // --------------------------------------------------------------------
 
         if (verbose) printf("\n" "TESTING TRANSPARENT COMPARATOR" "\n"
@@ -9788,16 +9964,9 @@ int main(int argc, char *argv[])
                         TransparentComparator
             >    TransparentSet;
 
-            typedef bslstl::HashTable<SetConfig,
-                        bsl::hash<int>,
-                        TransparentComparator
-            >    NonTransparentSet;
-
             const int DATA[] = { 0, 1, 2, 3, 4 };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-            NonTransparentSet        mSet;
-            const NonTransparentSet &cSet = mSet;
             TransparentSet           mXSet;
             const TransparentSet    &cXSet = mXSet;
 
@@ -9806,29 +9975,18 @@ int main(int argc, char *argv[])
                     printf("Constructing test data\n");
                 }
                 const TransparentSet::ValueType VALUE(DATA[i]);
-                mSet.insert(VALUE);
                 mXSet.insert(VALUE);
             }
 
-            ASSERT(NUM_DATA == cSet.size());
             ASSERT(NUM_DATA == cXSet.size());
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int KEY = DATA[i];
                 if (veryVerbose) {
-                    printf("Testing transparent comparators with a key of %d\n",
-                           KEY);
+                    printf(
+                          "Testing transparent comparators with a key of %d\n",
+                          KEY);
                 }
-
-                if (veryVerbose) {
-                    printf("\tTesting const non-transparent map.\n");
-                }
-                testSetTransparentComparator( cSet, false, KEY);
-
-                if (veryVerbose) {
-                    printf("\tTesting mutable non-transparent map.\n");
-                }
-                testSetTransparentComparator       (mSet, false, KEY);
 
                 if (veryVerbose) {
                     printf("\tTesting const transparent map.\n");
@@ -9845,22 +10003,16 @@ int main(int argc, char *argv[])
 
         if (veryVerbose) printf("Testing map-like containers\n");
         {
-            typedef MapKeyConfiguration<const int, bsl::pair<const int, int> > MapConfig;
+            typedef MapKeyConfiguration<const int, bsl::pair<const int, int> >
+                 MapConfig;
             typedef bslstl::HashTable<MapConfig,
                         TransparentHasher,
                         TransparentComparator
             >    TransparentMap;
 
-            typedef bslstl::HashTable<MapConfig,
-                        bsl::hash<int>,
-                        TransparentComparator
-            >    NonTransparentMap;
-
             const int DATA[] = { 0, 1, 2, 3, 4 };
             enum { NUM_DATA = sizeof DATA / sizeof *DATA };
 
-            NonTransparentMap        mMap;
-            const NonTransparentMap &cMap = mMap;
             TransparentMap           mXMap;
             const TransparentMap    &cXMap = mXMap;
 
@@ -9869,30 +10021,18 @@ int main(int argc, char *argv[])
                     printf("Constructing test data\n");
                 }
                 const TransparentMap::ValueType VALUE(DATA[i], DATA[i]);
-                mMap.insert(VALUE);
                 mXMap.insert(VALUE);
             }
 
-            ASSERT(NUM_DATA == cMap.size());
             ASSERT(NUM_DATA == cXMap.size());
 
             for (int i = 0; i < NUM_DATA; ++i) {
                 const int KEY = DATA[i];
                 if (veryVerbose) {
-                    printf("Testing transparent comparators with a key of %d\n",
-                           KEY);
+                    printf(
+                          "Testing transparent comparators with a key of %d\n",
+                          KEY);
                 }
-
-                if (veryVerbose) {
-                    printf("\tTesting const non-transparent map.\n");
-                }
-                testMapTransparentComparator( cMap, false, KEY);
-
-                if (veryVerbose) {
-                    printf("\tTesting mutable non-transparent map.\n");
-                }
-                testMapTransparentComparator       (mMap, false, KEY);
-                testMapTransparentComparatorMutable(mMap, false, KEY);
 
                 if (veryVerbose) {
                     printf("\tTesting const transparent map.\n");
@@ -9907,6 +10047,331 @@ int main(int argc, char *argv[])
             }
         }
 
+        if (veryVerbose) printf("Testing `bslmf::MovableRef` unwrapping\n");
+        {
+            // The hasher and the comparator must be called with an lvalue
+            // referring to the key itself, and never with a
+            // `bslmf::MovableRef` wrapper around it or with an rvalue.  The
+            // functors used below accept their arguments only by deduction
+            // and reject rvalues, so any such call fails to compile.
+
+            typedef bslmf::MovableRefUtil    MoveUtil;
+            typedef bsltf::MovableTestType   Key;
+            typedef MapKeyConfiguration<const Key, bsl::pair<const Key, int> >
+                                             MapConfig;
+            typedef SetKeyConfiguration<Key> SetConfig;
+
+            typedef bslstl::HashTable<MapConfig,
+                                      MovableRefTestHasher,
+                                      MovableRefTestComparator>
+                Map;
+
+            typedef bslstl::HashTable<MapConfig,
+                                      TransparentMovableRefTestHasher,
+                                      TransparentMovableRefTestComparator>
+                TransMap;
+
+            typedef bslstl::HashTable<SetConfig,
+                                      TransparentMovableRefTestHasher,
+                                      TransparentMovableRefTestComparator>
+                TransSet;
+
+            bslalg::BidirectionalLink *link;
+            bool                       isInserted = false;
+
+            if (veryVerbose) printf("\tTesting non-transparent functors\n");
+            {
+                Map        mX;
+                const Map& X = mX;
+
+                Key mKey(1);
+                link = mX.tryEmplace(&isInserted, 0, MoveUtil::move(mKey), 7);
+                ASSERT(isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(bsltf::MoveState::e_MOVED == mKey.movedFrom());
+                ASSERT(1 == ImpUtil::extractKey<MapConfig>(link).data());
+                ASSERT(7 == ImpUtil::extractValue<MapConfig>(link).second);
+
+                // The key is already present, so nothing happens.
+
+                Key mSameKey(1);
+                link =
+                    mX.tryEmplace(&isInserted, 0, MoveUtil::move(mSameKey), 8);
+                ASSERT(!isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(7 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED == mSameKey.movedFrom());
+
+                // The key is already present, so the value is assigned.
+
+                Key mAssignKey(1);
+                link = mX.insertOrAssign(&isInserted,
+                                         0,
+                                         MoveUtil::move(mAssignKey),
+                                         9);
+                ASSERT(!isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(9 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                                                       mAssignKey.movedFrom());
+
+                // Hints that do and do not refer to the matching element.
+
+                Key                        mOtherKey(2);
+                bslalg::BidirectionalLink *other = mX.tryEmplace(
+                                                     &isInserted,
+                                                     0,
+                                                     MoveUtil::move(mOtherKey),
+                                                     2);
+                ASSERT(isInserted);
+                ASSERT(2 == X.size());
+                ASSERT(bsltf::MoveState::e_MOVED == mOtherKey.movedFrom());
+
+                Key mHintKey(1);
+                ASSERT(link == mX.tryEmplace(&isInserted,
+                                             link,
+                                             MoveUtil::move(mHintKey),
+                                             8));
+                ASSERT(!isInserted);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED == mHintKey.movedFrom());
+
+                Key mOtherHintKey(1);
+                ASSERT(link == mX.tryEmplace(&isInserted,
+                                             other,
+                                             MoveUtil::move(mOtherHintKey),
+                                             8));
+                ASSERT(!isInserted);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                       mOtherHintKey.movedFrom());
+
+                Key mAssignHintKey(1);
+                ASSERT(link ==
+                       mX.insertOrAssign(&isInserted,
+                                         other,
+                                         MoveUtil::move(mAssignHintKey),
+                                         10));
+                ASSERT(!isInserted);
+                ASSERT(10 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                       mAssignHintKey.movedFrom());
+
+                Key mAssignMatchKey(1);
+                ASSERT(link ==
+                       mX.insertOrAssign(&isInserted,
+                                         link,
+                                         MoveUtil::move(mAssignMatchKey),
+                                         11));
+                ASSERT(!isInserted);
+                ASSERT(11 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                       mAssignMatchKey.movedFrom());
+
+                Key mNewHintKey(3);
+                link = mX.insertOrAssign(&isInserted,
+                                         other,
+                                         MoveUtil::move(mNewHintKey),
+                                         3);
+                ASSERT(isInserted);
+                ASSERT(3 == X.size());
+                ASSERT(3 == ImpUtil::extractKey<MapConfig>(link).data());
+                ASSERT(3 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_MOVED == mNewHintKey.movedFrom());
+            }
+
+            if (veryVerbose) printf("\tTesting transparent functors\n");
+            {
+                TransMap        mX;
+                const TransMap& X = mX;
+
+                Key mKey(1);
+                link = mX.tryEmplace(&isInserted, 0, MoveUtil::move(mKey), 7);
+                ASSERT(isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(bsltf::MoveState::e_MOVED == mKey.movedFrom());
+                ASSERT(1 == ImpUtil::extractKey<MapConfig>(link).data());
+                ASSERT(7 == ImpUtil::extractValue<MapConfig>(link).second);
+
+                Key mSameKey(1);
+                link =
+                    mX.tryEmplace(&isInserted, 0, MoveUtil::move(mSameKey), 8);
+                ASSERT(!isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(7 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED == mSameKey.movedFrom());
+
+                Key mAssignKey(1);
+                link = mX.insertOrAssign(&isInserted,
+                                         0,
+                                         MoveUtil::move(mAssignKey),
+                                         9);
+                ASSERT(!isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(9 == ImpUtil::extractValue<MapConfig>(link).second);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                                                       mAssignKey.movedFrom());
+
+                Key                        mOtherKey(2);
+                bslalg::BidirectionalLink *other =
+                   mX.tryEmplace(&isInserted, 0, MoveUtil::move(mOtherKey), 2);
+                ASSERT(isInserted);
+
+                Key mOtherHintKey(1);
+                ASSERT(link == mX.tryEmplace(&isInserted,
+                                             other,
+                                             MoveUtil::move(mOtherHintKey),
+                                             8));
+                ASSERT(!isInserted);
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                                                    mOtherHintKey.movedFrom());
+            }
+
+            if (veryVerbose) printf("\tTesting lookup with a moved key\n");
+            {
+                TransSet        mX;
+                const TransSet& X = mX;
+
+                const Key PRESENT(1);
+                const Key ABSENT(2);
+                mX.insert(PRESENT);
+                ASSERT(1 == X.size());
+
+                Key mBucketKey(1);
+                ASSERT(X.bucketIndexForKey(PRESENT) ==
+                       X.bucketIndexForKey(MoveUtil::move(mBucketKey)));
+
+                Key mFindKey(1);
+                Key mMissingKey(2);
+                ASSERT(0 != X.find(MoveUtil::move(mFindKey)));
+                ASSERT(0 == X.find(MoveUtil::move(mMissingKey)));
+                ASSERT(0 == X.find(ABSENT));
+
+                bslalg::BidirectionalLink *first;
+                bslalg::BidirectionalLink *last;
+                Key                        mRangeKey(1);
+                X.findRange(&first, &last, MoveUtil::move(mRangeKey));
+                ASSERT(0 != first);
+                ASSERT(last == first->nextLink());
+                ASSERT(bsltf::MoveState::e_NOT_MOVED == mRangeKey.movedFrom());
+            }
+
+            if (veryVerbose) printf("\tTesting `insertIfMissing`\n");
+            {
+                typedef bslstl::HashTable<SetConfig,
+                                          MovableRefTestHasher,
+                                          MovableRefTestComparator>
+                    Set;
+
+                Set        mX;
+                const Set& X = mX;
+
+                Key mValue(1);
+                link = mX.insertIfMissing(&isInserted,
+                                          MoveUtil::move(mValue));
+                ASSERT(isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(bsltf::MoveState::e_MOVED == mValue.movedFrom());
+                ASSERT(1 == ImpUtil::extractKey<SetConfig>(link).data());
+
+                Key mSameValue(1);
+                link = mX.insertIfMissing(&isInserted,
+                                          MoveUtil::move(mSameValue));
+                ASSERT(!isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                                                       mSameValue.movedFrom());
+
+                Map mY;
+
+                Key mKey(1);
+                link = mY.insertKeyIfMissing(&isInserted,
+                                             MoveUtil::move(mKey));
+                ASSERT(isInserted);
+                ASSERT(1 == mY.size());
+                ASSERT(1 == ImpUtil::extractKey<MapConfig>(link).data());
+                ASSERT(bsltf::MoveState::e_MOVED == mKey.movedFrom());
+
+                Key mSameKey(1);
+                mY.insertKeyIfMissing(&isInserted, MoveUtil::move(mSameKey));
+                ASSERT(!isInserted);
+                ASSERT(1 == mY.size());
+                ASSERT(bsltf::MoveState::e_NOT_MOVED == mSameKey.movedFrom());
+
+                TransSet mZ;
+
+                Key mTransKey(1);
+                link = mZ.insertKeyIfMissing(&isInserted,
+                                             MoveUtil::move(mTransKey));
+                ASSERT(isInserted);
+                ASSERT(1 == mZ.size());
+                ASSERT(1 == ImpUtil::extractKey<SetConfig>(link).data());
+                ASSERT(bsltf::MoveState::e_MOVED == mTransKey.movedFrom());
+
+                Key mSameTransKey(1);
+                mZ.insertKeyIfMissing(&isInserted,
+                                     MoveUtil::move(mSameTransKey));
+                ASSERT(!isInserted);
+                ASSERT(1 == mZ.size());
+                ASSERT(bsltf::MoveState::e_NOT_MOVED ==
+                                                    mSameTransKey.movedFrom());
+
+                // The `const` key of a moved `Pair` is copied, not moved, so
+                // its moved-from state is not checked below.
+
+                typedef bsl::pair<const Key, int> Pair;
+
+                Map mW;
+
+                Pair mPair(Key(1), 1);
+                link = mW.insertIfMissing(&isInserted, MoveUtil::move(mPair));
+                ASSERT(isInserted);
+                ASSERT(1 == mW.size());
+                ASSERT(1 == ImpUtil::extractKey<MapConfig>(link).data());
+                ASSERT(1 == ImpUtil::extractValue<MapConfig>(link).second);
+
+                Pair       mMovedPair(Key(1), 2);
+                const Pair copiedPair(Key(1), 3);
+                link = mW.insertIfMissing(&isInserted,
+                                          MoveUtil::move(mMovedPair));
+                ASSERT(!isInserted);
+                link = mW.insertIfMissing(&isInserted, copiedPair);
+                ASSERT(!isInserted);
+                ASSERT(1 == mW.size());
+                ASSERT(1 == ImpUtil::extractValue<MapConfig>(link).second);
+            }
+
+            if (veryVerbose) printf("\tTesting `insertIfMissing` with"
+                                    " duplicate values where the value is the"
+                                    " key\n");
+            {
+                typedef CopyMoveCountKey                      CountKey;
+                typedef SetKeyConfiguration<CountKey>         CountSetConfig;
+                typedef bslstl::HashTable<CountSetConfig,
+                                          MovableRefTestHasher,
+                                          MovableRefTestComparator>
+                    CountSet;
+
+                CountSet        mX;
+                const CountSet& X = mX;
+
+                CountKey::resetCounters();
+
+                CountKey mValue(1);
+                mX.insertIfMissing(&isInserted, mValue);
+                ASSERT(isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(1 == CountKey::numCopies());
+                ASSERT(0 == CountKey::numMoves());
+
+                CountKey mSameValue(1);
+                mX.insertIfMissing(&isInserted, mSameValue);
+                ASSERT(!isInserted);
+                mX.insertIfMissing(&isInserted, MoveUtil::move(mSameValue));
+                ASSERT(!isInserted);
+                ASSERT(1 == X.size());
+                ASSERT(1 == CountKey::numCopies());
+                ASSERT(0 == CountKey::numMoves());
+            }
+        }
       } break;
       case 24: {
         // --------------------------------------------------------------------

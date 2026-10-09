@@ -56,8 +56,8 @@ using namespace BloombergLP::bslalg;
 // ----------------------------------------------------------------------------
 // [10] remove(HashTableAnchor *a, BidirectionalLink *l, size_t  h);
 // [10] bucketContainsLink(const Bucket& b, BidirectionalLink *l);
-// [ 9] find(const HashTableAnchor& a, KeyType& key, comparator, size_t h);
-// [12] findTransparent(const HashTableAnchor& a, key, comparator, size_t h);
+// [ 9] find(const HashTableAnchor& a, LOOKUP_KEY& key, comparator, size_t h);
+// [12] CONCERN: `find` supports transparent comparators.
 // [ 8] rehash(  HashTableAnchor *a, BidirectionalLink *r, const HASHER& h);
 // [ 7] isWellFormed(const HashTableAnchor& anchor, bslma::Allocator *a = 0);
 // [ 6] insertAtPosition(Anchor *a, Link *l, size_t h, Link  *p);
@@ -793,11 +793,11 @@ int main(int argc, char *argv[])
       } break;
       case 12: {
         // --------------------------------------------------------------------
-        // TESTING `findTransparent`
+        // TESTING `find` WITH A TRANSPARENT COMPARATOR
         // --------------------------------------------------------------------
 
-        if (verbose) printf("TESTING `findTransparent`\n"
-                            "=========================\n");
+        if (verbose) printf("TESTING `find` WITH A TRANSPARENT COMPARATOR\n"
+                            "============================================\n");
 
         bslma::TestAllocator da("defaultAllocator", veryVeryVeryVerbose);
         bslma::DefaultAllocatorGuard defaultGuard(&da);
@@ -864,11 +864,10 @@ int main(int argc, char *argv[])
 
         ASSERT((Obj::isWellFormed<TestPolicy>(anchor, hasher)));
 
-        ASSERT(node014 == (Obj::findTransparent<TestPolicy>(
-                                                           ANCHOR,
-                                                           IntHolder(014),
-                                                           TransparentEquals(),
-                                                           0)));
+        const IntHolder KEY014(014);
+        ASSERT(
+              node014 ==
+              (Obj::find<TestPolicy>(ANCHOR, KEY014, TransparentEquals(), 0)));
 
         Link *links[035];
         memset(links, 0, sizeof(links));
@@ -892,11 +891,12 @@ int main(int argc, char *argv[])
         links[034] = node034;
 
         for (int i = 0; i < ARRAY_LENGTH(links); ++i) {
-            ASSERTV(i, links[i] == (Obj::findTransparent<TestPolicy>(
-                                                           ANCHOR,
-                                                           IntHolder(i),
-                                                           TransparentEquals(),
-                                                           i % 2)));
+            const IntHolder KEY(i);
+            ASSERTV(i,
+                    links[i] == (Obj::find<TestPolicy>(ANCHOR,
+                                                       KEY,
+                                                       TransparentEquals(),
+                                                       i % 2)));
         }
 
         for (int i = 0; i < ARRAY_LENGTH(links); ++i) {
@@ -1452,8 +1452,9 @@ int main(int argc, char *argv[])
                                matches, matches + ARRAY_LENGTH(matches)));
         }
 
+        const int KEY014 = 014;
         ASSERT(node014 == (Obj::find<TestPolicy, Equals<int> >(ANCHOR,
-                                                               014,
+                                                               KEY014,
                                                                Equals<int>(),
                                                                0)));
 

@@ -608,8 +608,8 @@ BSLS_IDENT("$Id: $")
 // {
 // }
 // ```
-// As with `MyHashedSet`, the `insertIfMissing` method of `bslstl::HashTable`
-// provides the semantics we need: an element is inserted only if no such
+// As with `MyHashedSet`, `bslstl::HashTable::insertKeyIfMissing` provides the
+// semantics we need: an element is inserted only if no such
 // element (no element with the same key) in the container, and a reference to
 // that element (`node`) is returned.  Here, we use `node` to obtain and return
 // a reference offering modifiable access to the `second` member of the
@@ -631,7 +631,8 @@ BSLS_IDENT("$Id: $")
 //     typedef typename HashTable::NodeType           HashTableNode;
 //     typedef BloombergLP::bslalg::BidirectionalLink HashTableLink;
 //
-//     HashTableLink *node = d_impl.insertIfMissing(key);
+//     bool           isInserted;  // not used
+//     HashTableLink *node = d_impl.insertKeyIfMissing(&isInserted, key);
 //     return static_cast<HashTableNode *>(node)->value().second;
 // }
 // ```
@@ -1075,7 +1076,7 @@ BSLS_IDENT("$Id: $")
 //
 //       typedef BloombergLP::bslstl::HashTableIterator<const MySalesRecord,
 //                                                      difference_type>
-//                                                             ItrByOrderNumber;
+//                                                            ItrByOrderNumber;
 // ```
 // The `ItrPtrById` type is used to provide access to the elements of the other
 // hashtables, the ones that store pointers into the first hashtable.
@@ -1458,6 +1459,7 @@ BSLS_IDENT("$Id: $")
 #include <bslmf_ispointer.h>
 #include <bslmf_istransparentpredicate.h>
 #include <bslmf_movableref.h>
+#include <bslmf_removereference.h>
 #include <bslmf_util.h>    // 'forward(V)'
 
 #include <bsls_assert.h>
@@ -1590,9 +1592,10 @@ class HashTable_HashWrapper {
 
     // ACCESSORS
 
-    /// Call the wrapped `functor` with the specified `arg` and return the
-    /// result.  Note that `ARG_TYPE` will typically be deduced as a `const`
-    /// type.
+    /// Call the wrapped `functor` with the specified `arg`, unwrapping
+    /// `arg` first if `ARG_TYPE` is a `bslmf::MovableRef` type, and return
+    /// the result.  Note that `ARG_TYPE` will typically be deduced as a
+    /// `const` type.
     template <class ARG_TYPE>
     std::size_t operator()(ARG_TYPE& arg) const;
 
@@ -1628,9 +1631,10 @@ class HashTable_HashWrapper<const FUNCTOR> {
 
     // ACCESSORS
 
-    /// Call the wrapped `functor` with the specified `arg` and return the
-    /// result.  Note that `ARG_TYPE` will typically be deduced as a `const`
-    /// type.
+    /// Call the wrapped `functor` with the specified `arg`, unwrapping
+    /// `arg` first if `ARG_TYPE` is a `bslmf::MovableRef` type, and return
+    /// the result.  Note that `ARG_TYPE` will typically be deduced as a
+    /// `const` type.
     template <class ARG_TYPE>
     std::size_t operator()(ARG_TYPE& arg) const;
 
@@ -1662,9 +1666,10 @@ class HashTable_HashWrapper<FUNCTOR &> {
 
     // ACCESSORS
 
-    /// Call the wrapped `functor` with the specified `arg` and return the
-    /// result.  Note that `ARG_TYPE` will typically be deduced as a `const`
-    /// type.
+    /// Call the wrapped `functor` with the specified `arg`, unwrapping
+    /// `arg` first if `ARG_TYPE` is a `bslmf::MovableRef` type, and return
+    /// the result.  Note that `ARG_TYPE` will typically be deduced as a
+    /// `const` type.
     template <class ARG_TYPE>
     std::size_t operator()(ARG_TYPE& arg) const;
 
@@ -1714,8 +1719,9 @@ class HashTable_ComparatorWrapper {
     // ACCESSORS
 
     /// Call the wrapped `functor` with the specified `arg1` and `arg2` (in
-    /// that order) and return the result.  Note that `ARGn_TYPE` will
-    /// typically be deduced as a `const` type.
+    /// that order), unwrapping either argument first if its `ARGn_TYPE` is
+    /// a `bslmf::MovableRef` type, and return the result.  Note that
+    /// `ARGn_TYPE` will typically be deduced as a `const` type.
     template <class ARG1_TYPE, class ARG2_TYPE>
     bool operator()(ARG1_TYPE& arg1, ARG2_TYPE& arg2) const;
 
@@ -1752,8 +1758,9 @@ class HashTable_ComparatorWrapper<const FUNCTOR> {
     // ACCESSORS
 
     /// Call the wrapped `functor` with the specified `arg1` and `arg2` (in
-    /// that order) and return the result.  Note that `ARGn_TYPE` will
-    /// typically be deduced as a `const` type.
+    /// that order), unwrapping either argument first if its `ARGn_TYPE` is
+    /// a `bslmf::MovableRef` type, and return the result.  Note that
+    /// `ARGn_TYPE` will typically be deduced as a `const` type.
     template <class ARG1_TYPE, class ARG2_TYPE>
     bool operator()(ARG1_TYPE& arg1, ARG2_TYPE& arg2) const;
 
@@ -1786,8 +1793,9 @@ class HashTable_ComparatorWrapper<FUNCTOR &> {
     // ACCESSORS
 
     /// Call the wrapped `functor` with the specified `arg1` and `arg2` (in
-    /// that order) and return the result.  Note that `ARGn_TYPE` will
-    /// typically be deduced as a `const` type.
+    /// that order), unwrapping either argument first if its `ARGn_TYPE` is
+    /// a `bslmf::MovableRef` type, and return the result.  Note that
+    /// `ARGn_TYPE` will typically be deduced as a `const` type.
     template <class ARG1_TYPE, class ARG2_TYPE>
     bool operator()(ARG1_TYPE& arg1, ARG2_TYPE& arg2) const;
 
@@ -1874,6 +1882,20 @@ class HashTable {
     /// This typedef is a convenient alias for the utility associated with
     /// movable references.
     typedef bslmf::MovableRefUtil                               MoveUtil;
+
+    /// This metafunction is `true` if the (template parameter) `t_KEY` can be
+    /// used to look up elements in this hash table: either
+    /// `bslmf::MovableRefUtil::Decay<t_KEY>::type` is `NonConstKeyType`, or
+    /// both `HASHER` and `COMPARATOR` are transparent.
+    template <class t_KEY>
+    struct IsLookupKey
+    : bsl::integral_constant<
+          bool,
+          bsl::is_same<NonConstKeyType,
+                       typename MoveUtil::Decay<t_KEY>::type>::value ||
+              (bslmf::IsTransparentPredicate<HASHER, t_KEY>::value &&
+               bslmf::IsTransparentPredicate<COMPARATOR, t_KEY>::value)> {
+    };
 
     // CONSISTENCY CHECKS
 
@@ -1980,19 +2002,118 @@ class HashTable {
     /// the extra bookkeeping is not necessary.
     void removeAllImp();
 
+    /// Link the specified `node` into this hash-table and return `node`.  If
+    /// the specified `position` is not null, `node` is linked immediately
+    /// before `position`; otherwise, it is linked at the front of the bucket
+    /// for the specified `hashCode`.  The behavior is undefined unless `node`
+    /// is not already in this hash-table, `hashCode` is the hash code of the
+    /// key of `node`, and `position` is null or refers to an element of this
+    /// hash-table whose key is equivalent to that of `node`.
+    bslalg::BidirectionalLink *linkNode(bslalg::BidirectionalLink *node,
+                                        std::size_t                hashCode,
+                                        bslalg::BidirectionalLink *position);
+
+    /// Insert the specified `node` into this hash-table immediately before the
+    /// first element whose key is equivalent to that of `node`, or, if the
+    /// specified `hint` is not null and refers to such an element, immediately
+    /// before `hint`, and at the front of the bucket for the key of `node` if
+    /// there is no such element.  Return `node`.  This hash-table takes
+    /// ownership of `node`, destroying it if an exception is thrown.  The
+    /// behavior is undefined unless `node` was returned by `createNode` and
+    /// has not been inserted, and `hint` is null or refers to an element of
+    /// this hash-table.
+    bslalg::BidirectionalLink *insertNode(bslalg::BidirectionalLink *node,
+                                          bslalg::BidirectionalLink *hint);
+
+    /// Insert the specified `node` into this hash-table, at the front of the
+    /// bucket for its key, if a key equivalent to that of `node` does not
+    /// already exist in this hash-table, and destroy `node` otherwise.  Load
+    /// `true` into the specified `isInsertedFlag` if `node` was inserted, and
+    /// `false` otherwise.  Return the address of the (possibly newly inserted)
+    /// element whose key is equivalent to that of `node`.  This hash-table
+    /// takes ownership of `node`, destroying it if an exception is thrown.
+    /// The behavior is undefined unless `node` was returned by `createNode`
+    /// and has not been inserted.
+    bslalg::BidirectionalLink *insertNodeIfMissing(
+                                     bool                      *isInsertedFlag,
+                                     bslalg::BidirectionalLink *node);
+
+    /// Insert the specified `value` into this hash-table, at the front of the
+    /// bucket for its key, if a key equivalent to that of `value` does not
+    /// already exist in this hash-table, looking up the key before a new
+    /// `ValueType` object is initialized from `value`.  Load `true` into the
+    /// specified `isInsertedFlag` if `value` was inserted, and `false`
+    /// otherwise.  Return the address of the (possibly newly inserted) element
+    /// whose key is equivalent to that of `value`.  The behavior is undefined
+    /// unless `bslmf::MovableRefUtil::Decay<SOURCE_TYPE>::type` is
+    /// `ValueType`.
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insertValueIfMissing(
+                bool                                           *isInsertedFlag,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value);
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+    /// Return the address of a new node holding a `ValueType` object
+    /// constructed from the specified `args`, having first allocated
+    /// additional buckets, as needed, so that inserting the node preserves the
+    /// invariant `loadFactor <= maxLoadFactor`.  The caller is responsible for
+    /// inserting the node into this hash-table.
+    template <class... ARGS>
+    bslalg::BidirectionalLink *createNode(ARGS&&... args);
+
+    /// Return the address of a new node, created as if by `createNode`,
+    /// holding a `ValueType` object (a `pair`) whose `first` member is
+    /// constructed from the specified `key` and whose `second` member is
+    /// constructed from the specified `mappedArgs`.  The caller is responsible
+    /// for inserting the node into this hash-table.  Note that this overload
+    /// is selected when `ValueType` is not `KeyType`.
+    template <class KEY_ARG, class... ARGS>
+    bslalg::BidirectionalLink *createNodeForKey(
+        bsl::false_type,
+        KEY_ARG&&       key,
+        ARGS&&...       mappedArgs);
+#endif
+
+    /// Return the address of a new node, created as if by `createNode`,
+    /// holding a `ValueType` object constructed from the specified `key`.  The
+    /// caller is responsible for inserting the node into this hash-table.
+    /// Note that this overload is selected when `ValueType` is `KeyType`.
+    template <class KEY_ARG>
+    bslalg::BidirectionalLink *createNodeForKey(
+                               bsl::true_type,
+                               BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG) key);
+
+    /// Implement `insertIfMissing` for the specified `isInsertedFlag` and
+    /// `value`.  The second argument indicates whether
+    /// `bslmf::MovableRefUtil::Decay<SOURCE_TYPE>::type` is `ValueType`, and
+    /// therefore whether the key of `value` can be looked up before a new
+    /// `ValueType` object is initialized from `value`: if it is `true_type`,
+    /// call `insertValueIfMissing`, and otherwise call `emplaceIfMissing`.
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insertIfMissingImp(
+                bool                                           *isInsertedFlag,
+                bsl::true_type,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value);
+    template <class SOURCE_TYPE>
+    bslalg::BidirectionalLink *insertIfMissingImp(
+                bool                                           *isInsertedFlag,
+                bsl::false_type,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value);
+
     // PRIVATE ACCESSORS
 
-    /// Return the address of the first node in this hash table having a key
-    /// that compares equal (according to this hash-table's `comparator`) to
-    /// the specified `key`.  The behavior is undefined unless the specified
-    /// `hashValue` is the hash code for the `key` according to the `hasher`
-    /// functor of this hash table.  Note that this function's
-    /// implementation relies on the supplied `hashValue` rather than
-    /// recomputing it, eliminating some redundant computation for the
-    /// public methods.
-    template <class DEDUCED_KEY>
-    bslalg::BidirectionalLink *find(DEDUCED_KEY& key,
-                                    std::size_t  hashValue) const;
+    /// Load into the specified `hashCode` the hash code of the specified
+    /// `key`, and return the address of the element referred to by the
+    /// specified `hint` if `hint` is not null and that element's key is
+    /// equivalent to `key`, the address of the first element whose key is
+    /// equivalent to `key` otherwise, and a null pointer value if there is no
+    /// such element.  The behavior is undefined unless `hint` is null or
+    /// refers to an element of this hash-table.
+    template <class LOOKUP_KEY>
+    bslalg::BidirectionalLink *findForInsert(
+                                         std::size_t               *hashCode,
+                                         bslalg::BidirectionalLink *hint,
+                                         LOOKUP_KEY&                key) const;
 
     /// Return the address of the bucket at the specified `bucketIndex` in
     /// bucket array of this hash table.  The behavior is undefined unless
@@ -2209,62 +2330,27 @@ class HashTable {
 #endif
 
     /// Insert into this hash-table a newly-created `ValueType` object,
-    /// constructed by forwarding the specified `key` and a
-    /// default-constructed object of the type `ValueType::second_type`, to
-    /// the corresponding constructor of `ValueType`, if `key` does not
-    /// already exist in this hash-table.  Return the address of the
-    /// (possibly newly created and inserted) element in this hash-table
+    /// constructed from the specified `key` if `ValueType` is `KeyType`, and
+    /// from `key` and a default-constructed `ValueType::second_type` object as
+    /// the `first` and `second` members of a `pair` otherwise, if a key
+    /// equivalent to `key` does not already exist in this hash-table.  Load
+    /// `true` into the specified `isInsertedFlag` if a new value was inserted,
+    /// and `false` if an equivalent key was already present.  Return the
+    /// address of the (possibly newly inserted) element in this hash-table
     /// whose key is equivalent to `key`.  If this hash-table contains more
-    /// than one element with the supplied `key`, return the first such
-    /// element (from the contiguous sequence of elements having a matching
-    /// key).  Additional buckets are allocated, as needed, to preserve the
-    /// invariant `loadFactor <= maxLoadFactor`.  If this function tries to
-    /// allocate a number of buckets larger than can be represented by this
-    /// hash table's `SizeType`, a `std::length_error` exception is thrown.
-    /// This method requires that the `ValueType` defined in the (template
-    /// parameter) type `KEY_CONFIG` be `emplace-constructible` into this
-    /// hash-table from a `pair` of arguments representing the key and
-    /// value, respectively (see {Requirements on `KEY_CONFIG`});
-    bslalg::BidirectionalLink *insertIfMissing(const KeyType&             key);
-    bslalg::BidirectionalLink *insertIfMissing(
-                                       bslmf::MovableRef<NonConstKeyType> key);
-
-    /// Insert the specified `value` into this hash-table if a key
-    /// equivalent to that of `value` does not already exist in this
-    /// hash-table.  Return the address of the (possibly newly inserted)
-    /// element in this hash-table whose key is equivalent to that of
-    /// `value`.  If this hash-table contains more than one element with a
-    /// matching key, return the first such element (from the contiguous
-    /// sequence of elements having a matching key).  Additional buckets are
-    /// allocated, as needed, to preserve the invariant
+    /// than one element with an equivalent key, return the first such element
+    /// (from the contiguous sequence of elements having a matching key).
+    /// `key` is not modified unless a new value is inserted.  Additional
+    /// buckets are allocated, as needed, to preserve the invariant
     /// `loadFactor <= maxLoadFactor`.  If this function tries to allocate a
-    /// number of buckets larger than can be represented by this
-    /// hash-table's `SizeType`, a `std::length_error` exception is thrown.
-    /// This method requires that the `ValueType` defined in the (template
-    /// parameter) type `KEY_CONFIG` be `copy-insertable` into this
-    /// hash-table (see {Requirements on `KEY_CONFIG`});
-    bslalg::BidirectionalLink *insertIfMissing(
-                                              bool             *isInsertedFlag,
-                                              const ValueType&  value);
-
-    /// Insert the specified `value` into this hash-table if a key
-    /// equivalent to that of `value` does not already exist in this
-    /// hash-table.  Return the address of the (possibly newly inserted)
-    /// element in this hash-table whose key is equivalent to that of
-    /// `value`.  `value` is left in a valid but unspecified state.  If this
-    /// hash-table contains more than one element with a matching key,
-    /// return the first such element (from the contiguous sequence of
-    /// elements having a matching key).  Additional buckets are allocated,
-    /// as needed, to preserve the invariant `loadFactor <= maxLoadFactor`.
-    /// If this function tries to allocate a number of buckets larger than
-    /// can be represented by this hash-table's `SizeType`, a
-    /// `std::length_error` exception is thrown.  This method requires that
-    /// the `ValueType` defined in the (template parameter) type
-    /// `KEY_CONFIG` be `move-insertable` into this hash-table (see
-    /// {Requirements on `KEY_CONFIG`});
-    bslalg::BidirectionalLink *insertIfMissing(
-                                   bool                        *isInsertedFlag,
-                                   bslmf::MovableRef<ValueType> value);
+    /// number of buckets larger than can be represented by this hash-table's
+    /// `SizeType`, a `std::length_error` exception is thrown.  The program is
+    /// ill-formed unless `bslmf::MovableRefUtil::Decay<KEY_ARG>::type` is
+    /// `NonConstKeyType` or both `HASHER` and `COMPARATOR` are transparent.
+    template <class KEY_ARG>
+    bslalg::BidirectionalLink *insertKeyIfMissing(
+                    bool                                       *isInsertedFlag,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key);
 
     /// Insert into this hash-table a `ValueType` object created from the
     /// specified `value` if a key equivalent to that of such an object does
@@ -2272,85 +2358,25 @@ class HashTable {
     /// (possibly newly inserted) element in this hash-table whose key is
     /// equivalent to that of the object created from `value`.  Load `true`
     /// into the specified `isInsertedFlag` if a new value was inserted, and
-    /// `false` if an equivalent key was already present.  If this
-    /// hash-table contains more than one element with an equivalent key,
-    /// return the first such element (from the contiguous sequence of
-    /// elements having a matching key).  Additional buckets are allocated,
-    /// as needed, to preserve the invariant `loadFactor <= maxLoadFactor`.
-    /// If this function tries to allocate a number of buckets larger than
-    /// can be represented by this hash-table's `SizeType`, a
-    /// `std::length_error` exception is thrown.  This method requires that
-    /// the `ValueType` defined in the (template parameter) type
-    /// `KEY_CONFIG` be `move-insertable` into this hash-table (see
-    /// {Requirements on `KEY_CONFIG`}) and the (template parameter) type
-    /// `SOURCE_TYPE` be implicitly convertible to `ValueType`.
+    /// `false` if an equivalent key was already present.  If this hash-table
+    /// contains more than one element with an equivalent key, return the first
+    /// such element (from the contiguous sequence of elements having a
+    /// matching key).  If `bslmf::MovableRefUtil::Decay<SOURCE_TYPE>::type` is
+    /// `ValueType`, the key of `value` is looked up first, and `value` is
+    /// copied or moved into this hash-table only if it is inserted; otherwise,
+    /// a `ValueType` object is created from `value` first, and destroyed if
+    /// its key is already present.  Additional buckets are allocated, as
+    /// needed, to preserve the invariant `loadFactor <= maxLoadFactor`.  If
+    /// this function tries to allocate a number of buckets larger than can be
+    /// represented by this hash-table's `SizeType`, a `std::length_error`
+    /// exception is thrown.  This method requires that the `ValueType` defined
+    /// in the (template parameter) type `KEY_CONFIG` be
+    /// `emplace-constructible` into this hash-table from `value` (see
+    /// {Requirements on `KEY_CONFIG`}).
     template <class SOURCE_TYPE>
-    bslalg::BidirectionalLink *
-    insertIfMissing(
-                 bool                                          *isInsertedFlag,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE) value);
-
-#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
-    /// Insert into this hash-table a `ValueType` object created from the
-    /// specified `value` if a key equivalent to that of such an object does
-    /// not already exist in this hash-table.  Return the address of the
-    /// (possibly newly inserted) element in this hash-table whose key is
-    /// equivalent to that of the object created from `value`.  Load `true`
-    /// into the specified `isInsertedFlag` if a new value was inserted, and
-    /// `false` if an equivalent key was already present.  If this
-    /// hash-table contains more than one element with an equivalent key,
-    /// return the first such element (from the contiguous sequence of
-    /// elements having a matching key).  Additional buckets are allocated,
-    /// as needed, to preserve the invariant `loadFactor <= maxLoadFactor`.
-    /// If this function tries to allocate a number of buckets larger than
-    /// can be represented by this hash-table's `SizeType`, a
-    /// `std::length_error` exception is thrown.  This method requires that
-    /// the `ValueType` defined in the (template parameter) type
-    /// `KEY_CONFIG` be `move-insertable` into this hash-table (see
-    /// {Requirements on `KEY_CONFIG`}) and the (template parameter) type
-    /// `SOURCE_TYPE` be implicitly convertible to `ValueType`.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
-   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value
-    , bslalg::BidirectionalLink *>::type
-    insertIfMissingTransparent(
-                 bool                                          *isInsertedFlag,
-                 BSLS_COMPILERFEATURES_FORWARD_REF(LOOKUP_KEY)  value)
-    {
-        // Note: implemented inline due to Sun CC compilation error.
-
-        BSLS_ASSERT(isInsertedFlag);
-
-        const LOOKUP_KEY& lvalue = value;
-
-        size_t hashCode = this->d_parameters.hashCodeForTransparentKey(lvalue);
-
-        bslalg::BidirectionalLink *position =
-           bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
-                                                 d_anchor,
-                                                 lvalue,
-                                                 d_parameters.comparator(),
-                                                 hashCode);
-
-        *isInsertedFlag = (!position);
-
-        if(!position) {
-            if (d_size >= d_capacity) {
-                this->rehashForNumBuckets(numBuckets() * 2);
-            }
-
-            position = d_parameters.nodeFactory().emplaceIntoNewNode(
-                             BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
-            bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
-                                                            position,
-                                                            hashCode);
-        ++d_size;
-        }
-
-        return position;
-    }
-#endif
+    bslalg::BidirectionalLink *insertIfMissing(
+                bool                                           *isInsertedFlag,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value);
 
     /// Insert into this hash-table a `ValueType` object created from the
     /// specified `value` and return the address of the newly inserted node.
@@ -2400,80 +2426,20 @@ class HashTable {
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// If a key equivalent to the specified `key` already exists in this
     /// hash-table, assign the specified `obj` to the value associated with
-    /// that key, load `false` into the specified `isInsertedFlag` and
-    /// return a pointer to the existing entry.  Otherwise, insert into this
-    /// hash-table a newly-created `value_type` object, constructed from
-    /// `key` and `obj`, load `true` into `isInsertedFlag`, and return a
-    /// pointer to the newly-created entry.  Use the optionally specified
-    /// `hint` as a starting place for the search for the existing key.
+    /// that key, load `false` into the specified `isInsertedFlag` and return a
+    /// pointer to the existing entry.  Otherwise, insert into this hash-table
+    /// a newly-created `value_type` object, constructed from `key` and `obj`,
+    /// load `true` into `isInsertedFlag`, and return a pointer to the
+    /// newly-created entry.  Use the optionally specified `hint` as a starting
+    /// place for the search for the existing key.  The program is ill-formed
+    /// unless `bslmf::MovableRefUtil::Decay<KEY_ARG>::type` is
+    /// `NonConstKeyType` or both `HASHER` and `COMPARATOR` are transparent.
     template <class KEY_ARG, class BDE_OTHER_TYPE>
     bslalg::BidirectionalLink *insertOrAssign(
-                    bool                                       *isInsertedFlag,
-                    bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BDE_OTHER_TYPE&&                            obj);
-
-    /// If a key equivalent to the specified `key` already exists in this
-    /// hash-table, assign the specified `obj` to the value associated with
-    /// that key, load `false` into the specified `isInsertedFlag` and
-    /// return a pointer to the existing entry.  Otherwise, insert into this
-    /// hash-table a newly-created `value_type` object, constructed from
-    /// `key` and `obj`, load `true` into `isInsertedFlag`, and return a
-    /// pointer to the newly-created entry.  Use the optionally specified
-    /// `hint` as a starting place for the search for the existing key.
-    template <class LOOKUP_KEY, class BDE_OTHER_TYPE>
-    typename bsl::enable_if<
-      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
-   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value
-    , bslalg::BidirectionalLink *>::type
-    insertOrAssignTransparent(bool                       *isInsertedFlag,
-                              bslalg::BidirectionalLink  *hint,
-                              LOOKUP_KEY&&                key,
-                              BDE_OTHER_TYPE&&            obj)
-    {
-        // Note: implemented inline due to Sun CC compilation error.
-
-        typedef bslalg::HashTableImpUtil ImpUtil;
-
-        size_t hashCode = this->d_parameters.hashCodeForTransparentKey(key);
-        // Use the hint, if we can
-        if (!hint
-            || !d_parameters.comparator()(key,
-                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-            hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
-                                                 d_anchor,
-                                                 key,
-                                                 d_parameters.comparator(),
-                                                 hashCode);
-        }
-
-        if (hint) { // assign
-            static_cast<NodeType *>(hint)->value().second =
-                BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
-            *isInsertedFlag = false;
-            return hint;                                              // RETURN
-        }
-
-        // insert
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
-
-        // Make a new node
-        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-            BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-
-        // Add it to the hash table
-        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                                nodeProctor(&d_parameters.nodeFactory(), hint);
-        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
-        nodeProctor.release();
-        ++d_size;
-
-        *isInsertedFlag = true;
-        return hint;
-    }
+                                     bool                      *isInsertedFlag,
+                                     bslalg::BidirectionalLink *hint,
+                                     KEY_ARG&&                  key,
+                                     BDE_OTHER_TYPE&&           obj);
 #endif
 
     /// Re-organize this hash-table to have at least the specified
@@ -2547,118 +2513,23 @@ class HashTable {
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
     /// If a key equivalent to the specified `key` already exists in this
-    /// hash-table, load `false` into the specified `isInsertedFlag` and
-    /// return a pointer to the existing entry.  Otherwise, insert into this
-    /// hash-table a newly-created `value_type` object, constructed from
-    /// `key` and the specified `args`, load `true` into `isInsertedFlag`
-    /// and return a pointer to the newly created entry.  Use the optionally
-    /// specified `hint` as a starting place for the search for the existing
-    /// key.
-    template <class... ARGS>
+    /// hash-table, load `false` into the specified `isInsertedFlag` and return
+    /// a pointer to the existing entry.  Otherwise, insert into this
+    /// hash-table a newly-created `ValueType` object, constructed from `key`
+    /// if `ValueType` is `KeyType`, and from `key` and the specified `args` as
+    /// the `first` and `second` members of a `pair` otherwise, load `true`
+    /// into `isInsertedFlag` and return a pointer to the newly created entry.
+    /// Use the optionally specified `hint` as a starting place for the search
+    /// for the existing key.  The program is ill-formed unless
+    /// `bslmf::MovableRefUtil::Decay<KEY_ARG>::type` is `NonConstKeyType` or
+    /// both `HASHER` and `COMPARATOR` are transparent, and unless `args` is
+    /// empty if `ValueType` is `KeyType`.
+    template <class KEY_ARG, class... ARGS>
     bslalg::BidirectionalLink *tryEmplace(
-                    bool                                       *isInsertedFlag,
-                    bslalg::BidirectionalLink                  *hint,
-                    const KeyType&                              key,
-                    ARGS&&...                                   args);
-
-    /// If a key equivalent to the specified `key` already exists in this
-    /// hash-table, load `false` into the specified `isInsertedFlag` and
-    /// return a pointer to the existing entry.  Otherwise, insert into this
-    /// hash-table a newly-created `value_type` object, constructed from
-    /// `std::forward<KEY>(key)` and the specified `args`, load `true` into
-    /// `isInsertedFlag` and return a pointer to the newly created entry.
-    /// Use the optionally specified `hint` as a starting place for the
-    /// search for the existing key.
-    template <class... ARGS>
-    bslalg::BidirectionalLink *tryEmplace(
-                    bool                                       *isInsertedFlag,
-                    bslalg::BidirectionalLink                  *hint,
-                    bslmf::MovableRef<NonConstKeyType>          key,
-                    ARGS&&...                                   args);
-
-
-    /// If a key equivalent to the specified `key` already exists in this
-    /// hash-table, load `false` into the specified `isInsertedFlag` and
-    /// return a pointer to the existing entry.  Otherwise, insert into this
-    /// hash-table a newly-created `value_type` object, constructed from
-    /// `key` and the specified `args`, load `true` into `isInsertedFlag`
-    /// and return a pointer to the newly created entry.  Use the optionally
-    /// specified `hint` as a starting place for the search for the existing
-    /// key.
-    template <class LOOKUP_KEY, class... ARGS>
-    typename bsl::enable_if<
-      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
-   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
-    bslalg::BidirectionalLink *>::type tryEmplace(
-                                    bool                       *isInsertedFlag,
-                                    bslalg::BidirectionalLink  *hint,
-                                    LOOKUP_KEY&&                key,
-                                    ARGS&&...                   args)
-    {
-        // Note: implemented inline due to Sun CC compilation error.
-
-        typedef bslalg::HashTableImpUtil ImpUtil;
-
-        const std::size_t hashCode =
-                          this->d_parameters.hashCodeForTransparentKey(key);
-
-        // Use the hint, if we can
-        if (!hint
-            || !d_parameters.comparator()(
-                                      key,
-                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-
-                hint = bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
-                                                 d_anchor,
-                                                 key,
-                                                 d_parameters.comparator(),
-                                                 hashCode);
-        }
-
-        // If the key exists, we're done
-        if (hint) {
-            *isInsertedFlag = false;
-            return hint;                                              // RETURN
-        }
-
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
-
-        // Make a new node
-    #if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-         std::piecewise_construct,
-         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key)),
-         std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...));
-    #else
-        typedef typename ValueType::second_type MappedType;
-
-        // TBD: make 'this->allocator()' return the allocator by reference with
-        // modifiable access rather than by value.
-
-        AllocatorType alloc = this->allocator();
-
-        bsls::ObjectBuffer<MappedType> defaultMapped;
-        AllocatorTraits::construct(alloc, defaultMapped.address(),
-                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
-        bslma::DestructorGuard<MappedType> mGuard(defaultMapped.address());
-
-        hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                         BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                         defaultMapped.object());
-    #endif
-
-        // Add it to the hash table
-        HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                                nodeProctor(&d_parameters.nodeFactory(), hint);
-        ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
-        nodeProctor.release();
-        ++d_size;
-
-        *isInsertedFlag = true;
-        return hint;
-    }
+        bool                      *isInsertedFlag,
+        bslalg::BidirectionalLink *hint,
+        KEY_ARG&&                  key,
+        ARGS&&...                  args);
 #endif
 
     // ACCESSORS
@@ -2677,37 +2548,11 @@ class HashTable {
     const bslalg::HashTableBucket& bucketAtIndex(SizeType index) const;
 
     /// Return the index of the bucket that would contain all the elements
-    /// having the specified `key`.
-    SizeType bucketIndexForKey(const KeyType& key) const;
-
-    /// Return the index of the bucket that would contain all the elements
-    /// equivalent to the specified `key`.
+    /// equivalent to the specified `key`.  The program is ill-formed unless
+    /// `bslmf::MovableRefUtil::Decay<LOOKUP_KEY>::type` is `NonConstKeyType`
+    /// or both `HASHER` and `COMPARATOR` are transparent.
     template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
-   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
-                  SizeType>::type
-    bucketIndexForKey(const LOOKUP_KEY& key) const
-    {
-        // Note: implemented inline due to Sun CC compilation error.
-
-        typedef typename
-            HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
-                                                                      SizeType;
-
-        // The following cast will not discard any useful bits, unless
-        // 'SizeType' is larger than 'size_t', as the bucket computation takes
-        // a mod on the supplied number of buckets.  We use the following
-        // 'BSLMF_ASSERT' to assert that assumption at compile time.
-
-        BSLMF_ASSERT(sizeof(SizeType) <= sizeof(size_t));
-
-        size_t hashCode = this->d_parameters.hashCodeForKey(key);
-        return static_cast<SizeType>(
-            bslalg::HashTableImpUtil::computeBucketIndex(
-                                                  hashCode,
-                                                  d_anchor.bucketArraySize()));
-    }
+    SizeType bucketIndexForKey(const LOOKUP_KEY& key) const;
 
     /// Return a reference providing non-modifiable access to the
     /// key-equality comparison functor used by this hash table.
@@ -2722,36 +2567,17 @@ class HashTable {
     /// null pointer value if this hash table is empty.
     bslalg::BidirectionalLink *elementListRoot() const;
 
-    /// Return the address of a link whose key is equivalent to the
-    /// specified `key` (according to this hash-table's `comparator`), and a
-    /// null pointer value if no such link exists.  If this hash-table
-    /// contains more than one element having the supplied `key`, return the
-    /// first such element (from the contiguous sequence of elements having
-    /// the same key).  The behavior is undefined unless `key` is equivalent
-    /// to the elements of at most one equivalent-key group.
+    /// Return the address of a link whose key is equivalent to the specified
+    /// `key` (according to this hash-table's `comparator`), and a null pointer
+    /// value if no such link exists.  If this hash-table contains more than
+    /// one element having the supplied `key`, return the first such element
+    /// (from the contiguous sequence of elements having the same key).  The
+    /// behavior is undefined unless `key` is equivalent to the elements of at
+    /// most one equivalent-key group.  The program is ill-formed unless
+    /// `bslmf::MovableRefUtil::Decay<LOOKUP_KEY>::type` is `NonConstKeyType`
+    /// or both `HASHER` and `COMPARATOR` are transparent.
     template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
-   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
-                  bslalg::BidirectionalLink *>::type
-    find(const LOOKUP_KEY& key) const
-        {
-            // Note: implemented inline due to Sun CC compilation error.
-
-            return bslalg::HashTableImpUtil::findTransparent<KEY_CONFIG>(
-                                             d_anchor,
-                                             key,
-                                             d_parameters.comparator(),
-                                             d_parameters.hashCodeForKey(key));
-        }
-
-    /// Return the address of a link whose key has the same value as the
-    /// specified `key` (according to this hash-table's `comparator`), and a
-    /// null pointer value if no such link exists.  If this hash-table
-    /// contains more than one element having the supplied `key`, return the
-    /// first such element (from the contiguous sequence of elements having
-    /// the same key).
-    bslalg::BidirectionalLink *find(const KeyType& key) const;
+    bslalg::BidirectionalLink *find(const LOOKUP_KEY& key) const;
 
     /// Return the address of the first node after any nodes holding a value
     /// having the same key as the specified `first` node (according to this
@@ -2764,48 +2590,23 @@ class HashTable {
                                        bslalg::BidirectionalLink *first) const;
 
     /// Load into the specified `first` and `last` pointers the respective
-    /// addresses of the first and last link (in the list of elements owned
-    /// by this hash table) where the contained elements have a key that is
+    /// addresses of the first and last link (in the list of elements owned by
+    /// this hash table) where the contained elements have a key that is
     /// equivalent to the specified `key` using the `comparator` of this
-    /// hash-table, and null pointer values if there are no elements
-    /// matching `key`.  The behavior is undefined unless `key` is
-    /// equivalent to the elements of at most one equivalent-key group.
-    /// Note that the output values will form a closed range, where both
-    /// `first` and `last` point to links satisfying the predicate (rather
-    /// than a semi-open range where `last` would point to the element
-    /// following the range).  Also note that this hash-table ensures all
-    /// elements having the same key form a contiguous sequence.
+    /// hash-table, and null pointer values if there are no elements matching
+    /// `key`.  The behavior is undefined unless `key` is equivalent to the
+    /// elements of at most one equivalent-key group.  Note that the output
+    /// values will form a closed range, where both `first` and `last` point to
+    /// links satisfying the predicate (rather than a semi-open range where
+    /// `last` would point to the element following the range).  Also note that
+    /// this hash-table ensures all elements having the same key form a
+    /// contiguous sequence.  The program is ill-formed unless
+    /// `bslmf::MovableRefUtil::Decay<LOOKUP_KEY>::type` is `NonConstKeyType`
+    /// or both `HASHER` and `COMPARATOR` are transparent.
     template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-      BloombergLP::bslmf::IsTransparentPredicate<HASHER,    LOOKUP_KEY>::value
-   && BloombergLP::bslmf::IsTransparentPredicate<COMPARATOR,LOOKUP_KEY>::value,
-                   void>::type
-    findRange(bslalg::BidirectionalLink **first,
-              bslalg::BidirectionalLink **last,
-              const LOOKUP_KEY&           key) const
-        {
-            // Note: implemented inline due to Sun CC compilation error.
-
-            BSLS_ASSERT_SAFE(first);
-            BSLS_ASSERT_SAFE(last);
-
-            *first = this->find(key);
-            *last  = *first ? this->findEndOfRange(*first) : 0;
-        }
-
-    /// Load into the specified `first` and `last` pointers the respective
-    /// addresses of the first and last link (in the list of elements owned
-    /// by this hash table) where the contained elements have a key that
-    /// compares equal to the specified `key` using the `comparator` of this
-    /// hash-table, and null pointer values if there are no elements
-    /// matching `key`.  Note that the output values will form a closed
-    /// range, where both `first` and `last` point to links satisfying the
-    /// predicate (rather than a semi-open range where `last` would point to
-    /// the element following the range).  Also note that this hash-table
-    /// ensures all elements having the same key form a contiguous sequence.
     void findRange(bslalg::BidirectionalLink **first,
                    bslalg::BidirectionalLink **last,
-                   const KeyType&              key) const;
+                   const LOOKUP_KEY&           key) const;
 
     /// Return `true` if the specified `other` has the same value as this
     /// object, and `false` otherwise.  Two `HashTable` objects have the
@@ -3231,19 +3032,6 @@ class HashTable_ImplParameters
     template <class DEDUCED_KEY>
     std::size_t hashCodeForKey(DEDUCED_KEY& key) const;
 
-    /// Return the hash code for the specified `key` using a copy of the
-    /// hash functor supplied at construction.  Note that this function is
-    /// provided as a common way to resolve `const_cast` issues in the case
-    /// that the stored hash functor has a function call operator that is
-    /// not declared as `const`.
-    template <class LOOKUP_KEY>
-    typename bsl::enable_if<
-         BloombergLP::bslmf::IsTransparentPredicate<HASHER, LOOKUP_KEY>::value,
-          std::size_t>::type
-    hashCodeForTransparentKey(const LOOKUP_KEY &key) const {
-        return originalHasher()(key);
-    }
-
     /// Return a reference offering non-modifiable access to the `hasher`
     /// functor owned by this object.
     const BaseHasher& hasher() const;
@@ -3289,7 +3077,7 @@ inline
 std::size_t
 HashTable_HashWrapper<FUNCTOR>::operator()(ARG_TYPE& arg) const
 {
-    return d_functor(arg);
+    return d_functor(bslmf::MovableRefUtil::access(arg));
 }
 
 template <class FUNCTOR>
@@ -3329,7 +3117,7 @@ inline
 std::size_t
 HashTable_HashWrapper<const FUNCTOR>::operator()(ARG_TYPE& arg) const
 {
-    return d_functor(arg);
+    return d_functor(bslmf::MovableRefUtil::access(arg));
 }
 
 template <class FUNCTOR>
@@ -3354,7 +3142,7 @@ inline
 std::size_t
 HashTable_HashWrapper<FUNCTOR &>::operator()(ARG_TYPE& arg) const
 {
-    return d_functor(arg);
+    return d_functor(bslmf::MovableRefUtil::access(arg));
 }
 
 template <class FUNCTOR>
@@ -3390,7 +3178,8 @@ bool
 HashTable_ComparatorWrapper<FUNCTOR>::operator()(ARG1_TYPE& arg1,
                                                  ARG2_TYPE& arg2) const
 {
-    return d_functor(arg1, arg2);
+    return d_functor(bslmf::MovableRefUtil::access(arg1),
+                     bslmf::MovableRefUtil::access(arg2));
 }
 
 template <class FUNCTOR>
@@ -3432,7 +3221,8 @@ bool
 HashTable_ComparatorWrapper<const FUNCTOR>::operator()(ARG1_TYPE& arg1,
                                                        ARG2_TYPE& arg2) const
 {
-    return d_functor(arg1, arg2);
+    return d_functor(bslmf::MovableRefUtil::access(arg1),
+                     bslmf::MovableRefUtil::access(arg2));
 }
 
 template <class FUNCTOR>
@@ -3458,7 +3248,8 @@ bool
 HashTable_ComparatorWrapper<FUNCTOR &>::operator()(ARG1_TYPE& arg1,
                                                    ARG2_TYPE& arg2) const
 {
-    return d_functor(arg1, arg2);
+    return d_functor(bslmf::MovableRefUtil::access(arg1),
+                     bslmf::MovableRefUtil::access(arg2));
 }
 
 template <class FUNCTOR>
@@ -4230,20 +4021,216 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::removeAllImp()
     }
 }
 
-// PRIVATE ACCESSORS
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class DEDUCED_KEY>
 inline
 bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
-                                                  DEDUCED_KEY& key,
-                                                  std::size_t  hashValue) const
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::linkNode(
+                                           bslalg::BidirectionalLink *node,
+                                           std::size_t                hashCode,
+                                           bslalg::BidirectionalLink *position)
 {
-    return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
-                                                     d_anchor,
-                                                     key,
-                                                     d_parameters.comparator(),
-                                                     hashValue);
+    if (position) {
+        bslalg::HashTableImpUtil::insertAtPosition(&d_anchor,
+                                                   node,
+                                                   hashCode,
+                                                   position);
+    }
+    else {
+        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
+                                                        node,
+                                                        hashCode);
+    }
+    ++d_size;
+    return node;
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertNode(
+                                               bslalg::BidirectionalLink *node,
+                                               bslalg::BidirectionalLink *hint)
+{
+    // The hasher and comparator may throw.
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory> nodeProctor(
+                                                   &d_parameters.nodeFactory(),
+                                                   node);
+
+    std::size_t                hashCode;
+    bslalg::BidirectionalLink *position = findForInsert(
+                       &hashCode,
+                       hint,
+                       bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node));
+
+    nodeProctor.release();
+    return linkNode(node, hashCode, position);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertNodeIfMissing(
+                                     bool                      *isInsertedFlag,
+                                     bslalg::BidirectionalLink *node)
+{
+    // The hasher and comparator may throw, and `node` is destroyed if its key
+    // is already present.
+    HashTable_NodeProctor<typename ImplParameters::NodeFactory> nodeProctor(
+                                                   &d_parameters.nodeFactory(),
+                                                   node);
+
+    std::size_t                hashCode;
+    bslalg::BidirectionalLink *position = findForInsert(
+                       &hashCode,
+                       0,
+                       bslalg::HashTableImpUtil::extractKey<KEY_CONFIG>(node));
+
+    *isInsertedFlag = !position;
+    if (position) {
+        return position;                                              // RETURN
+    }
+
+    nodeProctor.release();
+    return linkNode(node, hashCode, 0);
+}
+
+#if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class... ARGS>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::createNode(ARGS&&...args)
+{
+    if (d_size >= d_capacity) {
+        this->rehashForNumBuckets(numBuckets() * 2);
+    }
+
+    return d_parameters.nodeFactory().emplaceIntoNewNode(
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_ARG, class... ARGS>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::createNodeForKey(
+                                                    bsl::false_type,
+                                                    KEY_ARG&&       key,
+                                                    ARGS&&...       mappedArgs)
+{
+#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
+    return createNode(
+        std::piecewise_construct,
+        std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key)),
+        std::forward_as_tuple(BSLS_COMPILERFEATURES_FORWARD(ARGS,
+                                                            mappedArgs)...));
+#else
+    typedef typename ValueType::second_type MappedType;
+
+    // TBD: make 'this->allocator()' return the allocator by reference with
+    // modifiable access rather than by value.
+
+    AllocatorType alloc = this->allocator();
+
+    bsls::ObjectBuffer<MappedType> defaultMapped;
+    AllocatorTraits::construct(alloc,
+                               defaultMapped.address(),
+                               BSLS_COMPILERFEATURES_FORWARD(ARGS,
+                                                             mappedArgs)...);
+    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
+
+    return createNode(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                      defaultMapped.object());
+#endif
+}
+#endif
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_ARG>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::createNodeForKey(
+                                bsl::true_type,
+                                BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG) key)
+{
+    return createNode(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key));
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertValueIfMissing(
+                bool                                           *isInsertedFlag,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value)
+{
+    std::size_t                hashCode;
+    bslalg::BidirectionalLink *position = findForInsert(
+                              &hashCode,
+                              0,
+                              KEY_CONFIG::extractKey(MoveUtil::access(value)));
+
+    *isInsertedFlag = !position;
+    if (position) {
+        return position;                                              // RETURN
+    }
+
+    return linkNode(
+                 createNode(BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value)),
+                 hashCode,
+                 0);
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissingImp(
+                bool                                           *isInsertedFlag,
+                bsl::true_type,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value)
+{
+    return insertValueIfMissing(isInsertedFlag,
+                                BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE,
+                                                              value));
+}
+
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class SOURCE_TYPE>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissingImp(
+                bool                                           *isInsertedFlag,
+                bsl::false_type,
+                BSLS_COMPILERFEATURES_FORWARD_REF(SOURCE_TYPE)  value)
+{
+    return emplaceIfMissing(isInsertedFlag,
+                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
+}
+
+// PRIVATE ACCESSORS
+template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class LOOKUP_KEY>
+inline
+bslalg::BidirectionalLink *
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findForInsert(
+                                          std::size_t               *hashCode,
+                                          bslalg::BidirectionalLink *hint,
+                                          LOOKUP_KEY&                key) const
+{
+    BSLS_ASSERT_SAFE(hashCode);
+
+    typedef bslalg::HashTableImpUtil ImpUtil;
+
+    *hashCode = d_parameters.hashCodeForKey(key);
+
+    if (hint &&
+        d_parameters.comparator()(key,
+                                  ImpUtil::extractKey<KEY_CONFIG>(hint))) {
+        return hint;                                                  // RETURN
+    }
+
+    return ImpUtil::find<KEY_CONFIG>(d_anchor,
+                                     key,
+                                     d_parameters.comparator(),
+                                     *hashCode);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -4318,106 +4305,32 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::operator=(
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class... ARGS>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplace(
                                                            ARGS&&... arguments)
 {
-    typedef bslalg::HashTableImpUtil ImpUtil;
-
-    // Rehash (if appropriate) first as it will reduce load factor and so
-    // potentially improve the 'find' time.
-
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() * 2);
-    }
-
-    // Next we must create the node from the constructor arguments provided.
-
-    bslalg::BidirectionalLink *newNode =
-        d_parameters.nodeFactory().emplaceIntoNewNode(
-                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-
-    // This node needs wrapping in a proctor, in case either of the user-
-    // supplied functors throws an exception.
-
-    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                             nodeProctor(&d_parameters.nodeFactory(), newNode);
-
-    // Now we can search for the node in the table, being careful to compute
-    // the hash value only once.
-
-    size_t hashCode = this->d_parameters.hashCodeForKey(
-                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
-    bslalg::BidirectionalLink *position = this->find(
-                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
-                                      hashCode);
-
-    if (!position) {
-        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
-    }
-    else {
-        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, position);
-    }
-    nodeProctor.release();
-
-    ++d_size;
-
-    return newNode;
+    bslalg::BidirectionalLink *node =
+                 createNode(BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return insertNode(node, 0);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class... ARGS>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceWithHint(
                                           bslalg::BidirectionalLink *hint,
                                           ARGS&&...                  arguments)
 {
-    typedef bslalg::HashTableImpUtil ImpUtil;
-
-    // Rehash (if appropriate) first as it will reduce load factor and so
-    // potentially improve the potential 'find' time later.
-
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() * 2);
-    }
-
-    // Next we must create the node from the constructor arguments provided.
-
-    bslalg::BidirectionalLink *newNode =
-        d_parameters.nodeFactory().emplaceIntoNewNode(
-                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-
-    // There is potential for the user-supplied hasher and comparator to throw,
-    // so now we need to manage our 'newNode' with a proctor.
-
-    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                             nodeProctor(&d_parameters.nodeFactory(), newNode);
-
-    // Insert logic, first test the hint
-
-    size_t hashCode = this->d_parameters.hashCodeForKey(
-                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
-    if (!hint
-     || !d_parameters.comparator()(ImpUtil::extractKey<KEY_CONFIG>(newNode),
-                                   ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(ImpUtil::extractKey<KEY_CONFIG>(newNode), hashCode);
-    }
-
-    if (!hint) {
-        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
-    }
-    else {
-        ImpUtil::insertAtPosition(&d_anchor, newNode, hashCode, hint);
-    }
-    nodeProctor.release();
-
-    ++d_size;
-
-    return newNode;
+    bslalg::BidirectionalLink *node =
+                 createNode(BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return insertNode(node, hint);
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class... ARGS>
+inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
                                               bool             *isInsertedFlag,
@@ -4425,136 +4338,23 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::emplaceIfMissing(
 {
     BSLS_ASSERT(isInsertedFlag);
 
-    typedef bslalg::HashTableImpUtil ImpUtil;
-
-    // Rehash (if appropriate) first as it will reduce load factor and so
-    // potentially improve the potential 'find' time later.
-
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() * 2);
-    }
-
-    // Next we must create the node from the constructor arguments provided.
-
-    bslalg::BidirectionalLink *newNode =
-        d_parameters.nodeFactory().emplaceIntoNewNode(
-                            BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
-
-    // There is potential for the user-supplied hasher and comparator to throw,
-    // so now we need to manage our 'newNode' with a proctor.
-
-    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                             nodeProctor(&d_parameters.nodeFactory(), newNode);
-
-    // Insert logic, first test the hint
-
-    size_t hashCode = this->d_parameters.hashCodeForKey(
-                                     ImpUtil::extractKey<KEY_CONFIG>(newNode));
-    bslalg::BidirectionalLink *position = this->find(
-                                      ImpUtil::extractKey<KEY_CONFIG>(newNode),
-                                      hashCode);
-
-    *isInsertedFlag = (!position);
-
-    if(!position) {
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
-
-        ImpUtil::insertAtFrontOfBucket(&d_anchor, newNode, hashCode);
-        nodeProctor.release();
-
-        ++d_size;
-        position = newNode;
-    }
-
-    return position;
+    bslalg::BidirectionalLink *node =
+                 createNode(BSLS_COMPILERFEATURES_FORWARD(ARGS, arguments)...);
+    return insertNodeIfMissing(isInsertedFlag, node);
 }
 #endif
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class KEY_ARG>
+inline
 bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                                            const KeyType& key)
+HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertKeyIfMissing(
+                    bool                                       *isInsertedFlag,
+                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key)
 {
-    bool dummy = false;
-    return tryEmplace(&dummy, (bslalg::BidirectionalLink*)0, key);
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                        bslmf::MovableRef<NonConstKeyType> key)
-{
-    bool dummy = false;
-    return tryEmplace(&dummy,
-                      (bslalg::BidirectionalLink *)0,
-                       MoveUtil::move(key));
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                              bool             *isInsertedFlag,
-                                              const ValueType&  value)
-{
-    BSLS_ASSERT(isInsertedFlag);
-
-    size_t hashCode = this->d_parameters.hashCodeForKey(
-                                                KEY_CONFIG::extractKey(value));
-    bslalg::BidirectionalLink *position = this->find(
-                                                 KEY_CONFIG::extractKey(value),
-                                                 hashCode);
-
-    *isInsertedFlag = (!position);
-
-    if(!position) {
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
-
-        position = d_parameters.nodeFactory().emplaceIntoNewNode(value);
-        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
-                                                        position,
-                                                        hashCode);
-        ++d_size;
-    }
-
-    return position;
-}
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
-                                   bool                        *isInsertedFlag,
-                                   bslmf::MovableRef<ValueType> value)
-{
-    ValueType& lvalue = value;
-
-    BSLS_ASSERT(isInsertedFlag);
-
-    size_t hashCode = this->d_parameters.hashCodeForKey(
-                                               KEY_CONFIG::extractKey(lvalue));
-    bslalg::BidirectionalLink *position = this->find(
-                                                KEY_CONFIG::extractKey(lvalue),
-                                                hashCode);
-
-    *isInsertedFlag = (!position);
-
-    if(!position) {
-        if (d_size >= d_capacity) {
-            this->rehashForNumBuckets(numBuckets() * 2);
-        }
-
-        position = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                                       MoveUtil::move(lvalue));
-        bslalg::HashTableImpUtil::insertAtFrontOfBucket(&d_anchor,
-                                                        position,
-                                                        hashCode);
-        ++d_size;
-    }
-
-    return position;
+    return tryEmplace(isInsertedFlag,
+                      0,
+                      BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -4567,9 +4367,16 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertIfMissing(
 {
     BSLS_ASSERT(isInsertedFlag);
 
-    return emplaceIfMissing(isInsertedFlag,
-                            BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE, value));
+    typedef bsl::integral_constant<
+        bool,
+        bsl::is_same<ValueType,
+                     typename MoveUtil::Decay<SOURCE_TYPE>::type>::value>
+        CanLookUpFirst;
 
+    return insertIfMissingImp(isInsertedFlag,
+                              CanLookUpFirst(),
+                              BSLS_COMPILERFEATURES_FORWARD(SOURCE_TYPE,
+                                                            value));
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
@@ -4599,48 +4406,35 @@ template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
 template <class KEY_ARG, class BDE_OTHER_TYPE>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::insertOrAssign(
-                    bool                                       *isInsertedFlag,
-                    bslalg::BidirectionalLink                  *hint,
-                    BSLS_COMPILERFEATURES_FORWARD_REF(KEY_ARG)  key,
-                    BDE_OTHER_TYPE&&                            obj)
+                                     bool                      *isInsertedFlag,
+                                     bslalg::BidirectionalLink *hint,
+                                     KEY_ARG&&                  key,
+                                     BDE_OTHER_TYPE&&           obj)
 {
-    typedef bslalg::HashTableImpUtil ImpUtil;
+    BSLMF_ASSERT(IsLookupKey<KEY_ARG>::value);
+    BSLS_ASSERT(isInsertedFlag);
 
-    const KEY_ARG& lvalue = key;
-    size_t         hashCode = this->d_parameters.hashCodeForKey(lvalue);
-    // Use the hint, if we can
-    if (!hint
-        || !d_parameters.comparator()(lvalue,
-                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-        hint = this->find(lvalue, hashCode);
-    }
+    typedef typename bsl::remove_reference<KEY_ARG>::type KeyArg;
 
-    if (hint) { // assign
-        static_cast<NodeType *>(hint)->value().second =
-            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
+    const KeyArg&              lvalue = key;
+    std::size_t                hashCode;
+    bslalg::BidirectionalLink *position = findForInsert(&hashCode,
+                                                        hint,
+                                                        lvalue);
+
+    if (position) {
+        static_cast<NodeType *>(position)->value().second =
+                            BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj);
         *isInsertedFlag = false;
-        return hint;                                                  // RETURN
+        return position;                                              // RETURN
     }
-
-    // insert
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() * 2);
-    }
-
-    // Make a new node
-    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-        BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
-        BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj));
-
-    // Add it to the hash table
-    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                            nodeProctor(&d_parameters.nodeFactory(), hint);
-    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
-    nodeProctor.release();
-    ++d_size;
 
     *isInsertedFlag = true;
-    return hint;
+    return linkNode(
+                createNode(BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                           BSLS_COMPILERFEATURES_FORWARD(BDE_OTHER_TYPE, obj)),
+                hashCode,
+                0);
 }
 #endif
 
@@ -4775,137 +4569,40 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::swap(HashTable& other)
 
 #if !BSLS_COMPILERFEATURES_SIMULATE_CPP11_FEATURES
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class... ARGS>
-inline
+template <class KEY_ARG, class... ARGS>
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
-                    bool                                       *isInsertedFlag,
-                    bslalg::BidirectionalLink                  *hint,
-                    const KeyType&                              key,
-                    ARGS&&...                                   args)
+                                     bool                      *isInsertedFlag,
+                                     bslalg::BidirectionalLink *hint,
+                                     KEY_ARG&&                  key,
+                                     ARGS&&...                  args)
 {
-    typedef bslalg::HashTableImpUtil ImpUtil;
+    BSLMF_ASSERT(IsLookupKey<KEY_ARG>::value);
+    BSLS_ASSERT(isInsertedFlag);
 
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
+    typedef typename bsl::remove_reference<KEY_ARG>::type KeyArg;
 
-    // Use the hint, if we can
-    if (!hint
-        || !d_parameters.comparator()(key,
-                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-         hint = this->find(key, hashCode);
+    const KeyArg&              lvalue = key;
+    std::size_t                hashCode;
+    bslalg::BidirectionalLink *position = findForInsert(&hashCode,
+                                                        hint,
+                                                        lvalue);
+
+    *isInsertedFlag = !position;
+    if (position) {
+        return position;                                              // RETURN
     }
 
-    // If the key exists, we're done
-    if (hint) {
-        *isInsertedFlag = false;
-        return hint;                                                  // RETURN
-    }
+    typedef bsl::integral_constant<bool,
+                                   bsl::is_same<KeyType, ValueType>::value>
+        KeyIsValue;
 
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() * 2);
-    }
-
-    // Make a new node
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-          std::piecewise_construct,
-          std::forward_as_tuple(key),
-          std::forward_as_tuple(std::forward<ARGS>(args)...));
-#else
-    typedef typename ValueType::second_type MappedType;
-
-    // TBD: make 'this->allocator()' return the allocator by reference with
-    // modifiable access rather than by value.
-
-    AllocatorType alloc = this->allocator();
-
-    bsls::ObjectBuffer<MappedType> defaultMapped;
-    AllocatorTraits::construct(alloc, defaultMapped.address(),
-                                                  std::forward<ARGS>(args)...);
-    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
-
-    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                     key,
-                     defaultMapped.object());
-#endif
-
-    // Add it to the hash table
-    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                            nodeProctor(&d_parameters.nodeFactory(), hint);
-    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
-    nodeProctor.release();
-    ++d_size;
-
-    *isInsertedFlag = true;
-    return hint;
-}
-
-
-template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
-template <class... ARGS>
-inline
-bslalg::BidirectionalLink *
-HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::tryEmplace(
-                    bool                                       *isInsertedFlag,
-                    bslalg::BidirectionalLink                  *hint,
-                    bslmf::MovableRef<NonConstKeyType>          key,
-                    ARGS&&...                                   args)
-{
-    typedef bslalg::HashTableImpUtil ImpUtil;
-
-    const KeyType& lvalue = key;
-    const size_t   hashCode = this->d_parameters.hashCodeForKey(key);
-
-    // Use the hint, if we can
-    if (!hint
-        || !d_parameters.comparator()(lvalue,
-                                      ImpUtil::extractKey<KEY_CONFIG>(hint))) {
-         hint = this->find(lvalue, hashCode);
-    }
-
-    // If the key exists, we're done
-    if (hint) {
-        *isInsertedFlag = false;
-        return hint;                                                  // RETURN
-    }
-
-    if (d_size >= d_capacity) {
-        this->rehashForNumBuckets(numBuckets() * 2);
-    }
-
-    // Make a new node
-#if defined(BSLS_LIBRARYFEATURES_HAS_CPP11_PAIR_PIECEWISE_CONSTRUCTOR)
-    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                           std::piecewise_construct,
-                           std::forward_as_tuple(MoveUtil::move(key)),
-                           std::forward_as_tuple(std::forward<ARGS>(args)...));
-#else
-    typedef typename ValueType::second_type MappedType;
-
-    // TBD: make 'this->allocator()' return the allocator by reference with
-    // modifiable access rather than by value.
-
-    AllocatorType alloc = this->allocator();
-
-    bsls::ObjectBuffer<MappedType> defaultMapped;
-    AllocatorTraits::construct(alloc, defaultMapped.address(),
-                                                  std::forward<ARGS>(args)...);
-    bslma::DestructorGuard<MappedType> mappedGuard(defaultMapped.address());
-
-    hint = d_parameters.nodeFactory().emplaceIntoNewNode(
-                                                       MoveUtil::move(key),
-                                                       defaultMapped.object());
-#endif
-
-    // Add it to the hash table
-    HashTable_NodeProctor<typename ImplParameters::NodeFactory>
-                            nodeProctor(&d_parameters.nodeFactory(), hint);
-    ImpUtil::insertAtFrontOfBucket(&d_anchor, hint, hashCode);
-    nodeProctor.release();
-    ++d_size;
-
-    *isInsertedFlag = true;
-    return hint;
+    return linkNode(
+                createNodeForKey(KeyIsValue(),
+                                 BSLS_COMPILERFEATURES_FORWARD(KEY_ARG, key),
+                                 BSLS_COMPILERFEATURES_FORWARD(ARGS, args)...),
+                hashCode,
+                0);
 }
 #endif
 
@@ -4930,13 +4627,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketAtIndex(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class LOOKUP_KEY>
 inline
 typename HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::bucketIndexForKey(
-                                                      const KeyType& key) const
+                                                  const LOOKUP_KEY& key) const
 {
-    typedef typename
-       HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::SizeType SizeType;
+    BSLMF_ASSERT(IsLookupKey<LOOKUP_KEY>::value);
 
     // The following cast will not discard any useful bits, unless 'SizeType'
     // is larger than 'size_t', as the bucket computation takes a mod on the
@@ -4979,11 +4676,14 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::elementListRoot() const
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class LOOKUP_KEY>
 inline
 bslalg::BidirectionalLink *
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::find(
-                                                      const KeyType& key) const
+                                                  const LOOKUP_KEY& key) const
 {
+    BSLMF_ASSERT(IsLookupKey<LOOKUP_KEY>::value);
+
     return bslalg::HashTableImpUtil::find<KEY_CONFIG>(
                                              d_anchor,
                                              key,
@@ -5018,12 +4718,13 @@ HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findEndOfRange(
 }
 
 template <class KEY_CONFIG, class HASHER, class COMPARATOR, class ALLOCATOR>
+template <class LOOKUP_KEY>
 inline
 void
 HashTable<KEY_CONFIG, HASHER, COMPARATOR, ALLOCATOR>::findRange(
                                          bslalg::BidirectionalLink **first,
                                          bslalg::BidirectionalLink **last,
-                                         const KeyType&              key) const
+                                         const LOOKUP_KEY&           key) const
 {
     BSLS_ASSERT_SAFE(first);
     BSLS_ASSERT_SAFE(last);

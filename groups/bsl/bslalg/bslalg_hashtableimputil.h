@@ -694,60 +694,31 @@ struct HashTableImpUtil {
                        BidirectionalLink *link,
                        std::size_t        hashCode);
 
-    /// Return the address of the first link in the list element of
-    /// the specified `anchor`, having a value matching (according to the
-    /// specified `equalityFunctor`) the specified `key` in the bucket that
-    /// holds elements with the specified `hashCode` if such a link exists,
-    /// and return 0 otherwise.  The behavior is undefined unless, for the
-    /// provided `KEY_CONFIG` and some hash function, `HASHER`, `anchor` is
-    /// well-formed (see `isWellFormed`) and `HASHER(key)` returns
-    /// `hashCode`.  `KEY_CONFIG` shall be a
-    /// namespace providing the type names `KeyType` and `ValueType`, as
-    /// well as a function that can be called as if it had the following
-    /// signature:
-    /// ```
-    /// const KeyType& extractKey(const ValueType& obj);
-    /// ```
-    /// `KEY_EQUAL` shall be a functor that can be called as if it had the
-    /// following signature:
-    /// ```
-    /// bool operator()(const KEY_CONFIG::KeyType& key1,
-    ///                 const KEY_CONFIG::KeyType& key2)
-    /// ```
-    template <class KEY_CONFIG, class KEY_EQUAL>
-    static BidirectionalLink *find(
-              const HashTableAnchor&                                    anchor,
-              typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type key,
-              const KEY_EQUAL&                                 equalityFunctor,
-              std::size_t                                            hashCode);
-
     /// Return the address of the first link in the list element of the
     /// specified `anchor` having a value matching (according to the
-    /// specified transparent `equalityFunctor`) the specified `key` in the
-    /// bucket that holds elements with the specified `hashCode` if such a
-    /// link exists, and return 0 otherwise.  The behavior is undefined
-    /// unless, for the provided `KEY_CONFIG` and some hash function,
-    /// `HASHER`, `anchor` is well-formed (see `isWellFormed`) and
-    /// `HASHER(key)` returns `hashCode`.  `KEY_CONFIG` shall be a
-    /// namespace providing the type names `KeyType` and `ValueType`, as
-    /// well as a function that can be called as if it had the following
-    /// signature:
+    /// specified `equalityFunctor`) the specified `key` in the bucket that
+    /// holds elements with the specified `hashCode` if such a link exists,
+    /// and return 0 otherwise.  `key` is passed to `equalityFunctor`
+    /// without conversion, retaining its constness.  The behavior is
+    /// undefined unless, for the provided `KEY_CONFIG` and some hash
+    /// function, `HASHER`, `anchor` is well-formed (see `isWellFormed`) and
+    /// `HASHER(key)` returns `hashCode`.  `KEY_CONFIG` shall be a namespace
+    /// providing the type names `KeyType` and `ValueType`, as well as a
+    /// function that can be called as if it had the following signature:
     /// ```
     /// const KeyType& extractKey(const ValueType& obj);
     /// ```
     /// `KEY_EQUAL` shall be a functor that can be called as if it had the
     /// following signature:
     /// ```
-    /// bool operator()(const LOOKUP_KEY&          key1,
+    /// bool operator()(LOOKUP_KEY&                key1,
     ///                 const KEY_CONFIG::KeyType& key2)
-    ///
     /// ```
-    template <class KEY_CONFIG, class LOOKUP_KEY, class KEY_EQUAL>
-    static BidirectionalLink *findTransparent(
-                                        const HashTableAnchor& anchor,
-                                        const LOOKUP_KEY&      key,
-                                        const KEY_EQUAL&       equalityFunctor,
-                                        std::size_t            hashCode);
+    template <class KEY_CONFIG, class KEY_EQUAL, class LOOKUP_KEY>
+    static BidirectionalLink *find(const HashTableAnchor& anchor,
+                                   LOOKUP_KEY&            key,
+                                   const KEY_EQUAL&       equalityFunctor,
+                                   std::size_t            hashCode);
 
     /// Populate the specified `newHashTable` with all the elements in the
     /// specified `elementList`, using the specified `hasher` to determine
@@ -846,48 +817,28 @@ HashTableImpUtil::extractKey(BidirectionalLink *link)
     return KEY_CONFIG::extractKey(node->value());
 }
 
-template <class KEY_CONFIG, class KEY_EQUAL>
-inline
+template <class KEY_CONFIG, class KEY_EQUAL, class LOOKUP_KEY>
 BidirectionalLink *HashTableImpUtil::find(
-  const HashTableAnchor&                                       anchor,
-  typename HashTableImpUtil_ExtractKeyResult<KEY_CONFIG>::Type key,
-  const KEY_EQUAL&                                             equalityFunctor,
-  std::size_t                                                  hashCode)
-{
-    BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
-    BSLS_ASSERT_SAFE(anchor.bucketArraySize());
-
-    const HashTableBucket *bucket = findBucketForHashCode(anchor, hashCode);
-    BSLS_ASSERT_SAFE(bucket);
-
-    for (BidirectionalLink *cursor     = bucket->first(),
-                           * const end = bucket->end();
-                                 end != cursor; cursor = cursor->nextLink() ) {
-        if (equalityFunctor(key, extractKey<KEY_CONFIG>(cursor))) {
-            return cursor;                                            // RETURN
-        }
-    }
-
-    return 0;
-}
-
-template <class KEY_CONFIG, class LOOKUP_KEY, class KEY_EQUAL>
-inline
-BidirectionalLink *HashTableImpUtil::findTransparent(
                                         const HashTableAnchor& anchor,
-                                        const LOOKUP_KEY&      key,
+                                        LOOKUP_KEY&            key,
                                         const KEY_EQUAL&       equalityFunctor,
                                         std::size_t            hashCode)
 {
+    // `key` is taken as `LOOKUP_KEY&`, not `const LOOKUP_KEY&`, so that a
+    // modifiable key reaches `equalityFunctor` as modifiable; consequently,
+    // `key` must be an lvalue, which is not a restriction in practice, as the
+    // keys supplied by `bslstl::HashTable` are always lvalues.
+
     BSLS_ASSERT_SAFE(anchor.bucketArrayAddress());
     BSLS_ASSERT_SAFE(anchor.bucketArraySize());
 
     const HashTableBucket *bucket = findBucketForHashCode(anchor, hashCode);
     BSLS_ASSERT_SAFE(bucket);
 
-    for (BidirectionalLink *cursor     = bucket->first(),
-                           * const end = bucket->end();
-                                 end != cursor; cursor = cursor->nextLink() ) {
+    for (BidirectionalLink       *cursor = bucket->first(),
+                           *const end    = bucket->end();
+         end != cursor;
+         cursor = cursor->nextLink()) {
         if (equalityFunctor(key, extractKey<KEY_CONFIG>(cursor))) {
             return cursor;                                            // RETURN
         }

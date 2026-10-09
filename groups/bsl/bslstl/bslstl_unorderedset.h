@@ -1167,8 +1167,7 @@ class unordered_set {
     {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
-        HashTableLink *result =
-                d_impl.insertIfMissingTransparent(
+        HashTableLink *result = d_impl.insertKeyIfMissing(
                              &isInsertedFlag,
                              BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, value));
         return ResultType(iterator(result), isInsertedFlag);

@@ -21,8 +21,8 @@
 // regions of C++11 code, then this header contains no code and is not
 // '#include'd in the original header.
 //
-// Generated on Thu Mar 19 20:53:55 2026
-// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+// Generated on Mon Oct 05 17:45:04 2026
+// Command line: sim_cpp11_features.py bslstl_unorderedmap.h
 
 #ifdef COMPILING_BSLSTL_UNORDEREDMAP_H
 
@@ -626,7 +626,7 @@ class unordered_map {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+// Command line: sim_cpp11_features.py bslstl_unorderedmap.h
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
@@ -1235,7 +1235,7 @@ class unordered_map {
     {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
-        HashTableLink *result = d_impl.insertOrAssignTransparent(
+        HashTableLink *result = d_impl.insertOrAssign(
                            &isInsertedFlag,
                            NULL,
                            BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
@@ -1263,7 +1263,7 @@ class unordered_map {
                      BSLS_COMPILERFEATURES_FORWARD_REF(BDE_OTHER_TYPE) obj)
     {
         bool isInsertedFlag = false;
-        HashTableLink *result = d_impl.insertOrAssignTransparent(
+        HashTableLink *result = d_impl.insertOrAssign(
                            &isInsertedFlag,
                            hint.node(),
                            BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
@@ -1355,7 +1355,7 @@ class unordered_map {
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+// Command line: sim_cpp11_features.py bslstl_unorderedmap.h
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
@@ -1698,9 +1698,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
 
         return ResultType(iterator(result), isInsertedFlag);
     }
@@ -1722,9 +1722,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
 
         return ResultType(iterator(result), isInsertedFlag);
@@ -1749,9 +1749,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
 
@@ -1779,9 +1779,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
@@ -1812,9 +1812,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -1848,9 +1848,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -1887,9 +1887,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -1929,9 +1929,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -1974,9 +1974,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2022,9 +2022,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2073,9 +2073,9 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2435,9 +2435,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key));
 
         return iterator(result);
     }
@@ -2455,9 +2455,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01));
 
         return iterator(result);
@@ -2478,9 +2478,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02));
 
@@ -2504,9 +2504,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03));
@@ -2533,9 +2533,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2565,9 +2565,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2600,9 +2600,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2638,9 +2638,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2679,9 +2679,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2723,9 +2723,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2770,9 +2770,9 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
                               BSLS_COMPILERFEATURES_FORWARD(Args_01, args_01),
                               BSLS_COMPILERFEATURES_FORWARD(Args_02, args_02),
                               BSLS_COMPILERFEATURES_FORWARD(Args_03, args_03),
@@ -2815,10 +2815,10 @@ class unordered_map {
         typedef bsl::pair<iterator, bool> ResultType;
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                NULL,
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+                               &isInsertedFlag,
+                               NULL,
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
 
         return ResultType(iterator(result), isInsertedFlag);
     }
@@ -2844,10 +2844,10 @@ class unordered_map {
     {
         bool isInsertedFlag = false;
         HashTableLink *result = d_impl.tryEmplace(
-                                &isInsertedFlag,
-                                hint.node(),
-                                BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
-                                BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
+                               &isInsertedFlag,
+                               hint.node(),
+                               BSLS_COMPILERFEATURES_FORWARD(LOOKUP_KEY, key),
+                               BSLS_COMPILERFEATURES_FORWARD(Args, args)...);
 
         return iterator(result);
     }
@@ -3828,7 +3828,8 @@ typename add_lvalue_reference<VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                                            const key_type& key)
 {
-    HashTableLink *node = d_impl.insertIfMissing(key);
+    bool           isInserted;  // not used
+    HashTableLink *node = d_impl.insertKeyIfMissing(&isInserted, key);
     return static_cast<HashTableNode *>(node)->value().second;
 }
 
@@ -3838,7 +3839,9 @@ typename add_lvalue_reference<VALUE>::type
 unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::operator[](
                                   BloombergLP::bslmf::MovableRef<key_type> key)
 {
-    HashTableLink *node = d_impl.insertIfMissing(
+    bool           isInserted;  // not used
+    HashTableLink *node = d_impl.insertKeyIfMissing(
+                                        &isInserted,
                                         MoveUtil::move(MoveUtil::access(key)));
     return static_cast<HashTableNode *>(node)->value().second;
 }
@@ -3906,7 +3909,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::clear()
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+// Command line: sim_cpp11_features.py bslstl_unorderedmap.h
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
@@ -4913,7 +4916,7 @@ unordered_map<KEY, VALUE, HASH, EQUAL, ALLOCATOR>::swap(unordered_map& other)
 
 #if BSLS_COMPILERFEATURES_SIMULATE_VARIADIC_TEMPLATES
 // {{{ BEGIN GENERATED CODE
-// Command line: sim_cpp11_features.pl bslstl_unorderedmap.h
+// Command line: sim_cpp11_features.py bslstl_unorderedmap.h
 #ifndef BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT
 #define BSLSTL_UNORDEREDMAP_VARIADIC_LIMIT 10
 #endif
