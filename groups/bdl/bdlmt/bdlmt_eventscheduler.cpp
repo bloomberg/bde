@@ -679,6 +679,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_REALTIME)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -706,6 +707,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_REALTIME)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -729,6 +731,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_MONOTONIC)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -756,6 +759,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       &defaultDispatcherFunction)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_MONOTONIC)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -884,6 +888,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_REALTIME)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -912,6 +917,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_REALTIME)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -936,6 +942,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_MONOTONIC)
 , d_running(false)
 , d_dispatcherAwaited(false)
@@ -964,6 +971,7 @@ EventScheduler::EventScheduler(
 , d_dispatcherFunctor(bsl::allocator_arg, basicAllocator,
                       dispatcherFunctor)
 , d_dispatcherThread(bslmt::ThreadUtil::invalidHandle())
+, d_dispatcherThreadId(invalidThreadId())
 , d_queueCondition(bsls::SystemClockType::e_MONOTONIC)
 , d_running(false)
 , d_dispatcherAwaited(false)
